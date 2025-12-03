@@ -1,0 +1,15 @@
+/* src/styles/globals.scss */
+
+/* Tailwind base layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variáveis de tema básicas para evitar erro do "border-border" */
+:root {
+  --border: 220 13% 91%;
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --primary: 222 89% 57%;
+  --primary-foreground: 0 0% 100%;
+}

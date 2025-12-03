@@ -1,0 +1,12 @@
+services:
+  signa_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: signa_app
+    image: signa_front:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+      - /app/node_modules
