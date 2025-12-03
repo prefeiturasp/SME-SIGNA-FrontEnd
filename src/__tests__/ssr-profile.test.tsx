@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import SSRProfile, { getServerSideProps } from '../ssr-profile';
+import SSRProfile, { getServerSideProps } from '../pages/ssr-profile';
 
 // helper para mockar Response-like
 function makeFetchResponse({

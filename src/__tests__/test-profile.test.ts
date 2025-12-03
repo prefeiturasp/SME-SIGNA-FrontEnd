@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Importe o handler da sua rota
 // Ajuste o caminho se necessário:
-import handler from '../api/test-profile';
+import handler from '../pages/api/test-profile';
 
 type Req = {
   query?: Record<string, any>;
