@@ -1,4 +1,5 @@
 // pages/ssr-profile.jsx (debug)
+import React from 'react';
 export async function getServerSideProps(context) {
   const token = context.query.token || null;
 
