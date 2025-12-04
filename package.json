@@ -12,6 +12,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@tanstack/react-query": "^5.90.11",
     "class-variance-authority": "^0.7.1",
@@ -20,6 +21,7 @@
     "next": "16.0.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-hook-form": "^7.67.0",
     "sass": "^1.94.2",
     "shadcn-ui": "^0.9.5",
     "tailwind-merge": "^3.4.0",
