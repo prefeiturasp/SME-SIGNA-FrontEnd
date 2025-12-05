@@ -2,9 +2,9 @@
 
 ## 🥞 Stack
 
--   [Next.js v14](https://nextjs.org/docs)
+-   [Next.js v19](https://nextjs.org/docs)
 -   [React v18](https://react.dev/reference/react)
--   [Tailwindcss v3](https://tailwindcss.com/docs/installation)
+-   [Tailwindcss v4](https://tailwindcss.com/docs/installation)
 -   [Shadcn](https://ui.shadcn.com/docs)
 -   [TypeScript](https://www.typescriptlang.org/docs/)
 -   [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
