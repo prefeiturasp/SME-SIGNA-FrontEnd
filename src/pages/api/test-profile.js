@@ -1,4 +1,3 @@
-import React from 'react';
 export default async function handler(req, res) {
   // pode vir via query ?token=..., ou via header Authorization
   let incoming = req.query.token || req.headers.authorization || '';

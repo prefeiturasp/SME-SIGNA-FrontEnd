@@ -513,9 +513,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       const context = { query: { token } };
 
-      
       const result = await getServerSideProps(context);
-
 
       expect(result).toEqual({
         props: {
