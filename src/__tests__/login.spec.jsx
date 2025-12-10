@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach, afterAll } from "vitest";
-import LoginTela, { getServerSideProps } from "./login";
+import LoginTela, { getServerSideProps } from "../pages/login";
 
 // Mock do Next.js Image
 vi.mock("next/image", () => ({
