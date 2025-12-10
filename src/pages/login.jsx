@@ -1,3 +1,5 @@
+import React from "react";
+import Image from "next/image";
 import { HelpCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
@@ -76,44 +78,21 @@ export default function LoginTela({
     console.log(values.rf_ou_cpf, values.senha);
   };
   return (
-    <div
-      style={{
-        width: "95%",
-        height: "100%",
-        display: "flex",
-        overflow: "none",
-      }}
-    >
-      <img
-        style={{ width: "60vw", height: "100vh" }}
-        src="/images/capa-login.png"
-        alt="Login"
-      />
+    <div className="w-[95%] h-full flex">
+      <div className="w-[60vw] h-screen relative">
+        <Image
+          src="/images/capa-login.png"
+          alt="Login"
+          fill
+          className="object-cover"
+        />
+      </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "40vw",
-          height: "100vh",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            padding: "0 32px 80px 32px",
-          }}
-        >
-          <img src="/images/logo-signa.png" alt="Login" />
+      <div className="flex items-center justify-center w-[40vw] h-screen">
+        <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
+          <Image src="/images/logo-signa.png" alt="Login" width={384} height={100} />
 
-          <div
-            style={{
-              padding: "65px 0px",
-            }}
-          >
+          <div className="py-16">
             <Form {...form}>
               <FormField
                 control={form.control}
@@ -122,13 +101,13 @@ export default function LoginTela({
                   <FormItem>
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
-                        <FormLabel>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
                             RF ou CPF  <HelpCircle className="size-4" />
-                          </FormLabel>                          
+                          </FormLabel>
                         </TooltipTrigger>
-                        <TooltipContent>
-                         Digite seu RF ou CPF
+                        <TooltipContent align="start" className="bg-white text-black">
+                          Digite seu RF ou CPF
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -157,13 +136,13 @@ export default function LoginTela({
                       <FormItem className="flex flex-col">                           
                         <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
-                        <FormLabel>
-                           Senha  <HelpCircle type="outline" className="size-4" />
-                          </FormLabel>                          
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            Senha  <HelpCircle type="outline" className="size-4" />
+                          </FormLabel>
                         </TooltipTrigger>
-                        <TooltipContent>
-                         Digite sua Senha
+                        <TooltipContent align="start" className="bg-white text-black">
+                          Digite sua Senha
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -185,18 +164,13 @@ export default function LoginTela({
                 )}
               />
 
-              <div style={{ marginTop: 10 }}>
+              <div className="mt-2.5">
                 <Button
                   onClick={() => console.log("testw")}
                   type="submit"
                   color="blue"
                   size="lg"
-                  style={{
-                    borderRadius: "4px",
-                    background: "#717FC7",
-                    color: "#fff",
-                    width: "100%",
-                  }}
+                  className="rounded bg-[#717FC7] text-white w-full"
                 >
                   Acessar
                 </Button>
@@ -207,11 +181,7 @@ export default function LoginTela({
                   <TooltipTrigger asChild>
                     <Button
                       variant="link"
-                      style={{
-                        color: "#717FC7",
-                        width: "100%",
-                        alignSelf: "center",
-                      }}
+                      className="text-[#717FC7] w-full self-center"
                     >
                       Esqueci minha senha
                     </Button>
@@ -221,10 +191,12 @@ export default function LoginTela({
               </TooltipProvider>
             </Form>
           </div>
-          <img
-            style={{ width: "149px", height: "46.954px", alignSelf: "center" }}
+          <Image
+            className="self-center"
             src="/images/logo_PrefSP.png"
             alt="Login"
+            width={149}
+            height={47}
           />
         </div>
       </div>

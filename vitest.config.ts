@@ -1,6 +1,12 @@
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   test: {
     environment: "jsdom",
     globals: true,
@@ -10,7 +16,7 @@ export default defineConfig({
     // a opção coverage fica dentro de `test`
     coverage: {
       provider: "v8", // usa @vitest/coverage-v8
-      reporter: ["text", "lcov"],
+      reporter: ["text", "lcov", "html"],
       reportsDirectory: "coverage",
       include: ["src/**/*.{ts,tsx,js,jsx}"],
       exclude: [
