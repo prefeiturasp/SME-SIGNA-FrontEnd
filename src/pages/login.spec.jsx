@@ -3,6 +3,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach, afterAll } from "vitest";
 import LoginTela, { getServerSideProps } from "./login";
+import ReactQueryProvider from "@/lib/ReactQueryProvider";
+
+const pushMock = vi.fn();
+
+vi.mock("next/router", () => ({
+  useRouter: () => ({
+    push: pushMock,
+  }),
+}));
 
 // Mock do Next.js Image
 vi.mock("next/image", () => ({
@@ -29,6 +38,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    pushMock.mockReset();
   });
 
   const originalFetch = global.fetch;
@@ -37,9 +47,16 @@ describe("LoginTela - Testes Unitários Completos", () => {
     global.fetch = originalFetch;
   });
 
+  const renderLogin = (props = defaultProps) =>
+    render(
+      <ReactQueryProvider>
+        <LoginTela {...props} />
+      </ReactQueryProvider>
+    );
+
   describe("1. Acessibilidade e Renderização", () => {
     it("deve renderizar todos os elementos essenciais do formulário", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       // Verifica labels
       expect(screen.getByText(/RF ou CPF/i)).toBeInTheDocument();
@@ -56,7 +73,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     });
 
     it("deve ter inputs acessíveis com ids corretos", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -67,7 +84,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     });
 
     it("deve renderizar as três imagens (capa, logo SIGNA, logo PrefSP)", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const images = screen.getAllByRole("img");
       expect(images).toHaveLength(3);
@@ -78,7 +95,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     });
 
     it("deve renderizar ícones de ajuda (tooltips)", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const helpIcons = screen.getAllByTestId("help-icon");
       expect(helpIcons.length).toBeGreaterThan(0);
@@ -88,7 +105,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
   describe("2. Comportamento de Digitação e Estados do Formulário", () => {
     it("deve permitir digitação no campo RF ou CPF", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       
@@ -99,7 +116,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve permitir digitação no campo Senha", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       
@@ -110,7 +127,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve manter valores independentes nos dois campos", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -124,7 +141,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve permitir limpar e redigitar valores", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       
@@ -140,11 +157,16 @@ describe("LoginTela - Testes Unitários Completos", () => {
   });
 
   describe("3. Interação com Botões", () => {
-    it("deve permitir clicar no botão Acessar", async () => {
+    it("deve permitir clicar no botão Acessar e disparar a mutation de login", async () => {
       const user = userEvent.setup();
-      const consoleLogSpy = vi.spyOn(console, "log");
-      
-      render(<LoginTela {...defaultProps} />);
+
+      const mockResponse = {
+        ok: true,
+        json: vi.fn().mockResolvedValue({ token: "abc123" }),
+      };
+      global.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -154,17 +176,21 @@ describe("LoginTela - Testes Unitários Completos", () => {
       await user.type(senhaInput, "minhasenha");
       await user.click(submitButton);
 
-      // O onClick do botão chama console.log("testw")
       await waitFor(() => {
-        expect(consoleLogSpy).toHaveBeenCalled();
+        expect(global.fetch).toHaveBeenCalledWith(
+          "http://localhost:8000/api/login/",
+          expect.objectContaining({
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+        expect(pushMock).toHaveBeenCalledWith("/ssr-profile");
       });
-
-      consoleLogSpy.mockRestore();
     });
 
     it("deve permitir clicar no botão 'Esqueci minha senha'", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const forgotPasswordButton = screen.getByRole("button", { 
         name: /Esqueci minha senha/i 
@@ -180,7 +206,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
   describe("4. Validação de Formulário (react-hook-form)", () => {
     it("deve inicializar com valores vazios", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -191,7 +217,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve aceitar RF numérico válido", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       
@@ -202,7 +228,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve aceitar CPF válido", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       
@@ -213,11 +239,15 @@ describe("LoginTela - Testes Unitários Completos", () => {
   });
 
   describe("5. Teste de Submit do Formulário", () => {
-    it("deve chamar console.log com os valores corretos ao submeter", async () => {
+    it("deve exibir mensagem de erro quando o login falha", async () => {
       const user = userEvent.setup();
-      const consoleLogSpy = vi.spyOn(console, "log");
-      
-      render(<LoginTela {...defaultProps} />);
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        text: vi.fn().mockResolvedValue("Credenciais inválidas"),
+      });
+
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -227,29 +257,48 @@ describe("LoginTela - Testes Unitários Completos", () => {
       await user.type(senhaInput, "senha123");
       await user.click(submitButton);
 
-      await waitFor(() => {
-        expect(consoleLogSpy).toHaveBeenCalled();
-      });
+      const errorMessage = await screen.findByTestId("login-error");
+      expect(errorMessage).toHaveTextContent("Credenciais inválidas");
 
-      consoleLogSpy.mockRestore();
+      // Tooltip de erro também deve estar presente
+      expect(
+        screen.getByTestId("login-error-tooltip-trigger"),
+      ).toBeInTheDocument();
     });
 
-    it("não deve disparar submit automático apenas com Enter no campo de senha", async () => {
+    it("deve desabilitar o botão enquanto o login está sendo enviado", async () => {
       const user = userEvent.setup();
-      const consoleLogSpy = vi.spyOn(console, "log");
-      
-      render(<LoginTela {...defaultProps} />);
+
+      let resolveFetch;
+      global.fetch = vi.fn().mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveFetch = resolve;
+          }),
+      );
+
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
+      const submitButton = screen.getByRole("button", { name: /Acessar/i });
 
-      await user.type(rfInput, "usuario123");
-      await user.type(senhaInput, "senha123{Enter}");
+      await user.type(rfInput, "usuario@test.com");
+      await user.type(senhaInput, "senha123");
 
-      // Com o código atual, pressionar Enter não dispara submit custom de login
-      expect(consoleLogSpy).not.toHaveBeenCalled();
+      await user.click(submitButton);
 
-      consoleLogSpy.mockRestore();
+      // Enquanto a Promise não é resolvida, o botão deve estar desabilitado
+      expect(submitButton).toBeDisabled();
+
+      resolveFetch({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ token: "abc123" }),
+      });
+
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled();
+      });
     });
   });
 
@@ -264,7 +313,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
         fetchError: null,
       };
 
-      render(<LoginTela {...propsWithToken} />);
+      renderLogin(propsWithToken);
 
       expect(screen.getByRole("button", { name: /Acessar/i })).toBeInTheDocument();
     });
@@ -275,13 +324,13 @@ describe("LoginTela - Testes Unitários Completos", () => {
         fetchError: "Network error",
       };
 
-      render(<LoginTela {...propsWithError} />);
+      renderLogin(propsWithError);
 
       expect(screen.getByRole("button", { name: /Acessar/i })).toBeInTheDocument();
     });
 
     it("deve renderizar corretamente sem token", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
       expect(submitButton).toBeInTheDocument();
@@ -290,7 +339,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
   describe("7. Acessibilidade Avançada", () => {
     it("deve ter estrutura semântica adequada", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const buttons = screen.getAllByRole("button");
       expect(buttons.length).toBeGreaterThanOrEqual(2);
@@ -298,7 +347,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve manter foco navegável entre campos", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -315,7 +364,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
   describe("8. Casos de Borda e Edge Cases", () => {
     it("deve lidar com caracteres especiais no RF/CPF", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       
@@ -326,7 +375,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve lidar com senhas longas", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       const longPassword = "a".repeat(100);
@@ -338,7 +387,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve manter estado do formulário após múltiplas interações", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -358,9 +407,12 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve lidar com submits rápidos consecutivos", async () => {
       const user = userEvent.setup();
-      const consoleLogSpy = vi.spyOn(console, "log");
-      
-      render(<LoginTela {...defaultProps} />);
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ token: "abc123" }),
+      });
+
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -373,25 +425,25 @@ describe("LoginTela - Testes Unitários Completos", () => {
       await user.click(submitButton);
       await user.click(submitButton);
       await user.click(submitButton);
+      await user.click(submitButton);
+      await user.click(submitButton);
 
       await waitFor(() => {
-        expect(consoleLogSpy).toHaveBeenCalled();
+        expect(global.fetch).toHaveBeenCalledTimes(3);
       });
-
-      consoleLogSpy.mockRestore();
     });
   });
 
   describe("9. Layout Responsivo e Estilos", () => {
     it("deve aplicar classes Tailwind corretas no container principal", () => {
-      const { container } = render(<LoginTela {...defaultProps} />);
+      const { container } = renderLogin();
 
       const mainDiv = container.firstChild;
       expect(mainDiv).toHaveClass("w-[95%]", "h-full", "flex");
     });
 
     it("deve renderizar botão de submit com estilos corretos", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
       
@@ -402,7 +454,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
   describe("10. Integração de Componentes", () => {
     it("deve integrar corretamente com react-hook-form", async () => {
       const user = userEvent.setup();
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
@@ -416,7 +468,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     });
 
     it("deve renderizar FormField sem erros", () => {
-      render(<LoginTela {...defaultProps} />);
+      renderLogin();
 
       // Verifica que os FormField renderizaram corretamente
       expect(screen.getByPlaceholderText(/Seu e-mail/i)).toBeInTheDocument();
