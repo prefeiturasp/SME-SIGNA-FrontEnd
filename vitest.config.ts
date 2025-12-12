@@ -26,6 +26,7 @@ export default defineConfig({
         "src/**/?(*.)+(test|spec).{ts,tsx,js,jsx}",
         "node_modules/**",
         ".next/**",
+        'src/lib/**',
       ],
     },
   },

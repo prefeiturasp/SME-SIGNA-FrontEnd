@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach, afterAll } from "vitest";
-import LoginTela from "./login";
+import LoginTela from "@/pages/login";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
 
 const pushMock = vi.fn();
