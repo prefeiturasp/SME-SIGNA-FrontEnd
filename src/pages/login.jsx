@@ -35,9 +35,7 @@ export default function LoginTela() {
 
   const {
     mutateAsync: doLogin,
-    isPending: isLoggingIn,
-    isError: hasLoginError,
-    error: loginError,
+    isPending: isLoggingIn,    
   } = loginMutation;
 
    const [errorMessage, setErrorMessage] = useState("");
@@ -82,7 +80,7 @@ export default function LoginTela() {
                     <FormItem>
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger asChild>
+                          <TooltipTrigger >
                             <FormLabel>
                               RF ou CPF <HelpCircle className="size-4" />
                             </FormLabel>
@@ -116,7 +114,7 @@ export default function LoginTela() {
                     <FormItem className="flex flex-col">
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger asChild>
+                          <TooltipTrigger >
                             <FormLabel>
                               Senha <HelpCircle className="size-4" />
                             </FormLabel>
@@ -161,31 +159,13 @@ export default function LoginTela() {
                       data-testid="login-error"
                     >
                       {errorMessage}
-                    </p>
-
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            aria-label="Mais detalhes do erro de login"
-                            data-testid="login-error-tooltip-trigger"
-                            className="inline-flex items-center justify-center"
-                          >
-                            <HelpCircle className="size-4 text-red-600" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-white text-red-600">
-                          {errorMessage}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    </p>                  
                   </div>
                 )}
 
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger >
                       <Button
                         variant="link"
                         className="text-[#717FC7] w-full self-center"

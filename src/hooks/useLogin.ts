@@ -12,6 +12,8 @@ const useLogin = () => {
 
   return useMutation({
     mutationFn: async ({ rf_ou_cpf, senha }: LoginPayload) => {
+      let errorMessage = "Erro ao fazer login. Verifique suas credenciais.";
+      try {
       const resp = await fetch(
         "https://qa-signa.sme.prefeitura.sp.gov.br/api/usuario/login",
         {
@@ -27,7 +29,7 @@ const useLogin = () => {
       );
 
       if (resp.status !== 200) {
-        let errorMessage = "Erro ao fazer login. Verifique suas credenciais.";
+        
 
           const json = await resp.json();
           if (json?.detail) {
@@ -35,6 +37,13 @@ const useLogin = () => {
           }      
           return { success: false, error: errorMessage };        
         }
+    } catch (err) {
+      return { success: false, error: errorMessage };        
+
+    }
+        
+
+     
 
         
         return { success: true };
