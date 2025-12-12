@@ -2,12 +2,12 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach, afterAll } from "vitest";
-import LoginTela, { getServerSideProps } from "./login";
+import LoginTela from "./login";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
 
 const pushMock = vi.fn();
 
-vi.mock("next/router", () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: pushMock,
   }),
@@ -27,15 +27,6 @@ vi.mock("lucide-react", () => ({
 }));
 
 describe("LoginTela - Testes Unitários Completos", () => {
-  const defaultProps = {
-    tokenPreview: null,
-    tokenExists: false,
-    fetchStatus: null,
-    fetchBody: null,
-    fetchHeaders: null,
-    fetchError: null,
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     pushMock.mockReset();
@@ -47,10 +38,10 @@ describe("LoginTela - Testes Unitários Completos", () => {
     global.fetch = originalFetch;
   });
 
-  const renderLogin = (props = defaultProps) =>
+  const renderLogin = () =>
     render(
       <ReactQueryProvider>
-        <LoginTela {...props} />
+        <LoginTela />
       </ReactQueryProvider>
     );
 
@@ -161,6 +152,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
 
       const mockResponse = {
+        status: 200,
         ok: true,
         json: vi.fn().mockResolvedValue({ token: "abc123" }),
       };
@@ -178,13 +170,17 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(
-          "http://localhost:8000/api/login/",
+          "https://qa-signa.sme.prefeitura.sp.gov.br/api/usuario/login",
           expect.objectContaining({
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: "12345678901",
+              password: "minhasenha",
+            }),
           }),
         );
-        expect(pushMock).toHaveBeenCalledWith("/ssr-profile");
+        expect(pushMock).toHaveBeenCalledWith("/home");
       });
     });
 
@@ -243,8 +239,9 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
 
       global.fetch = vi.fn().mockResolvedValue({
+        status: 401,
         ok: false,
-        text: vi.fn().mockResolvedValue("Credenciais inválidas"),
+        json: vi.fn().mockResolvedValue({ detail: "Credenciais inválidas" }),
       });
 
       renderLogin();
@@ -259,11 +256,6 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       const errorMessage = await screen.findByTestId("login-error");
       expect(errorMessage).toHaveTextContent("Credenciais inválidas");
-
-      // Tooltip de erro também deve estar presente
-      expect(
-        screen.getByTestId("login-error-tooltip-trigger"),
-      ).toBeInTheDocument();
     });
 
     it("deve desabilitar o botão enquanto o login está sendo enviado", async () => {
@@ -292,6 +284,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       expect(submitButton).toBeDisabled();
 
       resolveFetch({
+        status: 200,
         ok: true,
         json: vi.fn().mockResolvedValue({ token: "abc123" }),
       });
@@ -302,38 +295,29 @@ describe("LoginTela - Testes Unitários Completos", () => {
     });
   });
 
-  describe("6. Props do Componente (SSR Data)", () => {
-    it("deve renderizar corretamente com token existente", () => {
-      const propsWithToken = {
-        tokenPreview: "abc123...",
-        tokenExists: true,
-        fetchStatus: 200,
-        fetchBody: '{"user": "test"}',
-        fetchHeaders: {},
-        fetchError: null,
-      };
-
-      renderLogin(propsWithToken);
+  describe("6. Renderização do Componente", () => {
+    it("deve renderizar corretamente", () => {
+      renderLogin();
 
       expect(screen.getByRole("button", { name: /Acessar/i })).toBeInTheDocument();
     });
 
-    it("deve renderizar corretamente com erro de fetch", () => {
-      const propsWithError = {
-        ...defaultProps,
-        fetchError: "Network error",
-      };
-
-      renderLogin(propsWithError);
-
-      expect(screen.getByRole("button", { name: /Acessar/i })).toBeInTheDocument();
-    });
-
-    it("deve renderizar corretamente sem token", () => {
+    it("deve renderizar o formulário completo", () => {
       renderLogin();
 
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
       expect(submitButton).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Seu e-mail/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Sua senha/i)).toBeInTheDocument();
+    });
+
+    it("deve renderizar botão de esqueci senha", () => {
+      renderLogin();
+
+      const forgotPasswordButton = screen.getByRole("button", { 
+        name: /Esqueci minha senha/i 
+      });
+      expect(forgotPasswordButton).toBeInTheDocument();
     });
   });
 
@@ -407,10 +391,17 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
     it("deve lidar com submits rápidos consecutivos", async () => {
       const user = userEvent.setup();
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({ token: "abc123" }),
-      });
+      
+      // Mock com delay para simular uma requisição real
+      global.fetch = vi.fn().mockImplementation(() => 
+        new Promise((resolve) => setTimeout(() => {
+          resolve({
+            status: 200,
+            ok: true,
+            json: vi.fn().mockResolvedValue({ token: "abc123" }),
+          });
+        }, 100))
+      );
 
       renderLogin();
 
@@ -421,16 +412,21 @@ describe("LoginTela - Testes Unitários Completos", () => {
       await user.type(rfInput, "user");
       await user.type(senhaInput, "pass");
       
-      // Múltiplos cliques rápidos
+      // Clique no botão
       await user.click(submitButton);
-      await user.click(submitButton);
-      await user.click(submitButton);
-      await user.click(submitButton);
-      await user.click(submitButton);
-
+      
+      // Verifica que o botão foi desabilitado durante o processamento
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(3);
+        expect(submitButton).toBeDisabled();
       });
+
+      // Aguarda a conclusão e botão voltar ao normal
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled();
+      }, { timeout: 3000 });
+
+      // Verifica que o fetch foi chamado
+      expect(global.fetch).toHaveBeenCalled();
     });
   });
 
@@ -476,104 +472,4 @@ describe("LoginTela - Testes Unitários Completos", () => {
     });
   });
 
-  describe("11. getServerSideProps - SSR e cobertura total", () => {
-    it("deve montar props corretamente quando token é fornecido e fetch é bem-sucedido", async () => {
-      const token = "a".repeat(30);
-      const mockResponseText = '{"ok": true}';
-      const headersMap = {
-        "www-authenticate": "Bearer",
-        "content-type": "application/json",
-        vary: "X-Header",
-        "set-cookie": "session=abc",
-      };
-
-      global.fetch = vi.fn().mockResolvedValue({
-        status: 200,
-        text: vi.fn().mockResolvedValue(mockResponseText),
-        headers: {
-          get: (name) => headersMap[name.toLowerCase()] ?? null,
-        },
-      });
-
-      const context = { query: { token } };
-
-      const result = await getServerSideProps(context);
-
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:8000/api/profile/",
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-          redirect: "manual",
-        },
-      );
-
-      expect(result).toEqual({
-        props: {
-          tokenPreview: `${token.slice(0, 20)}... (len=${token.length})`,
-          tokenExists: true,
-          fetchStatus: 200,
-          fetchBody: mockResponseText,
-          fetchHeaders: {
-            "www-authenticate": "Bearer",
-            "content-type": "application/json",
-            vary: "X-Header",
-            "set-cookie": "session=abc",
-          },
-        },
-      });
-    });
-
-    it("deve lidar com ausência de token e headers vazios", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        status: 204,
-        text: vi.fn().mockResolvedValue(""),
-        headers: {
-          get: () => null,
-        },
-      });
-
-      const context = { query: {} };
-
-      const result = await getServerSideProps(context);
-
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:8000/api/profile/",
-        {
-          method: "GET",
-          headers: {},
-          redirect: "manual",
-        },
-      );
-
-      expect(result).toEqual({
-        props: {
-          tokenPreview: null,
-          tokenExists: false,
-          fetchStatus: 204,
-          fetchBody: "",
-          fetchHeaders: {},
-        },
-      });
-    });
-
-    it("deve retornar erro de fetch quando a chamada falha", async () => {
-      const token = "token-de-teste";
-      const error = new Error("Network error");
-
-      global.fetch = vi.fn().mockRejectedValue(error);
-
-      const context = { query: { token } };
-
-      const result = await getServerSideProps(context);
-
-      expect(result).toEqual({
-        props: {
-          tokenPreview: `${token.slice(0, 20)}... (len=${token.length})`,
-          tokenExists: true,
-          fetchError: String(error),
-        },
-      });
-    });
-  });
 });

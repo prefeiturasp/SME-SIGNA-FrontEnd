@@ -78,21 +78,22 @@ export default function LoginTela() {
                   name="rf_ou_cpf"
                   render={({ field }) => (
                     <FormItem>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger >
-                            <FormLabel>
-                              RF ou CPF <HelpCircle className="size-4" />
-                            </FormLabel>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            align="start"
-                            className="bg-white text-black"
-                          >
-                            Digite seu RF ou CPF
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <div className="flex items-center gap-1">
+                        <FormLabel>RF ou CPF</FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger type="button">
+                              <HelpCircle className="size-4" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              align="start"
+                              className="bg-white text-black"
+                            >
+                              Digite seu RF ou CPF
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
 
                       <FormControl>
                         <Input
@@ -112,21 +113,22 @@ export default function LoginTela() {
                   name="senha"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger >
-                            <FormLabel>
-                              Senha <HelpCircle className="size-4" />
-                            </FormLabel>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            align="start"
-                            className="bg-white text-black"
-                          >
-                            Digite sua Senha
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <div className="flex items-center gap-1">
+                        <FormLabel>Senha</FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger type="button">
+                              <HelpCircle className="size-4" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              align="start"
+                              className="bg-white text-black"
+                            >
+                              Digite sua Senha
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
 
                       <FormControl>
                         <Input
@@ -163,19 +165,13 @@ export default function LoginTela() {
                   </div>
                 )}
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger >
-                      <Button
-                        variant="link"
-                        className="text-[#717FC7] w-full self-center"
-                      >
-                        Esqueci minha senha
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Esqueci minha senha</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="text-[#717FC7] w-full self-center"
+                >
+                  Esqueci minha senha
+                </Button>
               </form>
             </Form>
           </div>
