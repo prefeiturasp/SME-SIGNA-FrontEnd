@@ -91,7 +91,11 @@ export default function LoginTela() {
                       </div>
 
                       <FormControl>
-                        <Input id="seu_rf" placeholder="Seu RF" {...field} />
+                        <Input
+                          id="seu_rf"
+                          placeholder="Seu RF"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
