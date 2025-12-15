@@ -23,7 +23,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import useLogin from "@/hooks/useLogin";
+import useRecuperarSenha from "@/hooks/useRecuperarSenha";
 import Link from "next/link";
 
 export default function RecuperacaoDeSenhaTela() {
@@ -34,40 +34,40 @@ export default function RecuperacaoDeSenhaTela() {
     },
   });
 
-  const loginMutation = useLogin();
+  const recoveryPasswordMutation = useRecuperarSenha();
 
-  const { mutateAsync: doLogin, isPending: isLoggingIn } = loginMutation;
+  const { mutateAsync: fazRecuperarSenha, isPending: estaCarregando } = recoveryPasswordMutation;
 
-  // const [errorMessage, setErrorMessage] = useState(
+  // const [mensagemDeErro, setMensagemDeErro] = useState(
   //   {
   //   message:"Usuário ou RF não encontrado!",
   //   description:""}
   // );
 
-  // const [errorMessage, setErrorMessage] = useState(
+  // const [mensagemDeErro, setMensagemDeErro] = useState(
   //   {
   //   message:"",
   //   description:"Olá John Doe! Desculpe, mas o acesso ao SIGNA é restrito a perfis específicos."}    //Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).
   // );
 
-  const [sucessMessage, setSucessMessage] = useState({
+  const [mensagemDeSucesso, setMensagemDeSucesso] = useState({
     message:
       "Verifique sua caixa de entrada ou lixo eletrônico!",
     description: "Seu link de recuperação de senha foi enviado para ama***********@prefeitura.sme.gov.br",
   });
 
-  const [errorMessage, setErrorMessage] = useState({
+  const [mensagemDeErro, setMensagemDeErro] = useState({
     message: "E-mail não encontrado!",
     description:
       "Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).",
   });
 
   const onSubmit = async (values) => {
-    const response = await doLogin(values);
+    const response = await fazRecuperarSenha(values);
     if (!response.success) {
-      setErrorMessage(response.error);
+      setMensagemDeErro(response.error);
     }
-    setSucessMessage(response.error);
+    setMensagemDeSucesso(response.message);
   };
 
   return (
@@ -95,22 +95,22 @@ export default function RecuperacaoDeSenhaTela() {
               Recuperação de senha
             </h4>
 
-            {errorMessage && (
+            {mensagemDeErro && (
               <Alert
                 variant="destructive"
-                message={errorMessage.message}
-                description={errorMessage.description}
+                message={mensagemDeErro.message}
+                description={mensagemDeErro.description}
               />
             )}
-            {sucessMessage && (
+            {mensagemDeSucesso && (
               <Alert
                 variant="success"
-                message={sucessMessage.message}
-                description={sucessMessage.description}
+                message={mensagemDeSucesso.message}
+                description={mensagemDeSucesso.description}
               />
             )}
 
-            {!errorMessage && (
+            {!mensagemDeErro && (
               <p className="Paragraphy ParagraphyWrapper">
                 Informe o seu usuário ou RF. Você recebera um e-mail com
                 orientações para redefinir sua senha.
@@ -122,7 +122,7 @@ export default function RecuperacaoDeSenhaTela() {
                 {/* RF / CPF */}
                 {/* TODO REFATORAR O CSS E TAMANHOS DE FONTE E ICONES  */}
 
-                {!errorMessage && (
+                {!mensagemDeErro && (
                   <FormField
                     control={form.control}
                     name="seu_rf"
@@ -157,14 +157,14 @@ export default function RecuperacaoDeSenhaTela() {
                     )}
                   />
                 )}
-                {!errorMessage && (
+                {!mensagemDeErro && (
                   <div className="mt-2.5">
                     <Button
                       type="submit"
-                      disabled={isLoggingIn}
+                      disabled={estaCarregando}
                       className="rounded bg-[#717FC7] text-white w-full disabled:opacity-50"
                     >
-                      {isLoggingIn ? "Continuando..." : "Continuar"}
+                      {estaCarregando ? "Continuando..." : "Continuar"}
                     </Button>
                   </div>
                 )}
