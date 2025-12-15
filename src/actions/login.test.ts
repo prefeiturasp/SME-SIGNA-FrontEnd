@@ -38,7 +38,10 @@ describe("loginAction", () => {
         const fakeUser = {
             name: "Fulano",
             email: "f@x.com",
-            cargo: { nome: "Dev" },
+            cpf: "00000000000",
+            login: "fulano",
+            perfil_acesso: { nome: "Dev", codigo: 1 },
+            unidade_lotacao: [{ nomeUnidade: "Unidade", codigo: "1" }],
             token: "jwt_token_top",
         };
 
@@ -47,10 +50,7 @@ describe("loginAction", () => {
 
         axiosPostMock.mockResolvedValueOnce({ data: fakeUser });
 
-        const result = await loginAction({
-            username: "fulano",
-            password: "1234",
-        });
+        const result = await loginAction({ seu_rf: "fulano", senha: "1234" });
 
         expect(axiosPostMock).toHaveBeenCalledWith(
             "https://api.exemplo.com/usuario/login",
@@ -84,10 +84,7 @@ describe("loginAction", () => {
 
         axiosPostMock.mockRejectedValueOnce(axiosError);
 
-        const result = await loginAction({
-            username: "fulano",
-            password: "errado",
-        });
+        const result = await loginAction({ seu_rf: "fulano", senha: "errado" });
 
         expect(result).toEqual({
             success: false,
@@ -101,7 +98,7 @@ describe("loginAction", () => {
         const axiosError = new AxiosError("Erro desconhecido");
         axiosPostMock.mockRejectedValueOnce(axiosError);
 
-        const result = await loginAction({ username: "foo", password: "bar" });
+        const result = await loginAction({ seu_rf: "foo", senha: "bar" });
         expect(result).toEqual({
             success: false,
             error: "Erro na autenticação",
@@ -122,7 +119,7 @@ describe("loginAction", () => {
 
         axiosPostMock.mockRejectedValueOnce(axiosError);
 
-        const result = await loginAction({ username: "erro", password: "500" });
+        const result = await loginAction({ seu_rf: "erro", senha: "500" });
         expect(result).toEqual({
             success: false,
             error: "Erro interno no servidor",
@@ -144,10 +141,7 @@ describe("loginAction", () => {
 
         axiosPostMock.mockRejectedValueOnce(axiosError);
 
-        const result = await loginAction({
-            username: "genérico",
-            password: "123",
-        });
+        const result = await loginAction({ seu_rf: "genérico", senha: "123" });
         expect(result).toEqual({ success: false, error: "Mensagem genérica" });
     });
 });

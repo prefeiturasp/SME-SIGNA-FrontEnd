@@ -17,7 +17,7 @@ export async function loginAction({
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
   try {
-    await axios.post<LoginSuccessResponse>(
+    const { data } = await axios.post<LoginSuccessResponse>(
       `${API_URL}/usuario/login`,
       {
         username: seu_rf,
@@ -26,7 +26,13 @@ export async function loginAction({
       { withCredentials: true }
     );
 
- 
+    cookies().set("auth_token", data.token, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      sameSite: "lax",
+    });
+
     return { success: true };
   } catch (err) {
     const error = err as AxiosError<LoginErrorResponse>;
