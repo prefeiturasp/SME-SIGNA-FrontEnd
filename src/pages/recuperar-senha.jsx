@@ -38,36 +38,43 @@ export default function RecuperacaoDeSenhaTela() {
 
   const { mutateAsync: fazRecuperarSenha, isPending: estaCarregando } = recoveryPasswordMutation;
 
-  // const [mensagemDeErro, setMensagemDeErro] = useState(
-  //   {
-  //   message:"Usuário ou RF não encontrado!",
-  //   description:""}
-  // );
+  
 
-  // const [mensagemDeErro, setMensagemDeErro] = useState(
-  //   {
-  //   message:"",
-  //   description:"Olá John Doe! Desculpe, mas o acesso ao SIGNA é restrito a perfis específicos."}    //Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).
-  // );
+  const [mensagemDeSucesso, setMensagemDeSucesso] = useState();
 
-  const [mensagemDeSucesso, setMensagemDeSucesso] = useState({
-    message:
-      "Verifique sua caixa de entrada ou lixo eletrônico!",
-    description: "Seu link de recuperação de senha foi enviado para ama***********@prefeitura.sme.gov.br",
-  });
-
-  const [mensagemDeErro, setMensagemDeErro] = useState({
-    message: "E-mail não encontrado!",
-    description:
-      "Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).",
-  });
+  const [mensagemDeErro, setMensagemDeErro] = useState();
 
   const onSubmit = async (values) => {
     const response = await fazRecuperarSenha(values);
     if (!response.success) {
       setMensagemDeErro(response.error);
+      setMensagemDeErro({
+        message: "E-mail não encontrado!",
+        description:
+          "Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).",
+      });
+      return;
+
+      // setMensagemDeErro(
+  //   {
+  //   message:"Usuário ou RF não encontrado!",
+  //   description:""}
+  // );
+
+  // setMensagemDeErro(
+  //   {
+  //   message:"",
+  //   description:"Olá John Doe! Desculpe, mas o acesso ao SIGNA é restrito a perfis específicos."}    //Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).
+  // );
     }
     setMensagemDeSucesso(response.message);
+    setMensagemDeSucesso({
+      message:
+        "Verifique sua caixa de entrada ou lixo eletrônico!",
+      description: "Seu link de recuperação de senha foi enviado para ama***********@prefeitura.sme.gov.br",
+    });
+       
+    
   };
 
   return (
@@ -110,7 +117,7 @@ export default function RecuperacaoDeSenhaTela() {
               />
             )}
 
-            {!mensagemDeErro && (
+            {!mensagemDeErro && !mensagemDeSucesso && (
               <p className="Paragraphy ParagraphyWrapper">
                 Informe o seu usuário ou RF. Você recebera um e-mail com
                 orientações para redefinir sua senha.

@@ -21,7 +21,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import useLogin from "@/hooks/useLogin";
-
+import Link from "next/link";
 
 export default function LoginTela() {
   const form = useForm({
@@ -33,21 +33,16 @@ export default function LoginTela() {
 
   const loginMutation = useLogin();
 
-  const {
-    mutateAsync: doLogin,
-    isPending: isLoggingIn,    
-  } = loginMutation;
+  const { mutateAsync: doLogin, isPending: isLoggingIn } = loginMutation;
 
-   const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-    const onSubmit = async (values) => {
-      
-      const response = await doLogin(values);
-      if (!response.success) {
-        setErrorMessage(response.error);
+  const onSubmit = async (values) => {
+    const response = await doLogin(values);
+    if (!response.success) {
+      setErrorMessage(response.error);
     }
-    };
-    
+  };
 
   return (
     <div className="w-[95%] h-full flex">
@@ -96,11 +91,7 @@ export default function LoginTela() {
                       </div>
 
                       <FormControl>
-                        <Input
-                          id="seu_rf"
-                          placeholder="Seu RF"
-                          {...field}
-                        />
+                        <Input id="seu_rf" placeholder="Seu RF" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -161,17 +152,19 @@ export default function LoginTela() {
                       data-testid="login-error"
                     >
                       {errorMessage}
-                    </p>                  
+                    </p>
                   </div>
                 )}
 
-                <Button
-                  type="button"
-                  variant="link"
-                  className="text-[#717FC7] w-full self-center"
-                >
-                  Esqueci minha senha
-                </Button>
+                <Link href="/recuperar-senha" className="w-full">
+                  <Button
+                    asChild
+                    variant="link"
+                    className="text-[#717FC7] w-full"
+                  >
+                    <span>Esqueci minha senha</span>
+                  </Button>
+                </Link>
               </form>
             </Form>
           </div>
