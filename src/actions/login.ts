@@ -26,12 +26,6 @@ export async function loginAction({
       { withCredentials: true }
     );
 
-    cookies().set("auth_token", data.token, {
-      httpOnly: true,
-      secure: true,
-      path: "/",
-      sameSite: "lax",
-    });
 
     return { success: true };
   } catch (err) {
