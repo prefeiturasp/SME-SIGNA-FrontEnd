@@ -98,7 +98,7 @@ export default function LoginTela() {
                       <FormControl>
                         <Input
                           id="seu_rf"
-                          placeholder="Seu e-mail"
+                          placeholder="Seu RF"
                           {...field}
                         />
                       </FormControl>

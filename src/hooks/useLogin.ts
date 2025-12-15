@@ -9,13 +9,13 @@ type LoginPayload = {
 const useLogin = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!;
   return useMutation({
     mutationFn: async ({ seu_rf, senha }: LoginPayload) => {
       let errorMessage = "Erro ao fazer login. Verifique suas credenciais.";
       try {
       const resp = await fetch(
-        "https://qa-signa.sme.prefeitura.sp.gov.br/api/usuario/login",
+        `${API_URL}/usuario/login`,
         {
           method: "POST",
           headers: {
