@@ -69,7 +69,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
 
-      expect(rfInput).toHaveAttribute("id", "rf_ou_cpf");
+      expect(rfInput).toHaveAttribute("id", "seu_rf");
       expect(senhaInput).toHaveAttribute("id", "senha");
       expect(senhaInput).toHaveAttribute("type", "password");
     });

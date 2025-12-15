@@ -29,7 +29,7 @@ import Link from "next/link";
 export default function RecuperacaoDeSenhaTela() {
   const form = useForm({
     defaultValues: {
-      rf_ou_cpf: "",
+      seu_rf: "",
       senha: "",
     },
   });
@@ -125,7 +125,7 @@ export default function RecuperacaoDeSenhaTela() {
                 {!errorMessage && (
                   <FormField
                     control={form.control}
-                    name="rf_ou_cpf"
+                    name="seu_rf"
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-1">
@@ -147,7 +147,7 @@ export default function RecuperacaoDeSenhaTela() {
 
                         <FormControl>
                           <Input
-                            id="rf_ou_cpf"
+                            id="seu_rf"
                             placeholder="Insira seu RF ou CPF"
                             {...field}
                           />
