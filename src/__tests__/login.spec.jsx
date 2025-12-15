@@ -13,9 +13,14 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+const loginActionMock = vi.fn();
+vi.mock("@/actions/login", () => ({
+  loginAction: (...args) => loginActionMock(...args),
+}));
+
 // Mock do Next.js Image
 vi.mock("next/image", () => ({
-  default: ({ src, alt, ...props }) => {
+  default: ({ src, alt, fill, ...props }) => {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} {...props} />;
   },
@@ -156,12 +161,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     it("deve permitir clicar no botão Acessar e disparar a mutation de login", async () => {
       const user = userEvent.setup();
 
-      const mockResponse = {
-        status: 200,
-        ok: true,
-        json: vi.fn().mockResolvedValue({ token: "abc123" }),
-      };
-      global.fetch = vi.fn().mockResolvedValue(mockResponse);
+      loginActionMock.mockResolvedValueOnce({ success: true });
 
       renderLogin();
 
@@ -174,16 +174,9 @@ describe("LoginTela - Testes Unitários Completos", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          `${process.env.NEXT_PUBLIC_API_URL}/usuario/login`,
-          expect.objectContaining({
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              username: "12345678901",
-              password: "minhasenha",
-            }),
-          }),
+        expect(loginActionMock).toHaveBeenCalledWith(
+          { seu_rf: "12345678901", senha: "minhasenha" },
+          expect.anything(),
         );
         expect(pushMock).toHaveBeenCalledWith("/home");
       });
@@ -243,10 +236,9 @@ describe("LoginTela - Testes Unitários Completos", () => {
     it("deve exibir mensagem de erro quando o login falha", async () => {
       const user = userEvent.setup();
 
-      global.fetch = vi.fn().mockResolvedValue({
-        status: 401,
-        ok: false,
-        json: vi.fn().mockResolvedValue({ detail: "Credenciais inválidas" }),
+      loginActionMock.mockResolvedValueOnce({
+        success: false,
+        error: "Credenciais inválidas",
       });
 
       renderLogin();
@@ -266,11 +258,11 @@ describe("LoginTela - Testes Unitários Completos", () => {
     it("deve desabilitar o botão enquanto o login está sendo enviado", async () => {
       const user = userEvent.setup();
 
-      let resolveFetch;
-      global.fetch = vi.fn().mockImplementation(
+      let resolveLogin;
+      loginActionMock.mockImplementationOnce(
         () =>
           new Promise((resolve) => {
-            resolveFetch = resolve;
+            resolveLogin = resolve;
           }),
       );
 
@@ -288,11 +280,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       // Enquanto a Promise não é resolvida, o botão deve estar desabilitado
       expect(submitButton).toBeDisabled();
 
-      resolveFetch({
-        status: 200,
-        ok: true,
-        json: vi.fn().mockResolvedValue({ token: "abc123" }),
-      });
+      resolveLogin({ success: true });
 
       await waitFor(() => {
         expect(submitButton).not.toBeDisabled();
@@ -398,14 +386,8 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       
       // Mock com delay para simular uma requisição real
-      global.fetch = vi.fn().mockImplementation(() => 
-        new Promise((resolve) => setTimeout(() => {
-          resolve({
-            status: 200,
-            ok: true,
-            json: vi.fn().mockResolvedValue({ token: "abc123" }),
-          });
-        }, 100))
+      loginActionMock.mockImplementationOnce(
+        () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 100)),
       );
 
       renderLogin();
@@ -430,8 +412,8 @@ describe("LoginTela - Testes Unitários Completos", () => {
         expect(submitButton).not.toBeDisabled();
       }, { timeout: 3000 });
 
-      // Verifica que o fetch foi chamado
-      expect(global.fetch).toHaveBeenCalled();
+      // Verifica que a action foi chamada
+      expect(loginActionMock).toHaveBeenCalled();
     });
   });
 
