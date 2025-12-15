@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 type LoginPayload = {
-  rf_ou_cpf: string;
+  seu_rf: string;
   senha: string;
 };
 
@@ -11,7 +11,7 @@ const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ rf_ou_cpf, senha }: LoginPayload) => {
+    mutationFn: async ({ seu_rf, senha }: LoginPayload) => {
       let errorMessage = "Erro ao fazer login. Verifique suas credenciais.";
       try {
       const resp = await fetch(
@@ -22,7 +22,7 @@ const useLogin = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: rf_ou_cpf,
+            username: seu_rf,
             password: senha,
           }),
         }

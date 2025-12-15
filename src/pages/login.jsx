@@ -26,7 +26,7 @@ import useLogin from "@/hooks/useLogin";
 export default function LoginTela() {
   const form = useForm({
     defaultValues: {
-      rf_ou_cpf: "",
+      seu_rf: "",
       senha: "",
     },
   });
@@ -75,7 +75,7 @@ export default function LoginTela() {
                 {/* RF / CPF */}
                 <FormField
                   control={form.control}
-                  name="rf_ou_cpf"
+                  name="seu_rf"
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-1">
@@ -97,7 +97,7 @@ export default function LoginTela() {
 
                       <FormControl>
                         <Input
-                          id="rf_ou_cpf"
+                          id="seu_rf"
                           placeholder="Seu e-mail"
                           {...field}
                         />
