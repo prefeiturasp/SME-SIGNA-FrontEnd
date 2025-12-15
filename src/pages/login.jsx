@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import { HelpCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -18,65 +20,35 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import useLogin from "@/hooks/useLogin";
 
-export async function getServerSideProps(context) {
-  const token = context.query.token || null;
 
-  // DEBUG: mostrar o token (string curta) e o tamanho
-  const tokenPreview = token
-    ? `${token.slice(0, 20)}... (len=${token.length})`
-    : null;
-
-  try {
-    const resp = await fetch("http://localhost:8000/api/profile/", {
-      method: "GET",
-      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      // não seguir redirect automaticamente pode ajudar a detectar redirects:
-      redirect: "manual",
-    });
-
-    const status = resp.status;
-    // tenta ler texto (pode falhar se não for json)
-    const text = await resp.text();
-    // também pega alguns headers úteis
-    const serverHeaders = {};
-    ["www-authenticate", "content-type", "vary", "set-cookie"].forEach((h) => {
-      if (resp.headers.get(h)) serverHeaders[h] = resp.headers.get(h);
-    });
-
-    return {
-      props: {
-        tokenPreview,
-        tokenExists: !!token,
-        fetchStatus: status,
-        fetchBody: text,
-        fetchHeaders: serverHeaders,
-      },
-    };
-  } catch (err) {
-    return {
-      props: { tokenPreview, tokenExists: !!token, fetchError: String(err) },
-    };
-  }
-}
-
-export default function LoginTela({
-  tokenPreview,
-  tokenExists,
-  fetchStatus,
-  fetchBody,
-  fetchHeaders,
-  fetchError,
-}) {
+export default function LoginTela() {
   const form = useForm({
     defaultValues: {
-      rf_ou_cpf: "",
+      seu_rf: "",
       senha: "",
     },
   });
-  const onSubmit = (values) => {
-    console.log(values.rf_ou_cpf, values.senha);
-  };
+
+  const loginMutation = useLogin();
+
+  const {
+    mutateAsync: doLogin,
+    isPending: isLoggingIn,    
+  } = loginMutation;
+
+   const [errorMessage, setErrorMessage] = useState("");
+
+    const onSubmit = async (values) => {
+      
+      const response = await doLogin(values);
+      if (!response.success) {
+        setErrorMessage(response.error);
+    }
+    };
+    
+
   return (
     <div className="w-[95%] h-full flex">
       <div className="w-[60vw] h-screen relative">
@@ -90,107 +62,120 @@ export default function LoginTela({
 
       <div className="flex items-center justify-center w-[40vw] h-screen">
         <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
-          <Image src="/images/logo-signa.png" alt="Login" width={384} height={100} />
+          <Image
+            src="/images/logo-signa.png"
+            alt="Login"
+            width={384}
+            height={100}
+          />
 
           <div className="py-16">
             <Form {...form}>
-              <FormField
-                control={form.control}
-                name="rf_ou_cpf"
-                render={({ field }) => (
-                  <FormItem>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <FormLabel>
-                            RF ou CPF  <HelpCircle className="size-4" />
-                          </FormLabel>
-                        </TooltipTrigger>
-                        <TooltipContent align="start" className="bg-white text-black">
-                          Digite seu RF ou CPF
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    <FormControl>
-                      <Input
-                        type="rf_ou_cpf"
-                        id="rf_ou_cpf"
-                        placeholder="Seu e-mail"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="senha"
-                render={({ field }) => (
-                  <FormField
-                    control={form.control}
-                    name="senha"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">                           
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                {/* RF / CPF */}
+                <FormField
+                  control={form.control}
+                  name="seu_rf"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-1">
+                        <FormLabel>RF ou CPF</FormLabel>
                         <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <FormLabel>
-                            Senha  <HelpCircle type="outline" className="size-4" />
-                          </FormLabel>
-                        </TooltipTrigger>
-                        <TooltipContent align="start" className="bg-white text-black">
-                          Digite sua Senha
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger type="button">
+                              <HelpCircle className="size-4" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              align="start"
+                              className="bg-white text-black"
+                            >
+                              Digite seu RF ou CPF
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
 
-                        <FormControl>
-                          <Input
-                            type="password"
-                            id="senha"
-                            placeholder="Sua senha"
-                            {...field}
-                            className="w-full"
-                          />
-                        </FormControl>
+                      <FormControl>
+                        <Input
+                          id="seu_rf"
+                          placeholder="Seu RF"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                        <FormMessage className="mt-2 text-sm" />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              />
+                {/* SENHA */}
+                <FormField
+                  control={form.control}
+                  name="senha"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <div className="flex items-center gap-1">
+                        <FormLabel>Senha</FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger type="button">
+                              <HelpCircle className="size-4" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              align="start"
+                              className="bg-white text-black"
+                            >
+                              Digite sua Senha
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
 
-              <div className="mt-2.5">
-                <Button
-                  onClick={() => console.log("testw")}
-                  type="submit"
-                  color="blue"
-                  size="lg"
-                  className="rounded bg-[#717FC7] text-white w-full"
-                >
-                  Acessar
-                </Button>
-              </div>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          id="senha"
+                          placeholder="Sua senha"
+                          {...field}
+                        />
+                      </FormControl>
 
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="link"
-                      className="text-[#717FC7] w-full self-center"
+                      <FormMessage className="mt-2 text-sm" />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="mt-2.5">
+                  <Button
+                    type="submit"
+                    disabled={isLoggingIn}
+                    className="rounded bg-[#717FC7] text-white w-full disabled:opacity-50"
+                  >
+                    {isLoggingIn ? "Acessando..." : "Acessar"}
+                  </Button>
+                </div>
+
+                {errorMessage && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <p
+                      className="text-sm text-red-600"
+                      data-testid="login-error"
                     >
-                      Esqueci minha senha
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Esqueci minha senha</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                      {errorMessage}
+                    </p>                  
+                  </div>
+                )}
+
+                <Button
+                  type="button"
+                  variant="link"
+                  className="text-[#717FC7] w-full self-center"
+                >
+                  Esqueci minha senha
+                </Button>
+              </form>
             </Form>
           </div>
+
           <Image
             className="self-center"
             src="/images/logo_PrefSP.png"
