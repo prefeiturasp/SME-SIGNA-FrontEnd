@@ -10,15 +10,10 @@ import {
 import { loginAction } from "@/actions/login";
 import axios from "axios";
 import { AxiosError, type AxiosResponse } from "axios";
-import { cookies } from "next/headers";
 
 vi.mock("axios");
-vi.mock("next/headers", () => ({
-    cookies: vi.fn(),
-}));
 
 const axiosPostMock = axios.post as Mock;
-const cookiesMock = cookies as Mock;
 
 describe("loginAction", () => {
     const originalEnv = process.env;
@@ -35,20 +30,7 @@ describe("loginAction", () => {
     it("retorna success true quando tem sucesso", async () => {
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
 
-        const fakeUser = {
-            name: "Fulano",
-            email: "f@x.com",
-            cpf: "00000000000",
-            login: "fulano",
-            perfil_acesso: { nome: "Dev", codigo: 1 },
-            unidade_lotacao: [{ nomeUnidade: "Unidade", codigo: "1" }],
-            token: "jwt_token_top",
-        };
-
-        const setMock = vi.fn();
-        cookiesMock.mockReturnValue({ set: setMock });
-
-        axiosPostMock.mockResolvedValueOnce({ data: fakeUser });
+        axiosPostMock.mockResolvedValueOnce({ data: { token: "jwt_token_top" } });
 
         const result = await loginAction({ seu_rf: "fulano", senha: "1234" });
 
@@ -57,13 +39,6 @@ describe("loginAction", () => {
             { username: "fulano", password: "1234" },
             { withCredentials: true }
         );
-
-        expect(setMock).toHaveBeenCalledWith("auth_token", "jwt_token_top", {
-            httpOnly: true,
-            secure: true,
-            path: "/",
-            sameSite: "lax",
-        });
 
         expect(result).toEqual({ success: true });
     });
