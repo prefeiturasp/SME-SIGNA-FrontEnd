@@ -27,15 +27,20 @@ vi.mock("lucide-react", () => ({
 }));
 
 describe("LoginTela - Testes Unitários Completos", () => {
+  const originalApiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   beforeEach(() => {
     vi.clearAllMocks();
     pushMock.mockReset();
+    // Deixa os testes determinísticos (o hook monta a URL a partir dessa env)
+    process.env.NEXT_PUBLIC_API_URL = "https://qa-signa.sme.prefeitura.sp.gov.br/api";
   });
 
   const originalFetch = global.fetch;
 
   afterAll(() => {
     global.fetch = originalFetch;
+    process.env.NEXT_PUBLIC_API_URL = originalApiUrl;
   });
 
   const renderLogin = () =>
@@ -170,7 +175,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(
-          "https://qa-signa.sme.prefeitura.sp.gov.br/api/usuario/login",
+          `${process.env.NEXT_PUBLIC_API_URL}/usuario/login`,
           expect.objectContaining({
             method: "POST",
             headers: { "Content-Type": "application/json" },
