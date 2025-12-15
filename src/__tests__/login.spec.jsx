@@ -55,7 +55,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       expect(screen.getByText(/^Senha\b/i)).toBeInTheDocument();
 
       // Verifica inputs com placeholders
-      expect(screen.getByPlaceholderText(/Seu e-mail/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Insira seu RF ou CPF/i)).toBeInTheDocument();
       expect(screen.getByPlaceholderText(/Sua senha/i)).toBeInTheDocument();
 
       // Verifica botões
@@ -66,7 +66,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     it("deve ter inputs acessíveis com ids corretos", () => {
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
 
       expect(rfInput).toHaveAttribute("id", "rf_ou_cpf");
@@ -98,7 +98,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       
       await user.type(rfInput, "12345678901");
       
@@ -120,7 +120,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       
       await user.type(rfInput, "usuario123");
@@ -134,7 +134,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       
       await user.type(rfInput, "primeiro");
       expect(rfInput).toHaveValue("primeiro");
@@ -160,7 +160,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
 
@@ -204,7 +204,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
     it("deve inicializar com valores vazios", () => {
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
 
       expect(rfInput).toHaveValue("");
@@ -215,7 +215,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       
       await user.type(rfInput, "1234567");
       
@@ -226,7 +226,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       
       await user.type(rfInput, "123.456.789-00");
       
@@ -246,7 +246,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
 
@@ -271,7 +271,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
 
@@ -307,7 +307,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
       expect(submitButton).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/Seu e-mail/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Insira seu RF ou CPF/i)).toBeInTheDocument();
       expect(screen.getByPlaceholderText(/Sua senha/i)).toBeInTheDocument();
     });
 
@@ -333,7 +333,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
 
       rfInput.focus();
@@ -350,7 +350,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       
       await user.type(rfInput, "test@example.com!#$%");
       
@@ -373,7 +373,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
 
       await user.type(rfInput, "user1");
@@ -405,7 +405,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
 
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
       const submitButton = screen.getByRole("button", { name: /Acessar/i });
 
@@ -452,7 +452,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       const user = userEvent.setup();
       renderLogin();
 
-      const rfInput = screen.getByPlaceholderText(/Seu e-mail/i);
+      const rfInput = screen.getByPlaceholderText(/Insira seu RF ou CPF/i);
       const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
 
       // Testa que os valores são controlados pelo react-hook-form
@@ -467,7 +467,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       renderLogin();
 
       // Verifica que os FormField renderizaram corretamente
-      expect(screen.getByPlaceholderText(/Seu e-mail/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Insira seu RF ou CPF/i)).toBeInTheDocument();
       expect(screen.getByPlaceholderText(/Sua senha/i)).toBeInTheDocument();
     });
   });

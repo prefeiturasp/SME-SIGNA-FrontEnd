@@ -21,6 +21,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import useLogin from "@/hooks/useLogin";
+import Link from "next/link";
 
 
 export default function LoginTela() {
@@ -79,7 +80,7 @@ export default function LoginTela() {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-1">
-                        <FormLabel>RF ou CPF</FormLabel>
+                        <FormLabel className="mt-2.5">RF ou CPF</FormLabel>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
@@ -98,7 +99,7 @@ export default function LoginTela() {
                       <FormControl>
                         <Input
                           id="rf_ou_cpf"
-                          placeholder="Seu e-mail"
+                          placeholder="Insira seu RF ou CPF"
                           {...field}
                         />
                       </FormControl>
@@ -114,7 +115,7 @@ export default function LoginTela() {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <div className="flex items-center gap-1">
-                        <FormLabel>Senha</FormLabel>
+                        <FormLabel className="mt-2.5" >Senha</FormLabel>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
@@ -164,7 +165,8 @@ export default function LoginTela() {
                     </p>                  
                   </div>
                 )}
-
+              
+              <Link href="/recuperacao-de-senha" className="w-full">
                 <Button
                   type="button"
                   variant="link"
@@ -172,6 +174,8 @@ export default function LoginTela() {
                 >
                   Esqueci minha senha
                 </Button>
+                </Link>
+
               </form>
             </Form>
           </div>

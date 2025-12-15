@@ -6,4 +6,35 @@
   --foreground: 222 47% 11%;
   --primary: 222 89% 57%;
   --primary-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --warning: 45 93% 47%;
+  --warning-foreground: 0 0% 0%;
+
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+}
+
+.Title {
+  color: #42474a;
+
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.Paragraphy {
+  color: #42474a;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.ParagraphyWrapper {
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
