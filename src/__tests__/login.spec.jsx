@@ -20,7 +20,7 @@ vi.mock("@/actions/login", () => ({
 
 // Mock do Next.js Image
 vi.mock("next/image", () => ({
-  default: ({ src, alt, fill, ...props }) => {
+  default: ({ src, alt, fill: _fill, ...props }) => {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} {...props} />;
   },
@@ -37,6 +37,9 @@ describe("LoginTela - Testes Unitários Completos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     pushMock.mockReset();
+    loginActionMock.mockReset();
+    // Evita unhandled rejection caso algum teste dispare submit sem mock específico
+    loginActionMock.mockResolvedValue({ success: false, error: "Mock login error" });
     // Deixa os testes determinísticos (o hook monta a URL a partir dessa env)
     process.env.NEXT_PUBLIC_API_URL = "https://qa-signa.sme.prefeitura.sp.gov.br/api";
   });
@@ -327,7 +330,7 @@ describe("LoginTela - Testes Unitários Completos", () => {
       renderLogin();
 
       const rfInput = screen.getByPlaceholderText(/Seu RF/i);
-      const senhaInput = screen.getByPlaceholderText(/Sua senha/i);
+      screen.getByPlaceholderText(/Sua senha/i);
 
       rfInput.focus();
       expect(rfInput).toHaveFocus();
