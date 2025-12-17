@@ -78,7 +78,7 @@ export default function LoginTela() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
-                              <HelpCircle className="size-4" />
+                              <HelpCircle className="size-4 mb-2" />
                             </TooltipTrigger>
                             <TooltipContent
                               align="start"
@@ -113,7 +113,7 @@ export default function LoginTela() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
-                              <HelpCircle className="size-4" />
+                              <HelpCircle className="size-4 mb-2" />
                             </TooltipTrigger>
                             <TooltipContent
                               align="start"
