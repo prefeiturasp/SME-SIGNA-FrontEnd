@@ -1,37 +1,32 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "@/styles/globals.css";
+import { Roboto } from "next/font/google";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
+import { Toaster } from "sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import "@/styles/globals.css";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const roboto = Roboto({
+    weight: "400",
+    subsets: ["latin"],
+    display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "SIGNA",
-  description: "Teste signa",
+    title: "GIPE",
+    description: "Gabinete integrado de Proteção Escolar",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
-      >
-        <ReactQueryProvider>
-          {children}
-        </ReactQueryProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="pt-br">
+            <body className={`${roboto.className} mx-auto !px-0`}>
+                <ReactQueryProvider>{children}</ReactQueryProvider>
+                <Toaster position="top-right" closeButton />
+            </body>
+        </html>
+    );
 }
