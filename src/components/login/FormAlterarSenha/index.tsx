@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import Check from "@/assets/icons/Check";
 import CloseCheck from "@/assets/icons/CloseCheck";
+import { useParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
@@ -15,7 +16,6 @@ import useRedefinirSenha from "@/hooks/useRedefinirSenha";
 
 import formSchema, { FormAlterarSenha } from "./schema";
 import InputSenhaComValidador from "../FormCadastro/InputSenhaComValidador";
-import LogoPrefeituraSP from "../LogoPrefeituraSP";
 import Aviso from "@/components/login/FormCadastro/Aviso";
 import ErrorMessage from "@/components/login/FormCadastro/ErrorMessage";
  
@@ -23,11 +23,14 @@ export default function AlterarSenha({
   code,
   token,
 }: {
-  readonly code: string;
-  readonly token: string;
+  readonly code?: string;
+  readonly token?: string;
 }) {
-  console.log("code", code);
-  console.log("token", token);
+  const params = useParams<{ token?: string; code?: string }>();
+  const effectiveCode = code ?? params?.code ?? "";
+  const effectiveToken = token ?? params?.token ?? "";
+
+  
   const [returnMessage, setReturnMessage] = useState<{
     success: boolean;
     message: string;
@@ -47,8 +50,8 @@ export default function AlterarSenha({
     setReturnMessage(null);
     const response = await mutateAsync({
       password: values.password,
-      uid: code,
-      token,
+      uid: effectiveCode,
+      token: effectiveToken,
       password2: confirmPassword,
     });
 

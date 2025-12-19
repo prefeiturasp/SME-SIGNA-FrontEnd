@@ -1,12 +1,13 @@
 import FormAlterarSenha from "@/components/login/FormAlterarSenha";
 
-export default function Page({
+export default async function Page({
     params,
 }: {
-    readonly params: { readonly code: string; readonly token: string };
+    readonly params: Promise<{ readonly token: string; readonly code: string }>;
 }) {
-    const code = decodeURIComponent(params.code);
-    const token = decodeURIComponent(params.token);
+    const { token, code } = await params;
+    const decodedToken = decodeURIComponent(token);
+    const decodedCode = decodeURIComponent(code);
 
-    return <FormAlterarSenha code={code} token={token} />;
+    return <FormAlterarSenha code={decodedCode} token={decodedToken} />;
 }
