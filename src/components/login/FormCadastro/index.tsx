@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import LogoGipe from "@/components/login/LogoGipe";
+import LogoSigna from "@/components/login/LogoSigna";
 import { Button } from "@/components/ui/button";
 import useCadastro from "@/hooks/useCadastro";
 import {
@@ -101,13 +101,13 @@ export default function FormCadastro() {
                 onSubmit={form.handleSubmit(tratarCadastro)}
             >
                 <div className="flex justify-start mb-4">
-                    <LogoGipe className="w-48" />
+                    <LogoSigna className="w-48" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">
                     Faça o seu cadastro
                 </h1>
                 <p className="text-sm text-gray-600 mb-10">
-                    Preencha os dados para solicitar acesso ao GIPE.
+                    Preencha os dados para solicitar acesso ao SIGNA.
                 </p>
                 <Aviso icon={<AlertSmall className="w-[22px]" />}>
                     O cadastro de novos usuários é permitido apenas para

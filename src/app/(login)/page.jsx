@@ -64,7 +64,7 @@ export default function LoginTela() {
             height={100}
           />
 
-          <div className="py-16">
+          <div className="pt-16 pb-2">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 {/* RF / CPF */}
@@ -91,11 +91,7 @@ export default function LoginTela() {
                       </div>
 
                       <FormControl>
-                        <Input
-                          id="seu_rf"
-                          placeholder="Seu RF"
-                          {...field}
-                        />
+                        <Input id="seu_rf" placeholder="Seu RF" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -142,8 +138,9 @@ export default function LoginTela() {
                 <div className="mt-2.5">
                   <Button
                     type="submit"
+                    variant="submit"
                     disabled={isLoggingIn}
-                    className="rounded bg-[#717FC7] text-white w-full disabled:opacity-50"
+                    className="rounded w-full disabled:opacity-50"
                   >
                     {isLoggingIn ? "Acessando..." : "Acessar"}
                   </Button>
@@ -160,26 +157,25 @@ export default function LoginTela() {
                   </div>
                 )}
 
-                <Link href="/recuperar-senha" className="w-full">
-                  <Button
-                    asChild
-                    variant="link"
-                    className="text-[#717FC7] w-full"
-                  >
+                <Button asChild variant="link" className="w-full">
+                  <Link href="/recuperar-senha" className="w-full">
                     <span>Esqueci minha senha</span>
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </form>
             </Form>
           </div>
 
           <Image
-            className="self-center"
             src="/images/logo_PrefSP.png"
             alt="Login"
             width={149}
             height={47}
+            className="self-center  pb-4"
           />
+          <Button asChild variant="customOutline" className="w-full mt-2">
+            <Link href="/">Cadastre-se</Link>
+          </Button>
         </div>
       </div>
     </div>

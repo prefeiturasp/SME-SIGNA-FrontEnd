@@ -1,4 +1,4 @@
-import LogoGipe from "@/components/login/LogoGipe";
+import LogoSigna from "@/components/login/LogoSigna";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -7,7 +7,7 @@ export default function Finalizado() {
         <div className="min-h-[80vh] flex flex-col justify-between items-center w-full max-w-md mx-auto px-4 py-8">
             <div className="w-full flex flex-col items-center">
                 <div className="flex mb-6 mt-2 w-full">
-                    <LogoGipe className="w-48" />
+                    <LogoSigna className="w-48" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-3 w-full">
                     Solicitação de acesso enviada!

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import LogoPrefeituraSP from "@/components/login/LogoPrefeituraSP";
-import LogoGipe from "@/components/login/LogoGipe";
+import LogoSigna from "@/components/login/LogoSigna";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import Check from "@/assets/icons/Check";
@@ -61,7 +61,7 @@ export default function RecuperarSenha() {
                 onSubmit={form.handleSubmit(handleLogin)}
             >
                 <div className="flex justify-start mb-6">
-                    <LogoGipe />
+                    <LogoSigna />
                 </div>
 
                 <h1 className="text-2xl font-bold text-gray-900">

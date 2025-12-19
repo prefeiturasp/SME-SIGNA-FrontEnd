@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import LogoGipe from "@/components/login/LogoGipe";
+import LogoSigna from "@/components/login/LogoSigna";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import Check from "@/assets/icons/Check";
@@ -53,7 +53,7 @@ export default function AlterarSenha({
     if (response.success) {
             setReturnMessage({
                 success: true,
-                message: "Você já pode acessar o GIPE com sua nova senha.",
+                message: "Você já pode acessar o SIGNA com sua nova senha.",
             });
     } else {
             setReturnMessage({
@@ -118,7 +118,7 @@ export default function AlterarSenha({
   return (
     <div className="w-full max-w-sm">
       <div className="flex justify-start mb-6">
-        <LogoGipe />
+        <LogoSigna />
       </div>
 
       {isSuccess && (
@@ -159,7 +159,7 @@ export default function AlterarSenha({
           <form onSubmit={form.handleSubmit(handleChangePassword)}>
             <h1 className="text-2xl font-bold text-gray-900">Crie uma nova senha</h1>
             <p className="text-sm text-gray-600 mb-10">
-              Esta será sua nova senha de acesso ao GIPE.
+              Esta será sua nova senha de acesso ao SIGNA.
             </p>
 
             <FormField
@@ -198,6 +198,7 @@ export default function AlterarSenha({
             <Button
               type="submit"
               variant="secondary"
+              style={{background: '#D85975'}}              
               className="w-full text-center rounded-md text-[16px] font-[700] md:h-[45px] inline-block align-middle bg-[#717FC7] text-white hover:bg-[#5a65a8] mt-6"
               disabled={
                 isPending ||
@@ -211,21 +212,13 @@ export default function AlterarSenha({
             >
               Salvar senha
             </Button>
-            <Button asChild variant="customOutline" className="w-full mt-2">
-              <Link href="/">Cancelar</Link>
+            <Button             
+            asChild  className="w-full mt-2">
+              <Link href="/" style={{color: '#D85975'}}>Cancelar</Link>
             </Button>
           </form>
         </Form>
-      )}
-
-      <div className="flex justify-center mt-4 py-2">
-        <LogoPrefeituraSP />
-      </div>
-      <div className="flex flex-col items-center">
-        <span className="text-[#42474a] text-[12px] font-normal mt-3 text-center py-6">
-          - Sistema homologado para navegadores: Google Chrome e Firefox
-        </span>
-      </div>
+      )}  
     </div>
   );
 }

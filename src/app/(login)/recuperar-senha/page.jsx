@@ -67,17 +67,9 @@ export default function RecuperacaoDeSenhaTela() {
   };
 
   return (
-    <div className="w-[95%] h-full flex">
-      <div className="w-[60vw] h-screen relative">
-        <Image
-          src="/images/capa-login.png"
-          alt="Login"
-          fill
-          className="object-cover"
-        />
-      </div>
+    
 
-      <div className="flex items-center justify-center w-[40vw] h-screen">
+      <div className="flex items-center justify-center  h-screen">
         <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
           <Image
             src="/images/logo-signa.png"
@@ -188,6 +180,5 @@ export default function RecuperacaoDeSenhaTela() {
           />
         </div>
       </div>
-    </div>
   );
 }

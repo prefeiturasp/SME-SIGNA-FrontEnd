@@ -12,8 +12,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-    title: "GIPE",
-    description: "Gabinete integrado de Proteção Escolar",
+    title: "SIGNA",
+    description: "SIGNA",
 };
 
 export default function RootLayout({
