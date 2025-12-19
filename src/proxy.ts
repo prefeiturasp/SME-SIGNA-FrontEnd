@@ -33,5 +33,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    // Ignore Next internals and static assets from /public (images, svgs, icons, etc.)
+    matcher: [
+        "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico)$).*)",
+    ],
 };

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import useRecuperarSenha from "@/hooks/useRecuperarSenha";
 import Link from "next/link";
+import LogoSigna from "@/components/login/LogoSigna";
 
 export default function RecuperacaoDeSenhaTela() {
   const form = useForm({
@@ -71,13 +72,9 @@ export default function RecuperacaoDeSenhaTela() {
 
       <div className="flex items-center justify-center  h-screen">
         <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
-          <Image
-            src="/images/logo-signa.png"
-            alt="Login"
-            width={384}
-            height={100}
-          />
+        <LogoSigna />
 
+  
           <div className="py-16">
             <h4 className="scroll-m-20 text-xl font-semibold tracking-tight Title">
               Recuperação de senha
