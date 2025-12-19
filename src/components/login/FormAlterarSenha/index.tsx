@@ -26,6 +26,8 @@ export default function AlterarSenha({
   readonly code: string;
   readonly token: string;
 }) {
+  console.log("code", code);
+  console.log("token", token);
   const [returnMessage, setReturnMessage] = useState<{
     success: boolean;
     message: string;
