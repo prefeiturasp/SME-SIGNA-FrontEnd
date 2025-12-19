@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { useRecuperarSenhaAction } from "@/actions/recuperarSenha";
-
+import { redefinirSenhaAction } from "@/actions/redefinir-senha";
+ 
 const useRedefinirSenha = () => {
     return useMutation({
-        mutationFn: useRecuperarSenhaAction,
-    });
+        mutationFn: redefinirSenhaAction,
+     });
 };
 
 export default useRedefinirSenha;

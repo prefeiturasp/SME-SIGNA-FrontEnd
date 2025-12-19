@@ -45,7 +45,7 @@ export default function LoginTela() {
   };
 
   return (
-    <div className="w-[95%] h-full flex">
+    <div className="w-[100%] h-full flex">
       <div className="w-[60vw] h-screen relative">
         <Image
           src="/images/capa-login.png"

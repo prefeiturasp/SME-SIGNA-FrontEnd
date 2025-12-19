@@ -42,7 +42,7 @@ export function CustomAlert({
   const { container, icon, iconComponent: Icon } = variantStyles[variant];
 
   return (
-    <Alert variant={variant} className={cn("mt-6 mb-6", container, className)}>
+    <Alert variant={variant as "error" | "default" | "destructive" | "aviso" | null | undefined} className={cn("mt-6 mb-6", container, className)}>
       <Icon className={cn("h-6 w-6 shrink-0", icon)} />
 
       <div className="flex flex-col gap-1 pt-1 min-w-0">

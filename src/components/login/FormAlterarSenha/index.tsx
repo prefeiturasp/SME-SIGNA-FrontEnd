@@ -18,7 +18,7 @@ import InputSenhaComValidador from "../FormCadastro/InputSenhaComValidador";
 import LogoPrefeituraSP from "../LogoPrefeituraSP";
 import Aviso from "@/components/login/FormCadastro/Aviso";
 import ErrorMessage from "@/components/login/FormCadastro/ErrorMessage";
-
+ 
 export default function AlterarSenha({
   code,
   token,
@@ -49,6 +49,7 @@ export default function AlterarSenha({
       token,
       password2: confirmPassword,
     });
+
 
     if (response.success) {
             setReturnMessage({
