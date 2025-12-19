@@ -1,8 +1,8 @@
 export type RedefinirSenhaRequest = {
     uid: string;
     token: string;
-    password: string;
-    password2: string;
+    new_pass: string;
+    new_pass_confirm: string;
 };
 
 export type RedefinirSenhaErrorResponse = {

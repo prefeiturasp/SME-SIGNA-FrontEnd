@@ -38,7 +38,7 @@ export default function AlterarSenha({
   const form = useForm<FormAlterarSenha>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      password: "",
+      new_pass: "",
     },
   });
   const values = form.watch();
@@ -49,10 +49,10 @@ export default function AlterarSenha({
   async function handleChangePassword(values: FormAlterarSenha) {
     setReturnMessage(null);
     const response = await mutateAsync({
-      password: values.password,
+      new_pass: values.new_pass,
       uid: effectiveCode,
       token: effectiveToken,
-      password2: confirmPassword,
+      new_pass_confirm: confirmPassword,
     });
 
 
@@ -104,7 +104,7 @@ export default function AlterarSenha({
   );
 
   const passwordStatus = passwordCriteria.map((c) =>
-      c.test(values.password || "")
+      c.test(values.new_pass || "")
   );
 
   const displayMessage = (() => {
@@ -170,7 +170,7 @@ export default function AlterarSenha({
 
             <FormField
               control={form.control}
-              name="password"
+              name="new_pass"
               render={({ field }) => (
                 <InputSenhaComValidador
                   password={field.value}
@@ -209,10 +209,10 @@ export default function AlterarSenha({
               disabled={
                 isPending ||
                 Object.keys(form.formState.errors).length > 0 ||
-                !values.password ||
+                !values.new_pass ||
                 !confirmPassword ||
                         (!!confirmPassword &&
-                            confirmPassword !== values.password)
+                            confirmPassword !== values.new_pass)
               }
               loading={isPending}
             >

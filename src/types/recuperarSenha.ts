@@ -1,10 +1,10 @@
 export type RecuperarSenhaPayload = {
   username?: string;    
 
-    password: string;
+    new_pass: string;
     uid: string;
     token: string;
-    password2: string;
+    new_pass_confirm: string;
   };
 
 

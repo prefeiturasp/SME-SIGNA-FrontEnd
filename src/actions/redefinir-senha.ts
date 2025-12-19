@@ -15,8 +15,8 @@ export async function redefinirSenhaAction(
         const formData = new FormData();
         formData.append("uid", dados.uid);
         formData.append("token", dados.token);
-        formData.append("password", dados.password);
-        formData.append("password2", dados.password2);
+        formData.append("new_pass", dados.new_pass);
+        formData.append("new_pass_confirm", dados.new_pass_confirm);
         await axios.post(`${API_URL}/users/redefinir-senha`, formData);
         return { success: true };
     } catch (err) {

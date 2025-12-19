@@ -32,15 +32,15 @@ describe("useRedefinirSenha", () => {
             await result.current.mutateAsync({
                 uid: "abc123",
                 token: "token123",
-                password: "Senha@123",
-                password2: "Senha@123",
+                new_pass: "Senha@123",
+                new_pass_confirm: "Senha@123",
             });
         });
         expect(redefinirSenhaAction).toHaveBeenCalledWith({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "Senha@123",
+            new_pass: "Senha@123",
+            new_pass_confirm: "Senha@123",
         });
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
@@ -58,15 +58,15 @@ describe("useRedefinirSenha", () => {
             await result.current.mutateAsync({
                 uid: "abc123",
                 token: "token123",
-                password: "Senha@123",
-                password2: "SenhaErrada",
+                new_pass: "Senha@123",
+                new_pass_confirm: "SenhaErrada",
             });
         });
         expect(redefinirSenhaAction).toHaveBeenCalledWith({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "SenhaErrada",
+            new_pass: "Senha@123",
+            new_pass_confirm: "SenhaErrada",
         });
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
@@ -87,8 +87,8 @@ describe("useRedefinirSenha", () => {
                 result.current.mutateAsync({
                     uid: "abc123",
                     token: "token123",
-                    password: "Senha@123",
-                    password2: "Senha@123",
+                    new_pass: "Senha@123",
+                    new_pass_confirm: "Senha@123",
                 })
             ).rejects.toThrow();
         });

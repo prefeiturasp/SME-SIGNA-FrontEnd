@@ -15,8 +15,8 @@ describe("redefinirSenhaAction", () => {
         const result = await redefinirSenhaAction({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "Senha@123",
+            new_pass: "Senha@123",
+            new_pass_confirm: "Senha@123",
         });
         expect(result).toEqual({ success: true });
         expect(axiosPostMock).toHaveBeenCalledWith(
@@ -37,8 +37,8 @@ describe("redefinirSenhaAction", () => {
         const result = await redefinirSenhaAction({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "SenhaErrada",
+            new_pass: "Senha@123",
+            new_pass_confirm: "SenhaErrada",
         });
         expect(result).toEqual({
             success: false,
@@ -54,8 +54,8 @@ describe("redefinirSenhaAction", () => {
         const result = await redefinirSenhaAction({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "Senha@123",
+            new_pass: "Senha@123",
+            new_pass_confirm: "Senha@123",
         });
         expect(result).toEqual({ success: false, error: "Token inválido" });
     });
@@ -68,8 +68,8 @@ describe("redefinirSenhaAction", () => {
         const result = await redefinirSenhaAction({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "Senha@123",
+            new_pass: "Senha@123",
+            new_pass_confirm: "Senha@123",
         });
         expect(result).toEqual({
             success: false,
@@ -84,8 +84,8 @@ describe("redefinirSenhaAction", () => {
         const result = await redefinirSenhaAction({
             uid: "abc123",
             token: "token123",
-            password: "Senha@123",
-            password2: "Senha@123",
+            new_pass: "Senha@123",
+            new_pass_confirm: "Senha@123",
         });
         expect(result).toEqual({ success: false, error: "Erro desconhecido" });
     });

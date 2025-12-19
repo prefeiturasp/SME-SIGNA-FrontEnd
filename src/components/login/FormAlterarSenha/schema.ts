@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const formSchema = z.object({
-    password: z
+    new_pass: z
         .string()
         .min(8, "A senha deve ter no mínimo 8 caracteres")
         .max(12, "A senha deve ter no máximo 12 caracteres")
