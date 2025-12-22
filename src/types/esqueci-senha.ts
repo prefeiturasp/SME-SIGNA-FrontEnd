@@ -1,5 +1,5 @@
 export interface EsqueciSenhaRequest {
-    username: string;
+    seu_rf: string;
 }
 
 export interface EsqueciSenhaSuccessResponse {

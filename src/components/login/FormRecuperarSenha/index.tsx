@@ -26,6 +26,9 @@ import {
 import useRecuperarSenha from "@/hooks/useRecuperarSenha";
 import Link from "next/link";
 import LogoSigna from "@/components/login/LogoSigna";
+import { EsqueciSenhaPayload } from "@/types/recuperarSenha";
+import { EsqueciSenhaRequest } from "@/types/esqueci-senha";
+import { Mensagem } from "@/types/generic";
 export default function RecuperarSenha() {
   const form = useForm({
     defaultValues: {
@@ -39,12 +42,12 @@ export default function RecuperarSenha() {
   const { mutateAsync: fazRecuperarSenha, isPending: estaCarregando } =
     recoveryPasswordMutation;
 
-  const [mensagemDeSucesso, setMensagemDeSucesso] = useState();
-  const [mensagemDeErro, setMensagemDeErro] = useState();
+  const [mensagemDeSucesso, setMensagemDeSucesso] = useState<Mensagem>();
+  const [mensagemDeErro, setMensagemDeErro] = useState<Mensagem>();
 
   const [mostarCampoRFOuCPF, setMostarCampoRFOuCPF] = useState(true);
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values:EsqueciSenhaRequest) => {
     const response = await fazRecuperarSenha({ username: values.seu_rf });
     if (!response.success) {
       setMensagemDeErro(response.error);

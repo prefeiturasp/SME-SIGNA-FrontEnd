@@ -3,7 +3,7 @@ import { esqueciSenhaAction } from "@/actions/esqueci-senha";
 
 const useSolicitarRedefinicaoSenha = () => {
     return useMutation({
-        mutationFn: (variables) => esqueciSenhaAction(variables),
+        mutationFn: esqueciSenhaAction,
     });
 };
 

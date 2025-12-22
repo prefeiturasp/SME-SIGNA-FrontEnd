@@ -2,9 +2,9 @@
 
 import axios from "axios";
 
-import { RecuperarSenhaPayload } from "@/types/recuperarSenha";
+import { EsqueciSenhaPayload, RecuperarSenhaPayload } from "@/types/recuperarSenha";
 
-export async function useRecuperarSenhaAction(payload: RecuperarSenhaPayload) {
+export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.exemplo.com";
 
   try {
