@@ -44,7 +44,6 @@ export default function AlterarSenha({
   const values = form.watch();
 
   const [confirmPassword, setConfirmPassword] = useState("");
-  console.log("alterar ")
   const { mutateAsync, isPending } = useRedefinirSenha();
 
   async function handleChangePassword(values: FormAlterarSenha) {

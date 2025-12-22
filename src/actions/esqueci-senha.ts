@@ -20,7 +20,8 @@ export type EsqueciSenhaResult =
 export async function esqueciSenhaAction(
     username: EsqueciSenhaRequest
 ): Promise<EsqueciSenhaResult> {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+    const API_URL =
+        process.env.NEXT_PUBLIC_API_URL ?? "https://api.exemplo.com";
     try {
         const { data } = await axios.post<EsqueciSenhaSuccessResponse>(
             `${API_URL}/users/esqueci-senha`,

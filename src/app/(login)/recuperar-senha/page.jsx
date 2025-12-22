@@ -58,10 +58,10 @@ export default function RecuperacaoDeSenhaTela() {
       setMostarCampoRFOuCPF(false);
       return; 
     }   
-    const [message,description]=response.message.split("<br/>")
     setMensagemDeSucesso({
-      message:'',
-      description: message + description,
+      message: "Seu link de recuperação de senha foi enviado",
+      description:
+        "Verifique sua caixa de entrada ou lixo eletrônico!",
     });
        
     setMostarCampoRFOuCPF(false);    
