@@ -69,6 +69,7 @@ export default function LoginTela() {
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 {/* RF / CPF */}
                 <FormField
+                  className="mb-2" 
                   control={form.control}
                   name="seu_rf"
                   render={({ field }) => (
@@ -78,7 +79,7 @@ export default function LoginTela() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
-                              <HelpCircle className="size-4 mb-2" />
+                              <HelpCircle className="size-4 mb-0.5" />
                             </TooltipTrigger>
                             <TooltipContent
                               align="start"
@@ -100,16 +101,17 @@ export default function LoginTela() {
 
                 {/* SENHA */}
                 <FormField
+                
                   control={form.control}
                   name="senha"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 mt-2">
                         <FormLabel>Senha</FormLabel>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
-                              <HelpCircle className="size-4 mb-2" />
+                              <HelpCircle className="size-4 mb-0.5" />
                             </TooltipTrigger>
                             <TooltipContent
                               align="start"

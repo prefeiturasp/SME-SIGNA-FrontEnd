@@ -146,10 +146,12 @@ export default function RecuperacaoDeSenhaTela() {
                   <div className="mt-2.5">
                     <Button
                       type="submit"
+                      variant="secondary"
                       disabled={estaCarregando}
-                      className="rounded bg-[#717FC7] text-white w-full disabled:opacity-50"
+                      className="rounded text-white w-full disabled:opacity-50"
+                      loading={estaCarregando}
                     >
-                      {estaCarregando ? "Continuando..." : "Continuar"}
+                       Continuar
                     </Button>
                   </div>
                 )}
@@ -158,7 +160,7 @@ export default function RecuperacaoDeSenhaTela() {
                   <Link href="/login" className="w-full">
                     <Button
                       variant="outline"
-                      className="text-[#717FC7] w-full "
+                      className=" w-full "
                     >
                       Voltar
                     </Button>
