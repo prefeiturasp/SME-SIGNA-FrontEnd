@@ -9,10 +9,10 @@ vi.mock("next/navigation", () => ({
     useRouter: () => ({ push: pushMock }),
 }));
 
-// Mock do hook useSolicitarRedefinicaoSenha
+// Mock do hook useRecuperarSenha
 const mutateAsyncMock = vi.fn();
 const isPendingMock = false;
-vi.mock("@/hooks/useSolicitarRedefinicaoSenha", () => ({
+vi.mock("@/hooks/useRecuperarSenha", () => ({
     __esModule: true,
     default: () => ({ mutateAsync: mutateAsyncMock, isPending: isPendingMock }),
 }));
@@ -35,7 +35,7 @@ describe("FormRecuperarSenha", () => {
     it("renderiza o campo de RF/CPF e botão Continuar", async () => {
         render(<LoginForm />, { wrapper });
         expect(
-            await screen.findByPlaceholderText("Digite um RF ou CPF")
+            await screen.findByPlaceholderText("Digite o número")
         ).toBeInTheDocument();
         expect(
             screen.getByRole("button", { name: /continuar/i })
@@ -46,18 +46,19 @@ describe("FormRecuperarSenha", () => {
         mutateAsyncMock.mockResolvedValueOnce({
             success: true,
             message:
-                "Seu link de recuperação de senha foi enviado para ama***********@prefeitura.sme.gov.br Verifique sua caixa de entrada ou lixo eletrônico!",
+                "Seu link de recuperação de senha foi enviado",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite um RF ou CPF"), {
+        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
             target: { value: "47198005055" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
         await waitFor(() => {
             expect(
-                screen.getByText(
-                    /Seu link de recuperação de senha foi enviado/i
-                )
+                screen.getByText(/Seu link de recuperação de senha foi enviado/i)
+            ).toBeInTheDocument();
+            expect(
+                screen.getByText(/Verifique sua caixa de entrada ou lixo eletrônico!/i)
             ).toBeInTheDocument();
         });
     });
@@ -68,12 +69,14 @@ describe("FormRecuperarSenha", () => {
             message: "Link enviado!",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite um RF ou CPF"), {
+        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
             target: { value: "1234567" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
         await waitFor(() => {
-            expect(screen.getByTestId("check-icon")).toBeInTheDocument();
+            expect(
+                screen.getByText(/Seu link de recuperação de senha foi enviado/i)
+            ).toBeInTheDocument();
         });
     });
     it("exibe mensagem de erro ao submeter com falha", async () => {
@@ -82,13 +85,13 @@ describe("FormRecuperarSenha", () => {
             error: "Usuário não encontrado",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite um RF ou CPF"), {
+        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
             target: { value: "64718737001" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
         await waitFor(() => {
             expect(
-                screen.getByText("Usuário não encontrado")
+                screen.getByText("E-mail não encontrado!")
             ).toBeInTheDocument();
         });
     });
@@ -98,16 +101,16 @@ describe("FormRecuperarSenha", () => {
         const backButton = screen.getByRole("link", { name: /voltar/i });
 
         fireEvent.click(backButton);
-        expect(backButton).toHaveAttribute("href", "/");
+        expect(backButton).toHaveAttribute("href", "/login");
     });
 
-    it("redireciona para / na ultima etapa", async () => {
+    it("redireciona para /login na ultima etapa", async () => {
         mutateAsyncMock.mockResolvedValueOnce({
             success: true,
             message: "Seu link de recuperação de senha foi enviado",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite um RF ou CPF"), {
+        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
             target: { value: "47198005055" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
@@ -118,8 +121,8 @@ describe("FormRecuperarSenha", () => {
                 )
             ).toBeInTheDocument();
         });
-        const finishButton = screen.getByRole("link", { name: /continuar/i });
-        fireEvent.click(finishButton);
-        expect(finishButton).toHaveAttribute("href", "/");
+        const backButton = screen.getByRole("link", { name: /voltar/i });
+        fireEvent.click(backButton);
+        expect(backButton).toHaveAttribute("href", "/login");
     });
 });

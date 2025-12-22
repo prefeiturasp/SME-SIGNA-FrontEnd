@@ -130,7 +130,7 @@ export default function RecuperarSenha() {
                       <FormControl>
                         <Input
                           id="seu_rf"
-                          placeholder="Insira seu RF ou CPF"
+                          placeholder="Digite o número"
                           {...field}
                         />
                       </FormControl>

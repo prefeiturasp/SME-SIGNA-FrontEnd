@@ -38,9 +38,10 @@ describe("useSolicitarRedefinicaoSenha", () => {
             await result.current.mutateAsync({ username: "47198005055" });
         });
 
-        expect(esqueciSenhaAction).toHaveBeenCalledWith({
-            username: "47198005055",
-        });
+        expect(esqueciSenhaAction).toHaveBeenCalledWith(
+            { username: "47198005055" },
+            expect.anything()
+        );
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
             expect(result.current.data).toEqual({
@@ -64,9 +65,10 @@ describe("useSolicitarRedefinicaoSenha", () => {
             await result.current.mutateAsync({ username: "00000000000" });
         });
 
-        expect(esqueciSenhaAction).toHaveBeenCalledWith({
-            username: "00000000000",
-        });
+        expect(esqueciSenhaAction).toHaveBeenCalledWith(
+            { username: "00000000000" },
+            expect.anything()
+        );
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
             expect(result.current.data).toEqual({
@@ -107,6 +109,9 @@ describe("useSolicitarRedefinicaoSenha", () => {
             } catch {}
         });
 
-        expect(esqueciSenhaAction).toHaveBeenCalledWith({ username: "" });
+        expect(esqueciSenhaAction).toHaveBeenCalledWith(
+            { username: "" },
+            expect.anything()
+        );
     });
 });

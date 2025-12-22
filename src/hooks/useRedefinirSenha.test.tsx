@@ -36,12 +36,15 @@ describe("useRedefinirSenha", () => {
                 new_pass_confirm: "Senha@123",
             });
         });
-        expect(redefinirSenhaAction).toHaveBeenCalledWith({
-            uid: "abc123",
-            token: "token123",
-            new_pass: "Senha@123",
-            new_pass_confirm: "Senha@123",
-        });
+        expect(redefinirSenhaAction).toHaveBeenCalledWith(
+            {
+                uid: "abc123",
+                token: "token123",
+                new_pass: "Senha@123",
+                new_pass_confirm: "Senha@123",
+            },
+            expect.anything()
+        );
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
             expect(result.current.data).toEqual({ success: true });
@@ -62,12 +65,15 @@ describe("useRedefinirSenha", () => {
                 new_pass_confirm: "SenhaErrada",
             });
         });
-        expect(redefinirSenhaAction).toHaveBeenCalledWith({
-            uid: "abc123",
-            token: "token123",
-            new_pass: "Senha@123",
-            new_pass_confirm: "SenhaErrada",
-        });
+        expect(redefinirSenhaAction).toHaveBeenCalledWith(
+            {
+                uid: "abc123",
+                token: "token123",
+                new_pass: "Senha@123",
+                new_pass_confirm: "SenhaErrada",
+            },
+            expect.anything()
+        );
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
             expect(result.current.data).toEqual({
