@@ -17,7 +17,7 @@ const buttonVariants = cva(
                     "border border-[#D85975] text-[#D85975] bg-background hover:bg-accent hover:text-accent-foreground",                  
                 customOutline:
                     "flex items-center text-[#D85975] text-[14px] font-[700] border border-[#D85975] bg-white hover:text-[#5a6bb7] hover:border-[#5a6bb7] hover:bg-white",
-                submit: "text-center rounded-md text-[14px] font-[700] bg-[#D85975] text-white hover:bg-[#5a65a8]",
+                submit: "text-center rounded-md text-[14px] font-[700] bg-[#D85975] text-white ",
                 secondary:
                     "bg-secondary text-secondary-foreground hover:bg-secondary/80  bg-[#D85975]",
                 ghost: "hover:bg-accent hover:text-accent-foreground",

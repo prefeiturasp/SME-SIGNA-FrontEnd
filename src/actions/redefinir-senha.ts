@@ -12,12 +12,14 @@ export async function redefinirSenhaAction(
 ): Promise<RedefinirSenhaResult> {
     const API_URL = process.env.NEXT_PUBLIC_API_URL!;
     try {
+          console.log("redefinirSenhaAction API_URL",`${API_URL}/usuario/redefinir-senha`)
+
         const formData = new FormData();
         formData.append("uid", dados.uid);
         formData.append("token", dados.token);
         formData.append("new_pass", dados.new_pass);
         formData.append("new_pass_confirm", dados.new_pass_confirm);
-        await axios.post(`${API_URL}/users/redefinir-senha`, formData);
+        await axios.post(`${API_URL}/usuario/redefinir-senha`, formData);
         return { success: true };
     } catch (err) {
         const error = err as AxiosError<RedefinirSenhaErrorResponse>;

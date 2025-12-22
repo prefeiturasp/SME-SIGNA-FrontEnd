@@ -44,6 +44,7 @@ export default function AlterarSenha({
   const values = form.watch();
 
   const [confirmPassword, setConfirmPassword] = useState("");
+  console.log("alterar ")
   const { mutateAsync, isPending } = useRedefinirSenha();
 
   async function handleChangePassword(values: FormAlterarSenha) {
@@ -120,7 +121,7 @@ export default function AlterarSenha({
   const isSpecificError =
     isError && returnMessage.message === "A nova senha não pode ser uma das ultimas 5 anteriores";
   const isGenericError = isError && !isSpecificError;
-
+  //todo ver o que é essa page
   return (
     <div className="w-full max-w-sm">
       <div className="flex justify-start mb-6">

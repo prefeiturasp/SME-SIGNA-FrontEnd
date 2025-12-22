@@ -142,7 +142,7 @@ export default function RecuperacaoDeSenhaTela() {
                     )}
                   />
                 )}
-                {!mensagemDeErro && (
+                 {!mensagemDeErro && !mensagemDeSucesso && (
                   <div className="mt-2.5">
                     <Button
                       type="submit"

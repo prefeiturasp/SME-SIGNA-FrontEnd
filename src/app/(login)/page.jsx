@@ -44,9 +44,10 @@ export default function LoginTela() {
     }
   };
 
+
   return (
     <div className="w-[100%] h-full flex">
-      <div className="w-[60vw] h-screen relative">
+      <div className="w-[58.5vw] h-screen relative">
         <Image
           src="/images/capa-login.png"
           alt="Login"
@@ -142,9 +143,10 @@ export default function LoginTela() {
                     type="submit"
                     variant="submit"
                     disabled={isLoggingIn}
+                    loading={isLoggingIn}
                     className="rounded w-full disabled:opacity-50"
                   >
-                    {isLoggingIn ? "Acessando..." : "Acessar"}
+                    Acessar
                   </Button>
                 </div>
 
