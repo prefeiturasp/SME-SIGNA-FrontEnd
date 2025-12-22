@@ -45,7 +45,6 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center w-[40.3vw] h-screen">
       <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
         <Image
           src="/images/logo-signa.png"
@@ -166,6 +165,5 @@ export default function LoginForm() {
           <Link href="/">Cadastre-se</Link>
         </Button>
       </div>
-    </div>
-  );
+   );
 }
