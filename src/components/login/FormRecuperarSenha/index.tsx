@@ -1,160 +1,174 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import LogoPrefeituraSP from "@/components/login/LogoPrefeituraSP";
-import LogoSigna from "@/components/login/LogoSigna";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import Link from "next/link";
-import Check from "@/assets/icons/Check";
-import CloseCheck from "@/assets/icons/CloseCheck";
+import  { useState } from "react";
 
+import { CustomAlert as Alert } from "@/components/ui/CustomAlert";
+
+import Image from "next/image";
+import { HelpCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { InputMask } from "@/components/ui/input";
-// import useSolicitarRedefinicaoSenha from "@/hooks/useRedefinirSenha";
-import useSolicitarRedefinicaoSenha from "@/hooks/useSolicitarRedefinicaoSenha";
-
-import formSchema, { FormRecuperarSenha } from "./schema";
-
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import useRecuperarSenha from "@/hooks/useRecuperarSenha";
+import Link from "next/link";
+import LogoSigna from "@/components/login/LogoSigna";
 export default function RecuperarSenha() {
-    const [returnMessage, setReturnMessage] = useState<{
-        success: boolean;
-        message: string;
-    } | null>(null);
-    const form = useForm<FormRecuperarSenha>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            username: "",
-        },
-    });
-    const { mutateAsync, isPending } = useSolicitarRedefinicaoSenha();
+  const form = useForm({
+    defaultValues: {
+      seu_rf: "",
+      senha: "",
+    },
+  });
 
-    async function handleLogin(values: FormRecuperarSenha)  {
-        setReturnMessage(null);
-        const response = await mutateAsync({ username: values.username });
+  const recoveryPasswordMutation = useRecuperarSenha();
 
-        if (response.success) {
-            setReturnMessage({
-                success: true,
-                message: response.message,
-            });
-        } else {
-            setReturnMessage({
-                success: false,
-                message: response.error,
-            });
-        }
+  const { mutateAsync: fazRecuperarSenha, isPending: estaCarregando } =
+    recoveryPasswordMutation;
+
+  const [mensagemDeSucesso, setMensagemDeSucesso] = useState();
+  const [mensagemDeErro, setMensagemDeErro] = useState();
+
+  const [mostarCampoRFOuCPF, setMostarCampoRFOuCPF] = useState(true);
+
+  const onSubmit = async (values) => {
+    const response = await fazRecuperarSenha({ username: values.seu_rf });
+    if (!response.success) {
+      setMensagemDeErro(response.error);
+      setMensagemDeErro({
+        message: "E-mail não encontrado!",
+        description:
+          "Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).",
+      });
+      setMostarCampoRFOuCPF(false);
+      return;
     }
+    setMensagemDeSucesso({
+      message: "Seu link de recuperação de senha foi enviado",
+      description: "Verifique sua caixa de entrada ou lixo eletrônico!",
+    });
 
-    return (
-        <Form {...form}>
-            <form
-                className="w-full max-w-sm"
-                onSubmit={form.handleSubmit(handleLogin)}
-            >
-                <div className="flex justify-start mb-6">
-                    <LogoSigna />
-                </div>
+    setMostarCampoRFOuCPF(false);
+  };
 
-                <h1 className="text-2xl font-bold text-gray-900">
-                    Recuperação de senha
-                </h1>
-                {!returnMessage ? (
-                    <>
-                        <p className="text-sm text-gray-600 mb-10">
-                            Informe o seu usuário ou RF. Você receberá um e-mail
-                            com orientações para redefinir sua senha.
-                        </p>
+  return (
+    <div className="flex items-center justify-center  h-screen">
+      <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
+        <LogoSigna />
 
-                        <FormField
-                            control={form.control}
-                            name="username"
-                            disabled={isPending}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="required text-[#42474a] text-[14px] font-[400]">
-                                        RF ou CPF
-                                    </FormLabel>
-                                    <FormControl>
-                                        <InputMask
-                                            {...field}
-                                            inputMode="numeric"
-                                            placeholder="Digite um RF ou CPF"
-                                            maskProps={{
-                                                mask: "99999999999",
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+        <div className="py-16">
+          <h4 className="scroll-m-20 text-xl font-semibold tracking-tight Title">
+            Recuperação de senha
+          </h4>
+
+          {mensagemDeErro && (
+            <Alert
+              variant="destructive"
+              message={mensagemDeErro.message}
+              description={mensagemDeErro.description}
+            />
+          )}
+          {mensagemDeSucesso && (
+            <Alert
+              variant="success"
+              message={mensagemDeSucesso.message}
+              description={mensagemDeSucesso.description}
+            />
+          )}
+
+          {!mensagemDeErro && !mensagemDeSucesso && (
+            <p className="Paragraphy ParagraphyWrapper">
+              Informe o seu usuário ou RF. Você recebera um e-mail com
+              orientações para redefinir sua senha.
+            </p>
+          )}
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              {/* RF / CPF */}
+              {/* TODO REFATORAR O CSS E TAMANHOS DE FONTE E ICONES  */}
+
+              {mostarCampoRFOuCPF && (
+                <FormField
+                  control={form.control}
+                  name="seu_rf"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-1">
+                        <FormLabel className="mt-2.5">RF ou CPF</FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger type="button">
+                              <HelpCircle className="size-4" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              align="start"
+                              className="bg-white text-black"
+                            >
+                              Digite seu RF ou CPF
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+
+                      <FormControl>
+                        <Input
+                          id="seu_rf"
+                          placeholder="Insira seu RF ou CPF"
+                          {...field}
                         />
-                    </>
-                ) : (
-                    <Alert
-                        className="mt-4"
-                        variant={returnMessage.success ? "aviso" : "error"}
-                    >
-                        {returnMessage.success ? (
-                            <Check height={20} width={20} />
-                        ) : (
-                            <CloseCheck height={20} width={20} />
-                        )}
-                        <AlertDescription>
-                            {returnMessage.message}
-                        </AlertDescription>
-                    </Alert>
-                )}
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {!mensagemDeErro && !mensagemDeSucesso && (
+                <div className="mt-2.5">
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    disabled={estaCarregando}
+                    className="rounded text-white w-full disabled:opacity-50"
+                    loading={estaCarregando}
+                  >
+                    Continuar
+                  </Button>
+                </div>
+              )}
 
-                {!returnMessage ? (
-                    <>
-                        <Button
-                            type="submit"
-                            variant="secondary"
-                            className="w-full text-center rounded-md text-[16px] font-[700] md:h-[45px] inline-block align-middle bg-[#717FC7] text-white hover:bg-[#5a65a8] mt-6"
-                            disabled={isPending}
-                            loading={isPending}
-                        >
-                            Continuar
-                        </Button>
-                        <Button
-                            asChild
-                            variant="customOutline"
-                            className="w-full mt-2"
-                        >
-                            <Link href="/">Voltar</Link>
-                        </Button>
-                    </>
-                ) : (
-                    <Button
-                        asChild
-                        variant="secondary"
-                        className="w-full text-center rounded-md text-[16px] font-[700] md:h-[45px] inline-block align-middle bg-[#717FC7] text-white hover:bg-[#5a65a8] mt-6"
-                    >
-                        <Link href="/" replace>
-                            Continuar
-                        </Link>
-                    </Button>
-                )}
-                <div className="flex justify-center mt-4 py-2">
-                    <LogoPrefeituraSP />
-                </div>
-                <div className="flex flex-col items-center">
-                    <span className="text-[#42474a] text-[12px] font-normal mt-3 text-center py-6">
-                        - Sistema homologado para navegadores: Google Chrome e
-                        Firefox
-                    </span>
-                </div>
+              <div className="mt-2.5">
+                <Link href="/login" className="w-full">
+                  <Button variant="outline" className=" w-full ">
+                    Voltar
+                  </Button>
+                </Link>
+              </div>
             </form>
-        </Form>
-    );
+          </Form>
+        </div>
+
+        <Image
+          className="self-center"
+          src="/images/logo_PrefSP.png"
+          alt="Login"
+          width={149}
+          height={47}
+        />
+      </div>
+    </div>
+  );
 }
