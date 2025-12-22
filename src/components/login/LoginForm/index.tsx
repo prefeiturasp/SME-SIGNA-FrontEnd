@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { HelpCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import useLogin from "@/hooks/useLogin";
 import Link from "next/link";
+import { LoginRequest } from "@/types/login";
 
 export default function LoginForm() {
   const form = useForm({
@@ -37,7 +38,7 @@ export default function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values:LoginRequest) => {
     const response = await doLogin(values);
     if (!response.success) {
       setErrorMessage(response.error);
@@ -57,8 +58,7 @@ export default function LoginForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               {/* RF / CPF */}
-              <FormField
-                className="mb-2"
+              <FormField                
                 control={form.control}
                 name="seu_rf"
                 render={({ field }) => (
