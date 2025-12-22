@@ -25,6 +25,7 @@ import Link from "next/link";
 import { LoginRequest } from "@/types/login";
 import BannerForms from "@/assets/images/banner.webp";
 import { useRouter } from "next/navigation";
+import LogoSigna from "../LogoSigna";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -41,8 +42,7 @@ export default function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const bannerWidth = (BannerForms as { width?: number }).width ?? 640;
-  const bannerHeight = (BannerForms as { height?: number }).height ?? 640;
+ 
 
   const onSubmit = async (values:LoginRequest) => {
     const response = await doLogin(values);
@@ -53,13 +53,10 @@ export default function LoginForm() {
 
   return (
 
-        <div className="flex flex-col gap-2.5 px-8 pb-20 w-full lg:w-1/2 max-w-lg">
-          <Image
-            src="/images/logo-signa.png"
-            alt="Login"
-            width={384}
-            height={100}
-          />
+    <div className="flex items-center justify-center  h-screen">
+            <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
+
+        <LogoSigna />
 
         <div className="pt-16 pb-2">
           <Form {...form}>
@@ -175,6 +172,6 @@ export default function LoginForm() {
           <Link href="/">Cadastre-se</Link>
         </Button>
       </div>
-      
+      </div>
    );
 }
