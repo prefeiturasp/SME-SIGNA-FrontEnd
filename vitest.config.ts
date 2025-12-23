@@ -27,7 +27,32 @@ export default defineConfig({
         "node_modules/**",
         ".next/**",
         'src/lib/**',
-      ],
+        "**/.next/**",  
+        "src/components/ui/**",  
+        "src/const.ts",
+        "src/app/api/*",
+        "*/types/*",
+        "next.config.mjs",
+        "tailwind.config.js",
+        "postcss.config.mjs",
+        "src/lib/zod-i18n.ts",
+        "next-env.d.ts",
+        "vitest.config.ts",
+        "eslint.config.mjs",
+        "*/.next/*", // Pode ser redundante, mas não atrapalha
+        "testes/**", // Exclui a pasta de testes de QA
+        "src/assets/icons/**",
+        "src/assets/images/**",
+        "src/assets/fonts/**",
+        "src/assets/videos/**",
+        "src/assets/sounds/**",
+        "src/assets/documents/**",
+        "src/assets/spreadsheets/**",
+        "src/assets/presentations/**",
+        "src/assets/emails/**",
+        "cypress.config.js", // Exclui config do Cypress
+        "cypress/support/**", // Exclui arquivos de suporte do Cypress
+    ],
     },
   },
 });
