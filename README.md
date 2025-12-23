@@ -1,4 +1,4 @@
-# Frontend - Next.js SME - GIPE
+# Frontend - Next.js SME - SIGNA
 
 ## 🥞 Stack
 
