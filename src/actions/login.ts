@@ -25,10 +25,18 @@ export async function loginAction({
       },
       { withCredentials: true }
     );
-
-
+    
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", data.token, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      sameSite: "lax",
+    });
+    
     return { success: true };
-  } catch (err) {
+
+   } catch (err) {
     const error = err as AxiosError<LoginErrorResponse>;
 
     let message = "Erro na autenticação";
