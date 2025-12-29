@@ -10,22 +10,22 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 default:
-                    "bg-primary text-primary-foreground hover:bg-primary/90",
+                    "bg-primary text-primary-foreground hover:bg-primary/90 text-[#D85975]  font-[700]",
                 destructive:
                     "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-                outline:
-                    "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                    outline:
+                    "border border-[#D85975] text-[#D85975] bg-background hover:bg-accent hover:text-accent-foreground",                  
                 customOutline:
-                    "flex items-center text-[#D11F2A] text-[14px] font-[700] border border-[#D11F2A] bg-white hover:text-[#5a6bb7] hover:border-[#5a6bb7] hover:bg-white",
-                submit: "text-center rounded-md text-[14px] font-[700] bg-[#D11F2A] text-white hover:bg-[#5a65a8]",
+                    "flex items-center text-[#D85975] text-[14px] font-[700] border border-[#D85975] bg-white hover:text-[#5a6bb7] hover:border-[#5a6bb7] hover:bg-white",
+                submit: "text-center rounded-md text-[14px] font-[700] bg-[#D85975] text-white ",
                 secondary:
-                    "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                    "bg-secondary text-secondary-foreground hover:bg-secondary/80  bg-[#D85975]",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
                 pagination:
                     "h-[32px] w-[32px] p-0 rounded-[4px] border border-[#DADADA] text-[14px] font-normal bg-[#FFF] text-[#999]",
                 paginationActive:
-                    "h-[32px] w-[32px] p-0 rounded-[4px] bg-[#D11F2A] text-white text-[14px] font-normal",
+                    "h-[32px] w-[32px] p-0 rounded-[4px] bg-[#D85975] text-white text-[14px] font-normal",
             },
             size: {
                 default: "h-10 px-4 py-2",

@@ -1,15 +1,17 @@
 import Image from "next/image";
-import LogoSignaImg from "@/assets/images/logo-signa.png"
+import LogoGipeImg from "@/assets/images/logo-signa.webp"
 
-export default function LogoGipe({ className = "", ...props }) {
+export default function LogoSigna({ className = "", ...props }) {
+    const logoWidth = (LogoGipeImg as { width?: number }).width ?? 200;
+    const logoHeight = (LogoGipeImg as { height?: number }).height ?? 80;
+
     return (
         <Image
-            src={LogoSignaImg}
-            alt="Logo Signa"
-            width={LogoSignaImg.width}
-            height={LogoSignaImg.height}
+            src={LogoGipeImg}
+            alt="Logo SIGNA"
+            width={logoWidth}
+            height={logoHeight}
             className={`object-contain ${className}`}
-            priority
             {...props}
         />
     );

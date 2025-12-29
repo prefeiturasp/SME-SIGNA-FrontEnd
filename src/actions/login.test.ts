@@ -14,10 +14,13 @@ import { AxiosError, type AxiosResponse } from "axios";
 // ✅ mock do axios
 vi.mock("axios");
 
-// ✅ mock do cookies do Next
+// Mock do cookies() do Next.js
+const mockCookieSet = vi.fn();
 vi.mock("next/headers", () => ({
-    cookies: vi.fn(() => ({
-        set: vi.fn(),
+    cookies: vi.fn(() => Promise.resolve({
+        set: mockCookieSet,
+        get: vi.fn(),
+        delete: vi.fn(),
     })),
 }));
 
@@ -28,6 +31,7 @@ describe("loginAction", () => {
 
     beforeEach(() => {
         vi.resetAllMocks();
+        mockCookieSet.mockClear();
         process.env = { ...originalEnv };
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
     });

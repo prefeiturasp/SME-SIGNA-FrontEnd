@@ -38,3 +38,5 @@ export function normalizeText(value: string) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
 }
+
+ 

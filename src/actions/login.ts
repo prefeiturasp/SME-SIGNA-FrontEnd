@@ -26,19 +26,18 @@ export async function loginAction({
         password: senha,
       }
     );
-
-    // 🔐 SALVA O TOKEN NO COOKIE
+    
     const cookieStore = await cookies();
-
     cookieStore.set("auth_token", data.token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
       path: "/",
+      sameSite: "lax",
     });
-
+    
     return { success: true };
-  } catch (err) {
+
+   } catch (err) {
     const error = err as AxiosError<LoginErrorResponse>;
 
     let message = "Erro na autenticação";
@@ -54,3 +53,5 @@ export async function loginAction({
     return { success: false, error: message };
   }
 }
+
+
