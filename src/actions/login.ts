@@ -8,7 +8,9 @@ import {
   LoginErrorResponse,
 } from "@/types/login";
 
-type LoginResult = { success: true } | { success: false; error: string };
+type LoginResult =
+  | { success: true }
+  | { success: false; error: string };
 
 export async function loginAction({
   seu_rf,
@@ -22,10 +24,18 @@ export async function loginAction({
       {
         username: seu_rf,
         password: senha,
-      },
-      { withCredentials: true }
+      }
     );
 
+    // 🔐 SALVA O TOKEN NO COOKIE
+    const cookieStore = await cookies();
+
+    cookieStore.set("auth_token", data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
 
     return { success: true };
   } catch (err) {

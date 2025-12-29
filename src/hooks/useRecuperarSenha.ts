@@ -51,7 +51,7 @@ const useRecuperarSenha = () => {
       if (!response.success) return;
       
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      router.push("/home");
+      router.push("/dashboard");
     },
   });
 };
