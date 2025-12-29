@@ -304,7 +304,7 @@ export default function ModalNovaSenha({
                             <Button
                                 type="submit"
                                 size="sm"
-                                className="text-center rounded-md text-[14px] font-[700] bg-[#717FC7] text-white hover:bg-[#5a65a8]"
+                                className="text-center rounded-md text-[14px] font-[700] bg-[#B22B2A] text-white hover:bg-[#B22B2A]"
                                 disabled={!podeSalvar}
                             >
                                 Salvar senha

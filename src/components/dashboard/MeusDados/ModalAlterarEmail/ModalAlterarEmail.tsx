@@ -161,7 +161,7 @@ export default function ModalAlterarEmail({
                             {updateSuccess ? (
                                 <Button
                                     size="sm"
-                                    className="text-center rounded-md text-[14px] font-[700] bg-[#717FC7] text-white hover:bg-[#5a65a8]"
+                                    className="text-center rounded-md text-[14px] font-[700] bg-[#B22B2A] text-white hover:bg-[#B22B2A]"
                                     onClick={() => handleOpenChange(false)}
                                 >
                                     Fechar
@@ -180,7 +180,7 @@ export default function ModalAlterarEmail({
                                     <Button
                                         type="submit"
                                         size="sm"
-                                        className="text-center rounded-md text-[14px] font-[700] bg-[#717FC7] text-white hover:bg-[#5a65a8] min-w-[103px]"
+                                        className="text-center rounded-md text-[14px] font-[700] bg-[#B22B2A] text-white hover:bg-[#B22B2A] min-w-[103px]"
                                         disabled={
                                             !form.formState.isValid ||
                                             form.getValues("email") ===

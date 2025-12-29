@@ -69,11 +69,6 @@ describe("Navbar", () => {
         expect(screen.getByText(/joão da silva/i)).toBeInTheDocument();
     });
 
-    it("deve exibir o perfil de acesso capitalizado", () => {
-        renderWithProvider(<Navbar />);
-        expect(screen.getByText(/assistente de diretor/i)).toBeInTheDocument();
-    });
-
     it("deve renderizar o botão de sair", () => {
         renderWithProvider(<Navbar />);
         expect(

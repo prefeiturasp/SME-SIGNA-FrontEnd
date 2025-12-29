@@ -82,9 +82,9 @@ export function Combobox({
                                 className={cn(
                                     "cursor-pointer",
                                     value === opt.value
-                                        ? "bg-[#717FC7] text-white"
+                                        ? "bg-[#B22B2A] text-white"
                                         : "",
-                                    "data-[highlighted]:bg-[#717FC7] data-[highlighted]:text-white"
+                                    "data-[highlighted]:bg-[#B22B2A] data-[highlighted]:text-white"
                                 )}
                             >
                                 {opt.label}

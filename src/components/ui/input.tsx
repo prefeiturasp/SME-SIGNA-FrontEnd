@@ -8,10 +8,10 @@ import { numberToBRL } from "@/lib/utils";
 import { useFormField } from "./form";
 
 export interface InputProps
-    extends React.InputHTMLAttributes<HTMLInputElement> {}
+    extends React.InputHTMLAttributes<HTMLInputElement> { }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, type, ...props }, ref) => {
+    ({ className, type, value, ...props }, ref) => {
         const { error } = useFormField();
 
         return (
@@ -23,11 +23,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     className
                 )}
                 ref={ref}
+                value={value ?? ""}
                 {...props}
             />
         );
     }
 );
+
 Input.displayName = "Input";
 
 export interface InputMaskProps extends InputProps {
@@ -50,7 +52,7 @@ const InputMask = React.forwardRef<HTMLInputElement, InputMaskProps>(
 );
 InputMask.displayName = "InputMask";
 
-export interface CurrencyInputProps extends InputProps {}
+export interface CurrencyInputProps extends InputProps { }
 
 const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
     ({ onChange, ...props }, ref) => {

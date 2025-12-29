@@ -129,7 +129,7 @@ export function MultiSelect({
                                         className={cn(
                                             "flex h-4 w-4 items-center justify-center rounded-sm border border-[#dadada]",
                                             isSelected
-                                                ? "bg-[#717FC7] border-[#717FC7] text-white"
+                                                ? "bg-[#B22B2A] border-[#B22B2A] text-white"
                                                 : "bg-white"
                                         )}
                                     >

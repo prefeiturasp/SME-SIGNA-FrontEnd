@@ -8,7 +8,7 @@ const QuadroUsuario: React.FC = () => {
     const user = useUserStore((state) => state.user);
     return (
         <div className="flex flex-col items-center justify-center bg-[#E8F0FE] rounded-[4px] p-6 h-full">
-            <User width={48} height={48} fill="#717FC7" />
+            <User width={48} height={48} fill="#B22B2A" />
             <span className="mt-4 text-[24px] font-bold text-[#42474A] text-center">
                 {user?.name}
             </span>

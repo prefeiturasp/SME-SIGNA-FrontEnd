@@ -204,7 +204,7 @@ export default function AlterarSenha({
             <Button
               type="submit"
               variant="secondary"
-              className="w-full text-center rounded-md text-[16px] font-[700] md:h-[45px] inline-block align-middle text-white hover:bg-[#5a65a8] mt-6"
+              className="w-full text-center rounded-md text-[16px] font-[700] md:h-[45px] inline-block align-middle text-white hover:bg-[#B22B2A] mt-6"
               disabled={
                 isPending ||
                 Object.keys(form.formState.errors).length > 0 ||
