@@ -48,7 +48,7 @@ describe("atualizarSenhaAction", () => {
         const result = await atualizarSenhaAction(dados);
 
         expect(axiosPostMock).toHaveBeenCalledWith(
-            "https://api.exemplo.com/users/atualizar-senha",
+            "https://api.exemplo.com/usuario/atualizar-senha",
             dados,
             {
                 headers: {
