@@ -24,7 +24,7 @@ export default function Logout(props: Readonly<React.SVGProps<SVGSVGElement>>) {
                             rx="14"
                             ry="14"
                             transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                            style={{ fill: "#606ba7" }}
+                            style={{ fill: "#B22B2A" }}
                         ></ellipse>
                     </g>
                 </g>

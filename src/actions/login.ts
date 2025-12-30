@@ -8,7 +8,9 @@ import {
   LoginErrorResponse,
 } from "@/types/login";
 
-type LoginResult = { success: true } | { success: false; error: string };
+type LoginResult =
+  | { success: true }
+  | { success: false; error: string };
 
 export async function loginAction({
   seu_rf,
@@ -22,8 +24,7 @@ export async function loginAction({
       {
         username: seu_rf,
         password: senha,
-      },
-      { withCredentials: true }
+      }
     );
     
     const cookieStore = await cookies();
