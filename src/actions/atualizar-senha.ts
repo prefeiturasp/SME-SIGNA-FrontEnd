@@ -24,7 +24,7 @@ export async function atualizarSenhaAction(
             };
         }
 
-        await axios.post(`${API_URL}/users/atualizar-senha`, dados, {
+        await axios.post(`${API_URL}/usuario/atualizar-senha`, dados, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
             },
