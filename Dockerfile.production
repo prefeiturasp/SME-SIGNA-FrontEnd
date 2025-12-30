@@ -1,51 +1,41 @@
 # Estágio 1: Base
 FROM node:22.12.0-alpine AS base
 
-# Install dependencies only when needed
+# Dependências
 FROM base AS deps
-# libc6-compat pode ser necessário para alguns pacotes nativos
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on npm
 COPY package.json package-lock.json ./
-RUN npm ci && npm install sharp
+RUN npm ci
 
-# Rebuild the source code only when needed
+# Build
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build do Next.js
 RUN npm run build
 
-# Production image
+# Runtime
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
 
-# Copy public directory
 COPY --from=builder /app/public ./public
 
-# Set permissions for Next.js cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN mkdir .next && chown nextjs:nodejs .next
 
-# Copy standalone output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# server.js é gerado pelo build standalone do Next.js
 CMD ["node", "server.js"]
