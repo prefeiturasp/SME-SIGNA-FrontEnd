@@ -4,9 +4,9 @@ import { usePathname } from "next/navigation";
 import * as sidebarUi from "@/components/ui/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-vi.mock("@/assets/images/logo-gipe-nome.webp", () => ({
+vi.mock("@/assets/images/logo-signa.png", () => ({
     default: {
-        src: "/logo-gipe-nome.webp",
+        src: "/logo-signa.png",
         height: 40,
         width: 120,
     },
