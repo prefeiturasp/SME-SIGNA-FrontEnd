@@ -14,7 +14,7 @@ export async function atualizarSenhaAction(
     const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
     try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const authToken = cookieStore.get("auth_token")?.value;
 
         if (!authToken) {

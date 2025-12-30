@@ -11,7 +11,6 @@ type MeResult =
 export async function getMeAction(): Promise<MeResult> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-  // cookies() agora é async
   const cookieStore = await cookies();
 
   try {
