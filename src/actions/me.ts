@@ -11,9 +11,8 @@ type MeResult =
 export async function getMeAction(): Promise<MeResult> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-  const cookieStore = await cookies();
-
   try {
+    const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
 
     if (!authToken) {
@@ -31,18 +30,25 @@ export async function getMeAction(): Promise<MeResult> {
 
     return { success: true, data };
   } catch (err) {
-  if (axios.isAxiosError(err)) {
-    console.error("AXIOS ERROR");
-    console.error("STATUS:", err.response?.status);
-    console.error("URL:", err.config?.url);
-    console.error("RESPONSE:", err.response?.data);
-  } else {
-    console.error("ERRO DESCONHECIDO:", err);
-  }
+    if (axios.isAxiosError(err)) {
+      const error = err as AxiosError<{ code?: string; detail?: string }>;
 
-  return {
-    success: false,
-    error: "Erro ao buscar os dados do usuário",
-  };
+      if (
+        error.response?.status === 401 ||
+        error.response?.data?.code === "token_not_valid"
+      ) {
+        const cookieStore = await cookies();
+        cookieStore.delete("auth_token");
+      }
+
+      if (error.response?.data?.detail) {
+        return { success: false, error: error.response.data.detail };
+      }
+    }
+
+    return {
+      success: false,
+      error: "Erro ao buscar os dados do usuário",
+    };
   }
 }
