@@ -65,7 +65,7 @@ export default function LoginForm() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>RF ou CPF</FormLabel>
+                      <FormLabel>RF</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger type="button">
@@ -75,7 +75,7 @@ export default function LoginForm() {
                             align="start"
                             className="bg-white text-black"
                           >
-                            Digite seu RF ou CPF
+                            Preencha os campos
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -106,7 +106,7 @@ export default function LoginForm() {
                             align="start"
                             className="bg-white text-black"
                           >
-                            Digite sua Senha
+                            Preencha os campos
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
