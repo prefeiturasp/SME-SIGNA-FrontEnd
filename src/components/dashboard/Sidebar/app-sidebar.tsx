@@ -7,7 +7,7 @@ import Bars from "@/assets/icons/Bars";
 import { cn } from "@/lib/utils";
 import { SidebarLink } from "./SidebarLink";
 import { usePathname } from "next/navigation";
-import LogoGipeNome from "@/assets/images/logo-signa.png";
+import LogoSignaNome from "@/assets/images/logo-signa.png";
 
 import {
     Sidebar,
@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {...props}
         >
             <SidebarHeader>
-                <SidebarTrigger logo={LogoGipeNome} />
+                <SidebarTrigger logo={LogoSignaNome} />
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup className={`${open ? "p-2" : "p-1"}`}>

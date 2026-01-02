@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useUserStore } from "@/stores/useUserStore";
-import LogoGipe from "@/assets/images/logo-signa-completo.png";
+import LogoSigna from "@/assets/images/logo-signa-completo.png";
 import SignOutButton from "./SignOutButton";
 
 function capitalizeWords(str: string) {
@@ -21,7 +21,7 @@ export function Navbar() {
     return (
         <header className="flex items-center justify-between border-b border-gray-200 bg-white h-[72px] px-4">
             <div className="flex items-center">
-                <Image src={LogoGipe} alt="Logo GIPE" width={77} height={56} />
+                <Image src={LogoSigna} alt="Logo Signa" width={77} height={56} />
             </div>
 
             <div className="flex items-center gap-4">
