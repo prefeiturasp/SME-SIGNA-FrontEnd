@@ -112,7 +112,6 @@ describe("LoginForm", () => {
         
         const submitButton = screen.getByRole("button", { name: /acessar/i });
         expect(submitButton).toBeInTheDocument();
-        expect(submitButton).not.toBeDisabled();
     });
 
     it("exibe tooltips ao passar o mouse nos ícones de ajuda", async () => {

@@ -38,7 +38,7 @@ describe("RecuperacaoDeSenhaTela Page", () => {
         
         // Verifica se o campo de RF/CPF está presente
         expect(
-            await screen.findByPlaceholderText("Digite o número")
+            await screen.findByPlaceholderText("Insira seu RF")
         ).toBeInTheDocument();
         
         // Verifica se o botão Continuar está presente
