@@ -26,7 +26,6 @@ import {
 import useRecuperarSenha from "@/hooks/useRecuperarSenha";
 import Link from "next/link";
 import LogoSigna from "@/components/login/LogoSigna";
-import { EsqueciSenhaPayload } from "@/types/recuperarSenha";
 import { EsqueciSenhaRequest } from "@/types/esqueci-senha";
 import { Mensagem } from "@/types/generic";
 export default function RecuperarSenha() {
@@ -41,6 +40,8 @@ export default function RecuperarSenha() {
 
   const { mutateAsync: fazRecuperarSenha, isPending: estaCarregando } =
     recoveryPasswordMutation;
+
+  const estaDesabilitado = !form.formState.isDirty;
 
   const [mensagemDeSucesso, setMensagemDeSucesso] = useState<Mensagem>();
   const [mensagemDeErro, setMensagemDeErro] = useState<Mensagem>();
@@ -68,12 +69,14 @@ export default function RecuperarSenha() {
   };
 
   return (
-    <div className="flex items-center justify-center  h-screen">
-      <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
-        <LogoSigna />
+    <div className="flex items-center justify-center ">
+      <div className="flex flex-col gap-2.5  mb-20 w-96">
+        <div className="flex justify-center">
+          <LogoSigna />
+        </div>
 
-        <div className="py-16">
-          <h4 className="scroll-m-20 text-xl font-semibold tracking-tight Title">
+        <div className="py-5">
+          <h4 className="scroll-m-20 text-xl font-semibold tracking-tight Title ">
             Recuperação de senha
           </h4>
 
@@ -93,17 +96,14 @@ export default function RecuperarSenha() {
           )}
 
           {!mensagemDeErro && !mensagemDeSucesso && (
-            <p className="Paragraphy ParagraphyWrapper">
-              Informe o seu usuário ou RF. Você recebera um e-mail com
-              orientações para redefinir sua senha.
+            <p className="Paragraphy ParagraphyWrapper pb-6 pt-6 text-sm">
+              Informe o seu usuário ou RF. Você recebera um e-mail com orientações para redefinir sua senha.
             </p>
           )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              {/* RF / CPF */}
-              {/* TODO REFATORAR O CSS E TAMANHOS DE FONTE E ICONES  */}
-
+  
               {mostarCampoRFOuCPF && (
                 <FormField
                   control={form.control}
@@ -111,7 +111,7 @@ export default function RecuperarSenha() {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-1">
-                        <FormLabel className="mt-2.5">RF ou CPF</FormLabel>
+                        <FormLabel className="text-sm">RF</FormLabel>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger type="button">
@@ -121,7 +121,7 @@ export default function RecuperarSenha() {
                               align="start"
                               className="bg-white text-black"
                             >
-                              Digite seu RF ou CPF
+                              Insira seu RF
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -130,7 +130,7 @@ export default function RecuperarSenha() {
                       <FormControl>
                         <Input
                           id="seu_rf"
-                          placeholder="Digite o número"
+                          placeholder="Insira seu RF"
                           {...field}
                         />
                       </FormControl>
@@ -139,12 +139,21 @@ export default function RecuperarSenha() {
                   )}
                 />
               )}
+
+             
+
+          <div className="mt-6 mb-6 bg-[#F8F9FA] p-5 rounded-2">
+              <p className="Paragraphy ParagraphyWrapper p-1 text-sm">
+                <b>Importante:</b> Ao alterar a sua senha, ela se tornará padrão e será utilizada para acessar todos os sistemas da SME aos quais você já possui acesso.
+              </p>
+            </div>
+
               {!mensagemDeErro && !mensagemDeSucesso && (
                 <div className="mt-2.5">
                   <Button
                     type="submit"
                     variant="secondary"
-                    disabled={estaCarregando}
+                    disabled={estaDesabilitado}
                     className="rounded text-white w-full disabled:opacity-50"
                     loading={estaCarregando}
                   >
