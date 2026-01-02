@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import LogoGipe from "@/components/login/LogoSigna";
+import LogoSigna from "@/components/login/LogoSigna";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import Check from "@/assets/icons/Check";
@@ -35,7 +35,7 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
             setReturnMessage({
                 success: true,
                 message:
-                    "Agora você já possui acesso ao GIPE com o novo endereço de e-mail cadastrado.",
+                    "Agora você já possui acesso ao Signa com o novo endereço de e-mail cadastrado.",
             });
         } else {
             setReturnMessage({
@@ -64,7 +64,7 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
     return (
         <div className="w-full max-w-sm h-screen mx-auto flex flex-col py-0 overflow-hidden">
             <div className="flex justify-start pt-20">
-                <LogoGipe />
+                <LogoSigna />
             </div>
 
             <div className="flex-1 flex items-center justify-center">
@@ -111,7 +111,7 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
                                     replace
                                 >
                                     {returnMessage.success
-                                        ? "Continuar no GIPE"
+                                        ? "Continuar no Signa"
                                         : "Alterar e-mail"}
                                 </Link>
                             </Button>
