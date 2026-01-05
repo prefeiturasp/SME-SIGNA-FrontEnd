@@ -23,7 +23,6 @@ import {
 import useLogin from "@/hooks/useLogin";
 import Link from "next/link";
 import { LoginRequest } from "@/types/login";
-import BannerForms from "@/assets/images/banner.webp";
 import { useRouter } from "next/navigation";
 import LogoSigna from "../LogoSigna";
 
@@ -39,12 +38,10 @@ export default function LoginForm() {
   const loginMutation = useLogin();
 
   const { mutateAsync: doLogin, isPending: isLoggingIn } = loginMutation;
-
+  const estaDesabilitado = !form.formState.isDirty;
   const [errorMessage, setErrorMessage] = useState("");
 
- 
-
-  const onSubmit = async (values:LoginRequest) => {
+  const onSubmit = async (values: LoginRequest) => {
     const response = await doLogin(values);
     if (!response.success) {
       setErrorMessage(response.error);
@@ -52,23 +49,23 @@ export default function LoginForm() {
   };
 
   return (
-
-    <div className="flex items-center justify-center  h-screen">
-            <div className="flex flex-col gap-2.5 px-8 pb-20 w-96">
-
-        <LogoSigna />
+    <div className="flex items-center justify-center  ">
+      <div className="flex flex-col gap-2.5  mb-20 w-96">
+        <div className="flex justify-center">
+          <LogoSigna />
+        </div>
 
         <div className="pt-16 pb-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               {/* RF / CPF */}
-              <FormField                
+              <FormField
                 control={form.control}
                 name="seu_rf"
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>RF ou CPF</FormLabel>
+                      <FormLabel>RF</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger type="button">
@@ -78,7 +75,7 @@ export default function LoginForm() {
                             align="start"
                             className="bg-white text-black"
                           >
-                            Digite seu RF ou CPF
+                            Preencha os campos
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -109,7 +106,7 @@ export default function LoginForm() {
                             align="start"
                             className="bg-white text-black"
                           >
-                            Digite sua Senha
+                            Preencha os campos
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -129,11 +126,11 @@ export default function LoginForm() {
                 )}
               />
 
-              <div className="mt-2.5">
+              <div className="mt-8">
                 <Button
                   type="submit"
-                  variant="submit"
-                  disabled={isLoggingIn}
+                  variant="secondary"
+                  disabled={estaDesabilitado}
                   loading={isLoggingIn}
                   className="rounded text-white w-full disabled:opacity-50"
                 >
@@ -168,10 +165,14 @@ export default function LoginForm() {
           height={47}
           className="self-center  pb-4"
         />
-        <Button asChild variant="customOutline" className="w-full mt-2">
+        <div className="flex justify-center">
+          <span className="text-sm text-gray-500">Ainda não possui cadastro?</span>
+        </div>
+
+        <Button asChild variant="customOutline" className="w-full ">
           <Link href="/">Cadastre-se</Link>
         </Button>
       </div>
-      </div>
-   );
+    </div>
+  );
 }
