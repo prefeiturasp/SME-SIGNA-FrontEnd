@@ -55,7 +55,7 @@ describe("ConfirmarEmail component", () => {
 
         await screen.findByText("E-mail confirmado!");
         expect(
-            screen.getByText(/Agora você já possui acesso ao GIPE/i)
+            screen.getByText(/Agora você já possui acesso ao Signa/i)
         ).toBeInTheDocument();
     });
 

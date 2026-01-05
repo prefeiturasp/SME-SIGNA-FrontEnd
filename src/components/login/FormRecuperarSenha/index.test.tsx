@@ -35,7 +35,7 @@ describe("FormRecuperarSenha", () => {
     it("renderiza o campo de RF/CPF e botão Continuar", async () => {
         render(<LoginForm />, { wrapper });
         expect(
-            await screen.findByPlaceholderText("Digite o número")
+            await screen.findByPlaceholderText("Insira seu RF")
         ).toBeInTheDocument();
         expect(
             screen.getByRole("button", { name: /continuar/i })
@@ -49,7 +49,7 @@ describe("FormRecuperarSenha", () => {
                 "Seu link de recuperação de senha foi enviado",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
+        fireEvent.input(screen.getByPlaceholderText("Insira seu RF"), {
             target: { value: "47198005055" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
@@ -69,7 +69,7 @@ describe("FormRecuperarSenha", () => {
             message: "Link enviado!",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
+        fireEvent.input(screen.getByPlaceholderText("Insira seu RF"), {
             target: { value: "1234567" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
@@ -85,7 +85,7 @@ describe("FormRecuperarSenha", () => {
             error: "Usuário não encontrado",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
+        fireEvent.input(screen.getByPlaceholderText("Insira seu RF"), {
             target: { value: "64718737001" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
@@ -110,7 +110,7 @@ describe("FormRecuperarSenha", () => {
             message: "Seu link de recuperação de senha foi enviado",
         });
         render(<LoginForm />, { wrapper });
-        fireEvent.input(screen.getByPlaceholderText("Digite o número"), {
+        fireEvent.input(screen.getByPlaceholderText("Insira seu RF"), {
             target: { value: "47198005055" },
         });
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));

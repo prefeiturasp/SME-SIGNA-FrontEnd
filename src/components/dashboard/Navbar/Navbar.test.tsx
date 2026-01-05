@@ -40,7 +40,7 @@ describe("Navbar", () => {
 
     it("deve renderizar a logo", () => {
         renderWithProvider(<Navbar />);
-        expect(screen.getByAltText("Logo GIPE")).toBeInTheDocument();
+        expect(screen.getByAltText("Logo Signa")).toBeInTheDocument();
     });
 
     it("deve exibir RF quando username não for CPF", () => {
