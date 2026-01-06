@@ -30,19 +30,37 @@ export async function getMeAction(): Promise<MeResult> {
 
     return { success: true, data };
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const error = err as AxiosError<{ code?: string; detail?: string }>;
+    if (err instanceof AxiosError) {
+      const status = err.response?.status;
+      const data = err.response?.data as {
+        code?: string;
+        detail?: string;
+      };
 
-      if (
-        error.response?.status === 401 ||
-        error.response?.data?.code === "token_not_valid"
-      ) {
+      if (status === 401 || data?.code === "token_not_valid") {
         const cookieStore = await cookies();
         cookieStore.delete("auth_token");
       }
 
-      if (error.response?.data?.detail) {
-        return { success: false, error: error.response.data.detail };
+      if (status === 500) {
+        return {
+          success: false,
+          error: "Erro interno no servidor",
+        };
+      }
+
+      if (data?.detail) {
+        return {
+          success: false,
+          error: data.detail,
+        };
+      }
+
+      if (err.message) {
+        return {
+          success: false,
+          error: err.message,
+        };
       }
     }
 
@@ -51,4 +69,5 @@ export async function getMeAction(): Promise<MeResult> {
       error: "Erro ao buscar os dados do usuário",
     };
   }
+
 }

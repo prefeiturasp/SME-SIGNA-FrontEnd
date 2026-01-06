@@ -20,7 +20,7 @@ vi.mock("next/headers", () => ({
 const axiosGetMock = axios.get as Mock;
 const cookiesMock = cookies as Mock;
 
-describe.skip("getMeAction", () => {
+describe("getMeAction", () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
