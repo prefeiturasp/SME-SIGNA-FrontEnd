@@ -4,6 +4,7 @@ import * as React from "react";
 import Alert from "@/assets/icons/Alert";
 import User from "@/assets/icons/User";
 import Bars from "@/assets/icons/Bars";
+import Designacao from "@/assets/icons/Designacao";
 import { cn } from "@/lib/utils";
 import { SidebarLink } from "./SidebarLink";
 import { usePathname } from "next/navigation";
@@ -33,6 +34,11 @@ const items = [
         title: "Meus dados",
         url: "/dashboard/meus-dados",
         icon: User,
+    },
+    {
+        title: "Designações",
+        url: "/dashboard/designacoes",
+        icon: Designacao,
     },
 ];
 
