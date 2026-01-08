@@ -14,18 +14,19 @@ export default function Designacoes() {
 
       <div className="flex flex-col md:flex-row gap-8 items-stretch">
         <div className="w-full md:w-2/3 flex flex-col self-stretch">
-        <FundoBranco >           
+        <FundoBranco className="md:h-[65vh]">      
+               
             <h1 className="text-[#42474a] text-[18px] font-bold m-0">
                  Pesquisa de unidade
             </h1>
             <Divider className="mt-2"/>
           
-            <FormDesignacao/>
+            <FormDesignacao />
           </FundoBranco>
         </div>
 
-        <div className="w-full md:w-1/3 flex flex-col self-stretch">
-          <FundoBranco>
+        <div className="w-full md:w-1/3 flex flex-col self-stretch h-auto md:h-[100vh]">
+          <FundoBranco className="md:h-[65vh]">
             <StepperDesignacao />
           </FundoBranco>
         </div>

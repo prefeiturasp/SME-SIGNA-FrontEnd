@@ -7,11 +7,11 @@ const content = 'This is a content.';
 
 const items = [
   {
-    title: 'Finished',
+    title: 'Validar dados',
     content,
   },
   {
-    title: 'In Progress',
+    title: 'Pesquisa de  unidade',
     content,
   },
   {
@@ -19,9 +19,9 @@ const items = [
     content,
   },
 ];
-const StepperDesignacao: React.FC = () => {
+const StepperDesignacao: React.FC<{ className?: string }> = ({ className }) => {
   return (
-    <Flex>
+    <Flex className={className}>
       <div style={{ flex: 1 }}>
         <Steps orientation="vertical" current={1} items={items} />
       </div>

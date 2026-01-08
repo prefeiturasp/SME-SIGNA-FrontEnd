@@ -43,7 +43,7 @@ const defaultValues: DesignacaoFormValues = {
   modulos: "",
 };
 
-const FormDesignacao: React.FC = () => {
+const FormDesignacao: React.FC<{ className?: string }> = ({ className }) => {
   const form = useForm<DesignacaoFormValues>({
     resolver: zodResolver(designacaoSchema),
     defaultValues,
@@ -55,6 +55,7 @@ const FormDesignacao: React.FC = () => {
   };
 
   return (
+    <div className={className}>
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
@@ -261,6 +262,7 @@ const FormDesignacao: React.FC = () => {
         </div>
       </form>
     </Form>
+    </div>
   );
 };
 
