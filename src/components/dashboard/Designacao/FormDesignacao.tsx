@@ -252,14 +252,7 @@ const FormDesignacao: React.FC<{ className?: string }> = ({ className }) => {
           />
         </div>
 
-        <div className="flex justify-end mt-6">
-          <Button
-            type="submit"
-            className="text-[14px] font-[700] bg-[#B22B2A] text-white hover:bg-[#B22B2A]"
-          >
-            Salvar
-          </Button>
-        </div>
+         
       </form>
     </Form>
     </div>

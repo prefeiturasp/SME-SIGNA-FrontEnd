@@ -3,20 +3,19 @@
 import React from "react";
 import { Flex, Steps } from 'antd';
 
-const content = 'This is a content.';
-
+ 
 const items = [
   {
     title: 'Validar dados',
-    content,
+    content: 'Validar dados da Designação',
   },
   {
     title: 'Pesquisa de  unidade',
-    content,
+    content: 'Dados da Pesquisa de  unidade',
   },
   {
-    title: 'Waiting',
-    content,
+    title: 'Próximos passos',
+    content: 'Próximos passos da Designação',
   },
 ];
 const StepperDesignacao: React.FC<{ className?: string }> = ({ className }) => {
