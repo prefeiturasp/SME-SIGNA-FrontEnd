@@ -51,7 +51,7 @@ describe("AppSidebar", () => {
     it("renderiza os itens do menu e destaca o ativo", () => {
         renderWithProvider(<AppSidebar />);
         expect(screen.getByText("Meus dados")).toBeInTheDocument();
-        expect(screen.getByTestId("icon-alert")).toBeInTheDocument();
+        expect(screen.getByTestId("icon-home")).toBeInTheDocument();
         expect(screen.getByTestId("icon-user")).toBeInTheDocument();
     });
 
@@ -76,7 +76,7 @@ describe("AppSidebar", () => {
             toggleSidebar: () => {},
         });
         renderWithProvider(<AppSidebar />);
-        expect(screen.getByTestId("icon-alert")).toBeInTheDocument();
+        expect(screen.getByTestId("icon-home")).toBeInTheDocument();
         expect(screen.getByTestId("icon-user")).toBeInTheDocument();
         expect(screen.getByText("Meus dados")).toBeInTheDocument();
     });
