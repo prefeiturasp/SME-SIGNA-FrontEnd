@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Alert from "@/assets/icons/Alert";
+import Home from "@/assets/icons/Home";
 import User from "@/assets/icons/User";
 import Bars from "@/assets/icons/Bars";
 import { cn } from "@/lib/utils";
@@ -25,9 +25,9 @@ import {
 
 const items = [
     {
-        title: "Dashboard",
+        title: "Início",
         url: "/dashboard",
-        icon: Alert,
+        icon: Home,
     },
     {
         title: "Meus dados",

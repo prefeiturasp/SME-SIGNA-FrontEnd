@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useUserStore } from "@/stores/useUserStore";
-import LogoSigna from "@/assets/images/logo-signa-completo.png";
+import LogoSigna from "@/assets/images/logo-signa-transparent.png";
 import SignOutButton from "./SignOutButton";
 
 function capitalizeWords(str: string) {

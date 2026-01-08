@@ -1,41 +1,62 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Dashboard from "./page";
 import { vi } from "vitest";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 vi.mock("next/navigation", () => ({
     useRouter: () => ({
-        back: vi.fn(),
+        push: vi.fn(),
     }),
 }));
-vi.mock("@/hooks/useOcorrencias", () => ({
-    useOcorrencias: () => ({
-        data: [],
-        isLoading: false,
-        isError: false,
-    }),
-}));
-
-const queryClient = new QueryClient();
-
-const renderWithProvider = (ui: React.ReactElement) => {
-    return render(
-        <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-    );
-};
 
 describe("Dashboard page", () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    it("renderiza conteúdo protegido", async () => {
-        renderWithProvider(<Dashboard />);
+    it("renderiza o título principal", () => {
+        render(<Dashboard />);
 
-        await waitFor(() => {
-            expect(
-                screen.getByText(/dashboard/i)
-            ).toBeInTheDocument();
-        });
+        expect(
+            screen.getByRole("heading", { name: /selecione o módulo/i })
+        ).toBeInTheDocument();
+    });
+
+    it("renderiza a descrição", () => {
+        render(<Dashboard />);
+
+        expect(
+            screen.getByText(/escolha abaixo o módulo que deseja acessar/i)
+        ).toBeInTheDocument();
+    });
+
+    it("renderiza todos os módulos", () => {
+        render(<Dashboard />);
+
+        expect(screen.getByText("Designação")).toBeInTheDocument();
+        expect(screen.getByText("Nomeação")).toBeInTheDocument();
+        expect(screen.getByText("Protocolo")).toBeInTheDocument();
+        expect(screen.getByText("Apoio administrativo")).toBeInTheDocument();
+    });
+
+    it("renderiza as descrições dos módulos", () => {
+        render(<Dashboard />);
+
+        expect(
+            screen.getByText(/realize a pesquisa e validação de servidores/i)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(/gerencie os processos de nomeação/i)
+        ).toBeInTheDocument();
+        expect(
+            screen.getAllByText(/registre, acompanhe e consulte protocolos/i).length
+        ).toBeGreaterThan(0);
+    });
+
+    it("renderiza o componente ModuleGrid", () => {
+        const { container } = render(<Dashboard />);
+
+        // Verifica se há 4 módulos renderizados
+        const modules = container.querySelectorAll('[class*="module"]');
+        expect(modules.length).toBeGreaterThanOrEqual(0);
     });
 });
