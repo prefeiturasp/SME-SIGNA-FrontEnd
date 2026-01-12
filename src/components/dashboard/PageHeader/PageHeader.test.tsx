@@ -2,6 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import PageHeader from "./PageHeader";
+import { describe, it, expect } from "vitest";
 
 vi.mock("next/link", () => ({
   __esModule: true,
@@ -77,9 +78,8 @@ describe("PageHeader", () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 });
-import { render, screen } from "@testing-library/react";
-import PageHeader from "./PageHeader";
-import { describe, it, expect } from "vitest";
+
+
 
 describe("PageHeader", () => {
     it("deve renderizar o título", () => {
