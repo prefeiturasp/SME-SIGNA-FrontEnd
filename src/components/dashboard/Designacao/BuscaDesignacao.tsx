@@ -58,7 +58,7 @@ const BuscaDesignacao: React.FC<{ className?: string }> = ({ className }) => {
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        className="bg-[#fff] shadow-[0_2.7px_27px_rgba(69,69,80,0.1)]"
+                        className="bg-[#fff] shadow-[0_2.7px_27px_rgba(69,69,80,0.1)] font-size-[16px]"
                         {...field}
                         placeholder="Entre com RF"
                         id="rf"
@@ -80,7 +80,7 @@ const BuscaDesignacao: React.FC<{ className?: string }> = ({ className }) => {
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        className="bg-[#fff] shadow-[0_2.7px_27px_rgba(69,69,80,0.1)]"
+                        className="bg-[#fff] shadow-[0_2.7px_27px_rgba(69,69,80,0.1)] font-size-[15px]"
                         {...field}
                         placeholder="Entre com o nome"
                         id="nome_do_servidor"

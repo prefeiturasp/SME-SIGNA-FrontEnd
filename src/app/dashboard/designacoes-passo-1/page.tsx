@@ -15,20 +15,20 @@ import BuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao";
 
 export default function DesignacoesPasso1() {
 
-  const defaultValues: DesignacaoResumoValues = {
-  servidor: "Jussara Mara Ramos Pires",
-   rf: "00-000000",
-   vinculo: "2",
-   lotacao: "00-000000",
-   cargo_base: "Prof. xxxxxxxxxxxxxxxx",
-   aulas_atribuidas: "xxxxxxxxxxxxxxxxxxxxxxxxx ",
-   funcao: "xxxxxxxxxxxxxxxxxxxxxxxxx",
-   cargo_sobreposto: "xxxxxxxxxxxxxxxxxxxxxxxxx",
-   cursos_titulos: "xxxxxxxxxxxxxxxxxxxxxxxxx",
-   estagio_probatorio: "xxxxxxxxxx",
-   aprovado_em_concurso: "xxxxxxxxxx",
-   laudo_medico: "xxxxxxxxxx",
- };
+  const data: DesignacaoResumoValues = {
+    servidor: "Jussara Mara Ramos Pires",
+    rf: "00-000000",
+    vinculo: "2",
+    lotacao: "00-000000",
+    cargo_base: "Prof. xxxxxxxxxxxxxxxx",
+    aulas_atribuidas: "xxxxxxxxxxxxxxxxxxxxxxxxx ",
+    funcao: "xxxxxxxxxxxxxxxxxxxxxxxxx",
+    cargo_sobreposto: "xxxxxxxxxxxxxxxxxxxxxxxxx",
+    cursos_titulos: "xxxxxxxxxxxxxxxxxxxxxxxxx",
+    estagio_probatorio: "xxxxxxxxxx",
+    aprovado_em_concurso: "xxxxxxxxxx",
+    laudo_medico: "xxxxxxxxxx",
+  };
   return (
     <>
       <PageHeader
@@ -39,35 +39,39 @@ export default function DesignacoesPasso1() {
       />
       <BuscaDesignacao />
 
-      <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-        <div className="w-full lg:w-3/4 flex flex-col self-stretch">
-          <FundoBranco className="lg:h-[80vh]">
-            <Accordion
-              type="single"
-              collapsible
-              className="w-full"
-              defaultValue="item-1"
-            >
-              <h1 className="text-[#42474a] text-[18px] font-bold m-0">
-                Validar dados
-              </h1>
-              <Divider className="mt-2" />
-              <AccordionItem value="item-1">
-                <AccordionTrigger>Substituto</AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance pl-5">
-                  <ResumoDesignacao defaultValues={defaultValues} />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </FundoBranco>
-        </div>
 
-        <div className="w-full  lg:w-1/4 flex flex-col self-stretch h-auto ">
-          <FundoBranco className="lg:h-[80vh]">
-            <StepperDesignacao current={0} />
-          </FundoBranco>
-        </div>
-      </div>
+      {
+        data.servidor !== "" && (
+          <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+            <div className="w-full lg:w-3/4 flex flex-col self-stretch">
+              <FundoBranco className="lg:h-[80vh]">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full"
+                  defaultValue="item-1"
+                >
+                  <h1 className="text-[#42474a] text-[18px] font-bold m-0">
+                    Validar dados
+                  </h1>
+                  <Divider className="mt-2" />
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger>Substituto</AccordionTrigger>
+                    <AccordionContent className="flex flex-col gap-4 text-balance pl-5">
+                      <ResumoDesignacao defaultValues={defaultValues} />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </FundoBranco>
+            </div>
+
+            <div className="w-full  lg:w-1/4 flex flex-col self-stretch h-auto ">
+              <FundoBranco className="lg:h-[80vh]">
+                <StepperDesignacao current={0} />
+              </FundoBranco>
+            </div>
+          </div>
+        )}
     </>
   );
 }
