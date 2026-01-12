@@ -1,6 +1,5 @@
 "use client";
 
-import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import ModuleGrid from "./moduloGrid";
 import FileSignatureIcon from "@/assets/icons/FileSignatureIcon";
 import UserEditIcon from "@/assets/icons/UserEditIcon";
