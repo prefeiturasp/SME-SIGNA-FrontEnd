@@ -41,7 +41,7 @@ export default function DesignacoesPasso1() {
 
 
       {
-        data.servidor !== "" && (
+        data?.servidor  && (
           <div className="flex flex-col lg:flex-row gap-8 items-stretch">
             <div className="w-full lg:w-3/4 flex flex-col self-stretch">
               <FundoBranco className="lg:h-[80vh]">
@@ -58,7 +58,7 @@ export default function DesignacoesPasso1() {
                   <AccordionItem value="item-1">
                     <AccordionTrigger>Substituto</AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-4 text-balance pl-5">
-                      <ResumoDesignacao defaultValues={defaultValues} />
+                      <ResumoDesignacao defaultValues={data} />
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
