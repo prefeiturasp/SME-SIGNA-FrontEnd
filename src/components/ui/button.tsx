@@ -12,9 +12,9 @@ const buttonVariants = cva(
                 default:
                     "bg-primary text-primary-foreground hover:bg-primary/90 text-[#D85975]  font-[700]",
                 destructive:
-                    "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                    "bg-[#B22B2A]  text-destructive-foreground hover:bg-destructive/90",
                     outline:
-                    "border border-[#D85975] text-[#D85975] bg-background hover:bg-accent hover:text-accent-foreground",                  
+                    " border border-[#D85975] text-[#D85975] bg-background hover:bg-accent hover:text-accent-foreground",                  
                 customOutline:
                     "flex items-center text-[#D85975] text-[14px] font-[700] border border-[#D85975] bg-white hover:text-[#B22B2A] hover:border-[#B22B2A] hover:bg-white",
                 submit: "text-center rounded-md text-[14px] font-[700] bg-[#D85975] text-white ",
