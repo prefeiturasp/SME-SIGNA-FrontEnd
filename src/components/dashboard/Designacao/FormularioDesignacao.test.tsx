@@ -1,78 +1,49 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import FormDesignacao from "./FormularioDesignacao";
 
-const submitValues = {
-  nome_da_unidade: "123",
-  estrutura_hierarquica: "",
-  turmas: "",
-  funcionarios_da_unidade: "",
-  assistente_de_diretor_escolar: "",
-  secretario_da_escola: "",
-  funcao_atividade: "",
-  cargo_sobreposto: "",
-  modulos: "",
+type SubmitValues = {
+  nome_da_unidade: string;
+  estrutura_hierarquica: string;
+  turmas: string;
+  funcionarios_da_unidade: string;
+  assistente_de_diretor_escolar: string;
+  secretario_da_escola: string;
+  funcao_atividade: string;
+  cargo_sobreposto: string;
+  modulos: string;
 };
 
-const handleSubmitMock = vi.fn((fn: any) => () => fn(submitValues));
-
-const useFormMock = vi.fn(() => ({
-  control: {},
-  handleSubmit: handleSubmitMock,
-  register: vi.fn(),
-  formState: { errors: {} },
-}));
-
-vi.mock("react-hook-form", () => ({
-  useForm: (...args: any[]) => useFormMock(...args),
-}));
-
-vi.mock("@/components/ui/form", () => ({
-  Form: ({ children }: any) => (
-    <div data-testid="form-wrapper">
-      {children}
-    </div>
-  ),
-  FormField: ({ name, render }: any) => (
-    <div data-testid={`form-field-${name}`}>
-      {render({
-        field: {
-          name,
-          value: "",
-          onChange: vi.fn(),
-          onBlur: vi.fn(),
-          ref: vi.fn(),
-        },
-      })}
-    </div>
-  ),
-  FormItem: ({ children }: any) => <div>{children}</div>,
-  FormLabel: ({ children }: any) => <label>{children}</label>,
-  FormControl: ({ children }: any) => <div>{children}</div>,
-  FormMessage: () => <span data-testid="form-message" />,
-}));
-
-vi.mock("@/components/ui/input-base", () => ({
-  InputBase: (props: any) => <input data-testid={props.id} {...props} />,
-}));
+const submitValues: SubmitValues = {
+  nome_da_unidade: "123",
+  estrutura_hierarquica: "123",
+  turmas: "123",
+  funcionarios_da_unidade: "123",
+  assistente_de_diretor_escolar: "123",
+  secretario_da_escola: "123",
+  funcao_atividade: "123",
+  cargo_sobreposto: "123",
+  modulos: "123",
+};
 
 describe("FormDesignacao", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("configura useForm com resolver e defaultValues", () => {
+  it("usa valores iniciais vazios", () => {
     render(<FormDesignacao onSubmitDesignacao={vi.fn()} />);
 
-    expect(useFormMock).toHaveBeenCalledTimes(1);
-    const config = useFormMock.mock.calls[0][0];
-
-    expect(config.resolver).toEqual(expect.any(Function));
-    expect(config.mode).toBe("onChange");
-    expect(config.defaultValues).toMatchObject({
-      nome_da_unidade: "",
-      estrutura_hierarquica: "",
-    });
+    expect(
+      (screen.getByPlaceholderText("Nome da unidade") as HTMLInputElement).value
+    ).toBe("");
+    expect(
+      (
+        screen.getByPlaceholderText(
+          "Entre com a estrutura hierárquica",
+        ) as HTMLInputElement
+      ).value,
+    ).toBe("");
   });
 
   it("renderiza todos os campos principais", () => {
@@ -90,21 +61,31 @@ describe("FormDesignacao", () => {
   });
 
   it("submete o formulário chamando o handler com os valores mockados", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const onSubmitDesignacao = vi.fn();
+    
+    render(<FormDesignacao onSubmitDesignacao={onSubmitDesignacao} />);  
 
-    render(<FormDesignacao onSubmitDesignacao={vi.fn()} />);
-
-    const form = document.querySelector("form");
+    const form = screen.getByTestId("form-designacao");
     expect(form).toBeTruthy();
 
     if (form) {
+      fireEvent.change(form.querySelector("input[name='nome_da_unidade']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='estrutura_hierarquica']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='turmas']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='funcionarios_da_unidade']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='assistente_de_diretor_escolar']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='secretario_da_escola']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='funcao_atividade']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='cargo_sobreposto']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='modulos']") as HTMLInputElement, { target: { value: "123" } });
       fireEvent.submit(form);
     }
 
-    expect(handleSubmitMock).toHaveBeenCalledTimes(1);
-    expect(consoleSpy).toHaveBeenCalledWith("Dados da designação", submitValues);
+    return waitFor(() => {
+      expect(onSubmitDesignacao).toHaveBeenCalledWith(submitValues);
+    });
 
-    consoleSpy.mockRestore();
+  
   });
 });
 

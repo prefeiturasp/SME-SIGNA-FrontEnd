@@ -60,6 +60,7 @@ const FormularioDesignacao: React.FC<{
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full flex flex-col h-full flex-1"
+          data-testid="form-designacao"
         >
           <div className="grid lg:grid-cols-2 md:items-center md:text-left gap-4">
             <FormField

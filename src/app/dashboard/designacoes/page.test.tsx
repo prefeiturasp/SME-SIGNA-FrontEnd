@@ -1,5 +1,5 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
+import React, { type HTMLAttributes, type ReactNode, type SVGProps } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import DesignacoesPage from "./page";
 
@@ -7,15 +7,15 @@ const mockPageHeader = vi.fn();
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: {
+    title: string;
+    showBackButton?: boolean;
+    breadcrumbs?: { title: string; href?: string }[];
+    icon?: ReactNode;
+  }) => {
     mockPageHeader(props);
     return <div data-testid="page-header">{props.title}</div>;
   },
-}));
-
-vi.mock("@/components/dashboard/Designacao/FormDesignacao", () => ({
-  __esModule: true,
-  default: () => <div data-testid="form-designacao" />,
 }));
 
 vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
@@ -34,11 +34,15 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
 
 vi.mock("@/assets/icons/Designacao", () => ({
   __esModule: true,
-  default: (props: any) => <svg data-testid="designacao-icon" {...props} />,
+  default: (props: SVGProps<SVGSVGElement>) => (
+    <svg data-testid="designacao-icon" {...props} />
+  ),
 }));
 
 vi.mock("antd", () => ({
-  Divider: (props: any) => <div data-testid="divider" {...props} />,
+  Divider: (props: HTMLAttributes<HTMLDivElement>) => (
+    <div data-testid="divider" {...props} />
+  ),
 }));
 
 describe("Designacoes page", () => {
@@ -77,6 +81,43 @@ describe("Designacoes page", () => {
 
     const fundoBrancoStepper = stepperColumn?.querySelector(".md\\:h-\\[80vh\\]");
     expect(fundoBrancoStepper).toBeInTheDocument();
+  });
+
+  it("submete o formulário chamando o handler com os valores inputados", () => {
+    
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const submitValues = {
+      nome_da_unidade: "123",
+      estrutura_hierarquica: "123",
+      turmas: "123",
+      funcionarios_da_unidade: "123",
+      assistente_de_diretor_escolar: "123",
+      secretario_da_escola: "123",
+      funcao_atividade: "123",
+      cargo_sobreposto: "123",
+      modulos: "123",
+    };
+    render(<DesignacoesPage  />);  
+
+    const form = screen.getByTestId("form-designacao");
+    expect(form).toBeTruthy();
+
+    if (form) {
+      fireEvent.change(form.querySelector("input[name='nome_da_unidade']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='estrutura_hierarquica']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='turmas']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='funcionarios_da_unidade']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='assistente_de_diretor_escolar']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='secretario_da_escola']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='funcao_atividade']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='cargo_sobreposto']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.change(form.querySelector("input[name='modulos']") as HTMLInputElement, { target: { value: "123" } });
+      fireEvent.submit(form);
+    }
+
+    return waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Dados da designação", submitValues);
+    });
   });
 });
 

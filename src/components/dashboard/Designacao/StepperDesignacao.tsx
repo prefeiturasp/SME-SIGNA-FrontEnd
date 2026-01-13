@@ -20,8 +20,8 @@ const items = [
 ];
 const StepperDesignacao: React.FC<{ className?: string, current?: number }> = ({ className, current=1   }) => {
   return (
-    <Flex className={className}>
-      <div style={{ flex: 1 }}>
+    <Flex className={className} data-testid="stepper-designacao">
+      <div style={{ flex: 1 }}> 
         <Steps orientation="vertical" current={current} items={items} />
       </div>
     </Flex>
