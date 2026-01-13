@@ -62,21 +62,26 @@ describe("Designacoes page", () => {
     expect(icon).toBeDefined();
   });
 
-  it("mantém o layout com altura de 100vh para o stepper em telas md", () => {
-    const { container } = render(<DesignacoesPage />);
+  it("renderiza o todos os campos do resumo corretamente", () => {
+    render(<DesignacoesPage />);
 
-    expect(screen.getByTestId("form-designacao")).toBeInTheDocument();
-    expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
+    expect(screen.getByText("Servidor")).toBeInTheDocument();
+    expect(screen.getByText("RF")).toBeInTheDocument();
+    expect(screen.getByText("Vínculo")).toBeInTheDocument();
+    expect(screen.getByText("Lotação")).toBeInTheDocument();
+    expect(screen.getByText("Cargo base")).toBeInTheDocument();
+    expect(screen.getByText("Aulas atribuídas")).toBeInTheDocument();
+  
+    expect(screen.getByText("Função")).toBeInTheDocument();
+    expect(screen.getByText("Cargo sobreposto")).toBeInTheDocument();
+    expect(screen.getByText("Laudo Médico")).toBeInTheDocument();
+    
+    expect(screen.getByText("Cursos/Títulos")).toBeInTheDocument();
+    expect(screen.getByText("Estágio probatório")).toBeInTheDocument();
+    expect(screen.getByText("Aprovado em concurso")).toBeInTheDocument();
 
-    const formColumn = container.querySelector(".md\\:w-2\\/3.lg\\:w-3\\/4");
-    expect(formColumn).toBeInTheDocument();
-
-    const stepperColumn = container.querySelector(".md\\:w-1\\/3.lg\\:w-1\\/4");
-    expect(stepperColumn).toBeInTheDocument();
-    expect(stepperColumn?.className).toContain("md:h-[100vh]");
-
-    const fundoBrancoStepper = stepperColumn?.querySelector(".md\\:h-\\[80vh\\]");
-    expect(fundoBrancoStepper).toBeInTheDocument();
   });
+
+   
 });
 

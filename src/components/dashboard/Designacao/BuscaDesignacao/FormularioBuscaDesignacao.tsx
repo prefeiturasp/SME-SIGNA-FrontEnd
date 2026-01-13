@@ -3,7 +3,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,27 +14,26 @@ import {
 } from "@/components/ui/form";
 import { InputBase } from "@/components/ui/input-base";
 import { Search } from "lucide-react";
+import { buscaDesignacaoSchema } from "./schema";
+import { BuscaDesignacaoRequest } from "@/types/designacao";
 
-const designacaoSchema = z.object({
-  rf: z.string().min(1, "Número da unidade é obrigatório"),
-  nome_do_servidor: z.string().optional(),
-});
+ 
 
-type DesignacaoFormValues = z.infer<typeof designacaoSchema>;
 
-const defaultValues: DesignacaoFormValues = {
+const defaultValues: BuscaDesignacaoRequest = {
   rf: "",
   nome_do_servidor: "",
 };
 
-const BuscaDesignacao: React.FC<{ className?: string }> = ({ className }) => {
-  const form = useForm<DesignacaoFormValues>({
-    resolver: zodResolver(designacaoSchema),
+const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignacao: (values: BuscaDesignacaoRequest) => void }> = ({ className, onBuscaDesignacao }) => {
+  const form = useForm<BuscaDesignacaoRequest>({
+    resolver: zodResolver(buscaDesignacaoSchema),
     defaultValues,
     mode: "onChange",
   });
 
-  const onSubmit = (values: DesignacaoFormValues) => {
+  const onSubmit = (values: BuscaDesignacaoRequest) => {
+    onBuscaDesignacao(values);
     console.log("Dados da designação", values);
   };
 
@@ -58,7 +56,7 @@ const BuscaDesignacao: React.FC<{ className?: string }> = ({ className }) => {
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        className="bg-[#fff] shadow-[0_2.7px_27px_rgba(69,69,80,0.1)] font-size-[16px]"
+                        className="medium-input"
                         {...field}
                         placeholder="Entre com RF"
                         id="rf"
@@ -80,7 +78,7 @@ const BuscaDesignacao: React.FC<{ className?: string }> = ({ className }) => {
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        className="bg-[#fff] shadow-[0_2.7px_27px_rgba(69,69,80,0.1)] font-size-[15px]"
+                        className="medium-input"
                         {...field}
                         placeholder="Entre com o nome"
                         id="nome_do_servidor"
@@ -105,4 +103,4 @@ const BuscaDesignacao: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-export default BuscaDesignacao;
+export default FormularioBuscaDesignacao;

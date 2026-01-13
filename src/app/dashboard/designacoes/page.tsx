@@ -1,11 +1,16 @@
-import FormDesignacao from "@/components/dashboard/Designacao/FormDesignacao";
+"use client";
+import FormularioDesignacao from "@/components/dashboard/Designacao/FormularioDesignacao";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Divider } from "antd";
 import Designacao from "@/assets/icons/Designacao";
+import { ResumoDesignacaoBody } from "@/types/resumo-designacao";
 
 export default function Designacoes() {
+  const onSubmitDesignacao = (values: ResumoDesignacaoBody) => {
+    console.log("Dados da designação", values);
+  };
   return (
     <>
 
@@ -26,7 +31,7 @@ export default function Designacoes() {
             </h1>
             <Divider className="mt-2" />
 
-            <FormDesignacao />
+            <FormularioDesignacao onSubmitDesignacao={onSubmitDesignacao} />
           </FundoBranco>
         </div>
 

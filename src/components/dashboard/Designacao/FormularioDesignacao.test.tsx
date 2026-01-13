@@ -1,8 +1,6 @@
-import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
-import { zodResolver } from "@hookform/resolvers/zod";
-import FormDesignacao from "./FormDesignacao";
+import FormDesignacao from "./FormularioDesignacao";
 
 const submitValues = {
   nome_da_unidade: "123",
@@ -64,7 +62,7 @@ describe("FormDesignacao", () => {
   });
 
   it("configura useForm com resolver e defaultValues", () => {
-    render(<FormDesignacao />);
+    render(<FormDesignacao onSubmitDesignacao={vi.fn()} />);
 
     expect(useFormMock).toHaveBeenCalledTimes(1);
     const config = useFormMock.mock.calls[0][0];
@@ -78,7 +76,7 @@ describe("FormDesignacao", () => {
   });
 
   it("renderiza todos os campos principais", () => {
-    render(<FormDesignacao />);
+    render(<FormDesignacao onSubmitDesignacao={vi.fn()} />);
 
     expect(screen.getByText("Nome da unidade")).toBeInTheDocument();
     expect(screen.getByText("Estrutura hierárquica")).toBeInTheDocument();
@@ -94,7 +92,7 @@ describe("FormDesignacao", () => {
   it("submete o formulário chamando o handler com os valores mockados", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    render(<FormDesignacao />);
+    render(<FormDesignacao onSubmitDesignacao={vi.fn()} />);
 
     const form = document.querySelector("form");
     expect(form).toBeTruthy();

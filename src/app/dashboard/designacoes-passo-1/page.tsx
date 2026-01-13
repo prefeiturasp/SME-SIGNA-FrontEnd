@@ -1,4 +1,4 @@
-import FormDesignacao from "@/components/dashboard/Designacao/FormDesignacao";
+"use client";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
@@ -11,7 +11,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import ResumoDesignacao, { DesignacaoResumoValues } from "@/components/dashboard/Designacao/ResumoDesignacao";
-import BuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao";
+import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
+import { BuscaDesignacaoRequest } from "@/types/designacao";
 
 export default function DesignacoesPasso1() {
 
@@ -29,6 +30,9 @@ export default function DesignacoesPasso1() {
     aprovado_em_concurso: "xxxxxxxxxx",
     laudo_medico: "xxxxxxxxxx",
   };
+  const onBuscaDesignacao = (values: BuscaDesignacaoRequest) => {
+    console.log("Dados da designação", values);
+  };
   return (
     <>
       <PageHeader
@@ -37,7 +41,7 @@ export default function DesignacoesPasso1() {
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
-      <BuscaDesignacao />
+      <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
 
 
       {
