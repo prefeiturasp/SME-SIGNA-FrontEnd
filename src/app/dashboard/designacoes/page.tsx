@@ -5,7 +5,7 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Divider } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import { ResumoDesignacaoBody } from "@/types/resumo-designacao";
+import { ResumoDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 export default function Designacoes() {
   const onSubmitDesignacao = (values: ResumoDesignacaoBody) => {

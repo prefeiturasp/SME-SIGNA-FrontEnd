@@ -10,29 +10,27 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import ResumoDesignacao, { DesignacaoResumoValues } from "@/components/dashboard/Designacao/ResumoDesignacao";
+import ResumoDesignacao  from "@/components/dashboard/Designacao/ResumoDesignacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
+import useServidorDesignacao from "@/hooks/useServidorDesignacao";
+import { useState } from "react";
 
 export default function DesignacoesPasso1() {
 
-  const data: DesignacaoResumoValues = {
-    servidor: "Jussara Mara Ramos Pires",
-    rf: "00-000000",
-    vinculo: "2",
-    lotacao: "00-000000",
-    cargo_base: "Prof. xxxxxxxxxxxxxxxx",
-    aulas_atribuidas: "xxxxxxxxxxxxxxxxxxxxxxxxx ",
-    funcao: "xxxxxxxxxxxxxxxxxxxxxxxxx",
-    cargo_sobreposto: "xxxxxxxxxxxxxxxxxxxxxxxxx",
-    cursos_titulos: "xxxxxxxxxxxxxxxxxxxxxxxxx",
-    estagio_probatorio: "xxxxxxxxxx",
-    aprovado_em_concurso: "xxxxxxxxxx",
-    laudo_medico: "xxxxxxxxxx",
+  const [filtros, setFiltros] = useState<BuscaDesignacaoRequest>({
+    rf: "",
+    nome_do_servidor: "",
+  });
+
+  const { data, refetch } = useServidorDesignacao(filtros);
+
+  const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
+    setFiltros(values);
+    await refetch();
   };
-  const onBuscaDesignacao = (values: BuscaDesignacaoRequest) => {
-    console.log("Dados da designação", values);
-  };
+  console.log("data", data);
+ 
   return (
     <>
       <PageHeader
