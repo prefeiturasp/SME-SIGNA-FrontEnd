@@ -18,11 +18,11 @@ const items = [
     content: 'Próximos passos da Designação',
   },
 ];
-const StepperDesignacao: React.FC<{ className?: string }> = ({ className }) => {
+const StepperDesignacao: React.FC<{ className?: string, current?: number }> = ({ className, current=1   }) => {
   return (
-    <Flex className={className}>
-      <div style={{ flex: 1 }}>
-        <Steps orientation="vertical" current={1} items={items} />
+    <Flex className={className} data-testid="stepper-designacao">
+      <div style={{ flex: 1 }}> 
+        <Steps orientation="vertical" current={current} items={items} />
       </div>
     </Flex>
   );

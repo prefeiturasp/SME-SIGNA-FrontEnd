@@ -38,7 +38,8 @@ export default function ArrowCircleDark(
         </mask>
 
         <g mask="url(#mask0)">
-          <path d="M0 0H16V16H0V0Z" fill="#3E4043" />
+          <path d="M0 0H16V16H0V0Z" fillRule="evenodd"
+ />
         </g>
       </g>
 

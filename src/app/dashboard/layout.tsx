@@ -17,7 +17,7 @@ export default function DashboardLayout({
                     <div className="flex flex-col flex-1 w-full">
                         <AuthGuard>
                             <Navbar />
-                            <main className="flex-1 bg-muted p-4">
+                            <main className="flex-1 bg-muted p-4 px-8">
                                 {children}
                                 <footer className="p-4 text-sm text-[#42474a]">
                                     Sistema homologado para navegadores: Google
