@@ -6,10 +6,27 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Divider } from "antd";
 import Designacao from "@/assets/icons/Designacao";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 export default function Designacoes() {
+  const searchParams = useSearchParams();
+
+  const servidorSelecionado = useMemo(() => {
+    const payload = searchParams.get("payload");
+    if (!payload) return null;
+
+    try {
+      return JSON.parse(payload) as BuscaServidorDesignacaoBody;
+    } catch (error) {
+      console.error("Falha ao ler dados do passo anterior", error);
+      return null;
+    }
+  }, [searchParams]);
+
   const onSubmitDesignacao = (values: BuscaServidorDesignacaoBody) => {
     console.log("Dados da designação", values);
+    console.log("Servidor selecionado no passo 1", servidorSelecionado);
   };
   return (
     <>
