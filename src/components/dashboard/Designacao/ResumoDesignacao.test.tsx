@@ -1,0 +1,56 @@
+import { render, screen } from "@testing-library/react";
+import ResumoDesignacao from "./ResumoDesignacao";
+import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
+
+const mockData: BuscaServidorDesignacaoResponse = {
+  servidor: "Servidor Teste",
+  rf: "123",
+  vinculo: "Ativo",
+  lotacao: "Escola X",
+  cargo_base: "Professor",
+  aulas_atribuidas: "20",
+  funcao: "Docente",
+  cargo_sobreposto: "Nenhum",
+  cursos_titulos: "Licenciatura",
+  estagio_probatorio: "Sim",
+  aprovado_em_concurso: "Sim",
+  laudo_medico: "Não",
+};
+
+describe("ResumoDesignacao", () => {
+  it("exibe todos os rótulos e valores do resumo", () => {
+    render(<ResumoDesignacao defaultValues={mockData} />);
+
+    const labels = [
+      "Servidor",
+      "RF",
+      "Vínculo",
+      "Lotação",
+      "Cargo base",
+      "Aulas atribuídas",
+      "Função",
+      "Cargo sobreposto",
+      "Laudo Médico",
+      "Cursos/Títulos",
+      "Estágio probatório",
+      "Aprovado em concurso",
+    ];
+
+    labels.forEach((label) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
+    Object.values(mockData).forEach((value) => {
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
+  });
+
+  it("aplica className recebido na raiz", () => {
+    const { container } = render(
+      <ResumoDesignacao className="custom-class" defaultValues={mockData} />
+    );
+
+    expect(container.firstChild).toHaveClass("custom-class");
+  });
+});
+
