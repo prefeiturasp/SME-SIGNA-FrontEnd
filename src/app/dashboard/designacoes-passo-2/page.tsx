@@ -5,7 +5,7 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Divider } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody, ResumoDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -24,7 +24,7 @@ export default function Designacoes() {
     }
   }, [searchParams]);
 
-  const onSubmitDesignacao = (values: BuscaServidorDesignacaoBody) => {
+  const onSubmitDesignacao = (values: ResumoDesignacaoBody) => {
     console.log("Dados da designação", values);
     console.log("Servidor selecionado no passo 1", servidorSelecionado);
   };
