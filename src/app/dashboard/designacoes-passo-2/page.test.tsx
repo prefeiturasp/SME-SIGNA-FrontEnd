@@ -4,6 +4,7 @@ import { vi } from "vitest";
 import DesignacoesPage from "./page";
 
 const mockPageHeader = vi.fn();
+let mockSearchParams: URLSearchParams;
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
@@ -45,9 +46,14 @@ vi.mock("antd", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams,
+}));
+
 describe("Designacoes page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSearchParams = new URLSearchParams();
   });
 
   it("renderiza o header sem botão de voltar e com breadcrumbs corretos", () => {

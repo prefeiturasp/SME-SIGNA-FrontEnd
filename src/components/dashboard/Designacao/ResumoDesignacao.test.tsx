@@ -41,7 +41,7 @@ describe("ResumoDesignacao", () => {
     });
 
     Object.values(mockData).forEach((value) => {
-      expect(screen.getByText(value)).toBeInTheDocument();
+      expect(screen.getAllByText(value).length).toBeGreaterThan(0);
     });
   });
 

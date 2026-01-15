@@ -7,6 +7,7 @@ import DesignacoesPage from "./page";
 const mockPageHeader = vi.fn();
 const mockMutateAsync = vi.fn();
 const mockResumoDesignacao = vi.fn();
+const mockRouterPush = vi.fn();
 
 const mockResponse = {
   servidor: "Servidor Teste",
@@ -109,6 +110,12 @@ vi.mock("antd", () => ({
   Divider: (props: ComponentProps<"div">) => (
     <div data-testid="divider" {...props} />
   ),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
 }));
 
 describe("Designacoes page", () => {
