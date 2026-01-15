@@ -2,7 +2,7 @@
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { Divider } from "antd";
+import { Alert, Divider } from "antd";
 import Designacao from "@/assets/icons/Designacao";
 import {
   Accordion,
@@ -15,22 +15,24 @@ import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDe
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
 import { useState } from "react";
+import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
 
 export default function DesignacoesPasso1() {
 
-  const [filtros, setFiltros] = useState<BuscaDesignacaoRequest>({
-    rf: "",
-    nome_do_servidor: "",
-  });
-
-  const { data, refetch } = useServidorDesignacao(filtros);
-
+  const {  mutateAsync } = useServidorDesignacao();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [data, setData] = useState<BuscaServidorDesignacaoResponse | null>(null);
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
-    setFiltros(values);
-    await refetch();
+    const response = await mutateAsync(values);
+    if (response.success) {
+      setData(response.data);
+    }
+    if (!response.success) {
+      setErrorMessage(response.error);
+    }
+    
   };
-  console.log("data", data);
- 
+console.log('errorMessage',errorMessage)
   return (
     <>
       <PageHeader
