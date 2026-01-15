@@ -1,13 +1,13 @@
  
 
 export interface BuscaServidorDesignacaoBody {
-    servidor: string;
+    nome: string;
     rf: string;
-    vinculo: string;
-    lotacao: string;
+    vinculo_cargo_sobreposto: string;
+    lotacao_cargo_sobreposto: string;
     cargo_base: string;
     aulas_atribuidas: string;
-    funcao: string;
+    funcao_atividade: string;
     cargo_sobreposto: string;
     cursos_titulos: string;
     estagio_probatorio: string;

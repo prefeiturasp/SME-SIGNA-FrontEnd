@@ -24,14 +24,16 @@ export default function DesignacoesPasso1() {
   const router = useRouter();
   const { mutateAsync } = useServidorDesignacao();
   const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
+    console.log("response", response);
     if (response.success) {
       setData(response.data);
     }
     if (!response.success) {
-      console.error(response.error);
+      setError(response.error || "Erro ao buscar servidor");
     }
   };
 
@@ -53,8 +55,8 @@ export default function DesignacoesPasso1() {
         showBackButton={false}
       />
       <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
-
-      {data?.servidor && (
+      {error && <div className="text-red-500">{error}</div>}
+      {data?.nome && (
         <div className="flex flex-col lg:flex-row gap-8 items-stretch">
           <div className="w-full lg:w-3/4 flex flex-col self-stretch">
             <FundoBranco className="lg:h-[80vh]">

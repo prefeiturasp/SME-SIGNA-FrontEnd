@@ -13,22 +13,27 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
 > => {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;
-    //const API_URL = process.env.NEXT_PUBLIC_API_URL !;
-    const API_URL = "http://localhost:4000/";
-    if (!token) {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL !;
+     if (!token) {
         return { success: false, error: "Usuário não autenticado" };
     }
 
     try {
-        const { data } = await axios.get<BuscaServidorDesignacaoBody>(
-            `${API_URL}/servidorDesignacao/?rf=${designacaoRequest.rf}&nome_do_servidor=${designacaoRequest.nome_do_servidor || ''}`,
+ 
+        const { data } = await axios.post<BuscaServidorDesignacaoBody>(
+            `${API_URL}/designacao/servidor`,
             {
+                rf: designacaoRequest.rf,
+             },
+             {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }
-        );
+             }
+             
+          );
 
+ 
         return { success: true, data };
     } catch (err) {
         console.log("err", err);

@@ -45,7 +45,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
           className="w-full flex flex-col h-full flex-1 my-4 py-4"
         >
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-[28%]">
+            <div className="w-full md:w-[80%] lg:w-[90%]">
               <FormField
                 control={form.control}
                 name="rf"
@@ -67,28 +67,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 )}
               />
             </div>
-            <div className="w-full md:w-[35%] lg:w-[60%]">
-              <FormField
-                control={form.control}
-                name="nome_do_servidor"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[14px] font-bold">
-                      Nome do servidor
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                        className="medium-input"
-                        {...field}
-                        placeholder="Entre com o nome"
-                        id="nome_do_servidor"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+         
             <div className="w-[200px] pt-[2rem] ">
               <Button type="submit" size="lg"  className="w-full flex items-center justify-center gap-6" variant="destructive">
                 
