@@ -10,13 +10,13 @@ const mockResumoDesignacao = vi.fn();
 const mockRouterPush = vi.fn();
 
 const mockResponse = {
-  servidor: "Servidor Teste",
+  nome: "Servidor Teste",
   rf: "123",
-  vinculo: "Ativo",
-  lotacao: "Escola X",
+  vinculo_cargo_sobreposto: "Ativo",
+  lotacao_cargo_sobreposto: "Escola X",
   cargo_base: "Professor",
   aulas_atribuidas: "20",
-  funcao: "Docente",
+  funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   estagio_probatorio: "Sim",
@@ -73,7 +73,7 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
   default: (props: ResumoDesignacaoProps) => {
     mockResumoDesignacao(props);
     return (
-      <div data-testid="resumo-designacao">{props.defaultValues?.servidor}</div>
+      <div data-testid="resumo-designacao">{props.defaultValues?.nome}</div>
     );
   },
 }));
@@ -90,7 +90,7 @@ vi.mock("@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesign
       onClick={() =>
         onBuscaDesignacao({
           rf: "123",
-          nome_do_servidor: "Servidor Teste",
+          nome_do_servidor: "",
         })
       }
     >
@@ -148,7 +148,7 @@ describe("Designacoes page", () => {
 
     expect(mockMutateAsync).toHaveBeenCalledWith({
       rf: "123",
-      nome_do_servidor: "Servidor Teste",
+      nome_do_servidor: "",
     });
 
     await waitFor(() => {
