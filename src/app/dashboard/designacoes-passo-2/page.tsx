@@ -5,16 +5,14 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Divider } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import { ResumoDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 export default function Designacoes() {
-  const onSubmitDesignacao = (values: ResumoDesignacaoBody) => {
+  const onSubmitDesignacao = (values: BuscaServidorDesignacaoBody) => {
     console.log("Dados da designação", values);
   };
   return (
     <>
-
-
       <PageHeader
         title="Designação"
         breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação" }]}

@@ -15,13 +15,13 @@ import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDe
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
 import { useState } from "react";
-import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 export default function DesignacoesPasso1() {
 
   const {  mutateAsync } = useServidorDesignacao();
   const [errorMessage, setErrorMessage] = useState("");
-  const [data, setData] = useState<BuscaServidorDesignacaoResponse | null>(null);
+  const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
     if (response.success) {

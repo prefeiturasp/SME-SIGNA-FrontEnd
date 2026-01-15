@@ -1,6 +1,6 @@
  
 
-export interface BuscaServidorDesignacaoResponse {
+export interface BuscaServidorDesignacaoBody {
     servidor: string;
     rf: string;
     vinculo: string;

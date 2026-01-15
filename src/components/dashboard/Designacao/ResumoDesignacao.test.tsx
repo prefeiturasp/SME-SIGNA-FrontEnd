@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import ResumoDesignacao from "./ResumoDesignacao";
-import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
-const mockData: BuscaServidorDesignacaoResponse = {
+const mockData: BuscaServidorDesignacaoBody = {
   servidor: "Servidor Teste",
   rf: "123",
   vinculo: "Ativo",

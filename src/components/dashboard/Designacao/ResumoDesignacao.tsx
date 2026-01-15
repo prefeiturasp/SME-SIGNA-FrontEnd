@@ -1,6 +1,6 @@
 "use client";
 
-import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import React from "react";
  
  
@@ -11,7 +11,7 @@ const InfoItem: React.FC<{ label: string; value?: string }> = ({ label, value })
   </div>
 );
 
-const ResumoDesignacao: React.FC<{ className?: string; defaultValues: BuscaServidorDesignacaoResponse }> = ({ className, defaultValues }) => {
+const ResumoDesignacao: React.FC<{ className?: string; defaultValues: BuscaServidorDesignacaoBody }> = ({ className, defaultValues }) => {
  
   return (
     <div className={className}>

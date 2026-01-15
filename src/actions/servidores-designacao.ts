@@ -1,6 +1,6 @@
 "use server";
 
-import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
  
 
 export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesignacaoRequest): Promise<
-    | { success: true; data: BuscaServidorDesignacaoResponse }
+    | { success: true; data: BuscaServidorDesignacaoBody }
     | { success: false; error: string }
 > => {
     const cookieStore = await cookies();
@@ -20,7 +20,7 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
     }
 
     try {
-        const { data } = await axios.get<BuscaServidorDesignacaoResponse>(
+        const { data } = await axios.get<BuscaServidorDesignacaoBody>(
             `${API_URL}/servidorDesignacao/?rf=${designacaoRequest.rf}&nome_do_servidor=${designacaoRequest.nome_do_servidor || ''}`,
             {
                 headers: {

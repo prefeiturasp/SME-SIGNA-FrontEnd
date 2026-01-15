@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { getServidorDesignacaoAction } from "./servidores-designacao";
-import { BuscaServidorDesignacaoResponse } from "@/types/busca-servidor-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 vi.mock("axios");
 vi.mock("next/headers", () => ({
@@ -15,7 +15,7 @@ const makeCookieStore = (token?: string) => ({
 
 const sampleRequest = { rf: "123", nome_do_servidor: "Servidor Teste" };
 
-const sampleResponse: BuscaServidorDesignacaoResponse = {
+const sampleResponse: BuscaServidorDesignacaoBody = {
   servidor: "Servidor Teste",
   rf: "123",
   vinculo: "Ativo",
