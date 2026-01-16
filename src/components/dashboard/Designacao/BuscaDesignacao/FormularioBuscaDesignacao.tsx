@@ -21,8 +21,7 @@ import { BuscaDesignacaoRequest } from "@/types/designacao";
 
 
 const defaultValues: BuscaDesignacaoRequest = {
-  rf: "",
-  nome_do_servidor: "",
+  rf: ""
 };
 
 const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignacao: (values: BuscaDesignacaoRequest) => void }> = ({ className, onBuscaDesignacao }) => {
@@ -60,6 +59,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                         {...field}
                         placeholder="Entre com RF"
                         id="rf"
+                        data-testid="input-rf"
                       />
                     </FormControl>
                     <FormMessage />

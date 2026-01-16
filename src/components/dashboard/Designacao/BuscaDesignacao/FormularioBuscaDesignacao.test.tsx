@@ -36,8 +36,7 @@ describe("FormularioBuscaDesignacao", () => {
 
     return waitFor(() => {
       expect(onBuscaDesignacao).toHaveBeenCalledWith({
-        rf: "test",
-        nome_do_servidor: "",
+        rf: "test"
       });
     });
   });

@@ -3,30 +3,34 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi, describe, it, beforeEach } from "vitest";
 import useServidorDesignacao from "./useServidorDesignacao";
 import { getServidorDesignacaoAction } from "@/actions/servidores-designacao";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 vi.mock("@/actions/servidores-designacao", () => ({
   getServidorDesignacaoAction: vi.fn(),
 }));
 
-const sampleRequest = { rf: "123", nome_do_servidor: "Servidor Teste" };
+const sampleRequest = { rf: "123" };
 
+
+const mockData: BuscaServidorDesignacaoBody = {
+  nome: "Servidor Teste",
+  rf: "123",
+  vinculo_cargo_sobreposto: "Ativo",
+  lotacao_cargo_sobreposto: "Escola X",
+  cargo_base: "Professor",
+  aulas_atribuidas: "20",
+  funcao_atividade: "Docente",
+  cargo_sobreposto: "Nenhum",
+  cursos_titulos: "Licenciatura",
+  estagio_probatorio: "Sim",
+  aprovado_em_concurso: "Sim",
+  laudo_medico: "Não",
+};
 const sampleResponse = {
   success: true as const,
-  data: {
-    servidor: "Servidor Teste",
-    rf: "123",
-    vinculo: "Ativo",
-    lotacao: "Escola X",
-    cargo_base: "Professor",
-    aulas_atribuidas: "20",
-    funcao: "Docente",
-    cargo_sobreposto: "Nenhum",
-    cursos_titulos: "Licenciatura",
-    estagio_probatorio: "Sim",
-    aprovado_em_concurso: "Sim",
-    laudo_medico: "Não",
-  },
+  data: mockData,
 };
+
 
 describe("useServidorDesignacao", () => {
   let queryClient: QueryClient;

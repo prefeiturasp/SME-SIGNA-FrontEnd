@@ -42,7 +42,12 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
   default: (props: PageHeaderProps) => {
     mockPageHeader(props);
-    return <div data-testid="page-header">{props.title}</div>;
+    return (
+      <div data-testid="page-header">
+        {props.title}
+        {props.icon}
+      </div>
+    );
   },
 }));
 
@@ -80,22 +85,59 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
 
 vi.mock("@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao", () => ({
   __esModule: true,
-  default: ({
+  default: function MockFormularioBuscaDesignacao({
     onBuscaDesignacao,
   }: {
-    onBuscaDesignacao: (values: { rf: string; nome_do_servidor: string }) => void;
+    onBuscaDesignacao: (values: { rf: string }) => void;
+  }) {
+    const [rf, setRf] = React.useState("");
+    return (
+      <div>
+        <input
+          data-testid="input-rf"
+          value={rf}
+          onChange={(event) => setRf(event.currentTarget.value)}
+        />
+        <button
+          data-testid="botao-buscar-designacao"
+          onClick={() => onBuscaDesignacao({ rf: rf || "123" })}
+        >
+          Buscar
+        </button>
+      </div>
+    );
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
+  __esModule: true,
+  default: ({
+    disableAnterior,
+    disableProximo,
+    onProximo,
+    onAnterior,
+  }: {
+    disableAnterior: boolean;
+    disableProximo: boolean;
+    onProximo: () => void;
+    onAnterior: () => void;
   }) => (
-    <button
-      data-testid="botao-buscar-designacao"
-      onClick={() =>
-        onBuscaDesignacao({
-          rf: "123",
-          nome_do_servidor: "",
-        })
-      }
-    >
-      Buscar
-    </button>
+    <div>
+      <button
+        data-testid="botao-anterior"
+        disabled={disableAnterior}
+        onClick={onAnterior}
+      >
+        Anterior
+      </button>
+      <button
+        data-testid="botao-proximo"
+        disabled={disableProximo}
+        onClick={onProximo}
+      >
+        Próximo
+      </button>
+    </div>
   ),
 }));
 
@@ -147,9 +189,8 @@ describe("Designacoes page", () => {
     await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
 
     expect(mockMutateAsync).toHaveBeenCalledWith({
-      rf: "123",
-      nome_do_servidor: "",
-    });
+      rf: "123"
+     });
 
     await waitFor(() => {
       expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
@@ -162,4 +203,173 @@ describe("Designacoes page", () => {
       expect.objectContaining({ defaultValues: mockResponse })
     );
   });
+
+
+  it("não renderiza resumo e stepper quando a busca retorna erro", async () => {
+    mockMutateAsync.mockResolvedValue({ success: false, error: "Erro ao buscar servidor" });
+    render(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Erro ao buscar servidor")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
+    
+    
+    expect(mockResumoDesignacao).not.toHaveBeenCalled();
+  });
+
+
+  it("navega para o próximo passo ao clicar no botão próximo", async () => {
+    mockMutateAsync.mockImplementation(async (values: { rf: string }) => ({
+      success: true,
+      data: {
+        ...mockResponse,
+        rf: values.rf,
+      },
+    }));
+
+    render(<DesignacoesPage />);
+ 
+    await userEvent.type(screen.getByTestId("input-rf"), "456");
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      rf: "456"
+     });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard/designacoes-passo-2?456");
+
+  });
+
+  it("não exibe conteúdo da designação quando data.nome não existe", () => {
+    render(<DesignacoesPage />);
+
+    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
+    expect(screen.queryByText("Validar dados")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
+  });
+
+  it("desabilita o botão anterior sempre", async () => {
+    render(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("botao-anterior")).toBeDisabled();
+    });
+  });
+
+
+  it("exibe mensagem de erro personalizada quando a API retorna erro", async () => {
+    mockMutateAsync.mockResolvedValue({ 
+      success: false, 
+      error: "Servidor não encontrado" 
+    });
+
+    render(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Servidor não encontrado")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
+  });
+
+  it("limpa o erro quando uma nova busca com sucesso é realizada", async () => {
+    mockMutateAsync.mockResolvedValueOnce({ 
+      success: false, 
+      error: "Erro inicial" 
+    });
+
+    const { rerender } = render(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Erro inicial")).toBeInTheDocument();
+    });
+
+    mockMutateAsync.mockResolvedValueOnce({ 
+      success: true, 
+      data: mockResponse 
+    });
+
+    rerender(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+  });
+
+
+
+  it("não navega para o próximo passo se não houver dados", async () => {
+    render(<DesignacoesPage />);
+
+    expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+
+  it("exibe todos os componentes quando a busca é bem-sucedida", async () => {
+    render(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+      expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
+      expect(screen.getAllByTestId("fundo-branco").length).toBeGreaterThan(0);
+      expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
+      expect(screen.getByTestId("botao-anterior")).toBeInTheDocument();
+    });
+  });
+
+ 
+
+  it("renderiza título do header de acordo com breadcrumb", () => {
+    render(<DesignacoesPage />);
+
+    expect(mockPageHeader).toHaveBeenCalledWith(
+      expect.objectContaining({
+        breadcrumbs: [
+          { title: "Início", href: "/" },
+          { title: "Designação" },
+        ],
+      })
+    );
+  });
+
+  it("passa os dados corretos para o ResumoDesignacao", async () => {
+    render(<DesignacoesPage />);
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+    await waitFor(() => {
+      expect(mockResumoDesignacao).toHaveBeenCalledWith(
+        expect.objectContaining({
+          defaultValues: expect.objectContaining({
+            nome: "Servidor Teste",
+            rf: "123",
+            vinculo_cargo_sobreposto: "Ativo",
+            lotacao_cargo_sobreposto: "Escola X",
+          }),
+        })
+      );
+    });
+  });
+
+
 });

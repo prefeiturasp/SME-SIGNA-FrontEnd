@@ -28,23 +28,17 @@ export default function DesignacoesPasso1() {
   
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
-    console.log("response", response);
-    if (response.success) {
+     if (response.success) {
       setData(response.data);
     }
     if (!response.success) {
-      setError(response.error || "Erro ao buscar servidor");
+      setError(response.error);
     }
   };
 
   const onProximo = () => {
     if (!data) return;
-
-    const query = new URLSearchParams({
-      payload: JSON.stringify(data),
-    }).toString();
-
-    router.push(`/dashboard/designacoes-passo-2?${query}`);
+    router.push(`/dashboard/designacoes-passo-2?${data.rf}`);
   };
   return (
     <>
