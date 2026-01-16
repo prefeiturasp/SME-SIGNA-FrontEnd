@@ -37,9 +37,10 @@ const items = [
     },
     {
         title: "Designações",
-        url: "/dashboard/designacoes",
+        url: "/dashboard/designacoes-passo-1",
         icon: Designacao,
     },
+ 
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

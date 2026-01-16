@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { InputBase } from "@/components/ui/input-base";
-import { ResumoDesignacaoBody } from "@/types/resumo-designacao";
+import { ResumoDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 const designacaoSchema = z.object({
   nome_da_unidade: z.string().min(1, "Número da unidade é obrigatório"),
