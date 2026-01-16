@@ -53,7 +53,7 @@ export default function DesignacoesPasso1() {
       {data?.nome && (
         <div className="flex flex-col lg:flex-row gap-8 items-stretch">
           <div className="w-full lg:w-3/4 flex flex-col self-stretch">
-            <FundoBranco className="lg:h-[80vh]">
+            <FundoBranco className="lg:h-[85vh]">
               <Accordion
                 type="single"
                 collapsible
@@ -87,7 +87,7 @@ export default function DesignacoesPasso1() {
           </div>
 
           <div className="w-full  lg:w-1/4 flex flex-col self-stretch h-auto ">
-            <FundoBranco className="lg:h-[80vh]">
+            <FundoBranco className="lg:h-[85vh]">
               <StepperDesignacao current={0} />
             </FundoBranco>
           </div>
