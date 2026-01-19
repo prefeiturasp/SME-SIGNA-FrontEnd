@@ -29,6 +29,7 @@ export default function BotoesDeNavegacao({
         variant="default"
         disabled={disableAnterior}
         onClick={onAnterior}
+        data-testid="botao-anterior"
       >
         <p className="text-[16px] font-bold">Voltar</p>
       </Button>
@@ -42,6 +43,7 @@ export default function BotoesDeNavegacao({
         variant="destructive"
         disabled={disableProximo}
         onClick={onProximo}
+        data-testid="botao-proximo"
       >
         <p className="text-[16px] font-bold">Avançar</p>
       </Button>

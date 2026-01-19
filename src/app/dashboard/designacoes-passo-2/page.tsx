@@ -39,7 +39,7 @@ export default function Designacoes() {
 
       <div className="flex flex-col md:flex-row gap-8 items-stretch">
         <div className="w-full md:w-2/3 lg:w-3/4 flex flex-col self-stretch">
-          <FundoBranco className="md:h-[80vh]">
+          <FundoBranco className="md:h-[85vh]">
 
             <h1 className="text-[#42474a] text-[18px] font-bold m-0">
               Pesquisa de unidade
@@ -51,7 +51,7 @@ export default function Designacoes() {
         </div>
 
         <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col self-stretch h-auto md:h-[100vh]">
-          <FundoBranco className="md:h-[80vh]">
+          <FundoBranco className="md:h-[85vh]">
             <StepperDesignacao  />
           </FundoBranco>
         </div>

@@ -24,25 +24,21 @@ export default function DesignacoesPasso1() {
   const router = useRouter();
   const { mutateAsync } = useServidorDesignacao();
   const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
-    if (response.success) {
+     if (response.success) {
       setData(response.data);
     }
     if (!response.success) {
-      console.error(response.error);
+      setError(response.error);
     }
   };
 
   const onProximo = () => {
     if (!data) return;
-
-    const query = new URLSearchParams({
-      payload: JSON.stringify(data),
-    }).toString();
-
-    router.push(`/dashboard/designacoes-passo-2?${query}`);
+    router.push(`/dashboard/designacoes-passo-2?${data.rf}`);
   };
   return (
     <>
@@ -53,11 +49,11 @@ export default function DesignacoesPasso1() {
         showBackButton={false}
       />
       <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
-
-      {data?.servidor && (
+      {error && <div className="text-red-500">{error}</div>}
+      {data?.nome && (
         <div className="flex flex-col lg:flex-row gap-8 items-stretch">
           <div className="w-full lg:w-3/4 flex flex-col self-stretch">
-            <FundoBranco className="lg:h-[80vh]">
+            <FundoBranco className="lg:h-[85vh]">
               <Accordion
                 type="single"
                 collapsible
@@ -91,7 +87,7 @@ export default function DesignacoesPasso1() {
           </div>
 
           <div className="w-full  lg:w-1/4 flex flex-col self-stretch h-auto ">
-            <FundoBranco className="lg:h-[80vh]">
+            <FundoBranco className="lg:h-[85vh]">
               <StepperDesignacao current={0} />
             </FundoBranco>
           </div>

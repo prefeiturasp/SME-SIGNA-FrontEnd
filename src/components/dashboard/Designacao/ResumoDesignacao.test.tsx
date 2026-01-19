@@ -3,13 +3,13 @@ import ResumoDesignacao from "./ResumoDesignacao";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 const mockData: BuscaServidorDesignacaoBody = {
-  servidor: "Servidor Teste",
+  nome: "Servidor Teste",
   rf: "123",
-  vinculo: "Ativo",
-  lotacao: "Escola X",
+  vinculo_cargo_sobreposto: "Ativo",
+  lotacao_cargo_sobreposto: "Escola X",
   cargo_base: "Professor",
   aulas_atribuidas: "20",
-  funcao: "Docente",
+  funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   estagio_probatorio: "Sim",

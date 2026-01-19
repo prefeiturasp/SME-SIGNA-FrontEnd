@@ -22,13 +22,13 @@ const ResumoDesignacao: React.FC<{ className?: string; defaultValues: BuscaServi
 
 
 
-        <InfoItem label="Servidor" value={defaultValues.servidor} />
+        <InfoItem label="Servidor" value={defaultValues.nome} />
         <InfoItem label="RF" value={defaultValues.rf} />
-        <InfoItem label="Vínculo" value={defaultValues.vinculo} />
-        <InfoItem label="Lotação" value={defaultValues.lotacao} />
+        <InfoItem label="Vínculo" value={defaultValues.vinculo_cargo_sobreposto} />
+        <InfoItem label="Lotação" value={defaultValues.lotacao_cargo_sobreposto} />
         <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
         <InfoItem label="Aulas atribuídas" value={defaultValues.aulas_atribuidas} />
-        <InfoItem label="Função" value={defaultValues.funcao} />
+        <InfoItem label="Função" value={defaultValues.funcao_atividade} />
         <InfoItem label="Cargo sobreposto" value={defaultValues.cargo_sobreposto} />
         <InfoItem label="Laudo Médico" value={defaultValues.laudo_medico} />
         <InfoItem label="Cursos/Títulos" value={defaultValues.cursos_titulos} />

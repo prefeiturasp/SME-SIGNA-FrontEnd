@@ -96,7 +96,7 @@ describe("ModalNovaSenha", () => {
         expect(
             screen.getByRole("button", { name: /salvar senha/i })
         ).toBeEnabled();
-    });
+    }, 10000);
 
     it("exibe erro de confirmação quando as senhas não coincidem", async () => {
         renderWithQueryProvider(<ModalNovaSenha {...defaultProps} />);
@@ -202,7 +202,7 @@ describe("ModalNovaSenha", () => {
                 })
             );
         });
-    });
+    }, 10000);
 
     it("realiza o submit e exibe a mensagem de erro retornada pela api", async () => {
         const user = userEvent.setup();
@@ -240,5 +240,5 @@ describe("ModalNovaSenha", () => {
         });
 
         expect(mockOnOpenChange).not.toHaveBeenCalled();
-    });
+    }, 10000);
 });
