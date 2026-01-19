@@ -25,6 +25,7 @@ import Link from "next/link";
 import { LoginRequest } from "@/types/login";
 import { useRouter } from "next/navigation";
 import LogoSigna from "../LogoSigna";
+import LogoPrefeituraSPImage from "../LogoPrefeituraSP"
 
 export default function LoginForm() {
   const router = useRouter();
@@ -158,20 +159,8 @@ export default function LoginForm() {
           </Form>
         </div>
 
-        <Image
-          src="/images/logo_PrefSP.png"
-          alt="Login"
-          width={149}
-          height={47}
-          className="self-center  pb-4"
-        />
-        <div className="flex justify-center">
-          <span className="text-sm text-gray-500">Ainda não possui cadastro?</span>
-        </div>
-
-        <Button asChild variant="customOutline" className="w-full ">
-          <Link href="/">Cadastre-se</Link>
-        </Button>
+       <LogoPrefeituraSPImage alt="Login"/>
+       
       </div>
     </div>
   );
