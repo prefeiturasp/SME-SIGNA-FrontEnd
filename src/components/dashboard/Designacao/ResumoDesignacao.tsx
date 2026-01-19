@@ -25,6 +25,7 @@ const ResumoDesignacao: React.FC<{
       {isLoading ? (
         <div className="flex justify-center h-full">
           <Loader2
+          data-testid="loading-spinner"
             className="
           h-16 w-16 text-primary 
           animate-spin 

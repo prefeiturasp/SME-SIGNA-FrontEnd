@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 
 export default function DesignacoesPasso1() {
   const router = useRouter();
-  const { mutateAsync, isFetching } = useServidorDesignacao();
+  const { mutateAsync, isPending } = useServidorDesignacao();
   const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
   const [error, setError] = useState<string | null>(null);
   
@@ -30,14 +30,16 @@ export default function DesignacoesPasso1() {
     const response = await mutateAsync(values);
      if (response.success) {
       setData(response.data);
+      setError(null);
+
     }
     if (!response.success) {
       setError(response.error);
+      setData(null);
     }
   };
 
-  const onProximo = () => {
-    if (!data) return;
+  const onProximo = (data: BuscaServidorDesignacaoBody) => {
     router.push(`/dashboard/designacoes-passo-2?${data.rf}`);
   };
   return (
@@ -67,7 +69,7 @@ export default function DesignacoesPasso1() {
                 <AccordionItem value="item-1">
                   <AccordionTrigger>Substituto</AccordionTrigger>
                   <AccordionContent className="flex flex-col gap-4 text-balance pl-5">
-                    <ResumoDesignacao isLoading={isFetching} defaultValues={data} />
+                    <ResumoDesignacao isLoading={isPending} defaultValues={data} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -78,7 +80,7 @@ export default function DesignacoesPasso1() {
               <BotoesDeNavegacao
                 disableAnterior={true}
                 disableProximo={!data}
-                onProximo={onProximo}
+                onProximo={() => onProximo(data)}
                 onAnterior={() => {}}
               />
 

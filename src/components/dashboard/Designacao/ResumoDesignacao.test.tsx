@@ -52,5 +52,12 @@ describe("ResumoDesignacao", () => {
 
     expect(container.firstChild).toHaveClass("custom-class");
   });
+  it("mostra o loading quando isLoading é true", () => {
+     render(
+      <ResumoDesignacao isLoading={true} className="custom-class" defaultValues={mockData} />
+    );
+
+    expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
+  });
 });
 
