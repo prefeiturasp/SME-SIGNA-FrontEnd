@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 
 export default function DesignacoesPasso1() {
   const router = useRouter();
-  const { mutateAsync } = useServidorDesignacao();
+  const { mutateAsync, isFetching } = useServidorDesignacao();
   const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
   const [error, setError] = useState<string | null>(null);
   
@@ -67,7 +67,7 @@ export default function DesignacoesPasso1() {
                 <AccordionItem value="item-1">
                   <AccordionTrigger>Substituto</AccordionTrigger>
                   <AccordionContent className="flex flex-col gap-4 text-balance pl-5">
-                    <ResumoDesignacao defaultValues={data} />
+                    <ResumoDesignacao isLoading={isFetching} defaultValues={data} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
