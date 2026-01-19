@@ -105,7 +105,7 @@ describe("Designacoes page - Passo 2", () => {
     expect(stepperColumn).toBeInTheDocument();
     expect(stepperColumn?.className).toContain("md:h-[100vh]");
 
-    const fundoBrancoStepper = stepperColumn?.querySelector(".md\\:h-\\[80vh\\]");
+    const fundoBrancoStepper = stepperColumn?.querySelector(".md\\:h-\\[85vh\\]");
     expect(fundoBrancoStepper).toBeInTheDocument();
   });
 
@@ -221,12 +221,12 @@ describe("Designacoes page - Passo 2", () => {
     expect(stepperColumn?.className).toContain("lg:w-1/4");
   });
 
-  it("renderiza o FundoBranco com classe md:h-[80vh]", () => {
+  it("renderiza o FundoBranco com classe md:h-[85vh]", () => {
     const { container } = render(<DesignacoesPage />);
 
     const fundoBrancoElements = container.querySelectorAll('[data-testid="fundo-branco"]');
     const fundoBrancoWithHeight = Array.from(fundoBrancoElements).find(el => 
-      el.className.includes('md:h-[80vh]')
+      el.className.includes('md:h-[85vh]')
     );
 
     expect(fundoBrancoWithHeight).toBeInTheDocument();
