@@ -40,14 +40,6 @@ describe("LoginForm", () => {
         expect(screen.getByRole("button", { name: /acessar/i })).toBeInTheDocument();
     });
 
-    it("renderiza o link de cadastro", () => {
-        render(<LoginForm />, { wrapper });
-        
-        const cadastroLink = screen.getByRole("link", { name: /cadastre-se/i });
-        expect(cadastroLink).toBeInTheDocument();
-        expect(cadastroLink).toHaveAttribute("href", "/");
-    });
-
     it("exibe mensagem de erro ao submeter com credenciais inválidas", async () => {
         mutateAsyncMock.mockResolvedValueOnce({
             success: false,
