@@ -18,7 +18,7 @@ export async function redefinirSenhaAction(
         formData.append("token", dados.token);
         formData.append("new_pass", dados.new_pass);
         formData.append("new_pass_confirm", dados.new_pass_confirm);
-        await axios.post(`${API_URL}/users/redefinir-senha`, formData);
+        await axios.post(`${API_URL}/usuario/redefinir-senha`, formData);
         return { success: true };
     } catch (err) {
         const error = err as AxiosError<RedefinirSenhaErrorResponse>;
