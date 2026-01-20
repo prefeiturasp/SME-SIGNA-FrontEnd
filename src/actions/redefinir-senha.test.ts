@@ -20,7 +20,7 @@ describe("redefinirSenhaAction", () => {
         });
         expect(result).toEqual({ success: true });
         expect(axiosPostMock).toHaveBeenCalledWith(
-            expect.stringContaining("/users/redefinir-senha"),
+            expect.stringContaining("/usuario/redefinir-senha"),
             expect.any(FormData)
         );
     });
