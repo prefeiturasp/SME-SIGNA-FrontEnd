@@ -57,7 +57,6 @@ describe("useRecuperarSenha (hook)", () => {
     opts.onSuccess({ success: true });
 
     expect(invalidateQueriesMock).toHaveBeenCalledWith({ queryKey: ["me"] });
-    expect(pushMock).toHaveBeenCalledWith("/dashboard");
   });
 });
 

@@ -1,10 +1,8 @@
 import { useRecuperarSenhaAction } from "@/actions/recuperarSenha";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 
 const useRecuperarSenha = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: useRecuperarSenhaAction,
@@ -12,7 +10,6 @@ const useRecuperarSenha = () => {
       if (!response.success) return;
 
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      router.push("/dashboard");
     },
   });
 };

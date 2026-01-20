@@ -24,7 +24,7 @@ export async function esqueciSenhaAction(
         process.env.NEXT_PUBLIC_API_URL ?? "https://api.exemplo.com";
     try {
         const { data } = await axios.post<EsqueciSenhaSuccessResponse>(
-            `${API_URL}/users/esqueci-senha`,
+            `${API_URL}/usuario/esqueci-senha`,
             username
         );
         return { success: true, message: data.detail };
