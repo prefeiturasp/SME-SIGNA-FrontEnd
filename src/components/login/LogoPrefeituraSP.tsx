@@ -13,7 +13,7 @@ export default function LogoPrefeituraSP({ className = "", ...props }) {
             alt="Logo prefeitura de SP"
             width={logoWidth}
             height={logoHeight}
-            className={`object-contain ${className}`}
+            className={`object-contain mx-auto block ${className}`}
             {...props}
         />
     );
