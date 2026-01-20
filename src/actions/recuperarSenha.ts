@@ -9,7 +9,7 @@ export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
 
   try {
     const resp = await axios.post(
-      `${API_URL}/usuarios/esqueci-senha`,
+      `${API_URL}/usuario/esqueci-senha`,
       payload
     );
 

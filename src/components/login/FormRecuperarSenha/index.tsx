@@ -26,6 +26,7 @@ import {
 import useRecuperarSenha from "@/hooks/useRecuperarSenha";
 import Link from "next/link";
 import LogoSigna from "@/components/login/LogoSigna";
+import LogoPrefeituraSPImage from "../LogoPrefeituraSP"
 import { EsqueciSenhaRequest } from "@/types/esqueci-senha";
 import { Mensagem } from "@/types/generic";
 export default function RecuperarSenha() {
@@ -173,13 +174,8 @@ export default function RecuperarSenha() {
           </Form>
         </div>
 
-        <Image
-          className="self-center"
-          src="/images/logo_PrefSP.png"
-          alt="Login"
-          width={149}
-          height={47}
-        />
+        <LogoPrefeituraSPImage alt="Login"/>
+      
       </div>
     </div>
   );
