@@ -34,7 +34,7 @@ describe("useRecuperarSenhaAction", () => {
     const result = await useRecuperarSenhaAction({ username: "fulano" });
 
     expect(axiosPostMock).toHaveBeenCalledWith(
-      "https://api.exemplo.com/usuarios/esqueci-senha",
+      "https://api.exemplo.com/usuario/esqueci-senha",
       { username: "fulano" },
     );
     expect(result).toEqual({ success: true });
