@@ -1,0 +1,141 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
+import ModuleGrid from "./moduloGrid";
+
+// Mock de ícone para testes
+const MockIcon = ({ className }: { className?: string }) => (
+    <svg className={className} data-testid="mock-icon">
+        <path d="M0 0" />
+    </svg>
+);
+
+const mockModules = [
+    {
+        id: "designacao",
+        title: "Designação",
+        description: "Realize a pesquisa e validação de servidores para verificar a aptidão.",
+        icon: MockIcon,
+    },
+    {
+        id: "nomeacao",
+        title: "Nomeação",
+        description: "Gerencie os processos de nomeação, acompanhando etapas e registros.",
+        icon: MockIcon,
+    },
+    {
+        id: "protocolo",
+        title: "Protocolo",
+        description: "Registre, acompanhe e consulte protocolos.",
+        icon: MockIcon,
+    },
+];
+
+describe("ModuleGrid", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it("renderiza todos os módulos fornecidos", () => {
+        render(<ModuleGrid modules={mockModules} />);
+
+        expect(screen.getByText("Designação")).toBeInTheDocument();
+        expect(screen.getByText("Nomeação")).toBeInTheDocument();
+        expect(screen.getByText("Protocolo")).toBeInTheDocument();
+    });
+
+    it("renderiza as descrições dos módulos", () => {
+        render(<ModuleGrid modules={mockModules} />);
+
+        expect(
+            screen.getByText(/realize a pesquisa e validação de servidores/i)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(/gerencie os processos de nomeação/i)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(/registre, acompanhe e consulte protocolos/i)
+        ).toBeInTheDocument();
+    });
+
+    it("renderiza os ícones dos módulos", () => {
+        render(<ModuleGrid modules={mockModules} />);
+
+        const icons = screen.getAllByTestId("mock-icon");
+        expect(icons).toHaveLength(3);
+    });
+
+    it("renderiza um botão 'Abrir módulo' para cada módulo", () => {
+        render(<ModuleGrid modules={mockModules} />);
+
+        const buttons = screen.getAllByRole("button", { name: /abrir módulo/i });
+        expect(buttons).toHaveLength(3);
+    });
+
+    it("chama console.log com o id correto ao clicar no botão", async () => {
+        const user = userEvent.setup();
+        const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => { });
+
+        render(<ModuleGrid modules={mockModules} />);
+
+        const buttons = screen.getAllByRole("button", { name: /abrir módulo/i });
+
+        await user.click(buttons[0]);
+        expect(consoleSpy).toHaveBeenCalledWith("Abrir módulo:", "designacao");
+
+        await user.click(buttons[1]);
+        expect(consoleSpy).toHaveBeenCalledWith("Abrir módulo:", "nomeacao");
+
+        await user.click(buttons[2]);
+        expect(consoleSpy).toHaveBeenCalledWith("Abrir módulo:", "protocolo");
+
+        consoleSpy.mockRestore();
+    });
+
+    it("renderiza vazio quando não há módulos", () => {
+        const { container } = render(<ModuleGrid modules={[]} />);
+
+        const grid = container.querySelector("div");
+        expect(grid?.children).toHaveLength(0);
+    });
+
+    it("aplica as classes CSS corretas no grid", () => {
+        const { container } = render(<ModuleGrid modules={mockModules} />);
+
+        const grid = container.firstChild;
+        expect(grid).toHaveClass("grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-4");
+    });
+
+    it("renderiza cada módulo com a estrutura correta", () => {
+        render(<ModuleGrid modules={[mockModules[0]]} />);
+
+        // Verifica se o card do módulo existe
+        const moduleCard = screen.getByText("Designação").closest("div");
+        expect(moduleCard).toHaveClass("bg-white", "rounded-xl", "shadow-sm");
+
+        // Verifica se o ícone está dentro de um container circular
+        const iconContainer = screen.getByTestId("mock-icon").closest("div");
+        expect(iconContainer).toHaveClass("w-14", "h-14", "rounded-full", "bg-gray-400");
+    });
+
+    it("renderiza o título com as classes corretas", () => {
+        render(<ModuleGrid modules={[mockModules[0]]} />);
+
+        const title = screen.getByText("Designação");
+        expect(title).toHaveClass("font-semibold", "text-lg", "text-gray-400");
+    });
+
+    it("renderiza a descrição com as classes corretas", () => {
+        render(<ModuleGrid modules={[mockModules[0]]} />);
+
+        const description = screen.getByText(/realize a pesquisa e validação/i);
+        expect(description).toHaveClass("text-sm", "text-gray-600");
+    });
+
+    it("renderiza o botão com as classes corretas", () => {
+        render(<ModuleGrid modules={[mockModules[0]]} />);
+
+        const button = screen.getByRole("button", { name: /abrir módulo/i });
+        expect(button).toHaveClass("bg-red-700", "hover:bg-red-800", "text-white");
+    });
+});
