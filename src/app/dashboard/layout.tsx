@@ -17,13 +17,15 @@ export default function DashboardLayout({
                     <div className="flex flex-col flex-1 w-full">
                         <AuthGuard>
                             <Navbar />
-                            <main className="flex-1 bg-muted p-4 px-8">
-                                {children}
+                            <div className="min-h-screen flex flex-col">
+                                <main className="flex-1 bg-muted p-4 px-8">
+                                    {children}
+                                </main>
                                 <footer className="p-4 text-sm text-[#42474a]">
                                     Sistema homologado para navegadores: Google
                                     Chrome e Firefox
                                 </footer>
-                            </main>
+                            </div>
                         </AuthGuard>
                     </div>
                 </SidebarProvider>
