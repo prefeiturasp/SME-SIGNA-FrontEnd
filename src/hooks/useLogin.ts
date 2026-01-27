@@ -13,7 +13,7 @@ const useLogin = () => {
       if (!response.success) return;
       
       queryClient.invalidateQueries({ queryKey: ["me"] });
-       router.push("/dashboard");
+       router.push("/pages");
     },
   });
 };

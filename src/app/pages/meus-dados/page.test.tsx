@@ -64,6 +64,6 @@ describe("MeusDadosPage", () => {
             }
         ).mockImplementation(() => fakeUser);
         renderWithQueryProvider(<MeusDadosPage />);
-        expect(screen.getByText(/fake user/i)).toBeInTheDocument();
+        expect(screen.getByDisplayValue(/Fake User/i)).toBeInTheDocument();
     });
 });
