@@ -37,7 +37,7 @@ const items = [
     },
     {
         title: "Designações",
-        url: "/dashboard/designacoes-passo-1",
+        url: "/designacoes-passo-1",
         icon: Designacao,
     },
  

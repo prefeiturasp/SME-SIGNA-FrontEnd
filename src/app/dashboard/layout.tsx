@@ -16,12 +16,14 @@ export default function DashboardLayout({
                     <AppSidebar />
                     <div className="flex flex-col flex-1 w-full">
                         <AuthGuard>
-                            <Navbar />
-                            <div className="min-h-screen flex flex-col">
-                                <main className="flex-1 bg-muted p-4 px-8">
+                            <div className="flex min-h-screen flex-col">
+                                <Navbar />
+
+                                <main className="flex-grow bg-muted p-4 px-8">
                                     {children}
                                 </main>
-                                <footer className="p-4 text-sm text-[#42474a]">
+
+                                <footer className="h-[60px] p-4 text-sm text-[#42474a]">
                                     Sistema homologado para navegadores: Google
                                     Chrome e Firefox
                                 </footer>
