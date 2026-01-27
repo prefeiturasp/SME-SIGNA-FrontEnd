@@ -9,7 +9,7 @@ import { User, useUserStore } from "@/stores/useUserStore";
 
 vi.mock("next/navigation", () => ({
     useRouter: vi.fn(),
-    usePathname: vi.fn().mockReturnValue("/dashboard"),
+    usePathname: vi.fn().mockReturnValue("/pages"),
 }));
 
 vi.mock("@/hooks/useMe", () => ({

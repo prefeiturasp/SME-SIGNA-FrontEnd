@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
         replace: vi.fn(),
         prefetch: vi.fn(),
     }),
-    usePathname: () => "/dashboard",
+    usePathname: () => "/pages",
 }));
 
 const mockUser = {

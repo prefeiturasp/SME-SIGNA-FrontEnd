@@ -41,7 +41,7 @@ beforeAll(() => {
 describe("AppSidebar", () => {
     beforeEach(() => {
         (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
-            "/dashboard"
+            "/pages"
         );
     });
 

@@ -82,7 +82,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 </div>
                 {showBackButton && (
                     <Button asChild variant="customOutline" size="sm">
-                        <Link href="/dashboard" onClick={onClickBack}>
+                        <Link href="/pages" onClick={onClickBack}>
                             <ArrowLeft />
                             &nbsp;Voltar
                         </Link>
