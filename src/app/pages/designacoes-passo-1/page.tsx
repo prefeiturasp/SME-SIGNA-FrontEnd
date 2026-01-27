@@ -40,7 +40,7 @@ export default function DesignacoesPasso1() {
   };
 
   const onProximo = (data: BuscaServidorDesignacaoBody) => {
-    router.push(`/dashboard/designacoes-passo-2?${data.rf}`);
+    router.push(`/pages/designacoes-passo-2?${data.rf}`);
   };
   return (
     <>

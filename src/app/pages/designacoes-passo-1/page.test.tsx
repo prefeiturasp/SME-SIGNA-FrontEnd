@@ -245,7 +245,7 @@ describe("Designacoes page", () => {
 
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard/designacoes-passo-2?456");
+    expect(mockRouterPush).toHaveBeenCalledWith("/pages/designacoes-passo-2?456");
 
   });
 
