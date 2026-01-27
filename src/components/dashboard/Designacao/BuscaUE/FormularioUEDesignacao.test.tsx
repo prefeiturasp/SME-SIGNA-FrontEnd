@@ -68,19 +68,24 @@ vi.mock('@/components/ui/form', () => ({
 }));
 
 
+let mockSelectOnValueChange: ((value: string) => void) | null = null;
+
 vi.mock('@/components/ui/select', () => ({
   Select: ({ 
     children, 
-    value, 
     onValueChange,
     'data-testid': testId 
   }: { 
     children: React.ReactNode; 
-    value: string; 
     onValueChange: (value: string) => void;
     'data-testid'?: string;
   }) => (
-    <div data-testid={testId} onClick={() => onValueChange('dre-codigoDRE-1')}>
+    <div
+      data-testid={testId}
+      onClick={() => {
+        mockSelectOnValueChange = onValueChange;
+      }}
+    >
       {children}
     </div>
   ),
@@ -93,7 +98,14 @@ vi.mock('@/components/ui/select', () => ({
   }: { 
     children: React.ReactNode; 
     value: string 
-  }) => <div data-value={value}>{children}</div>,
+  }) => (
+    <div
+      data-value={value}
+      onClick={() => mockSelectOnValueChange?.(value)}
+    >
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock('@/components/ui/Combobox', () => ({
@@ -174,7 +186,7 @@ describe('FormularioUEDesignacao', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Configurar mocks padrão
+    
     mockUseFetchDREs.mockReturnValue({
     data: [
         {
@@ -211,11 +223,11 @@ describe('FormularioUEDesignacao', () => {
   it('exibe opções de DRE do hook useFetchDREs', () => {
     render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
 
-    // Simular clique para abrir opções
+    
     const selectDRE = screen.getByTestId('select-dre');
     fireEvent.click(selectDRE);
     
-    // Verificar se as opções foram passadas para o Select
+    
     expect(mockUseFetchDREs).toHaveBeenCalled();
   });
 
@@ -261,6 +273,7 @@ describe('FormularioUEDesignacao', () => {
 
     const btnProximo = screen.getByTestId('btn-proximo');
     
+    expect(btnProximo).toBeInTheDocument();
   });
 
   it('valida formulário com schema zod', async () => {
@@ -284,5 +297,66 @@ describe('FormularioUEDesignacao', () => {
   it('atualiza valores do formulário em tempo real com watch', () => {
     render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
 
+  });
+
+  it('seleciona DRE e UE e verifica qual DRE está selecionada', () => {
+    
+    mockUseFetchUEs.mockReturnValue({
+      data: [
+        { codigoEol: 'ue-codigoEol-1', nomeOficial: 'UE 1 da DRE Selecionada' },
+        { codigoEol: 'ue-codigoEol-2', nomeOficial: 'UE 2 da DRE Selecionada' },
+      ],
+    });
+
+    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
+
+    
+    const selectDRE = screen.getByTestId('select-dre');
+    const selectUE = screen.getByTestId('select-ue') as HTMLInputElement;
+
+    expect(selectDRE).toBeInTheDocument();
+    expect(selectUE).toBeInTheDocument();
+
+    
+    expect(selectUE.disabled).toBe(true);
+
+    
+    expect(mockUseFetchDREs).toHaveBeenCalled();
+    expect(mockUseFetchUEs).toHaveBeenCalled();
+
+    
+    fireEvent.click(selectDRE);
+    fireEvent.click(screen.getByText('DRE 1'));
+
+    
+    expect(screen.getByText('DRE 1')).toBeInTheDocument();
+    expect(screen.getByText('DRE 2')).toBeInTheDocument();
+
+    
+    
+    const ueOptions = JSON.parse(selectUE.getAttribute('data-options') || '[]');
+    expect(ueOptions).toHaveLength(2);
+    expect(ueOptions[0]).toEqual({
+      label: 'UE 1 da DRE Selecionada',
+      value: 'ue-codigoEol-1',
+    });
+    expect(ueOptions[1]).toEqual({
+      label: 'UE 2 da DRE Selecionada',
+      value: 'ue-codigoEol-2',
+    });
+
+    
+    fireEvent.change(selectUE);
+
+    
+    
+    expect(selectDRE).toBeInTheDocument();
+    expect(screen.getByText('DRE 1')).toBeInTheDocument();
+    expect(screen.getByText('DRE 2')).toBeInTheDocument();
+    
+    
+    
+    expect(mockUseFetchDREs).toHaveBeenCalled();
+    expect(mockUseFetchUEs).toHaveBeenCalled();
   });
 });
