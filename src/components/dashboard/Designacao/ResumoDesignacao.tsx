@@ -1,11 +1,10 @@
 "use client";
 
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
-import { Skeleton } from "antd";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
-const InfoItem: React.FC<{ label: string; value?: string }> = ({
+export const InfoItem: React.FC<{ label: string; value?: string }> = ({
   label,
   value,
 }) => (
