@@ -1,16 +1,22 @@
 "use client";
 
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
-import { Loader2 } from "lucide-react";
+import {  Loader2 } from "lucide-react";
 import React from "react";
-
-export const InfoItem: React.FC<{ label: string; value?: string }> = ({
+import Eye from "@/assets/icons/Eye";
+export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,
+  icon,
 }) => (
   <div className="flex flex-col gap-2">
+    <div className="flex flex-row gap-10">
     <p className="text-[14px] font-bold ">{label}</p>
+    {icon && <div className="w-6 h-6">{icon}</div>}
+    </div>
+
     <p className="text-[14px] text-[#6F6C8F]">{value}</p>
+    
   </div>
 );
 
@@ -56,6 +62,7 @@ const ResumoDesignacao: React.FC<{
               <InfoItem
                 label="Cursos/Títulos"
                 value={defaultValues.cursos_titulos}
+                icon={<Eye width={16} height={16} />} 
               />
  
  

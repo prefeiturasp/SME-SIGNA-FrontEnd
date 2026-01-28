@@ -28,11 +28,12 @@ import formSchemaDesignacao, {
 
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
-import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+ import { Button } from "@/components/ui/button";
+import { Loader2, Search } from "lucide-react";
 import { InputBase } from "@/components/ui/input-base";
 import { InfoItem } from "../ResumoDesignacao";
+ import Eye from "@/assets/icons/Eye";
+import { useState } from "react";
 
 
 interface Props {
@@ -43,39 +44,56 @@ export default function FormularioPesquisaUnidade({
   onSubmitDesignacao,
 }: Props) {
   const { data: dreOptions = [] } = useFetchDREs();
-
+    const [funcionariosOptions, setFuncionariosOptions] = useState<{ rf: string; nome: string }[]>([])
  
   const form = useForm<FormDesignacaoData>({
     resolver: zodResolver(formSchemaDesignacao),
     defaultValues: {
       dre: "",
       ue: "",
+      funcionarios_da_unidade: "",
+      quantidade_turmas: "",
     },
     mode: "onChange",
   });
 
   const values = form.watch();
-  const { data: ueOptions = [] } = useFetchUEs(values.dre);
+  const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(values.dre);
  
   console.log("ueOptions", ueOptions)
 
+const onSubmit = (values: FormDesignacaoData) => {
+  console.log("values", values);
+
+    onSubmitDesignacao(values);
+    
+    form.setValue("codigo_estrutura_hierarquica", '123456');    
+    form.setValue("quantidade_turmas", '40');
+    setFuncionariosOptions([
+      { rf: "123456", nome: "João da Silva" },
+      { rf: "123457", nome: "Maria da Silva" },
+      { rf: "123458", nome: "Pedro da Silva" }, 
+    ])
+    form.setValue("cargo_sobreposto", '20');
+    form.setValue("modulos", '2');
+  }
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmitDesignacao)}
-        className="flex flex-col gap-5"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-8"
       >
-        <div className="flex flex-row gap-5">
+        <div className="flex flex-col md:flex-row gap-5">
 
-          <div className="w-full md:w-[15%]">
+          <div className="w-full md:w-[230px]">
             <FormField
               control={form.control}
               name="dre"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
-                    Selecione a DRE
+                    DRE
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -108,16 +126,20 @@ export default function FormularioPesquisaUnidade({
           </div>
 
           <div className="w-full md:w-[75%]">
-            <FormField
-
+            <FormField            
               control={form.control}
               name="ue"
               render={({ field }) => (
-                <FormItem>
+                <FormItem >
                   <FormLabel className="required text-[#42474a] font-bold">
-                    Selecione a UE
+                  Unidade escolar
                   </FormLabel>
                   <FormControl>
+                    {isLoadingUEs ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary " />
+                      </div>
+                    ) : (
                     <Combobox
                       options={ueOptions.map(
                         (ue: { codigoEol: string; nomeOficial: string }) => ({
@@ -131,6 +153,7 @@ export default function FormularioPesquisaUnidade({
                       disabled={!values.dre}
                       data-testid="select-ue"
                     />
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -149,9 +172,10 @@ export default function FormularioPesquisaUnidade({
 
 
         </div>
-        <div className="flex flex-row gap-5">
 
-          <div className="w-full md:w-[15%]">
+
+        <div className="flex flex-col md:flex-row  gap-5">
+          <div className="w-full md:w-[240px]">
             <FormField
               control={form.control}
               name="codigo_estrutura_hierarquica"
@@ -177,37 +201,36 @@ export default function FormularioPesquisaUnidade({
           </div>
 
           <div className="w-full md:w-[15%] mt-6">
-          <InfoItem label="Qtd. Turmas" value={'20'} />
+            <InfoItem label="Qtd. Turmas" value={form.watch("quantidade_turmas")} icon={<Eye width={16} height={16}  />} />
 
           </div>
 
           <div className="w-full md:w-[75%]">
             <FormField
               control={form.control}
-              name="dre"
+              name="funcionarios_da_unidade"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
-                    Selecione a DRE
+                  Funcionários da unidade
                   </FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue("ue", "");
+                        field.onChange(value);                        
                       }}
-                      data-testid="select-dre"
+                      data-testid="select-funcionarios"
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
 
                       <SelectContent>
-                        {dreOptions.map(
-                          (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => (
-                            <SelectItem key={dre.siglaDRE} value={dre.codigoDRE}>
-                              {dre.nomeDRE}
+                        {funcionariosOptions.map(
+                          (funcionario: { rf: string; nome: string; }) => (
+                            <SelectItem key={funcionario.rf} value={funcionario.rf}>
+                              {funcionario.nome}
                             </SelectItem>
                           )
                         )}
@@ -225,6 +248,25 @@ export default function FormularioPesquisaUnidade({
         </div>
 
 
+
+
+
+        <div className="flex flex-col md:flex-row">
+          
+
+        <div className="w-full md:w-[240px]">
+          <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
+
+          </div>
+
+          <div className="w-full md:w-[15%] ">
+          <InfoItem label="Módulos" value={form.watch("modulos")} />
+
+          </div>
+
+
+
+        </div>
       </form>
     </Form>
   );

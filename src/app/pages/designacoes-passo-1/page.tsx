@@ -18,7 +18,6 @@ import { useState } from "react";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 import { useRouter } from "next/navigation";
-import FormularioUEDesignacao from "@/components/dashboard/Designacao/BuscaUE/FormularioUEDesignacao";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/BuscaUE/schema";
 import FormularioPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 
@@ -63,9 +62,9 @@ export default function DesignacoesPasso1() {
         <StepperDesignacao current={0} />
       </FundoBranco>
 
-
-      <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
-
+      <Card title="Servidor indicado" className="text-[#6058A2] mt-4 m-0 ">
+        <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
+       </Card>
 
 
       {error && <div className="text-red-500">{error}</div>}
@@ -85,20 +84,13 @@ export default function DesignacoesPasso1() {
 
 
 
-          <div className="w-full  flex flex-col self-stretch">
-
-
-
-
-
+          <div className="w-full flex flex-col ">
             <BotoesDeNavegacao
               disableAnterior={true}
               disableProximo={!data}
               onProximo={() => onProximo(data)}
               onAnterior={() => { }}
             />
-
-
           </div>
 
 

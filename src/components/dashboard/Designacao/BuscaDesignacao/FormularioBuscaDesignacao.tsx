@@ -38,7 +38,6 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
   };
 
   return (
-    <Card title="Servidor indicado" className="text-[#6058A2] mt-4 m-0 ">
 
     <div className={className}>
       <Form {...form}>
@@ -54,7 +53,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] font-bold">
-                    RF do servidor indicado
+                    RF do titular
                     </FormLabel>
                     <FormControl>
                       <InputBase
@@ -82,7 +81,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
         </form>
       </Form>
     </div>
-    </Card>
+ 
 
   );
 };
