@@ -18,7 +18,7 @@ describe("FormularioBuscaDesignacao", () => {
   it("renderiza o campo de RF e o botão de pesquisa", () => {
     render(<FormularioBuscaDesignacao onBuscaDesignacao={vi.fn()} />);
 
-    expect(screen.getByText("RF do servidor")).toBeInTheDocument();
+    expect(screen.getByText("RF do servidor indicado")).toBeInTheDocument();
     expect(screen.getByText("Pesquisar")).toBeInTheDocument();
   });
 

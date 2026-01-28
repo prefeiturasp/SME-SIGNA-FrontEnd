@@ -25,7 +25,7 @@ const ResumoDesignacao: React.FC<{
       {isLoading ? (
         <div className="flex justify-center h-full">
           <Loader2
-          data-testid="loading-spinner"
+            data-testid="loading-spinner"
             className="
           h-16 w-16 text-primary 
           animate-spin 
@@ -35,9 +35,16 @@ const ResumoDesignacao: React.FC<{
       ) : (
         <div className={className}>
           <div className="w-full flex flex-col h-full flex-1">
-            <div className="grid lg:grid-cols-2 xl:grid-cols-3 lg:items-center lg:text-left gap-4">
+            <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:items-center lg:text-left gap-4">
               <InfoItem label="Servidor" value={defaultValues.nome} />
               <InfoItem label="RF" value={defaultValues.rf} />
+              <InfoItem label="Função" value={defaultValues.funcao_atividade} />
+              <InfoItem
+                label="Cargo sobreposto"
+                value={defaultValues.cargo_sobreposto}
+              />
+              <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
+
               <InfoItem
                 label="Vínculo"
                 value={defaultValues.vinculo_cargo_sobreposto}
@@ -46,32 +53,14 @@ const ResumoDesignacao: React.FC<{
                 label="Lotação"
                 value={defaultValues.lotacao_cargo_sobreposto}
               />
-              <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
-              <InfoItem
-                label="Aulas atribuídas"
-                value={defaultValues.aulas_atribuidas}
-              />
-              <InfoItem label="Função" value={defaultValues.funcao_atividade} />
-              <InfoItem
-                label="Cargo sobreposto"
-                value={defaultValues.cargo_sobreposto}
-              />
-              <InfoItem
-                label="Laudo Médico"
-                value={defaultValues.laudo_medico}
-              />
+
               <InfoItem
                 label="Cursos/Títulos"
                 value={defaultValues.cursos_titulos}
               />
-              <InfoItem
-                label="Estágio probatório"
-                value={defaultValues.estagio_probatorio}
-              />
-              <InfoItem
-                label="Aprovado em concurso"
-                value={defaultValues.aprovado_em_concurso}
-              />
+ 
+ 
+            
             </div>
           </div>
         </div>
