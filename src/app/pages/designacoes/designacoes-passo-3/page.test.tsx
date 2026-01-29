@@ -1,7 +1,7 @@
 import React, { type HTMLAttributes, type ReactNode, type SVGProps } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
-import DesignacoesPage from "../designacoes-passo-3/page";
+import DesignacoesPage from "./page";
 
 const mockPageHeader = vi.fn();
 let mockSearchParams: URLSearchParams;

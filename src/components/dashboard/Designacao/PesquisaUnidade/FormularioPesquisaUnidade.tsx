@@ -28,24 +28,31 @@ import formSchemaDesignacao, {
 
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
- import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
 import { InputBase } from "@/components/ui/input-base";
 import { InfoItem } from "../ResumoDesignacao";
- import Eye from "@/assets/icons/Eye";
-import { useState } from "react";
+import Eye from "@/assets/icons/Eye";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
+
+export interface FormularioPesquisaUnidadeRef {
+  getValues: () => FormDesignacaoData;
+}
 
 interface Props {
   readonly onSubmitDesignacao: (values: FormDesignacaoData) => void;
+  readonly setDisableProximo: (disable: boolean) => void;
 }
 
-export default function FormularioPesquisaUnidade({
+
+const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props>(function FormularioPesquisaUnidade({
   onSubmitDesignacao,
-}: Props) {
+  setDisableProximo
+}: Props, ref) {
   const { data: dreOptions = [] } = useFetchDREs();
-    const [funcionariosOptions, setFuncionariosOptions] = useState<{ rf: string; nome: string }[]>([])
- 
+  const [funcionariosOptions, setFuncionariosOptions] = useState<{ rf: string; nome: string }[]>([])
+
   const form = useForm<FormDesignacaoData>({
     resolver: zodResolver(formSchemaDesignacao),
     defaultValues: {
@@ -53,29 +60,38 @@ export default function FormularioPesquisaUnidade({
       ue: "",
       funcionarios_da_unidade: "",
       quantidade_turmas: "",
+      codigo_estrutura_hierarquica: "",
+      cargo_sobreposto: "",
+      modulos: "",
     },
     mode: "onChange",
   });
 
   const values = form.watch();
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(values.dre);
- 
-  console.log("ueOptions", ueOptions)
 
-const onSubmit = (values: FormDesignacaoData) => {
-  console.log("values", values);
 
-    onSubmitDesignacao(values);
-    
-    form.setValue("codigo_estrutura_hierarquica", '123456');    
+  useImperativeHandle(ref, () => ({
+    getValues: () => form.getValues(),
+  }), [form])
+
+
+  const onSubmit = (values: FormDesignacaoData) => {
+    console.log("values", values);
+
+
+
+    form.setValue("codigo_estrutura_hierarquica", '123456');
     form.setValue("quantidade_turmas", '40');
     setFuncionariosOptions([
       { rf: "123456", nome: "João da Silva" },
       { rf: "123457", nome: "Maria da Silva" },
-      { rf: "123458", nome: "Pedro da Silva" }, 
+      { rf: "123458", nome: "Pedro da Silva" },
     ])
     form.setValue("cargo_sobreposto", '20');
     form.setValue("modulos", '2');
+
+    onSubmitDesignacao(values);
   }
 
   return (
@@ -101,6 +117,7 @@ const onSubmit = (values: FormDesignacaoData) => {
                       onValueChange={(value) => {
                         field.onChange(value);
                         form.setValue("ue", "");
+                        setDisableProximo(true);
                       }}
                       data-testid="select-dre"
                     >
@@ -126,13 +143,13 @@ const onSubmit = (values: FormDesignacaoData) => {
           </div>
 
           <div className="w-full md:w-[75%]">
-            <FormField            
+            <FormField
               control={form.control}
               name="ue"
               render={({ field }) => (
                 <FormItem >
                   <FormLabel className="required text-[#42474a] font-bold">
-                  Unidade escolar
+                    Unidade escolar
                   </FormLabel>
                   <FormControl>
                     {isLoadingUEs ? (
@@ -140,19 +157,22 @@ const onSubmit = (values: FormDesignacaoData) => {
                         <Loader2 className="w-4 h-4 animate-spin text-primary " />
                       </div>
                     ) : (
-                    <Combobox
-                      options={ueOptions.map(
-                        (ue: { codigoEol: string; nomeOficial: string }) => ({
-                          label: ue.nomeOficial,
-                          value: ue.codigoEol,
-                        })
-                      )}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Digite o nome da UE"
-                      disabled={!values.dre}
-                      data-testid="select-ue"
-                    />
+                      <Combobox
+                        options={ueOptions.map(
+                          (ue: { codigoEol: string; nomeOficial: string }) => ({
+                            label: ue.nomeOficial,
+                            value: ue.codigoEol,
+                          })
+                        )}
+                        value={field.value}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          setDisableProximo(false);
+                        }}
+                        placeholder="Digite o nome da UE"
+                        disabled={!values.dre}
+                        data-testid="select-ue"
+                      />
                     )}
                   </FormControl>
                   <FormMessage />
@@ -182,14 +202,13 @@ const onSubmit = (values: FormDesignacaoData) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
-                  Código Estrutura hierárquica 
+                    Código Estrutura hierárquica
                   </FormLabel>
                   <FormControl>
                     <InputBase
                       value={field.value}
                       onChange={(value) => {
                         field.onChange(value.target.value);
-                        form.setValue("codigo_estrutura_hierarquica", value.target.value);
                       }}
                       data-testid="input-codigo"
                     />
@@ -201,7 +220,7 @@ const onSubmit = (values: FormDesignacaoData) => {
           </div>
 
           <div className="w-full md:w-[15%] mt-6">
-            <InfoItem label="Qtd. Turmas" value={form.watch("quantidade_turmas")} icon={<Eye width={16} height={16}  />} />
+            <InfoItem label="Qtd. Turmas" value={form.watch("quantidade_turmas")} icon={<Eye width={16} height={16} />} />
 
           </div>
 
@@ -212,13 +231,13 @@ const onSubmit = (values: FormDesignacaoData) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
-                  Funcionários da unidade
+                    Funcionários da unidade
                   </FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
-                        field.onChange(value);                        
+                        field.onChange(value);
                       }}
                       data-testid="select-funcionarios"
                     >
@@ -252,15 +271,15 @@ const onSubmit = (values: FormDesignacaoData) => {
 
 
         <div className="flex flex-col md:flex-row">
-          
 
-        <div className="w-full md:w-[240px]">
-          <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
+
+          <div className="w-full md:w-[240px]">
+            <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
 
           </div>
 
           <div className="w-full md:w-[15%] ">
-          <InfoItem label="Módulos" value={form.watch("modulos")} />
+            <InfoItem label="Módulos" value={form.watch("modulos")} />
 
           </div>
 
@@ -270,4 +289,6 @@ const onSubmit = (values: FormDesignacaoData) => {
       </form>
     </Form>
   );
-}
+});
+
+export default FormularioPesquisaUnidade;

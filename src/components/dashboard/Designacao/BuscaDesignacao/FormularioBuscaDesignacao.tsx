@@ -57,6 +57,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                     </FormLabel>
                     <FormControl>
                       <InputBase
+                        type="number"
                         className="medium-input"
                         {...field}
                         placeholder="Entre com RF"

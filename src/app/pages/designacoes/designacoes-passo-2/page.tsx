@@ -18,6 +18,7 @@ import {
 import {
   FormDesignacaoData,
 } from "@/components/dashboard/Designacao/BuscaUE/schema";
+import { useDesignacaoContext } from "../DesignacaoContext";
 
 type SelecaoUEDesignacaoBody = {
   dre: string;
@@ -26,6 +27,8 @@ type SelecaoUEDesignacaoBody = {
 
 export default function Designacoes() {
   const searchParams = useSearchParams();
+  const { formDesignacaoData } = useDesignacaoContext();
+  console.log("Dados da etapa 1", formDesignacaoData);
 
   const servidorSelecionado = useMemo(() => {
     const payload = searchParams.get("payload");
@@ -41,6 +44,7 @@ export default function Designacoes() {
 
   const onSubmitDesignacao = (values: FormDesignacaoData) => {
     console.log("Dados do formulário", values);
+    console.log("Dados da etapa 1", formDesignacaoData);
 
     const payload: SelecaoUEDesignacaoBody = {
       dre: values.dre,
