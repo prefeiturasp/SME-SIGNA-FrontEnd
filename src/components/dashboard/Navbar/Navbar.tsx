@@ -26,14 +26,14 @@ export function Navbar() {
 
             <div className="flex items-center gap-4">
                 <div
-                    className="rounded border border-gray-300 px-1 font-weight-[400] py-1 h-[59px] text-sm text-muted-foreground leading-tight bg-[#f5f6f8]"
+                    className="p-2.5 rounded border border-gray-300  font-weight-[400]  h-[59px] text-sm text-muted-foreground leading-tight bg-[#f5f6f8]"
                     style={{
                         fontFamily: "Roboto, sans-serif",
                         color: "#42474a",
                     }}
                 >
                     {user && (
-                        <>
+                        <div className="flex flex-col align-middle">
                             <div>
                                 <span className="font-bold">
                                     {isCPF(user.username) ? "CPF" : "RF"}:{" "}
@@ -41,10 +41,8 @@ export function Navbar() {
                                 </span>
                             </div>
                             <div>{capitalizeWords(user.name)}</div>
-                            <div>
-                                {/* {capitalizeWords(user.perfil_acesso.nome)} */}
-                            </div>
-                        </>
+                             
+                        </div>
                     )}
                 </div>
 

@@ -92,7 +92,7 @@ describe("PageHeader", () => {
         render(<PageHeader title="Test Title" />);
         const link = screen.getByRole("link", { name: /voltar/i });
         expect(link).toBeInTheDocument();
-        expect(link).toHaveAttribute("href", "/dashboard");
+        expect(link).toHaveAttribute("href", "/pages");
     });
 
     it("não deve renderizar o link de voltar se showBackButton for false", () => {

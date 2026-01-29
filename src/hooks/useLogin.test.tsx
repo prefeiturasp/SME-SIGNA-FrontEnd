@@ -48,7 +48,7 @@ describe("useLogin", () => {
             });
         });
         await waitFor(() => {
-            expect(pushMock).toHaveBeenCalledWith("/dashboard");
+            expect(pushMock).toHaveBeenCalledWith("/pages");
         });
     });
 

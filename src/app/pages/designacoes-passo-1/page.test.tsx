@@ -209,6 +209,10 @@ describe("Designacoes page", () => {
     mockMutateAsync.mockResolvedValue({ success: false, error: "Erro ao buscar servidor" });
     render(<DesignacoesPage />);
 
+       
+    await userEvent.click(screen.getByTestId("input-rf"));
+    await userEvent.type(screen.getByTestId("input-rf"), "123456");
+
     await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
 
     await waitFor(() => {
@@ -219,6 +223,25 @@ describe("Designacoes page", () => {
     
     expect(mockResumoDesignacao).not.toHaveBeenCalled();
   });
+
+
+  it("renderiza resumo e stepper quando a busca retorna dados", async () => {
+    mockMutateAsync.mockResolvedValue({ success: true, data: mockResponse });
+    render(<DesignacoesPage />);
+
+       
+    await userEvent.click(screen.getByTestId("input-rf"));
+    await userEvent.type(screen.getByTestId("input-rf"), "123456");
+
+    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+
+ 
+    expect(screen.queryByTestId("resumo-designacao")).toBeInTheDocument();
+    
+    
+    
+  });
+
 
 
   it("navega para o próximo passo ao clicar no botão próximo", async () => {
@@ -245,7 +268,7 @@ describe("Designacoes page", () => {
 
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard/designacoes-passo-2?456");
+    expect(mockRouterPush).toHaveBeenCalledWith("/pages/designacoes-passo-2?456");
 
   });
 
