@@ -1,8 +1,8 @@
 # Configuração de Credenciais
 
-## ⚠️ IMPORTANTE - Segurança
+## IMPORTANTE - Segurança
 
-As credenciais **NÃO** devem ser commitadas no repositório. Este projeto utiliza arquivos de exemplo que devem ser copiados e configurados localmente.
+As credenciais NÃO devem ser commitadas no repositório. Este projeto utiliza arquivos de exemplo que devem ser copiados e configurados localmente.
 
 ## Passo a Passo para Configurar
 
@@ -55,15 +55,15 @@ Os seguintes arquivos contêm credenciais e estão no `.gitignore`:
 - `cypress/e2e/ui/alteracao_email.feature`
 - `cypress/support/step_definitions/alteracao_email_steps.js`
 
-## ✅ Boas Práticas
+## Boas Práticas
 
-- ✅ Nunca commite arquivos com credenciais reais
-- ✅ Use os arquivos `.example` como referência
-- ✅ Mantenha suas credenciais locais apenas
-- ✅ Verifique o `.gitignore` antes de fazer commit
-- ✅ Use variáveis de ambiente para dados sensíveis
+- Nunca commite arquivos com credenciais reais
+- Use os arquivos `.example` como referência
+- Mantenha suas credenciais locais apenas
+- Verifique o `.gitignore` antes de fazer commit
+- Use variáveis de ambiente para dados sensíveis
 
-## 🔒 Segurança
+## Segurança
 
 Se você acidentalmente commitou credenciais:
 

@@ -1,24 +1,21 @@
-# Dependencies
 node_modules/
 yarn.lock
 pnpm-lock.yaml
 .pnp
 .pnp.js
 
-# Cypress
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
 cypress/reports/
+cypress/logs/
 .cypress-cucumber-preprocessorrc
 .currents/
 
-# Allure
 allure-results/
 allure-report/
 .allure/
 
-# Test Results
 test-results/
 mochawesome-report/
 cucumber-report.json
@@ -29,16 +26,13 @@ junit-*.xml
 coverage/
 .nyc_output/
 
-# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
-cypress/logs/
 
-# Environment
 .env
 .env.local
 .env.development.local
@@ -47,10 +41,8 @@ cypress/logs/
 .env.*.local
 cypress.env.json
 
-# Fixtures with sensitive data
 cypress/fixtures/usuarios.json
 
-# MacOS
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -66,7 +58,6 @@ Icon
 .AppleDB
 .AppleDesktop
 
-# Windows
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
@@ -81,20 +72,18 @@ $RECYCLE.BIN/
 *.msp
 *.lnk
 
-# Linux
 *~
 .fuse_hidden*
 .directory
 .Trash-*
 .nfs*
 
-# VSCode
+.vscode/
 .vscode/settings.json
 .vscode/launch.json
 .vscode-test/
 *.code-workspace
 
-# JetBrains IDEs
 .idea/
 *.iml
 *.ipr
@@ -102,39 +91,30 @@ $RECYCLE.BIN/
 out
 .idea_modules/
 
-# Sublime Text
 *.sublime-project
 *.sublime-workspace
 
-# Vim
 *.swp
 *.swo
 *.swn
-*~
 .*.sw[a-p]
 
-# Emacs
-*~
 \#*\#
 .\#*
 .dir-locals.el
 
-# Visual Studio
 .vs/
 
-# Build
 dist/
 build/
 *.tsbuildinfo
 
-# Cache
 .cache/
 .parcel-cache/
 .eslintcache
 .stylelintcache
 *.cache
 
-# Temp
 temp/
 tmp/
 *.tmp
@@ -142,7 +122,6 @@ tmp/
 *.bak
 *.backup
 
-# Security
 *.pem
 *.key
 *.cert
@@ -151,12 +130,10 @@ tmp/
 secrets.json
 credentials.json
 
-# Misc
 .gitattributes.local
 .git-credentials
 .history/
 .npm/
 
-# Specific feature files
 cypress/e2e/ui/alteracao_email.feature
 cypress/support/step_definitions/alteracao_email_steps.js
