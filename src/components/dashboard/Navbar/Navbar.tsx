@@ -33,8 +33,6 @@ export function Navbar() {
                     }}
                 >
                     {user && (
-
-                        <>
                         <div className="flex flex-col align-middle">
                             <div>
                                 <span className="font-bold">
@@ -45,7 +43,6 @@ export function Navbar() {
                             <div>{capitalizeWords(user.name)}</div>
                              
                         </div>
-                        </>
                     )}
                 </div>
 
