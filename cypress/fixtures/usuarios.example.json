@@ -1,11 +1,11 @@
 {
   "users": [
     {
-      "rf": "7311559",
-      "cpf": "12345678900",
-      "senha": "Sgp1559",
-      "nome": "Usuário Teste",
-      "email": "usuario.teste@sme.prefeitura.sp.gov.br",
+      "rf": "SEU_RF_AQUI",
+      "cpf": "SEU_CPF_AQUI",
+      "senha": "SUA_SENHA_AQUI",
+      "nome": "Nome do Usuário",
+      "email": "seu.email@sme.prefeitura.sp.gov.br",
       "perfil": "Administrador"
     }
   ],

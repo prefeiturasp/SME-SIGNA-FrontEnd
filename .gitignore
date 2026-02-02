@@ -47,6 +47,9 @@ cypress/logs/
 .env.*.local
 cypress.env.json
 
+# Fixtures with sensitive data
+cypress/fixtures/usuarios.json
+
 # MacOS
 .DS_Store
 .AppleDouble
