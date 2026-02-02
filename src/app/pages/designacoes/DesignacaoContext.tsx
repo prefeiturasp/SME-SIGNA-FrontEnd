@@ -18,17 +18,16 @@ export function DesignacaoProvider({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const [formDesignacaoData, setFormDesignacaoDataState] =
-    useState<FormDesignacaoData | null>(null);
+  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoData | null>(null);
 
   const value = useMemo(
     () => ({
       formDesignacaoData,
       setFormDesignacaoData: (data: FormDesignacaoData) => {
-        setFormDesignacaoDataState(data);
+        setFormDesignacaoData(data);
       },
       clearFormDesignacaoData: () => {
-        setFormDesignacaoDataState(null);
+        setFormDesignacaoData(null);
       },
     }),
     [formDesignacaoData]
