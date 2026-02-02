@@ -1,0 +1,35 @@
+{
+  "users": [
+    {
+      "rf": "7311559",
+      "cpf": "12345678900",
+      "senha": "Sgp1559",
+      "nome": "Usuário Teste",
+      "email": "usuario.teste@sme.prefeitura.sp.gov.br",
+      "perfil": "Administrador"
+    }
+  ],
+  "mensagens": {
+    "login": {
+      "sucesso": "Login realizado com sucesso",
+      "erro": "Usuário ou senha inválidos",
+      "campoObrigatorio": "Campo obrigatório"
+    },
+    "recuperarSenha": {
+      "sucesso": "Instruções de recuperação enviadas para seu e-mail",
+      "erro": "RF ou CPF não encontrado",
+      "limiteExcedido": "Limite de tentativas excedido. Tente novamente em 30 minutos"
+    },
+    "alterarSenha": {
+      "sucesso": "Senha alterada com sucesso",
+      "senhaAtualIncorreta": "Senha atual incorreta",
+      "senhasNaoCoincidem": "As senhas não coincidem",
+      "senhaIgualAtual": "A nova senha não pode ser igual à senha atual"
+    },
+    "alterarEmail": {
+      "sucesso": "E-mail alterado com sucesso. Verifique sua caixa de entrada para confirmar",
+      "emailsNaoCoincidem": "Os e-mails não coincidem",
+      "emailJaCadastrado": "Este e-mail já está cadastrado no sistema"
+    }
+  }
+}
