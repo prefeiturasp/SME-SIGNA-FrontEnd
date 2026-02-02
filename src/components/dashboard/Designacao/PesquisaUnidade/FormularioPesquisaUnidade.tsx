@@ -102,7 +102,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
       >
         <div className="flex flex-col md:flex-row gap-5">
 
-          <div className="w-full md:w-[230px]">
+          <div className="w-full md:w-[20%]">
             <FormField
               control={form.control}
               name="dre"
@@ -116,12 +116,12 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
+                        form.clearErrors();
                         form.setValue("ue", "");
                         setDisableProximo(true);
                       }}
-                      data-testid="select-dre"
                     >
-                      <SelectTrigger>
+                      <SelectTrigger data-testid="select-dre">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
 
@@ -168,6 +168,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                         onChange={(value) => {
                           field.onChange(value);
                           setDisableProximo(false);
+                          form.clearErrors();
                         }}
                         placeholder="Digite o nome da UE"
                         disabled={!values.dre}
@@ -195,7 +196,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
 
         <div className="flex flex-col md:flex-row  gap-5">
-          <div className="w-full md:w-[240px]">
+          <div className="w-full md:w-[20%]">
             <FormField
               control={form.control}
               name="codigo_estrutura_hierarquica"
@@ -220,7 +221,11 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
           </div>
 
           <div className="w-full md:w-[15%] mt-6">
-            <InfoItem label="Qtd. Turmas" value={form.watch("quantidade_turmas")} icon={<Eye width={16} height={16} />} />
+            <InfoItem 
+            label="Qtd. Turmas"
+             value={form.watch("quantidade_turmas")}
+              icon={<Button variant="ghost" size="icon"><Eye width={16} height={16} /></Button>}
+               />
 
           </div>
 
@@ -239,9 +244,8 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                       onValueChange={(value) => {
                         field.onChange(value);
                       }}
-                      data-testid="select-funcionarios"
                     >
-                      <SelectTrigger>
+                      <SelectTrigger data-testid="select-funcionarios">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
 
@@ -270,10 +274,10 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
 
 
-        <div className="flex flex-col md:flex-row">
+        <div className="flex flex-row">
 
 
-          <div className="w-full md:w-[240px]">
+          <div className="w-full md:w-[19.5%]">
             <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
 
           </div>

@@ -24,14 +24,15 @@ describe("StepperDesignacao", () => {
 
     expect(stepsMock).toHaveBeenCalledTimes(1);
     const calledWith = stepsMock.mock.calls[0][0];
+    
 
-    expect(calledWith.orientation).toBe("vertical");
+    expect(calledWith.orientation).toBe("horizontal");
     expect(calledWith.current).toBe(1);
     expect(calledWith.items).toHaveLength(3);
     expect(calledWith.items.map((i: any) => i.title)).toEqual([
-      "Validar dados",
-      "Pesquisa de  unidade",
-      "Próximos passos",
+      "Servido indicado",
+      "Designação",
+      "Revisão",
     ]);
   });
 });

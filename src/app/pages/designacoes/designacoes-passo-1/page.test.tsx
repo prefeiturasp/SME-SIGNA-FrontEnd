@@ -1,13 +1,13 @@
-import React, { type ComponentProps, type SVGProps } from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import React, { type SVGProps } from "react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import DesignacoesPage from "./page";
+import DesignacoesPasso1 from "./page";
 
-const mockPageHeader = vi.fn();
 const mockMutateAsync = vi.fn();
-const mockResumoDesignacao = vi.fn();
 const mockRouterPush = vi.fn();
+const mockSetFormDesignacaoData = vi.fn();
+const mockResumoDesignacao = vi.fn();
 
 const mockResponse = {
   nome: "Servidor Teste",
@@ -24,31 +24,49 @@ const mockResponse = {
   laudo_medico: "Não",
 };
 
+const mockFormValues = {
+  dre: "dre-1",
+  ue: "ue-1",
+  codigo_estrutura_hierarquica: "123456",
+  funcionarios_da_unidade: "123",
+  quantidade_turmas: "40",
+  cargo_sobreposto: "20",
+  modulos: "2",
+};
+
+let isPending = false;
 vi.mock("@/hooks/useServidorDesignacao", () => ({
   __esModule: true,
   default: () => ({
     mutateAsync: mockMutateAsync,
+    isPending: isPending,
   }),
 }));
 
-type PageHeaderProps = {
-  title: string;
-  breadcrumbs: { title: string; href?: string }[];
-  icon: React.ReactNode;
-  showBackButton?: boolean;
-};
+vi.mock("../DesignacaoContext", () => ({
+  useDesignacaoContext: () => ({
+    setFormDesignacaoData: mockSetFormDesignacaoData,
+  }),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
+}));
+
+vi.mock("@/assets/icons/Designacao", () => ({
+  __esModule: true,
+  default: (props: SVGProps<SVGSVGElement>) => (
+    <svg data-testid="designacao-icon" {...props} />
+  ),
+}));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
-  default: (props: PageHeaderProps) => {
-    mockPageHeader(props);
-    return (
-      <div data-testid="page-header">
-        {props.title}
-        {props.icon}
-      </div>
-    );
-  },
+  default: ({ title }: { title: string }) => (
+    <div data-testid="page-header">{title}</div>
+  ),
 }));
 
 vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
@@ -58,24 +76,14 @@ vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
 
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   __esModule: true,
-  default: ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <div data-testid="fundo-branco" className={className}>
-      {children}
-    </div>
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="fundo-branco">{children}</div>
   ),
 }));
 
-type ResumoDesignacaoProps = { defaultValues?: typeof mockResponse };
-
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
   __esModule: true,
-  default: (props: ResumoDesignacaoProps) => {
+  default: (props: { defaultValues?: typeof mockResponse }) => {
     mockResumoDesignacao(props);
     return (
       <div data-testid="resumo-designacao">{props.defaultValues?.nome}</div>
@@ -83,30 +91,77 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao", () => ({
+
+vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade", () => ({
   __esModule: true,
-  default: function MockFormularioBuscaDesignacao({
-    onBuscaDesignacao,
-  }: {
-    onBuscaDesignacao: (values: { rf: string }) => void;
-  }) {
-    const [rf, setRf] = React.useState("");
+  default: React.forwardRef(function MockFormularioPesquisaUnidade(
+    {
+      setDisableProximo,
+      onSubmitDesignacao,
+    }: {
+      setDisableProximo: (disable: boolean) => void;
+      onSubmitDesignacao: (values: typeof mockFormValues) => void;
+    },
+    ref: React.ForwardedRef<{ getValues: () => typeof mockFormValues }>
+  ) {
+    const [dre, setDre] = React.useState("");
+    const [ue, setUe] = React.useState("");
+
+    React.useEffect(() => {
+      setDisableProximo(true);
+    }, [setDisableProximo]);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        getValues: () => ({
+          ...mockFormValues,
+          dre,
+          ue,
+        }),
+      }),
+      [dre, ue]
+    );
+
+    const handlePesquisar = () => {
+      onSubmitDesignacao({
+        ...mockFormValues,
+        dre,
+        ue,
+      });
+    };
+
     return (
-      <div>
-        <input
-          data-testid="input-rf"
-          value={rf}
-          onChange={(event) => setRf(event.currentTarget.value)}
-        />
-        <button
-          data-testid="botao-buscar-designacao"
-          onClick={() => onBuscaDesignacao({ rf: rf || "123" })}
+      <div data-testid="formulario-pesquisa-unidade">
+        <select
+          data-testid="select-dre"
+          value={dre}
+          onChange={(event) => {
+            setDre(event.target.value);
+            setUe("");
+            setDisableProximo(true);
+          }}
         >
-          Buscar
+          <option value="">Selecione</option>
+          <option value="dre-1">DRE 1</option>
+        </select>
+        <select
+          data-testid="select-ue"
+          value={ue}
+          onChange={(event) => {
+            setUe(event.target.value);
+            setDisableProximo(false);
+          }}
+        >
+          <option value="">Selecione</option>
+          <option value="ue-1">UE 1</option>
+        </select>
+        <button type="button" onClick={handlePesquisar}>
+          Pesquisar
         </button>
       </div>
     );
-  },
+  }),
 }));
 
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
@@ -141,165 +196,74 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
   ),
 }));
 
-vi.mock("@/assets/icons/Designacao", () => ({
-  __esModule: true,
-  default: (props: SVGProps<SVGSVGElement>) => (
-    <svg data-testid="designacao-icon" {...props} />
-  ),
-}));
-
 vi.mock("antd", () => ({
-  Divider: (props: ComponentProps<"div">) => (
-    <div data-testid="divider" {...props} />
+  Card: ({
+    children,
+    title,
+  }: {
+    children: React.ReactNode;
+    title?: React.ReactNode;
+  }) => (
+    <div data-testid="card">
+      {title}
+      {children}
+    </div>
   ),
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: mockRouterPush,
-  }),
-}));
-
-describe("Designacoes page", () => {
+describe("DesignacoesPasso1", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockMutateAsync.mockResolvedValue({ success: true, data: mockResponse });
   });
 
-  it("renderiza o header sem botão de voltar e com breadcrumbs corretos", () => {
-    render(<DesignacoesPage />);
+  it("renderiza o cabeçalho e o formulário inicial", () => {
+    render(<DesignacoesPasso1 />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Designação");
-    expect(mockPageHeader).toHaveBeenCalledTimes(1);
-
-    const { title, showBackButton, breadcrumbs, icon } =
-      mockPageHeader.mock.calls[0][0];
-    expect(title).toBe("Designação");
-    expect(showBackButton).toBe(false);
-    expect(breadcrumbs).toEqual([
-      { title: "Início", href: "/" },
-      { title: "Designação" },
-    ]);
-    expect(icon).toBeDefined();
+    expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Pesquisar/i })
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
   });
 
-  it("renderiza resumo e stepper quando a busca retorna dados", async () => {
-    render(<DesignacoesPage />);
+  it("exibe o resumo e o formulário de unidade após busca bem-sucedida", async () => {
+    render(<DesignacoesPasso1 />);
 
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
 
-    expect(mockMutateAsync).toHaveBeenCalledWith({
-      rf: "123"
-     });
+    await userEvent.click(
+      screen.getByRole("button", { name: /Pesquisar/i })
+    );
+    expect(mockMutateAsync).toHaveBeenCalledWith({ rf: "123" });
 
     await waitFor(() => {
       expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
     });
 
     expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
-    expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
-    expect(screen.getAllByTestId("fundo-branco").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
+    expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
     expect(mockResumoDesignacao).toHaveBeenCalledWith(
       expect.objectContaining({ defaultValues: mockResponse })
     );
   });
 
-
-  it("não renderiza resumo e stepper quando a busca retorna erro", async () => {
-    mockMutateAsync.mockResolvedValue({ success: false, error: "Erro ao buscar servidor" });
-    render(<DesignacoesPage />);
-
-       
-    await userEvent.click(screen.getByTestId("input-rf"));
-    await userEvent.type(screen.getByTestId("input-rf"), "123456");
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Erro ao buscar servidor")).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
-    
-    
-    expect(mockResumoDesignacao).not.toHaveBeenCalled();
-  });
-
-
-  it("renderiza resumo e stepper quando a busca retorna dados", async () => {
-    mockMutateAsync.mockResolvedValue({ success: true, data: mockResponse });
-    render(<DesignacoesPage />);
-
-       
-    await userEvent.click(screen.getByTestId("input-rf"));
-    await userEvent.type(screen.getByTestId("input-rf"), "123456");
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
-
- 
-    expect(screen.queryByTestId("resumo-designacao")).toBeInTheDocument();
-    
-    
-    
-  });
-
-
-
-  it("navega para o próximo passo ao clicar no botão próximo", async () => {
-    mockMutateAsync.mockImplementation(async (values: { rf: string }) => ({
-      success: true,
-      data: {
-        ...mockResponse,
-        rf: values.rf,
-      },
-    }));
-
-    render(<DesignacoesPage />);
- 
-    await userEvent.type(screen.getByTestId("input-rf"), "456");
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
-
-    expect(mockMutateAsync).toHaveBeenCalledWith({
-      rf: "456"
-     });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+  it("mostra erro quando a busca falha", async () => {
+    mockMutateAsync.mockResolvedValueOnce({
+      success: false,
+      error: "Servidor não encontrado",
     });
 
-    await userEvent.click(screen.getByTestId("botao-proximo"));
+    render(<DesignacoesPasso1 />);
 
-    expect(mockRouterPush).toHaveBeenCalledWith("/pages/designacoes-passo-2?456");
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
 
-  });
-
-  it("não exibe conteúdo da designação quando data.nome não existe", () => {
-    render(<DesignacoesPage />);
-
-    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
-    expect(screen.queryByText("Validar dados")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
-  });
-
-  it("desabilita o botão anterior sempre", async () => {
-    render(<DesignacoesPage />);
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("botao-anterior")).toBeDisabled();
-    });
-  });
-
-
-  it("exibe mensagem de erro personalizada quando a API retorna erro", async () => {
-    mockMutateAsync.mockResolvedValue({ 
-      success: false, 
-      error: "Servidor não encontrado" 
-    });
-
-    render(<DesignacoesPage />);
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+    await userEvent.click(
+      screen.getByRole("button", { name: /Pesquisar/i })
+    );
+    expect(mockMutateAsync).toHaveBeenCalledWith({ rf: "123" });
 
     await waitFor(() => {
       expect(screen.getByText("Servidor não encontrado")).toBeInTheDocument();
@@ -308,91 +272,48 @@ describe("Designacoes page", () => {
     expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
   });
 
-  it("limpa o erro quando uma nova busca com sucesso é realizada", async () => {
-    mockMutateAsync.mockResolvedValueOnce({ 
-      success: false, 
-      error: "Erro inicial" 
-    });
+  it("envia dados da unidade e navega ao próximo passo", async () => {
+    render(<DesignacoesPasso1 />);
 
-    const { rerender } = render(<DesignacoesPage />);
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
 
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Erro inicial")).toBeInTheDocument();
-    });
-
-    mockMutateAsync.mockResolvedValueOnce({ 
-      success: true, 
-      data: mockResponse 
-    });
-
-    rerender(<DesignacoesPage />);
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+    await userEvent.click(
+      screen.getByRole("button", { name: /Pesquisar/i })
+    );
+    expect(mockMutateAsync).toHaveBeenCalledWith({ rf: "123" });
 
     await waitFor(() => {
-      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("formulario-pesquisa-unidade")
+      ).toBeInTheDocument();
     });
-  });
 
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
 
-
-  it("não navega para o próximo passo se não houver dados", async () => {
-    render(<DesignacoesPage />);
-
-    expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
-    expect(mockRouterPush).not.toHaveBeenCalled();
-  });
-
-
-  it("exibe todos os componentes quando a busca é bem-sucedida", async () => {
-    render(<DesignacoesPage />);
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
+    await userEvent.click(
+      within(screen.getByTestId("formulario-pesquisa-unidade")).getByRole(
+        "button",
+        { name: /Pesquisar/i }
+      )
+    );
 
     await waitFor(() => {
-      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
-      expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
-      expect(screen.getAllByTestId("fundo-branco").length).toBeGreaterThan(0);
       expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
-      expect(screen.getByTestId("botao-anterior")).toBeInTheDocument();
     });
-  });
 
- 
+    await userEvent.click(screen.getByTestId("botao-proximo"));
 
-  it("renderiza título do header de acordo com breadcrumb", () => {
-    render(<DesignacoesPage />);
-
-    expect(mockPageHeader).toHaveBeenCalledWith(
-      expect.objectContaining({
-        breadcrumbs: [
-          { title: "Início", href: "/" },
-          { title: "Designação" },
-        ],
-      })
+    expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(mockFormValues);
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2?123"
     );
   });
 
-  it("passa os dados corretos para o ResumoDesignacao", async () => {
-    render(<DesignacoesPage />);
-
-    await userEvent.click(screen.getByTestId("botao-buscar-designacao"));
-
-    await waitFor(() => {
-      expect(mockResumoDesignacao).toHaveBeenCalledWith(
-        expect.objectContaining({
-          defaultValues: expect.objectContaining({
-            nome: "Servidor Teste",
-            rf: "123",
-            vinculo_cargo_sobreposto: "Ativo",
-            lotacao_cargo_sobreposto: "Escola X",
-          }),
-        })
-      );
-    });
+  it("mostra loading quando a busca está pendente", () => {
+    isPending = true;
+    render(<DesignacoesPasso1 />);
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
   });
-
-
 });
+

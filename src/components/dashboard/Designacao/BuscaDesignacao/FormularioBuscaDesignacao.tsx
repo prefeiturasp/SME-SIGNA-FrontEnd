@@ -16,8 +16,7 @@ import { InputBase } from "@/components/ui/input-base";
 import { Search } from "lucide-react";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
-import { Card } from "antd";
-
+ 
  
 
 

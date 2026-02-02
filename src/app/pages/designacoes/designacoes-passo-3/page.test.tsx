@@ -21,6 +21,16 @@ const mockServidorData = {
   laudo_medico: "Não",
 };
 
+const mockFormDesignacaoData = {
+  dre: "dre-1",
+  ue: "ue-1",
+  codigo_estrutura_hierarquica: "123456",
+  funcionarios_da_unidade: "123",
+  quantidade_turmas: "40",
+  cargo_sobreposto: "20",
+  modulos: "2",
+};
+
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   default: ({
     children,
@@ -75,6 +85,13 @@ vi.mock("antd", () => ({
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => mockSearchParams,
+}));
+
+vi.mock("../DesignacaoContext", () => ({
+  __esModule: true,
+  useDesignacaoContext: () => ({
+    formDesignacaoData: mockFormDesignacaoData,
+  }),
 }));
 
 describe("Designacoes page - Passo 3", () => {
@@ -150,6 +167,7 @@ describe("Designacoes page - Passo 3", () => {
 
     return waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith("Dados da designação", submitValues);
+      expect(consoleSpy).toHaveBeenCalledWith("Dados da etapa 1", mockFormDesignacaoData);
     });
   });
 
@@ -298,6 +316,7 @@ describe("Designacoes page - Passo 3", () => {
 
     return waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith("Dados da designação", submitValues);
+      expect(consoleSpy).toHaveBeenCalledWith("Dados da etapa 1", mockFormDesignacaoData);
       expect(consoleSpy).toHaveBeenCalledWith("Servidor selecionado no passo 1", mockServidorData);
     });
   });

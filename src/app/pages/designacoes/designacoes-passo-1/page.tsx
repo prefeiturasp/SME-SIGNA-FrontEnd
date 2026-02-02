@@ -17,6 +17,7 @@ import FormularioPesquisaUnidade, {
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 
 export default function DesignacoesPasso1() {
@@ -74,8 +75,13 @@ export default function DesignacoesPasso1() {
 
 
       {error && <div className="text-red-500">{error}</div>}
+
+      {isPending && <div className="flex items-center justify-center">
+        <Loader2 data-testid="loader" className="w-20 h-20 animate-spin text-primary " />
+      </div>}
+
       {data?.nome && (
-        <div className="flex flex-col  items-stretch">
+        <div className="flex flex-col items-stretch">
 
           <Card title="Dados do servidor indicado" className=" mt-4 m-0 ">
             <ResumoDesignacao isLoading={isPending} defaultValues={data} />
@@ -91,13 +97,12 @@ export default function DesignacoesPasso1() {
             />
           </Card>
 
-
-
           <div className="w-full flex flex-col ">
             <BotoesDeNavegacao
               disableAnterior={true}
               disableProximo={disableProximo}
               onProximo={() => onProximo(data)}
+              showAnterior={false}
               onAnterior={() => { }}
             />
           </div>

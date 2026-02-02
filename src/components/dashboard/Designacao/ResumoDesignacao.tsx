@@ -4,6 +4,7 @@ import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import {  Loader2 } from "lucide-react";
 import React from "react";
 import Eye from "@/assets/icons/Eye";
+import { Button } from "@/components/ui/button";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,
@@ -62,7 +63,7 @@ const ResumoDesignacao: React.FC<{
               <InfoItem
                 label="Cursos/Títulos"
                 value={defaultValues.cursos_titulos}
-                icon={<Eye width={16} height={16} />} 
+                icon={<Button variant="ghost" size="icon"><Eye width={16} height={16} /></Button>}
               />
  
  
