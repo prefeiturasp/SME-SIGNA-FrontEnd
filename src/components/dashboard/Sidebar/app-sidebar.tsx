@@ -37,7 +37,7 @@ const items = [
     },
     {
         title: "Designações",
-        url: "/pages/designacoes-passo-1",
+        url: "/pages/designacoes/designacoes-passo-1",
         icon: Designacao,
     },
  

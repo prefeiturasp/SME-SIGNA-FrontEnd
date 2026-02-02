@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import FormularioBuscaDesignacao from "./FormularioBuscaDesignacao";
 
@@ -11,32 +12,33 @@ describe("FormularioBuscaDesignacao", () => {
     render(<FormularioBuscaDesignacao onBuscaDesignacao={vi.fn()} />);
 
     expect(
-      (screen.getByPlaceholderText("Entre com RF") as HTMLInputElement).value,
+      (screen.getByTestId("input-rf") as HTMLInputElement).value,
     ).toBe("");
   });
 
   it("renderiza o campo de RF e o botão de pesquisa", () => {
     render(<FormularioBuscaDesignacao onBuscaDesignacao={vi.fn()} />);
 
-    expect(screen.getByText("RF do servidor")).toBeInTheDocument();
-    expect(screen.getByText("Pesquisar")).toBeInTheDocument();
+    expect(screen.getByText("RF do titular")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Pesquisar/i })
+    ).toBeInTheDocument();
   });
 
-  it("submete o formulário chamando o handler com os valores mockados", () => {
+  it("submete o formulário chamando o handler com os valores informados", async () => {
     const onBuscaDesignacao = vi.fn();
+    const user = userEvent.setup();
 
     render(<FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />);
 
-    const rfInput = screen.getByPlaceholderText("Entre com RF") as HTMLInputElement;
+    const rfInput = screen.getByTestId("input-rf") as HTMLInputElement;
 
-    fireEvent.change(rfInput, { target: { value: "test" } });
+    await user.type(rfInput, "123");
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
-    const submitButton = screen.getByRole("button", { name: /Pesquisar/i });
-    fireEvent.click(submitButton);
-
-    return waitFor(() => {
+    await waitFor(() => {
       expect(onBuscaDesignacao).toHaveBeenCalledWith({
-        rf: "test"
+        rf: "123",
       });
     });
   });

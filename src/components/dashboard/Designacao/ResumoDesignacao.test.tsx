@@ -8,13 +8,9 @@ const mockData: BuscaServidorDesignacaoBody = {
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Escola X",
   cargo_base: "Professor",
-  aulas_atribuidas: "20",
   funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
-  estagio_probatorio: "Sim",
-  aprovado_em_concurso: "Sim",
-  laudo_medico: "Não",
 };
 
 describe("ResumoDesignacao", () => {
@@ -26,14 +22,11 @@ describe("ResumoDesignacao", () => {
       "RF",
       "Vínculo",
       "Lotação",
-      "Cargo base",
-      "Aulas atribuídas",
+      "Cargo base",      
       "Função",
-      "Cargo sobreposto",
-      "Laudo Médico",
+      "Cargo sobreposto",      
       "Cursos/Títulos",
-      "Estágio probatório",
-      "Aprovado em concurso",
+      
     ];
 
     labels.forEach((label) => {

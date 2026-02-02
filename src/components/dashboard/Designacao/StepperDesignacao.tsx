@@ -6,23 +6,20 @@ import { Flex, Steps } from 'antd';
  
 const items = [
   {
-    title: 'Validar dados',
-    content: 'Validar dados da Designação',
+    title: 'Servido indicado'    
   },
   {
-    title: 'Pesquisa de  unidade',
-    content: 'Dados da Pesquisa de  unidade',
+    title: 'Designação'    
   },
   {
-    title: 'Próximos passos',
-    content: 'Próximos passos da Designação',
+    title: 'Revisão'
   },
 ];
 const StepperDesignacao: React.FC<{ className?: string, current?: number }> = ({ className, current=1   }) => {
   return (
     <Flex className={className} data-testid="stepper-designacao">
       <div style={{ flex: 1 }}> 
-        <Steps orientation="vertical" current={current} items={items} />
+        <Steps className="py-5" orientation="horizontal" current={current} items={items} />
       </div>
     </Flex>
   );
