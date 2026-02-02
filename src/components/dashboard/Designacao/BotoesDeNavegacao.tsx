@@ -10,7 +10,7 @@ type StepRendererProps = {
   disableProximo: boolean;
   onProximo: () => void;
   onAnterior: () => void;
-  showAnterior: boolean;
+  showAnterior?: boolean;
 };
 
 export default function BotoesDeNavegacao({
