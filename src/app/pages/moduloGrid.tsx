@@ -7,6 +7,7 @@ type Module = {
   title: string;
   description: string;
   icon: ComponentType<{ className?: string }>;
+  url: string;
 };
 
 export default function ModuleGrid({ modules }: { modules: Module[] }) {
@@ -32,8 +33,7 @@ export default function ModuleGrid({ modules }: { modules: Module[] }) {
 
                     <button
                         className="mt-6 bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-md text-sm font-medium"
-                        // to-do: arrumar link
-                        onClick={() => console.log("Abrir módulo:", module.id)}
+                        onClick={() => window.location.href = module.url}
                     >
                         Abrir módulo
                     </button>
