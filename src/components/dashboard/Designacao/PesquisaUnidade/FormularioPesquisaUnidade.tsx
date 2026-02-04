@@ -102,9 +102,9 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
       <DetalhamentoTurmasModal
         open={openModal}
         onOpenChange={setOpenModal}
-        dre={values.dre || "-"}
-        unidadeEscolar={values.ue || "-"}
-        qtdTotalTurmas={values.quantidade_turmas || "-"}
+        dre={values.dre ?? "-"}
+        unidadeEscolar={values.ue ?? "-"}
+        qtdTotalTurmas={values.quantidade_turmas ?? "-"}
         spi="São Paulo Integral"
         // to-do: remover mock
         rows={[

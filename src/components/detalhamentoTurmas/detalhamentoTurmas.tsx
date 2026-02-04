@@ -10,14 +10,14 @@ interface TurnoRow {
 }
 
 interface DetalhamentoTurmasModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  dre: string
-  unidadeEscolar: string
-  qtdTotalTurmas: string
-  spi: string
-  rows: TurnoRow[]
-  spiTotal?: number
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly dre: string
+  readonly unidadeEscolar: string
+  readonly qtdTotalTurmas: string
+  readonly spi: string
+  readonly rows: TurnoRow[]
+  readonly spiTotal?: number
 }
 
 interface InfoItemProps {
@@ -84,16 +84,16 @@ export default function DetalhamentoTurmasModal({
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, i) => (
-                  <tr key={i} className="border-b border-gray-100">
+                {rows.map((row) => (
+                  <tr key={row.turno} className="border-b border-gray-100">
                     <Td className="font-medium">{row.turno}</Td>
                     <Td className="text-center">
-                      {row.cicloAlfabetizacao || ''}
+                      {row.cicloAlfabetizacao ?? ''}
                     </Td>
-                    <Td className="text-center">{row.cicloAltoral || ''}</Td>
-                    <Td className="text-center">{row.semCiclo || ''}</Td>
+                    <Td className="text-center">{row.cicloAltoral ?? ''}</Td>
+                    <Td className="text-center">{row.semCiclo ?? ''}</Td>
                     <Td className="text-right font-semibold">
-                      {row.total || ''}
+                      {row.total ?? ''}
                     </Td>
                   </tr>
                 ))}
@@ -126,7 +126,7 @@ export default function DetalhamentoTurmasModal({
   )
 }
 
-function InfoItem({ label, value }: InfoItemProps) {
+function InfoItem({ label, value }: Readonly<InfoItemProps>) {
   return (
     <div>
       <p className="mb-1 text-xs font-bold uppercase text-gray-700">{label}</p>
@@ -135,7 +135,7 @@ function InfoItem({ label, value }: InfoItemProps) {
   )
 }
 
-function Th({ children, className = '' }: ThProps) {
+function Th({ children, className = '' }: Readonly<ThProps>) {
   return (
     <th
       className={`px-4 py-3 text-xs font-bold uppercase text-gray-700 ${className}`}
@@ -145,7 +145,7 @@ function Th({ children, className = '' }: ThProps) {
   )
 }
 
-function Td({ children, className = '', colSpan }: TdProps) {
+function Td({ children, className = '', colSpan }: Readonly<TdProps>) {
   return (
     <td colSpan={colSpan} className={`px-4 py-3 text-sm text-gray-900 ${className}`}>
       {children}
