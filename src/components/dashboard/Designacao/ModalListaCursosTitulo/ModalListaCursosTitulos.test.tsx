@@ -4,7 +4,8 @@ import { vi, type Mock } from "vitest";
 
 import ModalListaCursosTitulos from "./ModalListaCursosTitulos";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
-import type { IConcursoType } from "./ModalListaCursosTitulos";
+import { IConcursoType } from "@/types/cursos-e-titulos";
+
 
 const tableMock = vi.fn();
 

@@ -6,8 +6,10 @@ import React, { useState } from "react";
 import Eye from "@/assets/icons/Eye";
 import { Button } from "@/components/ui/button";
 
+
+ 
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
-import { IConcursoType } from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
+import { IConcursoType } from "@/types/cursos-e-titulos";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,

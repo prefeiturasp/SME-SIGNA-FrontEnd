@@ -14,6 +14,7 @@ import { InfoItem } from "../ResumoDesignacao";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableColumnsType } from "antd";
+import { IConcursoType } from "@/types/cursos-e-titulos";
 
 type ModalListaCursosTitulosProps = {
     open: boolean;
@@ -22,10 +23,7 @@ type ModalListaCursosTitulosProps = {
      data: IConcursoType[];
 };
 
-export interface IConcursoType {
-    id: number;
-    concurso: string;
-}
+
 
 export default function ModalListaCursosTitulos({
     open,
