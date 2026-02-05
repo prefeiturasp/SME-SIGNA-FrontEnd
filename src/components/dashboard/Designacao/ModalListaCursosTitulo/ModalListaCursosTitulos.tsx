@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
 
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,11 @@ type ModalListaCursosTitulosProps = {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: BuscaServidorDesignacaoBody;
-    handleClose: () => void;
-    data: IConcursoType[];
+     data: IConcursoType[];
 };
 
 export interface IConcursoType {
-    key: React.Key;
+    id: number;
     concurso: string;
 }
 
@@ -31,8 +31,7 @@ export default function ModalListaCursosTitulos({
     open,
     onOpenChange,
     defaultValues,
-    handleClose,
-    data
+     data
 }: Readonly<ModalListaCursosTitulosProps>) {
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
@@ -42,7 +41,7 @@ export default function ModalListaCursosTitulos({
             title: 'Concurso',
             dataIndex: 'concurso',
             defaultSortOrder: 'descend',
-            sorter: (a, b) => Number(a.key) - Number(b.key),
+            sorter: (a, b) => Number(a.id) - Number(b.id),
         },
 
     ];
@@ -54,6 +53,9 @@ export default function ModalListaCursosTitulos({
             <DialogContent className="max-w-[660px] p-8 rounded-none rounded-0">
                 <DialogHeader>
                     <DialogTitle>Lista de cursos/títulos</DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Modal com a lista de cursos/títulos do servidor selecionado.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <Separator className="mt-2" />
@@ -79,7 +81,7 @@ export default function ModalListaCursosTitulos({
                         size="lg"
                         className="flex items-center justify-center gap-6 w-[140px]"
                         variant="destructive"
-                        onClick={handleClose}
+                        onClick={() => handleOpenChange(false)}
                         data-testid="botao-proximo"
                     >
                         <p className="text-[16px] font-bold">Sair</p>

@@ -167,8 +167,7 @@ const ResumoDesignacao: React.FC<{
             onOpenChange={setOpenModalListaCursosTitulos}
             data={data}
             defaultValues={defaultValues}
-            handleClose={handleCloseModalListaCursosTitulos}
-          />
+           />
 
         </div>
       )}
