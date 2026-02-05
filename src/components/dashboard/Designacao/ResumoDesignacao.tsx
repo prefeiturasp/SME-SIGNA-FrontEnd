@@ -38,75 +38,49 @@ const ResumoDesignacao: React.FC<{
     setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
   }
 
-  function handleCloseModalListaCursosTitulos() {
-    setOpenModalListaCursosTitulos(false);
-  }
-
+  
   const data = [
     {
-      key: '1',
+      id: 1,
       concurso: '201002757777 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '2',
+      id: 2,
       concurso: '201002757778 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '3',
+      id: 3,
       concurso: '201002757779 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '4',
+      id: 4,
       concurso: '201002757780 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '5',
+      id: 5,
       concurso: '201002757781 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '6',
+      id: 6,
       concurso: '201002757782 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '7',
+      id: 7,
       concurso: '201002757783 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '8',
+      id: 8,
       concurso: '201002757784 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '9',
+      id: 9,
       concurso: '201002757785 - PROF ENS FUND II MEDIO',
     },
     {
-      key: '10',
+      id: 1,
       concurso: '201002757786 - PROF ENS FUND II MEDIO',
     },
-    {
-      key: '11',
-      concurso: '201002757787 - PROF ENS FUND II MEDIO',
-    },
-    {
-      key: '12',
-      concurso: '201002757788 - PROF ENS FUND II MEDIO',
-    },
-    {
-      key: '13',
-      concurso: '201002757789 - PROF ENS FUND II MEDIO',
-    },
-    {
-      key: '14',
-      concurso: '201002757790 - PROF ENS FUND II MEDIO',
-    },
-    {
-      key: '15',
-      concurso: '201002757791 - PROF ENS FUND II MEDIO',
-    },
-    {
-      key: '16',
-      concurso: '201002757792 - PROF ENS FUND II MEDIO',
-    },
+     
   ] as IConcursoType[];
   return (
     <>
