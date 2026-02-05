@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
  
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
 import { IConcursoType } from "@/types/cursos-e-titulos";
+import useCursosETitulos from "@/hooks/useCursosETitulos";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,
@@ -40,51 +41,10 @@ const ResumoDesignacao: React.FC<{
     setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
   }
 
-  
-  const data = [
-    {
-      id: 1,
-      concurso: '201002757777 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 2,
-      concurso: '201002757778 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 3,
-      concurso: '201002757779 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 4,
-      concurso: '201002757780 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 5,
-      concurso: '201002757781 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 6,
-      concurso: '201002757782 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 7,
-      concurso: '201002757783 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 8,
-      concurso: '201002757784 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 9,
-      concurso: '201002757785 - PROF ENS FUND II MEDIO',
-    },
-    {
-      id: 1,
-      concurso: '201002757786 - PROF ENS FUND II MEDIO',
-    },
-     
-  ] as IConcursoType[];
-  return (
+  const { isLoading: isLoadingCursosETitulos, data: cursosETitulosData=[] } = useCursosETitulos();
+
+
+   return (
     <>
       {isLoading ? (
         <div className="flex justify-center h-full">
@@ -139,9 +99,10 @@ const ResumoDesignacao: React.FC<{
           </div>
 
           <ModalListaCursosTitulos
+            isLoading={isLoadingCursosETitulos}
             open={openModalListaCursosTitulos}
             onOpenChange={setOpenModalListaCursosTitulos}
-            data={data}
+            data={cursosETitulosData as IConcursoType[]}
             defaultValues={defaultValues}
            />
 

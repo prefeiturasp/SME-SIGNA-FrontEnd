@@ -17,6 +17,7 @@ import { Table, TableColumnsType } from "antd";
 import { IConcursoType } from "@/types/cursos-e-titulos";
 
 type ModalListaCursosTitulosProps = {
+    isLoading: boolean;
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: BuscaServidorDesignacaoBody;
@@ -26,6 +27,7 @@ type ModalListaCursosTitulosProps = {
 
 
 export default function ModalListaCursosTitulos({
+    isLoading,
     open,
     onOpenChange,
     defaultValues,
@@ -66,6 +68,7 @@ export default function ModalListaCursosTitulos({
 
                 <div className="h-[400px] overflow-y-auto">
                     <Table<IConcursoType>
+                        loading={isLoading}
                         columns={columns}
                         dataSource={data}
                         pagination={false}
