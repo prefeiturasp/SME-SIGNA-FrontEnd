@@ -45,14 +45,7 @@ export async function getCursosETitulosAction(): Promise<MeResult> {
           error: "Erro interno no servidor",
         };
       }
-
-
-      if (status === 401 || data?.code === "token_not_valid") {
-        const cookieStore = await cookies();
-        cookieStore.delete("auth_token");
-      }
-
-
+ 
       if (err.message) {
         return {
           success: false,
