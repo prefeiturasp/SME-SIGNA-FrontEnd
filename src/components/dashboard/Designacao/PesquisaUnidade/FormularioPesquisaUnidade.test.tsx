@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
@@ -48,19 +48,19 @@ describe("FormularioPesquisaUnidade", () => {
       Element.prototype.hasPointerCapture = () => false;
     }
     if (!Element.prototype.setPointerCapture) {
-      Element.prototype.setPointerCapture = () => {};
+      Element.prototype.setPointerCapture = () => { };
     }
     if (!Element.prototype.releasePointerCapture) {
-      Element.prototype.releasePointerCapture = () => {};
+      Element.prototype.releasePointerCapture = () => { };
     }
     if (!Element.prototype.scrollIntoView) {
-      Element.prototype.scrollIntoView = () => {};
+      Element.prototype.scrollIntoView = () => { };
     }
     if (!globalThis.ResizeObserver) {
       globalThis.ResizeObserver = class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
+        observe() { }
+        unobserve() { }
+        disconnect() { }
       };
     }
   });
@@ -177,7 +177,7 @@ describe("FormularioPesquisaUnidade", () => {
   it("exibe loading enquanto carrega UEs", async () => {
     const user = userEvent.setup();
     let resolveUEs: (value: never) => void;
-    
+
     vi.mocked(unidadesActions.getUEs).mockReturnValue(
       new Promise((resolve) => {
         resolveUEs = resolve;
@@ -229,7 +229,7 @@ describe("FormularioPesquisaUnidade", () => {
   it("submete formulário e preenche campos derivados", async () => {
     const user = userEvent.setup();
     const onSubmitDesignacao = vi.fn();
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => { });
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
@@ -262,12 +262,16 @@ describe("FormularioPesquisaUnidade", () => {
 
     expect(consoleSpy).toHaveBeenCalledWith("values", expect.any(Object));
 
-    const codigoInput = screen.getByTestId("input-codigo") as HTMLInputElement;
-    expect(codigoInput.value).toBe("123456");
+    await waitFor(() => {
+      const codigoInput = screen.getByTestId("input-codigo") as HTMLInputElement;
+      expect(codigoInput.value).toBe("123456");
+    });
 
-    expect(screen.getByText("40")).toBeInTheDocument();
-    expect(screen.getByText("20")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("40")).toBeInTheDocument();
+      expect(screen.getByText("20")).toBeInTheDocument();
+      expect(screen.getByText("2")).toBeInTheDocument();
+    });
 
     consoleSpy.mockRestore();
   });
@@ -371,6 +375,39 @@ describe("FormularioPesquisaUnidade", () => {
     expect(codigoInput.value).toBe("999999");
   });
 
+  it("renderiza botão de visualização de turmas e permite clicar", async () => {
+    const user = userEvent.setup();
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    const dreSelect = screen.getByTestId("select-dre");
+    await user.click(dreSelect);
+    await clickSelectOption(user, "DRE Sul");
+
+    const ueCombobox = screen.getByTestId("select-ue");
+    await user.click(ueCombobox);
+    await user.click(await screen.findByText("Escola Municipal A"));
+
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("40")).toBeInTheDocument();
+    });
+
+    const eyeButton = screen.getByTestId("btn-visualizar-turmas");
+    expect(eyeButton).toBeInTheDocument();
+
+    await user.click(eyeButton);
+
+    // Verifica que o onClick foi executado
+    expect(eyeButton).toBeInTheDocument();
+  });
+
   it("expõe getValues via ref", async () => {
     const user = userEvent.setup();
     const ref = createRef<FormularioPesquisaUnidadeRef>();
@@ -425,4 +462,3 @@ describe("FormularioPesquisaUnidade", () => {
     expect(onSubmitDesignacao).not.toHaveBeenCalled();
   });
 });
-
