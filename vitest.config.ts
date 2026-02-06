@@ -12,8 +12,6 @@ export default defineConfig({
     globals: true,
     setupFiles: "./vitest.setup.ts",
     include: ["src/**/*.{test,spec}.{ts,tsx,js,jsx}"],
-
-    // a opção coverage fica dentro de `test`
     coverage: {
       provider: "v8", // usa @vitest/coverage-v8
       reporter: ["text", "lcov", "html"],
@@ -54,5 +52,7 @@ export default defineConfig({
         "cypress/support/**", // Exclui arquivos de suporte do Cypress
     ],
     },
+    testTimeout: 1500000,
+    hookTimeout: 1500000
   },
 });

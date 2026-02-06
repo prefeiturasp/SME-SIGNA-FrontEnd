@@ -16,24 +16,30 @@ const mockModules = [
         title: "Designação",
         description: "Realize a pesquisa e validação de servidores para verificar a aptidão.",
         icon: MockIcon,
+        url: "/designacao",
     },
     {
         id: "nomeacao",
         title: "Nomeação",
         description: "Gerencie os processos de nomeação, acompanhando etapas e registros.",
         icon: MockIcon,
+        url: "/nomeacao",
     },
     {
         id: "protocolo",
         title: "Protocolo",
         description: "Registre, acompanhe e consulte protocolos.",
         icon: MockIcon,
+        url: "/protocolo",
     },
 ];
 
 describe("ModuleGrid", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        // Mock do window.location
+        delete (window as any).location;
+        window.location = { href: "" } as any;
     });
 
     it("renderiza todos os módulos fornecidos", () => {
@@ -72,24 +78,21 @@ describe("ModuleGrid", () => {
         expect(buttons).toHaveLength(3);
     });
 
-    it("chama console.log com o id correto ao clicar no botão", async () => {
+    it("redireciona para a URL correta ao clicar no botão", async () => {
         const user = userEvent.setup();
-        const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => { });
 
         render(<ModuleGrid modules={mockModules} />);
 
         const buttons = screen.getAllByRole("button", { name: /abrir módulo/i });
 
         await user.click(buttons[0]);
-        expect(consoleSpy).toHaveBeenCalledWith("Abrir módulo:", "designacao");
+        expect(window.location.href).toBe("/designacao");
 
         await user.click(buttons[1]);
-        expect(consoleSpy).toHaveBeenCalledWith("Abrir módulo:", "nomeacao");
+        expect(window.location.href).toBe("/nomeacao");
 
         await user.click(buttons[2]);
-        expect(consoleSpy).toHaveBeenCalledWith("Abrir módulo:", "protocolo");
-
-        consoleSpy.mockRestore();
+        expect(window.location.href).toBe("/protocolo");
     });
 
     it("renderiza vazio quando não há módulos", () => {

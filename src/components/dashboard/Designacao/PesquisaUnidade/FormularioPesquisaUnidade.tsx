@@ -35,6 +35,8 @@ import { InfoItem } from "../ResumoDesignacao";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
+import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
+
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
@@ -52,6 +54,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 }: Props, ref) {
   const { data: dreOptions = [] } = useFetchDREs();
   const [funcionariosOptions, setFuncionariosOptions] = useState<{ rf: string; nome: string }[]>([])
+  const [openModal, setOpenModal] = useState(false);
 
   const form = useForm<FormDesignacaoData>({
     resolver: zodResolver(formSchemaDesignacao),
@@ -96,6 +99,55 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
   return (
     <Form {...form}>
+      <DetalhamentoTurmasModal
+        open={openModal}
+        onOpenChange={setOpenModal}
+        dre={values.dre ?? "-"}
+        unidadeEscolar={values.ue ?? "-"}
+        qtdTotalTurmas={values.quantidade_turmas ?? "-"}
+        spi="São Paulo Integral"
+        // to-do: remover mock
+        rows={[
+          {
+            turno: "Manhã",
+            cicloAlfabetizacao: 3,
+            cicloAltoral: 3,
+            total: 5,
+          },
+          {
+            turno: "Intermediário",
+            cicloAlfabetizacao: 3,
+            cicloAltoral: 3,
+            total: 5,
+          },
+          {
+            turno: "Tarde",
+            cicloAltoral: 7,
+            semCiclo: 4,
+            total: 11,
+          },
+          {
+            turno: "Vespertino",
+            cicloAlfabetizacao: 3,
+            cicloAltoral: 3,
+            total: 5,
+          },
+          {
+            turno: "Noite",
+            cicloAltoral: 7,
+            semCiclo: 4,
+            total: 11,
+          },
+          {
+            turno: "Integral",
+            cicloAlfabetizacao: 3,
+            cicloAltoral: 7,
+            semCiclo: 8,
+            total: 18,
+          },
+        ]}
+      />
+
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-8"
@@ -221,11 +273,18 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
           </div>
 
           <div className="w-full md:w-[15%] mt-6">
-            <InfoItem 
-            label="Qtd. Turmas"
-             value={form.watch("quantidade_turmas")}
-              icon={<Button variant="ghost" size="icon"><Eye width={16} height={16} /></Button>}
-               />
+            <InfoItem
+              label="Qtd. Turmas"
+              value={form.watch("quantidade_turmas")}
+              icon={
+                <Button
+                  variant="ghost"
+                  size="icon" onClick={() =>
+                    setOpenModal(true)}
+                  data-testid="btn-visualizar-turmas">
+                  <Eye width={16} height={16} />
+                </Button>}
+            />
 
           </div>
 
