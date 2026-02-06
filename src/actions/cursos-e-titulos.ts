@@ -11,17 +11,17 @@ type MeResult =
 export async function getCursosETitulosAction(): Promise<MeResult> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
+
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
+  if (!authToken) {
+    return {
+      success: false,
+      error: "Usuário não autenticado. Token não encontrado.",
+    };
+  }
   try {
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get("auth_token")?.value;
-
-    if (!authToken) {
-      return {
-        success: false,
-        error: "Usuário não autenticado. Token não encontrado.",
-      };
-    }
-
     const { data } = await axios.get<IConcursoType>(`${API_URL}/cursos-e-titulos`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -31,16 +31,13 @@ export async function getCursosETitulosAction(): Promise<MeResult> {
     return { success: true, data };
   } catch (err) {
     if (err instanceof AxiosError) {
-      const status = err.response?.status;
       const data = err.response?.data as {
         code?: string;
         detail?: string;
       };
 
-      if (status === 401 || data?.code === "token_not_valid") {
-        const cookieStore = await cookies();
-        cookieStore.delete("auth_token");
-      }
+      const status = err.response?.status;
+
 
       if (status === 500) {
         return {
@@ -49,17 +46,25 @@ export async function getCursosETitulosAction(): Promise<MeResult> {
         };
       }
 
-      if (data?.detail) {
-        return {
-          success: false,
-          error: data.detail,
-        };
+
+      if (status === 401 || data?.code === "token_not_valid") {
+        const cookieStore = await cookies();
+        cookieStore.delete("auth_token");
       }
+
 
       if (err.message) {
         return {
           success: false,
           error: err.message,
+        };
+      }
+
+
+      if (data?.detail) {
+        return {
+          success: false,
+          error: data.detail,
         };
       }
     }
