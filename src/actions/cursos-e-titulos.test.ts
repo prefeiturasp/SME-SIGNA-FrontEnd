@@ -159,8 +159,7 @@ describe("getCursosETitulosAction", () => {
         });
     });
 
-  
-    
+         
 
     it("deve retornar erro genérico quando o erro não é um AxiosError", async () => {
         const getMock = vi.fn().mockReturnValue({ value: "fake-auth-token" });
