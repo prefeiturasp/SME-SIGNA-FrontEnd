@@ -31,7 +31,8 @@ const ResumoDesignacao: React.FC<{
   className?: string;
   defaultValues: BuscaServidorDesignacaoBody;
   isLoading?: boolean;
-}> = ({ className, defaultValues, isLoading }) => {
+  showCursosTitulos?: boolean;
+}> = ({ className, defaultValues, isLoading, showCursosTitulos = true }) => {
 
 
 
@@ -78,6 +79,7 @@ const ResumoDesignacao: React.FC<{
                 value={defaultValues.lotacao_cargo_sobreposto}
               />
 
+              {showCursosTitulos && ( 
               <InfoItem
                 label="Cursos/Títulos"
                 value={defaultValues.cursos_titulos}
@@ -92,20 +94,21 @@ const ResumoDesignacao: React.FC<{
                   </Button>
                 }
               />
+              )}
 
 
 
             </div>
           </div>
 
-          <ModalListaCursosTitulos
-            isLoading={isLoadingCursosETitulos}
-            open={openModalListaCursosTitulos}
-            onOpenChange={setOpenModalListaCursosTitulos}
-            data={cursosETitulosData as IConcursoType[]}
-            defaultValues={defaultValues}
-           />
-
+            <ModalListaCursosTitulos
+              isLoading={isLoadingCursosETitulos}
+              open={openModalListaCursosTitulos}
+              onOpenChange={setOpenModalListaCursosTitulos}
+              data={cursosETitulosData as IConcursoType[]}
+              defaultValues={defaultValues}
+            />
+           
         </div>
       )}
     </>

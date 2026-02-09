@@ -37,7 +37,8 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
-import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
+import { DesignacaoUnidadeResponse, Servidor } from "@/types/designacao-unidade";
+import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 
 
 export interface FormularioPesquisaUnidadeRef {
@@ -84,36 +85,61 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
   const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>();
 
   const onSubmit = async (values: FormDesignacaoData) => {
- 
-    
+
+
     try {
       const response = await mutateAsync(values.ue);
       if (!response.success) {
         throw new Error("Não foi possível buscar os dados da unidade");
       }
 
- 
+
       const cargosSelect = response.data.cargos.map((cargo) => ({
         rf: cargo.codigoCargo,
         nome: cargo.nomeCargo,
       }));
-        setFuncionariosOptions(cargosSelect)
+      setFuncionariosOptions(cargosSelect)
       setDesignacaoUnidade(response.data);
-  
+
     } catch (error) {
       console.error(error);
     }
 
     form.setValue("codigo_estrutura_hierarquica", '');
     form.setValue("quantidade_turmas", '-');
-    
-     
+
+
 
     onSubmitDesignacao(values);
   }
+  
+  const [openModalResumoServidor, setOpenModalResumoServidor] = useState(true);
 
+  const servidor=  {
+    rf: 'string',
+  nome: 'string',
+    esta_afastado: false,
+  vinculo_cargo_sobreposto: 'string',
+  lotacao_cargo_sobreposto: 'string',
+  cargo_base: 'string',
+  funcao_atividade: 'string',
+  cargo_sobreposto: 'string',
+  cursos_titulos: 'string',
+};
+const selectedServidor= values.funcionarios_da_unidade;
   return (
     <Form {...form}>
+
+      {
+      servidor && (
+        <ModalResumoServidor
+          isLoading={false}
+          open={openModalResumoServidor}
+          onOpenChange={setOpenModalResumoServidor}
+          servidor={servidor}//{designacaoUnidade?.funcionarios_unidade[selectedServidor]?.servidores[0] || {} as Servidor}
+        />
+      )}
+
       <DetalhamentoTurmasModal
         open={openModal}
         onOpenChange={setOpenModal}
@@ -261,112 +287,119 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
         </div>
 
-        {funcionariosOptions.length > 0 && (  
-        <div className="flex flex-col md:flex-row  gap-5">
-          <div className="w-full md:w-[20%]">
-            <FormField
-              control={form.control}
-              name="codigo_estrutura_hierarquica"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Código Estrutura hierárquica
-                  </FormLabel>
-                  <FormControl>
-                    <InputBase
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value.target.value);
-                      }}
-                      data-testid="input-codigo"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {funcionariosOptions.length > 0 && (
+          <div className="flex flex-col md:flex-row  gap-5">
+            <div className="w-full md:w-[20%]">
+              <FormField
+                control={form.control}
+                name="codigo_estrutura_hierarquica"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-[#42474a] font-bold">
+                      Código Estrutura hierárquica
+                    </FormLabel>
+                    <FormControl>
+                      <InputBase
+                        value={field.value}
+                        onChange={(value) => {
+                          field.onChange(value.target.value);
+                        }}
+                        data-testid="input-codigo"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="w-full md:w-[15%] mt-6">
+              <InfoItem
+                label="Qtd. Turmas"
+                value={form.watch("quantidade_turmas")}
+                icon={
+                  <Button
+                    variant="ghost"
+                    size="icon" onClick={() =>
+                      setOpenModal(true)}
+                    data-testid="btn-visualizar-turmas">
+                    <Eye width={16} height={16} />
+                  </Button>}
+              />
+
+            </div>
+
+            <div className="w-full md:w-[75%]">
+              <FormField
+                control={form.control}
+                name="funcionarios_da_unidade"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-[#42474a] font-bold">
+                      Funcionários da unidade
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargo_sobreposto || "";
+                          const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo || "";
+
+
+
+                          form.setValue("cargo_sobreposto", cargoSobreposto);
+                          form.setValue("modulos", modulo);
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-funcionarios">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {funcionariosOptions.map(
+                            (funcionario: { rf: string; nome: string; }) => (
+                              <SelectItem key={funcionario.rf} value={funcionario.rf}>
+                                {funcionario.nome}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                    variant="ghost"
+                    size="icon" onClick={() =>
+                      setOpenModalResumoServidor(true)}
+                    data-testid="btn-visualizar-servidor">
+                    <Eye width={16} height={16} />
+                  </Button>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+
+
           </div>
-
-          <div className="w-full md:w-[15%] mt-6">
-            <InfoItem
-              label="Qtd. Turmas"
-              value={form.watch("quantidade_turmas")}
-              icon={
-                <Button
-                  variant="ghost"
-                  size="icon" onClick={() =>
-                    setOpenModal(true)}
-                  data-testid="btn-visualizar-turmas">
-                  <Eye width={16} height={16} />
-                </Button>}
-            />
-
-          </div>
-
-          <div className="w-full md:w-[75%]">
-            <FormField
-              control={form.control}
-              name="funcionarios_da_unidade"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Funcionários da unidade
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargoSobreposto||"";
-                        const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo||"";
-                        
-                         
-
-                        form.setValue("cargo_sobreposto", cargoSobreposto );
-                        form.setValue("modulos", modulo );
-                      }}
-                    >
-                      <SelectTrigger data-testid="select-funcionarios">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        {funcionariosOptions.map(
-                          (funcionario: { rf: string; nome: string; }) => (
-                            <SelectItem key={funcionario.rf} value={funcionario.rf}>
-                              {funcionario.nome}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-
-
-        </div>
         )}
 
 
 
 
         {form.watch("cargo_sobreposto") && form.watch("modulos") && (
-        <div className="flex flex-row">
+          <div className="flex flex-row">
 
 
-          <div className="w-full md:w-[19.5%]">
-            <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
+            <div className="w-full md:w-[19.5%]">
+              <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
+            </div>
+
+            <div className="w-full md:w-[15%] ">
+              <InfoItem label="Módulos" value={form.watch("modulos")} />
+            </div>
           </div>
-
-          <div className="w-full md:w-[15%] ">
-            <InfoItem label="Módulos" value={form.watch("modulos")} />
-          </div>
-        </div>
         )}
       </form>
     </Form>
