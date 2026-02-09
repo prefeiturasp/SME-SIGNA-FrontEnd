@@ -83,10 +83,9 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
   const { mutateAsync } = useFetchDesignacaoUnidadeMutation();
 
   const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>();
+  const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
-
-
     try {
       const response = await mutateAsync(values.ue);
       if (!response.success) {
@@ -108,37 +107,22 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
     form.setValue("codigo_estrutura_hierarquica", '');
     form.setValue("quantidade_turmas", '-');
 
-
-
     onSubmitDesignacao(values);
   }
-  
-  const [openModalResumoServidor, setOpenModalResumoServidor] = useState(true);
 
-  const servidor=  {
-    rf: 'string',
-  nome: 'string',
-    esta_afastado: false,
-  vinculo_cargo_sobreposto: 'string',
-  lotacao_cargo_sobreposto: 'string',
-  cargo_base: 'string',
-  funcao_atividade: 'string',
-  cargo_sobreposto: 'string',
-  cursos_titulos: 'string',
-};
-const selectedServidor= values.funcionarios_da_unidade;
+
+
   return (
     <Form {...form}>
-
       {
-      servidor && (
-        <ModalResumoServidor
-          isLoading={false}
-          open={openModalResumoServidor}
-          onOpenChange={setOpenModalResumoServidor}
-          servidor={servidor}//{designacaoUnidade?.funcionarios_unidade[selectedServidor]?.servidores[0] || {} as Servidor}
-        />
-      )}
+        values.funcionarios_da_unidade && designacaoUnidade && (
+          <ModalResumoServidor
+            isLoading={false}
+            open={openModalResumoServidor}
+            onOpenChange={setOpenModalResumoServidor}
+            servidor={designacaoUnidade?.funcionarios_unidade[values.funcionarios_da_unidade]?.servidores[0] || {} as Servidor}
+          />
+        )}
 
       <DetalhamentoTurmasModal
         open={openModal}
@@ -287,7 +271,7 @@ const selectedServidor= values.funcionarios_da_unidade;
 
         </div>
 
-        {funcionariosOptions.length > 0 && (
+        {funcionariosOptions.length > -1 && (
           <div className="flex flex-col md:flex-row  gap-5">
             <div className="w-full md:w-[20%]">
               <FormField
@@ -339,7 +323,9 @@ const selectedServidor= values.funcionarios_da_unidade;
                       Funcionários da unidade
                     </FormLabel>
                     <FormControl>
-                      <Select
+
+                      <div className="flex flex-row gap-2">
+                        <Select
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
@@ -366,13 +352,18 @@ const selectedServidor= values.funcionarios_da_unidade;
                           )}
                         </SelectContent>
                       </Select>
-                      <Button
-                    variant="ghost"
-                    size="icon" onClick={() =>
-                      setOpenModalResumoServidor(true)}
-                    data-testid="btn-visualizar-servidor">
-                    <Eye width={16} height={16} />
-                  </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon" 
+                          disabled={!field.value}
+                          onClick={() =>
+                            setOpenModalResumoServidor(true)
+                          }
+                          data-testid="btn-visualizar-servidor">
+                          <Eye width={16} height={16} />
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
