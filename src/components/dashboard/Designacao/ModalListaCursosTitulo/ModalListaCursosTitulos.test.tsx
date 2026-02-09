@@ -112,6 +112,83 @@ describe("ModalListaCursosTitulos", () => {
      expect(props.onOpenChange).toHaveBeenCalledWith(false)
 
    });
+
+  it("passa isLoading para o componente Table", () => {
+    render(<ModalListaCursosTitulos {...makeProps({ isLoading: true })} />);
+
+    expect(tableMock).toHaveBeenCalledTimes(1);
+    const calledWith = (tableMock as unknown as Mock).mock.calls[0][0];
+
+    expect(calledWith.loading).toBe(true);
+  });
+
+  it("passa isLoading como false quando não está carregando", () => {
+    render(<ModalListaCursosTitulos {...makeProps({ isLoading: false })} />);
+
+    expect(tableMock).toHaveBeenCalledTimes(1);
+    const calledWith = (tableMock as unknown as Mock).mock.calls[0][0];
+
+    expect(calledWith.loading).toBe(false);
+  });
+
+  it("renderiza a tabela com dados vazios quando data é array vazio", () => {
+    render(<ModalListaCursosTitulos {...makeProps({ data: [] })} />);
+
+    expect(tableMock).toHaveBeenCalledTimes(1);
+    const calledWith = (tableMock as unknown as Mock).mock.calls[0][0];
+
+    expect(calledWith.dataSource).toEqual([]);
+    expect(calledWith.dataSource).toHaveLength(0);
+  });
+
+  it("aplica sorter corretamente na coluna Concurso", () => {
+    render(<ModalListaCursosTitulos {...makeProps()} />);
+
+    const calledWith = (tableMock as unknown as Mock).mock.calls[0][0];
+    const sorter = calledWith.columns[0].sorter;
+
+    // Testa a função sorter
+    const resultado1 = sorter({ id: 1 }, { id: 2 });
+    expect(resultado1).toBe(-1); // 1 - 2 = -1
+
+    const resultado2 = sorter({ id: 3 }, { id: 1 });
+    expect(resultado2).toBe(2); // 3 - 1 = 2
+
+    const resultado3 = sorter({ id: 5 }, { id: 5 });
+    expect(resultado3).toBe(0); // 5 - 5 = 0
+  });
+
+  it("verifica que showSorterTooltip está configurado", () => {
+    render(<ModalListaCursosTitulos {...makeProps()} />);
+
+    const calledWith = (tableMock as unknown as Mock).mock.calls[0][0];
+
+    expect(calledWith.showSorterTooltip).toEqual({ target: 'sorter-icon' });
+  });
+
+  
+  it("renderiza todas as informações do servidor no modal", () => {
+    render(<ModalListaCursosTitulos {...makeProps()} />);
+
+    // Verifica se as labels estão presentes
+    expect(screen.getByText("Servidor")).toBeInTheDocument();
+    expect(screen.getByText("RF")).toBeInTheDocument();
+    expect(screen.getByText("Função")).toBeInTheDocument();
+
+    // Verifica se os valores estão presentes
+    expect(screen.getByText(defaultValues.nome)).toBeInTheDocument();
+    expect(screen.getByText(defaultValues.rf)).toBeInTheDocument();
+    expect(screen.getByText(defaultValues.funcao_atividade)).toBeInTheDocument();
+  });
+
+  it("renderiza o DialogContent quando open é true", () => {
+    render(<ModalListaCursosTitulos {...makeProps()} />);
+
+    // Verifica que o conteúdo do modal está renderizado
+    expect(screen.getByText("Lista de cursos/títulos")).toBeInTheDocument();
+    expect(screen.getByTestId("antd-table")).toBeInTheDocument();
+  });
+ 
 });
 
 
