@@ -85,6 +85,7 @@ const ResumoDesignacao: React.FC<{
                 value={defaultValues.cursos_titulos}
                 icon={
                   <Button
+                  data-testid="btn-visualizar-cursos-titulos"
                     variant="ghost"
                     size="icon"
                     onClick={handleOpenModalListaCursosTitulos}>

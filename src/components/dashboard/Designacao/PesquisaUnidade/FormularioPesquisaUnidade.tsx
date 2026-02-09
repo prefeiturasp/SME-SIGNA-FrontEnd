@@ -127,9 +127,9 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
       <DetalhamentoTurmasModal
         open={openModal}
         onOpenChange={setOpenModal}
-        dre={values.dre || "-"}
-        unidadeEscolar={values.ue || "-"}
-        qtdTotalTurmas={values.quantidade_turmas || "-"}
+        dre={values.dre ?? "-"}
+        unidadeEscolar={values.ue ?? "-"}
+        qtdTotalTurmas={values.quantidade_turmas ?? "-"}
         spi="São Paulo Integral"
         // to-do: remover mock
         rows={[
@@ -271,7 +271,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
         </div>
 
-        {funcionariosOptions.length > -1 && (
+        {funcionariosOptions.length > 0 && (
           <div className="flex flex-col md:flex-row  gap-5">
             <div className="w-full md:w-[20%]">
               <FormField
@@ -329,8 +329,8 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargo_sobreposto || "";
-                          const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo || "";
+                          const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargo_sobreposto ?? "";
+                          const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo ?? "";
 
 
 
