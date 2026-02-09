@@ -1,12 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
  import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
-
-export function useFetchDesignacaoUnidade(codigo_ue:string) {
-    return useQuery({
-        queryKey: ["get-designacao-unidade"],
-        queryFn: () => getDesignacaoUnidadeAction( codigo_ue ),
-        refetchOnWindowFocus: false,
-    });
-}
-
  
+ 
+const useFetchDesignacaoUnidadeMutation = () => {
+     const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: (codigo_ue:string) => getDesignacaoUnidadeAction( codigo_ue ),
+      onSuccess: (response) => {
+        if (!response.success) return;
+        
+        queryClient.invalidateQueries({ queryKey: ["me"] });
+       },
+    });
+  };
+  
+  export default useFetchDesignacaoUnidadeMutation;

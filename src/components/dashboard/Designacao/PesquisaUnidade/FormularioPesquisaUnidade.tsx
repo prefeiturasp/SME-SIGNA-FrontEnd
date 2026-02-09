@@ -36,6 +36,8 @@ import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
+import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
+import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 
 
 export interface FormularioPesquisaUnidadeRef {
@@ -77,22 +79,101 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
   useImperativeHandle(ref, () => ({
     getValues: () => form.getValues(),
   }), [form])
+  const { mutateAsync } = useFetchDesignacaoUnidadeMutation();
 
+  const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>(
+    {
+      "cargos": [
+        {
+          "codigoCargo": "3360",
+          "nomeCargo": "DIRETOR DE ESCOLA"
+        },
+        {
+          "codigoCargo": "3379",
+          "nomeCargo": "COORDENADOR PEDAGOGICO"
+        },
+        {
+          "codigoCargo": "3352",
+          "nomeCargo": "SUPERVISOR ESCOLAR"
+        }
+      ],
+      "funcionarios_unidade": {
+          "3360": {
+              "codigo_cargo": 3360,
+              "nome_cargo": "DIRETOR DE ESCOLA",
+              "modulo": "2",
+              "servidores": [
+                  {
+                      "rf": "7726694",
+                      "nome": "DANIELA MARIA FIGUEIREDO PADOVAN",
+                      "esta_afastado": false,
+                      "cargoSobreposto": null
+                  }
+              ]
+          },
+          "3379": {
+              "codigo_cargo": 3379,
+              "nome_cargo": "COORDENADOR PEDAGOGICO",
+              "modulo": "2",
+              "servidores": [
+                  {
+                      "rf": "6348564",
+                      "nome": "LINEIA RUIZ TRIVILIN",
+                      "esta_afastado": false,
+                      "cargoSobreposto": "SUPERVISOR ESCOLAR - v1"
+                  },
+                  {
+                      "rf": "8451176",
+                      "nome": "TULYO CESAR MARTINS",
+                      "esta_afastado": false,
+                      "cargoSobreposto": "COORDENADOR PEDAGOGICO - v1"
+                  }
+              ]
+          },
+          "3352": {
+              "codigo_cargo": 3352,
+              "nome_cargo": "SUPERVISOR ESCOLAR",
+              "modulo": "2",
+              "servidores": []
+          }
+      }
+  }
+   
+  );
 
-  const onSubmit = (values: FormDesignacaoData) => {
+  const onSubmit = async (values: FormDesignacaoData) => {
     console.log("values", values);
 
     
+    try {
+//      const response = await mutateAsync(values.ue);
+  //    if (!response.success) {
+    //    throw new Error("Não foi possível buscar os dados da unidade");
+    //  }
+
+      //console.log("response", response.data);
+
+      //const cargosSelect = response.data.cargos.map((cargo) => ({
+       // rf: cargo.codigoCargo,
+       // nome: cargo.nomeCargo,
+      //}));
+        //setFuncionariosOptions(cargosSelect)
+      //setDesignacaoUnidade(response.data);
+
+      const cargosSelect = designacaoUnidade?.cargos.map((cargo) => ({
+        rf: cargo.codigoCargo,
+        nome: cargo.nomeCargo,
+      }));
+      setFuncionariosOptions(cargosSelect ?? [])
+      
+    } catch (error) {
+      console.error(error);
+    }
 
     form.setValue("codigo_estrutura_hierarquica", '123456');
     form.setValue("quantidade_turmas", '40');
-    setFuncionariosOptions([
-      { rf: "123456", nome: "João da Silva" },
-      { rf: "123457", nome: "Maria da Silva" },
-      { rf: "123458", nome: "Pedro da Silva" },
-    ])
-    form.setValue("cargo_sobreposto", '20');
-    form.setValue("modulos", '2');
+    
+     
 
     onSubmitDesignacao(values);
   }
@@ -246,7 +327,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
         </div>
 
-
+        {form.watch("ue") && (  
         <div className="flex flex-col md:flex-row  gap-5">
           <div className="w-full md:w-[20%]">
             <FormField
@@ -302,6 +383,13 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
+                        const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargoSobreposto||"";
+                        const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo||"";
+                        
+                         
+
+                        form.setValue("cargo_sobreposto", cargoSobreposto );
+                        form.setValue("modulos", modulo );
                       }}
                     >
                       <SelectTrigger data-testid="select-funcionarios">
@@ -328,27 +416,24 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
 
         </div>
+        )}
 
 
 
 
-
+        {form.watch("cargo_sobreposto") && form.watch("modulos") && (
         <div className="flex flex-row">
 
 
           <div className="w-full md:w-[19.5%]">
             <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
-
           </div>
 
           <div className="w-full md:w-[15%] ">
             <InfoItem label="Módulos" value={form.watch("modulos")} />
-
           </div>
-
-
-
         </div>
+        )}
       </form>
     </Form>
   );
