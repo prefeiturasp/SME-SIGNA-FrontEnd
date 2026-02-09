@@ -36,6 +36,8 @@ import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
+import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
+import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 
 
 export interface FormularioPesquisaUnidadeRef {
@@ -77,22 +79,35 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
   useImperativeHandle(ref, () => ({
     getValues: () => form.getValues(),
   }), [form])
+  const { mutateAsync } = useFetchDesignacaoUnidadeMutation();
 
+  const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>();
 
-  const onSubmit = (values: FormDesignacaoData) => {
-    console.log("values", values);
+  const onSubmit = async (values: FormDesignacaoData) => {
+ 
+    
+    try {
+      const response = await mutateAsync(values.ue);
+      if (!response.success) {
+        throw new Error("Não foi possível buscar os dados da unidade");
+      }
 
+ 
+      const cargosSelect = response.data.cargos.map((cargo) => ({
+        rf: cargo.codigoCargo,
+        nome: cargo.nomeCargo,
+      }));
+      setFuncionariosOptions(cargosSelect)
+      setDesignacaoUnidade(response.data);
+  
+    } catch (error) {
+      console.error(error);
+    }
 
-
-    form.setValue("codigo_estrutura_hierarquica", '123456');
-    form.setValue("quantidade_turmas", '40');
-    setFuncionariosOptions([
-      { rf: "123456", nome: "João da Silva" },
-      { rf: "123457", nome: "Maria da Silva" },
-      { rf: "123458", nome: "Pedro da Silva" },
-    ])
-    form.setValue("cargo_sobreposto", '20');
-    form.setValue("modulos", '2');
+    form.setValue("codigo_estrutura_hierarquica", '');
+    form.setValue("quantidade_turmas", '-');
+    
+     
 
     onSubmitDesignacao(values);
   }
@@ -246,7 +261,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
         </div>
 
-
+        {funcionariosOptions.length > 0 && (  
         <div className="flex flex-col md:flex-row  gap-5">
           <div className="w-full md:w-[20%]">
             <FormField
@@ -302,6 +317,13 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
+                        const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargoSobreposto ?? "";
+                        const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo ?? "";
+                        
+                         
+
+                        form.setValue("cargo_sobreposto", cargoSobreposto );
+                        form.setValue("modulos", modulo );
                       }}
                     >
                       <SelectTrigger data-testid="select-funcionarios">
@@ -328,27 +350,24 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
 
         </div>
+        )}
 
 
 
 
-
+        {form.watch("cargo_sobreposto") && form.watch("modulos") && (
         <div className="flex flex-row">
 
 
           <div className="w-full md:w-[19.5%]">
             <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
-
           </div>
 
           <div className="w-full md:w-[15%] ">
             <InfoItem label="Módulos" value={form.watch("modulos")} />
-
           </div>
-
-
-
         </div>
+        )}
       </form>
     </Form>
   );
