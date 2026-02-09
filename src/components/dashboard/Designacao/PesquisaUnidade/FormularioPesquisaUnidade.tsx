@@ -81,97 +81,31 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
   }), [form])
   const { mutateAsync } = useFetchDesignacaoUnidadeMutation();
 
-  const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>(
-    {
-      "cargos": [
-        {
-          "codigoCargo": "3360",
-          "nomeCargo": "DIRETOR DE ESCOLA"
-        },
-        {
-          "codigoCargo": "3379",
-          "nomeCargo": "COORDENADOR PEDAGOGICO"
-        },
-        {
-          "codigoCargo": "3352",
-          "nomeCargo": "SUPERVISOR ESCOLAR"
-        }
-      ],
-      "funcionarios_unidade": {
-          "3360": {
-              "codigo_cargo": 3360,
-              "nome_cargo": "DIRETOR DE ESCOLA",
-              "modulo": "2",
-              "servidores": [
-                  {
-                      "rf": "7726694",
-                      "nome": "DANIELA MARIA FIGUEIREDO PADOVAN",
-                      "esta_afastado": false,
-                      "cargoSobreposto": null
-                  }
-              ]
-          },
-          "3379": {
-              "codigo_cargo": 3379,
-              "nome_cargo": "COORDENADOR PEDAGOGICO",
-              "modulo": "2",
-              "servidores": [
-                  {
-                      "rf": "6348564",
-                      "nome": "LINEIA RUIZ TRIVILIN",
-                      "esta_afastado": false,
-                      "cargoSobreposto": "SUPERVISOR ESCOLAR - v1"
-                  },
-                  {
-                      "rf": "8451176",
-                      "nome": "TULYO CESAR MARTINS",
-                      "esta_afastado": false,
-                      "cargoSobreposto": "COORDENADOR PEDAGOGICO - v1"
-                  }
-              ]
-          },
-          "3352": {
-              "codigo_cargo": 3352,
-              "nome_cargo": "SUPERVISOR ESCOLAR",
-              "modulo": "2",
-              "servidores": []
-          }
-      }
-  }
-   
-  );
+  const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>();
 
   const onSubmit = async (values: FormDesignacaoData) => {
-    console.log("values", values);
-
+ 
     
     try {
-//      const response = await mutateAsync(values.ue);
-  //    if (!response.success) {
-    //    throw new Error("Não foi possível buscar os dados da unidade");
-    //  }
+      const response = await mutateAsync(values.ue);
+      if (!response.success) {
+        throw new Error("Não foi possível buscar os dados da unidade");
+      }
 
-      //console.log("response", response.data);
-
-      //const cargosSelect = response.data.cargos.map((cargo) => ({
-       // rf: cargo.codigoCargo,
-       // nome: cargo.nomeCargo,
-      //}));
-        //setFuncionariosOptions(cargosSelect)
-      //setDesignacaoUnidade(response.data);
-
-      const cargosSelect = designacaoUnidade?.cargos.map((cargo) => ({
+ 
+      const cargosSelect = response.data.cargos.map((cargo) => ({
         rf: cargo.codigoCargo,
         nome: cargo.nomeCargo,
       }));
-      setFuncionariosOptions(cargosSelect ?? [])
-      
+        setFuncionariosOptions(cargosSelect)
+      setDesignacaoUnidade(response.data);
+  
     } catch (error) {
       console.error(error);
     }
 
-    form.setValue("codigo_estrutura_hierarquica", '123456');
-    form.setValue("quantidade_turmas", '40');
+    form.setValue("codigo_estrutura_hierarquica", '');
+    form.setValue("quantidade_turmas", '-');
     
      
 
@@ -183,9 +117,9 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
       <DetalhamentoTurmasModal
         open={openModal}
         onOpenChange={setOpenModal}
-        dre={values.dre ?? "-"}
-        unidadeEscolar={values.ue ?? "-"}
-        qtdTotalTurmas={values.quantidade_turmas ?? "-"}
+        dre={values.dre || "-"}
+        unidadeEscolar={values.ue || "-"}
+        qtdTotalTurmas={values.quantidade_turmas || "-"}
         spi="São Paulo Integral"
         // to-do: remover mock
         rows={[
@@ -327,7 +261,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
         </div>
 
-        {form.watch("ue") && (  
+        {funcionariosOptions.length > 0 && (  
         <div className="flex flex-col md:flex-row  gap-5">
           <div className="w-full md:w-[20%]">
             <FormField

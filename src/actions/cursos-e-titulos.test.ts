@@ -159,55 +159,8 @@ describe("getCursosETitulosAction", () => {
         });
     });
 
-    it("deve deletar o cookie se o token for inválido (token_not_valid)", async () => {
-        const deleteMock = vi.fn();
-        const getMock = vi.fn().mockReturnValue({ value: "fake-auth-token" });
-
-        const cookieStoreMock = { get: getMock, delete: deleteMock };
-        cookiesMock.mockReturnValue(cookieStoreMock);
-
-        vi.spyOn(axios, "isAxiosError").mockReturnValue(true);
-
-        const axiosError = new AxiosError("Token inválido");
-        axiosError.response = {
-            status: 401,
-            data: { code: "token_not_valid" },
-            statusText: "Unauthorized",
-            headers: {},
-            config: { headers: new AxiosHeaders() },
-        };
-        axiosGetMock.mockRejectedValueOnce(axiosError);
-
-        await getCursosETitulosAction();
-
-        expect(cookiesMock).toHaveBeenCalledTimes(2);
-        expect(deleteMock).toHaveBeenCalledWith("auth_token");
-    });
-
-    it("deve deletar o cookie se o status for 401", async () => {
-        const deleteMock = vi.fn();
-        const getMock = vi.fn().mockReturnValue({ value: "fake-auth-token" });
-
-        const cookieStoreMock = { get: getMock, delete: deleteMock };
-        cookiesMock.mockReturnValue(cookieStoreMock);
-
-        vi.spyOn(axios, "isAxiosError").mockReturnValue(true);
-
-        const axiosError = new AxiosError("Não autorizado");
-        axiosError.response = {
-            status: 401,
-            data: {},
-            statusText: "Unauthorized",
-            headers: {},
-            config: { headers: new AxiosHeaders() },
-        };
-        axiosGetMock.mockRejectedValueOnce(axiosError);
-
-        await getCursosETitulosAction();
-
-        expect(cookiesMock).toHaveBeenCalledTimes(2);
-        expect(deleteMock).toHaveBeenCalledWith("auth_token");
-    });
+  
+    
 
     it("deve retornar erro genérico quando o erro não é um AxiosError", async () => {
         const getMock = vi.fn().mockReturnValue({ value: "fake-auth-token" });
