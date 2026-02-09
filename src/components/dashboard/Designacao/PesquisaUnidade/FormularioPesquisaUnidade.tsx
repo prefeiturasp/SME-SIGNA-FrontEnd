@@ -97,7 +97,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
         rf: cargo.codigoCargo,
         nome: cargo.nomeCargo,
       }));
-        setFuncionariosOptions(cargosSelect)
+      setFuncionariosOptions(cargosSelect)
       setDesignacaoUnidade(response.data);
   
     } catch (error) {
