@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi, type Mock } from "vitest";
+import { vi } from "vitest";
 import ResumoDesignacao from "./ResumoDesignacao";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,7 +18,6 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
     open,
     onOpenChange,
     data,
-    defaultValues,
     isLoading,
   }: {
     open: boolean;
@@ -146,16 +145,30 @@ describe("ResumoDesignacao", () => {
     expect(screen.queryByText(mockData.nome)).not.toBeInTheDocument();
   });
 
+  
+
   it("renderiza o botão Eye para Cursos/Títulos", () => {
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacao showCursosTitulos={true} defaultValues={mockData} />,
       { wrapper }
     );
 
-    // O botão Eye está dentro do InfoItem de Cursos/Títulos
-    const buttons = screen.getAllByRole("button");
-    expect(buttons.length).toBeGreaterThan(0);
+    expect(
+      screen.getByTestId("btn-visualizar-cursos-titulos")
+    ).toBeInTheDocument();
   });
+
+  it("não renderiza o botão Eye para Cursos/Títulos", () => {
+    render(
+      <ResumoDesignacao showCursosTitulos={false} defaultValues={mockData} />,
+      { wrapper }
+    );
+
+    expect(
+      screen.queryByTestId("btn-visualizar-cursos-titulos")
+    ).not.toBeInTheDocument();
+  });
+
 
   it("abre o modal ao clicar no botão Eye", async () => {
     const user = userEvent.setup();
@@ -169,7 +182,7 @@ describe("ResumoDesignacao", () => {
     expect(screen.queryByText("Modal Aberto")).not.toBeInTheDocument();
 
     // Clica no botão Eye
-    const eyeButton = screen.getAllByRole("button")[0];
+    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
     await user.click(eyeButton);
 
     // Verifica que o modal foi aberto
@@ -187,7 +200,7 @@ describe("ResumoDesignacao", () => {
     );
 
     // Abre o modal
-    const eyeButton = screen.getAllByRole("button")[0];
+    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
     await user.click(eyeButton);
 
     await waitFor(() => {
@@ -212,7 +225,7 @@ describe("ResumoDesignacao", () => {
     );
 
     // Abre o modal
-    const eyeButton = screen.getAllByRole("button")[0];
+    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
     await user.click(eyeButton);
 
     await waitFor(() => {
@@ -239,7 +252,7 @@ describe("ResumoDesignacao", () => {
     );
 
     // Abre o modal
-    const eyeButton = screen.getAllByRole("button")[0];
+    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
     await user.click(eyeButton);
 
     await waitFor(() => {
@@ -264,7 +277,7 @@ describe("ResumoDesignacao", () => {
     );
 
     // Abre o modal
-    const eyeButton = screen.getAllByRole("button")[0];
+    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
     await user.click(eyeButton);
 
     await waitFor(() => {
