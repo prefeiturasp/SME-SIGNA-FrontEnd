@@ -1,11 +1,12 @@
-"use server";
+"use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 import { EsqueciSenhaPayload } from "@/types/recuperarSenha";
+import { ErrorResponse } from "@/types/generic";
 
 export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL??'https://qa-signa.sme.prefeitura.sp.gov.br/api';
 
   try {
     const resp = await axios.post(
@@ -17,11 +18,19 @@ export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
       return { success: false, error: resp.data.detail };
     }
 
-    return { success: true };
-  } catch (err) {
+    return { success: true, message: resp.data.detail };
+  } catch (err  ) {
+    const error = err as AxiosError<ErrorResponse>;
+    let message = "";
+    
+    if (error.response?.data?.detail) {
+        message = error.response.data.detail;
+    }
+
+   
     return {
       success: false,
-      error: "Erro ao fazer login. Verifique suas credenciais.",
+      error: message,
     };
   }
 }

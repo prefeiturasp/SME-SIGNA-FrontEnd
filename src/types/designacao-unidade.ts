@@ -32,10 +32,7 @@ export type DesignacaoUnidadeResponse = {
 };
 
  
-export interface ErrorResponse {
-  detail: string;
-}
-
+ 
 
 export type DesignacaoUnidadeResult =
     | { success: true; data: DesignacaoUnidadeResponse }
