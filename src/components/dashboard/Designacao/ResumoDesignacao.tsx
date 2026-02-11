@@ -96,9 +96,7 @@ const ResumoDesignacao: React.FC<{
                 }
               />
               )}
-
-
-
+ 
             </div>
           </div>
 
