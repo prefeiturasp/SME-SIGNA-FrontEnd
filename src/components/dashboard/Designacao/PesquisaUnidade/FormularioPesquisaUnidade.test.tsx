@@ -305,6 +305,8 @@ describe("FormularioPesquisaUnidade", () => {
     consoleErrorSpy.mockRestore();
   });
 
+
+
   it("permite selecionar funcionário e preenche Cargo sobreposto/Módulos", async () => {
     const user = userEvent.setup();
 
@@ -363,6 +365,72 @@ describe("FormularioPesquisaUnidade", () => {
     expect(screen.getByText("Módulos")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
   });
+
+
+
+  it("permite selecionar funcionários de outra unidade e não preenche Cargo sobreposto/Módulos", async () => {
+    const user = userEvent.setup();
+
+    getDesignacaoUnidadeSpy.mockResolvedValue({
+      success: true,
+      data: {
+        cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
+        funcionarios_unidade: {
+          "cargo-1": {
+            codigo_cargo: 1,
+            nome_cargo: "Coordenador",
+            modulo: "4",
+            servidores: [
+              {
+                rf: "123",
+                nome: "Fulano",
+                esta_afastado: false,
+                
+                vinculo_cargo_sobreposto: "string",
+                lotacao_cargo_sobreposto: "string",
+                cargo_base: "string",
+                funcao_atividade: "string",
+                cargo_sobreposto: "Professor",
+                cursos_titulos: "string",
+              },
+            ],
+          },
+        },
+      },
+    } as never);
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    await selectDreAndUe(user);
+
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+    await waitFor(() => {
+      const funcionariosSelect = screen.getByTestId("select-funcionarios");
+      expect(funcionariosSelect).toBeInTheDocument();
+    });
+
+    const funcionariosSelect = screen.getByTestId("select-funcionarios");
+    await user.click(funcionariosSelect);
+
+    await clickSelectOption(user, "Coordenador");
+
+  
+
+    await selectDreAndUe(user, "DRE Norte", "Escola Municipal B");
+
+
+    expect(screen.queryByText("Cargo sobreposto")).not.toBeInTheDocument();
+    
+    expect(screen.queryByText("Módulos")).not.toBeInTheDocument();
+  });
+
 
   it("não renderiza Cargo sobreposto/Módulos quando retorno não possui dados", async () => {
     const user = userEvent.setup();
