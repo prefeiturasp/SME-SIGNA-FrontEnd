@@ -99,12 +99,10 @@ const FormularioPesquisaUnidade = forwardRef<
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
-          console.log('/n /n /n Submit ',values)
-
+ 
     try {
       const response = await mutateAsync(values.ue);
-      console.log('response',response)
-      if (!response.success) {
+       if (!response.success) {
         throw new Error("Não foi possível buscar os dados da unidade");
       }
 
