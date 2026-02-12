@@ -265,7 +265,7 @@ const FormularioPesquisaUnidade = forwardRef<
               name="ue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
+                  <FormLabel className=" text-[#42474a] font-bold">
                     Unidade escolar
                   </FormLabel>
                   <FormControl>
@@ -286,17 +286,10 @@ const FormularioPesquisaUnidade = forwardRef<
                           field.onChange(value);
 
                           form.clearErrors();
-                          //clear screen data 
-                          
-                          
+                          //clear screen data                         
                           limpa_dados_funcionarios()
-
-
-
-
                         }}
                         placeholder="Digite o nome da UE"
-                        disabled={!values.dre}
                         data-testid="select-ue"
                       />
                     )}
