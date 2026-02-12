@@ -21,7 +21,6 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import useLogin from "@/hooks/useLogin";
-import Link from "next/link";
 import { LoginRequest } from "@/types/login";
 import { useRouter } from "next/navigation";
 import LogoSigna from "../LogoSigna";
@@ -40,7 +39,7 @@ export default function LoginForm() {
 
   const { mutateAsync: doLogin, isPending: isLoggingIn } = loginMutation;
   const estaDesabilitado = !form.formState.isDirty;
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("Olá [nome do usuário]! Desculpe, mas o acesso ao SIGNA é restrito a perfis específicos.");
 
   const onSubmit = async (values: LoginRequest) => {
     const response = await doLogin(values);
@@ -139,13 +138,7 @@ export default function LoginForm() {
                 </Button>
               </div>
 
-              {errorMessage && (
-                <div className="mt-2 flex items-center gap-2">
-                  <p className="text-sm text-red-600" data-testid="login-error">
-                    {errorMessage}
-                  </p>
-                </div>
-              )}
+          
 
               <Button
                 type="button"
@@ -155,6 +148,14 @@ export default function LoginForm() {
               >
                 <span>Esqueci minha senha</span>
               </Button>
+
+              {errorMessage && (
+                <div className="mt-4 flex items-center gap-2 border border-red-700 rounded-md p-2">
+                  <p className="text-sm text-red-700 font-bold" data-testid="login-error">
+                    {errorMessage}
+                  </p>
+                </div>
+              )}
             </form>
           </Form>
         </div>
