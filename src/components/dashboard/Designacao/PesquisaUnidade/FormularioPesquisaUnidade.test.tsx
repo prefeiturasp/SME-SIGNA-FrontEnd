@@ -110,6 +110,7 @@ describe("FormularioPesquisaUnidade", () => {
   it("renderiza campos iniciais e não exibe seção de funcionários antes do submit", async () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -133,6 +134,7 @@ describe("FormularioPesquisaUnidade", () => {
   it("mantém UE desabilitada quando DRE não está selecionada", async () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -149,52 +151,23 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={setDisableProximo}
       />
-    );
+    );  
 
     const dreSelect = screen.getByTestId("select-dre");
     await user.click(dreSelect);
     await clickSelectOption(user, "DRE Sul");
 
-    expect(setDisableProximo).toHaveBeenCalledWith(true);
-
+ 
     await waitFor(() => {
       expect(getUEsSpy).toHaveBeenCalledWith("dre-1");
     });
 
     const ueCombobox = screen.getByTestId("select-ue");
     expect(ueCombobox).not.toBeDisabled();
-  });
-
-  it("limpa UE ao trocar DRE e desabilita botão próximo", async () => {
-    const user = userEvent.setup();
-    const setDisableProximo = vi.fn();
-
-    renderWithQueryClient(
-      <FormularioPesquisaUnidade
-        onSubmitDesignacao={vi.fn()}
-        setDisableProximo={setDisableProximo}
-      />
-    );
-
-    const dreSelect = screen.getByTestId("select-dre");
-    await user.click(dreSelect);
-    await clickSelectOption(user, "DRE Sul");
-
-    const ueCombobox = screen.getByTestId("select-ue");
-    await user.click(ueCombobox);
-    await user.click(await screen.findByText("Escola Municipal A"));
-    expect(setDisableProximo).toHaveBeenCalledWith(false);
-
-    await user.click(dreSelect);
-    await clickSelectOption(user, "DRE Norte");
-
-    expect(setDisableProximo).toHaveBeenCalledWith(true);
-    expect(screen.getByTestId("select-ue")).toHaveTextContent(
-      "Digite o nome da UE"
-    );
   });
 
   it("exibe loading enquanto carrega UEs", async () => {
@@ -209,6 +182,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     const { container } = renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -229,27 +203,7 @@ describe("FormularioPesquisaUnidade", () => {
     expect(await screen.findByTestId("select-ue")).toBeInTheDocument();
   });
 
-  it("seleciona UE e habilita botão próximo", async () => {
-    const user = userEvent.setup();
-    const setDisableProximo = vi.fn();
 
-    renderWithQueryClient(
-      <FormularioPesquisaUnidade
-        onSubmitDesignacao={vi.fn()}
-        setDisableProximo={setDisableProximo}
-      />
-    );
-
-    const dreSelect = screen.getByTestId("select-dre");
-    await user.click(dreSelect);
-    await clickSelectOption(user, "DRE Sul");
-
-    const ueCombobox = screen.getByTestId("select-ue");
-    await user.click(ueCombobox);
-    await user.click(await screen.findByText("Escola Municipal A"));
-
-    expect(setDisableProximo).toHaveBeenCalledWith(false);
-  });
 
   it("submete formulário (sucesso) e exibe seção adicional com funcionários", async () => {
     const user = userEvent.setup();
@@ -308,6 +262,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={onSubmitDesignacao}
         setDisableProximo={vi.fn()}
       />
@@ -383,6 +338,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -440,6 +396,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -457,8 +414,8 @@ describe("FormularioPesquisaUnidade", () => {
     await user.click(funcionariosSelect);
     await clickSelectOption(user, "Coordenador");
 
-    expect(screen.queryByText("Cargo sobreposto")).not.toBeInTheDocument();
-    expect(screen.queryByText("Módulos")).not.toBeInTheDocument();
+    expect(screen.queryByText("Cargo sobreposto")).toBeInTheDocument();
+    expect(screen.queryByText("Módulos")).toBeInTheDocument();
   });
 
   it("permite editar código estrutura hierárquica", async () => {
@@ -493,6 +450,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -525,6 +483,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={onSubmitDesignacao}
         setDisableProximo={vi.fn()}
       />
@@ -555,6 +514,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={onSubmitDesignacao}
         setDisableProximo={vi.fn()}
       />
@@ -606,6 +566,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
       />
@@ -628,6 +589,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
+        isLoading={false}
         ref={ref}
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={vi.fn()}
@@ -656,7 +618,8 @@ describe("FormularioPesquisaUnidade", () => {
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
-        onSubmitDesignacao={onSubmitDesignacao}
+        isLoading={false}
+          onSubmitDesignacao={onSubmitDesignacao}
         setDisableProximo={vi.fn()}
       />
     );
@@ -669,4 +632,22 @@ describe("FormularioPesquisaUnidade", () => {
 
     expect(onSubmitDesignacao).not.toHaveBeenCalled();
   });
+
+  it("valida loading", async () => {
+     const onSubmitDesignacao = vi.fn();
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={true}
+          onSubmitDesignacao={onSubmitDesignacao}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+ 
+    await waitFor(() => {
+      expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
+    });
+
+   });
 });

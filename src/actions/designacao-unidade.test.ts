@@ -9,10 +9,17 @@ import {
 } from "vitest";
 import axios from "axios";
 import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
+import { cookies } from "next/headers";
 
 vi.mock("axios");
 
 const axiosGetMock = axios.get as Mock;
+vi.mock("axios");
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(),
+}));
+
+const cookiesMock = cookies as Mock;
 
 describe("getDesignacaoUnidadeAction", () => {
   const originalEnv = process.env;
@@ -21,6 +28,8 @@ describe("getDesignacaoUnidadeAction", () => {
     vi.resetAllMocks();
     process.env = { ...originalEnv };
     process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+    const getMock = vi.fn().mockReturnValue({ value: "fake-auth-token" });
+    cookiesMock.mockReturnValue({ get: getMock });
   });
 
   afterAll(() => {
@@ -39,7 +48,13 @@ describe("getDesignacaoUnidadeAction", () => {
 
     expect(axiosGetMock).toHaveBeenCalledWith(
       "https://api.exemplo.com/designacao/unidade",
-      { params: { codigo_ue: "999999" } },
+
+      {
+        headers: {
+          Authorization: "Bearer fake-auth-token",
+        },
+        params: { codigo_ue: "999999" },
+      },
     );
     expect(result).toEqual({ success: true, data: payload });
   });
@@ -91,4 +106,3 @@ describe("getDesignacaoUnidadeAction", () => {
     });
   });
 });
-

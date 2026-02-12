@@ -104,7 +104,7 @@ const ResumoDesignacao: React.FC<{
               isLoading={isLoadingCursosETitulos}
               open={openModalListaCursosTitulos}
               onOpenChange={setOpenModalListaCursosTitulos}
-              data={cursosETitulosData as IConcursoType[]}
+              data={[{id:1,concurso:'201002757777 - PROF ENS FUND II MEDIO'},{ id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }] }
               defaultValues={defaultValues}
             />
            

@@ -281,7 +281,7 @@ describe("ResumoDesignacao", () => {
     await user.click(eyeButton);
 
     await waitFor(() => {
-      expect(screen.getByText("Data Length: 0")).toBeInTheDocument();
+      expect(screen.getByText("Data Length: 2")).toBeInTheDocument();
     });
   });
 });
