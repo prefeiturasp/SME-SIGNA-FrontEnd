@@ -1,4 +1,4 @@
-"use client";
+"use server";
 
 import axios, { AxiosError } from "axios";
 
@@ -6,7 +6,7 @@ import { EsqueciSenhaPayload } from "@/types/recuperarSenha";
 import { ErrorResponse } from "@/types/generic";
 
 export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL??'https://qa-signa.sme.prefeitura.sp.gov.br/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL??'';
 
   try {
     const resp = await axios.post(
@@ -26,7 +26,6 @@ export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
     if (error.response?.data?.detail) {
         message = error.response.data.detail;
     }
-
    
     return {
       success: false,

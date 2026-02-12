@@ -1,7 +1,8 @@
 "use server";
 
 import axios, { AxiosError } from "axios";
-import { DesignacaoUnidadeResponse, DesignacaoUnidadeResult, ErrorResponse } from "@/types/designacao-unidade"; 
+import { DesignacaoUnidadeResponse, DesignacaoUnidadeResult } from "@/types/designacao-unidade"; 
+import { ErrorResponse } from "@/types/generic";
 
 export async function getDesignacaoUnidadeAction(codigo_ue:string): Promise<DesignacaoUnidadeResult> {
     const API_URL = process.env.NEXT_PUBLIC_API_URL!;
