@@ -2,11 +2,16 @@ export type AtualizarEmailRequest = {
     new_email: string;
 };
 
-type Servidor = {
+export type Servidor = {
     rf: string;
     nome: string;
     esta_afastado: boolean;
-    cargoSobreposto: string | null;
+    vinculo_cargo_sobreposto: string;
+    lotacao_cargo_sobreposto: string;
+    cargo_base: string;
+    funcao_atividade: string;
+    cargo_sobreposto: string;
+    cursos_titulos: string;
   };
   
   type Cargo = {
