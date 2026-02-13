@@ -60,9 +60,7 @@ const FormularioPesquisaUnidade = forwardRef<
 ) {
   const { data: dreOptions = [] } = useFetchDREs();
 
-  const [funcionariosOptions, setFuncionariosOptions] = useState<
-    { codigo: string; cargo: string }[]
-  >([]);
+
   const [openModal, setOpenModal] = useState(false);
 
   const form = useForm<FormDesignacaoData>({
@@ -91,29 +89,35 @@ const FormularioPesquisaUnidade = forwardRef<
     }),
     [form],
   );
-  const { mutateAsync, isPending: isLoadingDesiganaçãoUnidade } =
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { mutateAsync, isPending: isLoadingDesiganaçãoUnidade, } =
     useFetchDesignacaoUnidadeMutation();
+
+   const [funcionariosOptions, setFuncionariosOptions] = useState<
+    { codigo: string; cargo: string }[]
+  >([]);
 
   const [designacaoUnidade, setDesignacaoUnidade] =
     useState<DesignacaoUnidadeResponse | null>();
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
- 
+    
     try {
       const response = await mutateAsync(values.ue);
-       if (!response.success) {
-        throw new Error("Não foi possível buscar os dados da unidade");
-      }
-
-      const cargosSelect = response.data.cargos.map((cargo) => ({
-        codigo: cargo.codigoCargo.toString(),
-        cargo: cargo.nomeCargo,
-      }));
-      setFuncionariosOptions(cargosSelect);
-      setDesignacaoUnidade(response.data);
+         if (response.success) {
+          const cargosSelect = response.data.cargos.map((cargo) => ({
+            codigo: cargo.codigoCargo.toString(),
+            cargo: cargo.nomeCargo,
+          }));
+          setFuncionariosOptions(cargosSelect);
+          setDesignacaoUnidade(response.data);
+        } else {
+          setErrorMessage(response.error);
+        }   
+    
     } catch (error) {
-      console.error(error);
+       console.log('error',error);
     }
 
     form.setValue("codigo_estrutura_hierarquica", "");
@@ -128,6 +132,7 @@ const FormularioPesquisaUnidade = forwardRef<
       form.setValue("modulos", '');
       form.setValue("quantidade_turmas", '');
       setFuncionariosOptions([])
+      setErrorMessage(null);
   }
  
   return (
@@ -322,6 +327,14 @@ const FormularioPesquisaUnidade = forwardRef<
           </div>
         </div>
 
+        {errorMessage && (
+                <div className="mt-2 flex items-center gap-2">
+                  <p className="text-sm text-red-600" data-testid="login-error">
+                    {errorMessage}
+                  </p>
+                </div>
+              )}
+
         {funcionariosOptions.length > 0 && (
           <div className="flex flex-col md:flex-row  gap-5">
             <div className="w-full md:w-[20%]">
@@ -415,7 +428,7 @@ const FormularioPesquisaUnidade = forwardRef<
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={!field.value}
+                          disabled={!field.value || !designacaoUnidade?.funcionarios_unidade[field.value]?.servidores[0]}
                           onClick={() => setOpenModalResumoServidor(true)}
                           data-testid="btn-visualizar-servidor"
                         >
