@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
@@ -6,7 +6,56 @@ import FormularioPesquisaUnidade from "./FormularioPesquisaUnidade";
 import * as unidadesActions from "@/actions/unidades";
 import * as designacaoActions from "@/actions/designacao-unidade";
 import { createRef } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { FormularioPesquisaUnidadeRef } from "./FormularioPesquisaUnidade";
+
+
+vi.mock("@/hooks/useDesignacaoUnidade", async () => {
+  const React = await import("react");
+  const actions = await import("@/actions/designacao-unidade");
+
+  const useFetchDesignacaoUnidadeMutationMock = () => {
+    const [isPending, setIsPending] = React.useState(false);
+
+    const mutateAsync = async (codigoUe: string) => {
+      setIsPending(true);
+      try {
+        return await actions.getDesignacaoUnidadeAction(codigoUe);
+      } finally {
+        setIsPending(false);
+      }
+    };
+
+    return { mutateAsync, isPending };
+  };
+
+  return {
+    __esModule: true,
+    default: useFetchDesignacaoUnidadeMutationMock,
+  };
+});
+
+vi.mock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
+  __esModule: true,
+  default: ({ open }: { open: boolean }) =>
+    open ? <div>Detalhamento de turmas</div> : null,
+}));
+
+vi.mock("../ModalResumoServidor/ModalResumoServidor", () => ({
+  __esModule: true,
+  default: ({
+    open,
+    servidor,
+  }: {
+    open: boolean;
+    servidor: { nome?: string; rf?: string };
+  }) =>
+    open ? (
+      <div data-testid="modal-resumo-servidor">
+        {servidor?.nome} - {servidor?.rf}
+      </div>
+    ) : null,
+}));
 
 const renderWithQueryClient = (ui: React.ReactElement) => {
   const queryClient = new QueryClient({
@@ -305,6 +354,33 @@ describe("FormularioPesquisaUnidade", () => {
     consoleErrorSpy.mockRestore();
   });
 
+  it("exibe loading no botão Pesquisar enquanto a mutation está pendente", async () => {
+    const user = userEvent.setup();
+
+    // mantém a mutation pendente
+    getDesignacaoUnidadeSpy.mockReturnValue(
+      new Promise(() => {}) as never
+    );
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    await selectDreAndUe(user);
+
+    const submitBtn = screen.getByRole("button", { name: /Pesquisar/i });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(submitBtn).toBeDisabled();
+      expect(submitBtn.querySelector(".animate-spin")).toBeInTheDocument();
+    });
+  });
+
 
 
   it("permite selecionar funcionário e preenche Cargo sobreposto/Módulos", async () => {
@@ -364,6 +440,102 @@ describe("FormularioPesquisaUnidade", () => {
     expect(screen.getByText("Professor")).toBeInTheDocument();
     expect(screen.getByText("Módulos")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
+  });
+
+  it("habilita visualização do servidor após selecionar funcionário e abre o modal", async () => {
+    const user = userEvent.setup();
+
+    getDesignacaoUnidadeSpy.mockResolvedValue({
+      success: true,
+      data: {
+        cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
+        funcionarios_unidade: {
+          "cargo-1": {
+            codigo_cargo: 1,
+            nome_cargo: "Coordenador",
+            modulo: "2",
+            servidores: [
+              {
+                rf: "123",
+                nome: "Fulano",
+                esta_afastado: false,
+                vinculo_cargo_sobreposto: "string",
+                lotacao_cargo_sobreposto: "string",
+                cargo_base: "string",
+                funcao_atividade: "string",
+                cargo_sobreposto: "Professor",
+                cursos_titulos: "string",
+              },
+            ],
+          },
+        },
+      },
+    } as never);
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    await selectDreAndUe(user);
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+    const viewServidorBtn = await screen.findByTestId("btn-visualizar-servidor");
+    expect(viewServidorBtn).toBeDisabled();
+
+    const funcionariosSelect = await screen.findByTestId("select-funcionarios");
+    await user.click(funcionariosSelect);
+    await clickSelectOption(user, "Coordenador");
+
+    expect(viewServidorBtn).not.toBeDisabled();
+    await user.click(viewServidorBtn);
+
+    expect(await screen.findByTestId("modal-resumo-servidor")).toHaveTextContent(
+      "Fulano - 123"
+    );
+  });
+
+  it("quando não há servidor no cargo selecionado, usa fallback e não ainda permite abrir modal", async () => {
+    const user = userEvent.setup();
+
+    getDesignacaoUnidadeSpy.mockResolvedValue({
+      success: true,
+      data: {
+        cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
+        funcionarios_unidade: {
+          "cargo-1": {
+            codigo_cargo: 1,
+            nome_cargo: "Coordenador",
+            // modulo ausente  
+            servidores: [],
+          },
+        },
+      },
+    } as never);
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    await selectDreAndUe(user);
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+    const funcionariosSelect = await screen.findByTestId("select-funcionarios");
+    await user.click(funcionariosSelect);
+    await clickSelectOption(user, "Coordenador");
+
+    const viewServidorBtn = screen.getByTestId("btn-visualizar-servidor");
+    expect(viewServidorBtn).toBeDisabled();
+    
+    
+      
   });
 
 
@@ -432,7 +604,7 @@ describe("FormularioPesquisaUnidade", () => {
   });
 
 
-  it("não renderiza Cargo sobreposto/Módulos quando retorno não possui dados", async () => {
+  it("quando servidor não possui cargo_sobreposto, preenche com '-'", async () => {
     const user = userEvent.setup();
 
     getDesignacaoUnidadeSpy.mockResolvedValue({
@@ -482,8 +654,13 @@ describe("FormularioPesquisaUnidade", () => {
     await user.click(funcionariosSelect);
     await clickSelectOption(user, "Coordenador");
 
-    expect(screen.queryByText("Cargo sobreposto")).toBeInTheDocument();
-    expect(screen.queryByText("Módulos")).toBeInTheDocument();
+    // InfoItem: <div flex-col> -> <div flex-row><p label/></div> + <p value/>
+    const cargoLabelRow = screen.getByText("Cargo sobreposto").closest("div");
+    const cargoInfoItem = cargoLabelRow?.parentElement;
+    expect(cargoInfoItem).toBeTruthy();
+    if (cargoInfoItem) {
+      expect(within(cargoInfoItem).getByText("-")).toBeInTheDocument();
+    }
   });
 
   it("permite editar código estrutura hierárquica", async () => {
@@ -540,13 +717,11 @@ describe("FormularioPesquisaUnidade", () => {
   it("quando API retorna success:false, trata erro e ainda chama onSubmitDesignacao", async () => {
     const user = userEvent.setup();
     const onSubmitDesignacao = vi.fn();
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+ 
 
     getDesignacaoUnidadeSpy.mockResolvedValue({
       success: false,
-      error: "falha",
+      error: "Erro interno do servidor",
     } as never);
 
     renderWithQueryClient(
@@ -563,19 +738,19 @@ describe("FormularioPesquisaUnidade", () => {
     await waitFor(() => {
       expect(onSubmitDesignacao).toHaveBeenCalled();
     });
-    expect(consoleErrorSpy).toHaveBeenCalled();
+    
+    expect(screen.getByText("Erro interno do servidor")).toBeInTheDocument();
     expect(
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
 
-    consoleErrorSpy.mockRestore();
-  });
+   });
 
-  it("quando API lança exceção, trata erro e ainda chama onSubmitDesignacao", async () => {
+  it("quando API lança exceção, trata erro (catch) e ainda chama onSubmitDesignacao", async () => {
     const user = userEvent.setup();
     const onSubmitDesignacao = vi.fn();
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
+    const consoleLogSpy = vi
+      .spyOn(console, "log")
       .mockImplementation(() => {});
 
     getDesignacaoUnidadeSpy.mockRejectedValue(new Error("boom"));
@@ -594,12 +769,95 @@ describe("FormularioPesquisaUnidade", () => {
     await waitFor(() => {
       expect(onSubmitDesignacao).toHaveBeenCalled();
     });
-    expect(consoleErrorSpy).toHaveBeenCalled();
-    expect(
+     expect(
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
 
-    consoleErrorSpy.mockRestore();
+    expect(consoleLogSpy).toHaveBeenCalledWith("error", expect.any(Error));
+    consoleLogSpy.mockRestore();
+  });
+
+  it("ao trocar a DRE após carregar funcionários, limpa a seção adicional", async () => {
+    const user = userEvent.setup();
+
+    getDesignacaoUnidadeSpy.mockResolvedValue({
+      success: true,
+      data: {
+        cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
+        funcionarios_unidade: {
+          "cargo-1": {
+            codigo_cargo: 1,
+            nome_cargo: "Coordenador",
+            modulo: "1",
+            servidores: [
+              {
+                rf: "123",
+                nome: "Fulano",
+                esta_afastado: false,
+                vinculo_cargo_sobreposto: "string",
+                lotacao_cargo_sobreposto: "string",
+                cargo_base: "string",
+                funcao_atividade: "string",
+                cargo_sobreposto: "Professor",
+                cursos_titulos: "string",
+              },
+            ],
+          },
+        },
+      },
+    } as never);
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    await selectDreAndUe(user);
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+    expect(await screen.findByTestId("select-funcionarios")).toBeInTheDocument();
+
+    // troca DRE -> deve limpar UE e também sumir com a seção de funcionários
+    const dreSelect = screen.getByTestId("select-dre");
+    await user.click(dreSelect);
+    await clickSelectOption(user, "DRE Norte");
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("select-funcionarios")).not.toBeInTheDocument();
+    });
+  });
+
+  it("ao trocar a UE, limpa mensagem de erro e dados adicionais (limpa_dados_funcionarios)", async () => {
+    const user = userEvent.setup();
+
+    // força erro via success:false
+    getDesignacaoUnidadeSpy.mockResolvedValue({
+      success: false,
+      error: "Falha ao buscar dados",
+    } as never);
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    await selectDreAndUe(user);
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+    expect(await screen.findByText("Falha ao buscar dados")).toBeInTheDocument();
+
+    // troca UE -> deve limpar mensagem de erro
+    const ueCombobox = screen.getByTestId("select-ue");
+    await user.click(ueCombobox);
+    await user.click(await screen.findByText("Escola Municipal B"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Falha ao buscar dados")).not.toBeInTheDocument();
+    });
   });
 
   it("renderiza botão de visualização de turmas e abre o modal", async () => {
@@ -649,6 +907,145 @@ describe("FormularioPesquisaUnidade", () => {
     expect(
       await screen.findByText("Detalhamento de turmas")
     ).toBeInTheDocument();
+  });
+
+  it("coverage: usa fallback '-' no DetalhamentoTurmasModal quando valores são nullish", async () => {
+    // Esse teste é isolado para cobrir branches de `?? "-"` que são inalcançáveis
+    // com os valores padrão do react-hook-form (que sempre inicializa como string vazia).
+    vi.resetModules();
+
+    vi.doMock("@/hooks/useUnidades", () => ({
+      useFetchDREs: () => ({ data: [] }),
+      useFetchUEs: () => ({ data: [], isLoading: false }),
+    }));
+
+    vi.doMock("@/hooks/useDesignacaoUnidade", () => ({
+      __esModule: true,
+      default: () => ({ mutateAsync: vi.fn(), isPending: false }),
+    }));
+
+    vi.doMock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
+      __esModule: true,
+      default: ({
+        dre,
+        unidadeEscolar,
+        qtdTotalTurmas,
+      }: {
+        dre: string;
+        unidadeEscolar: string;
+        qtdTotalTurmas: string;
+      }) => (
+        <div data-testid="detalhamento-props">
+          {dre}|{unidadeEscolar}|{qtdTotalTurmas}
+        </div>
+      ),
+    }));
+
+    vi.doMock("@/components/ui/form", () => ({
+      Form: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormField: ({
+        render,
+      }: {
+        render: (args: {
+          field: { value: string; onChange: (v: string) => void };
+        }) => ReactNode;
+      }) => render({ field: { value: "", onChange: vi.fn() } }),
+      FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormLabel: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormMessage: () => null,
+    }));
+
+    vi.doMock("@/components/ui/select", () => ({
+      Select: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      SelectTrigger: ({ children }: { children: ReactNode }) => <button>{children}</button>,
+      SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
+      SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      SelectItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    }));
+
+    vi.doMock("@/components/ui/Combobox", () => ({
+      Combobox: () => <div data-testid="mock-combobox" />,
+    }));
+
+    vi.doMock("@/components/ui/button", () => ({
+      Button: (
+        props: ButtonHTMLAttributes<HTMLButtonElement> & { children?: ReactNode },
+      ) => {
+        const { children, ...rest } = props;
+        return <button {...rest}>{children}</button>;
+      },
+    }));
+
+    vi.doMock("@/components/ui/input-base", () => ({
+      InputBase: () => <input />,
+    }));
+
+    vi.doMock("../ResumoDesignacao", () => ({
+      InfoItem: ({ label, value }: { label: string; value?: string }) => (
+        <div>
+          <span>{label}</span>
+          <span>{value}</span>
+        </div>
+      ),
+    }));
+
+    vi.doMock("@/assets/icons/Eye", () => ({
+      __esModule: true,
+      default: () => <svg />,
+    }));
+
+    vi.doMock("../ModalResumoServidor/ModalResumoServidor", () => ({
+      __esModule: true,
+      default: () => null,
+    }));
+
+    vi.doMock("react-hook-form", () => ({
+      useForm: () => ({
+        resolver: undefined,
+        defaultValues: {},
+        mode: "onChange",
+        watch: () => ({
+          dre: undefined,
+          ue: undefined,
+          funcionarios_da_unidade: "",
+          quantidade_turmas: undefined,
+          codigo_estrutura_hierarquica: "",
+          cargo_sobreposto: "",
+          modulos: "",
+        }),
+        handleSubmit:
+          (fn: (values: Record<string, unknown>) => unknown) =>
+          (e?: { preventDefault?: () => void }) => {
+            e?.preventDefault?.();
+          return fn({
+            dre: undefined,
+            ue: undefined,
+            funcionarios_da_unidade: "",
+            quantidade_turmas: undefined,
+            codigo_estrutura_hierarquica: "",
+            cargo_sobreposto: "",
+            modulos: "",
+          });
+        },
+        control: {},
+        clearErrors: vi.fn(),
+        setValue: vi.fn(),
+        getValues: vi.fn(() => ({})),
+      }),
+    }));
+
+    const { default: FormularioPesquisaUnidadeIsolated } = await import("./FormularioPesquisaUnidade");
+
+    renderWithQueryClient(
+      <FormularioPesquisaUnidadeIsolated
+        isLoading={false}
+        onSubmitDesignacao={vi.fn()}
+        setDisableProximo={vi.fn()}
+      />
+    );
+
+    expect(screen.getByTestId("detalhamento-props")).toHaveTextContent("-|-|-");
   });
 
   it("expõe getValues via ref", async () => {

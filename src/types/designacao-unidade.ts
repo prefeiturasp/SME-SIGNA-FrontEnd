@@ -28,12 +28,24 @@ export type Servidor = {
   };
 
   
+  type Turma = {
+    por_turno: {
+      integral: string;
+      manha: string;
+      tarde: string;
+      noite: string;
+      vespertino: string;
+      
+    };
+    total: number;
+  };
   
-  
+
 
 export type DesignacaoUnidadeResponse = {
   funcionarios_unidade: { [codigo: string]: Cargo };
   cargos: CargoSelect[];
+  turmas: Turma[];
 };
 
  
