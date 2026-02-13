@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 
  
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
-import { IConcursoType } from "@/types/cursos-e-titulos";
 import useCursosETitulos from "@/hooks/useCursosETitulos";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
