@@ -105,8 +105,7 @@ const FormularioPesquisaUnidade = forwardRef<
     
     try {
       const response = await mutateAsync(values.ue);
-        console.log('response',response);
-        if (response.success) {
+         if (response.success) {
           const cargosSelect = response.data.cargos.map((cargo) => ({
             codigo: cargo.codigoCargo.toString(),
             cargo: cargo.nomeCargo,
