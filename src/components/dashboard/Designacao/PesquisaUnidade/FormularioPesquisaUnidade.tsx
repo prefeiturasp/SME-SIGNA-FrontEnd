@@ -22,9 +22,7 @@ import {
 
 import { Combobox } from "@/components/ui/Combobox";
 
-import formSchemaDesignacao, {
-  FormDesignacaoData,
-} from "./schema";
+import formSchemaDesignacao, { FormDesignacaoData } from "./schema";
 
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
@@ -37,9 +35,11 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
-import { DesignacaoUnidadeResponse, Servidor } from "@/types/designacao-unidade";
+import {
+  DesignacaoUnidadeResponse,
+  Servidor,
+} from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
-
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
@@ -48,15 +48,21 @@ export interface FormularioPesquisaUnidadeRef {
 interface Props {
   readonly onSubmitDesignacao: (values: FormDesignacaoData) => void;
   readonly setDisableProximo: (disable: boolean) => void;
+  isLoading: boolean;
 }
 
-
-const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props>(function FormularioPesquisaUnidade({
-  onSubmitDesignacao,
-  setDisableProximo
-}: Props, ref) {
+const FormularioPesquisaUnidade = forwardRef<
+  FormularioPesquisaUnidadeRef,
+  Props
+>(function FormularioPesquisaUnidade(
+  { onSubmitDesignacao, setDisableProximo, isLoading }: Props,
+  ref,
+) {
   const { data: dreOptions = [] } = useFetchDREs();
-  const [funcionariosOptions, setFuncionariosOptions] = useState<{ rf: string; nome: string }[]>([])
+
+  const [funcionariosOptions, setFuncionariosOptions] = useState<
+    { codigo: string; cargo: string }[]
+  >([]);
   const [openModal, setOpenModal] = useState(false);
 
   const form = useForm<FormDesignacaoData>({
@@ -74,55 +80,82 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
   });
 
   const values = form.watch();
-  const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(values.dre);
+  const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
+    values.dre,
+  );
+ 
+  useImperativeHandle(
+    ref,
+    () => ({
+      getValues: () => form.getValues(),
+    }),
+    [form],
+  );
+  const { mutateAsync, isPending: isLoadingDesiganaçãoUnidade } =
+    useFetchDesignacaoUnidadeMutation();
 
-
-  useImperativeHandle(ref, () => ({
-    getValues: () => form.getValues(),
-  }), [form])
-  const { mutateAsync } = useFetchDesignacaoUnidadeMutation();
-
-  const [designacaoUnidade, setDesignacaoUnidade] = useState<DesignacaoUnidadeResponse | null>();
+  const [designacaoUnidade, setDesignacaoUnidade] =
+    useState<DesignacaoUnidadeResponse | null>();
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
+ 
     try {
       const response = await mutateAsync(values.ue);
-      if (!response.success) {
+       if (!response.success) {
         throw new Error("Não foi possível buscar os dados da unidade");
       }
 
-
       const cargosSelect = response.data.cargos.map((cargo) => ({
-        rf: cargo.codigoCargo,
-        nome: cargo.nomeCargo,
+        codigo: cargo.codigoCargo.toString(),
+        cargo: cargo.nomeCargo,
       }));
-      setFuncionariosOptions(cargosSelect)
+      setFuncionariosOptions(cargosSelect);
       setDesignacaoUnidade(response.data);
-
     } catch (error) {
       console.error(error);
     }
 
-    form.setValue("codigo_estrutura_hierarquica", '');
-    form.setValue("quantidade_turmas", '-');
+    form.setValue("codigo_estrutura_hierarquica", "");
+    form.setValue("quantidade_turmas", "-");
 
     onSubmitDesignacao(values);
+  };
+  const limpa_dados_funcionarios=()=>{                          
+      form.setValue("funcionarios_da_unidade", '');
+      form.setValue("codigo_estrutura_hierarquica", '');
+      form.setValue("cargo_sobreposto", '');
+      form.setValue("modulos", '');
+      form.setValue("quantidade_turmas", '');
+      setFuncionariosOptions([])
   }
-
-
-
+ 
   return (
+    <>
+    {isLoading ? (
+      <div className="flex justify-center h-full">
+        <Loader2
+          data-testid="loading-spinner"
+          className="
+        h-16 w-16 text-primary 
+        animate-spin 
+       "
+        />
+      </div>
+    ) : (
     <Form {...form}>
-      {
-        values.funcionarios_da_unidade && designacaoUnidade && (
-          <ModalResumoServidor
-            isLoading={false}
-            open={openModalResumoServidor}
-            onOpenChange={setOpenModalResumoServidor}
-            servidor={designacaoUnidade?.funcionarios_unidade[values.funcionarios_da_unidade]?.servidores[0] || {} as Servidor}
-          />
-        )}
+      {values.funcionarios_da_unidade && designacaoUnidade && (
+        <ModalResumoServidor
+          isLoading={false}
+          open={openModalResumoServidor}
+          onOpenChange={setOpenModalResumoServidor}
+          servidor={
+            designacaoUnidade?.funcionarios_unidade[
+              values.funcionarios_da_unidade
+            ]?.servidores[0] || ({} as Servidor)
+          }
+        />
+      )}
 
       <DetalhamentoTurmasModal
         open={openModal}
@@ -178,7 +211,6 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
         className="flex flex-col gap-8"
       >
         <div className="flex flex-col md:flex-row gap-5">
-
           <div className="w-full md:w-[20%]">
             <FormField
               control={form.control}
@@ -195,7 +227,8 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                         field.onChange(value);
                         form.clearErrors();
                         form.setValue("ue", "");
-                        setDisableProximo(true);
+
+                        setFuncionariosOptions([]);
                       }}
                     >
                       <SelectTrigger data-testid="select-dre">
@@ -204,11 +237,18 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
 
                       <SelectContent>
                         {dreOptions.map(
-                          (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => (
-                            <SelectItem key={dre.siglaDRE} value={dre.codigoDRE}>
+                          (dre: {
+                            codigoDRE: string;
+                            nomeDRE: string;
+                            siglaDRE: string;
+                          }) => (
+                            <SelectItem
+                              key={dre.siglaDRE}
+                              value={dre.codigoDRE}
+                            >
                               {dre.nomeDRE}
                             </SelectItem>
-                          )
+                          ),
                         )}
                       </SelectContent>
                     </Select>
@@ -224,7 +264,7 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
               control={form.control}
               name="ue"
               render={({ field }) => (
-                <FormItem >
+                <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
                     Unidade escolar
                   </FormLabel>
@@ -239,13 +279,15 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                           (ue: { codigoEol: string; nomeOficial: string }) => ({
                             label: ue.nomeOficial,
                             value: ue.codigoEol,
-                          })
+                          }),
                         )}
                         value={field.value}
                         onChange={(value) => {
                           field.onChange(value);
-                          setDisableProximo(false);
+
                           form.clearErrors();
+                          //clear screen data                                                   
+                          limpa_dados_funcionarios()
                         }}
                         placeholder="Digite o nome da UE"
                         disabled={!values.dre}
@@ -260,15 +302,24 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
           </div>
 
           <div className="w-[150px] pt-[2rem] ">
-            <Button type="submit" className="w-full flex items-center justify-center gap-6" variant="customOutline">
-
-              <p className="text-[16px] font-bold">Pesquisar</p>
-              <Search />
+            <Button
+              type="submit"
+              className="w-full flex items-center justify-center gap-6"
+              variant="customOutline"
+              disabled={isLoadingDesiganaçãoUnidade}
+            >
+              {isLoadingDesiganaçãoUnidade ? (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary " />
+                </div>
+              ) : (
+                <>
+                  <p className="text-[16px] font-bold">Pesquisar</p>
+                  <Search />
+                </>
+              )}
             </Button>
           </div>
-
-
-
         </div>
 
         {funcionariosOptions.length > 0 && (
@@ -304,13 +355,14 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                 icon={
                   <Button
                     variant="ghost"
-                    size="icon" onClick={() =>
-                      setOpenModal(true)}
-                    data-testid="btn-visualizar-turmas">
+                    size="icon"
+                    onClick={() => setOpenModal(true)}
+                    data-testid="btn-visualizar-turmas"
+                  >
                     <Eye width={16} height={16} />
-                  </Button>}
+                  </Button>
+                }
               />
-
             </div>
 
             <div className="w-full md:w-[75%]">
@@ -323,44 +375,50 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                       Funcionários da unidade
                     </FormLabel>
                     <FormControl>
-
                       <div className="flex flex-row gap-2">
                         <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          const cargoSobreposto = designacaoUnidade?.funcionarios_unidade[value]?.servidores[0]?.cargo_sobreposto ?? "";
-                          const modulo = designacaoUnidade?.funcionarios_unidade[value]?.modulo ?? "";
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            const cargoSobreposto =
+                              designacaoUnidade?.funcionarios_unidade[value]
+                                ?.servidores[0]?.cargo_sobreposto ?? "-";
+                            const modulo =
+                              designacaoUnidade?.funcionarios_unidade[value]
+                                ?.modulo ?? "";
 
+                            form.setValue("cargo_sobreposto", cargoSobreposto);
+                            form.setValue("modulos", modulo);
+                          }}
+                        >
+                          <SelectTrigger data-testid="select-funcionarios">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
 
-
-                          form.setValue("cargo_sobreposto", cargoSobreposto);
-                          form.setValue("modulos", modulo);
-                        }}
-                      >
-                        <SelectTrigger data-testid="select-funcionarios">
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                          {funcionariosOptions.map(
-                            (funcionario: { rf: string; nome: string; }) => (
-                              <SelectItem key={funcionario.rf} value={funcionario.rf}>
-                                {funcionario.nome}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
+                          <SelectContent>
+                            {funcionariosOptions.map(
+                              (funcionario: {
+                                codigo: string;
+                                cargo: string;
+                              }) => (
+                                <SelectItem
+                                  key={funcionario.cargo}
+                                  value={funcionario.codigo}
+                                >
+                                  {funcionario.cargo}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
 
                         <Button
                           variant="ghost"
-                          size="icon" 
+                          size="icon"
                           disabled={!field.value}
-                          onClick={() =>
-                            setOpenModalResumoServidor(true)
-                          }
-                          data-testid="btn-visualizar-servidor">
+                          onClick={() => setOpenModalResumoServidor(true)}
+                          data-testid="btn-visualizar-servidor"
+                        >
                           <Eye width={16} height={16} />
                         </Button>
                       </div>
@@ -370,21 +428,16 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
                 )}
               />
             </div>
-
-
-
           </div>
         )}
 
-
-
-
-        {form.watch("cargo_sobreposto") && form.watch("modulos") && (
+        {funcionariosOptions.length > 0 && (
           <div className="flex flex-row">
-
-
             <div className="w-full md:w-[19.5%]">
-              <InfoItem label="Cargo sobreposto" value={form.watch("cargo_sobreposto")} />
+              <InfoItem
+                label="Cargo sobreposto"
+                value={form.watch("cargo_sobreposto")}
+              />
             </div>
 
             <div className="w-full md:w-[15%] ">
@@ -394,6 +447,8 @@ const FormularioPesquisaUnidade = forwardRef<FormularioPesquisaUnidadeRef, Props
         )}
       </form>
     </Form>
+    )}
+    </>
   );
 });
 

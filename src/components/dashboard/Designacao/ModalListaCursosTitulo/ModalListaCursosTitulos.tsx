@@ -68,6 +68,7 @@ export default function ModalListaCursosTitulos({
 
                 <div className="h-[400px] overflow-y-auto">
                     <Table<IConcursoType>
+                        rowKey={(record) => record.id}
                         loading={isLoading}
                         columns={columns}
                         dataSource={data}

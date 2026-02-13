@@ -91,6 +91,7 @@ export default function DesignacoesPasso1() {
           <Card title={<span className="text-[#6058A2]">Pesquisa da unidade</span>}
             className=" mt-4 m-0 ">
             <FormularioPesquisaUnidade
+              isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
               onSubmitDesignacao={onSubmitDesignacao}
               setDisableProximo={setDisableProximo}
