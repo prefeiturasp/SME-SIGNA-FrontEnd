@@ -1,16 +1,20 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
  import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
  
  
 const useFetchDesignacaoUnidadeMutation = () => {
-     const queryClient = useQueryClient();
+     
     return useMutation({
       mutationFn: (codigo_ue:string) => getDesignacaoUnidadeAction( codigo_ue ),
       onSuccess: (response) => {
-        if (!response.success) return;
+         if (!response.success) {
+           throw new Error(
+              response.error || "Não foi possível buscar os dados da unidade"
+          );
+      }
+      return response.data;
         
-        queryClient.invalidateQueries({ queryKey: ["me"] });
-       },
+       }
     });
   };
   
