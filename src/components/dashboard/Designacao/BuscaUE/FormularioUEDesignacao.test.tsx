@@ -205,8 +205,8 @@ describe('FormularioUEDesignacao', () => {
 
     mockUseFetchUEs.mockReturnValue({
       data: [
-        { codigoEol: 'ue-codigoEol-1', nomeOficial: 'UE 1' },
-        { codigoEol: 'ue-codigoEol-2', nomeOficial: 'UE 2' },
+        { codigoEscola: 'ue-codigoEscola-1', nomeEscola: 'UE 1' },
+        { codigoEscola: 'ue-codigoEol-2', nomeEscola: 'UE 2' },
       ],
     });
   });
@@ -303,8 +303,8 @@ describe('FormularioUEDesignacao', () => {
     
     mockUseFetchUEs.mockReturnValue({
       data: [
-        { codigoEol: 'ue-codigoEol-1', nomeOficial: 'UE 1 da DRE Selecionada' },
-        { codigoEol: 'ue-codigoEol-2', nomeOficial: 'UE 2 da DRE Selecionada' },
+        { codigoEscola: 'ue-codigoEol-1', nomeEscola: 'UE 1 da DRE Selecionada', siglaTipoEscola: 'EMEI' },
+        { codigoEscola: 'ue-codigoEol-2', nomeEscola: 'UE 2 da DRE Selecionada', siglaTipoEscola: 'EMEF'},
       ],
     });
 
@@ -337,11 +337,11 @@ describe('FormularioUEDesignacao', () => {
     const ueOptions = JSON.parse(selectUE.getAttribute('data-options') || '[]');
     expect(ueOptions).toHaveLength(2);
     expect(ueOptions[0]).toEqual({
-      label: 'UE 1 da DRE Selecionada',
+      label: 'EMEI - UE 1 da DRE Selecionada',
       value: 'ue-codigoEol-1',
     });
     expect(ueOptions[1]).toEqual({
-      label: 'UE 2 da DRE Selecionada',
+      label: 'EMEF - UE 2 da DRE Selecionada',
       value: 'ue-codigoEol-2',
     });
 
