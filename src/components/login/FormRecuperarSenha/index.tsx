@@ -4,7 +4,6 @@ import  { useState } from "react";
 
 import { CustomAlert as Alert } from "@/components/ui/CustomAlert";
 
-import Image from "next/image";
 import { HelpCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
@@ -52,18 +51,17 @@ export default function RecuperarSenha() {
   const onSubmit = async (values:EsqueciSenhaRequest) => {
     const response = await fazRecuperarSenha({ username: values.seu_rf });
     if (!response.success) {
-      setMensagemDeErro(response.error);
-      setMensagemDeErro({
-        message: "E-mail não encontrado!",
-        description:
-          "Para resolver este problema, entre em contato com o Gabinete da Diretoria Regional de Educação (DRE).",
+      
+       setMensagemDeErro({
+        message: "",
+        description: response.error,
       });
       setMostarCampoRFOuCPF(false);
       return;
     }
-    setMensagemDeSucesso({
-      message: "Seu link de recuperação de senha foi enviado",
-      description: "Verifique sua caixa de entrada ou lixo eletrônico!",
+     setMensagemDeSucesso({
+      message: '',
+      description: response.message,
     });
 
     setMostarCampoRFOuCPF(false);

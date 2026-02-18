@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import DashboardLayout from "@/app/dashboard/layout";
+import DashboardLayout from "@/app/pages/layout";
 import { useUserStore } from "@/stores/useUserStore";
 
 vi.mock("next/navigation", () => ({
@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
         replace: vi.fn(),
         prefetch: vi.fn(),
     }),
-    usePathname: () => "/dashboard",
+    usePathname: () => "/pages",
 }));
 
 const mockUser = {

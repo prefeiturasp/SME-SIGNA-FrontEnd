@@ -59,15 +59,15 @@ describe("proxy middleware", () => {
 
     describe("rotas protegidas", () => {
         it("redireciona para / quando não autenticado e acessando dashboard", () => {
-            const request = createMockRequest("/dashboard", false);
+            const request = createMockRequest("/pages", false);
             const response = proxy(request);
 
             expect(response.status).toBe(307);
             expect(response.headers.get("location")).toBe("http://localhost:3000/");
         });
 
-        it("permite acesso ao dashboard quando autenticado", () => {
-            const request = createMockRequest("/dashboard", true);
+        it("permite acesso ao pages quando autenticado", () => {
+            const request = createMockRequest("/pages", true);
             const response = proxy(request);
 
             // Quando autenticado e acessando rota privada, passa normalmente
@@ -76,28 +76,28 @@ describe("proxy middleware", () => {
     });
 
     describe("redirecionamentos quando autenticado", () => {
-        it("redireciona para /dashboard quando autenticado e acessando /", () => {
+        it("redireciona para /pages quando autenticado e acessando /", () => {
             const request = createMockRequest("/", true);
             const response = proxy(request);
 
             expect(response.status).toBe(307);
-            expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard");
+            expect(response.headers.get("location")).toBe("http://localhost:3000/pages");
         });
 
-        it("redireciona para /dashboard quando autenticado e acessando /cadastro", () => {
+        it("redireciona para /pages quando autenticado e acessando /cadastro", () => {
             const request = createMockRequest("/cadastro", true);
             const response = proxy(request);
 
             expect(response.status).toBe(307);
-            expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard");
+            expect(response.headers.get("location")).toBe("http://localhost:3000/pages");
         });
 
-        it("redireciona para /dashboard quando autenticado e acessando /recuperar-senha", () => {
+        it("redireciona para /pages quando autenticado e acessando /recuperar-senha", () => {
             const request = createMockRequest("/recuperar-senha", true);
             const response = proxy(request);
 
             expect(response.status).toBe(307);
-            expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard");
+            expect(response.headers.get("location")).toBe("http://localhost:3000/pages");
         });
     });
 

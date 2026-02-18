@@ -16,7 +16,7 @@ import { InputBase } from "@/components/ui/input-base";
 import { Search } from "lucide-react";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
-
+ 
  
 
 
@@ -37,24 +37,26 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
   };
 
   return (
+
     <div className={className}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full flex flex-col h-full flex-1 my-4 py-4"
+          className="w-full flex flex-col h-full flex-1 "
         >
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-[80%] lg:w-[90%]">
+            <div className="w-full md:w-[50%]">
               <FormField
                 control={form.control}
                 name="rf"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] font-bold">
-                      RF do servidor
+                    RF do titular
                     </FormLabel>
                     <FormControl>
                       <InputBase
+                        type="number"
                         className="medium-input"
                         {...field}
                         placeholder="Entre com RF"
@@ -69,7 +71,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
             </div>
          
             <div className="w-[200px] pt-[2rem] ">
-              <Button type="submit" size="lg"  className="w-full flex items-center justify-center gap-6" variant="destructive">
+              <Button type="submit" size="lg"  className="w-full flex items-center justify-center gap-6" variant="customOutline">
                 
                 <p className="text-[16px] font-bold">Pesquisar</p>
                 <Search />
@@ -79,6 +81,8 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
         </form>
       </Form>
     </div>
+ 
+
   );
 };
 

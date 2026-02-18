@@ -8,9 +8,11 @@ import Designacao from "@/assets/icons/Designacao";
 import { BuscaServidorDesignacaoBody, ResumoDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+import { useDesignacaoContext } from "../DesignacaoContext";
 
 export default function Designacoes() {
   const searchParams = useSearchParams();
+  const { formDesignacaoData } = useDesignacaoContext();
 
   const servidorSelecionado = useMemo(() => {
     const payload = searchParams.get("payload");
@@ -26,6 +28,7 @@ export default function Designacoes() {
 
   const onSubmitDesignacao = (values: ResumoDesignacaoBody) => {
     console.log("Dados da designação", values);
+    console.log("Dados da etapa 1", formDesignacaoData);
     console.log("Servidor selecionado no passo 1", servidorSelecionado);
   };
   return (

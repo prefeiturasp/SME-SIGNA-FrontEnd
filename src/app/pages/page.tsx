@@ -12,24 +12,28 @@ const modules = [
         title: "Designação",
         description: "Realize a pesquisa e validação de servidores para verificar a aptidão e efetuar a designação para cargos ou funções disponíveis.",
         icon: ListIcon,
+        url: "/pages/designacoes/designacoes-passo-1",
     },
     {
         id: "nomeacao",
         title: "Nomeação",
         description: "Gerencie os processos de nomeação, acompanhando etapas, registros e informações necessárias para formalização do vínculo.",
         icon: UserEditIcon,
+        url: "",
     },
     {
         id: "protocolo",
         title: "Protocolo",
         description: "Registre, acompanhe e consulte protocolos, garantindo o controle e a rastreabilidade das solicitações e documentos.",
         icon: FileSignatureIcon,
+        url: "",
     },
     {
         id: "apoio",
         title: "Apoio administrativo",
         description: "Registre, acompanhe e consulte protocolos, garantindo o controle e a rastreabilidade das solicitações e documentos.",
         icon: ApoioIcon,
+        url: "",
     },
 ];
 

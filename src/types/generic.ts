@@ -3,3 +3,7 @@ export type Mensagem = {
     description?: string;
   };
   
+
+export interface ErrorResponse {
+  detail: string;
+}

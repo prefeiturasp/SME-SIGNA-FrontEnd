@@ -26,6 +26,7 @@ interface ComboboxProps {
     placeholder?: string;
     disabled?: boolean;
     className?: string;
+    "data-testid"?: string;
 }
 
 export function Combobox({
@@ -35,6 +36,7 @@ export function Combobox({
     placeholder = "Selecione...",
     disabled = false,
     className,
+    "data-testid": dataTestId,
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false);
     const selected = options.find((opt) => opt.value === value);
@@ -44,7 +46,7 @@ export function Combobox({
             <PopoverTrigger asChild>
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="customOutline"
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
@@ -52,6 +54,7 @@ export function Combobox({
                         className
                     )}
                     disabled={disabled}
+                    data-testid={dataTestId}
                 >
                     {selected ? (
                         selected.label

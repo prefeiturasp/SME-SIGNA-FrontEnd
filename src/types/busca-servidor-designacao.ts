@@ -6,14 +6,10 @@ export interface BuscaServidorDesignacaoBody {
     vinculo_cargo_sobreposto: string;
     lotacao_cargo_sobreposto: string;
     cargo_base: string;
-    aulas_atribuidas: string;
     funcao_atividade: string;
     cargo_sobreposto: string;
     cursos_titulos: string;
-    estagio_probatorio: string;
-    aprovado_em_concurso: string;
-    laudo_medico: string;
-}
+  }
 export interface ResumoDesignacaoBody {
     nome_da_unidade: string;
     estrutura_hierarquica?: string;
