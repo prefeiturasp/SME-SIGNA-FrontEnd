@@ -704,11 +704,9 @@ describe("FormularioPesquisaUnidade", () => {
 
     await selectDreAndUe(user);
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
-
     const codigoInput = (await screen.findByTestId(
       "input-codigo"
     )) as HTMLInputElement;
-
     await user.clear(codigoInput);
     await user.type(codigoInput, "999999");
 
