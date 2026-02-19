@@ -35,10 +35,7 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
-import {
-  DesignacaoUnidadeResponse,
-  Servidor,
-} from "@/types/designacao-unidade";
+import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 
 export interface FormularioPesquisaUnidadeRef {
@@ -154,10 +151,10 @@ const FormularioPesquisaUnidade = forwardRef<
           isLoading={false}
           open={openModalResumoServidor}
           onOpenChange={setOpenModalResumoServidor}
-          servidor={
+          servidores={
             designacaoUnidade?.funcionarios_unidade[
               values.funcionarios_da_unidade
-            ]?.servidores[0] || ({} as Servidor)
+            ]?.servidores || []
           }
         />
       )}

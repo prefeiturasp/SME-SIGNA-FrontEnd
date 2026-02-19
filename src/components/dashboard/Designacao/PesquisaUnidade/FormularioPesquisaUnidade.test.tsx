@@ -45,14 +45,14 @@ vi.mock("../ModalResumoServidor/ModalResumoServidor", () => ({
   __esModule: true,
   default: ({
     open,
-    servidor,
+    servidores,
   }: {
     open: boolean;
-    servidor: { nome?: string; rf?: string };
+    servidores: { nome?: string; rf?: string }[];
   }) =>
     open ? (
       <div data-testid="modal-resumo-servidor">
-        {servidor?.nome} - {servidor?.rf}
+        {servidores?.[0]?.nome} - {servidores?.[0]?.rf}
       </div>
     ) : null,
 }));
@@ -704,11 +704,9 @@ describe("FormularioPesquisaUnidade", () => {
 
     await selectDreAndUe(user);
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
-
     const codigoInput = (await screen.findByTestId(
       "input-codigo"
     )) as HTMLInputElement;
-
     await user.clear(codigoInput);
     await user.type(codigoInput, "999999");
 
