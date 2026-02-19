@@ -281,10 +281,10 @@ const FormularioPesquisaUnidade = forwardRef<
                     ) : (
                       <Combobox
                         options={ueOptions.map(
-                          (ue: { codigoEol: string; nomeOficial: string }) => ({
-                            label: ue.nomeOficial,
-                            value: ue.codigoEol,
-                          }),
+                        (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
+                            label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
+                            value: ue.codigoEscola,
+                        })
                         )}
                         value={field.value}
                         onChange={(value) => {

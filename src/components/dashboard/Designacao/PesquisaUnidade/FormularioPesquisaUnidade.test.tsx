@@ -77,8 +77,8 @@ const dreOptions = [
 ];
 
 const ueOptions = [
-  { codigoEol: "ue-1", nomeOficial: "Escola Municipal A" },
-  { codigoEol: "ue-2", nomeOficial: "Escola Municipal B" },
+  { codigoEscola: 'ue-1', nomeEscola: 'UE 1 da DRE Selecionada', siglaTipoEscola: 'EMEI' },
+  { codigoEscola: 'ue-2', nomeEscola: 'UE 2 da DRE Selecionada', siglaTipoEscola: 'EMEF' },
 ];
 
 const clickSelectOption = async (
@@ -96,26 +96,27 @@ describe("FormularioPesquisaUnidade", () => {
   let getDesignacaoUnidadeSpy: ReturnType<typeof vi.spyOn>;
 
   async function selectDreAndUe(
-    user: ReturnType<typeof userEvent.setup>,
-    dreName = "DRE Sul",
-    ueName = "Escola Municipal A"
-  ) {
-    await waitFor(() => {
-      expect(getDREsSpy).toHaveBeenCalled();
-    });
+  user: ReturnType<typeof userEvent.setup>,
+  dreName = "DRE Sul",
+  ueName = "UE 1 da DRE Selecionada",
+  siglaTipoEscola = "EMEI"
+) {
+  await waitFor(() => {
+    expect(getDREsSpy).toHaveBeenCalled();
+  });
 
-    const dreSelect = screen.getByTestId("select-dre");
-    await user.click(dreSelect);
-    await clickSelectOption(user, dreName);
+  const dreSelect = screen.getByTestId("select-dre");
+  await user.click(dreSelect);
+  await clickSelectOption(user, dreName);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("select-ue")).not.toBeDisabled();
-    });
+  await waitFor(() => {
+    expect(screen.getByTestId("select-ue")).not.toBeDisabled();
+  });
 
-    const ueCombobox = screen.getByTestId("select-ue");
-    await user.click(ueCombobox);
-    await user.click(await screen.findByText(ueName));
-  }
+  const ueCombobox = screen.getByTestId("select-ue");
+  await user.click(ueCombobox);
+  await user.click(await screen.findByText(`${siglaTipoEscola} - ${ueName}`));
+}
 
   beforeAll(() => {
     if (!Element.prototype.hasPointerCapture) {
@@ -595,7 +596,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   
 
-    await selectDreAndUe(user, "DRE Norte", "Escola Municipal B");
+    await selectDreAndUe(user, "DRE Norte", "UE 2 da DRE Selecionada", "EMEF");
 
 
     expect(screen.queryByText("Cargo sobreposto")).not.toBeInTheDocument();
@@ -853,7 +854,7 @@ describe("FormularioPesquisaUnidade", () => {
     // troca UE -> deve limpar mensagem de erro
     const ueCombobox = screen.getByTestId("select-ue");
     await user.click(ueCombobox);
-    await user.click(await screen.findByText("Escola Municipal B"));
+    await user.click(await screen.findByText("EMEF - UE 2 da DRE Selecionada"));
 
     await waitFor(() => {
       expect(screen.queryByText("Falha ao buscar dados")).not.toBeInTheDocument();
