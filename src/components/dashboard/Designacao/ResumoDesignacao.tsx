@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 
  
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
-import { IConcursoType } from "@/types/cursos-e-titulos";
 import useCursosETitulos from "@/hooks/useCursosETitulos";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
@@ -59,8 +58,8 @@ const ResumoDesignacao: React.FC<{
         </div>
       ) : (
         <div className={className}>
-          <div className="w-full flex flex-col h-full flex-1">
-            <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:items-center lg:text-left gap-4">
+          <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
+            <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
               <InfoItem label="Servidor" value={defaultValues.nome} />
               <InfoItem label="RF" value={defaultValues.rf} />
               <InfoItem label="Função" value={defaultValues.funcao_atividade} />
