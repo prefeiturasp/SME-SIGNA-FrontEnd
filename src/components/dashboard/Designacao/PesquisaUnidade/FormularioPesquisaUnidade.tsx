@@ -133,6 +133,7 @@ const FormularioPesquisaUnidade = forwardRef<
       form.setValue("quantidade_turmas", '');
       setFuncionariosOptions([])
       setErrorMessage(null);
+      setDisableProximo(true);
   }
  
   return (
@@ -291,6 +292,7 @@ const FormularioPesquisaUnidade = forwardRef<
                           field.onChange(value);
 
                           form.clearErrors();
+                          
                           //clear screen data                                                   
                           limpa_dados_funcionarios()
                         }}
@@ -402,6 +404,7 @@ const FormularioPesquisaUnidade = forwardRef<
 
                             form.setValue("cargo_sobreposto", cargoSobreposto);
                             form.setValue("modulos", modulo);
+                            setDisableProximo(false);
                           }}
                         >
                           <SelectTrigger data-testid="select-funcionarios">

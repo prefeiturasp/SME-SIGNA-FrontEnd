@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import Designacoes from "./page";
+import Designacoes from "./page_old";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
 let mockSearchParams: URLSearchParams;

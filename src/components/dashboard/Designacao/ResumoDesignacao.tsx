@@ -7,7 +7,7 @@ import Eye from "@/assets/icons/Eye";
 import { Button } from "@/components/ui/button";
 
 
- 
+
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
 import { IConcursoType } from "@/types/cursos-e-titulos";
 import useCursosETitulos from "@/hooks/useCursosETitulos";
@@ -42,10 +42,10 @@ const ResumoDesignacao: React.FC<{
     setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
   }
 
-  const { isLoading: isLoadingCursosETitulos, data: cursosETitulosData=[] } = useCursosETitulos();
+  const { isLoading: isLoadingCursosETitulos, data: cursosETitulosData = [] } = useCursosETitulos();
 
 
-   return (
+  return (
     <>
       {isLoading ? (
         <div className="flex justify-center h-full">
@@ -61,7 +61,8 @@ const ResumoDesignacao: React.FC<{
         <div className={className}>
           <div className="w-full flex flex-col h-full flex-1">
             <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:items-center lg:text-left gap-4">
-              <InfoItem label="Servidor" value={defaultValues.nome} />
+              <InfoItem label="Nome Servidor" value={defaultValues.nome} />
+              <InfoItem label="Nome Civil" value={defaultValues.nome} />
               <InfoItem label="RF" value={defaultValues.rf} />
               <InfoItem label="Função" value={defaultValues.funcao_atividade} />
               <InfoItem
@@ -79,35 +80,46 @@ const ResumoDesignacao: React.FC<{
                 value={defaultValues.lotacao_cargo_sobreposto}
               />
 
-              {showCursosTitulos && ( 
-              <InfoItem
-                label="Cursos/Títulos"
-                value={defaultValues.cursos_titulos}
-                icon={
-                  <Button
-                  data-testid="btn-visualizar-cursos-titulos"
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleOpenModalListaCursosTitulos}>
-                    <Eye
-                      width={16}
-                      height={16} />
-                  </Button>
-                }
-              />
+              {showCursosTitulos && (
+                <InfoItem
+                  label="Cursos/Títulos"
+                  value={defaultValues.cursos_titulos}
+                  icon={
+                    <Button
+                      data-testid="btn-visualizar-cursos-titulos"
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleOpenModalListaCursosTitulos}>
+                      <Eye
+                        width={16}
+                        height={16} />
+                    </Button>
+                  }
+                />
               )}
- 
+
+              <InfoItem label="DRE" value={defaultValues.dre} />
+
+              <InfoItem
+                label="Unidade"
+                value={defaultValues.unidade}
+              />
+              <InfoItem
+                label="Código"
+                value={defaultValues.codigo}
+              />
+
             </div>
           </div>
 
-            <ModalListaCursosTitulos
-              isLoading={isLoadingCursosETitulos}
-              open={openModalListaCursosTitulos}
-              onOpenChange={setOpenModalListaCursosTitulos}
-              data={[{id:1,concurso:'201002757777 - PROF ENS FUND II MEDIO'},{ id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }] }
-              defaultValues={defaultValues}
-            />
-           
+          <ModalListaCursosTitulos
+            isLoading={isLoadingCursosETitulos}
+            open={openModalListaCursosTitulos}
+            onOpenChange={setOpenModalListaCursosTitulos}
+            data={[{ id: 1, concurso: '201002757777 - PROF ENS FUND II MEDIO' }, { id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }]}
+            defaultValues={defaultValues}
+          />
+
         </div>
       )}
     </>

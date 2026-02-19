@@ -9,6 +9,9 @@ export interface BuscaServidorDesignacaoBody {
     funcao_atividade: string;
     cargo_sobreposto: string;
     cursos_titulos: string;
+    dre: string;
+    unidade: string;
+    codigo: string;
   }
 export interface ResumoDesignacaoBody {
     nome_da_unidade: string;
