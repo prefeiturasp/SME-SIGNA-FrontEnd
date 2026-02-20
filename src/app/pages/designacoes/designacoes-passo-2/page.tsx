@@ -22,7 +22,6 @@ import { useDesignacaoContext } from "../DesignacaoContext";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import formSchemaDesignacaoPasso2, { formSchemaDesignacaoPasso2Data } from "./schema";
-import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
 import Historico from "@/assets/icons/Historico";
 
 
@@ -145,7 +144,7 @@ export default function DesignacoesPasso1() {
                     secondaryColor="#A936AF"
                     value="portarias-designacao"
                   >
-                    <PortariaDesigacaoFields setDisableProximo={setDisableProximo} isLoading={false} />
+                    teste
                   </CustomAccordionItem>
 
 
