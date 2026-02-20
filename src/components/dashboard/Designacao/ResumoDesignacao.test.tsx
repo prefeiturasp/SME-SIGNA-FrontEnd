@@ -96,13 +96,12 @@ describe("ResumoDesignacao", () => {
     );
 
     const labels = [
-      "Nome Servidor",
-      "Nome Civil",
+      "Servidor",
       "RF",
-      "Função",
       "Vínculo",
       "Lotação",
       "Cargo base",
+      "Função",
       "Cargo sobreposto",
       "Cursos/Títulos",
       "DRE",
