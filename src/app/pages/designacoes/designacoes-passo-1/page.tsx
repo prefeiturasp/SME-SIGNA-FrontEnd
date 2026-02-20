@@ -9,7 +9,6 @@ import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDe
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
 import { useRef, useState } from "react";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import FormularioPesquisaUnidade, {
@@ -18,11 +17,12 @@ import FormularioPesquisaUnidade, {
 import { useDesignacaoContext } from "../DesignacaoContext";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { Servidor } from "@/types/designacao-unidade";
 
 
 export default function DesignacoesPasso1() {
   const { mutateAsync, isPending } = useServidorDesignacao();
-  const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
+  const [data, setData] = useState<Servidor | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [disableProximo, setDisableProximo] = useState(true);
   const formularioPesquisaUnidadeRef = useRef<FormularioPesquisaUnidadeRef | null>(null);
@@ -45,7 +45,7 @@ export default function DesignacoesPasso1() {
   const onSubmitDesignacao = (values: FormDesignacaoData) => {
     console.log("Dados do formulário", values);
   };
-  const onProximo = (data: BuscaServidorDesignacaoBody) => {
+  const onProximo = (data: Servidor) => {
     const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
     if (!valoresFormulario) {
       return;

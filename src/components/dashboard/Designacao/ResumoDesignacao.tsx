@@ -1,6 +1,5 @@
 "use client";
 
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import Eye from "@/assets/icons/Eye";
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
 import useCursosETitulos from "@/hooks/useCursosETitulos";
 import Edit from "@/assets/icons/Edit";
+import { Servidor } from "@/types/designacao-unidade";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,
@@ -31,10 +31,11 @@ const ResumoDesignacao: React.FC<{
   onClickEditar?: () => void;
   showEditar?: boolean;
   className?: string;
-  defaultValues: BuscaServidorDesignacaoBody;
+  defaultValues: Servidor;
   isLoading?: boolean;
   showCursosTitulos?: boolean;
-}> = ({ className, defaultValues, isLoading, showCursosTitulos = true, showEditar = false, onClickEditar }) => {
+  showCamposExtras?: boolean;
+}> = ({ className, defaultValues, isLoading, showCursosTitulos = true, showEditar = false, onClickEditar, showCamposExtras = false }) => {
 
 
 
@@ -101,16 +102,15 @@ const ResumoDesignacao: React.FC<{
                 />
               )}
 
-              <InfoItem label="DRE" value={defaultValues.dre} />
+              {showCamposExtras && (
+                <>
+                  <InfoItem label="DRE" value={defaultValues.dre} />
+                  <InfoItem label="Unidade" value={defaultValues.unidade} />
+                  <InfoItem label="Código" value={defaultValues.codigo} />
+                </>
+              )}
 
-              <InfoItem
-                label="Unidade"
-                value={defaultValues.unidade}
-              />
-              <InfoItem
-                label="Código"
-                value={defaultValues.codigo}
-              />
+
 
             </div>
           </div>

@@ -5,16 +5,19 @@ import { useMutation } from "@tanstack/react-query";
 const useFetchDesignacaoUnidadeMutation = () => {
      
     return useMutation({
-      mutationFn: (codigo_ue:string) => getDesignacaoUnidadeAction( codigo_ue ),
-      onSuccess: (response) => {
-         if (!response.success) {
-           throw new Error(
-              response.error || "Não foi possível buscar os dados da unidade"
-          );
-      }
-      return response.data;
-        
-       }
+      mutationFn: async (codigo_ue: string) => {
+        const response = await getDesignacaoUnidadeAction(codigo_ue);
+
+        if (!response.success) {
+          return {
+            ...response,
+            error:
+              response.error ?? "Não foi possível buscar os dados da unidade",
+          };
+        }
+
+        return response;
+      },
     });
   };
   

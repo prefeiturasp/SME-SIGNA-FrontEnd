@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useMemo, useState } from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { Servidor } from "@/types/designacao-unidade";
 
 
-type FormDesignacaoEServidorIndicado = FormDesignacaoData & { servidorIndicado: BuscaServidorDesignacaoBody };
+type FormDesignacaoEServidorIndicado = FormDesignacaoData & { servidorIndicado: Servidor };
 
 type DesignacaoContextValue = {
   formDesignacaoData: FormDesignacaoEServidorIndicado | null;
@@ -22,24 +22,7 @@ export function DesignacaoProvider({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoEServidorIndicado | null>({
-    "dre": "109300",
-    "ue": "013692",
-    "funcionarios_da_unidade": "3360",
-    "quantidade_turmas": "-",
-    "codigo_estrutura_hierarquica": "",
-    "cargo_sobreposto": "-",
-    "modulos": "1",
-    "servidorIndicado": {
-        "nome": "ADALBERTO PAVLIDIS DA SILVA",
-        "rf": "7311559",
-        "vinculo_cargo_sobreposto": "1",
-        "lotacao_cargo_sobreposto": "JOSE BORGES ANDRADE",
-        "cargo_base": "AUXILIAR TECNICO DE EDUCACAO - v1",
-        "cargo_sobreposto": "SECRETARIO DE ESCOLA - v1",
-        "funcao_atividade": null
-    }
-});
+  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoEServidorIndicado | null>(null);
 
   const value = useMemo(
     () => ({

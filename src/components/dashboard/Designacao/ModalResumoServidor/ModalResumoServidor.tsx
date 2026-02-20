@@ -14,7 +14,7 @@ import ResumoDesignacao from "../ResumoDesignacao";
 import { Separator } from "@/components/ui/separator";
  
 import { Servidor } from "@/types/designacao-unidade";
-
+ 
 type ModalResumoServidorProps = {
     isLoading: boolean;
     open: boolean;
@@ -48,7 +48,7 @@ export default function ModalResumoServidor({
 
                 <Separator className="mt-2" />
                 
-                <ResumoDesignacao defaultValues={servidor} isLoading={isLoading} showCursosTitulos={false} />
+                <ResumoDesignacao defaultValues={servidor } isLoading={isLoading} showCursosTitulos={false} />
 
  
                 <div className="flex justify-end">

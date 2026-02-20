@@ -14,15 +14,10 @@ import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
 import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
 
-import { useRef, useState } from "react";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { useState } from "react";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 
-import{
-  FormularioPesquisaUnidadeRef,
-} from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
-import { useRouter } from "next/navigation";
 
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,22 +51,9 @@ function CustomAccordionItem({ title, children, primaryColor, secondaryColor, va
 
 export default function DesignacoesPasso1() {
   const [disableProximo, setDisableProximo] = useState(true);
-  const formularioPesquisaUnidadeRef = useRef<FormularioPesquisaUnidadeRef | null>(null);
-  const { setFormDesignacaoData, formDesignacaoData } = useDesignacaoContext();
-  const router = useRouter();
+  const { formDesignacaoData } = useDesignacaoContext();
 
 
-
-
-  const onProximo = (data: BuscaServidorDesignacaoBody) => {
-    const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
-    if (!valoresFormulario) {
-      return;
-    }
-    console.log("Dados da unidade selecionada", valoresFormulario);
-    // setFormDesignacaoData(valoresFormulario);
-    router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
-  };
 
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
@@ -152,6 +134,7 @@ export default function DesignacoesPasso1() {
                       showCursosTitulos={false}
                       showEditar={true}
                       onClickEditar={() => {}}
+                      showCamposExtras
                     />
                   </CustomAccordionItem>
 
