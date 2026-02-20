@@ -48,9 +48,6 @@ export default function ModalResumoServidor({
 
                 <Separator className="mt-2" />
                 
-<<<<<<< HEAD
-                <ResumoDesignacao defaultValues={servidor } isLoading={isLoading} showCursosTitulos={false} />
-=======
                 {servidores?.length ? (
                     servidores.map((servidor) => (
                         <ResumoDesignacao
@@ -63,7 +60,6 @@ export default function ModalResumoServidor({
                 ) : (
                     <p>Nenhum servidor encontrado</p>
                 )}
->>>>>>> test
 
                 <div className="flex justify-end">
 
