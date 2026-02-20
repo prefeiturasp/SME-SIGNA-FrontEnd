@@ -35,10 +35,7 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
-import {
-  DesignacaoUnidadeResponse,
-  Servidor,
-} from "@/types/designacao-unidade";
+import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 
 export interface FormularioPesquisaUnidadeRef {
@@ -154,10 +151,10 @@ const FormularioPesquisaUnidade = forwardRef<
           isLoading={false}
           open={openModalResumoServidor}
           onOpenChange={setOpenModalResumoServidor}
-          servidor={
+          servidores={
             designacaoUnidade?.funcionarios_unidade[
               values.funcionarios_da_unidade
-            ]?.servidores[0] || ({} as Servidor)
+            ]?.servidores || []
           }
         />
       )}
@@ -281,10 +278,10 @@ const FormularioPesquisaUnidade = forwardRef<
                     ) : (
                       <Combobox
                         options={ueOptions.map(
-                          (ue: { codigoEol: string; nomeOficial: string }) => ({
-                            label: ue.nomeOficial,
-                            value: ue.codigoEol,
-                          }),
+                        (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
+                            label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
+                            value: ue.codigoEscola,
+                        })
                         )}
                         value={field.value}
                         onChange={(value) => {
