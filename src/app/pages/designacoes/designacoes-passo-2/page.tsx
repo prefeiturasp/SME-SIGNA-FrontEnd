@@ -29,7 +29,7 @@ import Historico from "@/assets/icons/Historico";
 function CustomAccordionItem({ title, children, primaryColor, secondaryColor, value }: { title: string, children: React.ReactNode, primaryColor: string, secondaryColor: string, value: string }) {
 
 
-  return (<AccordionItem value={value} className="border-b-0">
+  return (<AccordionItem value={value} className="border-b-0 mb-5">
     <AccordionTrigger
       className={`mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4  border-l-[${primaryColor}]`}>
       <div className="flex items-center justify-between w-full  ">
