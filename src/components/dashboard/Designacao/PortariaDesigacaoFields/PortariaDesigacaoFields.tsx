@@ -1,7 +1,7 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFormContext } from "react-hook-form";
+
+import {  useFormContext } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -10,7 +10,6 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils"
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -26,29 +25,20 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { Combobox } from "@/components/ui/Combobox";
 
-import formSchemaDesignacao, { FormDesignacaoData } from "./schema";
 
-import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
+
+
+
 
 import { Button } from "@/components/ui/button";
-import { Loader2, Search } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { InputBase } from "@/components/ui/input-base";
-import { InfoItem } from "../ResumoDesignacao";
-import Eye from "@/assets/icons/Eye";
-import { forwardRef, useImperativeHandle, useState } from "react";
+ 
 
-import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
-import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
-import {
-  DesignacaoUnidadeResponse,
-  Servidor,
-} from "@/types/designacao-unidade";
-import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Field, FieldDescription } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 
 
 
@@ -62,11 +52,11 @@ interface Props {
 
 const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
 
- 
+
   const { register, control, formState: { errors } } = useFormContext() // retrieve all hook methods
 
-  
- 
+
+
 
   const anos = Array.from({ length: new Date().getFullYear() - 1980 + 1 },
 
@@ -75,6 +65,25 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
       return { codigo: ano.toString(), nome: ano.toString() }
     }
   )
+
+  const impedimentoSubstituicao = [
+    { codigo: '1', nome: 'por licença gestante' },
+    { codigo: '2', nome: 'por licença médica' },
+    { codigo: '3', nome: 'por licença paternidade' },
+    { codigo: '4', nome: 'por férias' },
+    { codigo: '5', nome: 'por licença maternidade especial' },
+    { codigo: '6', nome: 'por liçença adoção' },
+    { codigo: '7', nome: 'por licença guarda de menor' },
+    { codigo: '8', nome: 'para concorrer a mandato eletivo, nos termos da Portaria nº 20/SEGES/2024 e da Lei Complementar nº 64, de 18 de maio de 1990' },
+    { codigo: '9', nome: 'por licença nojo' },
+    { codigo: '10', nome: 'por licenca gala' },
+    { codigo: '11', nome: 'por afastamento por Cursos/Congressos/Competições' },
+    { codigo: '12', nome: 'por licença maternidade' },
+    { codigo: '13', nome: 'por prorrogação da licença à gestante' },
+    { codigo: '14', nome: 'por licença parental de curta duração' },
+    { codigo: '15', nome: 'por licença parental de longa duração' },
+    { codigo: '16', nome: 'por Evento/Reunião' }
+  ]
 
   return (
     <>
@@ -90,7 +99,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
         </div>
       ) : (
 
- 
+
         <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4 ">
           <div className="w-full">
             <FormField
@@ -103,10 +112,10 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                     Portaria da designação
                   </FormLabel>
                   <FormControl
-                  
+
                   >
                     <InputBase
-                     placeholder="Nº da portaria"
+                      placeholder="Nº da portaria"
                       value={field.value}
                       onChange={(value) => {
                         field.onChange(value.target.value);
@@ -122,83 +131,9 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
 
           <div className="w-full">
             <FormField
-              {...register("numero_sei")}
-              control={control}
-              name="numero_sei"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Nº SEI
-                  </FormLabel>
-                  <FormControl>
-                    <InputBase
-                      placeholder="Número SEI"
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value.target.value);
-                      }}
-                      data-testid="input-numero-sei"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="w-full">
-
-            <FormField
-              {...register("a_partir_de")}
-              control={control}
-              name="a_partir_de"
-              
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    A partir de
-                  </FormLabel>
-
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl >
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "dd/MM/yyyy")
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                      />
-                    </PopoverContent>
-                  </Popover>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="w-full">
-            <FormField
               control={control}
               name="ano"
-              
+
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
@@ -235,6 +170,128 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
               )}
             />
           </div>
+          <div className="w-full">
+            <FormField
+              {...register("numero_sei")}
+              control={control}
+              name="numero_sei"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="required text-[#42474a] font-bold">
+                    Nº SEI
+                  </FormLabel>
+                  <FormControl>
+                    <InputBase
+                      placeholder="Número SEI"
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value.target.value);
+                      }}
+                      data-testid="input-numero-sei"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-full">
+
+            <FormField
+              {...register("a_partir_de")}
+              control={control}
+              name="a_partir_de"
+
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="required text-[#42474a] font-bold">
+                    A partir de
+                  </FormLabel>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl >
+                        <Button
+                          variant="customOutline"
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "dd/MM/yyyy")
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="w-full">
+
+            <FormField
+              {...register("designacao_data_final")}
+              control={control}
+              name="designacao_data_final"
+
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="required text-[#42474a] font-bold">
+                    Data final da designação
+                  </FormLabel>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl >
+                        <Button
+                          variant="customOutline"
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "dd/MM/yyyy")
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+
 
           <div className="w-full">
             <FormField
@@ -248,7 +305,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                   </FormLabel>
                   <FormControl>
                     <InputBase
-                      placeholder="Número doc"                      value={field.value}
+                      placeholder="Número doc" value={field.value}
                       onChange={(value) => {
                         field.onChange(value.target.value);
                       }}
@@ -270,10 +327,10 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">Carater Especial</FormLabel>
                   <FormControl>
-                    <RadioGroup 
-                    value={field.value}
-                    onValueChange={field.onChange}                    
-                    defaultValue="sim" className="w-fit ">
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue="sim" className="w-fit ">
                       <div className="flex items-center mt-4 gap-3">
                         <Field orientation="horizontal">
                           <RadioGroupItem value="sim" id="doc-sim" aria-label="doc-sim" />
@@ -281,7 +338,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                         </Field>
 
                         <Field orientation="horizontal">
-                          <RadioGroupItem value="nao" id="doc-nao" aria-label="doc-nao"/>
+                          <RadioGroupItem value="nao" id="doc-nao" aria-label="doc-nao" />
                           <Label htmlFor="doc-nao">Não</Label>
                         </Field>
                       </div>
@@ -293,66 +350,83 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
             >
 
             </FormField>
-            </div>
-
-
- 
-            <div className="w-full">
-              <FormField
-                {...register("doc")}
-                control={control}
-                name="doc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Doc
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                      placeholder="Número doc"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-doc"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-
-
-
-            <div className="w-full">
-              <FormField
-                {...register("motivo_cancelamento")}
-                control={control}
-                name="motivo_cancelamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Motivo Cancelamento
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                      placeholder="Motivo da Cancelamento"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-motivo-cancelamento"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
           </div>
+
+
+
+
+
+
+
+          <div className="w-full">
+            <FormField
+              {...register("motivo_cancelamento")}
+              control={control}
+              name="motivo_cancelamento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="required text-[#42474a] font-bold">
+                    Motivo Cancelamento
+                  </FormLabel>
+                  <FormControl>
+                    <InputBase
+                      placeholder="Motivo da Cancelamento"
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value.target.value);
+                      }}
+                      data-testid="input-motivo-cancelamento"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-full">
+            <FormField
+              control={control}
+              name="impedimento_substituicao"
+
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="required text-[#42474a] font-bold">
+                    Impendimento para substituição:
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+
+                      }}
+                    >
+                      <SelectTrigger data-testid="select-ano">
+                        <SelectValue placeholder="Selecione uma opção" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {impedimentoSubstituicao.map(
+                          (impedimento: { codigo: string; nome: string }) => (
+                            <SelectItem
+                              key={impedimento.codigo}
+                              value={impedimento.codigo}
+                            >
+                              {impedimento.nome}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+        </div>
 
 
         // {errorMessage && (
@@ -366,8 +440,8 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
 
 
       )}
-        </>
-      );
+    </>
+  );
 };
 
-      export default PortariaDesigacaoFields;
+export default PortariaDesigacaoFields;

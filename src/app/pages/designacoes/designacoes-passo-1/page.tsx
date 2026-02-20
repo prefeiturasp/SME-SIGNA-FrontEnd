@@ -50,7 +50,7 @@ export default function DesignacoesPasso1() {
     if (!valoresFormulario) {
       return;
     }
-    console.log("Dados da unidade selecionada", valoresFormulario);
+    console.log("Dados da unidade selecionada", {...valoresFormulario, servidorIndicado: data});
     setFormDesignacaoData({...valoresFormulario, servidorIndicado: data});
     router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
   };

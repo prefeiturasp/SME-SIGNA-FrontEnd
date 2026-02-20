@@ -1,29 +1,58 @@
+
 "use client";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { Button, Card } from "antd";
+import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
 import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
-import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
-import { BuscaDesignacaoRequest } from "@/types/designacao";
-import useServidorDesignacao from "@/hooks/useServidorDesignacao";
+
 import { useRef, useState } from "react";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
-import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
-import FormularioPesquisaUnidade, {
+
+import{
   FormularioPesquisaUnidadeRef,
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import Edit from "@/assets/icons/Edit";
+
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import formSchemaDesignacaoPasso2, { formSchemaDesignacaoPasso2Data } from "./schema";
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
+import Historico from "@/assets/icons/Historico";
 
+
+
+function CustomAccordionItem({ title, children, primaryColor, secondaryColor, value }: { title: string, children: React.ReactNode, primaryColor: string, secondaryColor: string, value: string }) {
+
+
+  return (<AccordionItem value={value} className="border-b-0">
+    <AccordionTrigger
+      className={`mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4  border-l-[${primaryColor}]`}>
+      <div className="flex items-center justify-between w-full  ">
+        <span className={`pl-4 text-[${secondaryColor}] text-lg `}>{title}</span>
+        <span className="mr-2 text-[16px] text-muted-foreground">Ver</span>
+      </div>
+    </AccordionTrigger>
+
+    <AccordionContent className="mt-0 m-0 ">
+      <Card
+        className={` m-0 border-l-4  border-l-[${primaryColor}] bg-[#F9F9F9]`}>
+        {children}
+      </Card>
+    </AccordionContent>
+  </AccordionItem>)
+
+}
 
 export default function DesignacoesPasso1() {
   const [disableProximo, setDisableProximo] = useState(true);
@@ -33,7 +62,7 @@ export default function DesignacoesPasso1() {
 
 
 
-  
+
   const onProximo = (data: BuscaServidorDesignacaoBody) => {
     const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
     if (!valoresFormulario) {
@@ -50,6 +79,12 @@ export default function DesignacoesPasso1() {
     defaultValues: {
       portaria_designacao: "",
       numero_sei: "",
+      a_partir_de: new Date(),
+      designacao_data_final: new Date(),
+      ano: new Date().getFullYear().toString(),
+      doc: "",
+      motivo_cancelamento: "",
+      impedimento_substituicao: "",
     },
     mode: "onChange",
   });
@@ -69,68 +104,93 @@ export default function DesignacoesPasso1() {
 
 
       <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>
+        <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>
 
-        <FundoBranco >
-          <StepperDesignacao current={1} />
-        </FundoBranco>
-
-
+          <FundoBranco >
+            <StepperDesignacao current={1} />
+          </FundoBranco>
 
 
-        {/* {error && <div className="text-red-500">{error}</div>} */}
 
-        {/* {isPending && <div className="flex items-center justify-center">
+
+          {/* {error && <div className="text-red-500">{error}</div>} */}
+
+          {/* {isPending && <div className="flex items-center justify-center">
         <Loader2 data-testid="loader" className="w-20 h-20 animate-spin text-primary " />
       </div>} */}
 
 
-        <Card
-          title={<span className="text-[#6058A2]">Designação</span>}
-          className=" mt-4 m-0 ">
+          <Card
+            title={
+              <div className="flex justify-between items-center">
+                <span className="text-[#333]">Designação</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#B22B2A]">Histórico</span>
+                  <Historico width={20} height={20} color="white" />
+                </div>
+              </div>
 
-          {formDesignacaoData?.servidorIndicado && (
-            <>
-              <Card
-                title={
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#E09326]">Dados do servidor indicado</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#B22B2A]">Editar</span>
-                      <Edit width={20} height={20} color="white" />
-                    </div>
-                  </div>
+            }
 
-                }
-                className=" mt-0 m-0 border-l-4  border-l-[#EBB466] bg-[#F9F9F9]">
-                <ResumoDesignacao isLoading={false} defaultValues={formDesignacaoData?.servidorIndicado} showCursosTitulos={false} />
-              </Card>
+            className=" mt-4 m-0 ">
 
-
-
-              <Card title={<span className="text-[#A936AF]">Portarias de designação</span>}
-                className=" mt-4 m-0 border-l-4  border-l-[#A936AF] bg-[#F9F9F9]">
-
-                <PortariaDesigacaoFields  setDisableProximo={setDisableProximo} isLoading={false} />
-              </Card>
-            </>
-          )}
-
-        </Card>
+            {formDesignacaoData?.servidorIndicado && (
+              <>
+                <Accordion
+                  type="multiple"
+                  defaultValue={["servidor-indicado", "portarias-designacao"]}
+                >
+                  <CustomAccordionItem
+                    title="Dados do servidor indicado"
+                    primaryColor="#EBB466"
+                    secondaryColor="#E09326"
+                    value="servidor-indicado"
+                  >
+                    <ResumoDesignacao
+                      isLoading={false}
+                      defaultValues={formDesignacaoData?.servidorIndicado}
+                      showCursosTitulos={false}
+                      showEditar={true}
+                      onClickEditar={() => {}}
+                    />
+                  </CustomAccordionItem>
 
 
+                  <CustomAccordionItem
+                    title="Portarias de designação"
+                    primaryColor="#D89DDB"
+                    secondaryColor="#A936AF"
+                    value="portarias-designacao"
+                  >
+                    <PortariaDesigacaoFields setDisableProximo={setDisableProximo} isLoading={false} />
+                  </CustomAccordionItem>
 
 
+                  
+                </Accordion>
 
-        <div className="w-full flex flex-col ">
-          <BotoesDeNavegacao
-            disableAnterior={true}
-            disableProximo={disableProximo}
-            onProximo={() => console.log("Proximo")}
-            showAnterior={false}
-            onAnterior={() => { }}
-          />
-        </div>
+
+              </>
+            )}
+
+          </Card>
+
+
+          {/* <button type="submit" className="bg-[#F9F9F9] rounded-md border-l-4  border-l-[#D89DDB]">
+              <span className="pl-4 text-[#A936AF] text-lg ">Portarias de designação</span>
+              <span className="mr-2 text-[16px] text-muted-foreground">Ver</span>
+            </button> */}
+
+
+          <div className="w-full flex flex-col ">
+            <BotoesDeNavegacao
+              disableAnterior={true}
+              disableProximo={disableProximo}
+              onProximo={() => console.log("Proximo")}
+              showAnterior={false}
+              onAnterior={() => { }}
+            />
+          </div>
         </form>
       </FormProvider>
 

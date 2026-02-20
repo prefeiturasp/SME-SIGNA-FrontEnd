@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 
 
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
-import { IConcursoType } from "@/types/cursos-e-titulos";
 import useCursosETitulos from "@/hooks/useCursosETitulos";
+import Edit from "@/assets/icons/Edit";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,
@@ -28,11 +28,13 @@ export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.Re
 );
 
 const ResumoDesignacao: React.FC<{
+  onClickEditar?: () => void;
+  showEditar?: boolean;
   className?: string;
   defaultValues: BuscaServidorDesignacaoBody;
   isLoading?: boolean;
   showCursosTitulos?: boolean;
-}> = ({ className, defaultValues, isLoading, showCursosTitulos = true }) => {
+}> = ({ className, defaultValues, isLoading, showCursosTitulos = true, showEditar = false, onClickEditar }) => {
 
 
 
@@ -42,7 +44,7 @@ const ResumoDesignacao: React.FC<{
     setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
   }
 
-  const { isLoading: isLoadingCursosETitulos, data: cursosETitulosData = [] } = useCursosETitulos();
+  const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
 
 
   return (
@@ -86,6 +88,7 @@ const ResumoDesignacao: React.FC<{
                   value={defaultValues.cursos_titulos}
                   icon={
                     <Button
+                      type="button"
                       data-testid="btn-visualizar-cursos-titulos"
                       variant="ghost"
                       size="icon"
@@ -111,6 +114,15 @@ const ResumoDesignacao: React.FC<{
 
             </div>
           </div>
+
+          {showEditar && (
+            <div className="flex justify-end">
+              <Button type="button" variant="outline" size="lg" className=" flex items-center justify-center gap-2" onClick={onClickEditar}>                          
+                <p className="text-[16px] font-bold">Editar</p>
+                <Edit />
+                </Button>
+            </div>
+          )}
 
           <ModalListaCursosTitulos
             isLoading={isLoadingCursosETitulos}

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { ptBR } from "date-fns/locale";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -27,6 +28,7 @@ function Calendar({
 
   return (
     <DayPicker
+      locale={ptBR}
       showOutsideDays={showOutsideDays}
       className={cn(
         "bg-background group/calendar p-3 [--cell-size:2rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
