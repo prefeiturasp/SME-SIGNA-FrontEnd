@@ -1,20 +1,15 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { vi, describe, it, expect, beforeEach, type Mock } from "vitest";
+import { vi } from "vitest";
 
-import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
-
-import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import useFetchDesignacaoUnidadeMutation from "./useDesignacaoUnidade";
+import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
 
 vi.mock("@/actions/designacao-unidade", () => ({
     getDesignacaoUnidadeAction: vi.fn(),
 }));
- 
 
-const getDesignacaoUnidadeActionMock = getDesignacaoUnidadeAction as Mock;
-
-describe("use DesignacaoUnidade", () => {
+describe("useFetchDesignacaoUnidadeMutation", () => {
     let queryClient: QueryClient;
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -24,120 +19,119 @@ describe("use DesignacaoUnidade", () => {
     );
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        (getDesignacaoUnidadeAction as ReturnType<typeof vi.fn>).mockReset();
+
         queryClient = new QueryClient({
             defaultOptions: {
-                queries: {
-                    retry: false,
-                },
+                mutations: { retry: false },
             },
         });
     });
 
+    it("executa mutation com sucesso", async () => {
+        const mockResponse = {
+            success: true,
+            data: { nome: "Unidade Teste" },
+        };
 
-    it("trata erro quando a Action lança erro", async () => {
-        (getDesignacaoUnidadeActionMock as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-            new Error("Erro ")
+        (getDesignacaoUnidadeAction as ReturnType<typeof vi.fn>)
+            .mockResolvedValueOnce(mockResponse);
+
+        const { result } = renderHook(
+            () => useFetchDesignacaoUnidadeMutation(),
+            { wrapper }
         );
 
-        const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
+        result.current.mutate("123");
 
-        result.current.mutate("123456");
+        await waitFor(() => {
+            expect(result.current.isSuccess).toBe(true);
+        });
+
+        expect(getDesignacaoUnidadeAction).toHaveBeenCalledWith("123");
+    });
+
+    it("entra em erro quando success = false", async () => {
+        const mockResponse = {
+            success: false,
+            error: "Erro ao buscar unidade",
+        };
+
+        (getDesignacaoUnidadeAction as ReturnType<typeof vi.fn>)
+            .mockResolvedValueOnce(mockResponse);
+
+        const { result } = renderHook(
+            () => useFetchDesignacaoUnidadeMutation(),
+            { wrapper }
+        );
+
+        result.current.mutate("123");
 
         await waitFor(() => {
             expect(result.current.isError).toBe(true);
         });
     });
 
+    it("entra em erro quando action lança exceção", async () => {
+        (getDesignacaoUnidadeAction as ReturnType<typeof vi.fn>)
+            .mockRejectedValueOnce(new Error("Erro inesperado"));
 
-    it("deve buscar os dados da unidade em caso de sucesso", async () => {
-        const fakeFuncionario: DesignacaoUnidadeResponse = {
-            "funcionarios_unidade": {
-                "3360": {
-                    "codigo_cargo": 3360,
-                    "nome_cargo": "DIRETOR DE ESCOLA",
-                    "modulo": "1",  
-                    "servidores": [
-                        {
-                            "rf": "7726694",
-                            "nome": "DANIELA MARIA FIGUEIREDO PADOVAN",
-                            "esta_afastado": false,
-                            "cargo_sobreposto": "COORDENADOR PEDAGOGICO - v1",
-                            "vinculo_cargo_sobreposto": "1",
-                            "lotacao_cargo_sobreposto": "JOSE BORGES ANDRADE",
-                            "cargo_base": "AUXILIAR TECNICO DE EDUCACAO - v1",
-                            "funcao_atividade": "string",
-                            "cursos_titulos": "string",
-                            "dre": "109300",
-                            "unidade": "013692",
-                            "codigo": "123456",
-                        }
-                    ]
-                }
-            },
-            cargos: [{ nomeCargo: "Professor", codigoCargo: "123" } ],
-            turmas: [{ por_turno: { integral: "10", manha: "10", tarde: "10", noite: "10", vespertino: "10" }, total: 10 }],
+        const { result } = renderHook(
+            () => useFetchDesignacaoUnidadeMutation(),
+            { wrapper }
+        );
+
+        result.current.mutate("123");
+
+        await waitFor(() => {
+            expect(result.current.isError).toBe(true);
+        });
+    });
+
+    it("usa mensagem de erro customizada quando response.error existe", async () => {
+        const mockResponse = {
+            success: false,
+            error: "Erro específico da API",
         };
 
-        getDesignacaoUnidadeActionMock.mockResolvedValue({ success: true, data: fakeFuncionario });
+        (getDesignacaoUnidadeAction as ReturnType<typeof vi.fn>)
+            .mockResolvedValueOnce(mockResponse);
 
-        const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
-        const response = await result.current.mutateAsync("123456");
+        const { result } = renderHook(
+            () => useFetchDesignacaoUnidadeMutation(),
+            { wrapper }
+        );
 
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        result.current.mutate("123");
 
-        expect(getDesignacaoUnidadeActionMock).toHaveBeenCalledWith("123456");
-        expect(response).toEqual({ success: true, data: fakeFuncionario });
-        expect(result.current.data).toEqual({ success: true, data: fakeFuncionario });
-        
+        await waitFor(() => {
+            expect(result.current.isError).toBe(true);
+        });
+
+        expect(result.current.error?.message).toBe("Erro específico da API");
     });
 
-    it("deve resolver com success: false (sem lançar exceção) quando a action retorna erro", async () => {
-        getDesignacaoUnidadeActionMock.mockResolvedValue({
+    it("usa mensagem padrão quando response.error não existe", async () => {
+        const mockResponse = {
             success: false,
-            error: "Falha simulada",
+        };
+
+        (getDesignacaoUnidadeAction as ReturnType<typeof vi.fn>)
+            .mockResolvedValueOnce(mockResponse);
+
+        const { result } = renderHook(
+            () => useFetchDesignacaoUnidadeMutation(),
+            { wrapper }
+        );
+
+        result.current.mutate("123");
+
+        await waitFor(() => {
+            expect(result.current.isError).toBe(true);
         });
 
-        const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
-        const response = await result.current.mutateAsync("123456");
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-
-        expect(response).toEqual({ success: false, error: "Falha simulada" });
-        expect(result.current.isError).toBe(false);
-        expect(result.current.data).toEqual({ success: false, error: "Falha simulada" });
-    });
-
-    it("deve normalizar mensagem padrão quando success: false e response.error é undefined", async () => {
-        getDesignacaoUnidadeActionMock.mockResolvedValue({
-            success: false,
-            error: undefined,
-        });
-
-        const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
-        const response = await result.current.mutateAsync("123456");
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-        expect(response).toEqual({
-            success: false,
-            error: "Não foi possível buscar os dados da unidade",
-        });
-        expect(result.current.isError).toBe(false);
-        expect(result.current.data).toEqual({
-            success: false,
-            error: "Não foi possível buscar os dados da unidade",
-        });
-    });
-
-    it("deve tratar o erro quando getDesignacaoUnidadeAction lança uma exceção", async () => {
-        const error = new Error("Erro de rede");
-        getDesignacaoUnidadeActionMock.mockRejectedValue(error);
-
-        const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
-        result.current.mutate("123456");
-
-        await waitFor(() => expect(result.current.isError).toBe(true));
-
-        expect(result.current.error).toBe(error);
+        expect(result.current.error?.message).toBe(
+            "Não foi possível buscar os dados da unidade"
+        );
     });
 });

@@ -19,7 +19,7 @@ type ModalResumoServidorProps = {
     isLoading: boolean;
     open: boolean;
     onOpenChange: (v: boolean) => void;
-    servidor: Servidor;
+    servidores: Servidor[];
  };
 
 
@@ -28,7 +28,7 @@ export default function ModalResumoServidor({
     isLoading,
     open,
     onOpenChange,
-    servidor,
+    servidores,
  }: Readonly<ModalResumoServidorProps>) {
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
@@ -48,9 +48,23 @@ export default function ModalResumoServidor({
 
                 <Separator className="mt-2" />
                 
+<<<<<<< HEAD
                 <ResumoDesignacao defaultValues={servidor } isLoading={isLoading} showCursosTitulos={false} />
+=======
+                {servidores?.length ? (
+                    servidores.map((servidor) => (
+                        <ResumoDesignacao
+                            key={servidor.rf}
+                            defaultValues={servidor}
+                            isLoading={isLoading}
+                            showCursosTitulos={false}
+                        />
+                    ))
+                ) : (
+                    <p>Nenhum servidor encontrado</p>
+                )}
+>>>>>>> test
 
- 
                 <div className="flex justify-end">
 
                     <Button

@@ -85,7 +85,7 @@ vi.mock("../ResumoDesignacao", () => ({
   ),
 }));
 
-const servidorMock: Servidor = {
+const servidoresMock: Servidor = {
   rf: "123",
   nome: "Servidor",
   esta_afastado: false,
@@ -104,7 +104,7 @@ describe("ModalResumoServidor", () => {
         isLoading={false}
         open={true}
         onOpenChange={vi.fn()}
-        servidor={servidorMock}
+        servidores={[servidoresMock]}
       />
     );
 
@@ -129,7 +129,7 @@ describe("ModalResumoServidor", () => {
         isLoading={false}
         open={true}
         onOpenChange={onOpenChange}
-        servidor={servidorMock}
+        servidores={[servidoresMock]}
       />
     );
 
@@ -149,7 +149,7 @@ describe("ModalResumoServidor", () => {
         isLoading={false}
         open={true}
         onOpenChange={onOpenChange}
-        servidor={servidorMock}
+        servidores={[servidoresMock]}
       />
     );
 
