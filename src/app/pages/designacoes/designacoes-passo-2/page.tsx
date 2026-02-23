@@ -14,8 +14,7 @@ import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
 import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
 
-import { useState } from "react";
-import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
+ import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 
 import { useDesignacaoContext } from "../DesignacaoContext";
 
@@ -26,30 +25,49 @@ import Historico from "@/assets/icons/Historico";
 
 
 
-function CustomAccordionItem({ title, children, primaryColor, secondaryColor, value }: { title: string, children: React.ReactNode, primaryColor: string, secondaryColor: string, value: string }) {
+type CustomAccordionItemProps = {
+  readonly title: string;
+  readonly children: React.ReactNode;
+  readonly primaryColor: string;
+  readonly secondaryColor: string;
+  readonly value: string;
+};
 
+function CustomAccordionItem({
+  title,
+  children,
+  primaryColor,
+  secondaryColor,
+  value,
+}: CustomAccordionItemProps) {
+  return (
+    <AccordionItem value={value} className="border-b-0 mb-5">
+      <AccordionTrigger
+        className={`mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4 border-l-[${primaryColor}]`}
+      >
+        <div className="flex items-center justify-between w-full">
+          <span className={`pl-4 text-[${secondaryColor}] text-lg`}>
+            {title}
+          </span>
+          <span className="mr-2 text-[16px] text-muted-foreground">
+            Ver
+          </span>
+        </div>
+      </AccordionTrigger>
 
-  return (<AccordionItem value={value} className="border-b-0 mb-5">
-    <AccordionTrigger
-      className={`mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4  border-l-[${primaryColor}]`}>
-      <div className="flex items-center justify-between w-full  ">
-        <span className={`pl-4 text-[${secondaryColor}] text-lg `}>{title}</span>
-        <span className="mr-2 text-[16px] text-muted-foreground">Ver</span>
-      </div>
-    </AccordionTrigger>
-
-    <AccordionContent className="mt-0 m-0 ">
-      <Card
-        className={` m-0 border-l-4  border-l-[${primaryColor}] bg-[#F9F9F9]`}>
-        {children}
-      </Card>
-    </AccordionContent>
-  </AccordionItem>)
-
+      <AccordionContent className="mt-0 m-0">
+        <Card
+          className={`m-0 border-l-4 border-l-[${primaryColor}] bg-[#F9F9F9]`}
+        >
+          {children}
+        </Card>
+      </AccordionContent>
+    </AccordionItem>
+  );
 }
 
-export default function DesignacoesPasso1() {
-  const [disableProximo, setDisableProximo] = useState(true);
+export default function DesignacoesPasso2() {
+  const disableProximo=true;
   const { formDesignacaoData } = useDesignacaoContext();
 
 
@@ -93,13 +111,7 @@ export default function DesignacoesPasso1() {
 
 
 
-
-          {/* {error && <div className="text-red-500">{error}</div>} */}
-
-          {/* {isPending && <div className="flex items-center justify-center">
-        <Loader2 data-testid="loader" className="w-20 h-20 animate-spin text-primary " />
-      </div>} */}
-
+ 
 
           <Card
             title={
@@ -116,7 +128,7 @@ export default function DesignacoesPasso1() {
             className=" mt-4 m-0 ">
 
             {formDesignacaoData?.servidorIndicado && (
-              <>
+              
                 <Accordion
                   type="multiple"
                   defaultValue={["servidor-indicado", "portarias-designacao"]}
@@ -152,17 +164,13 @@ export default function DesignacoesPasso1() {
                 </Accordion>
 
 
-              </>
+              
             )}
 
           </Card>
 
 
-          {/* <button type="submit" className="bg-[#F9F9F9] rounded-md border-l-4  border-l-[#D89DDB]">
-              <span className="pl-4 text-[#A936AF] text-lg ">Portarias de designação</span>
-              <span className="mr-2 text-[16px] text-muted-foreground">Ver</span>
-            </button> */}
-
+ 
 
           <div className="w-full flex flex-col ">
             <BotoesDeNavegacao
