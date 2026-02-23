@@ -24,29 +24,49 @@ import formSchemaDesignacaoPasso2, { formSchemaDesignacaoPasso2Data } from "./sc
 import Historico from "@/assets/icons/Historico";
 
 
+type ColorVariant = "gold" | "purple" | "green";
 
 type CustomAccordionItemProps = {
   readonly title: string;
   readonly children: React.ReactNode;
-  readonly primaryColor: string;
-  readonly secondaryColor: string;
   readonly value: string;
+  readonly color?: ColorVariant;
 };
-
-function CustomAccordionItem({
+const colorVariants: Record<
+  ColorVariant,
+  {
+    border: string;
+    text: string;
+  }
+> = {
+  gold: {
+    border: "border-l-[#EBB466]",
+    text: "text-[#E09326]",
+    
+  },
+  purple: {    
+    border: "border-l-[#D89DDB]",
+    text: "text-[#A936AF]",    
+  },
+  green: {
+    border: "border-l-green-500",
+    text: "text-green-600",
+  },
+};function CustomAccordionItem({
   title,
   children,
-  primaryColor='#EBB466',
-  secondaryColor='#E09326',
   value,
+  color = "gold",
 }: CustomAccordionItemProps) {
+  const variant = colorVariants[color];
+
   return (
     <AccordionItem value={value} className="border-b-0 mb-5">
       <AccordionTrigger
-        className={` border-l-[${primaryColor}] mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4`}
+        className={`mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4 ${variant.border}`}
       >
         <div className="flex items-center justify-between w-full">
-          <span className={`pl-4 text-[${secondaryColor}] text-lg`}>
+          <span className={`pl-4 text-lg ${variant.text}`}>
             {title}
           </span>
           <span className="mr-2 text-[16px] text-muted-foreground">
@@ -57,7 +77,7 @@ function CustomAccordionItem({
 
       <AccordionContent className="mt-0 m-0">
         <Card
-          className={`m-0 border-l-4 border-l-[${primaryColor}] bg-[#F9F9F9]`}
+          className={`m-0 border-l-4 bg-[#F9F9F9] ${variant.border}`}
         >
           {children}
         </Card>
@@ -65,6 +85,10 @@ function CustomAccordionItem({
     </AccordionItem>
   );
 }
+
+
+
+
 
 export default function DesignacoesPasso2() {
   const disableProximo=true;
@@ -135,9 +159,9 @@ export default function DesignacoesPasso2() {
                 >
                   <CustomAccordionItem
                     title="Dados do servidor indicado"
-                    primaryColor="#EBB466"
-                    secondaryColor="#E09326"
+                    
                     value="servidor-indicado"
+                    color="gold"
                   >
                     <ResumoDesignacao
                       isLoading={false}
@@ -152,8 +176,7 @@ export default function DesignacoesPasso2() {
 
                   <CustomAccordionItem
                     title="Portarias de designação"
-                    primaryColor="#D89DDB"
-                    secondaryColor="#A936AF"
+                    color="purple"
                     value="portarias-designacao"
                   >
                     teste
