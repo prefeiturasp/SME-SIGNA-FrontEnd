@@ -36,14 +36,14 @@ type CustomAccordionItemProps = {
 function CustomAccordionItem({
   title,
   children,
-  primaryColor,
-  secondaryColor,
+  primaryColor='#EBB466',
+  secondaryColor='#E09326',
   value,
 }: CustomAccordionItemProps) {
   return (
     <AccordionItem value={value} className="border-b-0 mb-5">
       <AccordionTrigger
-        className={`mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4 border-l-[${primaryColor}]`}
+        className={` border-l-[${primaryColor}] mb-0 pr-4 bg-[#F9F9F9] rounded-md border-l-4`}
       >
         <div className="flex items-center justify-between w-full">
           <span className={`pl-4 text-[${secondaryColor}] text-lg`}>
