@@ -41,8 +41,7 @@ const colorVariants: Record<
 > = {
   gold: {
     border: "border-l-[#EBB466]",
-    text: "text-[#E09326]",
-    
+    text: "text-[#E09326]",    
   },
   purple: {    
     border: "border-l-[#D89DDB]",
