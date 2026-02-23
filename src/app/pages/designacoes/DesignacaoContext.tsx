@@ -2,10 +2,14 @@
 
 import { createContext, useContext, useMemo, useState } from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
+import { Servidor } from "@/types/designacao-unidade";
+
+
+type FormDesignacaoEServidorIndicado = FormDesignacaoData & { servidorIndicado: Servidor };
 
 type DesignacaoContextValue = {
-  formDesignacaoData: FormDesignacaoData | null;
-  setFormDesignacaoData: (data: FormDesignacaoData) => void;
+  formDesignacaoData: FormDesignacaoEServidorIndicado | null;
+  setFormDesignacaoData: (data: FormDesignacaoEServidorIndicado) => void;
   clearFormDesignacaoData: () => void;
 };
 
@@ -18,12 +22,12 @@ export function DesignacaoProvider({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoData | null>(null);
+  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoEServidorIndicado | null>(null);
 
   const value = useMemo(
     () => ({
       formDesignacaoData,
-      setFormDesignacaoData: (data: FormDesignacaoData) => {
+      setFormDesignacaoData: (data: FormDesignacaoEServidorIndicado) => {
         setFormDesignacaoData(data);
       },
       clearFormDesignacaoData: () => {

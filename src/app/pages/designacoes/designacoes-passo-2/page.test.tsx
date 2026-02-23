@@ -1,44 +1,30 @@
-import { render, screen } from "@testing-library/react";
+import React from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import Designacoes from "./page";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import DesignacoesPasso2Page from "./page";
 
-let mockSearchParams: URLSearchParams;
-const mockFormDesignacaoData = { dre: "dre-1", ue: "ue-1" };
-
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => mockSearchParams,
+const h = vi.hoisted(() => ({
+  formDesignacaoData: null as any,
+  resumoCalls: [] as any[],
+  botoesCalls: [] as any[],
 }));
 
 vi.mock("../DesignacaoContext", () => ({
+  __esModule: true,
   useDesignacaoContext: () => ({
-    formDesignacaoData: mockFormDesignacaoData,
+    formDesignacaoData: h.formDesignacaoData,
   }),
 }));
 
-vi.mock("@/components/dashboard/Designacao/BuscaUE/FormularioUEDesignacao", () => ({
+vi.mock("@/assets/icons/Designacao", () => ({
   __esModule: true,
-  default: ({ onSubmitDesignacao }: { onSubmitDesignacao: (values: { dre: string; ue: string }) => void }) => (
-    <button
-      data-testid="submit-ue"
-      onClick={() => onSubmitDesignacao({ dre: "dre-1", ue: "ue-1" })}
-    >
-      Submeter
-    </button>
-  ),
+  default: () => <svg data-testid="designacao-icon" />,
 }));
 
-vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
+vi.mock("@/assets/icons/Historico", () => ({
   __esModule: true,
-  default: () => <div data-testid="stepper-designacao" />,
-}));
-
-vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="fundo-branco">{children}</div>
-  ),
+  default: () => <svg data-testid="historico-icon" />,
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -48,115 +34,158 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   ),
 }));
 
-vi.mock("@/assets/icons/Designacao", () => ({
+vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
   __esModule: true,
-  default: () => <svg data-testid="designacao-icon" />,
+  default: ({ current }: { current: number }) => (
+    <div data-testid="stepper-designacao">current:{current}</div>
+  ),
+}));
+
+vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="fundo-branco">{children}</div>
+  ),
+}));
+
+vi.mock("@/components/ui/accordion", () => ({
+  Accordion: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="accordion">{children}</div>
+  ),
+  AccordionItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AccordionTrigger: ({ children }: { children: React.ReactNode }) => (
+    <button type="button">{children}</button>
+  ),
+  AccordionContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 
 vi.mock("antd", () => ({
-  Divider: () => <div data-testid="divider" />,
+  Card: ({
+    children,
+    title,
+  }: {
+    children: React.ReactNode;
+    title?: React.ReactNode;
+  }) => (
+    <div data-testid="card">
+      <div data-testid="card-title">{title}</div>
+      {children}
+    </div>
+  ),
 }));
 
-describe("Designacoes Passo 2", () => {
+vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
+  __esModule: true,
+  default: (props: any) => {
+    h.resumoCalls.push(props);
+    return (
+      <div data-testid="resumo-designacao">
+        Resumo
+        <button
+          type="button"
+          data-testid="resumo-editar"
+          onClick={() => props.onClickEditar?.()}
+        >
+          Editar
+        </button>
+      </div>
+    );
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
+  __esModule: true,
+  default: (props: any) => {
+    h.botoesCalls.push(props);
+    return (
+      <div>
+        <button
+          type="button"
+          data-testid="btn-anterior"
+          disabled={props.disableAnterior}
+          onClick={props.onAnterior}
+        >
+          Anterior
+        </button>
+        {/* botão auxiliar: permite cobrir o callback mesmo quando o botão real está desabilitado */}
+        <button
+          type="button"
+          data-testid="btn-anterior-force"
+          onClick={props.onAnterior}
+        >
+          Anterior (force)
+        </button>
+        <button
+          type="button"
+          data-testid="btn-proximo"
+          disabled={props.disableProximo}
+          onClick={props.onProximo}
+        >
+          Próximo
+        </button>
+      </div>
+    );
+  },
+}));
+
+vi.mock(
+  "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields",
+  async () => {
+    const React = await import("react");
+    const { useFormContext } = await import("react-hook-form");
+
+    return {
+      __esModule: true,
+      default: ({ setDisableProximo }: { setDisableProximo: (v: boolean) => void }) => {
+        const { setValue } = useFormContext();
+
+        return (
+          <div data-testid="portaria-fields">
+            <button
+              type="button"
+              data-testid="fill-valid-form"
+              onClick={() => {
+                setDisableProximo(false);
+                setValue("portaria_designacao", "P-1");
+                setValue("numero_sei", "SEI-1");
+                setValue("a_partir_de", new Date("2024-01-01T00:00:00.000Z"));
+                setValue("designacao_data_final", new Date("2024-12-31T00:00:00.000Z"));
+                setValue("ano", "2024");
+                setValue("doc", "DOC-1");
+                setValue("motivo_cancelamento", "Motivo");
+                setValue("impedimento_substituicao", "1");
+              }}
+            >
+              Preencher
+            </button>
+          </div>
+        );
+      },
+    };
+  }
+);
+
+describe("Designações - Passo 2 page", () => {
   beforeEach(() => {
-    mockSearchParams = new URLSearchParams();
+    h.formDesignacaoData = null;
+    h.resumoCalls.length = 0;
+    h.botoesCalls.length = 0;
     vi.clearAllMocks();
   });
 
-  it("renderiza o cabeçalho, o título e o stepper", () => {
-    render(<Designacoes />);
+  it("não renderiza os accordions quando não há servidorIndicado no contexto", () => {
+    render(<DesignacoesPasso2Page />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Designação");
-    expect(screen.getByText("Pesquisa de unidade")).toBeInTheDocument();
-    expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
+    expect(screen.getByTestId("stepper-designacao")).toHaveTextContent("current:1");
+    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("portaria-fields")).not.toBeInTheDocument();
+
+    expect(screen.getByTestId("btn-proximo")).toBeDisabled();
   });
-
-  it("faz parse do payload válido sem logar erro", () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-
-    const payload: BuscaServidorDesignacaoBody = {
-      nome: "João da Silva",
-      rf: "1234567",
-      vinculo_cargo_sobreposto: "Ativo",
-      lotacao_cargo_sobreposto: "DRE-01",
-      cargo_base: "Professor",
-      funcao_atividade: "Docente",
-      cargo_sobreposto: "Coordenador",
-      cursos_titulos: "Mestrado",
-    };
-
-    mockSearchParams = new URLSearchParams({
-      payload: JSON.stringify(payload),
-    });
-
-    render(<Designacoes />);
-
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    consoleErrorSpy.mockRestore();
-  });
-
-  it("logar payload e servidor selecionado ao submeter o formulário", async () => {
-    const consoleLogSpy = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => {});
-
-    const payload: BuscaServidorDesignacaoBody = {
-      nome: "Maria Santos",
-      rf: "7654321",
-      vinculo_cargo_sobreposto: "Ativo",
-      lotacao_cargo_sobreposto: "DRE-CL",
-      cargo_base: "Professor",
-      funcao_atividade: "Docente",
-      cargo_sobreposto: "Diretor",
-      cursos_titulos: "Doutorado",
-    };
-
-    mockSearchParams = new URLSearchParams({
-      payload: JSON.stringify(payload),
-    });
-
-    render(<Designacoes />);
-
-    await userEvent.click(screen.getByTestId("submit-ue"));
-
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      "Payload etapa UE",
-      expect.objectContaining({
-        dre: "dre-1",
-        ue: "ue-1",
-      })
-    );
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      "Servidor selecionado",
-      payload
-    );
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      "Dados da etapa 1",
-      mockFormDesignacaoData
-    );
-
-    consoleLogSpy.mockRestore();
-  });
-
-  it("loga erro quando payload é inválido", () => {
-    mockSearchParams = new URLSearchParams({
-      payload: "invalid-json",
-    });
-
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-
-    render(<Designacoes />);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Falha ao ler dados do passo anterior",
-      expect.any(Error)
-    );
-
-    consoleErrorSpy.mockRestore();
-  });
+ 
 });
+
 

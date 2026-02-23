@@ -1,15 +1,16 @@
 "use client";
 
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import Eye from "@/assets/icons/Eye";
 import { Button } from "@/components/ui/button";
 
 
- 
+
 import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTitulos";
 import useCursosETitulos from "@/hooks/useCursosETitulos";
+import Edit from "@/assets/icons/Edit";
+import { Servidor } from "@/types/designacao-unidade";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
   label,
   value,
@@ -27,11 +28,14 @@ export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.Re
 );
 
 const ResumoDesignacao: React.FC<{
+  onClickEditar?: () => void;
+  showEditar?: boolean;
   className?: string;
-  defaultValues: BuscaServidorDesignacaoBody;
+  defaultValues: Servidor;
   isLoading?: boolean;
   showCursosTitulos?: boolean;
-}> = ({ className, defaultValues, isLoading, showCursosTitulos = true }) => {
+  showCamposExtras?: boolean;
+}> = ({ className, defaultValues, isLoading, showCursosTitulos = true, showEditar = false, onClickEditar, showCamposExtras = false }) => {
 
 
 
@@ -41,10 +45,10 @@ const ResumoDesignacao: React.FC<{
     setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
   }
 
-  const { isLoading: isLoadingCursosETitulos, data: cursosETitulosData=[] } = useCursosETitulos();
+  const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
 
 
-   return (
+  return (
     <>
       {isLoading ? (
         <div className="flex justify-center h-full">
@@ -78,35 +82,55 @@ const ResumoDesignacao: React.FC<{
                 value={defaultValues.lotacao_cargo_sobreposto}
               />
 
-              {showCursosTitulos && ( 
-              <InfoItem
-                label="Cursos/Títulos"
-                value={defaultValues.cursos_titulos}
-                icon={
-                  <Button
-                  data-testid="btn-visualizar-cursos-titulos"
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleOpenModalListaCursosTitulos}>
-                    <Eye
-                      width={16}
-                      height={16} />
-                  </Button>
-                }
-              />
+              {showCursosTitulos && (
+                <InfoItem
+                  label="Cursos/Títulos"
+                  value={defaultValues.cursos_titulos}
+                  icon={
+                    <Button
+                      type="button"
+                      data-testid="btn-visualizar-cursos-titulos"
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleOpenModalListaCursosTitulos}>
+                      <Eye
+                        width={16}
+                        height={16} />
+                    </Button>
+                  }
+                />
               )}
- 
+
+              {showCamposExtras && (
+                <>
+                  <InfoItem label="DRE" value={defaultValues.dre} />
+                  <InfoItem label="Unidade" value={defaultValues.unidade} />
+                  <InfoItem label="Código" value={defaultValues.codigo} />
+                </>
+              )}
+
+
+
             </div>
           </div>
 
-            <ModalListaCursosTitulos
-              isLoading={isLoadingCursosETitulos}
-              open={openModalListaCursosTitulos}
-              onOpenChange={setOpenModalListaCursosTitulos}
-              data={[{id:1,concurso:'201002757777 - PROF ENS FUND II MEDIO'},{ id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }] }
-              defaultValues={defaultValues}
-            />
-           
+          {showEditar && (
+            <div className="flex justify-end">
+              <Button type="button" variant="outline" size="lg" className=" flex items-center justify-center gap-2" onClick={onClickEditar}>                          
+                <p className="text-[16px] font-bold">Editar</p>
+                <Edit />
+                </Button>
+            </div>
+          )}
+
+          <ModalListaCursosTitulos
+            isLoading={isLoadingCursosETitulos}
+            open={openModalListaCursosTitulos}
+            onOpenChange={setOpenModalListaCursosTitulos}
+            data={[{ id: 1, concurso: '201002757777 - PROF ENS FUND II MEDIO' }, { id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }]}
+            defaultValues={defaultValues}
+          />
+
         </div>
       )}
     </>

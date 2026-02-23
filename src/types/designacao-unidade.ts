@@ -12,7 +12,10 @@ export type Servidor = {
     funcao_atividade: string;
     cargo_sobreposto: string;
     cursos_titulos: string;
-  };
+    dre: string;
+    unidade: string;
+    codigo: string;
+  }
   
   type Cargo = {
     codigo_cargo: number;

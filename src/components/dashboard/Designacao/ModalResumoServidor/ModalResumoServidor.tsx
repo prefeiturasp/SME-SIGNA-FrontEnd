@@ -14,7 +14,7 @@ import ResumoDesignacao from "../ResumoDesignacao";
 import { Separator } from "@/components/ui/separator";
  
 import { Servidor } from "@/types/designacao-unidade";
-
+ 
 type ModalResumoServidorProps = {
     isLoading: boolean;
     open: boolean;

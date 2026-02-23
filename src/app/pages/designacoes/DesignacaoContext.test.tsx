@@ -4,6 +4,25 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { DesignacaoProvider, useDesignacaoContext } from "./DesignacaoContext";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
+import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+
+type FormDesignacaoEServidorIndicado = FormDesignacaoData & {
+  servidorIndicado: BuscaServidorDesignacaoBody;
+};
+
+const mockServidorIndicado: BuscaServidorDesignacaoBody = {
+  nome: "Servidor Mock",
+  rf: "999",
+  vinculo_cargo_sobreposto: "Ativo",
+  lotacao_cargo_sobreposto: "Unidade X",
+  cargo_base: "Professor",
+  funcao_atividade: "Docente",
+  cargo_sobreposto: "Nenhum",
+  cursos_titulos: "Licenciatura",
+  dre: "DRE Mock",
+  unidade: "UE Mock",
+  codigo: "COD-MOCK",
+};
 
 const mockFormData: FormDesignacaoData = {
   dre: "dre-1",
@@ -13,6 +32,11 @@ const mockFormData: FormDesignacaoData = {
   quantidade_turmas: "10",
   cargo_sobreposto: "cargo-1",
   modulos: "2",
+};
+
+const mockFormDataWithServidor: FormDesignacaoEServidorIndicado = {
+  ...mockFormData,
+  servidorIndicado: mockServidorIndicado,
 };
 
 function TestComponent() {
@@ -25,7 +49,7 @@ function TestComponent() {
         {formDesignacaoData ? JSON.stringify(formDesignacaoData) : "null"}
       </div>
       <button
-        onClick={() => setFormDesignacaoData(mockFormData)}
+        onClick={() => setFormDesignacaoData(mockFormDataWithServidor)}
         data-testid="set-data-button"
       >
         Set Data
@@ -58,7 +82,8 @@ describe("DesignacaoContext", () => {
       </DesignacaoProvider>
     );
 
-    expect(screen.getByTestId("form-data")).toHaveTextContent("null");
+    // o provider inicia com estado null (sem seed)
+    expect(screen.getByTestId("form-data")).toHaveTextContent(/^null$/);
   });
 
   it("atualiza formDesignacaoData quando setFormDesignacaoData é chamado", async () => {
@@ -75,7 +100,7 @@ describe("DesignacaoContext", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("form-data")).toHaveTextContent(
-        JSON.stringify(mockFormData)
+        JSON.stringify(mockFormDataWithServidor)
       );
     });
   });
@@ -92,7 +117,9 @@ describe("DesignacaoContext", () => {
     await user.click(screen.getByTestId("set-data-button"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("form-data")).not.toHaveTextContent("null");
+      expect(screen.getByTestId("form-data")).toHaveTextContent(
+        JSON.stringify(mockFormDataWithServidor)
+      );
     });
 
     await user.click(screen.getByTestId("clear-data-button"));
@@ -105,21 +132,10 @@ describe("DesignacaoContext", () => {
   it("permite múltiplas atualizações de formDesignacaoData", async () => {
     const user = userEvent.setup();
 
-    render(
-      <DesignacaoProvider>
-        <TestComponent />
-      </DesignacaoProvider>
-    );
-
-    await user.click(screen.getByTestId("set-data-button"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("form-data")).toHaveTextContent(
-        JSON.stringify(mockFormData)
-      );
-    });
-
-    const updatedData = { ...mockFormData, dre: "dre-2" };
+    const updatedData = {
+      ...mockFormDataWithServidor,
+      dre: "dre-2",
+    };
 
     function UpdateComponent() {
       const { setFormDesignacaoData } = useDesignacaoContext();
@@ -140,12 +156,13 @@ describe("DesignacaoContext", () => {
       </DesignacaoProvider>
     );
 
-    await user.click(screen.getAllByTestId("set-data-button")[1]);
+    await user.click(screen.getByTestId("set-data-button"));
     await user.click(screen.getByTestId("update-data-button"));
 
     await waitFor(() => {
-      const formDataElements = screen.getAllByTestId("form-data");
-      expect(formDataElements[1]).toHaveTextContent(JSON.stringify(updatedData));
+      expect(screen.getByTestId("form-data")).toHaveTextContent(
+        JSON.stringify(updatedData)
+      );
     });
   });
 
@@ -187,14 +204,14 @@ describe("DesignacaoContext", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("form-data")).toHaveTextContent(
-        JSON.stringify(mockFormData)
+        JSON.stringify(mockFormDataWithServidor)
       );
     });
 
     await user.click(screen.getByTestId("rerender"));
 
     expect(screen.getByTestId("form-data")).toHaveTextContent(
-      JSON.stringify(mockFormData)
+      JSON.stringify(mockFormDataWithServidor)
     );
   });
 

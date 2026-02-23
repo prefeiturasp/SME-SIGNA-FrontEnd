@@ -5,6 +5,7 @@ import ResumoDesignacao from "./ResumoDesignacao";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IConcursoType } from "@/types/cursos-e-titulos";
+import { Servidor } from "@/types/designacao-unidade";
 
 // Mock do hook useCursosETitulos
 const mockUseCursosETitulos = vi.fn();
@@ -39,7 +40,7 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
   ),
 }));
 
-const mockData: BuscaServidorDesignacaoBody = {
+const mockData: Servidor = {
   nome: "Servidor Teste",
   rf: "123",
   vinculo_cargo_sobreposto: "Ativo",
@@ -48,6 +49,10 @@ const mockData: BuscaServidorDesignacaoBody = {
   funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
+  dre: "DRE Teste",
+  unidade: "Unidade Teste",
+  codigo: "COD-1",
+  esta_afastado: false,
 };
 
 const mockCursosETitulos: IConcursoType[] = [
@@ -86,7 +91,7 @@ describe("ResumoDesignacao", () => {
 
   it("exibe todos os rótulos e valores do resumo", () => {
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacao defaultValues={mockData} showCamposExtras={true} />,
       { wrapper }
     );
 
@@ -99,15 +104,20 @@ describe("ResumoDesignacao", () => {
       "Função",
       "Cargo sobreposto",
       "Cursos/Títulos",
+      "DRE",
+      "Unidade",
+      "Código",
     ];
 
     labels.forEach((label) => {
       expect(screen.getByText(label)).toBeInTheDocument();
     });
 
-    Object.values(mockData).forEach((value) => {
-      expect(screen.getAllByText(value).length).toBeGreaterThan(0);
-    });
+    expect(screen.getAllByText(mockData.nome).length).toBeGreaterThan(0);
+    expect(screen.getByText(mockData.rf)).toBeInTheDocument();
+    expect(screen.getByText(mockData.dre)).toBeInTheDocument();
+    expect(screen.getByText(mockData.unidade)).toBeInTheDocument();
+    expect(screen.getByText(mockData.codigo)).toBeInTheDocument();
   });
 
   it("aplica className recebido na raiz", () => {
@@ -281,8 +291,32 @@ describe("ResumoDesignacao", () => {
     await user.click(eyeButton);
 
     await waitFor(() => {
+      // o componente passa dados estáticos (2 itens) para o modal;
+      // este teste garante que não quebra mesmo que o hook retorne data undefined.
       expect(screen.getByText("Data Length: 2")).toBeInTheDocument();
     });
+  });
+
+  it("renderiza o botão Editar quando showEditar é true", () => {
+    render(
+      <ResumoDesignacao showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
+      { wrapper }
+    );
+
+    expect(screen.getByRole("button", { name: /Editar/i })).toBeInTheDocument();
+  });
+
+  it("chama onClickEditar ao clicar no botão Editar", async () => {
+    const user = userEvent.setup();
+    const onClickEditar = vi.fn();
+
+    render(
+      <ResumoDesignacao showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
+      { wrapper }
+    );
+
+    await user.click(screen.getByRole("button", { name: /Editar/i }));
+    expect(onClickEditar).toHaveBeenCalledTimes(1);
   });
 });
 

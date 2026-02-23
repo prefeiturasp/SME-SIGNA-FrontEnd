@@ -273,6 +273,7 @@ describe("DesignacoesPasso1", () => {
   });
 
   it("envia dados da unidade e navega ao próximo passo", async () => {
+    //aqui
     render(<DesignacoesPasso1 />);
 
     await userEvent.type(screen.getByTestId("input-rf"), "123");
@@ -304,7 +305,7 @@ describe("DesignacoesPasso1", () => {
 
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(mockFormValues);
+    expect(mockSetFormDesignacaoData).toHaveBeenCalledWith({...mockFormValues, servidorIndicado: mockResponse});
     expect(mockRouterPush).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-2?123"
     );
