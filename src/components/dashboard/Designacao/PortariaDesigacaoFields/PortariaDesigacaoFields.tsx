@@ -56,10 +56,11 @@ interface PropsDate {
   placeholder?: string;
 }
 
-const InputField = ({ register, control, name, label, placeholder }: PropsDate) => {
+
+const CheckboxField = ({ register, control, name, label, placeholder }: PropsDate) => {
   return (
     <FormField
-    {...register(name)}
+      {...register(name)}
     control={control}
     name={name}
     render={({ field }) => (
@@ -68,19 +69,66 @@ const InputField = ({ register, control, name, label, placeholder }: PropsDate) 
           {label}
         </FormLabel>
         <FormControl>
-          <InputBase
-            placeholder={placeholder}
+          <RadioGroup
+
+
             value={field.value}
-            onChange={(value) => {
-              field.onChange(value.target.value);
-            }}
-            data-testid="input-portaria-designacao"
-          />
+            onValueChange={field.onChange}
+            defaultValue="sim"
+            className="w-fit "
+          >
+            <div className="flex items-center mt-4 gap-3">
+              <Field orientation="horizontal">
+                <RadioGroupItem
+                  value="sim"
+                  id="doc-sim"
+                  aria-label="doc-sim"
+                />
+                <Label htmlFor="doc-sim">Sim</Label>
+              </Field>
+
+              <Field orientation="horizontal">
+                <RadioGroupItem
+                  value="nao"
+                  id="doc-nao"
+                  aria-label="doc-nao"
+                />
+                <Label htmlFor="doc-nao">Não</Label>
+              </Field>
+            </div>
+          </RadioGroup>
         </FormControl>
-        <FormMessage />
       </FormItem>
     )}
-  />    
+  ></FormField>
+       
+  );
+};
+const InputField = ({ register, control, name, label, placeholder }: PropsDate) => {
+  return (
+    <FormField
+      {...register(name)}
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="required text-[#42474a] font-bold">
+            {label}
+          </FormLabel>
+          <FormControl>
+            <InputBase
+              placeholder={placeholder}
+              value={field.value}
+              onChange={(value) => {
+                field.onChange(value.target.value);
+              }}
+              data-testid="input-portaria-designacao"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 
@@ -211,7 +259,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 name="portaria_designacao"
                 label="Portaria da designação"
                 placeholder="Nº da portaria"
-              />  
+              />
             </div>
 
             <div className="w-full">
@@ -265,26 +313,26 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
             </div>
             <div className="w-full">
 
-            <InputField
+              <InputField
                 register={register}
                 control={control}
                 name="numero_sei"
                 label="Nº SEI"
                 placeholder="Número SEI"
-              />  
-            
+              />
 
-             
+
+
             </div>
 
             <div className="w-full">
-            <InputField
+              <InputField
                 register={register}
                 control={control}
                 name="doc"
                 label="Doc"
                 placeholder="Número doc"
-              />  
+              />
             </div>
           </div>
 
@@ -312,73 +360,23 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
             </div>
 
             <div className="w-full">
-              <FormField
+            <CheckboxField
+                register={register}
                 control={control}
                 name="carater_especial"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Carater Especial
-                    </FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        defaultValue="sim"
-                        className="w-fit "
-                      >
-                        <div className="flex items-center mt-4 gap-3">
-                          <Field orientation="horizontal">
-                            <RadioGroupItem
-                              value="sim"
-                              id="doc-sim"
-                              aria-label="doc-sim"
-                            />
-                            <Label htmlFor="doc-sim">Sim</Label>
-                          </Field>
-
-                          <Field orientation="horizontal">
-                            <RadioGroupItem
-                              value="nao"
-                              id="doc-nao"
-                              aria-label="doc-nao"
-                            />
-                            <Label htmlFor="doc-nao">Não</Label>
-                          </Field>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
-              ></FormField>
+                label="Carater Especial"
+              />
             </div>
 
             <div className="w-full">
-              <FormField
-                {...register("motivo_cancelamento")}
+              <InputField
+                register={register}
                 control={control}
                 name="motivo_cancelamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Motivo Cancelamento
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                          
-                          
-                          placeholder="Motivo do Cancelamento"
-                          value={field.value}
-                          onChange={(value) => {
-                            field.onChange(value.target.value);
-                          }}
-                          data-testid="input-motivo-cancelamento"
-                        />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Motivo Cancelamento"
+                placeholder="Motivo do Cancelamento"
               />
+
             </div>
 
             <div className="w-full">
@@ -424,56 +422,20 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
               />
             </div>
 
- </div>
-        <div className="gap-4  lg:items-center  ">
+          </div>
+          <div className="gap-4  lg:items-center  ">
 
             <div className="w-full pt-4">
-              <FormField
-              {...register("com_afastamento")}
+            <CheckboxField
+                register={register}
                 control={control}
                 name="com_afastamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Com afastamento?
-                    </FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                      
-
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        defaultValue="sim"
-                        className="w-fit "
-                      >
-                        <div className="flex items-center mt-4 gap-3">
-                          <Field orientation="horizontal">
-                            <RadioGroupItem
-                              value="sim"
-                              id="doc-sim"
-                              aria-label="doc-sim"
-                            />
-                            <Label htmlFor="doc-sim">Sim</Label>
-                          </Field>
-
-                          <Field orientation="horizontal">
-                            <RadioGroupItem
-                              value="nao"
-                              id="doc-nao"
-                              aria-label="doc-nao"
-                            />
-                            <Label htmlFor="doc-nao">Não</Label>
-                          </Field>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
-              ></FormField>
+                label="Com afastamento?"
+              />
             </div>
 
-           
-           {watch('com_afastamento')==='sim' &&( <div className="w-full pt-4">
+
+            {watch('com_afastamento') === 'sim' && (<div className="w-full pt-4">
               <FormField
                 {...register("motivo_afastamento")}
                 control={control}
@@ -484,7 +446,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                       Motivo do afastamento
                     </FormLabel>
                     <FormControl>
-                      <Textarea                        
+                      <Textarea
                         rows={4}
                         placeholder="Motivo do afastamento"
                         value={field.value}
