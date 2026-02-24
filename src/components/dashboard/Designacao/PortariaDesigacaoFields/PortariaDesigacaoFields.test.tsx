@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import {
   FormProvider,
   useForm,
@@ -34,7 +34,7 @@ vi.mock("@/components/ui/calendar", () => ({
     <button
       type="button"
       data-testid="mock-calendar-select"
-      onClick={() => onSelect?.(new Date("2024-01-02T00:00:00.000Z"))}
+      onClick={() => onSelect?.(new Date(2024, 0, 2))}
     >
       Selecionar data
     </button>
@@ -190,6 +190,8 @@ function FormWrapper({
       carater_especial: "",
       motivo_cancelamento: "",
       impedimento_substituicao: "",
+      com_afastamento: "",
+      motivo_afastamento: "",
     },
   });
 
@@ -247,7 +249,8 @@ describe("PortariaDesigacaoFields", () => {
     expect(methods.getValues("impedimento_substituicao")).toBe("1");
 
     // RadioGroup (onValueChange -> field.onChange)
-    fireEvent.click(screen.getByRole("button", { name: /marcar sim/i }));
+    const [caraterEspecialGroup] = screen.getAllByTestId("mock-radio-group");
+    fireEvent.click(within(caraterEspecialGroup).getByRole("button", { name: /marcar sim/i }));
     expect(methods.getValues("carater_especial")).toBe("sim");
 
     // Calendar (onSelect -> field.onChange)
@@ -257,6 +260,8 @@ describe("PortariaDesigacaoFields", () => {
 
     expect(methods.getValues("a_partir_de")).toBeInstanceOf(Date);
     expect(methods.getValues("designacao_data_final")).toBeInstanceOf(Date);
+    // e renderiza a data formatada quando tem valor
+    expect(screen.getAllByText("02/01/2024").length).toBeGreaterThanOrEqual(1);
   });
 
   it("abre Popconfirm ao selecionar um ano diferente e permite cancelar/confirmar", () => {
@@ -300,6 +305,48 @@ describe("PortariaDesigacaoFields", () => {
 
     fireEvent.click(screen.getByTestId("popconfirm-confirm"));
     expect(methods.getValues("ano")).toBe("");
+  });
+
+  it("controla o campo condicional de afastamento (mostra/esconde textarea e atualiza valor)", () => {
+    let methods!: UseFormReturn<FieldValues>;
+    render(
+      <FormWrapper
+        onMethods={(m) => (methods = m)}
+        defaultValues={{
+          portaria_designacao: "",
+          numero_sei: "",
+          a_partir_de: undefined,
+          designacao_data_final: undefined,
+          ano: "",
+          doc: "",
+          carater_especial: "",
+          motivo_cancelamento: "",
+          impedimento_substituicao: "",
+          com_afastamento: "nao",
+          motivo_afastamento: "",
+        }}
+      >
+        <PortariaDesigacaoFields setDisableProximo={vi.fn()} isLoading={false} />
+      </FormWrapper>
+    );
+
+    // inicialmente não mostra textarea
+    expect(screen.queryByTestId("input-motivo-afastamento")).not.toBeInTheDocument();
+
+    const radioGroups = screen.getAllByTestId("mock-radio-group");
+    const afastamentoGroup = radioGroups[1];
+
+    // marcar "sim" exibe textarea e permite digitar
+    fireEvent.click(within(afastamentoGroup).getByRole("button", { name: /marcar sim/i }));
+    expect(methods.getValues("com_afastamento")).toBe("sim");
+    const textarea = screen.getByTestId("input-motivo-afastamento");
+    fireEvent.change(textarea, { target: { value: "Precisa se afastar" } });
+    expect(methods.getValues("motivo_afastamento")).toBe("Precisa se afastar");
+
+    // marcar "nao" esconde novamente
+    fireEvent.click(within(afastamentoGroup).getByRole("button", { name: /marcar nao/i }));
+    expect(methods.getValues("com_afastamento")).toBe("nao");
+    expect(screen.queryByTestId("input-motivo-afastamento")).not.toBeInTheDocument();
   });
 });
 
