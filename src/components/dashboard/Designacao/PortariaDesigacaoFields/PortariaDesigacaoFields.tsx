@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon,Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils"
 import {
   FormControl,
@@ -32,7 +32,6 @@ import {
 
 
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { InputBase } from "@/components/ui/input-base";
 
 
@@ -55,7 +54,7 @@ interface Props {
 const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
 
 
-  const { register, control, formState: { errors }, setValue } = useFormContext();
+  const { register, control,  setValue } = useFormContext();
 
 
 
