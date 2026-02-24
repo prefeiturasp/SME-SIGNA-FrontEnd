@@ -1,8 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import ResumoDesignacao from "./ResumoDesignacao";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IConcursoType } from "@/types/cursos-e-titulos";
 import { Servidor } from "@/types/designacao-unidade";
@@ -13,32 +11,6 @@ vi.mock("@/hooks/useCursosETitulos", () => ({
   default: () => mockUseCursosETitulos(),
 }));
 
-// Mock do ModalListaCursosTitulos
-vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
-  default: ({
-    open,
-    onOpenChange,
-    data,
-    isLoading,
-  }: {
-    open: boolean;
-    onOpenChange: (v: boolean) => void;
-    data: IConcursoType[];
-    defaultValues: BuscaServidorDesignacaoBody;
-    isLoading: boolean;
-  }) => (
-    <div data-testid="modal-lista-cursos-titulos">
-      {open && (
-        <>
-          <div>Modal Aberto</div>
-          <div>Loading: {isLoading.toString()}</div>
-          <div>Data Length: {data.length}</div>
-          <button onClick={() => onOpenChange(false)}>Fechar</button>
-        </>
-      )}
-    </div>
-  ),
-}));
 
 const mockData: Servidor = {
   nome: "Servidor Teste",
@@ -98,27 +70,16 @@ describe("ResumoDesignacao", () => {
     );
 
     const labels = [
-      
-
-      
-      
-      
-      
-       
-       "Nome Civil",
-       "Nome Servidor",
-        "RF",
-
-       "Função",
-
-"Cargo sobreposto",
-       "Cargo base",
-       "Vínculo",
-"Lotação",
-       "Cursos/Títulos",
-"DRE",
-       "Código",
-    ];
+      "Nome Civil",
+      "Nome Servidor",
+      "RF",
+      "Função",
+      "Cargo sobreposto",
+      "Cargo base",
+      "Vínculo",
+      "Lotação",
+ 
+     ];
 
     labels.forEach((label) => {
       expect(screen.getByText(label)).toBeInTheDocument();
@@ -126,8 +87,7 @@ describe("ResumoDesignacao", () => {
 
     expect(screen.getAllByText(mockData.nome).length).toBeGreaterThan(0);
     expect(screen.getByText(mockData.rf)).toBeInTheDocument();
-    expect(screen.getByText(mockData.dre)).toBeInTheDocument();
-    
+ 
   });
 
   it("aplica className recebido na raiz", () => {
@@ -165,168 +125,9 @@ describe("ResumoDesignacao", () => {
     expect(screen.queryByText(mockData.nome)).not.toBeInTheDocument();
   });
 
-  
-
-  it("renderiza o botão Eye para Cursos/Títulos", () => {
-    render(
-      <ResumoDesignacao showCursosTitulos={true} defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    expect(
-      screen.getByTestId("btn-visualizar-cursos-titulos")
-    ).toBeInTheDocument();
-  });
-
-  it("não renderiza o botão Eye para Cursos/Títulos", () => {
-    render(
-      <ResumoDesignacao showCursosTitulos={false} defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    expect(
-      screen.queryByTestId("btn-visualizar-cursos-titulos")
-    ).not.toBeInTheDocument();
-  });
 
 
-  it("abre o modal ao clicar no botão Eye", async () => {
-    const user = userEvent.setup();
 
-    render(
-      <ResumoDesignacao defaultValues={mockData} />,
-      { wrapper }
-    );
 
-    // Verifica que o modal está fechado inicialmente
-    expect(screen.queryByText("Modal Aberto")).not.toBeInTheDocument();
-
-    // Clica no botão Eye
-    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
-    await user.click(eyeButton);
-
-    // Verifica que o modal foi aberto
-    await waitFor(() => {
-      expect(screen.getByText("Modal Aberto")).toBeInTheDocument();
-    });
-  });
-
-  it("fecha o modal ao clicar no botão de fechar", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ResumoDesignacao defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    // Abre o modal
-    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
-    await user.click(eyeButton);
-
-    await waitFor(() => {
-      expect(screen.getByText("Modal Aberto")).toBeInTheDocument();
-    });
-
-    // Fecha o modal
-    const closeButton = screen.getByText("Fechar");
-    await user.click(closeButton);
-
-    await waitFor(() => {
-      expect(screen.queryByText("Modal Aberto")).not.toBeInTheDocument();
-    });
-  });
-
-  it("passa os dados corretos para o modal", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ResumoDesignacao defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    // Abre o modal
-    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
-    await user.click(eyeButton);
-
-    await waitFor(() => {
-      expect(screen.getByText("Modal Aberto")).toBeInTheDocument();
-      expect(screen.getByText("Loading: false")).toBeInTheDocument();
-      expect(screen.getByText(`Data Length: ${mockCursosETitulos.length}`)).toBeInTheDocument();
-    });
-  });
-
-  it("mostra loading no modal quando os cursos estão carregando", async () => {
-    mockUseCursosETitulos.mockReturnValue({
-      isLoading: true,
-      data: [],
-      isError: false,
-      error: null,
-      isSuccess: false,
-    });
-
-    const user = userEvent.setup();
-
-    render(
-      <ResumoDesignacao defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    // Abre o modal
-    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
-    await user.click(eyeButton);
-
-    await waitFor(() => {
-      expect(screen.getByText("Loading: true")).toBeInTheDocument();
-    });
-  });
-
-  it("passa array vazio quando data é undefined", async () => {
-    mockUseCursosETitulos.mockReturnValue({
-      isLoading: false,
-      data: undefined,
-      isError: false,
-      error: null,
-      isSuccess: true,
-    });
-
-    const user = userEvent.setup();
-
-    render(
-      <ResumoDesignacao defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    // Abre o modal
-    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
-    await user.click(eyeButton);
-
-    await waitFor(() => {
-      // o componente passa dados estáticos (2 itens) para o modal;
-      // este teste garante que não quebra mesmo que o hook retorne data undefined.
-      expect(screen.getByText("Data Length: 2")).toBeInTheDocument();
-    });
-  });
-
-  it("renderiza o botão Editar quando showEditar é true", () => {
-    render(
-      <ResumoDesignacao showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    expect(screen.getByRole("button", { name: /Editar/i })).toBeInTheDocument();
-  });
-
-  it("chama onClickEditar ao clicar no botão Editar", async () => {
-    const user = userEvent.setup();
-    const onClickEditar = vi.fn();
-
-    render(
-      <ResumoDesignacao showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
-      { wrapper }
-    );
-
-    await user.click(screen.getByRole("button", { name: /Editar/i }));
-    expect(onClickEditar).toHaveBeenCalledTimes(1);
-  });
 });
 

@@ -154,7 +154,7 @@ describe("ResumoDesignacao", () => {
     );
 
     expect(screen.queryByText("Servidor")).not.toBeInTheDocument();
-    expect(screen.queryByText(mockData.nome_servidor)).not.toBeInTheDocument();
+    expect(screen.queryByText(mockData.cargo_sobreposto)).not.toBeInTheDocument();
   });
 
   

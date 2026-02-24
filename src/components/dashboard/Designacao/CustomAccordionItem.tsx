@@ -28,7 +28,7 @@ const colorVariants: Record<
   purple: {    
     border: "border-l-[#D89DDB]",
     text: "text-[#A936AF]",    
-    bg: "bg-none",
+    bg: "bg-[#F9F9F9]",
   },
   green: {
     border: "border-l-green-500",
