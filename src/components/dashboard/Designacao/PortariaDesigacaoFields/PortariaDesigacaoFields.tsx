@@ -53,7 +53,38 @@ interface PropsDate {
   control: Control<FieldValues>;
   name: string;
   label: string;
+  placeholder?: string;
 }
+
+const InputField = ({ register, control, name, label, placeholder }: PropsDate) => {
+  return (
+    <FormField
+    {...register(name)}
+    control={control}
+    name={name}
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel className="required text-[#42474a] font-bold">
+          {label}
+        </FormLabel>
+        <FormControl>
+          <InputBase
+            placeholder={placeholder}
+            value={field.value}
+            onChange={(value) => {
+              field.onChange(value.target.value);
+            }}
+            data-testid="input-portaria-designacao"
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />    
+  );
+};
+
+
 
 const DateField = ({ register, control, name, label }: PropsDate) => {
   return (
@@ -102,6 +133,7 @@ const DateField = ({ register, control, name, label }: PropsDate) => {
     />
   );
 };
+
 
 const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
   const { register, control, setValue, watch } = useFormContext();
@@ -173,29 +205,13 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
         <>
           <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4 ">
             <div className="w-full">
-              <FormField
-                {...register("portaria_designacao")}
+              <InputField
+                register={register}
                 control={control}
                 name="portaria_designacao"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Portaria da designação
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                        placeholder="Nº da portaria"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-portaria-designacao"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                label="Portaria da designação"
+                placeholder="Nº da portaria"
+              />  
             </div>
 
             <div className="w-full">
@@ -248,55 +264,27 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
               />
             </div>
             <div className="w-full">
-              <FormField
-                {...register("numero_sei")}
+
+            <InputField
+                register={register}
                 control={control}
                 name="numero_sei"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Nº SEI
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                        placeholder="Número SEI"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-numero-sei"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                label="Nº SEI"
+                placeholder="Número SEI"
+              />  
+            
+
+             
             </div>
 
             <div className="w-full">
-              <FormField
-                {...register("doc")}
+            <InputField
+                register={register}
                 control={control}
                 name="doc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Doc
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                        placeholder="Número doc"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-doc"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                label="Doc"
+                placeholder="Número doc"
+              />  
             </div>
           </div>
 
