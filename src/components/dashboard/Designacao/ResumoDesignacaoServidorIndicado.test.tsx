@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import ResumoDesignacao from "./ResumoDesignacao";
+
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IConcursoType } from "@/types/cursos-e-titulos";
 import { Servidor } from "@/types/designacao-unidade";
+import ResumoDesignacaoServidorIndicado from "./ResumoDesignacaoServidorIndicado";
 
 // Mock do hook useCursosETitulos
 const mockUseCursosETitulos = vi.fn();
@@ -41,8 +42,7 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
 }));
 
 const mockData: Servidor = {
-  nome: "Servidor Teste",
-  nome_servidor: "Nome Servidor Teste",
+  nome_servidor: "Servidor Teste",
   nome_civil: "Nome Civil Teste",
   rf: "123",
   vinculo_cargo_sobreposto: "Ativo",
@@ -52,8 +52,7 @@ const mockData: Servidor = {
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   dre: "DRE Teste",
-  unidade: "Unidade Teste",
-  codigo: "COD-1",
+  codigo_estrutura_hierarquica: "COD-1",
   esta_afastado: false,
 };
 
@@ -93,46 +92,39 @@ describe("ResumoDesignacao", () => {
 
   it("exibe todos os rótulos e valores do resumo", () => {
     render(
-      <ResumoDesignacao defaultValues={mockData} showCamposExtras={true} />,
+      <ResumoDesignacaoServidorIndicado defaultValues={mockData} showCamposExtras={true} />,
       { wrapper }
     );
 
     const labels = [
-      
-
-      
-      
-      
+      "Nome Servidor",
+      "Nome Civil",
+      "RF",
+      "Função",      
+      "Cargo sobreposto",
+      "Cargo base",
+      "Função atividade",      
+      "Vínculo",      
+      "DRE",
+      "Lotação",
+      "Código Estrutura Hierarquica",
+      "Cursos/Títulos",
       
        
-       "Nome Civil",
-       "Nome Servidor",
-        "RF",
-
-       "Função",
-
-"Cargo sobreposto",
-       "Cargo base",
-       "Vínculo",
-"Lotação",
-       "Cursos/Títulos",
-"DRE",
-       "Código",
     ];
 
     labels.forEach((label) => {
       expect(screen.getByText(label)).toBeInTheDocument();
     });
 
-    expect(screen.getAllByText(mockData.nome).length).toBeGreaterThan(0);
-    expect(screen.getByText(mockData.rf)).toBeInTheDocument();
+     expect(screen.getByText(mockData.rf)).toBeInTheDocument();
     expect(screen.getByText(mockData.dre)).toBeInTheDocument();
-    
+    expect(screen.getByText(mockData.codigo_estrutura_hierarquica)).toBeInTheDocument();
   });
 
   it("aplica className recebido na raiz", () => {
     const { container } = render(
-      <ResumoDesignacao className="custom-class" defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado className="custom-class" defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -141,7 +133,7 @@ describe("ResumoDesignacao", () => {
 
   it("mostra o loading quando isLoading é true", () => {
     render(
-      <ResumoDesignacao
+      <ResumoDesignacaoServidorIndicado
         isLoading={true}
         className="custom-class"
         defaultValues={mockData}
@@ -154,7 +146,7 @@ describe("ResumoDesignacao", () => {
 
   it("não mostra o conteúdo quando isLoading é true", () => {
     render(
-      <ResumoDesignacao
+      <ResumoDesignacaoServidorIndicado
         isLoading={true}
         defaultValues={mockData}
       />,
@@ -162,14 +154,14 @@ describe("ResumoDesignacao", () => {
     );
 
     expect(screen.queryByText("Servidor")).not.toBeInTheDocument();
-    expect(screen.queryByText(mockData.nome)).not.toBeInTheDocument();
+    expect(screen.queryByText(mockData.nome_servidor)).not.toBeInTheDocument();
   });
 
   
 
   it("renderiza o botão Eye para Cursos/Títulos", () => {
     render(
-      <ResumoDesignacao showCursosTitulos={true} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCursosTitulos={true} defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -180,7 +172,7 @@ describe("ResumoDesignacao", () => {
 
   it("não renderiza o botão Eye para Cursos/Títulos", () => {
     render(
-      <ResumoDesignacao showCursosTitulos={false} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCursosTitulos={false} defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -194,7 +186,7 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -215,7 +207,7 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -240,7 +232,7 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -267,7 +259,7 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -292,7 +284,7 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -309,7 +301,7 @@ describe("ResumoDesignacao", () => {
 
   it("renderiza o botão Editar quando showEditar é true", () => {
     render(
-      <ResumoDesignacao showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -321,7 +313,7 @@ describe("ResumoDesignacao", () => {
     const onClickEditar = vi.fn();
 
     render(
-      <ResumoDesignacao showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
       { wrapper }
     );
 

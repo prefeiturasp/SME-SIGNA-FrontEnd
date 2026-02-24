@@ -5,6 +5,8 @@ export type AtualizarEmailRequest = {
 export type Servidor = {
     rf: string;
     nome: string;
+    nome_servidor?: string;
+    nome_civil?: string;
     esta_afastado: boolean;
     vinculo_cargo_sobreposto: string;
     lotacao_cargo_sobreposto: string;
@@ -13,8 +15,7 @@ export type Servidor = {
     cargo_sobreposto: string;
     cursos_titulos: string;
     dre: string;
-    unidade: string;
-    codigo: string;
+    codigo_estrutura_hierarquica: string;
   }
   
   type Cargo = {
@@ -52,8 +53,14 @@ export type DesignacaoUnidadeResponse = {
 };
 
  
- 
+ export type PesquisaUnidade = {
+    dre: string;
+    lotacao: string;
+    estrutura_hierarquica: string;
+ };
 
 export type DesignacaoUnidadeResult =
     | { success: true; data: DesignacaoUnidadeResponse }
     | { success: false; error: string; field?: string };
+
+

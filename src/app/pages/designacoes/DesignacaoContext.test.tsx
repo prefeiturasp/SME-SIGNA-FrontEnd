@@ -4,15 +4,16 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { DesignacaoProvider, useDesignacaoContext } from "./DesignacaoContext";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { Servidor } from "@/types/designacao-unidade";
 
 type FormDesignacaoEServidorIndicado = FormDesignacaoData & {
-  servidorIndicado: BuscaServidorDesignacaoBody;
+  servidorIndicado: Servidor;
 };
 
-const mockServidorIndicado: BuscaServidorDesignacaoBody = {
+const mockServidorIndicado: Servidor = {
   nome: "Servidor Mock",
   rf: "999",
+  esta_afastado: false,
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Unidade X",
   cargo_base: "Professor",
@@ -20,7 +21,6 @@ const mockServidorIndicado: BuscaServidorDesignacaoBody = {
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   dre: "DRE Mock",
-  unidade: "UE Mock",
   codigo: "COD-MOCK",
 };
 
@@ -75,7 +75,7 @@ describe("DesignacaoContext", () => {
     expect(screen.getByTestId("child")).toHaveTextContent("Child Content");
   });
 
-  it("fornece valor inicial null para formDesignacaoData", () => {
+  it("fornece valor inicial para formDesignacaoData", () => {
     render(
       <DesignacaoProvider>
         <TestComponent />

@@ -11,16 +11,16 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { InfoItem } from "../ResumoDesignacao";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableColumnsType } from "antd";
 import { IConcursoType } from "@/types/cursos-e-titulos";
+import { Servidor } from "@/types/designacao-unidade";
 
 type ModalListaCursosTitulosProps = {
     isLoading: boolean;
     open: boolean;
     onOpenChange: (v: boolean) => void;
-    defaultValues: BuscaServidorDesignacaoBody;
+    defaultValues: Servidor;
      data: IConcursoType[];
 };
 
