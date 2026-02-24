@@ -29,7 +29,7 @@ import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
 import { InputBase } from "@/components/ui/input-base";
-import { InfoItem } from "../ResumoDesignacao";
+import { InfoItem } from "../ResumoDesignacaoServidorIndicado";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
 

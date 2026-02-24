@@ -67,7 +67,7 @@ vi.mock("@/components/ui/button", () => ({
   ),
 }));
 
-vi.mock("../ResumoDesignacao", () => ({
+vi.mock("../ResumoDesignacaoServidorIndicado", () => ({
   default: ({
     defaultValues,
     isLoading,
@@ -95,6 +95,8 @@ const servidoresMock: Servidor = {
   funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
+  dre: "DRE X",
+  codigo_estrutura_hierarquica: "123",
 };
 
 describe("ModalResumoServidor", () => {

@@ -9,8 +9,7 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
-
+ 
  import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 
 import { useDesignacaoContext } from "../DesignacaoContext";

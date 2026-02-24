@@ -36,7 +36,19 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   isLoading?: boolean;
   showCursosTitulos?: boolean;
   showCamposExtras?: boolean;
-}> = ({ className, defaultValues, isLoading, showCursosTitulos = true, showEditar = false, onClickEditar, showCamposExtras = false }) => {
+  showFuncaoAtividade?: boolean;
+  showLotacao?: boolean;
+}> = ({
+   className,
+    defaultValues,
+     isLoading,
+      showCursosTitulos = false,
+       showEditar = false,
+        onClickEditar,
+         showCamposExtras = false,
+          showFuncaoAtividade = false,
+           showLotacao = false
+           }) => {
 
 
 
@@ -75,18 +87,45 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
               />
               <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
 
+              {showFuncaoAtividade && (
 
-              <InfoItem
-                label="Função atividade"
-                value={defaultValues.funcao_atividade}
-              />
+               <InfoItem
+                    label="Função atividade"
+                    value={defaultValues.funcao_atividade}
+                  />
+              )}
+
               <InfoItem
                 label="Vínculo"
                 value={defaultValues.vinculo_cargo_sobreposto}
               />
+              {showLotacao && (
+
+                <InfoItem
+                label="Lotação"
+                value={defaultValues.lotacao_cargo_sobreposto}
+                />
+              )}
+              
 
 
-              {showCursosTitulos && (
+              {showCamposExtras && (
+                <>
+                  <InfoItem
+                    label="DRE"
+                    value={defaultValues.dre}
+                  />
+
+                  <InfoItem
+                    label="Lotação"
+                    value={defaultValues.lotacao_cargo_sobreposto}
+                  />
+
+                  <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.codigo_estrutura_hierarquica} />
+                </>
+              )}
+
+{showCursosTitulos && (
                 <InfoItem
                   label="Cursos/Títulos"
                   value={defaultValues.cursos_titulos}
@@ -103,22 +142,6 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                     </Button>
                   }
                 />
-              )}
-
-              {showCamposExtras && (
-                <>
-                  <InfoItem
-                    label="DRE"
-                    value={defaultValues.dre}
-                  />
-
-                  <InfoItem
-                    label="Lotação"
-                    value={defaultValues.lotacao_cargo_sobreposto}
-                  />
-
-                  <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.codigo_estrutura_hierarquica} />
-                </>
               )}
 
 

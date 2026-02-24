@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-import { InfoItem } from "../ResumoDesignacao";
+import { InfoItem } from "../ResumoDesignacaoServidorIndicado";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableColumnsType } from "antd";
 import { IConcursoType } from "@/types/cursos-e-titulos";

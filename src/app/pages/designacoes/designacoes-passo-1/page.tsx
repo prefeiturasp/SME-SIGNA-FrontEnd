@@ -4,7 +4,6 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
@@ -86,7 +85,10 @@ export default function DesignacoesPasso1() {
         <div className="flex flex-col items-stretch">
 
           <Card title="Dados do servidor indicado" className=" mt-4 m-0 ">
-            <ResumoDesignacaoServidorIndicado isLoading={isPending} defaultValues={data} />
+            <ResumoDesignacaoServidorIndicado isLoading={isPending} defaultValues={data}
+            showFuncaoAtividade            
+            showCamposExtras           
+            />
           </Card>
 
 
