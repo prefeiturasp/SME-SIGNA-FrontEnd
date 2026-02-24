@@ -22,7 +22,24 @@ export function DesignacaoProvider({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoEServidorIndicado | null>(null);
+  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoEServidorIndicado | null>({
+    "dre": "109300",
+    "ue": "013692",
+    "funcionarios_da_unidade": "3085",
+    "quantidade_turmas": "-",
+    "codigo_estrutura_hierarquica": "",
+    "cargo_sobreposto": "ASSISTENTE DE DIRETOR DE ESCOLA - v4",
+    "modulos": 0,
+    "servidorIndicado": {
+        "nome": "ADALBERTO PAVLIDIS DA SILVA",
+        "rf": "7311559",
+        "vinculo_cargo_sobreposto": 1,
+        "lotacao_cargo_sobreposto": "JOSE BORGES ANDRADE",
+        "cargo_base": "AUXILIAR TECNICO DE EDUCACAO - v1",
+        "cargo_sobreposto": "SECRETARIO DE ESCOLA - v1",
+        "funcao_atividade": null
+    }
+});
 
   const value = useMemo(
     () => ({

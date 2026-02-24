@@ -48,6 +48,8 @@ export default function DesignacoesPasso2() {
       doc: "",
       motivo_cancelamento: "",
       impedimento_substituicao: "",
+      com_afastamento:"nao",
+      motivo_afastamento:""
     },
     mode: "onChange",
   });
@@ -55,8 +57,7 @@ export default function DesignacoesPasso2() {
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
     console.log("Dados do formulário", values);
   };
-  console.log("formDesignacaoData", formDesignacaoData);
-
+ 
   return (
     <>
       <PageHeader

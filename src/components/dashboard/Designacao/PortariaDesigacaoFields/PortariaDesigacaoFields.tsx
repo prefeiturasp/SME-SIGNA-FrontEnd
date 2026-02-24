@@ -41,6 +41,7 @@ import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
 import { Popconfirm } from "antd";
 import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   readonly setDisableProximo: (disable: boolean) => void;
@@ -103,7 +104,7 @@ const DateField = ({ register, control, name, label }: PropsDate) => {
 };
 
 const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
-  const { register, control, setValue } = useFormContext();
+  const { register, control, setValue, watch } = useFormContext();
 
   const anos = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
@@ -311,17 +312,15 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 name="a_partir_de"
                 label="A partir de"
               />
-              
             </div>
 
             <div className="w-full">
-                            <DateField
+              <DateField
                 register={register}
                 control={control}
                 name="designacao_data_final"
                 label="Até"
               />
-               
             </div>
 
             <div className="w-full">
@@ -378,13 +377,15 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        placeholder="Motivo da Cancelamento"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-motivo-cancelamento"
-                      />
+                          
+                          
+                          placeholder="Motivo do Cancelamento"
+                          value={field.value}
+                          onChange={(value) => {
+                            field.onChange(value.target.value);
+                          }}
+                          data-testid="input-motivo-cancelamento"
+                        />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -434,6 +435,82 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 )}
               />
             </div>
+
+ </div>
+        <div className="gap-4  lg:items-center  ">
+
+            <div className="w-full pt-4">
+              <FormField
+              {...register("com_afastamento")}
+                control={control}
+                name="com_afastamento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-[#42474a] font-bold">
+                      Com afastamento?
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                      
+
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        defaultValue="sim"
+                        className="w-fit "
+                      >
+                        <div className="flex items-center mt-4 gap-3">
+                          <Field orientation="horizontal">
+                            <RadioGroupItem
+                              value="sim"
+                              id="doc-sim"
+                              aria-label="doc-sim"
+                            />
+                            <Label htmlFor="doc-sim">Sim</Label>
+                          </Field>
+
+                          <Field orientation="horizontal">
+                            <RadioGroupItem
+                              value="nao"
+                              id="doc-nao"
+                              aria-label="doc-nao"
+                            />
+                            <Label htmlFor="doc-nao">Não</Label>
+                          </Field>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                  </FormItem>
+                )}
+              ></FormField>
+            </div>
+
+           
+           {watch('com_afastamento')==='sim' &&( <div className="w-full pt-4">
+              <FormField
+                {...register("motivo_afastamento")}
+                control={control}
+                name="motivo_afastamento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-[#42474a] font-bold">
+                      Motivo do afastamento
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea                        
+                        rows={4}
+                        placeholder="Motivo do afastamento"
+                        value={field.value}
+                        onChange={(value) => {
+                          field.onChange(value.target.value);
+                        }}
+                        data-testid="input-motivo-afastamento"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>)}
           </div>
         </>
       )}
