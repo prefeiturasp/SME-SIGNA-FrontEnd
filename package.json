@@ -5,15 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "cypress run",
+    "test:record": "cypress run --record",
     "test:headed": "cypress run --headed",
     "test:chrome": "cypress run --browser chrome",
     "test:firefox": "cypress run --browser firefox",
     "test:edge": "cypress run --browser edge",
     "open": "cypress open",
-    "test:login": "cypress run --spec cypress/e2e/ui/login.feature",
-    "test:esqueci-senha": "cypress run --spec cypress/e2e/ui/esqueci_senha.feature",
-    "test:alterar-senha": "cypress run --spec cypress/e2e/ui/alterar_senha.feature",
-    "test:alteracao-email": "cypress run --spec cypress/e2e/ui/alteracao_email.feature"
+    "test:login": "cypress run --spec cypress/e2e/ui/login.feature"
   },
   "keywords": [
     "cypress",
@@ -22,32 +20,14 @@
     "testing",
     "signa"
   ],
-  "author": "",
   "license": "ISC",
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^20.0.0",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
-    "cypress": "^13.6.0",
-    "cypress-mochawesome-reporter": "^3.8.0",
-    "multiple-cucumber-html-reporter": "^3.5.0"
+    "cypress": "^13.17.0",
+    "cypress-cloud": "^1.13.1"
   },
   "dependencies": {
     "dotenv": "^16.3.1"
-  },
-  "cypress-cucumber-preprocessor": {
-    "stepDefinitions": "cypress/support/step_definitions/**/*.js",
-    "nonGlobalStepDefinitions": false,
-    "json": {
-      "enabled": true,
-      "output": "cypress/reports/cucumber-json/cucumber-report.json"
-    },
-    "messages": {
-      "enabled": true,
-      "output": "cypress/reports/cucumber-ndjson/cucumber-report.ndjson"
-    },
-    "html": {
-      "enabled": true,
-      "output": "cypress/reports/cucumber-html/index.html"
-    }
   }
 }
