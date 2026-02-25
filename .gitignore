@@ -1,9 +1,12 @@
+# Dependências
 node_modules/
+package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .pnp
 .pnp.js
 
+# Cypress - Arquivos gerados
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
@@ -12,10 +15,10 @@ cypress/logs/
 .cypress-cucumber-preprocessorrc
 .currents/
 
+# Relatórios de teste
 allure-results/
 allure-report/
 .allure/
-
 test-results/
 mochawesome-report/
 cucumber-report.json
@@ -26,6 +29,7 @@ junit-*.xml
 coverage/
 .nyc_output/
 
+# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -33,6 +37,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Variáveis de ambiente e credenciais
 .env
 .env.local
 .env.development.local
@@ -40,7 +45,6 @@ lerna-debug.log*
 .env.production.local
 .env.*.local
 cypress.env.json
-
 cypress/fixtures/usuarios.json
 
 .DS_Store
@@ -78,12 +82,14 @@ $RECYCLE.BIN/
 .Trash-*
 .nfs*
 
+# Editores - VSCode
 .vscode/
 .vscode/settings.json
 .vscode/launch.json
 .vscode-test/
 *.code-workspace
 
+# Editores - IntelliJ IDEA
 .idea/
 *.iml
 *.ipr
@@ -91,30 +97,35 @@ $RECYCLE.BIN/
 out
 .idea_modules/
 
+# Editores - Sublime
 *.sublime-project
 *.sublime-workspace
 
+# Editores - Vim
 *.swp
 *.swo
 *.swn
 .*.sw[a-p]
 
+# Editores - Emacs
 \#*\#
 .\#*
 .dir-locals.el
 
+# Editores - Visual Studio
 .vs/
 
+# Build e cache
 dist/
 build/
 *.tsbuildinfo
-
 .cache/
 .parcel-cache/
 .eslintcache
 .stylelintcache
 *.cache
 
+# Arquivos temporários
 temp/
 tmp/
 *.tmp
@@ -122,6 +133,7 @@ tmp/
 *.bak
 *.backup
 
+# Credenciais e certificados
 *.pem
 *.key
 *.cert
@@ -130,10 +142,9 @@ tmp/
 secrets.json
 credentials.json
 
+# Git auxiliar
 .gitattributes.local
 .git-credentials
 .history/
 .npm/
 
-cypress/e2e/ui/alteracao_email.feature
-cypress/support/step_definitions/alteracao_email_steps.js

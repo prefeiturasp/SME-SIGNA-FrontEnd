@@ -2,7 +2,6 @@ const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
-const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 
 module.exports = defineConfig({
   e2e: {
@@ -11,9 +10,9 @@ module.exports = defineConfig({
     supportFile: 'cypress/support/e2e.js',
     screenshotsFolder: 'cypress/screenshots',
     videosFolder: 'cypress/videos',
-    video: false, // Desabilitado para melhorar performance no Firefox
-    videoCompression: 32,
-    screenshotOnRunFailure: true,
+    video: false, // Vídeos desabilitados (não necessários no repositório)
+    videoCompression: false,
+    screenshotOnRunFailure: true, // Screenshots apenas em falhas
     chromeWebSecurity: false,
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
@@ -32,13 +31,13 @@ module.exports = defineConfig({
       baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
       loginUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
       username: '7311559',
-      password: 'Sgp1559',
-      allure: true
+      password: 'Sgp1559'
     },
     async setupNodeEvents(on, config) {
-      // IMPORTANTE: Cucumber preprocessor deve ser o primeiro
+      // IMPORTANTE: Cucumber preprocessor DEVE ser configurado primeiro
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
       
+      // Bundler para processar arquivos
       on(
         'file:preprocessor',
         createBundler({
@@ -46,8 +45,17 @@ module.exports = defineConfig({
         })
       );
 
-      // Allure plugin
-      allureWriter(on, config);
+      // Tasks personalizadas
+      on('task', {
+        log(message) {
+          console.log(message);
+          return null;
+        },
+        table(message) {
+          console.table(message);
+          return null;
+        }
+      });
 
       // Configurações específicas para Firefox
       on('before:browser:launch', (browser, launchOptions) => {
@@ -64,6 +72,7 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
+      // IMPORTANTE: Retornar o config no final
       return config;
     },
   },

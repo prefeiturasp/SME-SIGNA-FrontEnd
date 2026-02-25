@@ -29,8 +29,3 @@ afterEach(function() {
     cy.screenshot(`failed-${testName}`);
   }
 });
-
-// Configurações adicionais para Allure Report
-if (Cypress.env('allure') === true) {
-  import('@shelex/cypress-allure-plugin');
-}
