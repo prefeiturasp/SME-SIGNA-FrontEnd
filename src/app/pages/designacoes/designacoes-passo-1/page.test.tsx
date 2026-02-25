@@ -81,7 +81,7 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   ),
 }));
 
-vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
+vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
   __esModule: true,
   default: (props: { defaultValues?: typeof mockResponse }) => {
     mockResumoDesignacao(props);

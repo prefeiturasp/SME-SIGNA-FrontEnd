@@ -4,7 +4,6 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
@@ -18,6 +17,7 @@ import { useDesignacaoContext } from "../DesignacaoContext";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Servidor } from "@/types/designacao-unidade";
+import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 
 
 export default function DesignacoesPasso1() {
@@ -28,6 +28,7 @@ export default function DesignacoesPasso1() {
   const formularioPesquisaUnidadeRef = useRef<FormularioPesquisaUnidadeRef | null>(null);
   const { setFormDesignacaoData } = useDesignacaoContext();
   const router = useRouter();
+  console.log("data", data);
 
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
@@ -84,7 +85,10 @@ export default function DesignacoesPasso1() {
         <div className="flex flex-col items-stretch">
 
           <Card title="Dados do servidor indicado" className=" mt-4 m-0 ">
-            <ResumoDesignacao isLoading={isPending} defaultValues={data} />
+            <ResumoDesignacaoServidorIndicado isLoading={isPending} defaultValues={data}
+            showFuncaoAtividade            
+            showCamposExtras           
+            />
           </Card>
 
 

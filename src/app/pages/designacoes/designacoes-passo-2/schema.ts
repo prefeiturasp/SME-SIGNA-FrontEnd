@@ -9,6 +9,8 @@ const formSchemaDesignacaoPasso2 = z.object({
   doc: z.string().min(1, "Digite o número do documento"),
   motivo_cancelamento: z.string().min(1, "Digite o motivo do cancelamento"),
   impedimento_substituicao: z.string().min(1, "Selecione o impedimento para substituição"),
+  com_afastamento: z.string().min(1, "Selecione o impedimento para substituição"),
+  motivo_afastamento: z.string().min(1, "Digite o motivo de afastamento"),
 });
 
 export type formSchemaDesignacaoPasso2Data = z.infer<typeof formSchemaDesignacaoPasso2>;

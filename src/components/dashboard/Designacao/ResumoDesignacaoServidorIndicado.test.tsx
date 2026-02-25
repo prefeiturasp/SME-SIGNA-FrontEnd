@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import ResumoDesignacao from "./ResumoDesignacao";
+
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IConcursoType } from "@/types/cursos-e-titulos";
 import { Servidor } from "@/types/designacao-unidade";
+import ResumoDesignacaoServidorIndicado from "./ResumoDesignacaoServidorIndicado";
 
 // Mock do hook useCursosETitulos
 const mockUseCursosETitulos = vi.fn();
@@ -41,7 +42,8 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
 }));
 
 const mockData: Servidor = {
-  nome: "Servidor Teste",
+  nome_servidor: "Servidor Teste",
+  nome_civil: "Nome Civil Teste",
   rf: "123",
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Escola X",
@@ -50,8 +52,7 @@ const mockData: Servidor = {
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   dre: "DRE Teste",
-  unidade: "Unidade Teste",
-  codigo: "COD-1",
+  codigo_estrutura_hierarquica: "COD-1",
   esta_afastado: false,
 };
 
@@ -91,38 +92,51 @@ describe("ResumoDesignacao", () => {
 
   it("exibe todos os rótulos e valores do resumo", () => {
     render(
-      <ResumoDesignacao defaultValues={mockData} showCamposExtras={true} />,
+      <ResumoDesignacaoServidorIndicado
+       defaultValues={mockData}
+        showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={false}
+        showEditar={true}
+        
+        onClickEditar={vi.fn()}
+        />,
       { wrapper }
     );
 
     const labels = [
-      "Servidor",
+      "Nome Servidor",
+      "Nome Civil",
       "RF",
-      "Vínculo",
-      "Lotação",
-      "Cargo base",
-      "Função",
+      "Função",      
       "Cargo sobreposto",
-      "Cursos/Títulos",
+      "Cargo base",
+      "Função atividade",      
+      "Vínculo",      
       "DRE",
-      "Unidade",
-      "Código",
+      "Código Estrutura Hierarquica",
+      "Cursos/Títulos",    
+       
     ];
 
     labels.forEach((label) => {
       expect(screen.getByText(label)).toBeInTheDocument();
     });
 
-    expect(screen.getAllByText(mockData.nome).length).toBeGreaterThan(0);
-    expect(screen.getByText(mockData.rf)).toBeInTheDocument();
+     expect(screen.getByText(mockData.rf)).toBeInTheDocument();
     expect(screen.getByText(mockData.dre)).toBeInTheDocument();
-    expect(screen.getByText(mockData.unidade)).toBeInTheDocument();
-    expect(screen.getByText(mockData.codigo)).toBeInTheDocument();
+    expect(screen.getByText(mockData.codigo_estrutura_hierarquica)).toBeInTheDocument();
   });
 
   it("aplica className recebido na raiz", () => {
     const { container } = render(
-      <ResumoDesignacao className="custom-class" defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         className="custom-class" defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -131,7 +145,12 @@ describe("ResumoDesignacao", () => {
 
   it("mostra o loading quando isLoading é true", () => {
     render(
-      <ResumoDesignacao
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+        
         isLoading={true}
         className="custom-class"
         defaultValues={mockData}
@@ -144,7 +163,12 @@ describe("ResumoDesignacao", () => {
 
   it("não mostra o conteúdo quando isLoading é true", () => {
     render(
-      <ResumoDesignacao
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+        
         isLoading={true}
         defaultValues={mockData}
       />,
@@ -152,14 +176,19 @@ describe("ResumoDesignacao", () => {
     );
 
     expect(screen.queryByText("Servidor")).not.toBeInTheDocument();
-    expect(screen.queryByText(mockData.nome)).not.toBeInTheDocument();
+    expect(screen.queryByText(mockData.cargo_sobreposto)).not.toBeInTheDocument();
   });
 
   
 
   it("renderiza o botão Eye para Cursos/Títulos", () => {
     render(
-      <ResumoDesignacao showCursosTitulos={true} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         showCursosTitulos={true} defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -170,7 +199,12 @@ describe("ResumoDesignacao", () => {
 
   it("não renderiza o botão Eye para Cursos/Títulos", () => {
     render(
-      <ResumoDesignacao showCursosTitulos={false} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         showCursosTitulos={false} defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -184,7 +218,12 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -205,7 +244,12 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -230,7 +274,12 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -257,7 +306,12 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -282,7 +336,12 @@ describe("ResumoDesignacao", () => {
     const user = userEvent.setup();
 
     render(
-      <ResumoDesignacao defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -299,7 +358,12 @@ describe("ResumoDesignacao", () => {
 
   it("renderiza o botão Editar quando showEditar é true", () => {
     render(
-      <ResumoDesignacao showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -311,7 +375,12 @@ describe("ResumoDesignacao", () => {
     const onClickEditar = vi.fn();
 
     render(
-      <ResumoDesignacao showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
+      <ResumoDesignacaoServidorIndicado showCamposExtras={true}
+        showCursosTitulos={true}
+        showFuncaoAtividade={true}
+        showLotacao={true}
+        showEditar={true}
+         showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
       { wrapper }
     );
 

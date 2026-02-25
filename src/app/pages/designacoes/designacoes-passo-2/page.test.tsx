@@ -76,7 +76,7 @@ vi.mock("antd", () => ({
   ),
 }));
 
-vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
+vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
   __esModule: true,
   default: (props: any) => {
     h.resumoCalls.push(props);

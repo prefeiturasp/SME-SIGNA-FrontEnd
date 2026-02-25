@@ -11,12 +11,13 @@ import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTi
 import useCursosETitulos from "@/hooks/useCursosETitulos";
 import Edit from "@/assets/icons/Edit";
 import { Servidor } from "@/types/designacao-unidade";
-export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode }> = ({
+export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode; className?: string }> = ({
   label,
   value,
   icon,
+  className,
 }) => (
-  <div className="flex flex-col gap-2">
+  <div className={`flex flex-col gap-2 ${className}`}>
     <div className="flex flex-row gap-10">
       <p className="text-[14px] font-bold ">{label}</p>
       {icon && <div className="w-6 h-6">{icon}</div>}
@@ -27,7 +28,7 @@ export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.Re
   </div>
 );
 
-const ResumoDesignacao: React.FC<{
+const ResumoDesignacaoServidorIndicado: React.FC<{
   onClickEditar?: () => void;
   showEditar?: boolean;
   className?: string;
@@ -35,7 +36,19 @@ const ResumoDesignacao: React.FC<{
   isLoading?: boolean;
   showCursosTitulos?: boolean;
   showCamposExtras?: boolean;
-}> = ({ className, defaultValues, isLoading, showCursosTitulos = true, showEditar = false, onClickEditar, showCamposExtras = false }) => {
+  showFuncaoAtividade?: boolean;
+  showLotacao?: boolean;
+}> = ({
+   className,
+    defaultValues,
+     isLoading,
+      showCursosTitulos = false,
+       showEditar = false,
+        onClickEditar,
+         showCamposExtras = false,
+          showFuncaoAtividade = false,
+           showLotacao = false
+           }) => {
 
 
 
@@ -64,7 +77,8 @@ const ResumoDesignacao: React.FC<{
         <div className={className}>
           <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
             <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
-              <InfoItem label="Servidor" value={defaultValues.nome} />
+              <InfoItem label="Nome Servidor" value={defaultValues.nome} />
+              <InfoItem label="Nome Civil" value={defaultValues.nome} />
               <InfoItem label="RF" value={defaultValues.rf} />
               <InfoItem label="Função" value={defaultValues.funcao_atividade} />
               <InfoItem
@@ -73,16 +87,45 @@ const ResumoDesignacao: React.FC<{
               />
               <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
 
+              {showFuncaoAtividade && (
+
+               <InfoItem
+                    label="Função atividade"
+                    value={defaultValues.funcao_atividade}
+                  />
+              )}
+
               <InfoItem
                 label="Vínculo"
                 value={defaultValues.vinculo_cargo_sobreposto}
               />
-              <InfoItem
+              {showLotacao && (
+
+                <InfoItem
                 label="Lotação"
                 value={defaultValues.lotacao_cargo_sobreposto}
-              />
+                />
+              )}
+              
 
-              {showCursosTitulos && (
+
+              {showCamposExtras && (
+                <>
+                  <InfoItem
+                    label="DRE"
+                    value={defaultValues.dre}
+                  />
+
+                  <InfoItem
+                    label="Lotação"
+                    value={defaultValues.lotacao_cargo_sobreposto}
+                  />
+
+                  <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.codigo_estrutura_hierarquica} />
+                </>
+              )}
+
+{showCursosTitulos && (
                 <InfoItem
                   label="Cursos/Títulos"
                   value={defaultValues.cursos_titulos}
@@ -101,14 +144,6 @@ const ResumoDesignacao: React.FC<{
                 />
               )}
 
-              {showCamposExtras && (
-                <>
-                  <InfoItem label="DRE" value={defaultValues.dre} />
-                  <InfoItem label="Unidade" value={defaultValues.unidade} />
-                  <InfoItem label="Código" value={defaultValues.codigo} />
-                </>
-              )}
-
 
 
             </div>
@@ -116,10 +151,10 @@ const ResumoDesignacao: React.FC<{
 
           {showEditar && (
             <div className="flex justify-end">
-              <Button type="button" variant="outline" size="lg" className=" flex items-center justify-center gap-2" onClick={onClickEditar}>                          
+              <Button type="button" variant="outline" size="lg" className=" flex items-center justify-center gap-2" onClick={onClickEditar}>
                 <p className="text-[16px] font-bold">Editar</p>
                 <Edit />
-                </Button>
+              </Button>
             </div>
           )}
 
@@ -137,4 +172,4 @@ const ResumoDesignacao: React.FC<{
   );
 };
 
-export default ResumoDesignacao;
+export default ResumoDesignacaoServidorIndicado;

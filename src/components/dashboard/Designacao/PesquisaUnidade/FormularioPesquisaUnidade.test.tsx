@@ -980,7 +980,7 @@ describe("FormularioPesquisaUnidade", () => {
       InputBase: () => <input />,
     }));
 
-    vi.doMock("../ResumoDesignacao", () => ({
+    vi.doMock("../ResumoDesignacaoServidorIndicado", () => ({
       InfoItem: ({ label, value }: { label: string; value?: string }) => (
         <div>
           <span>{label}</span>

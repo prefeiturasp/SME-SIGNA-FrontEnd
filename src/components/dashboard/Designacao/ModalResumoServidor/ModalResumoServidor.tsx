@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-import ResumoDesignacao from "../ResumoDesignacao";
-import { Separator } from "@/components/ui/separator";
+ import { Separator } from "@/components/ui/separator";
  
 import { Servidor } from "@/types/designacao-unidade";
+import ResumoDesignacaoServidorIndicado from "../ResumoDesignacaoServidorIndicado";
  
 type ModalResumoServidorProps = {
     isLoading: boolean;
@@ -50,11 +50,13 @@ export default function ModalResumoServidor({
                 
                 {servidores?.length ? (
                     servidores.map((servidor) => (
-                        <ResumoDesignacao
+                        <ResumoDesignacaoServidorIndicado
                             key={servidor.rf}
                             defaultValues={servidor}
                             isLoading={isLoading}
                             showCursosTitulos={false}
+                            showFuncaoAtividade={false}
+                            showLotacao={true}
                         />
                     ))
                 ) : (
