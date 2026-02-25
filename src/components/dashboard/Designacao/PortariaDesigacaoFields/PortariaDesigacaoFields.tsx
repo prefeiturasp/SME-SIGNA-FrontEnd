@@ -48,16 +48,17 @@ interface Props {
   isLoading: boolean;
 }
 
-interface PropsDate {
+interface PropsField {
   register: UseFormRegister<FieldValues>;
   control: Control<FieldValues>;
   name: string;
   label: string;
   placeholder?: string;
+  dataTestId?: string;
 }
 
 
-const CheckboxField = ({ register, control, name, label, placeholder }: PropsDate) => {
+const CheckboxField = ({ register, control, name, label, dataTestId }: PropsField) => {
   return (
     <FormField
       {...register(name)}
@@ -81,8 +82,8 @@ const CheckboxField = ({ register, control, name, label, placeholder }: PropsDat
               <Field orientation="horizontal">
                 <RadioGroupItem
                   value="sim"
-                  id="doc-sim"
-                  aria-label="doc-sim"
+                  id={dataTestId + "-sim"}
+                  aria-label={dataTestId + "-sim"}
                 />
                 <Label htmlFor="doc-sim">Sim</Label>
               </Field>
@@ -90,8 +91,8 @@ const CheckboxField = ({ register, control, name, label, placeholder }: PropsDat
               <Field orientation="horizontal">
                 <RadioGroupItem
                   value="nao"
-                  id="doc-nao"
-                  aria-label="doc-nao"
+                  id={dataTestId + "-nao"}
+                  aria-label={dataTestId + "-nao"}
                 />
                 <Label htmlFor="doc-nao">Não</Label>
               </Field>
@@ -104,7 +105,7 @@ const CheckboxField = ({ register, control, name, label, placeholder }: PropsDat
        
   );
 };
-const InputField = ({ register, control, name, label, placeholder }: PropsDate) => {
+const InputField = ({ register, control, name, label, placeholder, dataTestId }: PropsField) => {
   return (
     <FormField
       {...register(name)}
@@ -122,7 +123,7 @@ const InputField = ({ register, control, name, label, placeholder }: PropsDate) 
               onChange={(value) => {
                 field.onChange(value.target.value);
               }}
-              data-testid="input-portaria-designacao"
+              data-testid={dataTestId}
             />
           </FormControl>
           <FormMessage />
@@ -134,7 +135,7 @@ const InputField = ({ register, control, name, label, placeholder }: PropsDate) 
 
 
 
-const DateField = ({ register, control, name, label }: PropsDate) => {
+const DateField = ({ register, control, name, label }: PropsField) => {
   return (
     <FormField
       {...register(name)}
@@ -259,6 +260,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 name="portaria_designacao"
                 label="Portaria da designação"
                 placeholder="Nº da portaria"
+                data-testid="input-portaria-designacao"
               />
             </div>
 
@@ -319,6 +321,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 name="numero_sei"
                 label="Nº SEI"
                 placeholder="Número SEI"
+                data-testid="input-numero-sei"
               />
 
 
@@ -332,6 +335,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 name="doc"
                 label="Doc"
                 placeholder="Número doc"
+                data-testid="input-doc"
               />
             </div>
           </div>
@@ -365,6 +369,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 control={control}
                 name="carater_especial"
                 label="Carater Especial"
+                data-testid="checkbox-carater-especial"
               />
             </div>
 
@@ -375,6 +380,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 name="motivo_cancelamento"
                 label="Motivo Cancelamento"
                 placeholder="Motivo do Cancelamento"
+                data-testid="input-motivo-cancelamento"
               />
 
             </div>
@@ -431,6 +437,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 control={control}
                 name="com_afastamento"
                 label="Com afastamento?"
+                data-testid="checkbox-com-afastamento"
               />
             </div>
 

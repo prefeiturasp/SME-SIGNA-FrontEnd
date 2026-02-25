@@ -222,16 +222,16 @@ describe("PortariaDesigacaoFields", () => {
     );
 
     // Inputs (onChange com field.onChange(value.target.value))
-    fireEvent.change(screen.getByTestId("input-portaria-designacao"), {
+    fireEvent.change(screen.getByPlaceholderText("Nº da portaria"), {
       target: { value: "123" },
     });
-    fireEvent.change(screen.getByTestId("input-numero-sei"), {
+    fireEvent.change(screen.getByPlaceholderText("Número SEI"), {
       target: { value: "SEI-1" },
     });
-    fireEvent.change(screen.getByTestId("input-doc"), {
+    fireEvent.change(screen.getByPlaceholderText("Número doc"), {
       target: { value: "DOC-1" },
     });
-    fireEvent.change(screen.getByTestId("input-motivo-cancelamento"), {
+    fireEvent.change(screen.getByPlaceholderText("Motivo do Cancelamento"), {
       target: { value: "Motivo" },
     });
 
