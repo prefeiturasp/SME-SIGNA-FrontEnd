@@ -52,7 +52,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] font-bold">
-                    RF do titular
+                    RF do servidor indicado
                     </FormLabel>
                     <FormControl>
                       <InputBase

@@ -49,8 +49,8 @@ export default function DetalhamentoTurmasModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white shadow-lg">
+        <Dialog.Overlay className="fixed inset-0 bg-black/40 z-50" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white shadow-lg">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <Dialog.Title className="text-lg font-semibold text-gray-900">
               Detalhamento de turmas
