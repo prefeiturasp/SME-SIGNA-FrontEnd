@@ -338,7 +338,7 @@ const FormularioPesquisaUnidade = forwardRef<
             <div className="w-full md:w-[20%]">
               <InfoItem
                 label="Código Estrutura hierárquica"
-                value={form.watch("codigo_estrutura_hierarquica") || "-"}
+                value={form.watch("codigo_estrutura_hierarquica") ?? "-"}
               />
             </div>
 
