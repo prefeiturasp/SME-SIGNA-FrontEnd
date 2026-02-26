@@ -297,7 +297,7 @@ export default function ModalEditarServidor({
                             className="flex items-center justify-center gap-6 w-[140px]"
                             variant="outline"
                             onClick={() => handleOpenChange(false)}
-                            data-testid="botao-proximo"
+                            data-testid="botao-cancelar"
                         >
                             <p className="text-[16px] font-bold">Cancelar</p>
                         </Button>

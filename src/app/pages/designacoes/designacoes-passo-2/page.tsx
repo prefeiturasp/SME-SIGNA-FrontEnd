@@ -129,8 +129,7 @@ export default function DesignacoesPasso2() {
                       defaultValues={formDesignacaoData?.servidorIndicado}
                       showCursosTitulos={false}
                       showEditar={true}
-                      onClickEditar={() => {}}
-                      showCamposExtras
+                       showCamposExtras
                       
                     />
                   </CustomAccordionItem>
