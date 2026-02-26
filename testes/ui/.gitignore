@@ -1,0 +1,150 @@
+# Dependências
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnp
+.pnp.js
+
+# Cypress - Arquivos gerados
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+cypress/reports/
+cypress/logs/
+.cypress-cucumber-preprocessorrc
+.currents/
+
+# Relatórios de teste
+allure-results/
+allure-report/
+.allure/
+test-results/
+mochawesome-report/
+cucumber-report.json
+cucumber-report.html
+cucumber-report.ndjson
+*.xml
+junit-*.xml
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Variáveis de ambiente e credenciais
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+cypress.env.json
+cypress/fixtures/usuarios.json
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Editores - VSCode
+.vscode/
+.vscode/settings.json
+.vscode/launch.json
+.vscode-test/
+*.code-workspace
+
+# Editores - IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out
+.idea_modules/
+
+# Editores - Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Editores - Vim
+*.swp
+*.swo
+*.swn
+.*.sw[a-p]
+
+# Editores - Emacs
+\#*\#
+.\#*
+.dir-locals.el
+
+# Editores - Visual Studio
+.vs/
+
+# Build e cache
+dist/
+build/
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.cache
+
+# Arquivos temporários
+temp/
+tmp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Credenciais e certificados
+*.pem
+*.key
+*.cert
+*.p12
+.secrets/
+secrets.json
+credentials.json
+
+# Git auxiliar
+.gitattributes.local
+.git-credentials
+.history/
+.npm/
+
