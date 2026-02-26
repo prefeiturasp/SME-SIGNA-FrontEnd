@@ -32,5 +32,5 @@ Funcionalidade: Autenticação no Sistema SIGNA
   Cenário: Validação de campo RF obrigatório
     Quando eu insiro apenas a senha sem RF
     E clico no botão de acessar
-    Então devo visualizar validação de RF obrigatório
+    Então devo visualizar validação de RF obrigatório 
 
