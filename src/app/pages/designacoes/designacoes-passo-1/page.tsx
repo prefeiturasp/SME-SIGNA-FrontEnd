@@ -52,7 +52,8 @@ export default function DesignacoesPasso1() {
       return;
     }
     console.log("Dados da unidade selecionada", {...valoresFormulario, servidorIndicado: data});
-    setFormDesignacaoData({...valoresFormulario, servidorIndicado: data});
+    //  TODO adicionar o dado correto de nome e nome civil 
+    setFormDesignacaoData({...valoresFormulario, servidorIndicado: {...data, nome_servidor: data.nome, nome_civil: data.nome}});
     router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
   };
   return (
@@ -83,10 +84,11 @@ export default function DesignacoesPasso1() {
 
       {data?.nome && (
         <div className="flex flex-col items-stretch">
-
+          {/* TODO adicionar o dado correto de nome e nome civil */}
           <Card title="Dados do servidor indicado" className=" mt-4 m-0 ">
-            <ResumoDesignacaoServidorIndicado isLoading={isPending} defaultValues={data}
+            <ResumoDesignacaoServidorIndicado isLoading={isPending} defaultValues={{...data, nome_servidor: data.nome, nome_civil: data.nome}}  
             showFuncaoAtividade            
+            showCursosTitulos
             showCamposExtras           
             />
           </Card>

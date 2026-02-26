@@ -11,6 +11,8 @@ const mockResumoDesignacao = vi.fn();
 
 const mockResponse = {
   nome: "Servidor Teste",
+  nome_civil: "Servidor Teste",
+  nome_servidor: "Servidor Teste",
   rf: "123",
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Escola X",
@@ -245,8 +247,15 @@ describe("DesignacoesPasso1", () => {
     expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
     expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
     expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
+
     expect(mockResumoDesignacao).toHaveBeenCalledWith(
-      expect.objectContaining({ defaultValues: mockResponse })
+      expect.objectContaining({
+        defaultValues: mockResponse,
+        isLoading: false,
+        showCamposExtras: true,
+        showCursosTitulos: true,
+        showFuncaoAtividade: true
+      })
     );
   });
 
@@ -305,7 +314,7 @@ describe("DesignacoesPasso1", () => {
 
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(mockSetFormDesignacaoData).toHaveBeenCalledWith({...mockFormValues, servidorIndicado: mockResponse});
+    expect(mockSetFormDesignacaoData).toHaveBeenCalledWith({ ...mockFormValues, servidorIndicado: mockResponse });
     expect(mockRouterPush).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-2?123"
     );

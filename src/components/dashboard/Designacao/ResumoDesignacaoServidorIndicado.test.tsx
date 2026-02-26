@@ -10,6 +10,13 @@ import ResumoDesignacaoServidorIndicado from "./ResumoDesignacaoServidorIndicado
 
 // Mock do hook useCursosETitulos
 const mockUseCursosETitulos = vi.fn();
+const mockSetFormDesignacaoData = vi.fn();
+
+vi.mock("../../../app/pages/designacoes/DesignacaoContext", () => ({
+  useDesignacaoContext: () => ({
+    setFormDesignacaoData: mockSetFormDesignacaoData,
+  }),
+}));
 vi.mock("@/hooks/useCursosETitulos", () => ({
   default: () => mockUseCursosETitulos(),
 }));
@@ -39,6 +46,12 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
       )}
     </div>
   ),
+}));
+
+vi.mock("../DesignacaoContext", () => ({
+  useDesignacaoContext: () => ({
+    setFormDesignacaoData: mockSetFormDesignacaoData,
+  }),
 }));
 
 const mockData: Servidor = {
@@ -380,12 +393,13 @@ describe("ResumoDesignacao", () => {
         showFuncaoAtividade={true}
         showLotacao={true}
         showEditar={true}
-         showEditar={true} onClickEditar={onClickEditar} defaultValues={mockData} />,
+        onClickEditar={onClickEditar}
+        defaultValues={mockData} />,
       { wrapper }
     );
 
     await user.click(screen.getByRole("button", { name: /Editar/i }));
-    expect(onClickEditar).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Editar dados servidor indicado')).toBeInTheDocument();
   });
 });
 

@@ -8,7 +8,7 @@ export type Servidor = {
     nome_servidor?: string;
     nome_civil?: string;
     esta_afastado: boolean;
-    vinculo_cargo_sobreposto: string;
+    vinculo_cargo_sobreposto: number;
     lotacao_cargo_sobreposto: string;
     cargo_base: string;
     funcao_atividade: string;
