@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 
 import { Separator } from "@/components/ui/separator";
 import { Card } from "antd";
-import type { IConcursoType } from "@/types/cursos-e-titulos";
 import type { Servidor } from "@/types/designacao-unidade";
 import { InputField } from "@/components/ui/FieldsForm";
 import { zodResolver } from "@hookform/resolvers/zod";
