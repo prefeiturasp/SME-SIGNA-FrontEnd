@@ -30,7 +30,6 @@ export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.Re
 );
 
 const ResumoDesignacaoServidorIndicado: React.FC<{
-  onClickEditar?: () => void;
   showEditar?: boolean;
   className?: string;
   defaultValues: Servidor;
@@ -45,7 +44,6 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
      isLoading,
       showCursosTitulos = false,
        showEditar = false,
-        onClickEditar,
          showCamposExtras = false,
           showFuncaoAtividade = false,
            showLotacao = false

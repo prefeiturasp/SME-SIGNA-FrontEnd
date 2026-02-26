@@ -55,10 +55,11 @@ vi.mock("../DesignacaoContext", () => ({
 }));
 
 const mockData: Servidor = {
+  nome: "Servidor Teste",
   nome_servidor: "Servidor Teste",
   nome_civil: "Nome Civil Teste",
   rf: "123",
-  vinculo_cargo_sobreposto: "Ativo",
+  vinculo_cargo_sobreposto: 1,
   lotacao_cargo_sobreposto: "Escola X",
   cargo_base: "Professor",
   funcao_atividade: "Docente",
@@ -113,7 +114,7 @@ describe("ResumoDesignacao", () => {
         showLotacao={false}
         showEditar={true}
         
-        onClickEditar={vi.fn()}
+        
         />,
       { wrapper }
     );
@@ -201,7 +202,7 @@ describe("ResumoDesignacao", () => {
         showFuncaoAtividade={true}
         showLotacao={true}
         showEditar={true}
-         showCursosTitulos={true} defaultValues={mockData} />,
+         defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -213,11 +214,11 @@ describe("ResumoDesignacao", () => {
   it("não renderiza o botão Eye para Cursos/Títulos", () => {
     render(
       <ResumoDesignacaoServidorIndicado showCamposExtras={true}
-        showCursosTitulos={true}
+        showCursosTitulos={false}
         showFuncaoAtividade={true}
         showLotacao={true}
         showEditar={true}
-         showCursosTitulos={false} defaultValues={mockData} />,
+        defaultValues={mockData} />,
       { wrapper }
     );
 
@@ -376,25 +377,23 @@ describe("ResumoDesignacao", () => {
         showFuncaoAtividade={true}
         showLotacao={true}
         showEditar={true}
-         showEditar={true} onClickEditar={vi.fn()} defaultValues={mockData} />,
+        defaultValues={mockData} />,
       { wrapper }
     );
 
     expect(screen.getByRole("button", { name: /Editar/i })).toBeInTheDocument();
   });
 
-  it("chama onClickEditar ao clicar no botão Editar", async () => {
+  it("chama modalEditarServidor ao clicar no botão Editar", async () => {
     const user = userEvent.setup();
-    const onClickEditar = vi.fn();
-
+ 
     render(
       <ResumoDesignacaoServidorIndicado showCamposExtras={true}
         showCursosTitulos={true}
         showFuncaoAtividade={true}
         showLotacao={true}
         showEditar={true}
-        onClickEditar={onClickEditar}
-        defaultValues={mockData} />,
+         defaultValues={mockData} />,
       { wrapper }
     );
 
