@@ -15,10 +15,12 @@ import FormularioPesquisaUnidade, {
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import { Servidor } from "@/types/designacao-unidade";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
-
+import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
+import {
+  Accordion
+} from "@/components/ui/accordion"
 
 export default function DesignacoesPasso1() {
   const { mutateAsync, isPending } = useServidorDesignacao();
@@ -35,7 +37,6 @@ export default function DesignacoesPasso1() {
     if (response.success) {
       setData(response.data);
       setError(null);
-
     }
     if (!response.success) {
       setError(response.error);
@@ -46,15 +47,17 @@ export default function DesignacoesPasso1() {
   const onSubmitDesignacao = (values: FormDesignacaoData) => {
     console.log("Dados do formulário", values);
   };
+
   const onProximo = (data: Servidor) => {
     const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
     if (!valoresFormulario) {
       return;
     }
-    console.log("Dados da unidade selecionada", {...valoresFormulario, servidorIndicado: data});
-    setFormDesignacaoData({...valoresFormulario, servidorIndicado: data});
+    console.log("Dados da unidade selecionada", { ...valoresFormulario, servidorIndicado: data });
+    setFormDesignacaoData({ ...valoresFormulario, servidorIndicado: data });
     router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
   };
+
   return (
     <>
       <PageHeader
@@ -63,58 +66,63 @@ export default function DesignacoesPasso1() {
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
-
-
-
       <FundoBranco >
         <StepperDesignacao current={0} />
       </FundoBranco>
-
-      <Card title={<span className="text-[#6058A2]">Servidor indicado</span>} className="text-[#6058A2] mt-4 m-0 ">
-        <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
-      </Card>
-
-
-      {error && <div className="text-red-500">{error}</div>}
-
-      {isPending && <div className="flex items-center justify-center">
-        <Loader2 data-testid="loader" className="w-20 h-20 animate-spin text-primary " />
-      </div>}
-
-      {data?.nome && (
-        <div className="flex flex-col items-stretch">
-
-          <Card title="Dados do servidor indicado" className=" mt-4 m-0 ">
-            <ResumoDesignacaoServidorIndicado isLoading={isPending} defaultValues={data}
-            showFuncaoAtividade            
-            showCamposExtras           
-            />
-          </Card>
-
-
-          <Card title={<span className="text-[#6058A2]">Pesquisa da unidade</span>}
-            className=" mt-4 m-0 ">
+      <Card
+        title={
+          <div className="flex justify-between items-center">
+            <span className="text-[#333]">Servidor indicado</span>
+          </div>
+        }
+        className=" mt-4 m-0 ">
+        <Accordion
+          type="multiple"
+          defaultValue={["portarias-designacao"]}
+        >
+          <div className="pt-4 pb-6">
+            <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
+          </div>
+          {error && <div className="text-red-500">{error}</div>}
+          {data && (
+            <CustomAccordionItem
+              title="Dados do servidor indicado"
+              value="servidor-indicado"
+              color="gold"
+            >
+              <ResumoDesignacaoServidorIndicado
+                isLoading={false}
+                defaultValues={data}
+                showCursosTitulos={false}
+                showEditar={true}
+                onClickEditar={() => { }}
+                showCamposExtras
+              />
+            </CustomAccordionItem>
+          )}
+          <CustomAccordionItem
+            title="Unidade Proponente"
+            color="blue"
+            value="unidade-proponente"
+          >
             <FormularioPesquisaUnidade
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
               onSubmitDesignacao={onSubmitDesignacao}
               setDisableProximo={setDisableProximo}
             />
-          </Card>
-
-          <div className="w-full flex flex-col ">
-            <BotoesDeNavegacao
-              disableAnterior={true}
-              disableProximo={disableProximo}
-              onProximo={() => onProximo(data)}
-              showAnterior={false}
-              onAnterior={() => { }}
-            />
-          </div>
-
-
-        </div>
-      )}
+          </CustomAccordionItem>
+        </Accordion>
+      </Card>
+      <div className="w-full flex flex-col ">
+        <BotoesDeNavegacao
+          disableAnterior={true}
+          disableProximo={disableProximo}
+          onProximo={() => data && onProximo(data)}
+          showAnterior={false}
+          onAnterior={() => { }}
+        />
+      </div>
     </>
   );
 }
