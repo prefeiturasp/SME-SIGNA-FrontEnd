@@ -95,8 +95,7 @@ export default function DesignacoesPasso1() {
                 defaultValues={data}
                 showCursosTitulos={false}
                 showEditar={true}
-                onClickEditar={() => { }}
-                showCamposExtras
+                 showCamposExtras
               />
             </CustomAccordionItem>
           )}
