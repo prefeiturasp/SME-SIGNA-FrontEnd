@@ -28,7 +28,6 @@ import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
-import { InputBase } from "@/components/ui/input-base";
 import { InfoItem } from "../ResumoDesignacaoServidorIndicado";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
@@ -269,7 +268,7 @@ const FormularioPesquisaUnidade = forwardRef<
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required text-[#42474a] font-bold">
-                    Unidade escolar
+                    Unidade proponente
                   </FormLabel>
                   <FormControl>
                     {isLoadingUEs ? (
@@ -337,43 +336,9 @@ const FormularioPesquisaUnidade = forwardRef<
         {funcionariosOptions.length > 0 && (
           <div className="flex flex-col md:flex-row  gap-5">
             <div className="w-full md:w-[20%]">
-              <FormField
-                control={form.control}
-                name="codigo_estrutura_hierarquica"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Código Estrutura hierárquica
-                    </FormLabel>
-                    <FormControl>
-                      <InputBase
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-codigo"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="w-full md:w-[15%] mt-6">
               <InfoItem
-                label="Qtd. Turmas"
-                value={form.watch("quantidade_turmas")}
-                icon={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setOpenModal(true)}
-                    data-testid="btn-visualizar-turmas"
-                  >
-                    <Eye width={16} height={16} />
-                  </Button>
-                }
+                label="Código Estrutura hierárquica"
+                value={form.watch("codigo_estrutura_hierarquica") || "-"}
               />
             </div>
 
@@ -439,6 +404,23 @@ const FormularioPesquisaUnidade = forwardRef<
                     <FormMessage />
                   </FormItem>
                 )}
+              />
+            </div>
+
+                        <div className="w-full md:w-[15%] mt-6">
+              <InfoItem
+                label="Qtd. Turmas"
+                value={form.watch("quantidade_turmas")}
+                icon={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setOpenModal(true)}
+                    data-testid="btn-visualizar-turmas"
+                  >
+                    <Eye width={16} height={16} />
+                  </Button>
+                }
               />
             </div>
           </div>

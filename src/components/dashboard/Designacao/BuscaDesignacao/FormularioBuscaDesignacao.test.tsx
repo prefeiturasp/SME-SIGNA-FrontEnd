@@ -11,15 +11,17 @@ describe("FormularioBuscaDesignacao", () => {
   it("usa valores iniciais vazios", () => {
     render(<FormularioBuscaDesignacao onBuscaDesignacao={vi.fn()} />);
 
-    expect(
-      (screen.getByTestId("input-rf") as HTMLInputElement).value,
-    ).toBe("");
+    expect(screen.getByTestId("input-rf"))
+      .toHaveDisplayValue("");
   });
 
   it("renderiza o campo de RF e o botão de pesquisa", () => {
     render(<FormularioBuscaDesignacao onBuscaDesignacao={vi.fn()} />);
 
-    expect(screen.getByText("RF do titular")).toBeInTheDocument();
+    expect(
+      screen.getByText("RF do servidor indicado")
+    ).toBeInTheDocument();
+
     expect(
       screen.getByRole("button", { name: /Pesquisar/i })
     ).toBeInTheDocument();
@@ -31,10 +33,12 @@ describe("FormularioBuscaDesignacao", () => {
 
     render(<FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />);
 
-    const rfInput = screen.getByTestId("input-rf") as HTMLInputElement;
+    const rfInput = screen.getByTestId("input-rf");
 
     await user.type(rfInput, "123");
-    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+    await user.click(
+      screen.getByRole("button", { name: /Pesquisar/i })
+    );
 
     await waitFor(() => {
       expect(onBuscaDesignacao).toHaveBeenCalledWith({
@@ -43,4 +47,3 @@ describe("FormularioBuscaDesignacao", () => {
     });
   });
 });
-
