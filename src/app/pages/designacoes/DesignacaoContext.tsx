@@ -5,7 +5,7 @@ import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUn
 import { Servidor } from "@/types/designacao-unidade";
 
 
-type FormDesignacaoEServidorIndicado = FormDesignacaoData & { servidorIndicado: Servidor };
+export type FormDesignacaoEServidorIndicado = FormDesignacaoData & { servidorIndicado: Servidor };
 
 type DesignacaoContextValue = {
   formDesignacaoData: FormDesignacaoEServidorIndicado | null;

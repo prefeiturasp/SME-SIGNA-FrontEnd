@@ -11,6 +11,8 @@ const mockResumoDesignacao = vi.fn();
 
 const mockResponse = {
   nome: "Servidor Teste",
+  nome_civil: "Servidor Teste",
+  nome_servidor: "Servidor Teste",
   rf: "123",
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Escola X",

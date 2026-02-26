@@ -53,8 +53,8 @@ export default function DesignacoesPasso1() {
     if (!valoresFormulario) {
       return;
     }
-    console.log("Dados da unidade selecionada", { ...valoresFormulario, servidorIndicado: data });
-    setFormDesignacaoData({ ...valoresFormulario, servidorIndicado: data });
+    console.log("Dados da unidade selecionada", {...valoresFormulario, servidorIndicado: data});
+    setFormDesignacaoData({...valoresFormulario, servidorIndicado: {...data, nome_servidor: data.nome, nome_civil: data.nome}});
     router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
   };
 
@@ -95,8 +95,7 @@ export default function DesignacoesPasso1() {
                 defaultValues={data}
                 showCursosTitulos={false}
                 showEditar={true}
-                onClickEditar={() => { }}
-                showCamposExtras
+                 showCamposExtras
               />
             </CustomAccordionItem>
           )}

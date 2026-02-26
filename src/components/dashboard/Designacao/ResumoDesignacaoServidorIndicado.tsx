@@ -11,6 +11,7 @@ import ModalListaCursosTitulos from "./ModalListaCursosTitulo/ModalListaCursosTi
 import useCursosETitulos from "@/hooks/useCursosETitulos";
 import Edit from "@/assets/icons/Edit";
 import { Servidor } from "@/types/designacao-unidade";
+import ModalEditarServidor from "./ModalEditarServidor/ModalEditarServidor";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode; className?: string }> = ({
   label,
   value,
@@ -29,7 +30,6 @@ export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.Re
 );
 
 const ResumoDesignacaoServidorIndicado: React.FC<{
-  onClickEditar?: () => void;
   showEditar?: boolean;
   className?: string;
   defaultValues: Servidor;
@@ -44,7 +44,6 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
      isLoading,
       showCursosTitulos = false,
        showEditar = false,
-        onClickEditar,
          showCamposExtras = false,
           showFuncaoAtividade = false,
            showLotacao = false
@@ -56,6 +55,11 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
 
   function handleOpenModalListaCursosTitulos() {
     setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
+  }
+
+  const [openModalEditarServidor, setOpenModalEditarServidor] = useState(false);
+  function handleOpenModalEditarServidor() {
+    setOpenModalEditarServidor(!openModalEditarServidor);
   }
 
   const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
@@ -77,8 +81,8 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
         <div className={className}>
           <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
             <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
-              <InfoItem label="Nome Servidor" value={defaultValues.nome} />
-              <InfoItem label="Nome Civil" value={defaultValues.nome} />
+              <InfoItem label="Nome Servidor" value={defaultValues.nome_servidor} />
+              <InfoItem label="Nome Civil" value={defaultValues.nome_civil} />
               <InfoItem label="RF" value={defaultValues.rf} />
               <InfoItem label="Função" value={defaultValues.funcao_atividade} />
               <InfoItem
@@ -97,7 +101,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
 
               <InfoItem
                 label="Vínculo"
-                value={defaultValues.vinculo_cargo_sobreposto}
+                value={defaultValues.vinculo_cargo_sobreposto.toString()}
               />
               {showLotacao && (
 
@@ -151,14 +155,26 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
 
           {showEditar && (
             <div className="flex justify-end">
-              <Button type="button" variant="outline" size="lg" className=" flex items-center justify-center gap-2" onClick={onClickEditar}>
+              <Button 
+              type="button"
+               variant="outline"
+                size="lg"
+                 className=" flex items-center justify-center gap-2" onClick={handleOpenModalEditarServidor}>
+
                 <p className="text-[16px] font-bold">Editar</p>
                 <Edit />
               </Button>
             </div>
           )}
 
-          <ModalListaCursosTitulos
+          <ModalEditarServidor
+            isLoading={false}
+            open={openModalEditarServidor}
+            onOpenChange={setOpenModalEditarServidor}
+            defaultValues={defaultValues}
+          />
+
+        <ModalListaCursosTitulos
             isLoading={isLoadingCursosETitulos}
             open={openModalListaCursosTitulos}
             onOpenChange={setOpenModalListaCursosTitulos}

@@ -101,9 +101,9 @@ export default function DesignacoesPasso2() {
                 >
 
                 <CustomAccordionItem
-                    title="Lotação"
+                    title="Unidade Proponente"
                     color="blue"
-                    value="lotacao"
+                    value="unidade-proponente"
                   >
                 <ResumoPesquisaDaUnidade 
                 defaultValues={
@@ -129,8 +129,8 @@ export default function DesignacoesPasso2() {
                       defaultValues={formDesignacaoData?.servidorIndicado}
                       showCursosTitulos={false}
                       showEditar={true}
-                      onClickEditar={() => {}}
-                      showCamposExtras
+                       showCamposExtras
+                      
                     />
                   </CustomAccordionItem>
 
