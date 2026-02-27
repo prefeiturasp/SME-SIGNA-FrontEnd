@@ -36,6 +36,7 @@ import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhament
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
 import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
+import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
@@ -63,7 +64,9 @@ const FormularioPesquisaUnidade = forwardRef<
     resolver: zodResolver(formSchemaDesignacao),
     defaultValues: {
       dre: "",
+      dre_nome: "",
       ue: "",
+      ue_nome: "",
       funcionarios_da_unidade: "",
       quantidade_turmas: "",
       codigo_estrutura_hierarquica: "",
@@ -108,6 +111,7 @@ const FormularioPesquisaUnidade = forwardRef<
         }));
         setFuncionariosOptions(cargosSelect);
         setDesignacaoUnidade(response.data);
+        form.setValue("quantidade_turmas", response.data.turmas?.total?.toString() ?? "-");
       } else {
         setErrorMessage(response.error);
       }
@@ -117,7 +121,6 @@ const FormularioPesquisaUnidade = forwardRef<
     }
 
     form.setValue("codigo_estrutura_hierarquica", "");
-    form.setValue("quantidade_turmas", "-");
 
     onSubmitDesignacao(values);
   };
@@ -230,6 +233,12 @@ const FormularioPesquisaUnidade = forwardRef<
                             field.onChange(value);
                             form.clearErrors();
                             form.setValue("ue", "");
+                            form.setValue("ue_nome", "");
+                            const dreSelecionada = dreOptions.find(
+                              (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) =>
+                                dre.codigoDRE === value
+                            );
+                            form.setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
 
                             setFuncionariosOptions([]);
                           }}
@@ -287,9 +296,12 @@ const FormularioPesquisaUnidade = forwardRef<
                             value={field.value}
                             onChange={(value) => {
                               field.onChange(value);
-
                               form.clearErrors();
-
+                              const ueSelecionada = ueOptions.find(
+                                (ue: { codigoEscola: string; nomeEscola: string; siglaTipoEscola: string }) =>
+                                  ue.codigoEscola === value
+                              );
+                              form.setValue("ue_nome", ueSelecionada ? `${ueSelecionada.siglaTipoEscola} - ${ueSelecionada.nomeEscola}` : "");
                               //clear screen data                                                   
                               limpa_dados_funcionarios()
                             }}
