@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Search, Loader2 } from "lucide-react"; // Import único e organizado
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,23 +15,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { InputBase } from "@/components/ui/input-base";
-import { Search, Loader2 } from "lucide-react";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 
-const defaultValues: BuscaDesignacaoRequest = {
-  rf: ""
-};
-
-const FormularioBuscaDesignacao: React.FC<{
+interface FormularioBuscaDesignacaoProps {
   className?: string;
   onBuscaDesignacao: (values: BuscaDesignacaoRequest) => Promise<void>;
-}> = ({ className, onBuscaDesignacao }) => {
+  label?: string;
+  placeholder?: string;
+}
+
+const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({ 
+  className, 
+  onBuscaDesignacao,
+  label = "RF do servidor indicado",
+  placeholder = "Entre com RF" 
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<BuscaDesignacaoRequest>({
     resolver: zodResolver(buscaDesignacaoSchema),
-    defaultValues,
+    defaultValues: { rf: "" },
     mode: "onChange",
   });
 
@@ -50,7 +56,7 @@ const FormularioBuscaDesignacao: React.FC<{
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full flex flex-col h-full flex-1"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 items-end"> 
             <div className="w-full md:w-[50%]">
               <FormField
                 control={form.control}
@@ -58,15 +64,13 @@ const FormularioBuscaDesignacao: React.FC<{
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] font-bold">
-                      RF do servidor indicado
+                      {label}
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        type="number"
-                        className="medium-input"
+                        type="text"
+                        placeholder={placeholder}
                         {...field}
-                        placeholder="Entre com RF"
-                        id="rf"
                         data-testid="input-rf"
                       />
                     </FormControl>
@@ -76,7 +80,7 @@ const FormularioBuscaDesignacao: React.FC<{
               />
             </div>
 
-            <div className="w-[200px] pt-[2rem]">
+            <div className="w-[200px]">
               <Button
                 type="submit"
                 size="lg"
@@ -84,10 +88,12 @@ const FormularioBuscaDesignacao: React.FC<{
                 variant="customOutline"
                 disabled={isLoading}
               >
-                <p className="text-[16px] font-bold">
-                  {isLoading ? "Pesquisando..." : "Pesquisar"}
-                </p>
-                {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                <div className="flex items-center gap-2">
+                  <span className="text-[16px] font-bold">
+                    {isLoading ? "Pesquisando..." : "Pesquisar"}
+                  </span>
+                  {isLoading ? <Loader2 className="animate-spin" /> : <Search size={20} />}
+                </div>
               </Button>
             </div>
           </div>
