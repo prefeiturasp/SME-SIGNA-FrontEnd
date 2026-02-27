@@ -54,7 +54,7 @@ export default function DesignacoesPasso1() {
       return;
     }
     console.log("Dados da unidade selecionada", {...valoresFormulario, servidorIndicado: data});
-    setFormDesignacaoData({...valoresFormulario, servidorIndicado: {...data, nome_servidor: data.nome, nome_civil: data.nome}});
+    setFormDesignacaoData({...valoresFormulario, servidorIndicado: data});
     router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
   };
 
