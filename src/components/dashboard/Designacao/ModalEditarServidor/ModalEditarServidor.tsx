@@ -45,19 +45,18 @@ export default function ModalEditarServidor({
             nome_servidor: defaultValues.nome_servidor ?? defaultValues.nome,
             nome_civil: defaultValues.nome_civil ?? defaultValues.nome,
             rf: defaultValues.rf,
-            
-            funcao: defaultValues?.funcao_atividade ?? '',
-            cargo_sobreposto: defaultValues.cargo_sobreposto,
-            cargo_base: defaultValues.cargo_base,
-            funcao_atividade: defaultValues?.funcao_atividade ?? '',
+
             vinculo_cargo_sobreposto: defaultValues.vinculo_cargo_sobreposto,
-            dre: defaultValues.dre,
+            cargo_base: defaultValues.cargo_base,
+
             lotacao_cargo_sobreposto: defaultValues.lotacao_cargo_sobreposto,
-            codigo_estrutura_hierarquica: defaultValues.codigo_estrutura_hierarquica,
-            local_de_exercicio: "",
-            laudo_medico: "",
-            local_de_servico: "",
-            esta_afastado: defaultValues.esta_afastado,
+            cargo_sobreposto: defaultValues.cargo_sobreposto,
+ 
+            local_de_exercicio:  defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
+ 
+            laudo_medico:  defaultValues.laudo_medico ?? 'Laudo médico não informado',
+            local_de_servico:  defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus ',
+
         },
         mode: "onChange",
     });
@@ -103,7 +102,7 @@ export default function ModalEditarServidor({
 
 
 
-                    <div className="h-[720px] overflow-y-auto pt-4">
+                    <div className="h-[550px] overflow-y-auto pt-4">
 
                         <Card
 
@@ -148,30 +147,19 @@ export default function ModalEditarServidor({
 
 
                             <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-2 ">
-                                <div className="w-full">
+                                
+                            <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="funcao"
-                                        label="Função"
-                                        placeholder="Função"
-                                        data-testid="input-funcao"
+                                        name="vinculo_cargo_sobreposto"
+                                        label="Vínculo"
+                                        placeholder="Vínculo"
+                                        data-testid="input-vinculo-cargo-sobreposto"
                                         disabled
                                     />
                                 </div>
-
-                                <div className="w-full">
-                                    <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
-                                        name="cargo_sobreposto"
-                                        label="Cargo sobreposto"
-                                        placeholder="Cargo sobreposto"
-                                        data-testid="input-cargo-sobreposto"
-                                        disabled
-                                    />
-                                </div>
-
+                                
                                 <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
@@ -188,45 +176,6 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="funcao_atividade"
-                                        label="Função atividade"
-                                        placeholder="Função atividade"
-                                        data-testid="input-funcao-atividade"
-                                        disabled
-                                    />
-                                </div>
-
-
-
-                                <div className="w-full">
-                                    <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
-                                        name="vinculo_cargo_sobreposto"
-                                        label="Vínculo"
-                                        placeholder="Vínculo"
-                                        data-testid="input-vinculo-cargo-sobreposto"
-                                        disabled
-                                    />
-                                </div>
-                                <div className="w-full">
-                                    <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
-                                        name="dre"
-                                        label="DRE"
-                                        placeholder="DRE"
-                                        data-testid="input-dre"
-                                        disabled
-                                    />
-                                </div>
-
-
-
-                                <div className="w-full">
-                                    <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
                                         name="lotacao_cargo_sobreposto"
                                         label="Lotação"
                                         placeholder="Lotação cargo sobreposto"
@@ -234,17 +183,30 @@ export default function ModalEditarServidor({
                                         disabled
                                     />
                                 </div>
+
+
+                             
+
+                      
+
                                 <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="codigo_estrutura_hierarquica"
-                                        label="Código estrutura hierárquica"
-                                        placeholder="Código estrutura hierárquica"
-                                        data-testid="input-codigo-estrutura-hierarquica"
+                                        name="cargo_sobreposto"
+                                        label="Cargo sobreposto/Função atividade"
+                                        placeholder="Cargo sobreposto"
+                                        data-testid="input-cargo-sobreposto"
                                         disabled
                                     />
                                 </div>
+
+                             
+                               
+
+
+
+                             
 
 
                                 <div className="w-full">
@@ -286,7 +248,7 @@ export default function ModalEditarServidor({
 
                         </Card>
                     </div>
-                    <Separator className="mt-2 mb-2" />
+                    <Separator className="mt-4 mb-4" />
 
 
                     <div className="flex justify-end gap-10">
