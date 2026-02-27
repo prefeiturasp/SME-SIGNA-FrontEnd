@@ -1,41 +1,46 @@
-
 "use client";
-import {
-  Accordion
-} from "@/components/ui/accordion"
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card } from "antd";
 
+// UI Components
+import { Accordion } from "@/components/ui/accordion";
+
+// Custom Components
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { Card } from "antd";
-import Designacao from "@/assets/icons/Designacao";
 
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 
-import { useDesignacaoContext } from "../DesignacaoContext";
 
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import formSchemaDesignacaoPasso2, { formSchemaDesignacaoPasso2Data } from "./schema";
-import Historico from "@/assets/icons/Historico";
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
-import { useState } from "react";
 import ResumoPesquisaDaUnidade from "@/components/dashboard/Designacao/ResumoPesquisaDaUnidade";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
+import SelecaoServidorIndicado from "@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado";
 
+// Context, Icons & Hooks
+import { useDesignacaoContext } from "../DesignacaoContext";
+import Designacao from "@/assets/icons/Designacao";
+import Historico from "@/assets/icons/Historico";
+import useServidorDesignacao from "@/hooks/useServidorDesignacao";
+import { BuscaDesignacaoRequest } from "@/types/designacao";
 
-
-
-
+// Schema
+import formSchemaDesignacaoPasso2, { 
+  formSchemaDesignacaoPasso2Data 
+} from "./schema";
+import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
 
 
 export default function DesignacoesPasso2() {
-  const [disableProximo, setDisableProximo] = useState(true);
   const { formDesignacaoData } = useDesignacaoContext();
-
-
-
+  const { mutateAsync } = useServidorDesignacao();
+  
+  const [dadosTitular, setDadosTitular] = useState<TitularData | null>(null);
+  const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso2),
@@ -49,13 +54,45 @@ export default function DesignacoesPasso2() {
       motivo_cancelamento: "",
       impedimento_substituicao: "",
       com_afastamento: "nao",
-      motivo_afastamento: ""
+      motivo_afastamento: "",
+      tipo_cargo: "vago",
+      rf_titular: "",
+      cargo_vago_selecionado: "",
     },
     mode: "onChange",
   });
 
+  const tipoCargo = form.watch("tipo_cargo");
+  const cargoVago = form.watch("cargo_vago_selecionado");
+  const rfTitular = form.watch("rf_titular");
+
+  const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
+    const response = await mutateAsync(values);
+    if (response.success) {
+      const titularFormatado: TitularData = {
+        ...response.data,
+        codigo_hierarquia: (response.data as any).codigo_hierarquia ?? "3",
+        lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva", 
+  
+      };
+
+      setDadosTitular(titularFormatado);
+      setErrorBusca(null);
+      form.setValue("rf_titular", values.rf, { shouldValidate: true });
+    } else {
+      setErrorBusca(response.error);
+      setDadosTitular(null);
+      form.setValue("rf_titular", "");
+    }
+  };
+
+  // Validação para o botão Próximo
+  const canAdvance = 
+    form.formState.isValid && 
+    (tipoCargo === "vago" ? !!cargoVago : (!!dadosTitular && !!rfTitular));
+
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
-    console.log("Dados do formulário", values);
+    console.log("Submit Passo 2", values);
   };
 
   return (
@@ -67,11 +104,9 @@ export default function DesignacoesPasso2() {
         showBackButton={false}
       />
 
-
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>
-
-          <FundoBranco >
+          <FundoBranco>
             <StepperDesignacao current={1} />
           </FundoBranco>
 
@@ -88,11 +123,9 @@ export default function DesignacoesPasso2() {
                   <Historico width={20} height={20} color="white" />
                 </div>
               </div>
-
             }
-
-            className=" mt-4 m-0 ">
-
+            className="mt-4 m-0"
+          >
             {formDesignacaoData?.servidorIndicado && (
 
               <Accordion
@@ -133,39 +166,41 @@ export default function DesignacoesPasso2() {
                 </CustomAccordionItem>
 
 
-                <CustomAccordionItem
-                  title="Portarias de designação"
-                  color="purple"
-                  value="portarias-designacao"
-                >
-                  <PortariaDesigacaoFields
-                    isLoading={false}
-                    setDisableProximo={() => setDisableProximo(false)}
-                  />
-                </CustomAccordionItem>
-              </Accordion>
-
-
-
+                  <CustomAccordionItem
+                    title="Portarias de designação"
+                    color="purple"
+                    value="portarias-designacao"
+                  >
+                    <PortariaDesigacaoFields
+                      isLoading={false}                   
+                      setDisableProximo={() => setDisableProximo(false)}                      
+                    />
+                  </CustomAccordionItem>                 
+                </Accordion>
             )}
 
+            <SelecaoServidorIndicado 
+                form={form}
+                tipoCargo={tipoCargo}
+                dadosTitular={dadosTitular}
+                errorBusca={errorBusca}
+                onBuscaTitular={onBuscaTitular}
+                setDadosTitular={setDadosTitular}
+                setErrorBusca={setErrorBusca}
+            />
           </Card>
 
-
-
-
-          <div className="w-full flex flex-col ">
+          <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
-              disableAnterior={true}
-              disableProximo={disableProximo}
-              onProximo={() => console.log("Proximo")}
-              showAnterior={false}
-              onAnterior={() => { }}
+              disableAnterior={false}
+              disableProximo={!canAdvance}
+              onProximo={form.handleSubmit(onSubmitDesignacao)}
+              showAnterior={true}
+              onAnterior={() => {}}
             />
           </div>
         </form>
       </FormProvider>
-
     </>
   );
 }
