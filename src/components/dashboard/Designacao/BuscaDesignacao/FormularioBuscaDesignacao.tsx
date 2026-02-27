@@ -21,7 +21,10 @@ const defaultValues: BuscaDesignacaoRequest = {
   rf: ""
 };
 
-const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignacao: (values: BuscaDesignacaoRequest) => void }> = ({ className, onBuscaDesignacao }) => {
+const FormularioBuscaDesignacao: React.FC<{
+  className?: string;
+  onBuscaDesignacao: (values: BuscaDesignacaoRequest) => Promise<void>;
+}> = ({ className, onBuscaDesignacao }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<BuscaDesignacaoRequest>({

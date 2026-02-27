@@ -36,7 +36,6 @@ import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhament
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
 import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
-import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
