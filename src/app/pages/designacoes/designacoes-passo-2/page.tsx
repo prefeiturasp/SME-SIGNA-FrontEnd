@@ -116,21 +116,22 @@ export default function DesignacoesPasso2() {
                 </CustomAccordionItem>
 
 
-                <CustomAccordionItem
-                  title="Dados do servidor indicado"
-
-                  value="servidor-indicado"
-                  color="gold"
-                >
-                  <ResumoDesignacaoServidorIndicado
-                    isLoading={false}
-                    defaultValues={formDesignacaoData?.servidorIndicado}
-                    showCursosTitulos={false}
-                    showEditar={true}
-                    showCamposExtras
-
-                  />
-                </CustomAccordionItem>
+                  <CustomAccordionItem
+                    title="Dados do servidor indicado"
+                    
+                    value="servidor-indicado"
+                    color="gold"
+                  >
+                    <ResumoDesignacaoServidorIndicado
+                      isLoading={false}
+                      defaultValues={formDesignacaoData?.servidorIndicado}
+                      showCursosTitulos={true}
+                      showEditar={true}
+                       showCamposExtras={false}
+                       showLotacao={true}
+                      
+                    />
+                  </CustomAccordionItem>
 
 
                 <CustomAccordionItem
