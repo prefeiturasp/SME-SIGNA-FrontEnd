@@ -127,9 +127,10 @@ export default function DesignacoesPasso2() {
                     <ResumoDesignacaoServidorIndicado
                       isLoading={false}
                       defaultValues={formDesignacaoData?.servidorIndicado}
-                      showCursosTitulos={false}
+                      showCursosTitulos={true}
                       showEditar={true}
-                       showCamposExtras
+                       showCamposExtras={false}
+                       showLotacao={true}
                       
                     />
                   </CustomAccordionItem>

@@ -114,17 +114,15 @@ describe("ModalEditarServidor", () => {
       "Nome servidor",
       "Nome Civil",
       "RF",
-      "Função",
-      "Cargo sobreposto",
-      "Cargo base",
-      "Função atividade",
       "Vínculo",
-      "DRE",
+       "Cargo base",
+
       "Lotação",
-      "Código estrutura hierárquica",
+      "Cargo sobreposto/Função atividade",
+      
       "Local de exercício",
       "Laudo médico",
-      "Local de serviço",
+      "Local de serviço", 
     ];
 
     labels.forEach((label) => {
@@ -163,49 +161,31 @@ describe("ModalEditarServidor", () => {
  
   it("Verifica se os campos estão desabilitados", () => {
     renderModal();
+    expect(screen.getByPlaceholderText("Nome servidor")).not.toBeDisabled();
+ 
 
+    expect(screen.getByPlaceholderText("Nome Civil")).not.toBeDisabled();
     expect(screen.getByPlaceholderText("Digite o RF")).toBeDisabled();
    
-
-    expect(screen.getByPlaceholderText("Função")).toBeDisabled();
-   
-
-    expect(screen.getByPlaceholderText("Cargo sobreposto")).toBeDisabled();
-   
+    expect(screen.getByPlaceholderText("Vínculo")).toBeDisabled();
 
     expect(screen.getByPlaceholderText("Cargo base")).toBeDisabled();
-  
 
-    expect(screen.getByPlaceholderText("Função atividade")).toBeDisabled();
- 
-
-    expect(screen.getByPlaceholderText("Vínculo")).toBeDisabled();
-  
-
-    expect(screen.getByPlaceholderText("DRE")).toBeDisabled();
- 
-    expect(
-      screen.getByPlaceholderText("Lotação cargo sobreposto")
-    ).toBeDisabled();
- 
-
-    expect(
-      screen.getByPlaceholderText("Código estrutura hierárquica")
-    ).toBeDisabled();
+    expect(screen.getByPlaceholderText(/Lotação/)).toBeDisabled();
+  expect(screen.getByPlaceholderText("Cargo sobreposto")).toBeDisabled();
+   
  
     expect(screen.getByPlaceholderText("Local de exercício")).toBeDisabled();
- 
-
     expect(screen.getByPlaceholderText("Laudo médico")).toBeDisabled();
+  
+
+  
   
 
     expect(screen.getByPlaceholderText("Local de serviço")).toBeDisabled();
  
 
-    expect(screen.getByPlaceholderText("Nome servidor")).not.toBeDisabled();
- 
 
-    expect(screen.getByPlaceholderText("Nome Civil")).not.toBeDisabled();
   });
 
   

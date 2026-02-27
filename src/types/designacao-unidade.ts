@@ -16,6 +16,9 @@ export type Servidor = {
     cursos_titulos: string;
     dre: string;
     codigo_estrutura_hierarquica: string;
+    local_de_exercicio?: string;
+    laudo_medico?: string;
+    local_de_servico?: string;
   }
   
   type Cargo = {

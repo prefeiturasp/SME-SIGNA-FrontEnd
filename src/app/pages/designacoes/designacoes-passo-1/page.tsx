@@ -93,9 +93,10 @@ export default function DesignacoesPasso1() {
               <ResumoDesignacaoServidorIndicado
                 isLoading={false}
                 defaultValues={data}
-                showCursosTitulos={false}
+                showCursosTitulos={true}
                 showEditar={true}
-                 showCamposExtras
+                 showCamposExtras={false}
+                 showLotacao={true}
               />
             </CustomAccordionItem>
           )}

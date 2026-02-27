@@ -122,16 +122,16 @@ describe("ResumoDesignacao", () => {
     const labels = [
       "Nome Servidor",
       "Nome Civil",
-      "RF",
-      "Função",      
-      "Cargo sobreposto",
+      "RF",    
+        "Vínculo",      
       "Cargo base",
-      "Função atividade",      
-      "Vínculo",      
-      "DRE",
-      "Código Estrutura Hierarquica",
+      "Lotação",      
       "Cursos/Títulos",    
-       
+      
+      "Cargo sobreposto/Função atividade",
+      "Local de exercício",
+      "Laudo médico",
+      "Local de serviço",
     ];
 
     labels.forEach((label) => {

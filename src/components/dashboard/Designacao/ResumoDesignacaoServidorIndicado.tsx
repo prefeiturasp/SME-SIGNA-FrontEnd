@@ -39,153 +39,176 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showFuncaoAtividade?: boolean;
   showLotacao?: boolean;
 }> = ({
-   className,
-    defaultValues,
-     isLoading,
-      showCursosTitulos = false,
-       showEditar = false,
-         showCamposExtras = false,
-          showFuncaoAtividade = false,
-           showLotacao = false
-           }) => {
+  className,
+  defaultValues,
+  isLoading,
+  showCursosTitulos = false,
+  showEditar = false,
+  showCamposExtras = false,
+  showFuncaoAtividade = false,
+  showLotacao = false
+}) => {
 
 
 
-  const [openModalListaCursosTitulos, setOpenModalListaCursosTitulos] = useState(false);
+    const [openModalListaCursosTitulos, setOpenModalListaCursosTitulos] = useState(false);
 
-  function handleOpenModalListaCursosTitulos() {
-    setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
-  }
+    function handleOpenModalListaCursosTitulos() {
+      setOpenModalListaCursosTitulos(!openModalListaCursosTitulos);
+    }
 
-  const [openModalEditarServidor, setOpenModalEditarServidor] = useState(false);
-  function handleOpenModalEditarServidor() {
-    setOpenModalEditarServidor(!openModalEditarServidor);
-  }
+    const [openModalEditarServidor, setOpenModalEditarServidor] = useState(false);
+    function handleOpenModalEditarServidor() {
+      setOpenModalEditarServidor(!openModalEditarServidor);
+    }
 
-  const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
+    const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
 
 
-  return (
-    <>
-      {isLoading ? (
-        <div className="flex justify-center h-full">
-          <Loader2
-            data-testid="loading-spinner"
-            className="
+    return (
+      <>
+        {isLoading ? (
+          <div className="flex justify-center h-full">
+            <Loader2
+              data-testid="loading-spinner"
+              className="
           h-16 w-16 text-primary 
           animate-spin 
          "
-          />
-        </div>
-      ) : (
-        <div className={className}>
-          <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
-            <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
-              <InfoItem label="Nome Servidor" value={defaultValues.nome_servidor} />
-              <InfoItem label="Nome Civil" value={defaultValues.nome_civil} />
-              <InfoItem label="RF" value={defaultValues.rf} />
-              <InfoItem label="Função" value={defaultValues.funcao_atividade} />
-              <InfoItem
-                label="Cargo sobreposto"
-                value={defaultValues.cargo_sobreposto}
-              />
-              <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
-
-              {showFuncaoAtividade && (
-
-               <InfoItem
-                    label="Função atividade"
-                    value={defaultValues.funcao_atividade}
-                  />
-              )}
-
-              <InfoItem
-                label="Vínculo"
-                value={defaultValues.vinculo_cargo_sobreposto.toString()}
-              />
-              {showLotacao && (
+            />
+          </div>
+        ) : (
+          <div className={className}>
+            <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
+              <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
+                <InfoItem label="Nome Servidor" value={defaultValues.nome_servidor} />
+                <InfoItem label="Nome Civil" value={defaultValues.nome_civil} />
+                <InfoItem label="RF" value={defaultValues.rf} />
 
                 <InfoItem
-                label="Lotação"
-                value={defaultValues.lotacao_cargo_sobreposto}
+                  label="Vínculo"
+                  value={defaultValues.vinculo_cargo_sobreposto.toString()}
                 />
-              )}
-              
+                <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
 
-
-              {showCamposExtras && (
-                <>
-                  <InfoItem
-                    label="DRE"
-                    value={defaultValues.dre}
-                  />
+                {showLotacao && (
 
                   <InfoItem
                     label="Lotação"
                     value={defaultValues.lotacao_cargo_sobreposto}
                   />
+                )}
 
-                  <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.codigo_estrutura_hierarquica} />
-                </>
-              )}
 
-{showCursosTitulos && (
-                <InfoItem
-                  label="Cursos/Títulos"
-                  value={defaultValues.cursos_titulos}
-                  icon={
-                    <Button
-                      type="button"
-                      data-testid="btn-visualizar-cursos-titulos"
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleOpenModalListaCursosTitulos}>
-                      <Eye
-                        width={16}
-                        height={16} />
-                    </Button>
-                  }
+                {showCursosTitulos && (
+                  <InfoItem
+                    label="Cursos/Títulos"
+                    value={defaultValues.cursos_titulos ?? 'Cursos/Títulos de exemplo'}
+                    icon={
+                      <Button
+                        type="button"
+                        data-testid="btn-visualizar-cursos-titulos"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleOpenModalListaCursosTitulos}>
+                        <Eye
+                          width={16}
+                          height={16} />
+                      </Button>
+                    }
+                  />
+                )}
+
+
+  
+
+                {showFuncaoAtividade && (
+
+                  <InfoItem
+                    label="Função atividade"
+                    value={defaultValues.funcao_atividade}
+                  />
+                )}
+
+
+
+
+
+
+                {showCamposExtras && (
+                  <>
+                    <InfoItem
+                      label="DRE"
+                      value={defaultValues.dre}
+                    />
+
+                    <InfoItem
+                      label="Lotação"
+                      value={defaultValues.lotacao_cargo_sobreposto}
+                    />
+
+                    <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.codigo_estrutura_hierarquica} />
+                  </>
+                )}
+
+
+
+
+              </div>
+              <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4 mt-4">
+
+              <InfoItem
+                  label="Cargo sobreposto/Função atividade"
+                  value={defaultValues.cargo_sobreposto}
                 />
-              )}
-
-
-
+                <InfoItem
+                  label="Local de exercício"
+                  value={defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus '}
+                />
+                <InfoItem
+                  label="Laudo médico"
+                  value={defaultValues.laudo_medico ?? 'Laudo médico não informado'}
+                />
+                <InfoItem
+                  label="Local de serviço"
+                  value={defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus '}
+                />
+                 </div>
             </div>
+
+            {showEditar && (
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className=" flex items-center justify-center gap-2" onClick={handleOpenModalEditarServidor}>
+
+                  <p className="text-[16px] font-bold">Editar</p>
+                  <Edit />
+                </Button>
+              </div>
+            )}
+
+            <ModalEditarServidor
+              isLoading={false}
+              open={openModalEditarServidor}
+              onOpenChange={setOpenModalEditarServidor}
+              defaultValues={defaultValues}
+            />
+
+            <ModalListaCursosTitulos
+              isLoading={isLoadingCursosETitulos}
+              open={openModalListaCursosTitulos}
+              onOpenChange={setOpenModalListaCursosTitulos}
+              data={[{ id: 1, concurso: '201002757777 - PROF ENS FUND II MEDIO' }, { id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }]}
+              defaultValues={defaultValues}
+            />
+
           </div>
-
-          {showEditar && (
-            <div className="flex justify-end">
-              <Button 
-              type="button"
-               variant="outline"
-                size="lg"
-                 className=" flex items-center justify-center gap-2" onClick={handleOpenModalEditarServidor}>
-
-                <p className="text-[16px] font-bold">Editar</p>
-                <Edit />
-              </Button>
-            </div>
-          )}
-
-          <ModalEditarServidor
-            isLoading={false}
-            open={openModalEditarServidor}
-            onOpenChange={setOpenModalEditarServidor}
-            defaultValues={defaultValues}
-          />
-
-        <ModalListaCursosTitulos
-            isLoading={isLoadingCursosETitulos}
-            open={openModalListaCursosTitulos}
-            onOpenChange={setOpenModalListaCursosTitulos}
-            data={[{ id: 1, concurso: '201002757777 - PROF ENS FUND II MEDIO' }, { id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }]}
-            defaultValues={defaultValues}
-          />
-
-        </div>
-      )}
-    </>
-  );
-};
+        )}
+      </>
+    );
+  };
 
 export default ResumoDesignacaoServidorIndicado;
