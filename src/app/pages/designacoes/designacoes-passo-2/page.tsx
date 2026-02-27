@@ -37,7 +37,7 @@ import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
 
 export default function DesignacoesPasso2() {
   const { formDesignacaoData } = useDesignacaoContext();
-  const { mutateAsync, isPending } = useServidorDesignacao();
+  const { mutateAsync } = useServidorDesignacao();
   
   const [dadosTitular, setDadosTitular] = useState<TitularData | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
@@ -71,8 +71,8 @@ export default function DesignacoesPasso2() {
     if (response.success) {
       const titularFormatado: TitularData = {
         ...response.data,
-        codigo_hierarquia: (response.data as any).codigo_hierarquia || "3",
-        lotacao_cargo_base: (response.data as any).lotacao_cargo_base || "Ayrton Senna da Silva", 
+        codigo_hierarquia: (response.data as any).codigo_hierarquia ?? "3",
+        lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva", 
   
       };
 

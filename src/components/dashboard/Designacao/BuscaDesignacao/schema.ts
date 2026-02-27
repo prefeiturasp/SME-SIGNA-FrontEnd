@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// --- 1. SCHEMA PARA O COMPONENTE DE BUSCA (Lupa) ---
 export const buscaDesignacaoSchema = z.object({
   rf: z.string().min(1, "O RF é obrigatório para a pesquisa"),
 });
@@ -21,7 +20,7 @@ const formSchemaDesignacaoPasso2 = z.object({
 .superRefine((data, ctx) => {
   if (data.tipo_cargo === "disponivel" && (!data.rf_titular || data.rf_titular.length < 1)) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "RF do Titular é obrigatório",
       path: ["rf_titular"],
     });
@@ -29,7 +28,7 @@ const formSchemaDesignacaoPasso2 = z.object({
 
   if (data.tipo_cargo === "vago" && !data.cargo_vago_selecionado) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "Selecione o cargo vago",
       path: ["cargo_vago_selecionado"],
     });
