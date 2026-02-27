@@ -91,7 +91,7 @@ export default function DesignacoesPasso1() {
               color="gold"
             >
               <ResumoDesignacaoServidorIndicado
-                isLoading={false}
+                isLoading={isPending}
                 defaultValues={data}
                 showCursosTitulos={false}
                 showEditar={true}

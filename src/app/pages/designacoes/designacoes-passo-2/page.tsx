@@ -1,7 +1,7 @@
 
 "use client";
 import {
-  Accordion  
+  Accordion
 } from "@/components/ui/accordion"
 
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
@@ -9,8 +9,8 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
- 
- import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
+
+import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 
 import { useDesignacaoContext } from "../DesignacaoContext";
 
@@ -48,8 +48,8 @@ export default function DesignacoesPasso2() {
       doc: "",
       motivo_cancelamento: "",
       impedimento_substituicao: "",
-      com_afastamento:"nao",
-      motivo_afastamento:""
+      com_afastamento: "nao",
+      motivo_afastamento: ""
     },
     mode: "onChange",
   });
@@ -57,7 +57,7 @@ export default function DesignacoesPasso2() {
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
     console.log("Dados do formulário", values);
   };
- 
+
   return (
     <>
       <PageHeader
@@ -77,7 +77,7 @@ export default function DesignacoesPasso2() {
 
 
 
- 
+
 
           <Card
             title={
@@ -94,67 +94,65 @@ export default function DesignacoesPasso2() {
             className=" mt-4 m-0 ">
 
             {formDesignacaoData?.servidorIndicado && (
-              
-                <Accordion
-                  type="multiple"
-                  defaultValue={[ "portarias-designacao"]}
-                >
+
+              <Accordion
+                type="multiple"
+                defaultValue={["portarias-designacao"]}
+              >
 
                 <CustomAccordionItem
-                    title="Unidade Proponente"
-                    color="blue"
-                    value="unidade-proponente"
-                  >
-                <ResumoPesquisaDaUnidade 
-                defaultValues={
-                  {
-                    lotacao:formDesignacaoData?.servidorIndicado.lotacao_cargo_sobreposto,
-                    dre:formDesignacaoData?.servidorIndicado.dre,
-                    estrutura_hierarquica:""
-                  }
-                } 
-                
-                isLoading={false} />
-                  </CustomAccordionItem>
+                  title="Unidade Proponente"
+                  color="blue"
+                  value="unidade-proponente"
+                >
+                  <ResumoPesquisaDaUnidade
+                    defaultValues={{
+                      lotacao: formDesignacaoData?.ue_nome ?? "",
+                      dre: formDesignacaoData?.dre_nome ?? "",
+                      estrutura_hierarquica:
+                        formDesignacaoData?.codigo_estrutura_hierarquica ?? "",
+                    }}
+                    isLoading={false} />
+                </CustomAccordionItem>
 
 
-                  <CustomAccordionItem
-                    title="Dados do servidor indicado"
-                    
-                    value="servidor-indicado"
-                    color="gold"
-                  >
-                    <ResumoDesignacaoServidorIndicado
-                      isLoading={false}
-                      defaultValues={formDesignacaoData?.servidorIndicado}
-                      showCursosTitulos={false}
-                      showEditar={true}
-                       showCamposExtras
-                      
-                    />
-                  </CustomAccordionItem>
+                <CustomAccordionItem
+                  title="Dados do servidor indicado"
+
+                  value="servidor-indicado"
+                  color="gold"
+                >
+                  <ResumoDesignacaoServidorIndicado
+                    isLoading={false}
+                    defaultValues={formDesignacaoData?.servidorIndicado}
+                    showCursosTitulos={false}
+                    showEditar={true}
+                    showCamposExtras
+
+                  />
+                </CustomAccordionItem>
 
 
-                  <CustomAccordionItem
-                    title="Portarias de designação"
-                    color="purple"
-                    value="portarias-designacao"
-                  >
-                    <PortariaDesigacaoFields
-                      isLoading={false}                   
-                      setDisableProximo={() => setDisableProximo(false)}                      
-                    />
-                  </CustomAccordionItem>                 
-                </Accordion>
+                <CustomAccordionItem
+                  title="Portarias de designação"
+                  color="purple"
+                  value="portarias-designacao"
+                >
+                  <PortariaDesigacaoFields
+                    isLoading={false}
+                    setDisableProximo={() => setDisableProximo(false)}
+                  />
+                </CustomAccordionItem>
+              </Accordion>
 
 
-              
+
             )}
 
           </Card>
 
 
- 
+
 
           <div className="w-full flex flex-col ">
             <BotoesDeNavegacao

@@ -2,18 +2,15 @@
 
 import { Loader2 } from "lucide-react";
 import React from "react";
- 
 import { PesquisaUnidade } from "@/types/designacao-unidade";
 import { InfoItem } from "./ResumoDesignacaoServidorIndicado";
- 
-const ResumoPesquisaDaUnidade: React.FC<{  
+
+const ResumoPesquisaDaUnidade: React.FC<{
   className?: string;
   defaultValues: PesquisaUnidade;
-  isLoading?: boolean;  
+  isLoading?: boolean;
 }> = ({ className, defaultValues, isLoading }) => {
 
-
- 
   return (
     <>
       {isLoading ? (
@@ -31,11 +28,18 @@ const ResumoPesquisaDaUnidade: React.FC<{
           <div className=" bg-[#FAFAFA] p-4">
             <div className="flex flex-col md:flex-row gap-4" >
               <InfoItem label="DRE" value={defaultValues.dre} className="w-full md:w-[25%]" />
-              <InfoItem label="Lotação" value={defaultValues.lotacao} className="w-full md:w-[50%]" />
-              <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.estrutura_hierarquica} className="w-full md:w-[25%]" />            
+              <InfoItem label="Unidade proponente" value={defaultValues.lotacao} className="w-full md:w-[50%]" />
+              <InfoItem
+                label="Código Estrutura Hierarquica"
+                value={
+                  defaultValues.estrutura_hierarquica?.trim()
+                    ? defaultValues.estrutura_hierarquica
+                    : "-"
+                }
+                className="w-full md:w-[25%]"
+              />
             </div>
           </div>
- 
         </div>
       )}
     </>

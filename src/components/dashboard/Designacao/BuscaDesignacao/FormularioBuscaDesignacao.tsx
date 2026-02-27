@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -13,36 +13,42 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { InputBase } from "@/components/ui/input-base";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
- 
- 
-
 
 const defaultValues: BuscaDesignacaoRequest = {
   rf: ""
 };
 
-const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignacao: (values: BuscaDesignacaoRequest) => void }> = ({ className, onBuscaDesignacao }) => {
+const FormularioBuscaDesignacao: React.FC<{
+  className?: string;
+  onBuscaDesignacao: (values: BuscaDesignacaoRequest) => Promise<void>;
+}> = ({ className, onBuscaDesignacao }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<BuscaDesignacaoRequest>({
     resolver: zodResolver(buscaDesignacaoSchema),
     defaultValues,
     mode: "onChange",
   });
 
-  const onSubmit = (values: BuscaDesignacaoRequest) => {
-    onBuscaDesignacao(values);
-    console.log("Dados da designação", values);
+  const onSubmit = async (values: BuscaDesignacaoRequest) => {
+    setIsLoading(true);
+    try {
+      await onBuscaDesignacao(values);
+      console.log("Dados da designação", values);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-
     <div className={className}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full flex flex-col h-full flex-1 "
+          className="w-full flex flex-col h-full flex-1"
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-[50%]">
@@ -52,7 +58,7 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] font-bold">
-                    RF do servidor indicado
+                      RF do servidor indicado
                     </FormLabel>
                     <FormControl>
                       <InputBase
@@ -69,20 +75,25 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 )}
               />
             </div>
-         
-            <div className="w-[200px] pt-[2rem] ">
-              <Button type="submit" size="lg"  className="w-full flex items-center justify-center gap-6" variant="customOutline">
-                
-                <p className="text-[16px] font-bold">Pesquisar</p>
-                <Search />
+
+            <div className="w-[200px] pt-[2rem]">
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full flex items-center justify-center gap-6"
+                variant="customOutline"
+                disabled={isLoading}
+              >
+                <p className="text-[16px] font-bold">
+                  {isLoading ? "Pesquisando..." : "Pesquisar"}
+                </p>
+                {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
               </Button>
             </div>
           </div>
         </form>
       </Form>
     </div>
- 
-
   );
 };
 
