@@ -108,9 +108,9 @@ export default function DesignacoesPasso2() {
                 <ResumoPesquisaDaUnidade 
                 defaultValues={
                   {
-                    lotacao:formDesignacaoData?.servidorIndicado.lotacao_cargo_sobreposto,
-                    dre:formDesignacaoData?.servidorIndicado.dre,
-                    estrutura_hierarquica:""
+                    lotacao:formDesignacaoData?.ue,
+                    dre:formDesignacaoData?.dre,
+                    estrutura_hierarquica: "" // to-do: arrumar
                   }
                 } 
                 
