@@ -87,7 +87,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
 
                 <InfoItem
                   label="Vínculo"
-                  value={defaultValues.vinculo_cargo_sobreposto.toString()}
+                  value={defaultValues?.vinculo_cargo_sobreposto?.toString()}
                 />
                 <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
 

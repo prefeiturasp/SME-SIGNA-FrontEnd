@@ -325,7 +325,9 @@ describe("FormularioPesquisaUnidade", () => {
     await waitFor(() => {
       expect(onSubmitDesignacao).toHaveBeenCalledWith({
         dre: "dre-1",
+        dre_nome: "DRE Sul",
         ue: "ue-1",
+        ue_nome: "EMEI - UE 1 da DRE Selecionada",
         codigo_estrutura_hierarquica: "",
         funcionarios_da_unidade: "",
         quantidade_turmas: "",
@@ -1021,7 +1023,9 @@ describe("FormularioPesquisaUnidade", () => {
     const values = ref.current?.getValues();
     expect(values).toEqual({
       dre: "dre-1",
+      dre_nome: "DRE Sul",
       ue: "ue-1",
+      ue_nome: "EMEI - UE 1 da DRE Selecionada",
       codigo_estrutura_hierarquica: "",
       funcionarios_da_unidade: "",
       quantidade_turmas: "",

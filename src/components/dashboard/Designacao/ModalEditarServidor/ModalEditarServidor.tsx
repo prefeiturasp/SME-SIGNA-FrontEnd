@@ -52,10 +52,10 @@ export default function ModalEditarServidor({
             lotacao_cargo_sobreposto: defaultValues.lotacao_cargo_sobreposto,
             cargo_sobreposto: defaultValues.cargo_sobreposto,
  
-            local_de_exercicio: "",
+            local_de_exercicio:  defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
  
-            laudo_medico: "",
-            local_de_servico: "",
+            laudo_medico:  defaultValues.laudo_medico ?? 'Laudo médico não informado',
+            local_de_servico:  defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus ',
 
         },
         mode: "onChange",
