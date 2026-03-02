@@ -229,7 +229,7 @@ describe("PortariaDesigacaoFields", () => {
       target: { value: "123" },
     });
     fireEvent.change(screen.getByPlaceholderText("Número doc"), {
-      target: { value: "DOC-1" },
+      target: { value: "123" },
     });
     fireEvent.change(screen.getByPlaceholderText("Motivo do Cancelamento"), {
       target: { value: "Motivo" },
@@ -237,7 +237,7 @@ describe("PortariaDesigacaoFields", () => {
 
     expect(methods.getValues("portaria_designacao")).toBe("123");
     expect(methods.getValues("numero_sei")).toBe("123");
-    expect(methods.getValues("doc")).toBe("DOC-1");
+    expect(methods.getValues("doc")).toBe("123");
     expect(methods.getValues("motivo_cancelamento")).toBe("Motivo");
 
     // Selects (onValueChange -> field.onChange)
