@@ -29,13 +29,12 @@ import { Loader2 } from "lucide-react";
 import { CheckboxField, DateField, InputField } from "@/components/ui/FieldsForm";
 
 interface Props {
-  readonly setDisableProximo: (disable: boolean) => void;
   isLoading: boolean;
 }
 
 
 
-const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
+const PortariaDesigacaoFields = ({ isLoading }: Props) => {
   const { register, control, setValue, watch } = useFormContext();
 
   const anos = Array.from(

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search, Loader2 } from "lucide-react"; // Import único e organizado
+import { Search, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,11 +25,11 @@ interface FormularioBuscaDesignacaoProps {
   placeholder?: string;
 }
 
-const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({ 
-  className, 
+const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
+  className,
   onBuscaDesignacao,
   label = "RF do servidor indicado",
-  placeholder = "Entre com RF" 
+  placeholder = "Entre com RF",
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,7 +43,6 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
     setIsLoading(true);
     try {
       await onBuscaDesignacao(values);
-      console.log("Dados da designação", values);
     } finally {
       setIsLoading(false);
     }
@@ -52,11 +51,8 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
   return (
     <div className={className}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full flex flex-col h-full flex-1"
-        >
-          <div className="flex flex-col md:flex-row gap-4 items-end"> 
+        <div className="w-full flex flex-col h-full flex-1">
+          <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="w-full md:w-[50%]">
               <FormField
                 control={form.control}
@@ -82,22 +78,28 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
 
             <div className="w-[200px]">
               <Button
-                type="submit"
+                type="button"
                 size="lg"
                 className="w-full flex items-center justify-center gap-6"
                 variant="customOutline"
                 disabled={isLoading}
+                onClick={form.handleSubmit(onSubmit)}
+                data-testid="botao-pesquisar-servidor"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-[16px] font-bold">
                     {isLoading ? "Pesquisando..." : "Pesquisar"}
                   </span>
-                  {isLoading ? <Loader2 className="animate-spin" /> : <Search size={20} />}
+                  {isLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Search size={20} />
+                  )}
                 </div>
               </Button>
             </div>
           </div>
-        </form>
+        </div>
       </Form>
     </div>
   );

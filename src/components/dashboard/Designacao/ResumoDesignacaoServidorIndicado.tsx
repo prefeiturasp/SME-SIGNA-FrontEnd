@@ -81,8 +81,9 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
           <div className={className}>
             <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
               <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
-                <InfoItem label="Nome Servidor" value={defaultValues.nome_servidor} />
-                <InfoItem label="Nome Civil" value={defaultValues.nome_civil} />
+                {/* to-do: corrigir nomes vindo da api corretamente */}
+                <InfoItem label="Nome Servidor" value={defaultValues.nome} />
+                <InfoItem label="Nome Civil" value={defaultValues.nome} />
                 <InfoItem label="RF" value={defaultValues.rf} />
 
                 <InfoItem

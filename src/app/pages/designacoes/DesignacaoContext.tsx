@@ -4,32 +4,36 @@ import { createContext, useContext, useMemo, useState } from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import { Servidor } from "@/types/designacao-unidade";
 
-
-export type FormDesignacaoEServidorIndicado = FormDesignacaoData & { servidorIndicado: Servidor };
+export type FormDesignacaoEServidorIndicado =
+  Partial<FormDesignacaoData> & {
+    servidorIndicado?: Servidor;
+  };
 
 type DesignacaoContextValue = {
   formDesignacaoData: FormDesignacaoEServidorIndicado | null;
-  setFormDesignacaoData: (data: FormDesignacaoEServidorIndicado) => void;
+  setFormDesignacaoData: (
+    data: FormDesignacaoEServidorIndicado
+  ) => void;
   clearFormDesignacaoData: () => void;
 };
 
-const DesignacaoContext = createContext<DesignacaoContextValue | undefined>(
-  undefined
-);
+const DesignacaoContext =
+  createContext<DesignacaoContextValue | undefined>(
+    undefined
+  );
 
 export function DesignacaoProvider({
   children,
 }: {
   readonly children: React.ReactNode;
 }) {
-  const [formDesignacaoData, setFormDesignacaoData] = useState<FormDesignacaoEServidorIndicado | null>(null);
+  const [formDesignacaoData, setFormDesignacaoData] =
+    useState<FormDesignacaoEServidorIndicado | null>(null);
 
   const value = useMemo(
     () => ({
       formDesignacaoData,
-      setFormDesignacaoData: (data: FormDesignacaoEServidorIndicado) => {
-        setFormDesignacaoData(data);
-      },
+      setFormDesignacaoData,
       clearFormDesignacaoData: () => {
         setFormDesignacaoData(null);
       },
@@ -47,8 +51,9 @@ export function DesignacaoProvider({
 export function useDesignacaoContext() {
   const context = useContext(DesignacaoContext);
   if (!context) {
-    throw new Error("useDesignacaoContext must be used within DesignacaoProvider");
+    throw new Error(
+      "useDesignacaoContext must be used within DesignacaoProvider"
+    );
   }
   return context;
 }
-

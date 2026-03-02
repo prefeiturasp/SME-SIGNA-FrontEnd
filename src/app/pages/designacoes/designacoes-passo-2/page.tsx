@@ -173,13 +173,13 @@ export default function DesignacoesPasso2() {
                     value="portarias-designacao"
                   >
                     <PortariaDesigacaoFields
-                      isLoading={false}                   
-                      setDisableProximo={() => setDisableProximo(false)}                      
+                      isLoading={false}                                    
                     />
                   </CustomAccordionItem>                 
                 </Accordion>
             )}
 
+            {/* to-do: arrumar nome */}
             <SelecaoServidorIndicado 
                 form={form}
                 tipoCargo={tipoCargo}
@@ -193,7 +193,7 @@ export default function DesignacoesPasso2() {
 
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
-              disableAnterior={false}
+              disableAnterior={true}
               disableProximo={!canAdvance}
               onProximo={form.handleSubmit(onSubmitDesignacao)}
               showAnterior={true}

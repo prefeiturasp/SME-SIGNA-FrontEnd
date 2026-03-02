@@ -38,7 +38,8 @@ const ResumoTitular: React.FC<{ data: TitularData; onEdit: () => void }> = ({ da
         <InfoItem label="Local de Exercício" value={data.lotacao_cargo_sobreposto} />
       </div>
       <div className="flex justify-end">
-        <Button type="button" variant="outline" onClick={() => setOpenModalEditar(true)} className="gap-2">
+        {/* to-do: corrigir edicao para os dados do titular */}
+        <Button type="button" variant="outline" onClick={() => setOpenModalEditar(true)} className="gap-2" disabled> 
           <span className="font-bold">Editar</span>
           <Edit />
         </Button>
