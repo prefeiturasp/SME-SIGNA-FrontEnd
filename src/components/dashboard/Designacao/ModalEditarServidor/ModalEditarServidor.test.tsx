@@ -172,19 +172,11 @@ describe("ModalEditarServidor", () => {
     expect(screen.getByPlaceholderText("Cargo base")).toBeDisabled();
 
     expect(screen.getByPlaceholderText(/Lotação/)).toBeDisabled();
-  expect(screen.getByPlaceholderText("Cargo sobreposto")).toBeDisabled();
-   
+    expect(screen.getByPlaceholderText("Cargo sobreposto")).toBeDisabled();
+    expect(screen.getByPlaceholderText(/Local de exercício/)).toBeDisabled();
+    expect(screen.getByPlaceholderText(/Laudo médico/)).toBeDisabled();
+    expect(screen.getByPlaceholderText(/Local de serviço/)).toBeDisabled();
  
-    expect(screen.getByPlaceholderText("Local de exercício")).toBeDisabled();
-    expect(screen.getByPlaceholderText("Laudo médico")).toBeDisabled();
-  
-
-  
-  
-
-    expect(screen.getByPlaceholderText("Local de serviço")).toBeDisabled();
- 
-
 
   });
 

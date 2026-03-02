@@ -161,7 +161,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -185,7 +185,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -202,7 +202,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={setDisableProximo}
       />
     );
@@ -233,7 +233,7 @@ describe("FormularioPesquisaUnidade", () => {
     const { container } = renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -257,8 +257,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("submete formulário (sucesso) e exibe seção adicional com funcionários", async () => {
     const user = userEvent.setup();
-    const onSubmitDesignacao = vi.fn();
-    const consoleErrorSpy = vi
+     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => { });
 
@@ -313,7 +312,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={onSubmitDesignacao}
+        
         setDisableProximo={vi.fn()}
       />
     );
@@ -322,19 +321,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
-    await waitFor(() => {
-      expect(onSubmitDesignacao).toHaveBeenCalledWith({
-        dre: "dre-1",
-        dre_nome: "DRE Sul",
-        ue: "ue-1",
-        ue_nome: "EMEI - UE 1 da DRE Selecionada",
-        codigo_estrutura_hierarquica: "",
-        funcionarios_da_unidade: "",
-        quantidade_turmas: "",
-        cargo_sobreposto: "",
-        modulos: "",
-      });
-    });
+  
 
     await waitFor(() => {
       expect(getDesignacaoUnidadeSpy).toHaveBeenCalledWith("ue-1");
@@ -371,7 +358,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -423,7 +410,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -481,7 +468,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -525,7 +512,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -580,7 +567,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -643,7 +630,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -669,10 +656,9 @@ describe("FormularioPesquisaUnidade", () => {
     }
   });
 
-  it("quando API retorna success:false, trata erro e ainda chama onSubmitDesignacao", async () => {
+  it("quando API retorna success:false, trata erro ", async () => {
     const user = userEvent.setup();
-    const onSubmitDesignacao = vi.fn();
-
+ 
 
     getDesignacaoUnidadeSpy.mockResolvedValue({
       success: false,
@@ -682,7 +668,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={onSubmitDesignacao}
+        
         setDisableProximo={vi.fn()}
       />
     );
@@ -690,10 +676,7 @@ describe("FormularioPesquisaUnidade", () => {
     await selectDreAndUe(user);
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
-    await waitFor(() => {
-      expect(onSubmitDesignacao).toHaveBeenCalled();
-    });
-
+ 
     expect(screen.getByText("Erro interno do servidor")).toBeInTheDocument();
     expect(
       screen.queryByText("Funcionários da unidade")
@@ -701,10 +684,9 @@ describe("FormularioPesquisaUnidade", () => {
 
   });
 
-  it("quando API lança exceção, trata erro (catch) e ainda chama onSubmitDesignacao", async () => {
+  it("quando API lança exceção, trata erro (catch)  ", async () => {
     const user = userEvent.setup();
-    const onSubmitDesignacao = vi.fn();
-    const consoleLogSpy = vi
+     const consoleLogSpy = vi
       .spyOn(console, "log")
       .mockImplementation(() => { });
 
@@ -713,7 +695,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={onSubmitDesignacao}
+        
         setDisableProximo={vi.fn()}
       />
     );
@@ -721,9 +703,7 @@ describe("FormularioPesquisaUnidade", () => {
     await selectDreAndUe(user);
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
-    await waitFor(() => {
-      expect(onSubmitDesignacao).toHaveBeenCalled();
-    });
+ 
     expect(
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
@@ -765,7 +745,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -796,7 +776,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -848,7 +828,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -892,7 +872,7 @@ describe("FormularioPesquisaUnidade", () => {
   //   renderWithQueryClient(
   //     <FormularioPesquisaUnidade
   //       isLoading={false}
-  //       onSubmitDesignacao={vi.fn()}
+  //        
   //       setDisableProximo={vi.fn()}
   //     />
   //   );
@@ -1042,7 +1022,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidadeIsolated
         isLoading={false}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -1058,7 +1038,7 @@ describe("FormularioPesquisaUnidade", () => {
       <FormularioPesquisaUnidade
         isLoading={false}
         ref={ref}
-        onSubmitDesignacao={vi.fn()}
+         
         setDisableProximo={vi.fn()}
       />
     );
@@ -1083,12 +1063,11 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("valida campos obrigatórios ao submeter sem preencher", async () => {
     const user = userEvent.setup();
-    const onSubmitDesignacao = vi.fn();
-
+ 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        onSubmitDesignacao={onSubmitDesignacao}
+        
         setDisableProximo={vi.fn()}
       />
     );
@@ -1099,16 +1078,14 @@ describe("FormularioPesquisaUnidade", () => {
       expect(screen.getByText("Selecione uma DRE")).toBeInTheDocument();
     });
 
-    expect(onSubmitDesignacao).not.toHaveBeenCalled();
-  });
+   });
 
   it("valida loading", async () => {
-    const onSubmitDesignacao = vi.fn();
-
+ 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={true}
-        onSubmitDesignacao={onSubmitDesignacao}
+        
         setDisableProximo={vi.fn()}
       />
     );

@@ -9,7 +9,7 @@ type StepRendererProps = {
   disableAnterior: boolean;
   disableProximo: boolean;
   onProximo: () => void;
-  onAnterior: () => void;
+  onAnterior?: () => void;
   showAnterior?: boolean;
 };
 
