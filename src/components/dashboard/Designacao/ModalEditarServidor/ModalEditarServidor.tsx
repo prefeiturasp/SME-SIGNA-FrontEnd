@@ -25,7 +25,7 @@ type ModalEditarServidorProps = {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: Servidor;
- };
+};
 
 
 
@@ -51,11 +51,11 @@ export default function ModalEditarServidor({
 
             lotacao_cargo_sobreposto: defaultValues.lotacao_cargo_sobreposto,
             cargo_sobreposto: defaultValues.cargo_sobreposto,
- 
-            local_de_exercicio:  defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
- 
-            laudo_medico:  defaultValues.laudo_medico ?? 'Laudo médico não informado',
-            local_de_servico:  defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus ',
+
+            local_de_exercicio: defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
+
+            laudo_medico: defaultValues.laudo_medico ?? 'Laudo médico não informado',
+            local_de_servico: defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus ',
 
         },
         mode: "onChange",
@@ -66,7 +66,8 @@ export default function ModalEditarServidor({
     const { setFormDesignacaoData, formDesignacaoData } = useDesignacaoContext();
 
     const handleSubmitEditarServidor = (data: FormEditarServidorData) => {
-        if (!formDesignacaoData) return;
+        if (!formDesignacaoData?.servidorIndicado) return;
+
         setFormDesignacaoData({
             ...formDesignacaoData,
             servidorIndicado: {
@@ -75,6 +76,7 @@ export default function ModalEditarServidor({
                 nome_civil: data.nome_civil,
             },
         });
+
         onOpenChange(false);
     };
 
@@ -147,8 +149,8 @@ export default function ModalEditarServidor({
 
 
                             <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-2 ">
-                                
-                            <div className="w-full">
+
+                                <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
@@ -159,7 +161,7 @@ export default function ModalEditarServidor({
                                         disabled
                                     />
                                 </div>
-                                
+
                                 <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
@@ -185,9 +187,9 @@ export default function ModalEditarServidor({
                                 </div>
 
 
-                             
 
-                      
+
+
 
                                 <div className="w-full">
                                     <InputField
@@ -201,12 +203,12 @@ export default function ModalEditarServidor({
                                     />
                                 </div>
 
-                             
-                               
 
 
 
-                             
+
+
+
 
 
                                 <div className="w-full">
