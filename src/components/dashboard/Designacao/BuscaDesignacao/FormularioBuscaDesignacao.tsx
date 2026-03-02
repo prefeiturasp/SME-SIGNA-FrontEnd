@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Search, Loader2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,38 +15,44 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { InputBase } from "@/components/ui/input-base";
-import { Search } from "lucide-react";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
- 
- 
 
+interface FormularioBuscaDesignacaoProps {
+  className?: string;
+  onBuscaDesignacao: (values: BuscaDesignacaoRequest) => Promise<void>;
+  label?: string;
+  placeholder?: string;
+}
 
-const defaultValues: BuscaDesignacaoRequest = {
-  rf: ""
-};
+const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
+  className,
+  onBuscaDesignacao,
+  label = "RF do servidor indicado",
+  placeholder = "Entre com RF",
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
 
-const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignacao: (values: BuscaDesignacaoRequest) => void }> = ({ className, onBuscaDesignacao }) => {
   const form = useForm<BuscaDesignacaoRequest>({
     resolver: zodResolver(buscaDesignacaoSchema),
-    defaultValues,
+    defaultValues: { rf: "" },
     mode: "onChange",
   });
 
-  const onSubmit = (values: BuscaDesignacaoRequest) => {
-    onBuscaDesignacao(values);
-    console.log("Dados da designação", values);
+  const onSubmit = async (values: BuscaDesignacaoRequest) => {
+    setIsLoading(true);
+    try {
+      await onBuscaDesignacao(values);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-
     <div className={className}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full flex flex-col h-full flex-1 "
-        >
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="w-full flex flex-col h-full flex-1">
+          <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="w-full md:w-[50%]">
               <FormField
                 control={form.control}
@@ -52,15 +60,13 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] font-bold">
-                    RF do titular
+                      {label}
                     </FormLabel>
                     <FormControl>
                       <InputBase
-                        type="number"
-                        className="medium-input"
+                        type="text"
+                        placeholder={placeholder}
                         {...field}
-                        placeholder="Entre com RF"
-                        id="rf"
                         data-testid="input-rf"
                       />
                     </FormControl>
@@ -69,20 +75,33 @@ const FormularioBuscaDesignacao: React.FC<{ className?: string, onBuscaDesignaca
                 )}
               />
             </div>
-         
-            <div className="w-[200px] pt-[2rem] ">
-              <Button type="submit" size="lg"  className="w-full flex items-center justify-center gap-6" variant="customOutline">
-                
-                <p className="text-[16px] font-bold">Pesquisar</p>
-                <Search />
+
+            <div className="w-[200px]">
+              <Button
+                type="button"
+                size="lg"
+                className="w-full flex items-center justify-center gap-6"
+                variant="customOutline"
+                disabled={isLoading}
+                onClick={form.handleSubmit(onSubmit)}
+                data-testid="botao-pesquisar-servidor"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-[16px] font-bold">
+                    {isLoading ? "Pesquisando..." : "Pesquisar"}
+                  </span>
+                  {isLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Search size={20} />
+                  )}
+                </div>
               </Button>
             </div>
           </div>
-        </form>
+        </div>
       </Form>
     </div>
- 
-
   );
 };
 

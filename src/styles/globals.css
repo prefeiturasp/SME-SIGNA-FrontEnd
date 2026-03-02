@@ -142,3 +142,11 @@
 }
 
  
+.ant-steps .ant-steps-item-rail-process {
+    --steps-item-solid-line-color: #271aa1 !important;
+}
+
+.ant-steps .ant-steps-item-rail {
+    border-color: var(--steps-item-solid-line-color) !important;
+}
+

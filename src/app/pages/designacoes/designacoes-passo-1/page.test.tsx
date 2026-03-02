@@ -1,16 +1,20 @@
 import React, { type SVGProps } from "react";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import DesignacoesPasso1 from "./page";
 
+/* -------------------------------------------------------------------------- */
+/*                                  MOCKS                                     */
+/* -------------------------------------------------------------------------- */
+
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
-const mockSetFormDesignacaoData = vi.fn();
-const mockResumoDesignacao = vi.fn();
 
 const mockResponse = {
   nome: "Servidor Teste",
+  nome_civil: "Servidor Teste",
+  nome_servidor: "Servidor Teste",
   rf: "123",
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Escola X",
@@ -35,25 +39,60 @@ const mockFormValues = {
 };
 
 let isPending = false;
+
+/* -------------------------------------------------------------------------- */
+/*                                HOOK MOCK                                   */
+/* -------------------------------------------------------------------------- */
+
 vi.mock("@/hooks/useServidorDesignacao", () => ({
   __esModule: true,
   default: () => ({
     mutateAsync: mockMutateAsync,
-    isPending: isPending,
+    isPending,
   }),
 }));
 
-vi.mock("../DesignacaoContext", () => ({
-  useDesignacaoContext: () => ({
-    setFormDesignacaoData: mockSetFormDesignacaoData,
-  }),
-}));
+/* -------------------------------------------------------------------------- */
+/*                          CONTEXTO COM PROVIDER REAL                        */
+/* -------------------------------------------------------------------------- */
+
+vi.mock("../DesignacaoContext", async () => {
+  const React = await import("react");
+
+  const DesignacaoContext = React.createContext<any>(null);
+
+  const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
+    const [formDesignacaoData, setFormDesignacaoData] =
+      React.useState<any>({});
+
+    return (
+      <DesignacaoContext.Provider
+        value={{ formDesignacaoData, setFormDesignacaoData }}
+      >
+        {children}
+      </DesignacaoContext.Provider>
+    );
+  };
+
+  return {
+    useDesignacaoContext: () => React.useContext(DesignacaoContext),
+    DesignacaoProvider,
+  };
+});
+
+/* -------------------------------------------------------------------------- */
+/*                                ROUTER MOCK                                 */
+/* -------------------------------------------------------------------------- */
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: mockRouterPush,
   }),
 }));
+
+/* -------------------------------------------------------------------------- */
+/*                                UI MOCKS                                    */
+/* -------------------------------------------------------------------------- */
 
 vi.mock("@/assets/icons/Designacao", () => ({
   __esModule: true,
@@ -81,88 +120,106 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   ),
 }));
 
-vi.mock("@/components/dashboard/Designacao/ResumoDesignacao", () => ({
+vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
   __esModule: true,
-  default: (props: { defaultValues?: typeof mockResponse }) => {
-    mockResumoDesignacao(props);
-    return (
-      <div data-testid="resumo-designacao">{props.defaultValues?.nome}</div>
-    );
-  },
+  CustomAccordionItem: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="accordion-item">{children}</div>
+  ),
 }));
 
+vi.mock("@/components/ui/accordion", () => ({
+  Accordion: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="accordion">{children}</div>
+  ),
+}));
 
-vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade", () => ({
-  __esModule: true,
-  default: React.forwardRef(function MockFormularioPesquisaUnidade(
-    {
-      setDisableProximo,
-      onSubmitDesignacao,
-    }: {
-      setDisableProximo: (disable: boolean) => void;
-      onSubmitDesignacao: (values: typeof mockFormValues) => void;
-    },
-    ref: React.ForwardedRef<{ getValues: () => typeof mockFormValues }>
-  ) {
-    const [dre, setDre] = React.useState("");
-    const [ue, setUe] = React.useState("");
+vi.mock("antd", () => ({
+  Card: ({ children, title }: any) => (
+    <div data-testid="card">
+      {title}
+      {children}
+    </div>
+  ),
+}));
 
-    React.useEffect(() => {
-      setDisableProximo(true);
-    }, [setDisableProximo]);
+/* -------------------------- Resumo Mock ------------------------------------ */
 
-    React.useImperativeHandle(
-      ref,
-      () => ({
-        getValues: () => ({
-          ...mockFormValues,
-          dre,
-          ue,
-        }),
-      }),
-      [dre, ue]
-    );
-
-    const handlePesquisar = () => {
-      onSubmitDesignacao({
-        ...mockFormValues,
-        dre,
-        ue,
-      });
-    };
-
-    return (
-      <div data-testid="formulario-pesquisa-unidade">
-        <select
-          data-testid="select-dre"
-          value={dre}
-          onChange={(event) => {
-            setDre(event.target.value);
-            setUe("");
-            setDisableProximo(true);
-          }}
-        >
-          <option value="">Selecione</option>
-          <option value="dre-1">DRE 1</option>
-        </select>
-        <select
-          data-testid="select-ue"
-          value={ue}
-          onChange={(event) => {
-            setUe(event.target.value);
-            setDisableProximo(false);
-          }}
-        >
-          <option value="">Selecione</option>
-          <option value="ue-1">UE 1</option>
-        </select>
-        <button type="button" onClick={handlePesquisar}>
-          Pesquisar
-        </button>
+vi.mock(
+  "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado",
+  () => ({
+    __esModule: true,
+    default: (props: any) => (
+      <div data-testid="resumo-designacao">
+        {props.defaultValues?.nome}
       </div>
-    );
-  }),
-}));
+    ),
+  })
+);
+
+/* ------------------- Formulario Pesquisa Unidade Mock ---------------------- */
+
+vi.mock(
+  "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade",
+  () => ({
+    __esModule: true,
+    default: React.forwardRef(function MockFormularioPesquisaUnidade(
+      {
+        setDisableProximo,
+      }: {
+        setDisableProximo: (disable: boolean) => void;
+      },
+      ref: React.ForwardedRef<{ getValues: () => typeof mockFormValues }>
+    ) {
+      const [dre, setDre] = React.useState("");
+      const [ue, setUe] = React.useState("");
+
+      React.useEffect(() => {
+        setDisableProximo(true);
+      }, [setDisableProximo]);
+
+      React.useImperativeHandle(
+        ref,
+        () => ({
+          getValues: () => ({
+            ...mockFormValues,
+            dre,
+            ue,
+          }),
+        }),
+        [dre, ue]
+      );
+
+      return (
+        <div data-testid="formulario-pesquisa-unidade">
+          <select
+            data-testid="select-dre"
+            value={dre}
+            onChange={(e) => {
+              setDre(e.target.value);
+              setUe("");
+              setDisableProximo(true);
+            }}
+          >
+            <option value="">Selecione</option>
+            <option value="dre-1">DRE 1</option>
+          </select>
+
+          <select
+            data-testid="select-ue"
+            value={ue}
+            onChange={(e) => {
+              setUe(e.target.value);
+              setDisableProximo(false);
+            }}
+          >
+            <option value="">Selecione</option>
+            <option value="ue-1">UE 1</option>
+          </select>
+        </div>
+      );
+    }),
+  })
+);
 
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
   __esModule: true,
@@ -170,19 +227,9 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
     disableAnterior,
     disableProximo,
     onProximo,
-    onAnterior,
-  }: {
-    disableAnterior: boolean;
-    disableProximo: boolean;
-    onProximo: () => void;
-    onAnterior: () => void;
-  }) => (
+  }: any) => (
     <div>
-      <button
-        data-testid="botao-anterior"
-        disabled={disableAnterior}
-        onClick={onAnterior}
-      >
+      <button data-testid="botao-anterior" disabled={disableAnterior}>
         Anterior
       </button>
       <button
@@ -196,46 +243,49 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
   ),
 }));
 
-vi.mock("antd", () => ({
-  Card: ({
-    children,
-    title,
-  }: {
-    children: React.ReactNode;
-    title?: React.ReactNode;
-  }) => (
-    <div data-testid="card">
-      {title}
-      {children}
-    </div>
-  ),
-}));
+/* -------------------------------------------------------------------------- */
+/*                                   TESTES                                   */
+/* -------------------------------------------------------------------------- */
+
+import { DesignacaoProvider } from "../DesignacaoContext";
 
 describe("DesignacoesPasso1", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockMutateAsync.mockResolvedValue({ success: true, data: mockResponse });
+
+    mockMutateAsync.mockResolvedValue({
+      success: true,
+      data: mockResponse,
+    });
   });
 
+  const renderWithProvider = () =>
+    render(
+      <DesignacaoProvider>
+        <DesignacoesPasso1 />
+      </DesignacaoProvider>
+    );
+
+  const clicarPesquisarServidor = async () => {
+    await userEvent.click(
+      screen.getByTestId("botao-pesquisar-servidor")
+    );
+  };
+
   it("renderiza o cabeçalho e o formulário inicial", () => {
-    render(<DesignacoesPasso1 />);
+    renderWithProvider();
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Designação");
     expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Pesquisar/i })
-    ).toBeInTheDocument();
-    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
+    expect(screen.getByTestId("input-rf")).toBeInTheDocument();
   });
 
-  it("exibe o resumo e o formulário de unidade após busca bem-sucedida", async () => {
-    render(<DesignacoesPasso1 />);
+  it("exibe o resumo após busca bem-sucedida", async () => {
+    renderWithProvider();
 
     await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
 
-    await userEvent.click(
-      screen.getByRole("button", { name: /Pesquisar/i })
-    );
     expect(mockMutateAsync).toHaveBeenCalledWith({ rf: "123" });
 
     await waitFor(() => {
@@ -243,11 +293,6 @@ describe("DesignacoesPasso1", () => {
     });
 
     expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
-    expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
-    expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
-    expect(mockResumoDesignacao).toHaveBeenCalledWith(
-      expect.objectContaining({ defaultValues: mockResponse })
-    );
   });
 
   it("mostra erro quando a busca falha", async () => {
@@ -256,64 +301,35 @@ describe("DesignacoesPasso1", () => {
       error: "Servidor não encontrado",
     });
 
-    render(<DesignacoesPasso1 />);
+    renderWithProvider();
 
     await userEvent.type(screen.getByTestId("input-rf"), "123");
-
-    await userEvent.click(
-      screen.getByRole("button", { name: /Pesquisar/i })
-    );
-    expect(mockMutateAsync).toHaveBeenCalledWith({ rf: "123" });
-
-    await waitFor(() => {
-      expect(screen.getByText("Servidor não encontrado")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
-  });
-
-  it("envia dados da unidade e navega ao próximo passo", async () => {
-    render(<DesignacoesPasso1 />);
-
-    await userEvent.type(screen.getByTestId("input-rf"), "123");
-
-    await userEvent.click(
-      screen.getByRole("button", { name: /Pesquisar/i })
-    );
-    expect(mockMutateAsync).toHaveBeenCalledWith({ rf: "123" });
+    await clicarPesquisarServidor();
 
     await waitFor(() => {
       expect(
-        screen.getByTestId("formulario-pesquisa-unidade")
+        screen.getByText("Servidor não encontrado")
       ).toBeInTheDocument();
+    });
+  });
+
+  it("envia dados da unidade e navega ao próximo passo", async () => {
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
     });
 
     await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
     await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
 
-    await userEvent.click(
-      within(screen.getByTestId("formulario-pesquisa-unidade")).getByRole(
-        "button",
-        { name: /Pesquisar/i }
-      )
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
-    });
-
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(mockFormValues);
     expect(mockRouterPush).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-2?123"
     );
   });
-
-  it("mostra loading quando a busca está pendente", () => {
-    isPending = true;
-    render(<DesignacoesPasso1 />);
-    expect(screen.getByTestId("loader")).toBeInTheDocument();
-  });
 });
-

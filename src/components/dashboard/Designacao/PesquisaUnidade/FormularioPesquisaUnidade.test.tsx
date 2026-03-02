@@ -96,27 +96,27 @@ describe("FormularioPesquisaUnidade", () => {
   let getDesignacaoUnidadeSpy: ReturnType<typeof vi.spyOn>;
 
   async function selectDreAndUe(
-  user: ReturnType<typeof userEvent.setup>,
-  dreName = "DRE Sul",
-  ueName = "UE 1 da DRE Selecionada",
-  siglaTipoEscola = "EMEI"
-) {
-  await waitFor(() => {
-    expect(getDREsSpy).toHaveBeenCalled();
-  });
+    user: ReturnType<typeof userEvent.setup>,
+    dreName = "DRE Sul",
+    ueName = "UE 1 da DRE Selecionada",
+    siglaTipoEscola = "EMEI"
+  ) {
+    await waitFor(() => {
+      expect(getDREsSpy).toHaveBeenCalled();
+    });
 
-  const dreSelect = screen.getByTestId("select-dre");
-  await user.click(dreSelect);
-  await clickSelectOption(user, dreName);
+    const dreSelect = screen.getByTestId("select-dre");
+    await user.click(dreSelect);
+    await clickSelectOption(user, dreName);
 
-  await waitFor(() => {
-    expect(screen.getByTestId("select-ue")).not.toBeDisabled();
-  });
+    await waitFor(() => {
+      expect(screen.getByTestId("select-ue")).not.toBeDisabled();
+    });
 
-  const ueCombobox = screen.getByTestId("select-ue");
-  await user.click(ueCombobox);
-  await user.click(await screen.findByText(`${siglaTipoEscola} - ${ueName}`));
-}
+    const ueCombobox = screen.getByTestId("select-ue");
+    await user.click(ueCombobox);
+    await user.click(await screen.findByText(`${siglaTipoEscola} - ${ueName}`));
+  }
 
   beforeAll(() => {
     if (!Element.prototype.hasPointerCapture) {
@@ -167,7 +167,7 @@ describe("FormularioPesquisaUnidade", () => {
     );
 
     expect(screen.getByText("DRE")).toBeInTheDocument();
-    expect(screen.getByText("Unidade escolar")).toBeInTheDocument();
+    expect(screen.getByText("Unidade proponente")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Pesquisar/i })).toBeInTheDocument();
 
     expect(
@@ -205,13 +205,13 @@ describe("FormularioPesquisaUnidade", () => {
         onSubmitDesignacao={vi.fn()}
         setDisableProximo={setDisableProximo}
       />
-    );  
+    );
 
     const dreSelect = screen.getByTestId("select-dre");
     await user.click(dreSelect);
     await clickSelectOption(user, "DRE Sul");
 
- 
+
     await waitFor(() => {
       expect(getUEsSpy).toHaveBeenCalledWith("dre-1");
     });
@@ -260,7 +260,7 @@ describe("FormularioPesquisaUnidade", () => {
     const onSubmitDesignacao = vi.fn();
     const consoleErrorSpy = vi
       .spyOn(console, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     getDesignacaoUnidadeSpy.mockResolvedValue({
       success: true,
@@ -325,7 +325,9 @@ describe("FormularioPesquisaUnidade", () => {
     await waitFor(() => {
       expect(onSubmitDesignacao).toHaveBeenCalledWith({
         dre: "dre-1",
+        dre_nome: "DRE Sul",
         ue: "ue-1",
+        ue_nome: "EMEI - UE 1 da DRE Selecionada",
         codigo_estrutura_hierarquica: "",
         funcionarios_da_unidade: "",
         quantidade_turmas: "",
@@ -347,8 +349,11 @@ describe("FormularioPesquisaUnidade", () => {
     expect(screen.getByText("Código Estrutura hierárquica")).toBeInTheDocument();
     expect(screen.getByText("Qtd. Turmas")).toBeInTheDocument();
 
-    const codigoInput = screen.getByTestId("input-codigo") as HTMLInputElement;
-    expect(codigoInput.value).toBe("");
+    expect(
+      screen.getByText("Código Estrutura hierárquica")
+    ).toBeInTheDocument();
+
+    expect(screen.getAllByText("-").length).toBeGreaterThan(0);
 
     expect(screen.getAllByText("-").length).toBeGreaterThan(0);
 
@@ -360,7 +365,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     // mantém a mutation pendente
     getDesignacaoUnidadeSpy.mockReturnValue(
-      new Promise(() => {}) as never
+      new Promise(() => { }) as never
     );
 
     renderWithQueryClient(
@@ -401,7 +406,7 @@ describe("FormularioPesquisaUnidade", () => {
                 rf: "123",
                 nome: "Fulano",
                 esta_afastado: false,
-                
+
                 vinculo_cargo_sobreposto: "string",
                 lotacao_cargo_sobreposto: "string",
                 cargo_base: "string",
@@ -534,9 +539,9 @@ describe("FormularioPesquisaUnidade", () => {
 
     const viewServidorBtn = screen.getByTestId("btn-visualizar-servidor");
     expect(viewServidorBtn).toBeDisabled();
-    
-    
-      
+
+
+
   });
 
 
@@ -558,7 +563,7 @@ describe("FormularioPesquisaUnidade", () => {
                 rf: "123",
                 nome: "Fulano",
                 esta_afastado: false,
-                
+
                 vinculo_cargo_sobreposto: "string",
                 lotacao_cargo_sobreposto: "string",
                 cargo_base: "string",
@@ -594,13 +599,13 @@ describe("FormularioPesquisaUnidade", () => {
 
     await clickSelectOption(user, "Coordenador");
 
-  
+
 
     await selectDreAndUe(user, "DRE Norte", "UE 2 da DRE Selecionada", "EMEF");
 
 
     expect(screen.queryByText("Cargo sobreposto")).not.toBeInTheDocument();
-    
+
     expect(screen.queryByText("Módulos")).not.toBeInTheDocument();
   });
 
@@ -621,7 +626,7 @@ describe("FormularioPesquisaUnidade", () => {
               {
                 rf: "123",
                 nome: "Fulano",
-                esta_afastado: false,                
+                esta_afastado: false,
                 vinculo_cargo_sobreposto: "string",
                 lotacao_cargo_sobreposto: "string",
                 cargo_base: "string",
@@ -664,59 +669,10 @@ describe("FormularioPesquisaUnidade", () => {
     }
   });
 
-  it("permite editar código estrutura hierárquica", async () => {
-    const user = userEvent.setup();
-
-    getDesignacaoUnidadeSpy.mockResolvedValue({
-      success: true,
-      data: {
-        cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
-        funcionarios_unidade: {
-          "cargo-1": {
-            codigo_cargo: 1,
-            nome_cargo: "Coordenador",
-            modulo: "1",
-            servidores: [
-              {
-                rf: "123",
-                nome: "Fulano",
-                esta_afastado: false,
-                vinculo_cargo_sobreposto: "string",
-                lotacao_cargo_sobreposto: "string",
-                cargo_base: "string",
-                funcao_atividade: "string",
-                cargo_sobreposto: "Professor",
-                cursos_titulos: "string",
-              },
-            ],
-          },
-        },
-      },
-    } as never);
-
-    renderWithQueryClient(
-      <FormularioPesquisaUnidade
-        isLoading={false}
-        onSubmitDesignacao={vi.fn()}
-        setDisableProximo={vi.fn()}
-      />
-    );
-
-    await selectDreAndUe(user);
-    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
-    const codigoInput = (await screen.findByTestId(
-      "input-codigo"
-    )) as HTMLInputElement;
-    await user.clear(codigoInput);
-    await user.type(codigoInput, "999999");
-
-    expect(codigoInput.value).toBe("999999");
-  });
-
   it("quando API retorna success:false, trata erro e ainda chama onSubmitDesignacao", async () => {
     const user = userEvent.setup();
     const onSubmitDesignacao = vi.fn();
- 
+
 
     getDesignacaoUnidadeSpy.mockResolvedValue({
       success: false,
@@ -737,20 +693,20 @@ describe("FormularioPesquisaUnidade", () => {
     await waitFor(() => {
       expect(onSubmitDesignacao).toHaveBeenCalled();
     });
-    
+
     expect(screen.getByText("Erro interno do servidor")).toBeInTheDocument();
     expect(
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
 
-   });
+  });
 
   it("quando API lança exceção, trata erro (catch) e ainda chama onSubmitDesignacao", async () => {
     const user = userEvent.setup();
     const onSubmitDesignacao = vi.fn();
     const consoleLogSpy = vi
       .spyOn(console, "log")
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     getDesignacaoUnidadeSpy.mockRejectedValue(new Error("boom"));
 
@@ -768,7 +724,7 @@ describe("FormularioPesquisaUnidade", () => {
     await waitFor(() => {
       expect(onSubmitDesignacao).toHaveBeenCalled();
     });
-     expect(
+    expect(
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
 
@@ -980,7 +936,7 @@ describe("FormularioPesquisaUnidade", () => {
       InputBase: () => <input />,
     }));
 
-    vi.doMock("../ResumoDesignacao", () => ({
+    vi.doMock("../ResumoDesignacaoServidorIndicado", () => ({
       InfoItem: ({ label, value }: { label: string; value?: string }) => (
         <div>
           <span>{label}</span>
@@ -1015,18 +971,18 @@ describe("FormularioPesquisaUnidade", () => {
         }),
         handleSubmit:
           (fn: (values: Record<string, unknown>) => unknown) =>
-          (e?: { preventDefault?: () => void }) => {
-            e?.preventDefault?.();
-          return fn({
-            dre: undefined,
-            ue: undefined,
-            funcionarios_da_unidade: "",
-            quantidade_turmas: undefined,
-            codigo_estrutura_hierarquica: "",
-            cargo_sobreposto: "",
-            modulos: "",
-          });
-        },
+            (e?: { preventDefault?: () => void }) => {
+              e?.preventDefault?.();
+              return fn({
+                dre: undefined,
+                ue: undefined,
+                funcionarios_da_unidade: "",
+                quantidade_turmas: undefined,
+                codigo_estrutura_hierarquica: "",
+                cargo_sobreposto: "",
+                modulos: "",
+              });
+            },
         control: {},
         clearErrors: vi.fn(),
         setValue: vi.fn(),
@@ -1067,7 +1023,9 @@ describe("FormularioPesquisaUnidade", () => {
     const values = ref.current?.getValues();
     expect(values).toEqual({
       dre: "dre-1",
+      dre_nome: "DRE Sul",
       ue: "ue-1",
+      ue_nome: "EMEI - UE 1 da DRE Selecionada",
       codigo_estrutura_hierarquica: "",
       funcionarios_da_unidade: "",
       quantidade_turmas: "",
@@ -1083,7 +1041,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-          onSubmitDesignacao={onSubmitDesignacao}
+        onSubmitDesignacao={onSubmitDesignacao}
         setDisableProximo={vi.fn()}
       />
     );
@@ -1098,20 +1056,20 @@ describe("FormularioPesquisaUnidade", () => {
   });
 
   it("valida loading", async () => {
-     const onSubmitDesignacao = vi.fn();
+    const onSubmitDesignacao = vi.fn();
 
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={true}
-          onSubmitDesignacao={onSubmitDesignacao}
+        onSubmitDesignacao={onSubmitDesignacao}
         setDisableProximo={vi.fn()}
       />
     );
 
- 
+
     await waitFor(() => {
       expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
     });
 
-   });
+  });
 });

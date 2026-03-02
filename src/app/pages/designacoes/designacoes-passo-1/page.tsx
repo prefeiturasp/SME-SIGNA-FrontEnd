@@ -1,15 +1,14 @@
 "use client";
+
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
-import ResumoDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
 import { useRef, useState } from "react";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import FormularioPesquisaUnidade, {
@@ -17,100 +16,149 @@ import FormularioPesquisaUnidade, {
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-
+import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
+import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
+import { Accordion } from "@/components/ui/accordion";
 
 export default function DesignacoesPasso1() {
   const { mutateAsync, isPending } = useServidorDesignacao();
-  const [data, setData] = useState<BuscaServidorDesignacaoBody | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [disableProximo, setDisableProximo] = useState(true);
-  const formularioPesquisaUnidadeRef = useRef<FormularioPesquisaUnidadeRef | null>(null);
-  const { setFormDesignacaoData } = useDesignacaoContext();
+  const formularioPesquisaUnidadeRef =
+    useRef<FormularioPesquisaUnidadeRef | null>(null);
+
+  const { formDesignacaoData, setFormDesignacaoData } =
+    useDesignacaoContext();
+
   const router = useRouter();
 
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
-    if (response.success) {
-      setData(response.data);
-      setError(null);
 
-    }
-    if (!response.success) {
+    if (response.success) {
+      setFormDesignacaoData({
+        ...formDesignacaoData,
+        servidorIndicado: {
+          ...response.data,
+          nome_servidor: response.data.nome,
+          nome_civil: response.data.nome,
+        },
+      });
+
+      setError(null);
+    } else {
       setError(response.error);
-      setData(null);
     }
   };
 
   const onSubmitDesignacao = (values: FormDesignacaoData) => {
     console.log("Dados do formulário", values);
   };
-  const onProximo = (data: BuscaServidorDesignacaoBody) => {
-    const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
-    if (!valoresFormulario) {
+
+  const onProximo = () => {
+    const valoresFormulario =
+      formularioPesquisaUnidadeRef.current?.getValues();
+
+    if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) {
       return;
     }
-    console.log("Dados da unidade selecionada", valoresFormulario);
-    setFormDesignacaoData(valoresFormulario);
-    router.push(`/pages/designacoes/designacoes-passo-2?${data.rf}`);
+
+    setFormDesignacaoData({
+      ...formDesignacaoData,
+      ...valoresFormulario,
+    });
+
+    router.push(
+      `/pages/designacoes/designacoes-passo-2?${formDesignacaoData.servidorIndicado.rf}`
+    );
   };
+
   return (
     <>
       <PageHeader
         title="Designação"
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação" }]}
+        breadcrumbs={[
+          { title: "Início", href: "/" },
+          { title: "Designação" },
+        ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
 
-
-
-      <FundoBranco >
+      <FundoBranco>
         <StepperDesignacao current={0} />
       </FundoBranco>
 
-      <Card title={<span className="text-[#6058A2]">Servidor indicado</span>} className="text-[#6058A2] mt-4 m-0 ">
-        <FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />
-      </Card>
+      <Card
+        title={
+          <div className="flex justify-between items-center">
+            <span className="text-[#333]">
+              Servidor indicado
+            </span>
+          </div>
+        }
+        className="mt-4 m-0"
+      >
+        <Accordion
+          type="multiple"
+          defaultValue={["portarias-designacao"]}
+        >
+          <div className="pt-4 pb-6">
+            <FormularioBuscaDesignacao
+              onBuscaDesignacao={onBuscaDesignacao}
+            />
+          </div>
 
+          {error && (
+            <div className="text-red-500">{error}</div>
+          )}
 
-      {error && <div className="text-red-500">{error}</div>}
+          {formDesignacaoData?.servidorIndicado && (
+            <CustomAccordionItem
+              title="Dados do servidor indicado"
+              value="servidor-indicado"
+              color="gold"
+            >
+              <ResumoDesignacaoServidorIndicado
+                isLoading={isPending}
+                defaultValues={
+                  formDesignacaoData.servidorIndicado
+                }
+                showCursosTitulos={true}
+                showEditar={true}
+                showCamposExtras={false}
+                showLotacao={true}
+              />
+            </CustomAccordionItem>
+          )}
 
-      {isPending && <div className="flex items-center justify-center">
-        <Loader2 data-testid="loader" className="w-20 h-20 animate-spin text-primary " />
-      </div>}
-
-      {data?.nome && (
-        <div className="flex flex-col items-stretch">
-
-          <Card title="Dados do servidor indicado" className=" mt-4 m-0 ">
-            <ResumoDesignacao isLoading={isPending} defaultValues={data} />
-          </Card>
-
-
-          <Card title={<span className="text-[#6058A2]">Pesquisa da unidade</span>}
-            className=" mt-4 m-0 ">
+          <CustomAccordionItem
+            title="Unidade Proponente"
+            color="blue"
+            value="unidade-proponente"
+          >
             <FormularioPesquisaUnidade
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
               onSubmitDesignacao={onSubmitDesignacao}
               setDisableProximo={setDisableProximo}
             />
-          </Card>
+          </CustomAccordionItem>
+        </Accordion>
+      </Card>
 
-          <div className="w-full flex flex-col ">
-            <BotoesDeNavegacao
-              disableAnterior={true}
-              disableProximo={disableProximo}
-              onProximo={() => onProximo(data)}
-              showAnterior={false}
-              onAnterior={() => { }}
-            />
-          </div>
-
-
-        </div>
-      )}
+      <div className="w-full flex flex-col">
+        <BotoesDeNavegacao
+          disableAnterior={true}
+          disableProximo={
+            disableProximo ||
+            !formDesignacaoData?.servidorIndicado
+          }
+          onProximo={onProximo}
+          showAnterior={false}
+          onAnterior={() => { }}
+        />
+      </div>
     </>
   );
 }

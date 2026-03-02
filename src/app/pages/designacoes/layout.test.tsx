@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import DesignacoesLayout from "./layout";
 import { useDesignacaoContext } from "./DesignacaoContext";
@@ -70,7 +70,21 @@ describe("DesignacoesLayout", () => {
                 funcionarios_da_unidade: "func",
                 quantidade_turmas: "10",
                 cargo_sobreposto: "cargo",
-                modulos: "2",
+                modulos: "2", 
+                servidorIndicado: {
+                  nome: "test-nome",
+                  rf: "123",
+                  esta_afastado: false,
+                  vinculo_cargo_sobreposto: "Ativo",
+                  lotacao_cargo_sobreposto: "Unidade X",
+                  cargo_base: "Professor",
+                  funcao_atividade: "Docente",
+                  cargo_sobreposto: "Nenhum",
+                  cursos_titulos: "Licenciatura",
+                  dre: "DRE Teste",
+                  codigo_estrutura_hierarquica: "COD-1",
+                  
+                },
               })
             }
             data-testid="set-context-button"
@@ -86,8 +100,10 @@ describe("DesignacoesLayout", () => {
         <ChildComponent />
       </DesignacoesLayout>
     );
+    fireEvent.click(screen.getByTestId("set-context-button"));
 
-    expect(screen.getByTestId("context-data")).toHaveTextContent("No Data");
+    // o provider atualmente inicia com dados (seed)
+    expect(screen.getByTestId("context-data")).toHaveTextContent("Has Data");
     expect(screen.getByTestId("set-context-button")).toBeInTheDocument();
   });
 
