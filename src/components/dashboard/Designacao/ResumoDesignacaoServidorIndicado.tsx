@@ -82,8 +82,14 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
             <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
               <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
                 {/* to-do: corrigir nomes vindo da api corretamente */}
-                <InfoItem label="Nome Servidor" value={defaultValues.nome} />
-                <InfoItem label="Nome Civil" value={defaultValues.nome} />
+                <InfoItem
+                  label="Nome Servidor"
+                  value={defaultValues.nome_servidor ?? defaultValues.nome}
+                />
+                <InfoItem
+                  label="Nome Civil"
+                  value={defaultValues.nome_civil ?? defaultValues.nome}
+                />
                 <InfoItem label="RF" value={defaultValues.rf} />
 
                 <InfoItem
@@ -121,7 +127,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                 )}
 
 
-  
+
 
                 {showFuncaoAtividade && (
 
@@ -158,7 +164,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
               </div>
               <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4 mt-4">
 
-              <InfoItem
+                <InfoItem
                   label="Cargo sobreposto/Função atividade"
                   value={defaultValues.cargo_sobreposto}
                 />
@@ -174,7 +180,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                   label="Local de serviço"
                   value={defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus '}
                 />
-                 </div>
+              </div>
             </div>
 
             {showEditar && (
