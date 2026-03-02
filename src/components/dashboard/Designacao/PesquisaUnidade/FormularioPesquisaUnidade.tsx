@@ -157,7 +157,7 @@ const FormularioPesquisaUnidade = forwardRef<
               servidores={
                 designacaoUnidade?.funcionarios_unidade[
                   values.funcionarios_da_unidade
-                ]?.servidores || []
+                ]?.servidores 
               }
             />
           )}

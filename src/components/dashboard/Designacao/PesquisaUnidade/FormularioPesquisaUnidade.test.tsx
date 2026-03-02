@@ -864,6 +864,53 @@ describe("FormularioPesquisaUnidade", () => {
     ).toBeInTheDocument();
   });
 
+  // it.only("renderiza modal resumo servidor sem dados ", async () => {
+  //   const dreOptions = [
+  //     { codigoDRE: "dre-1",  siglaDRE: "DRE1" },
+  //     { codigoDRE: "dre-2",  siglaDRE: "DRE2" },
+  //   ];
+  //   getDREsSpy = vi
+  //     .spyOn(unidadesActions, "getDREs")
+  //     .mockResolvedValue(dreOptions as never);
+
+  //   const user = userEvent.setup();
+
+  //   getDesignacaoUnidadeSpy.mockResolvedValue({
+  //     success: true,
+  //     data: {
+  //       cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
+  //       funcionarios_unidade: {
+  //         "cargo-1": {
+  //           codigo_cargo: 1,
+  //           nome_cargo: "Coordenador",
+  //           modulo: "1",            
+  //         },
+  //       },
+  //     },
+  //   } as never);
+
+  //   renderWithQueryClient(
+  //     <FormularioPesquisaUnidade
+  //       isLoading={false}
+  //       onSubmitDesignacao={vi.fn()}
+  //       setDisableProximo={vi.fn()}
+  //     />
+  //   );
+
+  //   await selectDreAndUe(user);
+  //   await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+  //   screen.debug();
+  //   const modalButton = await screen.findByTestId("btn-visualizar-servidor");
+  //   await user.click(modalButton);
+
+  //   expect(
+  //     await screen.findByText("Nenhum servidor encontrado")
+  //   ).toBeInTheDocument();
+  // });
+
+
+
   it("coverage: usa fallback '-' no DetalhamentoTurmasModal quando valores são nullish", async () => {
     // Esse teste é isolado para cobrir branches de `?? "-"` que são inalcançáveis
     // com os valores padrão do react-hook-form (que sempre inicializa como string vazia).
