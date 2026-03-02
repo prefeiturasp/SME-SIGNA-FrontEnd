@@ -11,6 +11,9 @@ const formSchemaDesignacaoPasso2 = z.object({
   impedimento_substituicao: z.string().min(1, "Selecione o impedimento para substituição"),
   com_afastamento: z.string().min(1, "Selecione o impedimento para substituição"),
   motivo_afastamento: z.string().min(1, "Digite o motivo de afastamento"),
+  tipo_cargo: z.enum(["vago", "disponivel"]), 
+  rf_titular: z.string().optional(),
+  cargo_vago_selecionado: z.string().optional(),
 });
 
 export type formSchemaDesignacaoPasso2Data = z.infer<typeof formSchemaDesignacaoPasso2>;
