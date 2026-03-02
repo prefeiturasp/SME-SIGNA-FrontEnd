@@ -67,6 +67,13 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
     { codigo: "14", nome: "por licença parental de curta duração" },
     { codigo: "15", nome: "por licença parental de longa duração" },
     { codigo: "16", nome: "por Evento/Reunião" },
+    { codigo: "17", nome: 'por readaptação funcional, nos termos do art. 39 da Lei nº 8.979, de 1979' },
+    { codigo: "18", nome: 'para prestar serviços técnico-educacionais, nos termos da alínea "a", inciso IX, do artigo 66 da Lei nº 14.660, de 2007' },
+    { codigo: "19", nome: '  por exercer cargos em comissão, nos termos do § 1º do art. 45 da Lei nº 8.989, de 1979, art. 70 da Lei nº 14.660, de 2007' },
+    { codigo: "20", nome: ' para prestar serviços técnico-educacionais, nos termos da alínea "b", inciso IX, do artigo 66 da Lei nº 14.660, de 2007' },
+    { codigo: "21", nome: ' por transferência temporária do servidor, nos termos do art. 8º do Decreto Municipal nº 57.444, de 2016' },
+    { codigo: "22", nome: ' por exercer mandato de dirigente sindical, nos termos do disposto no inciso VII do art. 66 da Lei nº 14.660, de 2007' },
+    { codigo: "23", nome: ' pelo afastamento, em caráter excepcional, nos termos da alínea "b", inciso IX, do artigo 66 da Lei nº 14.660, de 2007' },
   ];
 
   const [pendingValue, setPendingValue] = useState<string | null>(null);
@@ -105,13 +112,14 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
         <>
           <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4 ">
             <div className="w-full">
-            <InputField
+              <InputField
                 register={register}
                 control={control}
                 name="portaria_designacao"
                 label="Portaria da designação"
                 placeholder="Nº da portaria"
                 data-testid="input-portaria-designacao"
+                type="number"
               />
             </div>
 
@@ -122,7 +130,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="required text-[#42474a] font-bold">
-                      Ano
+                    Ano Vigente
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -173,6 +181,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
                 label="Nº SEI"
                 placeholder="Número SEI"
                 data-testid="input-numero-sei"
+                type="number"
               />
 
 
@@ -215,7 +224,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
             </div>
 
             <div className="w-full">
-            <CheckboxField
+              <CheckboxField
                 register={register}
                 control={control}
                 name="carater_especial"
@@ -283,7 +292,7 @@ const PortariaDesigacaoFields = ({ setDisableProximo, isLoading }: Props) => {
           <div className="gap-4  lg:items-center  ">
 
             <div className="w-full pt-4">
-            <CheckboxField
+              <CheckboxField
                 register={register}
                 control={control}
                 name="com_afastamento"
