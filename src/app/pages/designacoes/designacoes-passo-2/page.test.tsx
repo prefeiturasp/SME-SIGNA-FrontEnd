@@ -1,191 +1,149 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import DesignacoesPasso2Page from "./page";
 
+interface MockState {
+  formDesignacaoData: {
+    servidorIndicado: {
+      nome: string;
+      rf: string;
+      lotacao_cargo_sobreposto: string;
+      dre: string;
+    };
+  } | null;
+}
+
 const h = vi.hoisted(() => ({
-  formDesignacaoData: null as any,
-  resumoCalls: [] as any[],
-  botoesCalls: [] as any[],
+  state: { formDesignacaoData: null } as MockState,
+  mutateAsync: vi.fn(),
 }));
 
+
 vi.mock("../DesignacaoContext", () => ({
-  __esModule: true,
   useDesignacaoContext: () => ({
-    formDesignacaoData: h.formDesignacaoData,
+    formDesignacaoData: h.state.formDesignacaoData,
   }),
 }));
 
-vi.mock("@/assets/icons/Designacao", () => ({
-  __esModule: true,
-  default: () => <svg data-testid="designacao-icon" />,
+vi.mock("@/hooks/useServidorDesignacao", () => ({
+  default: () => ({
+    mutateAsync: h.mutateAsync,
+    isPending: false,
+  }),
 }));
 
-vi.mock("@/assets/icons/Historico", () => ({
-  __esModule: true,
-  default: () => <svg data-testid="historico-icon" />,
-}));
-
-vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="page-header">{title}</div>
-  ),
-}));
-
-vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
-  __esModule: true,
-  default: ({ current }: { current: number }) => (
-    <div data-testid="stepper-designacao">current:{current}</div>
-  ),
-}));
-
-vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="fundo-branco">{children}</div>
-  ),
-}));
+vi.mock("antd", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("antd")>();
+  return {
+    ...actual,
+    Card: ({ children, title }: { children: React.ReactNode; title: React.ReactNode }) => (
+      <div data-testid="card">
+        <div data-testid="card-title">{title}</div>
+        {children}
+      </div>
+    ),
+    Flex: ({ children, className }: any) => <div className={className}>{children}</div>,
+    Steps: ({ current }: any) => <div data-testid="mock-steps">Step: {current}</div>,
+  };
+});
 
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="accordion">{children}</div>
-  ),
+  Accordion: ({ children }: { children: React.ReactNode }) => <div data-testid="accordion">{children}</div>,
   AccordionItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  AccordionTrigger: ({ children }: { children: React.ReactNode }) => (
-    <button type="button">{children}</button>
-  ),
-  AccordionContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  AccordionTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  AccordionContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("antd", () => ({
-  Card: ({
-    children,
-    title,
-  }: {
-    children: React.ReactNode;
-    title?: React.ReactNode;
-  }) => (
-    <div data-testid="card">
-      <div data-testid="card-title">{title}</div>
-      {children}
+
+vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
+  default: ({ onBuscaTitular, tipoCargo }: any) => (
+    <div data-testid="selecao-vaga">
+      <span>Tipo: {tipoCargo}</span>
+      <button onClick={() => onBuscaTitular({ rf: "1234567" })}>Simular Busca</button>
     </div>
   ),
 }));
 
-vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
-  __esModule: true,
-  default: (props: any) => {
-    h.resumoCalls.push(props);
-    return (
-      <div data-testid="resumo-designacao">
-        Resumo
-        <button
-          type="button"
-          data-testid="resumo-editar"
-          onClick={() => props.onClickEditar?.()}
-        >
-          Editar
-        </button>
-      </div>
-    );
-  },
+vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields", () => ({
+  default: () => <div data-testid="portaria-fields">Campos Portaria</div>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
-  __esModule: true,
-  default: (props: any) => {
-    h.botoesCalls.push(props);
-    return (
-      <div>
-        <button
-          type="button"
-          data-testid="btn-anterior"
-          disabled={props.disableAnterior}
-          onClick={props.onAnterior}
-        >
-          Anterior
-        </button>
-        {/* botão auxiliar: permite cobrir o callback mesmo quando o botão real está desabilitado */}
-        <button
-          type="button"
-          data-testid="btn-anterior-force"
-          onClick={props.onAnterior}
-        >
-          Anterior (force)
-        </button>
-        <button
-          type="button"
-          data-testid="btn-proximo"
-          disabled={props.disableProximo}
-          onClick={props.onProximo}
-        >
-          Próximo
-        </button>
-      </div>
-    );
-  },
+  default: ({ disableProximo, onProximo }: any) => (
+    <button data-testid="btn-proximo" disabled={disableProximo} onClick={onProximo}>
+      Próximo
+    </button>
+  ),
 }));
 
-vi.mock(
-  "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields",
-  async () => {
-    const React = await import("react");
-    const { useFormContext } = await import("react-hook-form");
+vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
+  default: ({ defaultValues }: { defaultValues: any }) => (
+    <div data-testid="resumo-designacao">
+      Mock Resumo: {defaultValues?.nome}
+    </div>
+  ),
+  InfoItem: ({ label, value }: { label: string; value: string }) => (
+    <div>
+      <strong>{label}:</strong> {value}
+    </div>
+  ),
+}));
 
-    return {
-      __esModule: true,
-      default: ({ setDisableProximo }: { setDisableProximo: (v: boolean) => void }) => {
-        const { setValue } = useFormContext();
+vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
+vi.mock("@/assets/icons/Historico", () => ({ default: () => <svg /> }));
 
-        return (
-          <div data-testid="portaria-fields">
-            <button
-              type="button"
-              data-testid="fill-valid-form"
-              onClick={() => {
-                setDisableProximo(false);
-                setValue("portaria_designacao", "P-1");
-                setValue("numero_sei", "SEI-1");
-                setValue("a_partir_de", new Date("2024-01-01T00:00:00.000Z"));
-                setValue("designacao_data_final", new Date("2024-12-31T00:00:00.000Z"));
-                setValue("ano", "2024");
-                setValue("doc", "DOC-1");
-                setValue("motivo_cancelamento", "Motivo");
-                setValue("impedimento_substituicao", "1");
-              }}
-            >
-              Preencher
-            </button>
-          </div>
-        );
+
+describe("DesignacoesPasso2 - Integração da Página", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    h.state.formDesignacaoData = null;
+  });
+
+  it("deve renderizar o estado inicial sem os accordions se não houver servidor no contexto", () => {
+    render(<DesignacoesPasso2Page />);
+    
+    expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
+    expect(screen.getByTestId("selecao-vaga")).toBeInTheDocument();
+  });
+
+  it("deve renderizar os resumos quando houver servidor no contexto", () => {
+    h.state.formDesignacaoData = {
+      servidorIndicado: {
+        nome: "Fulano",
+        rf: "123",
+        lotacao_cargo_sobreposto: "Escola X",
+        dre: "DRE 1",
       },
     };
-  }
-);
 
-describe("Designações - Passo 2 page", () => {
-  beforeEach(() => {
-    h.formDesignacaoData = null;
-    h.resumoCalls.length = 0;
-    h.botoesCalls.length = 0;
-    vi.clearAllMocks();
+    render(<DesignacoesPasso2Page />);
+    
+    expect(screen.getByTestId("accordion")).toBeInTheDocument();
+    expect(screen.getByText("Unidade Proponente")).toBeInTheDocument();
+    expect(screen.getByText("Dados do servidor indicado")).toBeInTheDocument();
   });
 
-  it("não renderiza os accordions quando não há servidorIndicado no contexto", () => {
+  it("deve chamar a API de busca e atualizar o estado ao buscar titular", async () => {
+    h.mutateAsync.mockResolvedValue({
+      success: true,
+      data: { nome: "Novo Titular", rf: "1234567" },
+    });
+
     render(<DesignacoesPasso2Page />);
 
-    expect(screen.getByTestId("page-header")).toHaveTextContent("Designação");
-    expect(screen.getByTestId("stepper-designacao")).toHaveTextContent("current:1");
-    expect(screen.queryByTestId("resumo-designacao")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("portaria-fields")).not.toBeInTheDocument();
+    const btnBusca = screen.getByText("Simular Busca");
+    fireEvent.click(btnBusca);
 
-    expect(screen.getByTestId("btn-proximo")).toBeDisabled();
+    await waitFor(() => {
+      expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" });
+    });
   });
- 
+
+  it("deve manter o botão próximo desabilitado se o formulário for inválido", () => {
+    render(<DesignacoesPasso2Page />);
+    
+    const btnProximo = screen.getByTestId("btn-proximo");
+    expect(btnProximo).toBeDisabled();
+  });
 });
-
-
