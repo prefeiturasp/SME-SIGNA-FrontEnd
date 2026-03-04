@@ -340,25 +340,28 @@ describe("DesignacoesPasso1", () => {
 
 
 
-  it("envia dados da unidade e NÃO navega ao próximo passo", async () => {
+ 
+  it("faz return no onProximo quando valoresFormulario é undefined", async () => {
+    mockGetValuesVazio = true;
     renderWithProvider();
 
-    mockRouterPush.mockClear();
-    mockGetValuesVazio = true;
-
- 
     await userEvent.type(screen.getByTestId("input-rf"), "123");
     await clicarPesquisarServidor();
 
     await waitFor(() => {
-      expect(
-        screen.getByTestId("formulario-pesquisa-unidade")
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
+    });
+
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("botao-proximo")).toBeEnabled();
     });
 
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
     expect(mockRouterPush).not.toHaveBeenCalled();
-   });
+  });
 
 });
