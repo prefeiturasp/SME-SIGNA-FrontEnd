@@ -13,6 +13,7 @@ interface MockState {
     };
   } | null;
 }
+const mockRouterPush = vi.fn();
 
 const h = vi.hoisted(() => ({
   state: { formDesignacaoData: null } as MockState,
@@ -69,13 +70,7 @@ vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesig
   default: () => <div data-testid="portaria-fields">Campos Portaria</div>,
 }));
 
-vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
-  default: ({ disableProximo, onProximo }: any) => (
-    <button data-testid="btn-proximo" disabled={disableProximo} onClick={onProximo}>
-      Próximo
-    </button>
-  ),
-}));
+ 
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
   default: ({ defaultValues }: { defaultValues: any }) => (
@@ -93,7 +88,11 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", ()
 vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
 vi.mock("@/assets/icons/Historico", () => ({ default: () => <svg /> }));
 
-
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
+}));
 describe("DesignacoesPasso2 - Integração da Página", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -143,7 +142,22 @@ describe("DesignacoesPasso2 - Integração da Página", () => {
   it("deve manter o botão próximo desabilitado se o formulário for inválido", () => {
     render(<DesignacoesPasso2Page />);
     
-    const btnProximo = screen.getByTestId("btn-proximo");
+    const btnProximo = screen.getByTestId("botao-proximo");
     expect(btnProximo).toBeDisabled();
+  });
+
+  it("navega ao passo anterior", async () => {
+    render(<DesignacoesPasso2Page />);
+    
+    const botaoAnterior = screen.getByTestId("botao-anterior");
+    fireEvent.click(botaoAnterior);
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalled();
+    });
+
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-1"
+    );
   });
 });

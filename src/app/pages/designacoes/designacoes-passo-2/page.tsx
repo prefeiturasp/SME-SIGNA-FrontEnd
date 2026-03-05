@@ -33,12 +33,16 @@ import formSchemaDesignacaoPasso2, {
   formSchemaDesignacaoPasso2Data 
 } from "./schema";
 import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import { useRouter } from "next/navigation";
 
 
 export default function DesignacoesPasso2() {
+  
   const { formDesignacaoData } = useDesignacaoContext();
   const { mutateAsync } = useServidorDesignacao();
-  
+  const router = useRouter(); 
+
+
   const [dadosTitular, setDadosTitular] = useState<TitularData | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
@@ -65,7 +69,6 @@ export default function DesignacoesPasso2() {
   const tipoCargo = form.watch("tipo_cargo");
   const cargoVago = form.watch("cargo_vago_selecionado");
   const rfTitular = form.watch("rf_titular");
-
   const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
     if (response.success) {
@@ -130,7 +133,7 @@ export default function DesignacoesPasso2() {
 
               <Accordion
                 type="multiple"
-                defaultValue={["portarias-designacao"]}
+                defaultValue={["portarias-designacao","servidor-indicado"]}
               >
 
                 <CustomAccordionItem
@@ -149,6 +152,17 @@ export default function DesignacoesPasso2() {
                 </CustomAccordionItem>
 
 
+
+                  <CustomAccordionItem
+                    title="Portarias de designação"
+                    color="purple"
+                    value="portarias-designacao"
+                  >
+                    <PortariaDesigacaoFields
+                      isLoading={false}                                    
+                    />
+                  </CustomAccordionItem>    
+                  
                   <CustomAccordionItem
                     title="Dados do servidor indicado"
                     
@@ -165,17 +179,7 @@ export default function DesignacoesPasso2() {
                       
                     />
                   </CustomAccordionItem>
-
-
-                  <CustomAccordionItem
-                    title="Portarias de designação"
-                    color="purple"
-                    value="portarias-designacao"
-                  >
-                    <PortariaDesigacaoFields
-                      isLoading={false}                                    
-                    />
-                  </CustomAccordionItem>                 
+             
                 </Accordion>
             )}
 
@@ -193,11 +197,15 @@ export default function DesignacoesPasso2() {
 
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
-              disableAnterior={true}
+              disableAnterior={false}
               disableProximo={!canAdvance}
               onProximo={form.handleSubmit(onSubmitDesignacao)}
               showAnterior={true}
-              onAnterior={() => {}}
+              onAnterior={() => {
+                router.push(
+                  `/pages/designacoes/designacoes-passo-1`
+                );
+              }}
             />
           </div>
         </form>
