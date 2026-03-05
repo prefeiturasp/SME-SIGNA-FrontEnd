@@ -51,9 +51,7 @@ export default function DesignacoesPasso1() {
     }
   };
 
-  const onSubmitDesignacao = (values: FormDesignacaoData) => {
-    console.log("Dados do formulário", values);
-  };
+ 
 
   const onProximo = () => {
     const valoresFormulario =
@@ -140,8 +138,7 @@ export default function DesignacoesPasso1() {
             <FormularioPesquisaUnidade
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
-              onSubmitDesignacao={onSubmitDesignacao}
-              setDisableProximo={setDisableProximo}
+               setDisableProximo={setDisableProximo}
             />
           </CustomAccordionItem>
         </Accordion>
@@ -156,8 +153,7 @@ export default function DesignacoesPasso1() {
           }
           onProximo={onProximo}
           showAnterior={false}
-          onAnterior={() => { }}
-        />
+         />
       </div>
     </>
   );
