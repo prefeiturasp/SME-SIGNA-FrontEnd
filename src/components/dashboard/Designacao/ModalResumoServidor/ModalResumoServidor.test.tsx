@@ -89,7 +89,7 @@ const servidoresMock: Servidor = {
   rf: "123",
   nome: "Servidor",
   esta_afastado: false,
-  vinculo_cargo_sobreposto: "Ativo",
+  vinculo_cargo_sobreposto: 1,
   lotacao_cargo_sobreposto: "UE X",
   cargo_base: "Professor",
   funcao_atividade: "Docente",
