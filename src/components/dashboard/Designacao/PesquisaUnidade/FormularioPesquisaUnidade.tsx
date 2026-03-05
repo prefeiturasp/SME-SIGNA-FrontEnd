@@ -42,8 +42,7 @@ export interface FormularioPesquisaUnidadeRef {
 }
 
 interface Props {
-  readonly onSubmitDesignacao: (values: FormDesignacaoData) => void;
-  readonly setDisableProximo: (disable: boolean) => void;
+   readonly setDisableProximo: (disable: boolean) => void;
   isLoading: boolean;
 }
 
@@ -51,7 +50,7 @@ const FormularioPesquisaUnidade = forwardRef<
   FormularioPesquisaUnidadeRef,
   Props
 >(function FormularioPesquisaUnidade(
-  { onSubmitDesignacao, setDisableProximo, isLoading }: Props,
+  {   setDisableProximo, isLoading }: Props,
   ref,
 ) {
   const { data: dreOptions = [] } = useFetchDREs();
@@ -121,8 +120,7 @@ const FormularioPesquisaUnidade = forwardRef<
 
     form.setValue("codigo_estrutura_hierarquica", "");
 
-    onSubmitDesignacao(values);
-  };
+   };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
     form.setValue("codigo_estrutura_hierarquica", '');
@@ -157,7 +155,7 @@ const FormularioPesquisaUnidade = forwardRef<
               servidores={
                 designacaoUnidade?.funcionarios_unidade[
                   values.funcionarios_da_unidade
-                ]?.servidores || []
+                ]?.servidores 
               }
             />
           )}
@@ -321,6 +319,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   type="submit"
                   className="w-full flex items-center justify-center gap-6"
                   variant="customOutline"
+                  data-testid="botao-pesquisar-unidade"
                   disabled={isLoadingDesiganaçãoUnidade}
                 >
                   {isLoadingDesiganaçãoUnidade ? (
@@ -354,7 +353,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   />
                 </div>
 
-                <div className="w-full md:w-[75%]">
+                <div className="w-full md:w-[70%]">
                   <FormField
                     control={form.control}
                     name="funcionarios_da_unidade"

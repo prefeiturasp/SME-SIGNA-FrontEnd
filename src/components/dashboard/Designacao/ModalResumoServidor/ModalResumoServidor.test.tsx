@@ -100,6 +100,24 @@ const servidoresMock: Servidor = {
 };
 
 describe("ModalResumoServidor", () => {
+
+  it("renderiza fallback para ResumoDesignacao", () => {
+    render(
+      <ModalResumoServidor
+        isLoading={false}
+        open={true}
+        onOpenChange={vi.fn()}
+        servidores={[]}
+      />
+    );
+
+    expect(screen.getByTestId("dialog")).toHaveAttribute("data-open", "true");
+    expect(
+      screen.getByText("Nenhum servidor encontrado")
+    ).toBeInTheDocument();
+
+  });
+
   it("renderiza com título e repassa props para ResumoDesignacao", () => {
     render(
       <ModalResumoServidor
