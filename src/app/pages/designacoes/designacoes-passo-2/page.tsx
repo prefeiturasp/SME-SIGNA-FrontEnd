@@ -31,13 +31,14 @@ import formSchemaDesignacaoPasso2, {
 } from "./schema";
 import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
 import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function DesignacoesPasso2() {
 
   const { formDesignacaoData } = useDesignacaoContext();
   const { mutateAsync } = useServidorDesignacao();
-
+  const router = useRouter();
   const [dadosTitular, setDadosTitular] = useState<TitularData | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
@@ -197,7 +198,11 @@ export default function DesignacoesPasso2() {
               disableProximo={!canAdvance}
               onProximo={form.handleSubmit(onSubmitDesignacao)}
               showAnterior={true}
-              onAnterior={() => { }}
+              onAnterior={() => {
+                router.push(
+                  `/pages/designacoes/designacoes-passo-1`
+                );
+              }}
             />
           </div>
         </form>
