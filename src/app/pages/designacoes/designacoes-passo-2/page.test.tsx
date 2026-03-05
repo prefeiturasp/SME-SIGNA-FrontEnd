@@ -93,6 +93,16 @@ vi.mock("next/navigation", () => ({
     push: mockRouterPush,
   }),
 }));
+
+vi.mock(
+  "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao",
+  () => ({
+    default: ({ open }: { open: boolean }) => (
+      <div data-testid="modal-historico" data-open={String(open)} />
+    ),
+  })
+);
+
 describe("DesignacoesPasso2 - Integração da Página", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -101,7 +111,7 @@ describe("DesignacoesPasso2 - Integração da Página", () => {
 
   it("deve renderizar o estado inicial sem os accordions se não houver servidor no contexto", () => {
     render(<DesignacoesPasso2Page />);
-    
+
     expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
     expect(screen.getByTestId("selecao-vaga")).toBeInTheDocument();
   });
@@ -117,7 +127,7 @@ describe("DesignacoesPasso2 - Integração da Página", () => {
     };
 
     render(<DesignacoesPasso2Page />);
-    
+
     expect(screen.getByTestId("accordion")).toBeInTheDocument();
     expect(screen.getByText("Unidade Proponente")).toBeInTheDocument();
     expect(screen.getByText("Dados do servidor indicado")).toBeInTheDocument();
@@ -141,7 +151,6 @@ describe("DesignacoesPasso2 - Integração da Página", () => {
 
   it("deve manter o botão próximo desabilitado se o formulário for inválido", () => {
     render(<DesignacoesPasso2Page />);
-    
     const btnProximo = screen.getByTestId("botao-proximo");
     expect(btnProximo).toBeDisabled();
   });
@@ -159,5 +168,36 @@ describe("DesignacoesPasso2 - Integração da Página", () => {
     expect(mockRouterPush).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-1"
     );
+    const btnProximo = screen.getByTestId("btn-proximo");
+    expect(btnProximo).toBeDisabled();
+  });
+
+  it("deve abrir o modal de histórico ao clicar no botão Histórico", async () => {
+    // Arrange: mock do ModalUltimaDesignacao para capturar a prop `open`
+    vi.mock(
+      "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao",
+      () => ({
+        default: ({ open }: { open: boolean }) => (
+          <div data-testid="modal-historico" data-open={String(open)} />
+        ),
+      })
+    );
+
+    render(<DesignacoesPasso2Page />);
+
+    // Assert: modal começa fechado
+    const modal = screen.getByTestId("modal-historico");
+    expect(modal).toHaveAttribute("data-open", "false");
+
+    // Act: clica no botão Histórico pelo aria-label
+    const btnHistorico = screen.getByRole("button", {
+      name: /ver histórico da última designação/i,
+    });
+    fireEvent.click(btnHistorico);
+
+    // Assert: modal agora está aberto
+    await waitFor(() => {
+      expect(modal).toHaveAttribute("data-open", "true");
+    });
   });
 });
