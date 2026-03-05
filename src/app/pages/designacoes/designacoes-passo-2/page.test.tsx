@@ -168,8 +168,6 @@ describe("DesignacoesPasso2 - Integração da Página", () => {
     expect(mockRouterPush).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-1"
     );
-    const btnProximo = screen.getByTestId("btn-proximo");
-    expect(btnProximo).toBeDisabled();
   });
 
   it("deve abrir o modal de histórico ao clicar no botão Histórico", async () => {

@@ -155,8 +155,16 @@ export default function DesignacoesPasso2() {
                     isLoading={false} />
                 </CustomAccordionItem>
                 <CustomAccordionItem
+                  title="Portarias de designação"
+                  color="purple"
+                  value="portarias-designacao"
+                >
+                  <PortariaDesigacaoFields
+                    isLoading={false}
+                  />
+                </CustomAccordionItem>
+                <CustomAccordionItem
                   title="Dados do servidor indicado"
-
                   value="servidor-indicado"
                   color="gold"
                 >
@@ -167,16 +175,6 @@ export default function DesignacoesPasso2() {
                     showEditar={true}
                     showCamposExtras={false}
                     showLotacao={true}
-
-                  />
-                </CustomAccordionItem>
-                <CustomAccordionItem
-                  title="Portarias de designação"
-                  color="purple"
-                  value="portarias-designacao"
-                >
-                  <PortariaDesigacaoFields
-                    isLoading={false}
                   />
                 </CustomAccordionItem>
               </Accordion>
