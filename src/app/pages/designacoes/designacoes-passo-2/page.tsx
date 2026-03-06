@@ -11,10 +11,7 @@ import { Accordion } from "@/components/ui/accordion";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
-
-
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
 import ResumoPesquisaDaUnidade from "@/components/dashboard/Designacao/ResumoPesquisaDaUnidade";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
@@ -29,16 +26,19 @@ import useServidorDesignacao from "@/hooks/useServidorDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 
 // Schema
-import formSchemaDesignacaoPasso2, { 
-  formSchemaDesignacaoPasso2Data 
+import formSchemaDesignacaoPasso2, {
+  formSchemaDesignacaoPasso2Data
 } from "./schema";
 import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
-
+import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function DesignacoesPasso2() {
+
   const { formDesignacaoData } = useDesignacaoContext();
   const { mutateAsync } = useServidorDesignacao();
-  
+  const router = useRouter();
   const [dadosTitular, setDadosTitular] = useState<TitularData | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
@@ -65,15 +65,14 @@ export default function DesignacoesPasso2() {
   const tipoCargo = form.watch("tipo_cargo");
   const cargoVago = form.watch("cargo_vago_selecionado");
   const rfTitular = form.watch("rf_titular");
-
   const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
     if (response.success) {
       const titularFormatado: TitularData = {
         ...response.data,
         codigo_hierarquia: (response.data as any).codigo_hierarquia ?? "3",
-        lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva", 
-  
+        lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva",
+
       };
 
       setDadosTitular(titularFormatado);
@@ -87,13 +86,16 @@ export default function DesignacoesPasso2() {
   };
 
   // Validação para o botão Próximo
-  const canAdvance = 
-    form.formState.isValid && 
+  const canAdvance =
+    form.formState.isValid &&
     (tipoCargo === "vago" ? !!cargoVago : (!!dadosTitular && !!rfTitular));
 
+  // to-do: corrigir quando houver passo 3
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
     console.log("Submit Passo 2", values);
   };
+
+  const [modalHistoricoUltimaDesignacaoOpen, setModalHistoricoUltimaDesignacaoOpen] = useState(false);
 
   return (
     <>
@@ -103,36 +105,41 @@ export default function DesignacoesPasso2() {
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
-
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>
           <FundoBranco>
             <StepperDesignacao current={1} />
           </FundoBranco>
-
-
-
-
-
           <Card
             title={
               <div className="flex justify-between items-center">
                 <span className="text-[#333]">Designação</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[#B22B2A]">Histórico</span>
-                  <Historico width={20} height={20} color="white" />
-                </div>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setModalHistoricoUltimaDesignacaoOpen(true)}
+                  className="flex items-center gap-2 h-auto p-0 hover:bg-transparent group"
+                  aria-label="Ver histórico da última designação"
+                >
+                  <span className="text-[#B22B2A] font-medium group-hover:underline">
+                    Histórico
+                  </span>
+                  <Historico
+                    width={20}
+                    height={20}
+                    className="text-[#B22B2A]"
+                    aria-hidden="true"
+                  />
+                </Button>
               </div>
             }
             className="mt-4 m-0"
           >
             {formDesignacaoData?.servidorIndicado && (
-
               <Accordion
                 type="multiple"
-                defaultValue={["portarias-designacao"]}
+                defaultValue={["portarias-designacao", "servidor-indicado"]}
               >
-
                 <CustomAccordionItem
                   title="Unidade Proponente"
                   color="blue"
@@ -147,61 +154,76 @@ export default function DesignacoesPasso2() {
                     }}
                     isLoading={false} />
                 </CustomAccordionItem>
-
-
-                  <CustomAccordionItem
-                    title="Dados do servidor indicado"
-                    
-                    value="servidor-indicado"
-                    color="gold"
-                  >
-                    <ResumoDesignacaoServidorIndicado
-                      isLoading={false}
-                      defaultValues={formDesignacaoData?.servidorIndicado}
-                      showCursosTitulos={true}
-                      showEditar={true}
-                       showCamposExtras={false}
-                       showLotacao={true}
-                      
-                    />
-                  </CustomAccordionItem>
-
-
-                  <CustomAccordionItem
-                    title="Portarias de designação"
-                    color="purple"
-                    value="portarias-designacao"
-                  >
-                    <PortariaDesigacaoFields
-                      isLoading={false}                                    
-                    />
-                  </CustomAccordionItem>                 
-                </Accordion>
+                <CustomAccordionItem
+                  title="Portarias de designação"
+                  color="purple"
+                  value="portarias-designacao"
+                >
+                  <PortariaDesigacaoFields
+                    isLoading={false}
+                  />
+                </CustomAccordionItem>
+                <CustomAccordionItem
+                  title="Dados do servidor indicado"
+                  value="servidor-indicado"
+                  color="gold"
+                >
+                  <ResumoDesignacaoServidorIndicado
+                    isLoading={false}
+                    defaultValues={formDesignacaoData?.servidorIndicado}
+                    showCursosTitulos={true}
+                    showEditar={true}
+                    showCamposExtras={false}
+                    showLotacao={true}
+                  />
+                </CustomAccordionItem>
+              </Accordion>
             )}
-
             {/* to-do: arrumar nome */}
-            <SelecaoServidorIndicado 
-                form={form}
-                tipoCargo={tipoCargo}
-                dadosTitular={dadosTitular}
-                errorBusca={errorBusca}
-                onBuscaTitular={onBuscaTitular}
-                setDadosTitular={setDadosTitular}
-                setErrorBusca={setErrorBusca}
+            <SelecaoServidorIndicado
+              form={form}
+              tipoCargo={tipoCargo}
+              dadosTitular={dadosTitular}
+              errorBusca={errorBusca}
+              onBuscaTitular={onBuscaTitular}
+              setDadosTitular={setDadosTitular}
+              setErrorBusca={setErrorBusca}
             />
           </Card>
-
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
-              disableAnterior={true}
+              disableAnterior={false}
               disableProximo={!canAdvance}
               onProximo={form.handleSubmit(onSubmitDesignacao)}
               showAnterior={true}
-              onAnterior={() => {}}
+              onAnterior={() => {
+                router.push(
+                  `/pages/designacoes/designacoes-passo-1`
+                );
+              }}
             />
           </div>
         </form>
       </FormProvider>
+      <ModalUltimaDesignacao
+        isLoading={false}
+        open={modalHistoricoUltimaDesignacaoOpen}
+        onOpenChange={setModalHistoricoUltimaDesignacaoOpen}
+        // to-do: quando houver api com os dados trazer dados corretamente do ultimo servidor
+        ultimoServidor={formDesignacaoData?.servidorIndicado ?? null}
+        // to-do: quando houver api com os dados remover mock
+        portariaCessacao={{
+          numero_portaria: "000123",
+          ano: "2026",
+          numero_sei: "0012345",
+          doc: "0098765",
+          designacao_a_partir_de: "01/01/2024",
+          ate: "31/12/2024",
+          carater_excepcional: "nao",
+          motivo_cancelamento: "Encerramento do período de designação",
+          impedimento_substituicao: "Nenhum impedimento registrado",
+        }}
+      />
     </>
   );
 }

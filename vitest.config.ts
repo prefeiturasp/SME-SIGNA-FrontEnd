@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import path from "path";
+import path from "node:path";
 
 export default defineConfig({
   resolve: {
@@ -13,7 +13,7 @@ export default defineConfig({
     setupFiles: "./vitest.setup.ts",
     include: ["src/**/*.{test,spec}.{ts,tsx,js,jsx}"],
     coverage: {
-      provider: "v8", // usa @vitest/coverage-v8
+      provider: "v8",
       reporter: ["text", "lcov", "html"],
       reportsDirectory: "coverage",
       include: ["src/**/*.{ts,tsx,js,jsx}"],
@@ -24,9 +24,9 @@ export default defineConfig({
         "src/**/?(*.)+(test|spec).{ts,tsx,js,jsx}",
         "node_modules/**",
         ".next/**",
-        'src/lib/**',
-        "**/.next/**",  
-        "src/components/ui/**",  
+        "src/lib/**",
+        "**/.next/**",
+        "src/components/ui/**",
         "src/const.ts",
         "src/app/api/*",
         "*/types/*",
@@ -37,8 +37,8 @@ export default defineConfig({
         "next-env.d.ts",
         "vitest.config.ts",
         "eslint.config.mjs",
-        "*/.next/*", // Pode ser redundante, mas não atrapalha
-        "testes/**", // Exclui a pasta de testes de QA
+        "*/.next/*",
+        "testes/**",
         "src/assets/icons/**",
         "src/assets/images/**",
         "src/assets/fonts/**",
@@ -48,11 +48,14 @@ export default defineConfig({
         "src/assets/spreadsheets/**",
         "src/assets/presentations/**",
         "src/assets/emails/**",
-        "cypress.config.js", // Exclui config do Cypress
-        "cypress/support/**", // Exclui arquivos de suporte do Cypress
-    ],
+        "cypress.config.js",
+        "cypress/support/**",
+        "src/components/**/schema.ts",
+        "src/**/*.schema.ts",
+        "src/app/**/schema.ts",
+      ],
     },
     testTimeout: 1500000,
-    hookTimeout: 1500000
+    hookTimeout: 1500000,
   },
 });
