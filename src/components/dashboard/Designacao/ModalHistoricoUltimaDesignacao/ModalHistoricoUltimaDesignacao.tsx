@@ -86,10 +86,6 @@ export default function ModalUltimaDesignacao({
                                 label="RF"
                                 value={ultimoServidor.rf}
                             />
-                            <CampoInfo
-                                label="Função"
-                                value={ultimoServidor.cargo_sobreposto_funcao_atividade}
-                            />
                         </div>
                         <div className="grid grid-cols-4 gap-4">
                             <CampoInfo
