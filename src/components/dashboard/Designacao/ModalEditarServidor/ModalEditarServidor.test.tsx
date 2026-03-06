@@ -38,6 +38,19 @@ const defaultServidor: Servidor = {
   codigo_estrutura_hierarquica: "COD-456",
 };
 
+const expectedDefaultSubmitPayload = {
+  nome_servidor: defaultServidor.nome_servidor!,
+  nome_civil: defaultServidor.nome_civil!,
+  rf: defaultServidor.rf,
+  vinculo_cargo_sobreposto: defaultServidor.vinculo_cargo_sobreposto,
+  cargo_base: defaultServidor.cargo_base,
+  lotacao_cargo_sobreposto: defaultServidor.lotacao_cargo_sobreposto,
+  cargo_sobreposto: defaultServidor.cargo_sobreposto,
+  local_de_exercicio: "Diretoria Regi.de Educação São Mateus ",
+  laudo_medico: "Laudo médico não informado",
+  local_de_servico: "Regi.de Educação São Mateus ",
+};
+
 const mockFormDesignacaoData: FormDesignacaoEServidorIndicado = {
   dre: "dre-1",
   ue: "ue-1",
@@ -224,12 +237,10 @@ describe("ModalEditarServidor", () => {
     await user.click(screen.getByTestId("botao-salvar"));
 
     await waitFor(() => {
-      expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
-          servidorIndicado: expect.objectContaining({
-            nome_servidor: defaultServidor.nome_servidor,
-            nome_civil: "Apenas Civil Alterado",
-          }),
+          ...expectedDefaultSubmitPayload,
+           nome_civil: "Apenas Civil Alterado",
         })
       );
     });
@@ -249,11 +260,9 @@ describe("ModalEditarServidor", () => {
      await waitFor(() => {
       expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
-          servidorIndicado: expect.objectContaining({
-            nome_servidor: "Novo Nome Servidor",
-          }),
-        }),
-        expect.anything()
+          ...expectedDefaultSubmitPayload,
+          nome_servidor: "Novo Nome Servidor",
+        })
       );
     });
   });
@@ -337,7 +346,43 @@ describe("ModalEditarServidor", () => {
     await user.click(screen.getByTestId("botao-salvar"));
 
     await waitFor(() => {
-      expect(handleSubmitEditarServidor).toHaveBeenCalled();
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...expectedDefaultSubmitPayload,
+          nome_civil: "Nome Civil Atualizado",
+        })
+      );
+    });
+  });
+
+  it("mantém os valores informados para local_de_exercicio, laudo_medico e local_de_servico", async () => {
+    const user = userEvent.setup();
+    const servidorComLocais: Servidor = {
+      ...defaultServidor,
+      local_de_exercicio: "Exercício personalizado",
+      laudo_medico: "Laudo personalizado",
+      local_de_servico: "Serviço personalizado",
+    };
+
+    renderModal({ defaultValues: servidorComLocais });
+
+    await user.click(screen.getByTestId("botao-salvar"));
+
+    await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          nome_servidor: servidorComLocais.nome_servidor,
+          nome_civil: servidorComLocais.nome_civil,
+          rf: servidorComLocais.rf,
+          vinculo_cargo_sobreposto: servidorComLocais.vinculo_cargo_sobreposto,
+          cargo_base: servidorComLocais.cargo_base,
+          lotacao_cargo_sobreposto: servidorComLocais.lotacao_cargo_sobreposto,
+          cargo_sobreposto: servidorComLocais.cargo_sobreposto,
+          local_de_exercicio: servidorComLocais.local_de_exercicio,
+          laudo_medico: servidorComLocais.laudo_medico,
+          local_de_servico: servidorComLocais.local_de_servico,
+        })
+      );
     });
   });
 });
