@@ -67,17 +67,17 @@ vi.mock("@/components/ui/button", () => ({
 
 const servidorMock: Servidor = {
   rf: "456",
-  nome: "João Silva",
+  nome_servidor: "João Silva",
   nome_civil: "João da Silva",
-  esta_afastado: false,
-  vinculo_cargo_sobreposto: 2,
-  lotacao_cargo_sobreposto: "UE Y",
+  vinculo: 2,
+  lotacao: "UE Y",
   cargo_base: "Analista",
-  funcao_atividade: "Gestor",
-  cargo_sobreposto: "Coordenador",
+  cargo_sobreposto_funcao_atividade: "Coordenador",
   cursos_titulos: "Mestrado",
-  dre: "DRE Y",
-  codigo_estrutura_hierarquica: "456",
+  local_de_exercicio: "Local de exercicio teste",
+  laudo_medico: "Laudo",
+  local_de_servico: "Local do servico teste"
+
 };
 
 const portariaMock = {
@@ -126,8 +126,6 @@ describe("ModalUltimaDesignacao", () => {
     expect(screen.getByText("João da Silva")).toBeInTheDocument();
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText("456")).toBeInTheDocument();
-    expect(screen.getByText("Função")).toBeInTheDocument();
-    expect(screen.getByText("Gestor")).toBeInTheDocument();
     expect(screen.getByText("Cargo sobreposto")).toBeInTheDocument();
     expect(screen.getByText("Coordenador")).toBeInTheDocument();
     expect(screen.getByText("Cargo base")).toBeInTheDocument();

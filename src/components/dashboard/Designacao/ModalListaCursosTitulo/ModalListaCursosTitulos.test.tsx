@@ -8,18 +8,19 @@ import { Servidor } from "@/types/designacao-unidade";
 
 describe("ModalListaCursosTitulos", () => {
   const defaultValues: Servidor = {
-    nome_servidor: "Servidor Teste",
-    rf: "123456",
-    vinculo: 1,
-    lotacao: "UE X",
-    cargo_base: "Professor",
-    funcao_atividade: "Docente",
-    cargo_sobreposto_funcao_atividade: "Nenhum",
-    cursos_titulos: "Licenciatura",
-    dre: "DRE Teste",
-    esta_afastado: false,
-    codigo_estrutura_hierarquica: "123456",
-  };
+  rf: "123456",
+  nome_servidor: "Servidor Teste",
+  nome_civil: "João da Silva",
+  vinculo: 1,
+  lotacao: "UE X",
+  cargo_base: "Professor",
+  cargo_sobreposto_funcao_atividade: "Docente",
+  cursos_titulos: "Licenciatura",
+  local_de_exercicio: "Local de exercicio teste",
+  laudo_medico: "Laudo",
+  local_de_servico: "Local do servico teste"
+
+};
 
   const data: IConcursoType[] = [
     { id: 1, concurso: "201002757777 - PROF ENS FUND II MEDIO" },
@@ -56,14 +57,14 @@ describe("ModalListaCursosTitulos", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Servidor")).toBeInTheDocument();
-    expect(screen.getByText(defaultValues.nome_servidor)).toBeInTheDocument();
+    expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
 
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText(defaultValues.rf)).toBeInTheDocument();
 
     expect(screen.getByText("Função")).toBeInTheDocument();
     expect(
-      screen.getByText(defaultValues.funcao_atividade)
+      screen.getByText(defaultValues.cargo_sobreposto_funcao_atividade)
     ).toBeInTheDocument();
 
     // Verifica se os concursos aparecem na tela
@@ -131,10 +132,10 @@ describe("ModalListaCursosTitulos", () => {
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText("Função")).toBeInTheDocument();
 
-    expect(screen.getByText(defaultValues.nome_servidor)).toBeInTheDocument();
+    expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
     expect(screen.getByText(defaultValues.rf)).toBeInTheDocument();
     expect(
-      screen.getByText(defaultValues.funcao_atividade)
+      screen.getByText(defaultValues.cargo_sobreposto_funcao_atividade)
     ).toBeInTheDocument();
   });
 
