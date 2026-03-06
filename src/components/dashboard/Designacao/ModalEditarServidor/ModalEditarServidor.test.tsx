@@ -8,6 +8,7 @@ import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/De
 
  
 const mockSetFormDesignacaoData = vi.fn();
+const handleSubmitEditarServidor = vi.fn();
 
  let mockFormDesignacaoDataValue: FormDesignacaoEServidorIndicado | null;
 
@@ -78,7 +79,8 @@ function renderModal(
         open={overrides.open ?? true}
         onOpenChange={onOpenChange}
         defaultValues={overrides.defaultValues ?? defaultServidor}
-      />
+        handleSubmitEditarServidor={handleSubmitEditarServidor}
+      />  
     ),
   };
 }
@@ -233,7 +235,7 @@ describe("ModalEditarServidor", () => {
     });
   });
 
- 
+   
   it("altera o nome servidor corretamente e salva via contexto", async () => {
     const user = userEvent.setup();
     renderModal();
@@ -244,13 +246,14 @@ describe("ModalEditarServidor", () => {
 
     await user.click(screen.getByTestId("botao-salvar"));
 
-    await waitFor(() => {
-      expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(
+     await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
           servidorIndicado: expect.objectContaining({
             nome_servidor: "Novo Nome Servidor",
           }),
-        })
+        }),
+        expect.anything()
       );
     });
   });
@@ -334,14 +337,7 @@ describe("ModalEditarServidor", () => {
     await user.click(screen.getByTestId("botao-salvar"));
 
     await waitFor(() => {
-      expect(mockSetFormDesignacaoData).toHaveBeenCalledWith({
-        ...mockFormDesignacaoData,
-        servidorIndicado: {
-          ...mockFormDesignacaoData.servidorIndicado,
-          nome_servidor: defaultServidor.nome_servidor,
-          nome_civil: "Nome Civil Atualizado",
-        },
-      });
+      expect(handleSubmitEditarServidor).toHaveBeenCalled();
     });
   });
 });

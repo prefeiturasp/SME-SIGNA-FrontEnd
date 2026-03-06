@@ -18,8 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Control, type FieldValues, type UseFormRegister } from "react-hook-form";
 import formSchemaEditarServidor, { FormEditarServidorData } from "./schema";
 import { Form } from "@/components/ui/form";
-import { useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
-
+ 
 type ModalEditarServidorProps = {
     isLoading: boolean;
     open: boolean;

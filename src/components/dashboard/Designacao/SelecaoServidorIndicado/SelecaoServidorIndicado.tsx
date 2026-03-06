@@ -49,13 +49,13 @@ export default function SelecaoServidorIndicado({
   setErrorBusca,
  }: Readonly<SelecaoTipoCargoProps>) {
   function handleSubmitEditarServidor(data: FormEditarServidorData) {
-    console.log('handleSubmitEditarServidor',data,dadosTitular);
-    // setDadosTitular({
-    //   ...dadosTitular,
-    //   nome: data.nome_servidor,
-    //   nome_civil: data.nome_civil,
-    // });
- 
+     if (dadosTitular) {
+      setDadosTitular({
+        ...dadosTitular,
+        nome: data.nome_servidor,
+        nome_civil: data.nome_civil,
+      });
+    }
   }
   return (
     <div className="p-4 pt-4 border-t mt-4">
