@@ -2,7 +2,6 @@ export interface TitularData {
     rf: string;
     nome_servidor?: string;
     nome_civil?: string;
-    esta_afastado: boolean;
     vinculo: number;
     lotacao: string;
     cargo_base: string;

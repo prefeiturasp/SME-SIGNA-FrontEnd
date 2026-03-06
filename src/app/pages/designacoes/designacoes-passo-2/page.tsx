@@ -29,7 +29,7 @@ import { BuscaDesignacaoRequest } from "@/types/designacao";
 import formSchemaDesignacaoPasso2, {
   formSchemaDesignacaoPasso2Data
 } from "./schema";
-import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import { TitularData } from "@/types/designacao-servidor-titular";
 import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";

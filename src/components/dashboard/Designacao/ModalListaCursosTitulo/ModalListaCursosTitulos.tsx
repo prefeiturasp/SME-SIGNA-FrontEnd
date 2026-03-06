@@ -25,7 +25,7 @@ type ModalListaCursosTitulosProps = {
 };
 
 
-
+// to-do: Ajustar modal para novos campos
 export default function ModalListaCursosTitulos({
     isLoading,
     open,
@@ -62,7 +62,7 @@ export default function ModalListaCursosTitulos({
                 <div className="flex flex-row gap-20 bg-[#FAFAFA] p-4 my-4">
                     <InfoItem label="Servidor" value={defaultValues.nome_servidor} />
                     <InfoItem label="RF" value={defaultValues.rf} />
-                    <InfoItem label="Função" value={defaultValues.funcao_atividade } />
+                    <InfoItem label="Função" value={defaultValues.cargo_sobreposto_funcao_atividade } />
                 </div>
 
 

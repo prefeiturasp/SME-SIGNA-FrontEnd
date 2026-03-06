@@ -46,6 +46,7 @@ interface Props {
   isLoading: boolean;
 }
 
+// to-do: Ajustar a novos campos
 const FormularioPesquisaUnidade = forwardRef<
   FormularioPesquisaUnidadeRef,
   Props
@@ -370,7 +371,7 @@ const FormularioPesquisaUnidade = forwardRef<
                                 field.onChange(value);
                                 const cargoSobreposto =
                                   designacaoUnidade?.funcionarios_unidade[value]
-                                    ?.servidores[0]?.cargo_sobreposto ?? "-";
+                                    ?.servidores[0]?.cargo_sobreposto_funcao_atividade?? "-";
                                 const modulo =
                                   designacaoUnidade?.funcionarios_unidade[value]
                                     ?.modulo ?? "";
