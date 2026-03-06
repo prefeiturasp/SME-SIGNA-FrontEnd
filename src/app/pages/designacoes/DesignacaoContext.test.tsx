@@ -178,7 +178,7 @@ describe("DesignacaoContext", () => {
 
     expect(() => {
       render(<ComponentWithoutProvider />);
-    }).toThrow("useDesignacaoContext must be used within DesignacaoProvider");
+    }).toThrow("useDesignacaoContext precisa ser usado dentro do DesignacaoProvider");
 
     consoleErrorSpy.mockRestore();
   });
