@@ -8,13 +8,13 @@ import { Servidor } from "@/types/designacao-unidade";
 
 describe("ModalListaCursosTitulos", () => {
   const defaultValues: Servidor = {
-    nome: "Servidor Teste",
+    nome_servidor: "Servidor Teste",
     rf: "123456",
-    vinculo_cargo_sobreposto: 1,
-    lotacao_cargo_sobreposto: "UE X",
+    vinculo: 1,
+    lotacao: "UE X",
     cargo_base: "Professor",
     funcao_atividade: "Docente",
-    cargo_sobreposto: "Nenhum",
+    cargo_sobreposto_funcao_atividade: "Nenhum",
     cursos_titulos: "Licenciatura",
     dre: "DRE Teste",
     esta_afastado: false,
@@ -56,7 +56,7 @@ describe("ModalListaCursosTitulos", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Servidor")).toBeInTheDocument();
-    expect(screen.getByText(defaultValues.nome)).toBeInTheDocument();
+    expect(screen.getByText(defaultValues.nome_servidor)).toBeInTheDocument();
 
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText(defaultValues.rf)).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe("ModalListaCursosTitulos", () => {
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText("Função")).toBeInTheDocument();
 
-    expect(screen.getByText(defaultValues.nome)).toBeInTheDocument();
+    expect(screen.getByText(defaultValues.nome_servidor)).toBeInTheDocument();
     expect(screen.getByText(defaultValues.rf)).toBeInTheDocument();
     expect(
       screen.getByText(defaultValues.funcao_atividade)
