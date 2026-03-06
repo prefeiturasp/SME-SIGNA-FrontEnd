@@ -66,10 +66,11 @@ vi.mock("../DesignacaoContext", async () => {
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
       React.useState<any>({});
+    
 
     return (
       <DesignacaoContext.Provider
-        value={{ formDesignacaoData, setFormDesignacaoData }}
+        value={{ formDesignacaoData, setFormDesignacaoData , clearFormDesignacaoData: vi.fn()}}
       >
         {children}
       </DesignacaoContext.Provider>
