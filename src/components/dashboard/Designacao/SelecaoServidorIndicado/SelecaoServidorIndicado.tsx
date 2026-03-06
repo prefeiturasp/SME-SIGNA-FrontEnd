@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Accordion } from "@/components/ui/accordion";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
-import ResumoTitular, { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import ResumoTitular from "@/components/dashboard/Designacao/ResumoTitular";
 
 
 import { formSchemaDesignacaoPasso2Data } from "../../../../app/pages/designacoes/designacoes-passo-2/schema";
@@ -26,16 +26,18 @@ import { formSchemaDesignacaoPasso2Data } from "../../../../app/pages/designacoe
 // Componentes Customizados
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
+import { FormEditarServidorData } from "../ModalEditarServidor/schema";
+import { Servidor } from "@/types/designacao-unidade";
 
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
   readonly tipoCargo: string;
-  readonly dadosTitular: TitularData | null; 
+  readonly dadosTitular: Servidor | null; 
   readonly errorBusca: string | null;
   readonly onBuscaTitular: (values: BuscaDesignacaoRequest) => Promise<void>;
-  readonly setDadosTitular: (val: TitularData | null) => void;
+  readonly setDadosTitular: (val: Servidor | null) => void;
   readonly setErrorBusca: (val: string | null) => void;
-}
+ }
 
 export default function SelecaoServidorIndicado({
   form,
@@ -45,7 +47,16 @@ export default function SelecaoServidorIndicado({
   onBuscaTitular,
   setDadosTitular,
   setErrorBusca,
-}: Readonly<SelecaoTipoCargoProps>) {
+ }: Readonly<SelecaoTipoCargoProps>) {
+  function handleSubmitEditarServidor(data: FormEditarServidorData) {
+    console.log('handleSubmitEditarServidor',data,dadosTitular);
+    // setDadosTitular({
+    //   ...dadosTitular,
+    //   nome: data.nome_servidor,
+    //   nome_civil: data.nome_civil,
+    // });
+ 
+  }
   return (
     <div className="p-4 pt-4 border-t mt-4">
       <div className="flex flex-col gap-6">
@@ -150,6 +161,8 @@ export default function SelecaoServidorIndicado({
                           setDadosTitular(null);
                           form.setValue("rf_titular", "");
                         }}
+                        
+                        onSubmitEditarServidor={handleSubmitEditarServidor}
                       />
                     </CustomAccordionItem>
                   </Accordion>

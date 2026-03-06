@@ -29,17 +29,20 @@ import { BuscaDesignacaoRequest } from "@/types/designacao";
 import formSchemaDesignacaoPasso2, {
   formSchemaDesignacaoPasso2Data
 } from "./schema";
-import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
-import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
+  import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
+import { Servidor } from "@/types/designacao-unidade";
 
 export default function DesignacoesPasso2() {
 
-  const { formDesignacaoData } = useDesignacaoContext();
-  const { mutateAsync } = useServidorDesignacao();
+
+  const { formDesignacaoData, setFormDesignacaoData } =
+    useDesignacaoContext(); 
+     const { mutateAsync } = useServidorDesignacao();
   const router = useRouter();
-  const [dadosTitular, setDadosTitular] = useState<TitularData | null>(null);
+  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
@@ -68,7 +71,7 @@ export default function DesignacoesPasso2() {
   const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
     if (response.success) {
-      const titularFormatado: TitularData = {
+      const titularFormatado: Servidor = {
         ...response.data,
         codigo_hierarquia: (response.data as any).codigo_hierarquia ?? "3",
         lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva",
@@ -96,7 +99,22 @@ export default function DesignacoesPasso2() {
   };
 
   const [modalHistoricoUltimaDesignacaoOpen, setModalHistoricoUltimaDesignacaoOpen] = useState(false);
+ 
 
+ 
+
+  
+  function onSubmitEditarServidor(data: FormEditarServidorData) {
+    if (!formDesignacaoData?.servidorIndicado) return;
+    setFormDesignacaoData({
+      ...formDesignacaoData,
+      servidorIndicado: {
+        ...formDesignacaoData.servidorIndicado,
+        nome_servidor: data.nome_servidor,
+        nome_civil: data.nome_civil,
+      },
+    });
+  }
   return (
     <>
       <PageHeader
@@ -175,6 +193,7 @@ export default function DesignacoesPasso2() {
                     showEditar={true}
                     showCamposExtras={false}
                     showLotacao={true}
+                    onSubmitEditarServidor={onSubmitEditarServidor}
                   />
                 </CustomAccordionItem>
               </Accordion>
@@ -188,7 +207,7 @@ export default function DesignacoesPasso2() {
               onBuscaTitular={onBuscaTitular}
               setDadosTitular={setDadosTitular}
               setErrorBusca={setErrorBusca}
-            />
+             />
           </Card>
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao

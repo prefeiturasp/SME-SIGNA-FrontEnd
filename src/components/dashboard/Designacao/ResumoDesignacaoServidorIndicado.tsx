@@ -12,6 +12,7 @@ import useCursosETitulos from "@/hooks/useCursosETitulos";
 import Edit from "@/assets/icons/Edit";
 import { Servidor } from "@/types/designacao-unidade";
 import ModalEditarServidor from "./ModalEditarServidor/ModalEditarServidor";
+import { FormEditarServidorData } from "./ModalEditarServidor/schema";
 export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode; className?: string }> = ({
   label,
   value,
@@ -38,6 +39,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showCamposExtras?: boolean;
   showFuncaoAtividade?: boolean;
   showLotacao?: boolean;
+  onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 }> = ({
   className,
   defaultValues,
@@ -46,7 +48,8 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showEditar = false,
   showCamposExtras = false,
   showFuncaoAtividade = false,
-  showLotacao = false
+  showLotacao = false,
+  onSubmitEditarServidor
 }) => {
 
 
@@ -63,8 +66,10 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
     }
 
     const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
-
-
+     function handleSubmitEditarServidor(data: FormEditarServidorData) {
+      onSubmitEditarServidor(data);
+   
+    }
     return (
       <>
         {isLoading ? (
@@ -202,6 +207,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
               open={openModalEditarServidor}
               onOpenChange={setOpenModalEditarServidor}
               defaultValues={defaultValues}
+              handleSubmitEditarServidor={handleSubmitEditarServidor}
             />
 
             <ModalListaCursosTitulos

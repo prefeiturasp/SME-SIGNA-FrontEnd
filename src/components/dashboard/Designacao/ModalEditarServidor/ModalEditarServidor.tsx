@@ -25,6 +25,7 @@ type ModalEditarServidorProps = {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: Servidor;
+    handleSubmitEditarServidor: (data: FormEditarServidorData) => void;
 };
 
 
@@ -33,7 +34,8 @@ export default function ModalEditarServidor({
     isLoading,
     open,
     onOpenChange,
-    defaultValues
+    defaultValues,
+    handleSubmitEditarServidor
 }: Readonly<ModalEditarServidorProps>) {
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
@@ -63,20 +65,9 @@ export default function ModalEditarServidor({
     const { register, control } = form;
     const registerFieldValues = register as unknown as UseFormRegister<FieldValues>;
     const controlFieldValues = control as unknown as Control<FieldValues>;
-    const { setFormDesignacaoData, formDesignacaoData } = useDesignacaoContext();
-
-    const handleSubmitEditarServidor = (data: FormEditarServidorData) => {
-        if (!formDesignacaoData?.servidorIndicado) return;
-
-        setFormDesignacaoData({
-            ...formDesignacaoData,
-            servidorIndicado: {
-                ...formDesignacaoData.servidorIndicado,
-                nome_servidor: data.nome_servidor,
-                nome_civil: data.nome_civil,
-            },
-        });
-
+ 
+    const handleSubmitEditar = (data: FormEditarServidorData) => {
+        handleSubmitEditarServidor(data);
         onOpenChange(false);
     };
 
@@ -89,7 +80,7 @@ export default function ModalEditarServidor({
                     id="editar-servidor-form"
                     onSubmit={(e) => {
                         e.stopPropagation();
-                        form.handleSubmit(handleSubmitEditarServidor)(e);
+                        form.handleSubmit(handleSubmitEditar)(e);
                     }}
                     data-testid="form-editar-servidor"
                 >

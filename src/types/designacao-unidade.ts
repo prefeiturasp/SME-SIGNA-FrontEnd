@@ -19,6 +19,8 @@ export type Servidor = {
     local_de_exercicio?: string;
     laudo_medico?: string;
     local_de_servico?: string;
+    codigo_hierarquia?: string;
+    lotacao_cargo_base?: string;
   }
   
  
