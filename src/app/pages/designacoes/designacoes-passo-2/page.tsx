@@ -29,7 +29,7 @@ import { BuscaDesignacaoRequest } from "@/types/designacao";
 import formSchemaDesignacaoPasso2, {
   formSchemaDesignacaoPasso2Data
 } from "./schema";
-import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import { TitularData } from "@/types/designacao-servidor-titular";
 import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -70,9 +70,6 @@ export default function DesignacoesPasso2() {
     if (response.success) {
       const titularFormatado: TitularData = {
         ...response.data,
-        codigo_hierarquia: (response.data as any).codigo_hierarquia ?? "3",
-        lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva",
-
       };
 
       setDadosTitular(titularFormatado);
@@ -173,7 +170,6 @@ export default function DesignacoesPasso2() {
                     defaultValues={formDesignacaoData?.servidorIndicado}
                     showCursosTitulos={true}
                     showEditar={true}
-                    showCamposExtras={false}
                     showLotacao={true}
                   />
                 </CustomAccordionItem>

@@ -42,20 +42,20 @@ export default function ModalEditarServidor({
     const form = useForm<FormEditarServidorData>({
         resolver: zodResolver(formSchemaEditarServidor),
         defaultValues: {
-            nome_servidor: defaultValues.nome_servidor ?? defaultValues.nome,
-            nome_civil: defaultValues.nome_civil ?? defaultValues.nome,
+            nome_servidor: defaultValues.nome_servidor ?? defaultValues.nome_servidor,
+            nome_civil: defaultValues.nome_civil ?? defaultValues.nome_servidor,
             rf: defaultValues.rf,
-
-            vinculo_cargo_sobreposto: defaultValues.vinculo_cargo_sobreposto,
+            vinculo: defaultValues.vinculo,
+            
             cargo_base: defaultValues.cargo_base,
-
-            lotacao_cargo_sobreposto: defaultValues.lotacao_cargo_sobreposto,
-            cargo_sobreposto: defaultValues.cargo_sobreposto,
-
-            local_de_exercicio: defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
-
+            lotacao: defaultValues.lotacao,
             laudo_medico: defaultValues.laudo_medico ?? 'Laudo médico não informado',
             local_de_servico: defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus ',
+
+            cargo_sobreposto_funcao_atividade: defaultValues.cargo_sobreposto_funcao_atividade,
+            local_de_exercicio: defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
+
+
 
         },
         mode: "onChange",
@@ -154,7 +154,7 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="vinculo_cargo_sobreposto"
+                                        name="vinculo"
                                         label="Vínculo"
                                         placeholder="Vínculo"
                                         data-testid="input-vinculo-cargo-sobreposto"
@@ -178,7 +178,7 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="lotacao_cargo_sobreposto"
+                                        name="lotacao"
                                         label="Lotação"
                                         placeholder="Lotação cargo sobreposto"
                                         data-testid="input-lotacao-cargo-sobreposto"
@@ -195,7 +195,7 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="cargo_sobreposto"
+                                        name="cargo_sobreposto_funcao_atividade"
                                         label="Cargo sobreposto/Função atividade"
                                         placeholder="Cargo sobreposto"
                                         data-testid="input-cargo-sobreposto"
