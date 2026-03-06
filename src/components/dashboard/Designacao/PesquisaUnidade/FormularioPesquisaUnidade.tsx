@@ -28,7 +28,7 @@ import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
-import { InfoItem } from "../ResumoDesignacaoServidorIndicado";
+import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
 

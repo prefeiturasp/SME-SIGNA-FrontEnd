@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-import { InfoItem } from "../ResumoDesignacaoServidorIndicado";
+import { InfoItem } from "@/components/ui/info-item";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableColumnsType } from "antd";
 import { IConcursoType } from "@/types/cursos-e-titulos";
@@ -60,7 +60,7 @@ export default function ModalListaCursosTitulos({
 
                 <Separator className="mt-2" />
                 <div className="flex flex-row gap-20 bg-[#FAFAFA] p-4 my-4">
-                    <InfoItem label="Servidor" value={defaultValues.nome} />
+                    <InfoItem label="Servidor" value={defaultValues.nome_servidor} />
                     <InfoItem label="RF" value={defaultValues.rf} />
                     <InfoItem label="Função" value={defaultValues.funcao_atividade } />
                 </div>
