@@ -122,7 +122,6 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showCamposExtras={false}
                 showLotacao={true}
               />
             </CustomAccordionItem>
