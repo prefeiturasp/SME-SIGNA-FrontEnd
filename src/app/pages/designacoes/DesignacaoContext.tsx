@@ -84,7 +84,7 @@ export function useDesignacaoContext() {
 
   if (!context) {
     throw new Error(
-      "useDesignacaoContext must be used within DesignacaoProvider"
+      "useDesignacaoContext precisa ser usado dentro do DesignacaoProvider"
     );
   }
 
