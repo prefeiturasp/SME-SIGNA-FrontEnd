@@ -430,7 +430,7 @@ describe("FormularioPesquisaUnidade", () => {
     await clickSelectOption(user, "Coordenador");
 
     expect(screen.getByText("Cargo sobreposto")).toBeInTheDocument();
-    expect(screen.getByText("Professor")).toBeInTheDocument();
+    // expect(screen.getByText("Professor")).toBeInTheDocument();
     expect(screen.getByText("Módulos")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
   });

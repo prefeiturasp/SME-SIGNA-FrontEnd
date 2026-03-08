@@ -18,7 +18,9 @@ import {
 } from "@/components/ui/select";
 import { Accordion } from "@/components/ui/accordion";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
-import ResumoTitular, { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import ResumoTitular from "@/components/dashboard/Designacao/ResumoTitular";
+import { TitularData } from "@/types/designacao-servidor-titular";
+
 
 
 import { formSchemaDesignacaoPasso2Data } from "../../../../app/pages/designacoes/designacoes-passo-2/schema";

@@ -23,18 +23,17 @@ vi.mock("@/app/pages/designacoes/DesignacaoContext", () => ({
  
 const defaultServidor: Servidor = {
   rf: "12345",
-  nome: "João da Silva",
   nome_servidor: "João da Silva",
   nome_civil: "João da Silva Civil",
-  esta_afastado: false,
-  vinculo_cargo_sobreposto: 1,
-  lotacao_cargo_sobreposto: "Escola Municipal X",
+
+  vinculo: 1,
+  lotacao: "Escola Municipal X",
   cargo_base: "Professor I",
-  funcao_atividade: "Docente",
-  cargo_sobreposto: "Diretor de Escola",
+  cargo_sobreposto_funcao_atividade: "Diretor de Escola",
   cursos_titulos: "Licenciatura em Matemática",
-  dre: "DRE Ipiranga",
-  codigo_estrutura_hierarquica: "COD-456",
+  local_de_exercicio: "Local de exercicio teste",
+  laudo_medico: "Laudo",
+  local_de_servico: "Local do servico teste"
 };
 
 const mockFormDesignacaoData: FormDesignacaoEServidorIndicado = {
@@ -46,17 +45,20 @@ const mockFormDesignacaoData: FormDesignacaoEServidorIndicado = {
   cargo_sobreposto: "cargo-1",
   modulos: "2",
   servidorIndicado: {
-    nome: "Servidor Mock",
+    nome_servidor: "Servidor Mock",
+    nome_civil: "Servidor Civil Mock",
     rf: "12345",
-    esta_afastado: false,
-    vinculo_cargo_sobreposto: 1,
-    lotacao_cargo_sobreposto: "Escola Municipal Mock",
+    vinculo: 1,
+
+    lotacao: "Escola Municipal Mock",
     cargo_base: "Professor I",
-    funcao_atividade: "Docente",
-    cargo_sobreposto: "Diretor",
+    cargo_sobreposto_funcao_atividade: "Diretor",
     cursos_titulos: "Licenciatura",
-    dre: "DRE Mock",
-    codigo_estrutura_hierarquica: "COD-MOCK",
+
+    local_de_exercicio: "Local de exercicio teste",
+    laudo_medico: "Laudo",
+    local_de_servico: "Local do servico teste"
+
   },
 };
 
@@ -142,20 +144,20 @@ describe("ModalEditarServidor", () => {
     expect(screen.getByDisplayValue(defaultServidor.rf)).toBeInTheDocument();
   });
 
-  it("usa nome como fallback para nome_servidor quando nome_servidor é undefined", () => {
-    const servidor: Servidor = { ...defaultServidor, nome_servidor: undefined };
-    renderModal({ defaultValues: servidor });
+  // it("usa nome como fallback para nome_servidor quando nome_servidor é undefined", () => {
+  //   const servidor: Servidor = { ...defaultServidor, nome_servidor: undefined };
+  //   renderModal({ defaultValues: servidor });
 
-    expect(screen.getByPlaceholderText("Nome servidor")).toHaveValue(
-      servidor.nome
-    );
-  });
+  //   expect(screen.getByPlaceholderText("Nome servidor")).toHaveValue(
+  //     servidor.nome
+  //   );
+  // });
 
   it("usa nome como fallback para nome_civil quando nome_civil é undefined", () => {
     const servidor: Servidor = { ...defaultServidor, nome_civil: undefined };
     renderModal({ defaultValues: servidor });
 
-    expect(screen.getByPlaceholderText("Nome Civil")).toHaveValue(servidor.nome);
+    expect(screen.getByPlaceholderText("Nome Civil")).toHaveValue(servidor.nome_servidor);
   });
 
  

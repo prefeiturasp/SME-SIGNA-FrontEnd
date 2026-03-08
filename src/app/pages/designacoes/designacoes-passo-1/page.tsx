@@ -39,8 +39,6 @@ export default function DesignacoesPasso1() {
         ...formDesignacaoData,
         servidorIndicado: {
           ...response.data,
-          nome_servidor: response.data.nome,
-          nome_civil: response.data.nome,
         },
       });
 
@@ -127,7 +125,6 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showCamposExtras={false}
                 showLotacao={true}
               />
             </CustomAccordionItem>

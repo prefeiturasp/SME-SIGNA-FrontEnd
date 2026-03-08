@@ -43,8 +43,8 @@ function CampoInfo({ label, value }: CampoInfoProps) {
     );
 }
 
+// to-do -> Alterar esse modal para os novos campos.
 export default function ModalUltimaDesignacao({
-    isLoading,
     open,
     onOpenChange,
     ultimoServidor,
@@ -76,7 +76,7 @@ export default function ModalUltimaDesignacao({
                         <div className="grid grid-cols-4 gap-4">
                             <CampoInfo
                                 label="Nome Servidor"
-                                value={ultimoServidor.nome}
+                                value={ultimoServidor.nome_servidor}
                             />
                             <CampoInfo
                                 label="Nome Civil"
@@ -86,15 +86,11 @@ export default function ModalUltimaDesignacao({
                                 label="RF"
                                 value={ultimoServidor.rf}
                             />
-                            <CampoInfo
-                                label="Função"
-                                value={ultimoServidor.funcao_atividade}
-                            />
                         </div>
                         <div className="grid grid-cols-4 gap-4">
                             <CampoInfo
                                 label="Cargo sobreposto"
-                                value={ultimoServidor.cargo_sobreposto}
+                                value={ultimoServidor.cargo_sobreposto_funcao_atividade}
                             />
                             <CampoInfo
                                 label="Cargo base"
@@ -102,11 +98,11 @@ export default function ModalUltimaDesignacao({
                             />
                             <CampoInfo
                                 label="Vínculo"
-                                value={ultimoServidor.vinculo_cargo_sobreposto?.toString()}
+                                value={ultimoServidor.vinculo?.toString()}
                             />
                             <CampoInfo
                                 label="Lotação"
-                                value={ultimoServidor.lotacao_cargo_sobreposto}
+                                value={ultimoServidor.lotacao}
                             />
                         </div>
                     </div>
