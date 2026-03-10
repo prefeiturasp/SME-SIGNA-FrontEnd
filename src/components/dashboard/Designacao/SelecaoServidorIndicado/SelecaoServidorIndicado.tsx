@@ -156,12 +156,7 @@ export default function SelecaoServidorIndicado({
                       color="green"
                     >
                       <ResumoTitular
-                        data={dadosTitular}
-                        onEdit={() => {
-                          setDadosTitular(null);
-                          form.setValue("rf_titular", "");
-                        }}
-                        
+                        data={dadosTitular}                       
                         onSubmitEditarServidor={handleSubmitEditarServidor}
                       />
                     </CustomAccordionItem>

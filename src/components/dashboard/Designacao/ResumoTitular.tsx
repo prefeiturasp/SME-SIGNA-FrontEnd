@@ -10,7 +10,6 @@ import { Servidor } from "@/types/designacao-unidade";
 
 const ResumoTitular: React.FC<{
   data: Servidor;
-  onEdit: () => void;
   onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 
 }> = ({ data, onSubmitEditarServidor }) => {
