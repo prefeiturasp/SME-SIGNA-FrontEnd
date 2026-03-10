@@ -13,6 +13,7 @@ import Edit from "@/assets/icons/Edit";
 import { Servidor } from "@/types/designacao-unidade";
 import ModalEditarServidor from "./ModalEditarServidor/ModalEditarServidor";
 import { InfoItem } from "@/components/ui/info-item";
+import { FormEditarServidorData } from "./ModalEditarServidor/schema";
 
 const ResumoDesignacaoServidorIndicado: React.FC<{
   showEditar?: boolean;
@@ -21,13 +22,15 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   isLoading?: boolean;
   showCursosTitulos?: boolean;
   showLotacao?: boolean;
+  onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 }> = ({
   className,
   defaultValues,
   isLoading,
   showCursosTitulos = false,
   showEditar = false,
-  showLotacao = false
+  showLotacao = false,
+  onSubmitEditarServidor
 }) => {
 
 
@@ -44,8 +47,10 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
     }
 
     const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
-
-
+     function handleSubmitEditarServidor(data: FormEditarServidorData) {
+      onSubmitEditarServidor(data);
+   
+    }
     return (
       <>
         {isLoading ? (
@@ -148,6 +153,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
               open={openModalEditarServidor}
               onOpenChange={setOpenModalEditarServidor}
               defaultValues={defaultValues}
+              handleSubmitEditarServidor={handleSubmitEditarServidor}
             />
 
             <ModalListaCursosTitulos

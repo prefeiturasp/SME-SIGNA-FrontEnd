@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
+import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 
 export default function DesignacoesPasso1() {
   const { mutateAsync, isPending } = useServidorDesignacao();
@@ -48,7 +49,17 @@ export default function DesignacoesPasso1() {
     }
   };
 
- 
+  function onSubmitEditarServidor(data: FormEditarServidorData) {
+    if (!formDesignacaoData?.servidorIndicado) return;
+    setFormDesignacaoData({
+      ...formDesignacaoData,
+      servidorIndicado: {
+        ...formDesignacaoData.servidorIndicado,
+        nome_servidor: data.nome_servidor,
+        nome_civil: data.nome_civil,
+      },
+    });
+  }
 
   const onProximo = () => {
     const valoresFormulario =
@@ -125,7 +136,8 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showLotacao={true}
+                showLotacao={true}  
+                onSubmitEditarServidor={onSubmitEditarServidor}
               />
             </CustomAccordionItem>
           )}

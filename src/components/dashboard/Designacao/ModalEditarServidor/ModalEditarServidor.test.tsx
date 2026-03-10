@@ -4,23 +4,14 @@ import { vi } from "vitest";
 
 import ModalEditarServidor from "./ModalEditarServidor";
 import type { Servidor } from "@/types/designacao-unidade";
-import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
-
+ 
  
 const mockSetFormDesignacaoData = vi.fn();
-
- let mockFormDesignacaoDataValue: FormDesignacaoEServidorIndicado | null;
-
-vi.mock("@/app/pages/designacoes/DesignacaoContext", () => ({
-  useDesignacaoContext: () => ({
-    setFormDesignacaoData: mockSetFormDesignacaoData,
-    get formDesignacaoData() {
-      return mockFormDesignacaoDataValue;
-    },
-  }),
-}));
+const handleSubmitEditarServidor = vi.fn();
 
  
+
+
 const defaultServidor: Servidor = {
   rf: "12345",
   nome_servidor: "João da Silva",
@@ -31,37 +22,13 @@ const defaultServidor: Servidor = {
   cargo_base: "Professor I",
   cargo_sobreposto_funcao_atividade: "Diretor de Escola",
   cursos_titulos: "Licenciatura em Matemática",
-  local_de_exercicio: "Local de exercicio teste",
-  laudo_medico: "Laudo",
-  local_de_servico: "Local do servico teste"
+  local_de_exercicio: "Diretoria Regi.de Educação São Mateus ",
+  laudo_medico: "Laudo médico não informado",
+  local_de_servico: "Regi.de Educação São Mateus ",
 };
 
-const mockFormDesignacaoData: FormDesignacaoEServidorIndicado = {
-  dre: "dre-1",
-  ue: "ue-1",
-  codigo_estrutura_hierarquica: "123456",
-  funcionarios_da_unidade: "func-1",
-  quantidade_turmas: "10",
-  cargo_sobreposto: "cargo-1",
-  modulos: "2",
-  servidorIndicado: {
-    nome_servidor: "Servidor Mock",
-    nome_civil: "Servidor Civil Mock",
-    rf: "12345",
-    vinculo: 1,
 
-    lotacao: "Escola Municipal Mock",
-    cargo_base: "Professor I",
-    cargo_sobreposto_funcao_atividade: "Diretor",
-    cursos_titulos: "Licenciatura",
-
-    local_de_exercicio: "Local de exercicio teste",
-    laudo_medico: "Laudo",
-    local_de_servico: "Local do servico teste"
-
-  },
-};
-
+ 
  
 function renderModal(
   overrides: Partial<{
@@ -80,7 +47,8 @@ function renderModal(
         open={overrides.open ?? true}
         onOpenChange={onOpenChange}
         defaultValues={overrides.defaultValues ?? defaultServidor}
-      />
+        handleSubmitEditarServidor={handleSubmitEditarServidor}
+      />  
     ),
   };
 }
@@ -89,8 +57,7 @@ function renderModal(
 describe("ModalEditarServidor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-     mockFormDesignacaoDataValue = mockFormDesignacaoData;
-  });
+   });
 
  
   it("renderiza o modal quando open é true", () => {
@@ -144,21 +111,36 @@ describe("ModalEditarServidor", () => {
     expect(screen.getByDisplayValue(defaultServidor.rf)).toBeInTheDocument();
   });
 
-  // it("usa nome como fallback para nome_servidor quando nome_servidor é undefined", () => {
-  //   const servidor: Servidor = { ...defaultServidor, nome_servidor: undefined };
-  //   renderModal({ defaultValues: servidor });
-
-  //   expect(screen.getByPlaceholderText("Nome servidor")).toHaveValue(
-  //     servidor.nome
-  //   );
-  // });
-
+   
   it("usa nome como fallback para nome_civil quando nome_civil é undefined", () => {
     const servidor: Servidor = { ...defaultServidor, nome_civil: undefined };
     renderModal({ defaultValues: servidor });
 
     expect(screen.getByPlaceholderText("Nome Civil")).toHaveValue(servidor.nome_servidor);
   });
+
+  it("usa nome como fallback quando laudo_medico é undefined", () => {
+    const servidor: Servidor = { ...defaultServidor, laudo_medico: undefined };
+    renderModal({ defaultValues: servidor });
+     expect(screen.getByPlaceholderText("Laudo médico")).toHaveValue("Laudo médico não informado");
+  });
+
+  it("usa nome como fallback quando local_de_servico é undefined", () => {
+    const servidor: Servidor = { ...defaultServidor, local_de_servico: undefined };
+    renderModal({ defaultValues: servidor });
+     expect(screen.getByPlaceholderText("Local de serviço")).toHaveValue("Regi.de Educação São Mateus");
+  });
+
+  it("usa nome como fallback quando local_de_exercicio é undefined", () => {
+    const servidor: Servidor = { ...defaultServidor, local_de_exercicio: undefined };
+    renderModal({ defaultValues: servidor });
+
+    expect(screen.getByPlaceholderText("Local de exercício")).toHaveValue(
+      "Diretoria Regi.de Educação São Mateus"
+    );
+  });
+   
+
 
  
   it("Verifica se os campos estão desabilitados", () => {
@@ -224,19 +206,17 @@ describe("ModalEditarServidor", () => {
     await user.click(screen.getByTestId("botao-salvar"));
 
     await waitFor(() => {
-      expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
-          servidorIndicado: expect.objectContaining({
-            nome_servidor: defaultServidor.nome_servidor,
+          ...defaultServidor,
             nome_civil: "Apenas Civil Alterado",
-          }),
         })
       );
     });
   });
 
- 
-  it("altera o nome servidor corretamente e salva via contexto", async () => {
+   
+  it("altera o nome servidor corretamente e salva via submit", async () => {
     const user = userEvent.setup();
     renderModal();
 
@@ -246,12 +226,11 @@ describe("ModalEditarServidor", () => {
 
     await user.click(screen.getByTestId("botao-salvar"));
 
-    await waitFor(() => {
-      expect(mockSetFormDesignacaoData).toHaveBeenCalledWith(
+     await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
-          servidorIndicado: expect.objectContaining({
-            nome_servidor: "Novo Nome Servidor",
-          }),
+          ...defaultServidor,
+          nome_servidor: "Novo Nome Servidor",
         })
       );
     });
@@ -307,25 +286,10 @@ describe("ModalEditarServidor", () => {
     expect(mockSetFormDesignacaoData).not.toHaveBeenCalled();
   });
 
-  // ── Contexto com formDesignacaoData nulo ────────────────────────────────
 
-  it("não chama setFormDesignacaoData quando formDesignacaoData é null", async () => {
-    // Sobrescreve o contexto para retornar null neste teste
-    mockFormDesignacaoDataValue = null;
 
-    const user = userEvent.setup();
-    renderModal();
-
-    await user.click(screen.getByTestId("botao-salvar"));
-
-    await waitFor(() => {
-      expect(mockSetFormDesignacaoData).not.toHaveBeenCalled();
-    });
-  });
-
-  // ── Dados completos enviados ao contexto ────────────────────────────────
-
-  it("mantém os dados do contexto ao salvar, sobrescrevendo apenas nome_servidor e nome_civil", async () => {
+ 
+  it("mantém os dados do submit ao salvar, sobrescrevendo apenas nome_servidor e nome_civil", async () => {
     const user = userEvent.setup();
     renderModal();
 
@@ -336,14 +300,40 @@ describe("ModalEditarServidor", () => {
     await user.click(screen.getByTestId("botao-salvar"));
 
     await waitFor(() => {
-      expect(mockSetFormDesignacaoData).toHaveBeenCalledWith({
-        ...mockFormDesignacaoData,
-        servidorIndicado: {
-          ...mockFormDesignacaoData.servidorIndicado,
-          nome_servidor: defaultServidor.nome_servidor,
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...defaultServidor,
           nome_civil: "Nome Civil Atualizado",
-        },
-      });
+        })
+      );
+    });
+  });
+
+  it("mantém os valores informados para local_de_exercicio, laudo_medico e local_de_servico", async () => {
+    const user = userEvent.setup();
+    const servidorComLocais: Servidor = {
+      ...defaultServidor,
+      local_de_exercicio: "Exercício personalizado",
+      laudo_medico: "Laudo personalizado",
+      local_de_servico: "Serviço personalizado",
+    };
+
+    renderModal({ defaultValues: servidorComLocais });
+
+    await user.click(screen.getByTestId("botao-salvar"));
+
+    await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          nome_servidor: servidorComLocais.nome_servidor,
+          nome_civil: servidorComLocais.nome_civil,
+          rf: servidorComLocais.rf,
+          cargo_base: servidorComLocais.cargo_base,
+          local_de_exercicio: servidorComLocais.local_de_exercicio,
+          laudo_medico: servidorComLocais.laudo_medico,
+          local_de_servico: servidorComLocais.local_de_servico,
+        })
+      );
     });
   });
 });
