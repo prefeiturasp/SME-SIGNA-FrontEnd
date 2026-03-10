@@ -8,9 +8,8 @@ import Designacao from "@/assets/icons/Designacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
-import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import FormularioPesquisaUnidade, {
   FormularioPesquisaUnidadeRef,
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
@@ -28,7 +27,7 @@ export default function DesignacoesPasso1() {
   const formularioPesquisaUnidadeRef =
     useRef<FormularioPesquisaUnidadeRef | null>(null);
 
-  const { formDesignacaoData, setFormDesignacaoData } =
+  const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
 
   const router = useRouter();
@@ -41,8 +40,6 @@ export default function DesignacoesPasso1() {
         ...formDesignacaoData,
         servidorIndicado: {
           ...response.data,
-          nome_servidor: response.data.nome,
-          nome_civil: response.data.nome,
         },
       });
 
@@ -82,6 +79,10 @@ export default function DesignacoesPasso1() {
     );
   };
 
+  useEffect(() => {
+    clearFormDesignacaoData();    
+  }, []);
+  
   return (
     <>
       <PageHeader
@@ -135,7 +136,6 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showCamposExtras={false}
                 showLotacao={true}  
                 onSubmitEditarServidor={onSubmitEditarServidor}
               />

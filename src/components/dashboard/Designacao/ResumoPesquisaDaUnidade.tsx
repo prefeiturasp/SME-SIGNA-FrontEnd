@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { PesquisaUnidade } from "@/types/designacao-unidade";
-import { InfoItem } from "./ResumoDesignacaoServidorIndicado";
+import { InfoItem } from "@/components/ui/info-item";
 
 const ResumoPesquisaDaUnidade: React.FC<{
   className?: string;

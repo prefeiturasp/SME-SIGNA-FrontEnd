@@ -29,7 +29,7 @@ import { BuscaDesignacaoRequest } from "@/types/designacao";
 import formSchemaDesignacaoPasso2, {
   formSchemaDesignacaoPasso2Data
 } from "./schema";
-  import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
+import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
@@ -73,9 +73,6 @@ export default function DesignacoesPasso2() {
     if (response.success) {
       const titularFormatado: Servidor = {
         ...response.data,
-        codigo_hierarquia: (response.data as any).codigo_hierarquia ?? "3",
-        lotacao_cargo_base: (response.data as any).lotacao_cargo_base ?? "Ayrton Senna da Silva",
-
       };
 
       setDadosTitular(titularFormatado);
@@ -191,7 +188,6 @@ export default function DesignacoesPasso2() {
                     defaultValues={formDesignacaoData?.servidorIndicado}
                     showCursosTitulos={true}
                     showEditar={true}
-                    showCamposExtras={false}
                     showLotacao={true}
                     onSubmitEditarServidor={onSubmitEditarServidor}
                   />

@@ -52,7 +52,7 @@ export default function SelecaoServidorIndicado({
      if (dadosTitular) {
       setDadosTitular({
         ...dadosTitular,
-        nome: data.nome_servidor,
+        nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
       });
     }
