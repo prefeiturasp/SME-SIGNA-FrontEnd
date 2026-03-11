@@ -96,7 +96,7 @@ const servidoresMock: Servidor = {
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   dre: "DRE X",
-  codigo_estrutura_hierarquica: "123",
+  codigo_hierarquico: "123",
 };
 
 describe("ModalResumoServidor", () => {

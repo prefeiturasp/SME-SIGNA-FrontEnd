@@ -66,7 +66,7 @@ describe("DesignacoesLayout", () => {
               setFormDesignacaoData({
                 dre: "test-dre",
                 ue: "test-ue",
-                codigo_estrutura_hierarquica: "123",
+                codigo_hierarquico: "123",
                 funcionarios_da_unidade: "func",
                 quantidade_turmas: "10",
                 cargo_sobreposto: "cargo",
@@ -82,7 +82,7 @@ describe("DesignacoesLayout", () => {
                   cargo_sobreposto: "Nenhum",
                   cursos_titulos: "Licenciatura",
                   dre: "DRE Teste",
-                  codigo_estrutura_hierarquica: "COD-1",
+                  codigo_hierarquico: "COD-1",
                   
                 },
               })

@@ -27,7 +27,7 @@ const mockServidorIndicado: Servidor = {
 const mockFormData: FormDesignacaoData = {
   dre: "dre-2",
   ue: "ue-1",
-  codigo_estrutura_hierarquica: "123456",
+  codigo_hierarquico: "123456",
   funcionarios_da_unidade: "func-1",
   quantidade_turmas: "10",
   cargo_sobreposto: "cargo-1",

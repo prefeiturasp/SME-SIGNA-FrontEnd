@@ -10,12 +10,12 @@ export type Servidor = {
     lotacao: string;
     cargo_base: string;
     cargo_sobreposto_funcao_atividade: string;
-    cursos_titulos: string;
-    local_de_exercicio?: string;
-    laudo_medico?: string;
-    local_de_servico?: string;
+    cursos_titulos: string;       
     codigo_hierarquia?: string;
     lotacao_cargo_base?: string;
+    laudo_medico: string;
+    local_de_servico: string;
+    local_de_exercicio: string;
   }
   
  
@@ -46,6 +46,7 @@ type Turma = {
 };
 
 export type DesignacaoUnidadeResponse = {
+  codigo_hierarquico: string;
   funcionarios_unidade: { [codigo: string]: Cargo };
   cargos: CargoSelect[];
   turmas: {
