@@ -34,7 +34,7 @@ export default function DesignacoesPasso1() {
 
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
-
+ 
     if (response.success) {
       setFormDesignacaoData({
         ...formDesignacaoData,
@@ -68,7 +68,7 @@ export default function DesignacoesPasso1() {
     if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) {
       return;
     }
-
+     
     setFormDesignacaoData({
       ...formDesignacaoData,
       ...valoresFormulario,

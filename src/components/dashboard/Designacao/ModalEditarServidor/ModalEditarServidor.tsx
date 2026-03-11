@@ -39,8 +39,7 @@ export default function ModalEditarServidor({
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
     }
-  // to-do: integrar os campos de laudo_medico, local_de_servico e local_de_exercicio
-
+ 
     const form = useForm<FormEditarServidorData>({
         resolver: zodResolver(formSchemaEditarServidor),
         defaultValues: {
@@ -52,11 +51,11 @@ export default function ModalEditarServidor({
             cargo_base: defaultValues.cargo_base,
             lotacao: defaultValues.lotacao,
             cursos_titulos: defaultValues.cursos_titulos,
-            laudo_medico: defaultValues.laudo_medico ?? 'Laudo médico não informado',
-            local_de_servico: defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus',
+            laudo_medico: defaultValues.laudo_medico,
+            local_de_servico: defaultValues.local_de_servico,
 
             cargo_sobreposto_funcao_atividade: defaultValues.cargo_sobreposto_funcao_atividade,
-            local_de_exercicio: defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus',
+            local_de_exercicio: defaultValues.local_de_exercicio,
 
 
 

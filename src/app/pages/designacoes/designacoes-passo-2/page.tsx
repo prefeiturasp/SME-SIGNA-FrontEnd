@@ -165,7 +165,7 @@ export default function DesignacoesPasso2() {
                       lotacao: formDesignacaoData?.ue_nome ?? "",
                       dre: formDesignacaoData?.dre_nome ?? "",
                       estrutura_hierarquica:
-                        formDesignacaoData?.codigo_estrutura_hierarquica ?? "",
+                        formDesignacaoData?.codigo_hierarquico ?? "",
                     }}
                     isLoading={false} />
                 </CustomAccordionItem>

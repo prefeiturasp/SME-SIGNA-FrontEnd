@@ -32,7 +32,7 @@ const mockResponse = {
 const mockFormValues: FormDesignacaoData = {
   dre: "dre-1",
   ue: "ue-1",
-  codigo_estrutura_hierarquica: "123456",
+  codigo_hierarquico: "123456",
   funcionarios_da_unidade: "123",
   quantidade_turmas: "40",
   cargo_sobreposto: "20",

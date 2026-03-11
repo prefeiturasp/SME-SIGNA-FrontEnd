@@ -119,29 +119,6 @@ describe("ModalEditarServidor", () => {
     expect(screen.getByPlaceholderText("Nome Civil")).toHaveValue(servidor.nome_servidor);
   });
 
-  it("usa nome como fallback quando laudo_medico é undefined", () => {
-    const servidor: Servidor = { ...defaultServidor, laudo_medico: undefined };
-    renderModal({ defaultValues: servidor });
-     expect(screen.getByPlaceholderText("Laudo médico")).toHaveValue("Laudo médico não informado");
-  });
-
-  it("usa nome como fallback quando local_de_servico é undefined", () => {
-    const servidor: Servidor = { ...defaultServidor, local_de_servico: undefined };
-    renderModal({ defaultValues: servidor });
-     expect(screen.getByPlaceholderText("Local de serviço")).toHaveValue("Regi.de Educação São Mateus");
-  });
-
-  it("usa nome como fallback quando local_de_exercicio é undefined", () => {
-    const servidor: Servidor = { ...defaultServidor, local_de_exercicio: undefined };
-    renderModal({ defaultValues: servidor });
-
-    expect(screen.getByPlaceholderText("Local de exercício")).toHaveValue(
-      "Diretoria Regi.de Educação São Mateus"
-    );
-  });
-   
-
-
  
   it("Verifica se os campos estão desabilitados", () => {
     renderModal();

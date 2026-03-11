@@ -68,7 +68,7 @@ const FormularioPesquisaUnidade = forwardRef<
       ue_nome: "",
       funcionarios_da_unidade: "",
       quantidade_turmas: "",
-      codigo_estrutura_hierarquica: "",
+      codigo_hierarquico: "",
       cargo_sobreposto: "",
       modulos: "",
     },
@@ -111,6 +111,8 @@ const FormularioPesquisaUnidade = forwardRef<
         setFuncionariosOptions(cargosSelect);
         setDesignacaoUnidade(response.data);
         form.setValue("quantidade_turmas", response.data.turmas?.total?.toString() ?? "-");
+        form.setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
+
       } else {
         setErrorMessage(response.error);
       }
@@ -119,12 +121,11 @@ const FormularioPesquisaUnidade = forwardRef<
       console.log('error', error);
     }
 
-    form.setValue("codigo_estrutura_hierarquica", "");
 
    };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
-    form.setValue("codigo_estrutura_hierarquica", '');
+    form.setValue("codigo_hierarquico", '');
     form.setValue("cargo_sobreposto", '');
     form.setValue("modulos", '');
     form.setValue("quantidade_turmas", '');
@@ -132,7 +133,7 @@ const FormularioPesquisaUnidade = forwardRef<
     setErrorMessage(null);
     setDisableProximo(true);
   }
-  const codigoEstrutura = form.watch("codigo_estrutura_hierarquica");
+  const codigoEstrutura = form.watch("codigo_hierarquico");
 
   return (
     <>
