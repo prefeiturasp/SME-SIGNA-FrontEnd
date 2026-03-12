@@ -32,12 +32,12 @@ import { Servidor } from "@/types/designacao-unidade";
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
   readonly tipoCargo: string;
-  readonly dadosTitular: Servidor | null; 
+  readonly dadosTitular: Servidor | null;
   readonly errorBusca: string | null;
   readonly onBuscaTitular: (values: BuscaDesignacaoRequest) => Promise<void>;
   readonly setDadosTitular: (val: Servidor | null) => void;
   readonly setErrorBusca: (val: string | null) => void;
- }
+}
 
 export default function SelecaoServidorIndicado({
   form,
@@ -47,9 +47,9 @@ export default function SelecaoServidorIndicado({
   onBuscaTitular,
   setDadosTitular,
   setErrorBusca,
- }: Readonly<SelecaoTipoCargoProps>) {
+}: Readonly<SelecaoTipoCargoProps>) {
   function handleSubmitEditarServidor(data: FormEditarServidorData) {
-     if (dadosTitular) {
+    if (dadosTitular) {
       setDadosTitular({
         ...dadosTitular,
         nome_servidor: data.nome_servidor,
@@ -118,14 +118,14 @@ export default function SelecaoServidorIndicado({
                       </FormControl>
                       <SelectContent>
                         {[
-                          "Diretor",
-                          "Supervisor",
-                          "Coordenador",
-                          "Secretário de escola",
-                          "Assistente de diretor",
+                          { id: 3360, label: "Diretor" },
+                          { id: 3352, label: "Supervisor" },
+                          { id: 3379, label: "Coordenador" },
+                          { id: 3182, label: "Secretário de escola" },
+                          { id: 3085, label: "Assistente de diretor" },
                         ].map((cargo) => (
-                          <SelectItem key={cargo} value={cargo}>
-                            {cargo}
+                          <SelectItem key={cargo.id} value={String(cargo.id)}>
+                            {cargo.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -156,7 +156,7 @@ export default function SelecaoServidorIndicado({
                       color="green"
                     >
                       <ResumoTitular
-                        data={dadosTitular}                       
+                        data={dadosTitular}
                         onSubmitEditarServidor={handleSubmitEditarServidor}
                       />
                     </CustomAccordionItem>

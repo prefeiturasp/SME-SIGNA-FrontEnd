@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useFormContext,
-} from "react-hook-form";
-
+import { useFormContext } from "react-hook-form";
 
 import {
   SelectItem,
@@ -21,29 +18,29 @@ import {
   FormControl,
 } from "@/components/ui/form";
 
-
 import { Popconfirm } from "antd";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { CheckboxField, DateField, InputField } from "@/components/ui/FieldsForm";
+import {
+  CheckboxField,
+  DateField,
+  InputField,
+} from "@/components/ui/FieldsForm";
 
 interface Props {
   isLoading: boolean;
 }
-
-
 
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
   const { register, control, setValue, watch } = useFormContext();
 
   const anos = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
-
     (_, i) => {
       const ano = new Date().getFullYear() - i;
       return { codigo: ano.toString(), nome: ano.toString() };
-    },
+    }
   );
 
   const impedimentoSubstituicao = [
@@ -60,19 +57,43 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
     },
     { codigo: "9", nome: "por licença nojo" },
     { codigo: "10", nome: "por licenca gala" },
-    { codigo: "11", nome: "por afastamento por Cursos/Congressos/Competições" },
+    {
+      codigo: "11",
+      nome: "por afastamento por Cursos/Congressos/Competições",
+    },
     { codigo: "12", nome: "por licença maternidade" },
     { codigo: "13", nome: "por prorrogação da licença à gestante" },
     { codigo: "14", nome: "por licença parental de curta duração" },
     { codigo: "15", nome: "por licença parental de longa duração" },
     { codigo: "16", nome: "por Evento/Reunião" },
-    { codigo: "17", nome: 'por readaptação funcional, nos termos do art. 39 da Lei nº 8.979, de 1979' },
-    { codigo: "18", nome: 'para prestar serviços técnico-educacionais, nos termos da alínea "a", inciso IX, do artigo 66 da Lei nº 14.660, de 2007' },
-    { codigo: "19", nome: '  por exercer cargos em comissão, nos termos do § 1º do art. 45 da Lei nº 8.989, de 1979, art. 70 da Lei nº 14.660, de 2007' },
-    { codigo: "20", nome: ' para prestar serviços técnico-educacionais, nos termos da alínea "b", inciso IX, do artigo 66 da Lei nº 14.660, de 2007' },
-    { codigo: "21", nome: ' por transferência temporária do servidor, nos termos do art. 8º do Decreto Municipal nº 57.444, de 2016' },
-    { codigo: "22", nome: ' por exercer mandato de dirigente sindical, nos termos do disposto no inciso VII do art. 66 da Lei nº 14.660, de 2007' },
-    { codigo: "23", nome: ' pelo afastamento, em caráter excepcional, nos termos da alínea "b", inciso IX, do artigo 66 da Lei nº 14.660, de 2007' },
+    {
+      codigo: "17",
+      nome: "por readaptação funcional, nos termos do art. 39 da Lei nº 8.979, de 1979",
+    },
+    {
+      codigo: "18",
+      nome: 'para prestar serviços técnico-educacionais, nos termos da alínea "a", inciso IX, do artigo 66 da Lei nº 14.660, de 2007',
+    },
+    {
+      codigo: "19",
+      nome: "por exercer cargos em comissão, nos termos do § 1º do art. 45 da Lei nº 8.989, de 1979, art. 70 da Lei nº 14.660, de 2007",
+    },
+    {
+      codigo: "20",
+      nome: 'para prestar serviços técnico-educacionais, nos termos da alínea "b", inciso IX, do artigo 66 da Lei nº 14.660, de 2007',
+    },
+    {
+      codigo: "21",
+      nome: "por transferência temporária do servidor, nos termos do art. 8º do Decreto Municipal nº 57.444, de 2016",
+    },
+    {
+      codigo: "22",
+      nome: "por exercer mandato de dirigente sindical, nos termos do disposto no inciso VII do art. 66 da Lei nº 14.660, de 2007",
+    },
+    {
+      codigo: "23",
+      nome: "pelo afastamento, em caráter excepcional, nos termos da alínea 'b', inciso IX, do artigo 66 da Lei nº 14.660, de 2007",
+    },
   ];
 
   const [pendingValue, setPendingValue] = useState<string | null>(null);
@@ -101,15 +122,12 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
         <div className="flex justify-center h-full">
           <Loader2
             data-testid="loading-spinner"
-            className="
-        h-16 w-16 text-primary 
-        animate-spin 
-       "
+            className="h-16 w-16 text-primary animate-spin"
           />
         </div>
       ) : (
         <>
-          <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4 ">
+          <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
             <div className="w-full">
               <InputField
                 register={register}
@@ -129,7 +147,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="required text-[#42474a] font-bold">
-                    Ano Vigente
+                      Ano Vigente
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -149,12 +167,13 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                         </SelectTrigger>
 
                         <SelectContent>
-                          {anos.map((ano: { codigo: string; nome: string }) => (
+                          {anos.map((ano) => (
                             <SelectItem key={ano.codigo} value={ano.codigo}>
                               {ano.nome}
                             </SelectItem>
                           ))}
                         </SelectContent>
+
                         <Popconfirm
                           title="Mudar o ano"
                           description="Tem certeza que deseja mudar o ano?"
@@ -163,7 +182,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                           onCancel={handleCancel}
                           okText="Sim"
                           cancelText="Não"
-                        ></Popconfirm>
+                        />
                       </Select>
                     </FormControl>
                     <FormMessage />
@@ -171,8 +190,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 )}
               />
             </div>
-            <div className="w-full">
 
+            <div className="w-full">
               <InputField
                 register={register}
                 control={control}
@@ -182,9 +201,6 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 data-testid="input-numero-sei"
                 type="number"
               />
-
-
-
             </div>
 
             <div className="w-full">
@@ -192,7 +208,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 register={register}
                 control={control}
                 name="doc"
-                label="Doc"
+                label="D.O"
                 placeholder="Número doc"
                 data-testid="input-doc"
               />
@@ -203,7 +219,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             Designação
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4 ">
+          <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
             <div className="w-full">
               <DateField
                 register={register}
@@ -233,18 +249,6 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
 
             <div className="w-full">
-              <InputField
-                register={register}
-                control={control}
-                name="motivo_cancelamento"
-                label="Motivo Cancelamento"
-                placeholder="Motivo do Cancelamento"
-                data-testid="input-motivo-cancelamento"
-              />
-
-            </div>
-
-            <div className="w-full">
               <FormField
                 control={control}
                 name="impedimento_substituicao"
@@ -256,28 +260,21 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                     <FormControl>
                       <Select
                         value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
+                        onValueChange={(value) => field.onChange(value)}
                       >
-                        <SelectTrigger
-                          data-testid="select-impedimento-substituicao"
-                          onClick={() => handleValueChange(field.value)}
-                        >
+                        <SelectTrigger data-testid="select-impedimento-substituicao">
                           <SelectValue placeholder="Selecione uma opção" />
                         </SelectTrigger>
 
                         <SelectContent>
-                          {impedimentoSubstituicao.map(
-                            (impedimento: { codigo: string; nome: string }) => (
-                              <SelectItem
-                                key={impedimento.codigo}
-                                value={impedimento.codigo}
-                              >
-                                {impedimento.nome}
-                              </SelectItem>
-                            ),
-                          )}
+                          {impedimentoSubstituicao.map((impedimento) => (
+                            <SelectItem
+                              key={impedimento.codigo}
+                              value={impedimento.codigo}
+                            >
+                              {impedimento.nome}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -286,10 +283,9 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 )}
               />
             </div>
-
           </div>
-          <div className="gap-4  lg:items-center  ">
 
+          <div className="gap-4 lg:items-center">
             <div className="w-full pt-4">
               <CheckboxField
                 register={register}
@@ -300,33 +296,73 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
               />
             </div>
 
+            {watch("com_afastamento") === "sim" && (
+              <div className="w-full pt-4">
+                <FormField
+                  {...register("motivo_afastamento")}
+                  control={control}
+                  name="motivo_afastamento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="required text-[#42474a] font-bold">
+                        Motivo do afastamento
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={4}
+                          placeholder="Motivo do afastamento"
+                          value={field.value}
+                          onChange={(value) =>
+                            field.onChange(value.target.value)
+                          }
+                          data-testid="input-motivo-afastamento"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
-            {watch('com_afastamento') === 'sim' && (<div className="w-full pt-4">
-              <FormField
-                {...register("motivo_afastamento")}
+            <div className="w-full pt-4">
+              <CheckboxField
+                register={register}
                 control={control}
-                name="motivo_afastamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Motivo do afastamento
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        rows={4}
-                        placeholder="Motivo do afastamento"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value.target.value);
-                        }}
-                        data-testid="input-motivo-afastamento"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                name="com_pendencia"
+                label="Possui pendência?"
+                data-testid="checkbox-possui-pendencia"
               />
-            </div>)}
+            </div>
+
+            {watch("com_pendencia") === "sim" && (
+              <div className="w-full pt-4">
+                <FormField
+                  {...register("motivo_pendencia")}
+                  control={control}
+                  name="motivo_pendencia"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="required text-[#42474a] font-bold">
+                        Descrição da pendência
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={4}
+                          placeholder="Descreva a pendência"
+                          value={field.value}
+                          onChange={(value) =>
+                            field.onChange(value.target.value)
+                          }
+                          data-testid="input-descricao-pendencia"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </div>
         </>
       )}
