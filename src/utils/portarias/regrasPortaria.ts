@@ -23,8 +23,8 @@ export function montarTrechoSubstituicao(data: DesignacaoData): string {
     const inicio = formatarData(data?.a_partir_de);
     const fim = formatarData(data?.designacao_data_final);
 
-    const base = `em substituição a ${titular?.nome_civil || "____"}, Registro nº ${titular?.rf || "____"
-        }, Vínculo ${titular?.vinculo || "____"}, ${titular?.cargo_base || "____"}, ${titular?.tipo_vinculo || "efetivo"
+    const base = `em substituição a ${titular?.nome_civil ?? "____"}, Registro nº ${titular?.rf ?? "____"
+        }, Vínculo ${titular?.vinculo ?? "____"}, ${titular?.cargo_base ?? "____"}, ${titular?.tipo_vinculo ?? "efetivo"
         }`;
 
 

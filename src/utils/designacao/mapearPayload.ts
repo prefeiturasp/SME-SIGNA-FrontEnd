@@ -54,6 +54,6 @@ export function mapearPayloadDesignacao(form: any) {
         pendencias: form.motivo_pendencia ?? null,
 
         tipo_vaga: form.tipo_cargo?.toUpperCase(),
-        cargo_vaga: form.cargo_vago_selecionado || Number.parseInt(form.cargo_vaga, 10),
+        cargo_vaga: form.cargo_vago_selecionado ?? Number.parseInt(form.cargo_vaga, 10),
     };
 }
