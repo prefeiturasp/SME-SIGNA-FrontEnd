@@ -39,8 +39,8 @@ export default function DesignacoesPasso2() {
 
 
   const { formDesignacaoData, setFormDesignacaoData } =
-    useDesignacaoContext(); 
-     const { mutateAsync } = useServidorDesignacao();
+    useDesignacaoContext();
+  const { mutateAsync } = useServidorDesignacao();
   const router = useRouter();
   const [dadosTitular, setDadosTitular] = useState<Servidor | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
@@ -54,10 +54,12 @@ export default function DesignacoesPasso2() {
       designacao_data_final: undefined,
       ano: new Date().getFullYear().toString(),
       doc: "",
-      motivo_cancelamento: "",
       impedimento_substituicao: "",
+      carater_especial: "nao",
       com_afastamento: "nao",
       motivo_afastamento: "",
+      com_pendencia: "nao",
+      motivo_pendencia: "",
       tipo_cargo: "vago",
       rf_titular: "",
       cargo_vago_selecionado: "",
@@ -92,15 +94,17 @@ export default function DesignacoesPasso2() {
 
   // to-do: corrigir quando houver passo 3
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
-    console.log("Submit Passo 2", values);
+    setFormDesignacaoData({
+      ...formDesignacaoData,
+      ...values,
+      dadosTitular: dadosTitular,
+    });
+
+    router.push("/pages/designacoes/designacoes-passo-3");
   };
 
   const [modalHistoricoUltimaDesignacaoOpen, setModalHistoricoUltimaDesignacaoOpen] = useState(false);
- 
 
- 
-
-  
   function onSubmitEditarServidor(data: FormEditarServidorData) {
     if (!formDesignacaoData?.servidorIndicado) return;
     setFormDesignacaoData({
@@ -203,7 +207,7 @@ export default function DesignacoesPasso2() {
               onBuscaTitular={onBuscaTitular}
               setDadosTitular={setDadosTitular}
               setErrorBusca={setErrorBusca}
-             />
+            />
           </Card>
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
