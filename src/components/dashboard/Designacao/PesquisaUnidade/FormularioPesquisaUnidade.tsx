@@ -410,7 +410,7 @@ const FormularioPesquisaUnidade = forwardRef<
                               onClick={() => setOpenModalResumoServidor(true)}
                               data-testid="btn-visualizar-servidor"
                             >
-                              <Eye width={16} height={16} />
+                              <Eye width={16} height={16} className='fill-[#6058A2]'/>
                             </Button>
                           </div>
                         </FormControl>
@@ -431,7 +431,7 @@ const FormularioPesquisaUnidade = forwardRef<
                         onClick={() => setOpenModal(true)}
                         data-testid="btn-visualizar-turmas"
                       >
-                        <Eye width={16} height={16} />
+                        <Eye width={16} height={16} className='fill-[#6058A2]'/>
                       </Button>
                     }
                   />

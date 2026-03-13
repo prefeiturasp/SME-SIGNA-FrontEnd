@@ -150,3 +150,26 @@
     border-color: var(--steps-item-solid-line-color) !important;
 }
 
+ 
+.tabela-designacoes .ant-table {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .tabela-designacoes .ant-table-thead > tr > th {
+    background: #F6F6F6;
+    font-weight: 700;
+    font-size: 12px;
+    border-bottom: 0;
+  }
+  
+  .tabela-designacoes .ant-table-tbody > tr > td {
+    font-size: 13px;
+    color: #333;
+  }
+  
+  .tabela-designacoes .ant-table-tbody > tr:nth-child(even) > td {
+    background: #F6F6F6;
+  }
+  
+ 

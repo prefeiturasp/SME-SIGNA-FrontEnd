@@ -19,7 +19,7 @@ const buttonVariants = cva(
                     "flex items-center  text-[14px] font-[700] border  bg-white hover:text-[#B22B2A] hover:border-[#B22B2A] hover:bg-white",
                 submit: "text-center rounded-md text-[14px] font-[700] bg-[#D85975] text-white ",
                 secondary:
-                    "bg-secondary text-secondary-foreground hover:bg-secondary/80  bg-[#D85975]",
+                    "bg-secondary text-[#292929] hover:bg-secondary/80  bg-[#F1F1F1]",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
                 pagination:
