@@ -24,10 +24,7 @@ export async function designacaoAction(
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
-
     const payload = mapearPayloadDesignacao(formData);
-
-    console.log(payload)
 
     try {
         const { data } = await axios.post(
@@ -45,6 +42,7 @@ export async function designacaoAction(
     } catch (err) {
         const error = err as AxiosError<DesignacaoErrorResponse>;
 
+        // to-do: remover quando temrinar o desenvolvimento
         console.log("Status:", error.response?.status);
         console.log("Response data:", JSON.stringify(error.response?.data, null, 2));
 

@@ -11,7 +11,6 @@ import Designacao from "@/assets/icons/Designacao";
 import { useDesignacaoContext } from "../DesignacaoContext";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
-import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { designacaoAction } from "@/actions/cadastro-designacao";
 
 const TEMPLATE_PORTARIA = `
@@ -46,9 +45,6 @@ export default function DesignacoesPasso3() {
   useEffect(() => {
     setTextoEditado(textoInicial);
   }, [textoInicial]);
-
-  const payload = mapearPayloadDesignacao(formDesignacaoData);
-  console.log(payload);
 
   const salvarPortaria = async () => {
     if (!formDesignacaoData) {
