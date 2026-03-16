@@ -8,9 +8,8 @@ import Designacao from "@/assets/icons/Designacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
-import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import FormularioPesquisaUnidade, {
   FormularioPesquisaUnidadeRef,
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
@@ -19,6 +18,7 @@ import { useRouter } from "next/navigation";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
+import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 
 export default function DesignacoesPasso1() {
   const { mutateAsync, isPending } = useServidorDesignacao();
@@ -27,21 +27,19 @@ export default function DesignacoesPasso1() {
   const formularioPesquisaUnidadeRef =
     useRef<FormularioPesquisaUnidadeRef | null>(null);
 
-  const { formDesignacaoData, setFormDesignacaoData } =
+  const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
 
   const router = useRouter();
 
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
-
+ 
     if (response.success) {
       setFormDesignacaoData({
         ...formDesignacaoData,
         servidorIndicado: {
           ...response.data,
-          nome_servidor: response.data.nome,
-          nome_civil: response.data.nome,
         },
       });
 
@@ -51,9 +49,17 @@ export default function DesignacoesPasso1() {
     }
   };
 
-  const onSubmitDesignacao = (values: FormDesignacaoData) => {
-    console.log("Dados do formulário", values);
-  };
+  function onSubmitEditarServidor(data: FormEditarServidorData) {
+    if (!formDesignacaoData?.servidorIndicado) return;
+    setFormDesignacaoData({
+      ...formDesignacaoData,
+      servidorIndicado: {
+        ...formDesignacaoData.servidorIndicado,
+        nome_servidor: data.nome_servidor,
+        nome_civil: data.nome_civil,
+      },
+    });
+  }
 
   const onProximo = () => {
     const valoresFormulario =
@@ -62,7 +68,7 @@ export default function DesignacoesPasso1() {
     if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) {
       return;
     }
-
+     
     setFormDesignacaoData({
       ...formDesignacaoData,
       ...valoresFormulario,
@@ -73,6 +79,10 @@ export default function DesignacoesPasso1() {
     );
   };
 
+  useEffect(() => {
+    clearFormDesignacaoData();    
+  }, []);
+  
   return (
     <>
       <PageHeader
@@ -126,8 +136,8 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showCamposExtras={false}
-                showLotacao={true}
+                showLotacao={true}  
+                onSubmitEditarServidor={onSubmitEditarServidor}
               />
             </CustomAccordionItem>
           )}
@@ -140,8 +150,7 @@ export default function DesignacoesPasso1() {
             <FormularioPesquisaUnidade
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
-              onSubmitDesignacao={onSubmitDesignacao}
-              setDisableProximo={setDisableProximo}
+               setDisableProximo={setDisableProximo}
             />
           </CustomAccordionItem>
         </Accordion>
@@ -156,8 +165,7 @@ export default function DesignacoesPasso1() {
           }
           onProximo={onProximo}
           showAnterior={false}
-          onAnterior={() => { }}
-        />
+         />
       </div>
     </>
   );

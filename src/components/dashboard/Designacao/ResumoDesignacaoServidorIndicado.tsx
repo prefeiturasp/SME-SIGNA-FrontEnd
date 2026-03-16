@@ -12,22 +12,8 @@ import useCursosETitulos from "@/hooks/useCursosETitulos";
 import Edit from "@/assets/icons/Edit";
 import { Servidor } from "@/types/designacao-unidade";
 import ModalEditarServidor from "./ModalEditarServidor/ModalEditarServidor";
-export const InfoItem: React.FC<{ label: string; value?: string; icon?: React.ReactNode; className?: string }> = ({
-  label,
-  value,
-  icon,
-  className,
-}) => (
-  <div className={`flex flex-col gap-2 ${className}`}>
-    <div className="flex flex-row gap-10">
-      <p className="text-[14px] font-bold ">{label}</p>
-      {icon && <div className="w-6 h-6">{icon}</div>}
-    </div>
-
-    <p className="text-[14px] text-[#6F6C8F]">{value}</p>
-
-  </div>
-);
+import { InfoItem } from "@/components/ui/info-item";
+import { FormEditarServidorData } from "./ModalEditarServidor/schema";
 
 const ResumoDesignacaoServidorIndicado: React.FC<{
   showEditar?: boolean;
@@ -35,18 +21,16 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   defaultValues: Servidor;
   isLoading?: boolean;
   showCursosTitulos?: boolean;
-  showCamposExtras?: boolean;
-  showFuncaoAtividade?: boolean;
   showLotacao?: boolean;
+  onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 }> = ({
   className,
   defaultValues,
   isLoading,
   showCursosTitulos = false,
   showEditar = false,
-  showCamposExtras = false,
-  showFuncaoAtividade = false,
-  showLotacao = false
+  showLotacao = false,
+  onSubmitEditarServidor
 }) => {
 
 
@@ -63,8 +47,10 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
     }
 
     const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
-
-
+     function handleSubmitEditarServidor(data: FormEditarServidorData) {
+      onSubmitEditarServidor(data);
+   
+    }
     return (
       <>
         {isLoading ? (
@@ -81,28 +67,27 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
           <div className={className}>
             <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
               <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
-                {/* to-do: corrigir nomes vindo da api corretamente */}
                 <InfoItem
                   label="Nome Servidor"
-                  value={defaultValues.nome_servidor ?? defaultValues.nome}
+                  value={defaultValues.nome_servidor}
                 />
                 <InfoItem
                   label="Nome Civil"
-                  value={defaultValues.nome_civil ?? defaultValues.nome}
+                  value={defaultValues.nome_civil}
                 />
                 <InfoItem label="RF" value={defaultValues.rf} />
 
                 <InfoItem
                   label="Vínculo"
-                  value={defaultValues?.vinculo_cargo_sobreposto?.toString()}
+                  value={defaultValues?.vinculo?.toString() ?? '-'}
                 />
-                <InfoItem label="Cargo base" value={defaultValues.cargo_base} />
+                <InfoItem label="Cargo base" value={defaultValues.cargo_base ?? '-'} />
 
                 {showLotacao && (
 
                   <InfoItem
                     label="Lotação"
-                    value={defaultValues.lotacao_cargo_sobreposto}
+                    value={defaultValues.lotacao ?? '-'}
                   />
                 )}
 
@@ -127,58 +112,24 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                 )}
 
 
-
-
-                {showFuncaoAtividade && (
-
-                  <InfoItem
-                    label="Função atividade"
-                    value={defaultValues.funcao_atividade}
-                  />
-                )}
-
-
-
-
-
-
-                {showCamposExtras && (
-                  <>
-                    <InfoItem
-                      label="DRE"
-                      value={defaultValues.dre}
-                    />
-
-                    <InfoItem
-                      label="Lotação"
-                      value={defaultValues.lotacao_cargo_sobreposto}
-                    />
-
-                    <InfoItem label="Código Estrutura Hierarquica" value={defaultValues.codigo_estrutura_hierarquica} />
-                  </>
-                )}
-
-
-
-
               </div>
               <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4 mt-4">
 
                 <InfoItem
                   label="Cargo sobreposto/Função atividade"
-                  value={defaultValues.cargo_sobreposto}
+                  value={defaultValues.cargo_sobreposto_funcao_atividade ?? '-'}
                 />
                 <InfoItem
                   label="Local de exercício"
-                  value={defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus '}
+                  value={defaultValues.local_de_exercicio ?? '-'}
                 />
                 <InfoItem
                   label="Laudo médico"
-                  value={defaultValues.laudo_medico ?? 'Laudo médico não informado'}
+                  value={defaultValues.laudo_medico ?? '-'}
                 />
                 <InfoItem
                   label="Local de serviço"
-                  value={defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus '}
+                  value={defaultValues.local_de_servico ?? '-'}
                 />
               </div>
             </div>
@@ -202,6 +153,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
               open={openModalEditarServidor}
               onOpenChange={setOpenModalEditarServidor}
               defaultValues={defaultValues}
+              handleSubmitEditarServidor={handleSubmitEditarServidor}
             />
 
             <ModalListaCursosTitulos

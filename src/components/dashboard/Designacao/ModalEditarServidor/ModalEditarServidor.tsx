@@ -18,13 +18,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Control, type FieldValues, type UseFormRegister } from "react-hook-form";
 import formSchemaEditarServidor, { FormEditarServidorData } from "./schema";
 import { Form } from "@/components/ui/form";
-import { useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
-
+ 
 type ModalEditarServidorProps = {
     isLoading: boolean;
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: Servidor;
+    handleSubmitEditarServidor: (data: FormEditarServidorData) => void;
 };
 
 
@@ -33,29 +33,31 @@ export default function ModalEditarServidor({
     isLoading,
     open,
     onOpenChange,
-    defaultValues
+    defaultValues,
+    handleSubmitEditarServidor
 }: Readonly<ModalEditarServidorProps>) {
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
     }
-
+ 
     const form = useForm<FormEditarServidorData>({
         resolver: zodResolver(formSchemaEditarServidor),
         defaultValues: {
-            nome_servidor: defaultValues.nome_servidor ?? defaultValues.nome,
-            nome_civil: defaultValues.nome_civil ?? defaultValues.nome,
+            nome_servidor: defaultValues.nome_servidor,
+            nome_civil: defaultValues.nome_civil ?? defaultValues.nome_servidor,
             rf: defaultValues.rf,
-
-            vinculo_cargo_sobreposto: defaultValues.vinculo_cargo_sobreposto,
+            vinculo: defaultValues.vinculo,
+            
             cargo_base: defaultValues.cargo_base,
+            lotacao: defaultValues.lotacao,
+            cursos_titulos: defaultValues.cursos_titulos,
+            laudo_medico: defaultValues.laudo_medico,
+            local_de_servico: defaultValues.local_de_servico,
 
-            lotacao_cargo_sobreposto: defaultValues.lotacao_cargo_sobreposto,
-            cargo_sobreposto: defaultValues.cargo_sobreposto,
+            cargo_sobreposto_funcao_atividade: defaultValues.cargo_sobreposto_funcao_atividade,
+            local_de_exercicio: defaultValues.local_de_exercicio,
 
-            local_de_exercicio: defaultValues.local_de_exercicio ?? 'Diretoria Regi.de Educação São Mateus ',
 
-            laudo_medico: defaultValues.laudo_medico ?? 'Laudo médico não informado',
-            local_de_servico: defaultValues.local_de_servico ?? 'Regi.de Educação São Mateus ',
 
         },
         mode: "onChange",
@@ -63,20 +65,9 @@ export default function ModalEditarServidor({
     const { register, control } = form;
     const registerFieldValues = register as unknown as UseFormRegister<FieldValues>;
     const controlFieldValues = control as unknown as Control<FieldValues>;
-    const { setFormDesignacaoData, formDesignacaoData } = useDesignacaoContext();
-
-    const handleSubmitEditarServidor = (data: FormEditarServidorData) => {
-        if (!formDesignacaoData?.servidorIndicado) return;
-
-        setFormDesignacaoData({
-            ...formDesignacaoData,
-            servidorIndicado: {
-                ...formDesignacaoData.servidorIndicado,
-                nome_servidor: data.nome_servidor,
-                nome_civil: data.nome_civil,
-            },
-        });
-
+ 
+    const handleSubmitEditar = (data: FormEditarServidorData) => {
+        handleSubmitEditarServidor(data);
         onOpenChange(false);
     };
 
@@ -89,7 +80,7 @@ export default function ModalEditarServidor({
                     id="editar-servidor-form"
                     onSubmit={(e) => {
                         e.stopPropagation();
-                        form.handleSubmit(handleSubmitEditarServidor)(e);
+                        form.handleSubmit(handleSubmitEditar)(e);
                     }}
                     data-testid="form-editar-servidor"
                 >
@@ -154,7 +145,7 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="vinculo_cargo_sobreposto"
+                                        name="vinculo"
                                         label="Vínculo"
                                         placeholder="Vínculo"
                                         data-testid="input-vinculo-cargo-sobreposto"
@@ -178,7 +169,7 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="lotacao_cargo_sobreposto"
+                                        name="lotacao"
                                         label="Lotação"
                                         placeholder="Lotação cargo sobreposto"
                                         data-testid="input-lotacao-cargo-sobreposto"
@@ -195,7 +186,7 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
-                                        name="cargo_sobreposto"
+                                        name="cargo_sobreposto_funcao_atividade"
                                         label="Cargo sobreposto/Função atividade"
                                         placeholder="Cargo sobreposto"
                                         data-testid="input-cargo-sobreposto"

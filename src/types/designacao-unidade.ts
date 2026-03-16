@@ -4,21 +4,18 @@ export type AtualizarEmailRequest = {
 
 export type Servidor = {
     rf: string;
-    nome: string;
     nome_servidor?: string;
     nome_civil?: string;
-    esta_afastado: boolean;
-    vinculo_cargo_sobreposto: number;
-    lotacao_cargo_sobreposto: string;
+    vinculo: number;
+    lotacao: string;
     cargo_base: string;
-    funcao_atividade: string;
-    cargo_sobreposto: string;
-    cursos_titulos: string;
-    dre: string;
-    codigo_estrutura_hierarquica: string;
-    local_de_exercicio?: string;
-    laudo_medico?: string;
-    local_de_servico?: string;
+    cargo_sobreposto_funcao_atividade: string;
+    cursos_titulos: string;       
+    codigo_hierarquia?: string;
+    lotacao_cargo_base?: string;
+    laudo_medico: string;
+    local_de_servico: string;
+    local_de_exercicio: string;
   }
   
  
@@ -49,6 +46,7 @@ type Turma = {
 };
 
 export type DesignacaoUnidadeResponse = {
+  codigo_hierarquico: string;
   funcionarios_unidade: { [codigo: string]: Cargo };
   cargos: CargoSelect[];
   turmas: {

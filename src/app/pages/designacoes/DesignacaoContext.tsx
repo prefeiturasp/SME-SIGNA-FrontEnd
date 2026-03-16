@@ -1,12 +1,17 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import { Servidor } from "@/types/designacao-unidade";
+import { formSchemaDesignacaoPasso2Data } from "@/app/pages/designacoes/designacoes-passo-2/schema";
+
+const STORAGE_KEY = "designacao-form-data";
 
 export type FormDesignacaoEServidorIndicado =
-  Partial<FormDesignacaoData> & {
+  Partial<FormDesignacaoData> &
+  Partial<formSchemaDesignacaoPasso2Data> & {
     servidorIndicado?: Servidor;
+    dadosTitular?: Servidor | null;
   };
 
 type DesignacaoContextValue = {
@@ -30,13 +35,38 @@ export function DesignacaoProvider({
   const [formDesignacaoData, setFormDesignacaoData] =
     useState<FormDesignacaoEServidorIndicado | null>(null);
 
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setTimeout(() => {
+          setFormDesignacaoData(parsed);
+        }, 100);
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+  }, [])
+
+  useEffect(() => {
+    if (formDesignacaoData) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formDesignacaoData))
+    }
+  }, [formDesignacaoData])
+
+  const clearFormDesignacaoData = () => {
+    setFormDesignacaoData(null);
+    localStorage.removeItem(STORAGE_KEY)
+  };
+
   const value = useMemo(
     () => ({
       formDesignacaoData,
       setFormDesignacaoData,
-      clearFormDesignacaoData: () => {
-        setFormDesignacaoData(null);
-      },
+      clearFormDesignacaoData,
     }),
     [formDesignacaoData]
   );
@@ -50,10 +80,12 @@ export function DesignacaoProvider({
 
 export function useDesignacaoContext() {
   const context = useContext(DesignacaoContext);
+
   if (!context) {
     throw new Error(
-      "useDesignacaoContext must be used within DesignacaoProvider"
+      "useDesignacaoContext precisa ser usado dentro do DesignacaoProvider"
     );
   }
+
   return context;
 }

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Accordion } from "@/components/ui/accordion";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
-import ResumoTitular, { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import ResumoTitular from "@/components/dashboard/Designacao/ResumoTitular";
 
 
 import { formSchemaDesignacaoPasso2Data } from "../../../../app/pages/designacoes/designacoes-passo-2/schema";
@@ -26,14 +26,16 @@ import { formSchemaDesignacaoPasso2Data } from "../../../../app/pages/designacoe
 // Componentes Customizados
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
+import { FormEditarServidorData } from "../ModalEditarServidor/schema";
+import { Servidor } from "@/types/designacao-unidade";
 
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
   readonly tipoCargo: string;
-  readonly dadosTitular: TitularData | null; 
+  readonly dadosTitular: Servidor | null;
   readonly errorBusca: string | null;
   readonly onBuscaTitular: (values: BuscaDesignacaoRequest) => Promise<void>;
-  readonly setDadosTitular: (val: TitularData | null) => void;
+  readonly setDadosTitular: (val: Servidor | null) => void;
   readonly setErrorBusca: (val: string | null) => void;
 }
 
@@ -46,6 +48,15 @@ export default function SelecaoServidorIndicado({
   setDadosTitular,
   setErrorBusca,
 }: Readonly<SelecaoTipoCargoProps>) {
+  function handleSubmitEditarServidor(data: FormEditarServidorData) {
+    if (dadosTitular) {
+      setDadosTitular({
+        ...dadosTitular,
+        nome_servidor: data.nome_servidor,
+        nome_civil: data.nome_civil,
+      });
+    }
+  }
   return (
     <div className="p-4 pt-4 border-t mt-4">
       <div className="flex flex-col gap-6">
@@ -107,14 +118,14 @@ export default function SelecaoServidorIndicado({
                       </FormControl>
                       <SelectContent>
                         {[
-                          "Diretor",
-                          "Supervisor",
-                          "Coordenador",
-                          "Secretário de escola",
-                          "Assistente de diretor",
+                          { id: 3360, label: "Diretor" },
+                          { id: 3352, label: "Supervisor" },
+                          { id: 3379, label: "Coordenador" },
+                          { id: 3182, label: "Secretário de escola" },
+                          { id: 3085, label: "Assistente de diretor" },
                         ].map((cargo) => (
-                          <SelectItem key={cargo} value={cargo}>
-                            {cargo}
+                          <SelectItem key={cargo.id} value={String(cargo.id)}>
+                            {cargo.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -146,10 +157,7 @@ export default function SelecaoServidorIndicado({
                     >
                       <ResumoTitular
                         data={dadosTitular}
-                        onEdit={() => {
-                          setDadosTitular(null);
-                          form.setValue("rf_titular", "");
-                        }}
+                        onSubmitEditarServidor={handleSubmitEditarServidor}
                       />
                     </CustomAccordionItem>
                   </Accordion>

@@ -89,17 +89,35 @@ const servidoresMock: Servidor = {
   rf: "123",
   nome: "Servidor",
   esta_afastado: false,
-  vinculo_cargo_sobreposto: "Ativo",
+  vinculo_cargo_sobreposto: 1,
   lotacao_cargo_sobreposto: "UE X",
   cargo_base: "Professor",
   funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
   dre: "DRE X",
-  codigo_estrutura_hierarquica: "123",
+  codigo_hierarquico: "123",
 };
 
 describe("ModalResumoServidor", () => {
+
+  it("renderiza fallback para ResumoDesignacao", () => {
+    render(
+      <ModalResumoServidor
+        isLoading={false}
+        open={true}
+        onOpenChange={vi.fn()}
+        servidores={[]}
+      />
+    );
+
+    expect(screen.getByTestId("dialog")).toHaveAttribute("data-open", "true");
+    expect(
+      screen.getByText("Nenhum servidor encontrado")
+    ).toBeInTheDocument();
+
+  });
+
   it("renderiza com título e repassa props para ResumoDesignacao", () => {
     render(
       <ModalResumoServidor

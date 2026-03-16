@@ -11,23 +11,22 @@ type FormDesignacaoEServidorIndicado = FormDesignacaoData & {
 };
 
 const mockServidorIndicado: Servidor = {
-  nome: "Servidor Mock",
   rf: "999",
-  esta_afastado: false,
-  vinculo_cargo_sobreposto: "Ativo",
-  lotacao_cargo_sobreposto: "Unidade X",
+  nome_servidor: "Servidor Mock",
+  vinculo: 1,
+  lotacao: "Unidade X",
   cargo_base: "Professor",
-  funcao_atividade: "Docente",
-  cargo_sobreposto: "Nenhum",
+  cargo_sobreposto_funcao_atividade: "Docente",
   cursos_titulos: "Licenciatura",
-  dre: "DRE Mock",
-  codigo: "COD-MOCK",
+  laudo_medico: "Não",
+  local_de_servico: "Escola X",
+  local_de_exercicio: "Sala 1",
 };
 
 const mockFormData: FormDesignacaoData = {
-  dre: "dre-1",
+  dre: "dre-2",
   ue: "ue-1",
-  codigo_estrutura_hierarquica: "123456",
+  codigo_hierarquico: "123456",
   funcionarios_da_unidade: "func-1",
   quantidade_turmas: "10",
   cargo_sobreposto: "cargo-1",
@@ -95,7 +94,7 @@ describe("DesignacaoContext", () => {
       </DesignacaoProvider>
     );
 
- 
+
     await user.click(screen.getByTestId("set-data-button"));
 
     await waitFor(() => {
@@ -169,7 +168,7 @@ describe("DesignacaoContext", () => {
   it("lança erro quando useDesignacaoContext é usado fora do provider", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     function ComponentWithoutProvider() {
       useDesignacaoContext();
@@ -178,7 +177,7 @@ describe("DesignacaoContext", () => {
 
     expect(() => {
       render(<ComponentWithoutProvider />);
-    }).toThrow("useDesignacaoContext must be used within DesignacaoProvider");
+    }).toThrow("useDesignacaoContext precisa ser usado dentro do DesignacaoProvider");
 
     consoleErrorSpy.mockRestore();
   });
@@ -215,6 +214,6 @@ describe("DesignacaoContext", () => {
     );
   });
 
-   
+
 });
 

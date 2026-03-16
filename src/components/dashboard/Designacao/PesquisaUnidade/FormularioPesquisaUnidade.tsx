@@ -28,7 +28,7 @@ import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
-import { InfoItem } from "../ResumoDesignacaoServidorIndicado";
+import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
@@ -42,16 +42,16 @@ export interface FormularioPesquisaUnidadeRef {
 }
 
 interface Props {
-  readonly onSubmitDesignacao: (values: FormDesignacaoData) => void;
-  readonly setDisableProximo: (disable: boolean) => void;
+   readonly setDisableProximo: (disable: boolean) => void;
   isLoading: boolean;
 }
 
+// to-do: Ajustar a novos campos
 const FormularioPesquisaUnidade = forwardRef<
   FormularioPesquisaUnidadeRef,
   Props
 >(function FormularioPesquisaUnidade(
-  { onSubmitDesignacao, setDisableProximo, isLoading }: Props,
+  {   setDisableProximo, isLoading }: Props,
   ref,
 ) {
   const { data: dreOptions = [] } = useFetchDREs();
@@ -68,7 +68,7 @@ const FormularioPesquisaUnidade = forwardRef<
       ue_nome: "",
       funcionarios_da_unidade: "",
       quantidade_turmas: "",
-      codigo_estrutura_hierarquica: "",
+      codigo_hierarquico: "",
       cargo_sobreposto: "",
       modulos: "",
     },
@@ -111,6 +111,8 @@ const FormularioPesquisaUnidade = forwardRef<
         setFuncionariosOptions(cargosSelect);
         setDesignacaoUnidade(response.data);
         form.setValue("quantidade_turmas", response.data.turmas?.total?.toString() ?? "-");
+        form.setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
+
       } else {
         setErrorMessage(response.error);
       }
@@ -119,13 +121,11 @@ const FormularioPesquisaUnidade = forwardRef<
       console.log('error', error);
     }
 
-    form.setValue("codigo_estrutura_hierarquica", "");
 
-    onSubmitDesignacao(values);
-  };
+   };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
-    form.setValue("codigo_estrutura_hierarquica", '');
+    form.setValue("codigo_hierarquico", '');
     form.setValue("cargo_sobreposto", '');
     form.setValue("modulos", '');
     form.setValue("quantidade_turmas", '');
@@ -133,7 +133,7 @@ const FormularioPesquisaUnidade = forwardRef<
     setErrorMessage(null);
     setDisableProximo(true);
   }
-  const codigoEstrutura = form.watch("codigo_estrutura_hierarquica");
+  const codigoEstrutura = form.watch("codigo_hierarquico");
 
   return (
     <>
@@ -157,7 +157,7 @@ const FormularioPesquisaUnidade = forwardRef<
               servidores={
                 designacaoUnidade?.funcionarios_unidade[
                   values.funcionarios_da_unidade
-                ]?.servidores || []
+                ]?.servidores 
               }
             />
           )}
@@ -321,6 +321,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   type="submit"
                   className="w-full flex items-center justify-center gap-6"
                   variant="customOutline"
+                  data-testid="botao-pesquisar-unidade"
                   disabled={isLoadingDesiganaçãoUnidade}
                 >
                   {isLoadingDesiganaçãoUnidade ? (
@@ -354,7 +355,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   />
                 </div>
 
-                <div className="w-full md:w-[75%]">
+                <div className="w-full md:w-[70%]">
                   <FormField
                     control={form.control}
                     name="funcionarios_da_unidade"
@@ -371,7 +372,7 @@ const FormularioPesquisaUnidade = forwardRef<
                                 field.onChange(value);
                                 const cargoSobreposto =
                                   designacaoUnidade?.funcionarios_unidade[value]
-                                    ?.servidores[0]?.cargo_sobreposto ?? "-";
+                                    ?.servidores[0]?.cargo_sobreposto_funcao_atividade?? "-";
                                 const modulo =
                                   designacaoUnidade?.funcionarios_unidade[value]
                                     ?.modulo ?? "";

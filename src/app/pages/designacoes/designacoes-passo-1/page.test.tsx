@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import DesignacoesPasso1 from "./page";
+import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 
 /* -------------------------------------------------------------------------- */
 /*                                  MOCKS                                     */
@@ -28,17 +29,18 @@ const mockResponse = {
   laudo_medico: "Não",
 };
 
-const mockFormValues = {
+const mockFormValues: FormDesignacaoData = {
   dre: "dre-1",
   ue: "ue-1",
-  codigo_estrutura_hierarquica: "123456",
+  codigo_hierarquico: "123456",
   funcionarios_da_unidade: "123",
   quantidade_turmas: "40",
   cargo_sobreposto: "20",
   modulos: "2",
 };
+let mockGetValuesVazio = false;
 
-let isPending = false;
+const isPending = false;
 
 /* -------------------------------------------------------------------------- */
 /*                                HOOK MOCK                                   */
@@ -64,10 +66,11 @@ vi.mock("../DesignacaoContext", async () => {
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
       React.useState<any>({});
+    
 
     return (
       <DesignacaoContext.Provider
-        value={{ formDesignacaoData, setFormDesignacaoData }}
+        value={{ formDesignacaoData, setFormDesignacaoData , clearFormDesignacaoData: vi.fn()}}
       >
         {children}
       </DesignacaoContext.Provider>
@@ -168,7 +171,7 @@ vi.mock(
       }: {
         setDisableProximo: (disable: boolean) => void;
       },
-      ref: React.ForwardedRef<{ getValues: () => typeof mockFormValues }>
+      ref: React.ForwardedRef<{ getValues: () => FormDesignacaoData | undefined }>
     ) {
       const [dre, setDre] = React.useState("");
       const [ue, setUe] = React.useState("");
@@ -180,11 +183,14 @@ vi.mock(
       React.useImperativeHandle(
         ref,
         () => ({
-          getValues: () => ({
-            ...mockFormValues,
-            dre,
-            ue,
-          }),
+          getValues: () =>
+            mockGetValuesVazio
+              ? undefined
+              : {
+                  ...mockFormValues,
+                  dre,
+                  ue,
+                },
         }),
         [dre, ue]
       );
@@ -252,7 +258,7 @@ import { DesignacaoProvider } from "../DesignacaoContext";
 describe("DesignacoesPasso1", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
+    mockGetValuesVazio = false;
     mockMutateAsync.mockResolvedValue({
       success: true,
       data: mockResponse,
@@ -332,4 +338,31 @@ describe("DesignacoesPasso1", () => {
       "/pages/designacoes/designacoes-passo-2?123"
     );
   });
+
+
+
+ 
+  it("faz return no onProximo quando valoresFormulario é undefined", async () => {
+    mockGetValuesVazio = true;
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
+    });
+
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("botao-proximo")).toBeEnabled();
+    });
+
+    await userEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
 });

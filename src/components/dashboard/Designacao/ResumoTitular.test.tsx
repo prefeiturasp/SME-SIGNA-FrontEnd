@@ -27,15 +27,16 @@ vi.mock("./ResumoDesignacaoServidorIndicado", () => ({
 }));
 
 const mockData: TitularData = {
-  nome: "Fulano de Tal",
+  nome_servidor: "Fulano de Tal",
   nome_civil: "Fulano Civil",
   rf: "9876543",
-  vinculo_cargo_sobreposto: 1,
-  cargo_sobreposto: "Diretor Escolar",
-  lotacao_cargo_sobreposto: "EMEF Teste",
-  codigo_hierarquia: "3",
+  vinculo: 1,
+  cargo_base: "Diretor Escolar",
+  lotacao: "EMEF Teste",
+  cargo_sobreposto_funcao_atividade: "SECRETARIO DE ESCOLA - v1",
+  local_de_exercicio: "JOSE BORGES ANDRADE",
   laudo_medico: "Não possui",
-  lotacao_cargo_base: "DRE Pirituba",
+  local_de_servico: "Indisponível"
 };
 
 describe("ResumoTitular", () => {
@@ -48,15 +49,15 @@ describe("ResumoTitular", () => {
   it("deve renderizar todos os campos corretamente", () => {
     render(<ResumoTitular data={mockData} onEdit={mockOnEdit} />);
 
-    expect(screen.getByText("Nome")).toBeInTheDocument();
+    expect(screen.getByText("Nome Servidor")).toBeInTheDocument();
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText("Vínculo")).toBeInTheDocument();
 
-    expect(screen.getByText(mockData.nome)).toBeInTheDocument();
+    expect(screen.getByText(mockData.nome_servidor)).toBeInTheDocument();
     expect(screen.getByText(mockData.rf)).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
-    const lotacaoElements = screen.getAllByText(mockData.lotacao_cargo_sobreposto);
-    expect(lotacaoElements).toHaveLength(3);  });
+    const lotacaoElements = screen.getAllByText(mockData.lotacao);
+    expect(lotacaoElements).toHaveLength(1);  });
 
   // to-do: arrumar apos corrigit o funcionamento do componente de edicao
   // it("deve abrir o modal de edição ao clicar no botão Editar", async () => {

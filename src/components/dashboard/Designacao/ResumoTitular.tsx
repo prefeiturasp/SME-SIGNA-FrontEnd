@@ -1,45 +1,38 @@
 "use client";
 import React, { useState } from "react";
-import { InfoItem } from "./ResumoDesignacaoServidorIndicado";
+import { InfoItem } from "@/components/ui/info-item";
 import { Button } from "@/components/ui/button";
 import Edit from "@/assets/icons/Edit";
 import ModalEditarServidor from "./ModalEditarServidor/ModalEditarServidor";
+import { FormEditarServidorData } from "./ModalEditarServidor/schema";
+import { Servidor } from "@/types/designacao-unidade";
 
-export interface TitularData {
-  nome: string;
-  nome_civil?: string;
-  rf: string;
-  vinculo_cargo_sobreposto: number;
-  cargo_sobreposto: string;
-  lotacao_cargo_sobreposto: string;
-  codigo_hierarquia: string;
-  funcao_atividade?: string;
-  laudo_medico?: string;
-  cargo_base?: string;
-  lotacao_cargo_base: string;
-  codigo_estrutura_hierarquica?: string;
-}
 
-const ResumoTitular: React.FC<{ data: TitularData; onEdit: () => void }> = ({ data, onEdit }) => {
+const ResumoTitular: React.FC<{
+  data: Servidor;
+  onSubmitEditarServidor: (data: FormEditarServidorData) => void;
+
+}> = ({ data, onSubmitEditarServidor }) => {
   const [openModalEditar, setOpenModalEditar] = useState(false);
-
+  function handleSubmitEditarServidor(data: FormEditarServidorData) {
+    onSubmitEditarServidor(data);
+  }
   return (
     <div className="w-full bg-[#FAFAFA] p-4 flex flex-col gap-6">
       <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
-        <InfoItem label="Nome" value={data.nome} />
+        <InfoItem label="Nome Servidor" value={data.nome_servidor} />
         <InfoItem label="Nome Civil" value={data.nome_civil} />
         <InfoItem label="RF" value={data.rf} />
-        <InfoItem label="Vínculo" value={String(data.vinculo_cargo_sobreposto)} />
-        <InfoItem label="Cargo Base" value={data.cargo_sobreposto} />
-        <InfoItem label="Lotação" value={data.lotacao_cargo_sobreposto} />
+        <InfoItem label="Vínculo" value={String(data.vinculo)} />
+        <InfoItem label="Cargo Base" value={data.cargo_base} />
+        <InfoItem label="Lotação" value={data.lotacao} />
         <InfoItem label="Laudo Médico" value={data.laudo_medico} />
-        <InfoItem label="Local de Serviço" value={data.lotacao_cargo_sobreposto} />
-        <InfoItem label="Cargo Sobreposto/Função Atividade" value={data.cargo_sobreposto} />
-        <InfoItem label="Local de Exercício" value={data.lotacao_cargo_sobreposto} />
+        <InfoItem label="Local de Serviço" value={data.local_de_servico} />
+        <InfoItem label="Cargo Sobreposto/Função Atividade" value={data.cargo_sobreposto_funcao_atividade} />
+        <InfoItem label="Local de Exercício" value={data.local_de_exercicio} />
       </div>
       <div className="flex justify-end">
-        {/* to-do: corrigir edicao para os dados do titular */}
-        <Button type="button" variant="outline" onClick={() => setOpenModalEditar(true)} className="gap-2" disabled> 
+        <Button type="button" variant="outline" onClick={() => setOpenModalEditar(true)} className="gap-2" >
           <span className="font-bold">Editar</span>
           <Edit />
         </Button>
@@ -49,7 +42,8 @@ const ResumoTitular: React.FC<{ data: TitularData; onEdit: () => void }> = ({ da
         isLoading={false}
         open={openModalEditar}
         onOpenChange={setOpenModalEditar}
-        defaultValues={data as any}
+        defaultValues={data }
+        handleSubmitEditarServidor={handleSubmitEditarServidor}
       />
     </div>
   );

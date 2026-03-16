@@ -55,8 +55,9 @@ export default function ModalResumoServidor({
                             defaultValues={servidor}
                             isLoading={isLoading}
                             showCursosTitulos={false}
-                            showFuncaoAtividade={false}
                             showLotacao={true}
+                            onSubmitEditarServidor={() => {}}
+                            showEditar={false}
                         />
                     ))
                 ) : (
