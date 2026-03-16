@@ -152,7 +152,7 @@ const columns: TableProps<DesignacoesResponse>['columns'] = [
   {
     title: 'Action',
     key: 'action',
-    render: (_, record) => (
+    render: () => (
       <div className='space-x-2 flex items-center'>
 
         <div>
@@ -186,12 +186,25 @@ const data: DesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) =>
 
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
-  if (type === 'prev') {
-    return <div><LeftOutlined />Anterior</div>;
+  if ((type === 'prev' || type === 'next') && React.isValidElement(originalElement)) {
+    const label =
+      type === 'prev'
+        ? (
+          <div className='flex items-center gap-1'>
+            <LeftOutlined />
+            Anterior
+          </div>
+        )
+        : (
+          <div className='flex items-center gap-1'>
+            Próximo
+            <RightOutlined />
+          </div>
+        );
+
+    return React.cloneElement(originalElement, {}, label);
   }
-  if (type === 'next') {
-    return <div>Próximo <RightOutlined /></div>;
-  }
+
   return originalElement;
 };
 

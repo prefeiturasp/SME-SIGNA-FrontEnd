@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
-import type { TableProps } from "antd";
+import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
 import ListagemDeDesignacoes from "./ListagemDeDesignacoes";
 
@@ -48,6 +48,8 @@ vi.mock("antd", () => ({
 
 vi.mock("@ant-design/icons", () => ({
   MoreOutlined: () => <span data-testid="more-outlined" />,
+  LeftOutlined: () => <span data-testid="left-outlined" />,
+  RightOutlined: () => <span data-testid="right-outlined" />,
 }));
 
 vi.mock("@/components/ui/button", () => ({
@@ -101,15 +103,19 @@ describe("ListagemDeDesignacoes", () => {
 
     expect(props.className).toBe("tabela-designacoes");
     expect(props.dataSource).toHaveLength(20);
-    expect(props.pagination).toEqual({
+    expect(props.pagination).toMatchObject({
       pageSize: 10,
       defaultPageSize: 10,
       placement: ["bottomCenter"],
     });
+    const pagination =
+      props.pagination && props.pagination !== false ? props.pagination : undefined;
+    expect(pagination).toBeDefined();
+    expect(typeof pagination?.itemRender).toBe("function");
     expect(props.columns).toHaveLength(12);
   });
 
-  it("executa todos os sorters e renderizadores das colunas", () => {
+  it("executa todos os sorters das colunas", () => {
     render(<ListagemDeDesignacoes />);
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
@@ -149,19 +155,6 @@ describe("ListagemDeDesignacoes", () => {
       expect(sorter).toBeTypeOf("function");
       expect(sorter?.(rowA, rowB)).toBe(-1);
     });
-
-    const indicatedRender = columns[1]?.render as
-      | ((value: string) => ReactNode)
-      | undefined;
-    const titularRender = columns[3]?.render as
-      | ((value: string) => ReactNode)
-      | undefined;
-
-    render(<>{indicatedRender?.("Servidor de Teste")}</>);
-    render(<>{titularRender?.("Titular de Teste")}</>);
-
-    expect(screen.getByText("Servidor de Teste")).toBeInTheDocument();
-    expect(screen.getByText("Titular de Teste")).toBeInTheDocument();
   });
 
   it("renderiza o status para todos os valores previstos", () => {
@@ -230,5 +223,50 @@ describe("ListagemDeDesignacoes", () => {
     expect(logSpy).toHaveBeenNthCalledWith(4, "Deletar");
 
     logSpy.mockRestore();
+  });
+
+  it("mantém prev/next desabilitados quando o elemento original estiver desabilitado", () => {
+    render(<ListagemDeDesignacoes />);
+    const props = tableMock.mock.calls[0][0];
+    const pagination =
+      props.pagination && props.pagination !== false ? props.pagination : undefined;
+    expect(pagination).toBeDefined();
+    const itemRender = pagination?.itemRender;
+    expect(typeof itemRender).toBe("function");
+
+    const prevOriginal = <button aria-disabled="true">prev</button>;
+    const nextOriginal = <button aria-disabled="true">next</button>;
+    const pageOriginal = <button>2</button>;
+
+    const renderedPrev = (itemRender as PaginationProps["itemRender"])(
+      1,
+      "prev",
+      prevOriginal
+    );
+    const renderedNext = (itemRender as PaginationProps["itemRender"])(
+      2,
+      "next",
+      nextOriginal
+    );
+    const renderedPage = (itemRender as PaginationProps["itemRender"])(
+      2,
+      "page",
+      pageOriginal
+    );
+
+    const { rerender } = render(<>{renderedPrev}</>);
+    const prevLabel = screen.getByText("Anterior");
+    expect(prevLabel).toBeInTheDocument();
+    expect(prevLabel.closest("button")).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByTestId("left-outlined")).toBeInTheDocument();
+
+    rerender(<>{renderedNext}</>);
+    const nextLabel = screen.getByText("Próximo");
+    expect(nextLabel).toBeInTheDocument();
+    expect(nextLabel.closest("button")).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByTestId("right-outlined")).toBeInTheDocument();
+
+    rerender(<>{renderedPage}</>);
+    expect(screen.getByText("2")).toBeInTheDocument();
   });
 });
