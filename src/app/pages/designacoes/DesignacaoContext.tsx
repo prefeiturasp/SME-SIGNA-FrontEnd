@@ -3,14 +3,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import { Servidor } from "@/types/designacao-unidade";
-
-
+import { formSchemaDesignacaoPasso2Data } from "@/app/pages/designacoes/designacoes-passo-2/schema";
 
 const STORAGE_KEY = "designacao-form-data";
 
 export type FormDesignacaoEServidorIndicado =
-  Partial<FormDesignacaoData> & {
+  Partial<FormDesignacaoData> &
+  Partial<formSchemaDesignacaoPasso2Data> & {
     servidorIndicado?: Servidor;
+    dadosTitular?: Servidor | null;
   };
 
 type DesignacaoContextValue = {
@@ -56,11 +57,9 @@ export function DesignacaoProvider({
     }
   }, [formDesignacaoData])
 
- 
-
   const clearFormDesignacaoData = () => {
     setFormDesignacaoData(null);
-    localStorage.removeItem(STORAGE_KEY)    
+    localStorage.removeItem(STORAGE_KEY)
   };
 
   const value = useMemo(

@@ -192,6 +192,8 @@ function FormWrapper({
       impedimento_substituicao: "",
       com_afastamento: "",
       motivo_afastamento: "",
+      com_pendencia: "",
+      motivo_pendencia: "",
     },
   });
 
@@ -205,8 +207,8 @@ function FormWrapper({
 describe("PortariaDesigacaoFields", () => {
   it("mostra loading quando isLoading é true", () => {
     render(
-      <FormWrapper onMethods={() => {}}>
-        <PortariaDesigacaoFields setDisableProximo={vi.fn()} isLoading={true} />
+      <FormWrapper onMethods={() => { }}>
+        <PortariaDesigacaoFields isLoading={true} />
       </FormWrapper>
     );
 
@@ -217,7 +219,7 @@ describe("PortariaDesigacaoFields", () => {
     let methods!: UseFormReturn<FieldValues>;
     render(
       <FormWrapper onMethods={(m) => (methods = m)}>
-        <PortariaDesigacaoFields setDisableProximo={vi.fn()} isLoading={false} />
+        <PortariaDesigacaoFields isLoading={false} />
       </FormWrapper>
     );
 
@@ -231,14 +233,10 @@ describe("PortariaDesigacaoFields", () => {
     fireEvent.change(screen.getByPlaceholderText("Número doc"), {
       target: { value: "123" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Motivo do Cancelamento"), {
-      target: { value: "Motivo" },
-    });
 
     expect(methods.getValues("portaria_designacao")).toBe("123");
     expect(methods.getValues("numero_sei")).toBe("123");
     expect(methods.getValues("doc")).toBe("123");
-    expect(methods.getValues("motivo_cancelamento")).toBe("Motivo");
 
     // Selects (onValueChange -> field.onChange)
     const currentYear = `${new Date().getFullYear()}`;
@@ -268,7 +266,7 @@ describe("PortariaDesigacaoFields", () => {
     let methods!: UseFormReturn<FieldValues>;
     render(
       <FormWrapper onMethods={(m) => (methods = m)}>
-        <PortariaDesigacaoFields setDisableProximo={vi.fn()} isLoading={false} />
+        <PortariaDesigacaoFields isLoading={false} />
       </FormWrapper>
     );
 
@@ -291,20 +289,33 @@ describe("PortariaDesigacaoFields", () => {
     expect(methods.getValues("ano")).toBe(otherYear);
   });
 
-  it("quando pendingValue é vazio, confirmar não altera o ano", () => {
+  it("quando pendingValue é vazio (após cancelar), confirmar não altera o ano", () => {
     let methods!: UseFormReturn<FieldValues>;
     render(
       <FormWrapper onMethods={(m) => (methods = m)}>
-        <PortariaDesigacaoFields setDisableProximo={vi.fn()} isLoading={false} />
+        <PortariaDesigacaoFields isLoading={false} />
       </FormWrapper>
     );
 
-    // o trigger do impedimento chama handleValueChange(field.value); no início é string vazia
-    fireEvent.click(screen.getByTestId("select-impedimento-substituicao"));
-    expect(screen.getByTestId("popconfirm")).toBeInTheDocument();
+    const currentYear = new Date().getFullYear();
+    const otherYear = `${currentYear - 1}`;
 
+    // 1. Abre o popconfirm selecionando um ano diferente
+    fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
+    expect(screen.getByTestId("popconfirm")).toBeInTheDocument();
+    expect(methods.getValues("ano")).toBe(""); // ainda não aplicou
+
+    // 2. Cancela → pendingValue volta a null
+    fireEvent.click(screen.getByTestId("popconfirm-cancel"));
+    expect(screen.queryByTestId("popconfirm")).not.toBeInTheDocument();
+    expect(methods.getValues("ano")).toBe(""); // continua vazio
+
+    // 3. Seleciona o mesmo ano diferente novamente e confirma
+    fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
     fireEvent.click(screen.getByTestId("popconfirm-confirm"));
-    expect(methods.getValues("ano")).toBe("");
+
+    // Agora sim o valor deve ter sido aplicado
+    expect(methods.getValues("ano")).toBe(otherYear);
   });
 
   it("controla o campo condicional de afastamento (mostra/esconde textarea e atualiza valor)", () => {
@@ -324,9 +335,11 @@ describe("PortariaDesigacaoFields", () => {
           impedimento_substituicao: "",
           com_afastamento: "nao",
           motivo_afastamento: "",
+          com_pendencia: "nao",
+          motivo_pendencia: "",
         }}
       >
-        <PortariaDesigacaoFields setDisableProximo={vi.fn()} isLoading={false} />
+        <PortariaDesigacaoFields isLoading={false} />
       </FormWrapper>
     );
 
