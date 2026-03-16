@@ -110,7 +110,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
 
 
 
-export const DateField = ({ register, control, name, label }: PropsField) => {
+export const DateField = ({ register, control, name, label, placeholder }: PropsField) => {
     return (
         <FormField
             {...register(name)}
@@ -127,6 +127,7 @@ export const DateField = ({ register, control, name, label }: PropsField) => {
                             <FormControl>
                                 <Button
                                     variant="customOutline"
+                                    size="xl"
                                     className={cn(
                                         "pl-3 text-left font-normal",
                                         !field.value && "text-muted-foreground",
@@ -135,7 +136,12 @@ export const DateField = ({ register, control, name, label }: PropsField) => {
                                     {field.value ? (
                                         format(field.value, "dd/MM/yyyy")
                                     ) : (
-                                        <span>Selecione uma data</span>
+                                        placeholder ? (
+                                            <span>{placeholder}</span>  
+                                        ) : (
+                                            <span>Selecione uma data</span>
+                                        )
+                                        
                                     )}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
