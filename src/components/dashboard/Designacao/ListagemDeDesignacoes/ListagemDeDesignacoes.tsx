@@ -181,7 +181,7 @@ const data: DesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) =>
   sei_designacao: 123,
   portaria_cessacao: 123,
   ano_cessacao: 123,
-  status: Math.floor(Math.random() * 4),
+  status: index % 4,
 }))
 
 
