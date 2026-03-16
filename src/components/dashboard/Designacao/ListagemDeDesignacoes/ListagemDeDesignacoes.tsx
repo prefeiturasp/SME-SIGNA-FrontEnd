@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dropdown, Table, Tag } from 'antd';
-import type { TableProps } from 'antd';
-import {   MoreOutlined, } from '@ant-design/icons';
+import type { PaginationProps, TableProps } from 'antd';
+import {   LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
 
 import { Button } from '@/components/ui/button';
 import Download from '@/assets/icons/Download';
@@ -185,6 +185,16 @@ const data: DesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) =>
 }))
 
 
+const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+  if (type === 'prev') {
+    return <div><LeftOutlined />Anterior</div>;
+  }
+  if (type === 'next') {
+    return <div>Próximo <RightOutlined /></div>;
+  }
+  return originalElement;
+};
+
 
 
 const ListagemDeDesignacoes: React.FC = () => {
@@ -224,6 +234,7 @@ const ListagemDeDesignacoes: React.FC = () => {
               pageSize: 10,
               defaultPageSize: 10,
               placement: ["bottomCenter"],
+              itemRender: itemRender,
             }}
           />
         </div>
