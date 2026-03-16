@@ -38,7 +38,7 @@ const TagStatusDesignacao = (status: StatusDesignacao, key: string) => {
 }
 
 
-interface DataType {
+interface DesignacoesResponse {
   key: string;
   servidor_indicado: string;
   rf_servidor_indicado: number;
@@ -78,7 +78,7 @@ const items = [
 ];
 
 
-const columns: TableProps<DataType>['columns'] = [
+const columns: TableProps<DesignacoesResponse>['columns'] = [
   {
     title: 'RF',
     dataIndex: 'rf_servidor_indicado',
@@ -171,7 +171,7 @@ const columns: TableProps<DataType>['columns'] = [
 ];
 
 
-const data: DataType[] = Array.from({ length: 20 }).map((_, index) => ({
+const data: DesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) => ({
   key: index.toString(),
   servidor_indicado: 'Mateus Antônio Miranda',
   rf_servidor_indicado: 987654,
@@ -216,7 +216,7 @@ const ListagemDeDesignacoes: React.FC = () => {
       <div className=" bg-white  rounded--b-lg border border-[#DCDCDC]  ">
         <div className="flex justify-center items-center p-2 ">
 
-          <Table<DataType>
+          <Table<DesignacoesResponse>
             className="tabela-designacoes"
 
             columns={columns}
