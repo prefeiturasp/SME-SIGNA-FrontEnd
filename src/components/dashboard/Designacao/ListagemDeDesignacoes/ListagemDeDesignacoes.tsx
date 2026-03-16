@@ -6,7 +6,7 @@ import {   LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons'
 import { Button } from '@/components/ui/button';
 import Download from '@/assets/icons/Download';
 import DocumentoAlerta from '@/assets/icons/DocumentoAlerta';
-import Concelar from '@/assets/icons/Cancelar';
+import Cancelar from '@/assets/icons/Cancelar';
 import Apostilar from '@/assets/icons/Apostilar';
 import Lixeira from '@/assets/icons/Lixeira';
 import Eye from '@/assets/icons/Eye';
@@ -61,7 +61,7 @@ const items = [
     }
   },
   {
-    key: '2', label: 'Cessar', icon: <Concelar />, onClick: () => {
+    key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
       console.log('Cessar');
     }
   },

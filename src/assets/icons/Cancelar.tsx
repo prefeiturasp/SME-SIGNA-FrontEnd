@@ -1,4 +1,4 @@
-export default function Concelar(
+export default function Cancelar(
   props: Readonly<React.SVGProps<SVGSVGElement>>
 ) {
   return (
