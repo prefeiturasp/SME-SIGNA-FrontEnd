@@ -219,13 +219,13 @@ const ListagemDeDesignacoes: React.FC = () => {
             Lista de designações
           </span>
           <div className="flex gap-2"   >
-            <Button variant="secondary" size={"sm"} className="gap-2" >
+            <Button variant="tertiary" size={"sm"} className="gap-2" >
               <>
                 <Download />
                 <p className="text-[14px] ">Exportar CSV</p>
               </>
             </Button>
-            <Button variant="secondary" size={"sm"} className="gap-2" >
+            <Button variant="tertiary" size={"sm"} className="gap-2" >
               <>
                 <Download />
                 <p className="text-[14px] ">Exportar PDF</p>
