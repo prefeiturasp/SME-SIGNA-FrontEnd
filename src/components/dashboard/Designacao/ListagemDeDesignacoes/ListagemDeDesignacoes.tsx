@@ -90,7 +90,6 @@ const columns: TableProps<DesignacoesResponse>['columns'] = [
     dataIndex: 'servidor_indicado',
     key: 'servidor_indicado',
 
-    render: (text) => <a>{text}</a>,
   },
 
   {
@@ -104,7 +103,6 @@ const columns: TableProps<DesignacoesResponse>['columns'] = [
     dataIndex: 'servidor_titular',
     key: 'servidor_titular',
 
-    render: (text) => <a>{text}</a>,
   },
 
   {
@@ -157,13 +155,13 @@ const columns: TableProps<DesignacoesResponse>['columns'] = [
     render: (_, record) => (
       <div className='space-x-2 flex items-center'>
 
-        <a>
+        <div>
           <Eye className='w-4 h-4 fill-[#86858D]' />
-        </a>
+        </div>
         <Dropdown menu={{ items }}>
-          <a>
+          <div>
           <MoreOutlined />            
-          </a>
+          </div>
         </Dropdown>
       </div>
     ),
