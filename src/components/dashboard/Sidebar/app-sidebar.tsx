@@ -40,6 +40,11 @@ const items = [
         url: "/pages/designacoes/designacoes-passo-1",
         icon: Designacao,
     },
+    {
+        title: "Listagem de Designações",
+        url: "/pages/listagem-designacoes",
+        icon: Designacao,
+    },
  
 ];
 

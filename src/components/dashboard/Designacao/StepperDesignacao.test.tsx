@@ -30,9 +30,9 @@ describe("StepperDesignacao", () => {
     expect(calledWith.current).toBe(1);
     expect(calledWith.items).toHaveLength(3);
     expect(calledWith.items.map((i: any) => i.title)).toEqual([
-      "Servido indicado",
+      "Servidor indicado",
       "Designação",
-      "Revisão",
+      "Portaria",
     ]);
   });
 });
