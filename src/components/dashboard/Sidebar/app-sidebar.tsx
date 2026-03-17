@@ -23,6 +23,7 @@ import {
     SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar";
+import ListIcon from "@/assets/icons/ListIcon";
  
 const items = [
     {
@@ -38,6 +39,11 @@ const items = [
     {
         title: "Designações",
         url: "/pages/designacoes/designacoes-passo-1",
+        icon: Designacao,
+    },
+    {
+        title: "Listagem de Designações",
+        url: "/pages/listagem-designacoes",
         icon: Designacao,
     },
  
