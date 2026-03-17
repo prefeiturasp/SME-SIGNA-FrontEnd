@@ -23,7 +23,6 @@ import {
     SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar";
-import ListIcon from "@/assets/icons/ListIcon";
  
 const items = [
     {
