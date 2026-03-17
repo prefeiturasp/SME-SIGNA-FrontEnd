@@ -6,13 +6,13 @@ import { Flex, Steps } from 'antd';
  
 const items = [
   {
-    title: 'Servido indicado'    
+    title: 'Servidor indicado'    
   },
   {
     title: 'Designação'    
   },
   {
-    title: 'Revisão'
+    title: 'Portaria'
   },
 ];
 const StepperDesignacao: React.FC<{ className?: string, current?: number }> = ({ className, current=1   }) => {

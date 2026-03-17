@@ -105,7 +105,9 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                         onClick={handleOpenModalListaCursosTitulos}>
                         <Eye
                           width={16}
-                          height={16} />
+                          height={16} 
+                          className='fill-[#6058A2]'
+                          />
                       </Button>
                     }
                   />
