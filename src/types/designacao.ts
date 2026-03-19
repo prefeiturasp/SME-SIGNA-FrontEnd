@@ -34,7 +34,13 @@ export interface DesignacaoData {
 
   tipo_cargo?: "vago" | "substituicao" | "disponivel";
 
-  cargo_vago_selecionado?: string;
+  cargo_vago_selecionado?:
+  | string
+  | {
+    id: number;
+    label: string;
+  }
+  | null;
 
   a_partir_de?: string | Date;
   designacao_data_final?: string | Date;
