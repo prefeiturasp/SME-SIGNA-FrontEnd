@@ -1,11 +1,17 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import ResumoTitular, { TitularData } from "./ResumoTitular";
-import { skipToken } from "@tanstack/react-query";
+import ResumoTitular from "./ResumoTitular";
+import { Servidor } from "@/types/designacao-unidade";
 
 vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
-  default: ({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) => (
+  default: ({
+    open,
+    onOpenChange,
+  }: {
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+  }) => (
     <div data-testid="modal-editar">
       {open && (
         <>
@@ -17,7 +23,7 @@ vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
   ),
 }));
 
-vi.mock("./ResumoDesignacaoServidorIndicado", () => ({
+vi.mock("@/components/ui/info-item", () => ({
   InfoItem: ({ label, value }: { label: string; value: string }) => (
     <div data-testid="info-item">
       <span className="label">{label}</span>
@@ -26,7 +32,7 @@ vi.mock("./ResumoDesignacaoServidorIndicado", () => ({
   ),
 }));
 
-const mockData: TitularData = {
+const mockData: Servidor = {
   nome_servidor: "Fulano de Tal",
   nome_civil: "Fulano Civil",
   rf: "9876543",
@@ -36,61 +42,80 @@ const mockData: TitularData = {
   cargo_sobreposto_funcao_atividade: "SECRETARIO DE ESCOLA - v1",
   local_de_exercicio: "JOSE BORGES ANDRADE",
   laudo_medico: "Não possui",
-  local_de_servico: "Indisponível"
+  local_de_servico: "Indisponível",
+  cursos_titulos: "Indisponível",
 };
 
 describe("ResumoTitular", () => {
-  const mockOnEdit = vi.fn();
+  const mockOnSubmitEditarServidor = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("deve renderizar todos os campos corretamente", () => {
-    render(<ResumoTitular data={mockData} onEdit={mockOnEdit} />);
+    render(
+      <ResumoTitular
+        data={mockData}
+        onSubmitEditarServidor={mockOnSubmitEditarServidor}
+      />
+    );
 
     expect(screen.getByText("Nome Servidor")).toBeInTheDocument();
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText("Vínculo")).toBeInTheDocument();
 
-    expect(screen.getByText(mockData.nome_servidor)).toBeInTheDocument();
-    expect(screen.getByText(mockData.rf)).toBeInTheDocument();
-    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText("Fulano de Tal")).toBeInTheDocument();
+    expect(screen.getByText("9876543")).toBeInTheDocument();
+    expect(screen.getByText("EMEF Teste")).toBeInTheDocument();
+
     const lotacaoElements = screen.getAllByText(mockData.lotacao);
-    expect(lotacaoElements).toHaveLength(1);  });
+    expect(lotacaoElements).toHaveLength(1);
+  });
 
-  // to-do: arrumar apos corrigit o funcionamento do componente de edicao
-  // it("deve abrir o modal de edição ao clicar no botão Editar", async () => {
-  //   const user = userEvent.setup();
-  //   render(<ResumoTitular data={mockData} onEdit={mockOnEdit} />);
+  it("deve abrir o modal de edição ao clicar no botão Editar", async () => {
+    const user = userEvent.setup();
+    render(
+      <ResumoTitular
+        data={mockData}
+        onSubmitEditarServidor={mockOnSubmitEditarServidor}
+      />
+    );
 
-  //   const editButton = screen.getByRole("button", { name: /editar/i });
-    
-  //   expect(screen.queryByText("Modal Editar Aberto")).not.toBeInTheDocument();
+    const editButton = screen.getByRole("button", { name: /editar/i });
 
-  //   await user.click(editButton);
+    expect(screen.queryByText("Modal Editar Aberto")).not.toBeInTheDocument();
 
-  //   expect(screen.getByText("Modal Editar Aberto")).toBeInTheDocument();
-  // });
+    await user.click(editButton);
 
-  // it("deve fechar o modal quando a função onOpenChange for chamada", async () => {
-  //   const user = userEvent.setup();
-  //   render(<ResumoTitular data={mockData} onEdit={mockOnEdit} />);
+    expect(screen.getByText("Modal Editar Aberto")).toBeInTheDocument();
+  });
 
-  //   // Abrir
-  //   await user.click(screen.getByRole("button", { name: /editar/i }));
-  //   expect(screen.getByText("Modal Editar Aberto")).toBeInTheDocument();
+  it("deve fechar o modal quando a função onOpenChange for chamada", async () => {
+    const user = userEvent.setup();
+    render(
+      <ResumoTitular
+        data={mockData}
+        onSubmitEditarServidor={mockOnSubmitEditarServidor}
+      />
+    );
 
-  //   const closeButton = screen.getByText("Fechar Modal");
-  //   await user.click(closeButton);
+    await user.click(screen.getByRole("button", { name: /editar/i }));
+    expect(screen.getByText("Modal Editar Aberto")).toBeInTheDocument();
 
-  //   expect(screen.queryByText("Modal Editar Aberto")).not.toBeInTheDocument();
-  // });
-  // ------------------------------------------
+    await user.click(screen.getByText("Fechar Modal"));
 
-  it("deve passar os dados como defaultValues para o modal", () => {
-    render(<ResumoTitular data={mockData} onEdit={mockOnEdit} />);
-    
+    expect(screen.queryByText("Modal Editar Aberto")).not.toBeInTheDocument();
+  });
+
+  it("deve exibir o botão de editar", () => {
+    render(
+      <ResumoTitular
+        data={mockData}
+        onSubmitEditarServidor={mockOnSubmitEditarServidor}
+      />
+    );
+
     expect(screen.getByRole("button", { name: /editar/i })).toBeInTheDocument();
   });
 });
