@@ -53,3 +53,26 @@ export interface DesignacaoData {
   servidorIndicado?: Servidor;
   dadosTitular?: Titular | null;
 }
+
+export enum StatusDesignacao {
+  PENDENTE = 0,
+  AGUARD_PUBLICACAO = 1,
+  PUBLICADO_COM_PENDENCIA = 2,
+  PUBLICADO = 3,
+}
+
+export interface ListagemDesignacoesResponse {
+  key: string;
+  servidor_indicado: string;
+  rf_servidor_indicado: number;
+  servidor_titular: string;
+  rf_servidor_titular: number;
+
+  sei_titular: number,
+  portaria_designacao: number,
+  ano_designacao: number,
+  sei_designacao: number,
+  portaria_cessacao: number,
+  ano_cessacao: number,
+  status: StatusDesignacao,
+}
