@@ -10,14 +10,9 @@ import Cancelar from '@/assets/icons/Cancelar';
 import Apostilar from '@/assets/icons/Apostilar';
 import Lixeira from '@/assets/icons/Lixeira';
 import Eye from '@/assets/icons/Eye';
+import { ListagemDesignacoesResponse, StatusDesignacao } from '@/types/designacao';
 
 
-enum StatusDesignacao {
-  PENDENTE = 0,
-  AGUARD_PUBLICACAO = 1,
-  PUBLICADO_COM_PENDENCIA = 2,
-  PUBLICADO = 3,
-}
 
 const NameColorStatusDesignacao = {
   [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
@@ -37,22 +32,6 @@ const TagStatusDesignacao = (status: StatusDesignacao, key: string) => {
   )
 }
 
-
-interface DesignacoesResponse {
-  key: string;
-  servidor_indicado: string;
-  rf_servidor_indicado: number;
-  servidor_titular: string;
-  rf_servidor_titular: number;
-
-  sei_titular: number,
-  portaria_designacao: number,
-  ano_designacao: number,
-  sei_designacao: number,
-  portaria_cessacao: number,
-  ano_cessacao: number,
-  status: StatusDesignacao,
-}
 
 const items = [
   {
@@ -78,7 +57,7 @@ const items = [
 ];
 
 
-const columns: TableProps<DesignacoesResponse>['columns'] = [
+const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
   {
     title: 'RF',
     dataIndex: 'rf_servidor_indicado',
@@ -169,21 +148,6 @@ const columns: TableProps<DesignacoesResponse>['columns'] = [
 ];
 
 
-const data: DesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) => ({
-  key: index.toString(),
-  servidor_indicado: 'Mateus Antônio Miranda',
-  rf_servidor_indicado: 987654,
-  servidor_titular: 'Mateus Antônio Miranda',
-  rf_servidor_titular: 654321,
-  sei_titular: 123,
-  portaria_designacao: 123,
-  ano_designacao: 2025,
-  sei_designacao: 123,
-  portaria_cessacao: 123,
-  ano_cessacao: 123,
-  status: index % 4,
-}))
-
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
   if ((type === 'prev' || type === 'next') && React.isValidElement(originalElement)) {
@@ -210,7 +174,7 @@ const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => 
 
 
 
-const ListagemDeDesignacoes: React.FC = () => {
+const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> = ({ data }) => {
   return (
     <>
       <div className="flex flex-col gap-1 bg-white p-4 rounded-t-lg border border-[#DCDCDC]">
@@ -237,7 +201,7 @@ const ListagemDeDesignacoes: React.FC = () => {
       <div className=" bg-white  rounded--b-lg border border-[#DCDCDC]  ">
         <div className="flex justify-center items-center p-2 ">
 
-          <Table<DesignacoesResponse>
+          <Table<ListagemDesignacoesResponse>
             className="tabela-designacoes"
 
             columns={columns}
