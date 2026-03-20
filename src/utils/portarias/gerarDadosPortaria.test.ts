@@ -35,12 +35,12 @@ describe("gerarDadosPortaria", () => {
         const resultado = gerarDadosPortaria(data);
 
         expect(resultado).toEqual({
-            portaria: "123",
+            portaria: "123/2025",
             ano: "2025",
             sei: "000123",
             dre: "DRE Centro",
             autoridade: "Autoridade Teste",
-            nome: "João Silva",
+            nome_indicado: "João Silva",
             rf: "123456",
             vinculo: "Efetivo",
             cargo_base: "Professor",

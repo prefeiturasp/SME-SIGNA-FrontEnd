@@ -13,9 +13,15 @@ const formSchemaDesignacaoPasso2 = z.object({
   motivo_afastamento: z.string(),
   com_pendencia: z.string().min(1, "Selecione se possui pendêcia"),
   motivo_pendencia: z.string(),
-  tipo_cargo: z.enum(["vago", "disponivel"]), 
+  tipo_cargo: z.enum(["vago", "disponivel"]),
   rf_titular: z.string().optional(),
-  cargo_vago_selecionado: z.string().optional(),
+  cargo_vago_selecionado: z
+    .object({
+      id: z.number(),
+      label: z.string(),
+    })
+    .nullable()
+    .optional(),
 });
 
 export type formSchemaDesignacaoPasso2Data = z.infer<typeof formSchemaDesignacaoPasso2>;

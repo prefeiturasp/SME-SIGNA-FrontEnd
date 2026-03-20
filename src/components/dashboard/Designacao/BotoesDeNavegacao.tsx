@@ -2,15 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 
-
-
-
 type StepRendererProps = {
   disableAnterior: boolean;
   disableProximo: boolean;
   onProximo: () => void;
   onAnterior?: () => void;
   showAnterior?: boolean;
+  labelProximo?: string;
 };
 
 export default function BotoesDeNavegacao({
@@ -19,7 +17,7 @@ export default function BotoesDeNavegacao({
   disableProximo,
   onProximo,
   onAnterior,
-
+  labelProximo = "Avançar",
 }: Readonly<StepRendererProps>) {
 
   return (
@@ -50,7 +48,7 @@ export default function BotoesDeNavegacao({
           onClick={onProximo}
           data-testid="botao-proximo"
         >
-          <p className="text-[16px] font-bold">Avançar</p>
+          <p className="text-[16px] font-bold">{labelProximo}</p>
         </Button>
       </div>
     </div>

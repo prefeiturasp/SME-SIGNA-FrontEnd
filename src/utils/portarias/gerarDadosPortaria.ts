@@ -2,23 +2,33 @@ import { DesignacaoData } from "@/types/designacao";
 import {
     montarTrechoSubstituicao,
     montarTrechoFinal,
-    montarAutoridade
+    montarAutoridade,
 } from "./regrasPortaria";
 
-export function gerarDadosPortaria(data: DesignacaoData) {
+function getCargoIndicado(data: DesignacaoData): string | undefined {
+    const cargo = data?.cargo_vago_selecionado;
 
-    const cargo_indicado =
-        data?.tipo_cargo === "vago"
-            ? data?.cargo_vago_selecionado
-            : data?.dadosTitular?.cargo_base;
+    if (data?.tipo_cargo !== "vago") {
+        return data?.dadosTitular?.cargo_base;
+    }
+
+    if (typeof cargo === "string") {
+        return cargo;
+    }
+
+    return cargo?.label;
+}
+
+export function gerarDadosPortaria(data: DesignacaoData) {
+    const cargo_indicado = getCargoIndicado(data);
 
     return {
-        portaria: data?.portaria_designacao,
+        portaria: `${data?.portaria_designacao}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
         dre: data?.dre_nome,
         autoridade: montarAutoridade(data),
-        nome: data?.servidorIndicado?.nome_civil,
+        nome_indicado: data?.servidorIndicado?.nome_civil,
         rf: data?.servidorIndicado?.rf,
         vinculo: data?.servidorIndicado?.vinculo,
         cargo_base: data?.servidorIndicado?.cargo_base,
@@ -27,6 +37,6 @@ export function gerarDadosPortaria(data: DesignacaoData) {
         ue: data?.ue_nome,
         eh: data?.codigo_estrutura_hierarquica,
         trecho_substituicao: montarTrechoSubstituicao(data),
-        trecho_final: montarTrechoFinal(data)
+        trecho_final: montarTrechoFinal(data),
     };
 }

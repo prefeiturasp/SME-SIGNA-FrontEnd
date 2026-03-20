@@ -194,8 +194,20 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.tipo_vaga).toBe("SUBSTITUTO");
     });
 
-    it("usa cargo_vago_selecionado quando presente", () => {
-        const result = mapearPayloadDesignacao({ ...formBase, cargo_vago_selecionado: 99 });
+    it("usa cargo_vago_selecionado quando presente como objeto com .id", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            cargo_vago_selecionado: { id: 99 },
+        });
+
+        expect(result?.cargo_vaga).toBe(99);
+    });
+
+    it("usa cargo_vago_selecionado quando presente como string", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            cargo_vago_selecionado: "99",
+        });
 
         expect(result?.cargo_vaga).toBe(99);
     });
@@ -208,6 +220,12 @@ describe("mapearPayloadDesignacao", () => {
         });
 
         expect(result?.cargo_vaga).toBe(10);
+    });
+
+    it("retorna 3360 para cargo_vaga quando dadosTitular está presente", () => {
+        const result = mapearPayloadDesignacao({ ...formBase, dadosTitular });
+
+        expect(result?.cargo_vaga).toBe(3360);
     });
 
     it("define impedimento_substituicao como 'FERIAS'", () => {
