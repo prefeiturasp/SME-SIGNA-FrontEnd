@@ -178,7 +178,7 @@ const FiltroDeDesignacoes: React.FC = () => {
         <div className="w-full flex gap-4">
           <div className="w-[65%]">
             <FormField
-            required
+             
               control={control}
               name="unidade_escolar"
               

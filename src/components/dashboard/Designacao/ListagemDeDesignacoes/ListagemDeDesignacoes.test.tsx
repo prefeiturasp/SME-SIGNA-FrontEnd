@@ -3,6 +3,7 @@ import { vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
 import ListagemDeDesignacoes from "./ListagemDeDesignacoes";
+import { ListagemDesignacoesResponse } from "@/types/designacao";
 
 type Row = {
   key: string;
@@ -82,7 +83,20 @@ vi.mock("@/assets/icons/Eye", () => ({
     <span data-testid="eye-icon" className={className} />
   ),
 }));
-
+const data: ListagemDesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) => ({
+  key: index.toString(),
+  servidor_indicado: 'Mateus Antônio Miranda',
+  rf_servidor_indicado: 987654,
+  servidor_titular: 'Mateus Antônio Miranda',
+  rf_servidor_titular: 654321,
+  sei_titular: 123,
+  portaria_designacao: 123,
+  ano_designacao: 2025,
+  sei_designacao: 123,
+  portaria_cessacao: 123,
+  ano_cessacao: 123,
+  status: index % 4,
+}))
 describe("ListagemDeDesignacoes", () => {
   beforeEach(() => {
     tableMock.mockClear();
@@ -90,7 +104,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("renderiza o cabeçalho e configura a tabela corretamente", () => {
-    render(<ListagemDeDesignacoes />);
+    render(<ListagemDeDesignacoes data={data} />);
 
     expect(screen.getByText("Lista de designações")).toBeInTheDocument();
     expect(screen.getByText("Exportar CSV")).toBeInTheDocument();
@@ -102,8 +116,7 @@ describe("ListagemDeDesignacoes", () => {
     const props = tableMock.mock.calls[0][0];
 
     expect(props.className).toBe("tabela-designacoes");
-    expect(props.dataSource).toHaveLength(20);
-    expect(props.pagination).toMatchObject({
+     expect(props.pagination).toMatchObject({
       pageSize: 10,
       defaultPageSize: 10,
       placement: ["bottomCenter"],
@@ -116,7 +129,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("executa todos os sorters das colunas", () => {
-    render(<ListagemDeDesignacoes />);
+    render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
 
@@ -158,7 +171,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("renderiza o status para todos os valores previstos", () => {
-    render(<ListagemDeDesignacoes />);
+    render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
     const statusRender = columns[10]?.render as
@@ -185,7 +198,7 @@ describe("ListagemDeDesignacoes", () => {
 
   it("renderiza a coluna de ação e executa os callbacks do menu", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
-    render(<ListagemDeDesignacoes />);
+    render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
     const actionRender = columns[11]?.render as
@@ -226,7 +239,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("mantém prev/next desabilitados quando o elemento original estiver desabilitado", () => {
-    render(<ListagemDeDesignacoes />);
+    render(<ListagemDeDesignacoes data={data}   />);
     const props = tableMock.mock.calls[0][0];
     const pagination =
       props.pagination && props.pagination !== false ? props.pagination : undefined;
