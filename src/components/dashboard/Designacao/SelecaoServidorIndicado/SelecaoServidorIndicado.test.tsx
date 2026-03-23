@@ -1,40 +1,58 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod"; // Importe o zod
+import * as z from "zod";
 import SelecaoServidorIndicado from "./SelecaoServidorIndicado";
-import { TitularData } from "@/components/dashboard/Designacao/ResumoTitular";
+import { Servidor } from "@/types/designacao-unidade";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 
-// 1. Crie um schema simples aqui para evitar o erro de 'undefined' no resolver
 const testSchema = z.object({
   tipo_cargo: z.string(),
   rf_titular: z.string(),
-  cargo_vago_selecionado: z.string().optional(),
+  cargo_vago_selecionado: z.any().optional(),
 });
 
 // --- MOCKS ---
-vi.mock("@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao", () => ({
-  default: ({ onBuscaDesignacao }: { onBuscaDesignacao: (v: BuscaDesignacaoRequest) => void }) => (
-    <button onClick={() => onBuscaDesignacao({ rf: "1234567" })}>
-      Mock Busca RF
-    </button>
-  ),
-}));
+vi.mock(
+  "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao",
+  () => ({
+    default: ({
+      onBuscaDesignacao,
+    }: {
+      onBuscaDesignacao: (v: BuscaDesignacaoRequest) => void;
+    }) => (
+      <button onClick={() => onBuscaDesignacao({ rf: "1234567" })}>
+        Mock Busca RF
+      </button>
+    ),
+  })
+);
 
 vi.mock("@/components/dashboard/Designacao/ResumoTitular", () => ({
-  default: ({ data, onEdit }: { data: TitularData; onEdit: () => void }) => (
+  default: ({
+    data,
+    onSubmitEditarServidor,
+  }: {
+    data: Servidor;
+    onSubmitEditarServidor: () => void;
+  }) => (
     <div>
-      <p>Resumo de {data.nome}</p>
-      <button onClick={onEdit}>Botão Editar Mock</button>
+      <p>Resumo de {data.nome_servidor}</p>
+      <button onClick={onSubmitEditarServidor}>Botão Editar Mock</button>
     </div>
   ),
 }));
 
 vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
-  CustomAccordionItem: ({ children, title }: { children: React.ReactNode; title: string }) => (
+  CustomAccordionItem: ({
+    children,
+    title,
+  }: {
+    children: React.ReactNode;
+    title: string;
+  }) => (
     <div>
       <h3>{title}</h3>
       {children}
@@ -43,27 +61,32 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 }));
 
 // --- WRAPPER ---
-const TestWrapper = ({ children, tipoCargoInicial = "vago" }: { children: (form: any) => React.ReactNode, tipoCargoInicial?: string }) => {
+const TestWrapper = ({
+  children,
+  tipoCargoInicial = "vago",
+}: {
+  children: (form: any) => React.ReactNode;
+  tipoCargoInicial?: string;
+}) => {
   const form = useForm({
-    resolver: zodResolver(testSchema), // Usando o schema local que sabemos que existe
+    resolver: zodResolver(testSchema),
     defaultValues: {
       tipo_cargo: tipoCargoInicial,
       rf_titular: "",
-      cargo_vago_selecionado: "",
+      cargo_vago_selecionado: {
+        id: undefined,
+        label: "",
+      },
     },
   });
 
-  return (
-    <FormProvider {...form}>
-      {children(form)}
-    </FormProvider>
-  );
+  return <FormProvider {...form}>{children(form)}</FormProvider>;
 };
 
 describe("SelecaoServidorIndicado", () => {
-  const mockOnBuscaTitular = vi.fn<[BuscaDesignacaoRequest], Promise<void>>();
-  const mockSetDadosTitular = vi.fn<(val: TitularData | null) => void>();
-  const mockSetErrorBusca = vi.fn<(val: string | null) => void>();
+  const mockOnBuscaTitular = vi.fn((_values: BuscaDesignacaoRequest): Promise<void> => Promise.resolve());
+  const mockSetDadosTitular = vi.fn((_val: Servidor | null): void => { });
+  const mockSetErrorBusca = vi.fn((_val: string | null): void => { });
 
   const baseProps = {
     onBuscaTitular: mockOnBuscaTitular,
@@ -73,14 +96,18 @@ describe("SelecaoServidorIndicado", () => {
     dadosTitular: null,
   };
 
-  const mockDadosSucesso: TitularData = {
-    nome: "Jose da Silva",
+  const mockDadosSucesso: Servidor = {
+    nome_servidor: "Jose da Silva",
+    nome_civil: "Jose Civil",
     rf: "1234567",
-    vinculo_cargo_sobreposto: 1,
-    cargo_sobreposto: "Diretor",
-    lotacao_cargo_sobreposto: "Escola A",
-    lotacao_cargo_base: "DRE Norte",
-    codigo_hierarquia: "3",
+    vinculo: 1,
+    cargo_base: "Diretor",
+    lotacao: "Escola A",
+    cargo_sobreposto_funcao_atividade: "Diretor Escolar",
+    local_de_exercicio: "DRE Norte",
+    laudo_medico: "Não possui",
+    local_de_servico: "Indisponível",
+    cursos_titulos: "Não possui",
   };
 
   beforeEach(() => {
@@ -89,14 +116,14 @@ describe("SelecaoServidorIndicado", () => {
 
   it("deve alternar a exibição entre Select e Busca", async () => {
     const user = userEvent.setup();
-    
+
     render(
       <TestWrapper>
         {(form) => (
-          <SelecaoServidorIndicado 
-            {...baseProps} 
-            form={form} 
-            tipoCargo={form.watch("tipo_cargo")} 
+          <SelecaoServidorIndicado
+            {...baseProps}
+            form={form}
+            tipoCargo={form.watch("tipo_cargo")}
           />
         )}
       </TestWrapper>
@@ -108,18 +135,19 @@ describe("SelecaoServidorIndicado", () => {
     await user.click(radioDisponivel);
 
     expect(screen.getByText("Mock Busca RF")).toBeInTheDocument();
-    
-    expect(screen.queryByLabelText("Selecione o cargo")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Selecione o cargo")
+    ).not.toBeInTheDocument();
   });
 
   it("deve exibir a mensagem de erro", () => {
     render(
       <TestWrapper tipoCargoInicial="disponivel">
         {(form) => (
-          <SelecaoServidorIndicado 
-            {...baseProps} 
-            form={form} 
-            tipoCargo="disponivel" 
+          <SelecaoServidorIndicado
+            {...baseProps}
+            form={form}
+            tipoCargo="disponivel"
             errorBusca="Erro de teste"
           />
         )}
@@ -133,16 +161,18 @@ describe("SelecaoServidorIndicado", () => {
     render(
       <TestWrapper tipoCargoInicial="disponivel">
         {(form) => (
-          <SelecaoServidorIndicado 
-            {...baseProps} 
-            form={form} 
-            tipoCargo="disponivel" 
+          <SelecaoServidorIndicado
+            {...baseProps}
+            form={form}
+            tipoCargo="disponivel"
             dadosTitular={mockDadosSucesso}
           />
         )}
       </TestWrapper>
     );
 
-    expect(screen.getByText(`Resumo de ${mockDadosSucesso.nome}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Resumo de ${mockDadosSucesso.nome_servidor}`)
+    ).toBeInTheDocument();
   });
 });

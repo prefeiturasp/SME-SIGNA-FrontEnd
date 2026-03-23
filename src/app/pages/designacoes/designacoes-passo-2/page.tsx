@@ -62,7 +62,10 @@ export default function DesignacoesPasso2() {
       motivo_pendencia: "",
       tipo_cargo: "vago",
       rf_titular: "",
-      cargo_vago_selecionado: "",
+      cargo_vago_selecionado: {
+        id: undefined,
+        label: "",
+      },
     },
     mode: "onChange",
   });
