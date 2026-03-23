@@ -2,6 +2,33 @@ import type { ColumnsType } from "antd/es/table";
 
 type RowData = object;
 
+const serializeCSVValue = (value: unknown): string => {
+  if (value == null) return "";
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  ) {
+    return String(value);
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "";
+    }
+  }
+
+  return "";
+};
+
 const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => {
   if (!data || data.length === 0) return "";
 
@@ -10,7 +37,8 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
 
   const headersCSV = headers.map((item) => {
     const title = columns.find((column) => String(column.key) === item)?.title;
-    return String(title);
+    const titleCSV = serializeCSVValue(title);
+    return titleCSV || item;
   });
 
   csvRows.push(headersCSV.join(","));
@@ -18,7 +46,7 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
   for (const row of data) {
     const values = headers.map((header) => {
       const value = (row as Record<string, unknown>)[header];
-      const escaped = String(value ?? "").replace(/"/g, '\\"');
+      const escaped = serializeCSVValue(value).replace(/"/g, '\\"');
       return `"${escaped}"`;
     });
     csvRows.push(values.join(","));
