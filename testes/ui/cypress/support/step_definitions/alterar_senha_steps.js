@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 Given('que o usuário realizou o login com sucesso', () => {
-  cy.visit('https://qa-signa.sme.prefeitura.sp.gov.br/');
+  cy.visit('/');
   cy.wait(2000);
   
   cy.get('input[type="text"], input[type="number"], input:not([type="password"])', { timeout: 10000 })
@@ -27,7 +27,7 @@ When('o usuário clica no botão {string}', (btnText) => {
   const textoNormalizado = btnText.toLowerCase().trim();
   
   if (textoNormalizado.includes('meus dados')) {
-    cy.contains('span', 'Meus dados', { timeout: 10000, matchCase: false }).click({ force: true });
+    cy.contains('button, a, span, li, div', 'Meus dados', { timeout: 10000, matchCase: false }).first().click({ force: true });
   } else if (textoNormalizado.includes('inicio')) {
     cy.get('ul > li > a').contains('Inicio', { matchCase: false }).click({ force: true });
   } else {
@@ -185,6 +185,7 @@ When('valida o formulário de alteração de senha', () => {
 });
 
 When('o usuário preenche o campo Senha atual com {string}', (valor) => {
+  const senha = valor === '<senha_atual>' ? Cypress.env('password') : valor;
   cy.get('[role="dialog"], [id^="radix"]', { timeout: 10000 }).first().within(() => {
     cy.get('input[type="password"]', { timeout: 5000 })
       .first()
@@ -195,29 +196,31 @@ When('o usuário preenche o campo Senha atual com {string}', (valor) => {
         }
       })
       .clear({ force: true })
-      .type(valor, { delay: 50, force: true });
+      .type(senha, { delay: 50, force: true });
   });
   cy.wait(300);
 });
 
 When('o usuário preenche o campo Nova senha com {string}', (valor) => {
+  const senha = valor === '<nova_senha>' ? Cypress.env('newPasswordTest') : valor;
   cy.get('[role="dialog"], [id^="radix"]', { timeout: 10000 }).first().within(() => {
     cy.get('input[type="password"]', { timeout: 5000 })
       .eq(1)
       .should('exist')
       .clear({ force: true })
-      .type(valor, { delay: 50, force: true });
+      .type(senha, { delay: 50, force: true });
   });
   cy.wait(300);
 });
 
 When('o usuário preenche o campo Confirmação da nova senha com {string}', (valor) => {
+  const senha = valor === '<nova_senha>' ? Cypress.env('newPasswordTest') : valor;
   cy.get('[role="dialog"], [id^="radix"]', { timeout: 10000 }).first().within(() => {
     cy.get('input[type="password"]', { timeout: 5000 })
       .eq(2)
       .should('exist')
       .clear({ force: true })
-      .type(valor, { delay: 50, force: true });
+      .type(senha, { delay: 50, force: true });
   });
   cy.wait(300);
 });

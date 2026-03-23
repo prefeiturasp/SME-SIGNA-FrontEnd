@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "cypress run",
+    "test:allure": "cypress run --env allure=true",
+    "test:ci": "cypress run --env allure=true --browser chrome",
     "test:headed": "cypress run --headed",
     "test:chrome": "cypress run --browser chrome",
     "test:firefox": "cypress run --browser firefox",
@@ -13,7 +15,9 @@
     "test:login": "cypress run --spec cypress/e2e/ui/login.feature",
     "test:esqueci-senha": "cypress run --spec cypress/e2e/ui/esqueci_senha.feature",
     "test:alterar-senha": "cypress run --spec cypress/e2e/ui/alterar_senha.feature",
-    "test:alteracao-email": "cypress run --spec cypress/e2e/ui/alteracao_email.feature"
+    "test:alteracao-email": "cypress run --spec cypress/e2e/ui/alteracao_email.feature",
+    "allure:report": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report"
   },
   "keywords": [
     "cypress",
@@ -27,6 +31,9 @@
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^20.0.0",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
+    "@shelex/cypress-allure-plugin": "^2.41.2",
+    "allure-commandline": "^2.34.1",
+    "cypress-on-fix": "^1.1.0",
     "cypress": "^13.6.0",
     "cypress-mochawesome-reporter": "^3.8.0",
     "multiple-cucumber-html-reporter": "^3.5.0"

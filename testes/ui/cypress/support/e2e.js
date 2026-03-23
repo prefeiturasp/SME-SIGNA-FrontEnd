@@ -3,6 +3,7 @@
 
 // Importar comandos do Cypress
 import './commands';
+import '@shelex/cypress-allure-plugin';
 
 // Importar comandos personalizados
 import './commands_ui/commands_globais';

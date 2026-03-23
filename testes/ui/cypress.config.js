@@ -1,11 +1,14 @@
+require('dotenv').config();
 const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
+const allureWriter = require('@shelex/cypress-allure-plugin/writer');
+const cypressOnFix = require('cypress-on-fix');
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
+    baseUrl: process.env.BASE_URL || 'https://qa-signa.sme.prefeitura.sp.gov.br',
     specPattern: 'cypress/e2e/**/*.feature',
     supportFile: 'cypress/support/e2e.js',
     screenshotsFolder: 'cypress/screenshots',
@@ -28,12 +31,17 @@ module.exports = defineConfig({
       openMode: 0
     },
     env: {
-      baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
-      loginUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
-      username: '7311559',
-      password: 'Sgp1559'
+      baseUrl: process.env.BASE_URL || 'https://qa-signa.sme.prefeitura.sp.gov.br',
+      loginUrl: process.env.LOGIN_URL || 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
+      username: process.env.SIGNA_USERNAME,
+      password: process.env.SIGNA_PASSWORD,
+      newPasswordTest: process.env.SIGNA_NEW_PASSWORD_TEST,
+      allure: true,
+      allureResultsPath: 'allure-results'
     },
-    async setupNodeEvents(on, config) {
+    async setupNodeEvents(cypressOn, config) {
+      const on = cypressOnFix(cypressOn);
+
       // IMPORTANTE: Cucumber preprocessor DEVE ser configurado primeiro
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
       
@@ -44,6 +52,9 @@ module.exports = defineConfig({
           plugins: [createEsbuildPlugin.default(config)],
         })
       );
+
+      // Geração de resultados Allure para CI/Jenkins
+      allureWriter(on, config);
 
       // Tasks personalizadas
       on('task', {

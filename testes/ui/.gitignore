@@ -37,6 +37,20 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Integrações externas (não configuradas)
+currents.config.js
+
+# Features em desenvolvimento (não subir ao repositório)
+cypress/e2e/ui/consulta_rf.feature
+cypress/e2e/ui/design_portaria.feature
+cypress/e2e/ui/unidade_proponente.feature
+cypress/support/step_definitions/consulta_rf_steps.js
+cypress/support/step_definitions/design_portaria_steps.js
+cypress/support/step_definitions/unidade_proponente_steps.js
+cypress/support/locators/consulta_rf_locators.js
+cypress/support/locators/design_portaria_locators.js
+cypress/support/locators/unidade_proponente_locators.js
+
 # Variáveis de ambiente e credenciais
 .env
 .env.local

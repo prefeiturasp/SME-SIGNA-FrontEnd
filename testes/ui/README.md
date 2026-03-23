@@ -33,6 +33,8 @@ npm run open
 npm test
 ```
 
+> Para gerar/abrir o HTML do Allure localmente (`allure:report`/`allure:open`), é necessário Java no ambiente (`JAVA_HOME` configurado).
+
 ### Executar testes específicos
 
 **Login:**
@@ -109,9 +111,39 @@ Os relatórios de teste são gerados automaticamente após a execução em:
 - `cypress/reports/` - Relatórios em HTML
 - `allure-results/` - Resultados para Allure Report
 
+Para gerar `allure-results` durante os testes:
+```bash
+npm run test:allure
+```
+
 Para visualizar o relatório Allure:
 ```bash
 npm run allure:report
+npm run allure:open
+```
+
+## 🔁 Jenkins (Esteira)
+
+Para pipeline Jenkins com plugin Allure:
+
+1. Instale dependências: `npm ci`
+2. Execute testes com Allure: `npm run test:ci`
+3. Publique o resultado Allure apontando para: `allure-results`
+
+Exemplo de stage:
+
+```groovy
+stage('UI Tests') {
+	steps {
+		bat 'npm ci'
+		bat 'npm run test:ci'
+	}
+	post {
+		always {
+			allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+		}
+	}
+}
 ```
 
 ## 🔧 Configuração
