@@ -27,6 +27,7 @@ import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDe
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { FormEditarServidorData } from "../ModalEditarServidor/schema";
 import { Servidor } from "@/types/designacao-unidade";
+import { useFetchCargos } from "@/hooks/useCargos";
 
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
@@ -47,15 +48,15 @@ export default function SelecaoServidorIndicado({
   setDadosTitular,
   setErrorBusca,
 }: Readonly<SelecaoTipoCargoProps>) {
-  const cargos = [
-    { id: 3360, label: "Diretor" },
-    { id: 3352, label: "Supervisor" },
-    { id: 3379, label: "Coordenador" },
-    { id: 3182, label: "Secretário de escola" },
-    { id: 3085, label: "Assistente de diretor" },
-  ];
+ 
 
-  function handleSubmitEditarServidor(data: FormEditarServidorData) {
+  const { data: cargosData = []  } = useFetchCargos( );
+  const cargos = cargosData.map(cargo => ({
+    id: cargo.codigoCargo,
+    label: cargo.nomeCargo,
+  }));
+ 
+   function handleSubmitEditarServidor(data: FormEditarServidorData) {
     if (dadosTitular) {
       setDadosTitular({
         ...dadosTitular,
@@ -119,11 +120,10 @@ export default function SelecaoServidorIndicado({
                     </FormLabel>
 
                     <Select
-                      onValueChange={(value) => {
+                      onValueChange={(value) => {                        
                         const cargoSelecionado = cargos.find(
-                          (cargo) => String(cargo.id) === value
-                        );
-                        field.onChange(cargoSelecionado);
+                          (cargo) => String(cargo.id) === value);
+                        field.onChange({id: cargoSelecionado?.id, label: cargoSelecionado?.label});
                       }}
                       value={field.value?.id ? String(field.value.id) : ""}
                     >
@@ -135,8 +135,7 @@ export default function SelecaoServidorIndicado({
 
                       <SelectContent>
                         {cargos.map((cargo) => (
-                          <SelectItem key={cargo.id} value={String(cargo.id)}>
-                            {cargo.label}
+                          <SelectItem key={cargo.id} value={String(cargo.id)}>{cargo.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
