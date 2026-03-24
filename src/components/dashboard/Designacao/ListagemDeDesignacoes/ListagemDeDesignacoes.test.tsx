@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
@@ -22,6 +22,11 @@ type Row = {
 
 const tableMock = vi.fn<(props: TableProps<Row>) => ReactNode>();
 const dropdownMock = vi.fn();
+const downloadCSVMock = vi.fn();
+
+vi.mock("@/utils/export/exportCSV", () => ({
+  downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
+}));
 
 vi.mock("antd", () => ({
   Table: (props: TableProps<Row>) => {
@@ -57,10 +62,16 @@ vi.mock("@/components/ui/button", () => ({
   Button: ({
     children,
     className,
+    onClick,
   }: {
     children: ReactNode;
     className?: string;
-  }) => <button className={className}>{children}</button>,
+    onClick?: () => void;
+  }) => (
+    <button className={className} onClick={onClick}>
+      {children}
+    </button>
+  ),
 }));
 
 vi.mock("@/assets/icons/Download", () => ({
@@ -101,6 +112,7 @@ describe("ListagemDeDesignacoes", () => {
   beforeEach(() => {
     tableMock.mockClear();
     dropdownMock.mockClear();
+    downloadCSVMock.mockClear();
   });
 
   it("renderiza o cabeçalho e configura a tabela corretamente", () => {
@@ -126,6 +138,17 @@ describe("ListagemDeDesignacoes", () => {
     expect(pagination).toBeDefined();
     expect(typeof pagination?.itemRender).toBe("function");
     expect(props.columns).toHaveLength(12);
+  });
+
+  it("chama downloadCSV ao clicar em Exportar CSV", () => {
+    render(<ListagemDeDesignacoes data={data} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/i }));
+
+    expect(downloadCSVMock).toHaveBeenCalledTimes(1);
+    const [receivedData, receivedColumns] = downloadCSVMock.mock.calls[0];
+    expect(receivedData).toEqual(data);
+    expect(receivedColumns).toHaveLength(12);
   });
 
   it("executa todos os sorters das colunas", () => {

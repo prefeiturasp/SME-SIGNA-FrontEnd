@@ -1,7 +1,8 @@
+'use client'
 import React from 'react';
 import { Dropdown, Table, Tag } from 'antd';
 import type { PaginationProps, TableProps } from 'antd';
-import {   LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
+import { LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
 
 import { Button } from '@/components/ui/button';
 import Download from '@/assets/icons/Download';
@@ -11,6 +12,7 @@ import Apostilar from '@/assets/icons/Apostilar';
 import Lixeira from '@/assets/icons/Lixeira';
 import Eye from '@/assets/icons/Eye';
 import { ListagemDesignacoesResponse, StatusDesignacao } from '@/types/designacao';
+import { downloadCSV } from '@/utils/export/exportCSV';
 
 
 
@@ -139,7 +141,7 @@ const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
         </div>
         <Dropdown menu={{ items }}>
           <div>
-          <MoreOutlined />            
+            <MoreOutlined />
           </div>
         </Dropdown>
       </div>
@@ -175,6 +177,14 @@ const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => 
 
 
 const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> = ({ data }) => {
+  
+  
+  const handleDownloadCSV = () => {
+
+    // to-do adicionar a integração pra buscar os dados filtrados 
+    
+    downloadCSV(data, columns)
+  }
   return (
     <>
       <div className="flex flex-col gap-1 bg-white p-4 rounded-t-lg border border-[#DCDCDC]">
@@ -183,7 +193,7 @@ const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> =
             Lista de designações
           </span>
           <div className="flex gap-2"   >
-            <Button variant="tertiary" size={"sm"} className="gap-2" >
+            <Button variant="tertiary" size={"sm"} className="gap-2" onClick={() => handleDownloadCSV()}>
               <>
                 <Download />
                 <p className="text-[14px] ">Exportar CSV</p>
