@@ -1,36 +1,25 @@
 const { defineConfig } = require('cypress');
+const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 const { cloudPlugin } = require('cypress-cloud/plugin');
-const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
-const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
-
-// 🔥 CORREÇÃO PRINCIPAL AQUI
-const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild').default;
+const webpackPreprocessor = require('@cypress/webpack-preprocessor');
+const webpack = require('webpack');
+require('dotenv').config();
 
 module.exports = defineConfig({
   e2e: {
     baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
-    specPattern: 'cypress/e2e/**/*.feature',
     supportFile: 'cypress/support/e2e.js',
-
-    screenshotsFolder: 'cypress/screenshots',
-    videosFolder: 'cypress/videos',
+    specPattern: ['cypress/e2e/**/*.feature'],
 
     video: false,
-    videoCompression: false,
     screenshotOnRunFailure: true,
-
     chromeWebSecurity: false,
+
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
-    requestTimeout: 10000,
-    responseTimeout: 30000,
 
     viewportWidth: 1920,
     viewportHeight: 1080,
-
-    experimentalMemoryManagement: true,
-    numTestsKeptInMemory: 0,
-    watchForFileChanges: false,
 
     retries: {
       runMode: 1,
@@ -38,58 +27,70 @@ module.exports = defineConfig({
     },
 
     env: {
-      loginUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
+      loginUrl: '/login',
       username: '7311559',
-      password: process.env.CYPRESS_PASSWORD,
-      newPasswordTest: 'Sgp1559@New'
+      password: process.env.CYPRESS_PASSWORD
     },
 
     async setupNodeEvents(on, config) {
 
-      // =========================
-      // 1️⃣ Cucumber (SEMPRE PRIMEIRO)
-      // =========================
-      await preprocessor.addCucumberPreprocessorPlugin(on, config);
+      // ✅ ALLURE
+      allureWriter(on, config);
 
-      on(
-        'file:preprocessor',
-        createBundler({
-          plugins: [createEsbuildPlugin(config)],
-        })
-      );
+      // ✅ WEBPACK COMPLETO (Cucumber + polyfills)
+      const options = {
+        webpackOptions: {
+          resolve: {
+            extensions: ['.js', '.json'],
+            fallback: {
+              path: require.resolve('path-browserify'),
+              process: require.resolve('process/browser') // 🔥 CORREÇÃO AQUI
+            }
+          },
+          plugins: [
+            new webpack.ProvidePlugin({
+              process: 'process/browser' // 🔥 injeta globalmente
+            })
+          ],
+          module: {
+            rules: [
+              {
+                test: /\.feature$/,
+                use: [
+                  {
+                    loader: 'cypress-cucumber-preprocessor/loader'
+                  }
+                ]
+              },
+              {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                  loader: 'babel-loader',
+                  options: {
+                    presets: ['@babel/preset-env']
+                  }
+                }
+              }
+            ]
+          }
+        }
+      };
 
-      // =========================
-      // 2️⃣ Tasks personalizadas
-      // =========================
+      on('file:preprocessor', webpackPreprocessor(options));
+
+      // ✅ TASKS
       on('task', {
         log(message) {
           console.log(message);
           return null;
-        },
-        table(message) {
-          console.table(message);
-          return null;
         }
       });
 
-      // =========================
-      // 3️⃣ Config Firefox
-      // =========================
-      on('before:browser:launch', (browser, launchOptions) => {
-        if (browser.family === 'firefox') {
-          launchOptions.preferences['layers.acceleration.disabled'] = true;
-          launchOptions.preferences['dom.max_script_run_time'] = 0;
-          launchOptions.preferences['dom.max_chrome_script_run_time'] = 0;
-          launchOptions.preferences['browser.cache.disk.enable'] = false;
-          launchOptions.preferences['browser.cache.memory.enable'] = false;
-        }
-        return launchOptions;
-      });
+      // ✅ CLOUD
+      const finalConfig = await cloudPlugin(on, config);
 
-      // =========================
-      // 4️⃣ Cypress Cloud (SEMPRE POR ÚLTIMO)
-      // =========================
-      return await cloudPlugin(on, config);
+      return finalConfig;
     },
   },
 });

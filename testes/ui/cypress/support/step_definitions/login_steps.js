@@ -1,5 +1,5 @@
 // Step Definitions para Login
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps';
 import { loginLocators, loginTextos } from '../locators/login_locators';
 
 // Steps de ações

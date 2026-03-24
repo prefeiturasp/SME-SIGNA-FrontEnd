@@ -1,5 +1,5 @@
 // Step Definitions Comuns para todos os testes
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps';
 
 // Contexto - Navegação
 Given('que eu acesso o sistema', () => {

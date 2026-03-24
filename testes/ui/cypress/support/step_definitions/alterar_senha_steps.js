@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps';
 
 Given('que o usuário realizou o login com sucesso', () => {
   cy.visit('/');
