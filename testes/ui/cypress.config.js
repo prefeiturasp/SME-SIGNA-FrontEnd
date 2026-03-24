@@ -2,7 +2,9 @@ const { defineConfig } = require('cypress');
 const { cloudPlugin } = require('cypress-cloud/plugin');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
-const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
+
+// 🔥 CORREÇÃO PRINCIPAL AQUI
+const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild').default;
 
 module.exports = defineConfig({
   e2e: {
@@ -44,7 +46,9 @@ module.exports = defineConfig({
 
     async setupNodeEvents(on, config) {
 
-      // 1️⃣ Cucumber
+      // =========================
+      // 1️⃣ Cucumber (SEMPRE PRIMEIRO)
+      // =========================
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
 
       on(
@@ -54,7 +58,9 @@ module.exports = defineConfig({
         })
       );
 
-      // 2️⃣ Tasks
+      // =========================
+      // 2️⃣ Tasks personalizadas
+      // =========================
       on('task', {
         log(message) {
           console.log(message);
@@ -66,7 +72,9 @@ module.exports = defineConfig({
         }
       });
 
-      // 3️⃣ Firefox config
+      // =========================
+      // 3️⃣ Config Firefox
+      // =========================
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.family === 'firefox') {
           launchOptions.preferences['layers.acceleration.disabled'] = true;
@@ -78,7 +86,9 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
-      // 4️⃣ Cypress Cloud (CORRETO)
+      // =========================
+      // 4️⃣ Cypress Cloud (SEMPRE POR ÚLTIMO)
+      // =========================
       return await cloudPlugin(on, config);
     },
   },
