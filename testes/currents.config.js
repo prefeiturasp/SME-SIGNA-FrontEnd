@@ -10,3 +10,4 @@ module.exports = {
   parallel: false,
   record: false
 };
+// Este arquivo é usado para configurar o Sorry Cypress, uma ferramenta de teste de integração para aplicações web. Ele define o projectId, recordKey, cloudServiceUrl e ciBuildId, que são necessários para a execução dos testes. O ciBuildId é gerado dinamicamente com base na variável de ambiente ou usando um timestamp local. As opções parallel e record estão definidas como false, indicando que os testes não serão executados em paralelo e não serão gravados.  
