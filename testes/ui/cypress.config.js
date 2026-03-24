@@ -1,5 +1,5 @@
 const { defineConfig } = require('cypress');
-import { cloudPlugin } from 'cypress-cloud/plugin'
+const { cloudPlugin } = require('cypress-cloud/plugin');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
@@ -36,30 +36,25 @@ module.exports = defineConfig({
     },
 
     env: {
-      baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
       loginUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
       username: '7311559',
-      password: 'Sgp1559',
+      password: process.env.CYPRESS_PASSWORD,
       newPasswordTest: 'Sgp1559@New'
     },
 
     async setupNodeEvents(on, config) {
 
-      // =========================
-      // 1️⃣ Cucumber (SEMPRE PRIMEIRO)
-      // =========================
+      // 1️⃣ Cucumber
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
 
       on(
         'file:preprocessor',
         createBundler({
-          plugins: [createEsbuildPlugin.default(config)],
+          plugins: [createEsbuildPlugin(config)],
         })
       );
 
-      // =========================
-      // 2️⃣ Tasks personalizadas
-      // =========================
+      // 2️⃣ Tasks
       on('task', {
         log(message) {
           console.log(message);
@@ -71,9 +66,7 @@ module.exports = defineConfig({
         }
       });
 
-      // =========================
-      // 3️⃣ Config Firefox
-      // =========================
+      // 3️⃣ Firefox config
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.family === 'firefox') {
           launchOptions.preferences['layers.acceleration.disabled'] = true;
@@ -85,11 +78,8 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
-      // =====================
-      // 5️⃣ Cypress Cloud (SEMPRE POR ÚLTIMO)
-      // =====================
-      const enhancedConfig = await cloudPlugin(on, config)
-      return config;
+      // 4️⃣ Cypress Cloud (CORRETO)
+      return await cloudPlugin(on, config);
     },
   },
 });
