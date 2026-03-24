@@ -1,4 +1,5 @@
 const { defineConfig } = require('cypress');
+import { cloudPlugin } from 'cypress-cloud/plugin'
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
@@ -84,9 +85,10 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
-      // =========================
-      // 4️⃣ Configuração final
-      // =========================
+      // =====================
+      // 5️⃣ Cypress Cloud (SEMPRE POR ÚLTIMO)
+      // =====================
+      const enhancedConfig = await cloudPlugin(on, config)
       return config;
     },
   },
