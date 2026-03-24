@@ -7,6 +7,7 @@ import * as z from "zod";
 import SelecaoServidorIndicado from "./SelecaoServidorIndicado";
 import { Servidor } from "@/types/designacao-unidade";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
+import { FormEditarServidorData } from "../ModalEditarServidor/schema";
 
 const testSchema = z.object({
   tipo_cargo: z.string(),
@@ -15,6 +16,15 @@ const testSchema = z.object({
 });
 
 // --- MOCKS ---
+vi.mock("@/hooks/useCargos", () => ({
+  useFetchCargos: vi.fn(() => ({
+    data: [
+      { codigoCargo: 1, nomeCargo: "Diretor de Escola" },
+      { codigoCargo: 2, nomeCargo: "Assistente de Diretor" },
+    ],
+  })),
+}));
+
 vi.mock(
   "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao",
   () => ({
@@ -36,11 +46,20 @@ vi.mock("@/components/dashboard/Designacao/ResumoTitular", () => ({
     onSubmitEditarServidor,
   }: {
     data: Servidor;
-    onSubmitEditarServidor: () => void;
+    onSubmitEditarServidor: (data: FormEditarServidorData) => void;
   }) => (
     <div>
       <p>Resumo de {data.nome_servidor}</p>
-      <button onClick={onSubmitEditarServidor}>Botão Editar Mock</button>
+      <button
+        onClick={() =>
+          onSubmitEditarServidor({
+            nome_servidor: "Nome Editado",
+            nome_civil: "Civil Editado",
+          })
+        }
+      >
+        Botão Editar Mock
+      </button>
     </div>
   ),
 }));
@@ -84,6 +103,21 @@ const TestWrapper = ({
 };
 
 describe("SelecaoServidorIndicado", () => {
+  beforeAll(() => {
+    if (!Element.prototype.hasPointerCapture) {
+      Element.prototype.hasPointerCapture = () => false;
+    }
+    if (!Element.prototype.setPointerCapture) {
+      Element.prototype.setPointerCapture = () => {};
+    }
+    if (!Element.prototype.releasePointerCapture) {
+      Element.prototype.releasePointerCapture = () => {};
+    }
+    if (!Element.prototype.scrollIntoView) {
+      Element.prototype.scrollIntoView = () => {};
+    }
+  });
+
   const mockOnBuscaTitular = vi.fn((_values: BuscaDesignacaoRequest): Promise<void> => Promise.resolve());
   const mockSetDadosTitular = vi.fn((_val: Servidor | null): void => { });
   const mockSetErrorBusca = vi.fn((_val: string | null): void => { });
@@ -173,6 +207,54 @@ describe("SelecaoServidorIndicado", () => {
 
     expect(
       screen.getByText(`Resumo de ${mockDadosSucesso.nome_servidor}`)
+    ).toBeInTheDocument();
+  });
+
+  it("deve chamar setDadosTitular ao confirmar edição do servidor", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestWrapper tipoCargoInicial="disponivel">
+        {(form) => (
+          <SelecaoServidorIndicado
+            {...baseProps}
+            form={form}
+            tipoCargo="disponivel"
+            dadosTitular={mockDadosSucesso}
+          />
+        )}
+      </TestWrapper>
+    );
+
+    await user.click(screen.getByText("Botão Editar Mock"));
+
+    expect(mockSetDadosTitular).toHaveBeenCalledWith({
+      ...mockDadosSucesso,
+      nome_servidor: "Nome Editado",
+      nome_civil: "Civil Editado",
+    });
+  });
+
+  it("deve atualizar o campo ao selecionar um cargo vago", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestWrapper tipoCargoInicial="vago">
+        {(form) => (
+          <SelecaoServidorIndicado
+            {...baseProps}
+            form={form}
+            tipoCargo="vago"
+          />
+        )}
+      </TestWrapper>
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByText("Diretor de Escola"));
+
+    expect(
+      screen.getByText("Diretor de Escola")
     ).toBeInTheDocument();
   });
 });
