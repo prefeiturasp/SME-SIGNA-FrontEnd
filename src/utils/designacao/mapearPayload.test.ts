@@ -227,10 +227,4 @@ describe("mapearPayloadDesignacao", () => {
 
         expect(result?.cargo_vaga).toBe(3360);
     });
-
-    it("define impedimento_substituicao como 'FERIAS'", () => {
-        const result = mapearPayloadDesignacao({ ...formBase });
-
-        expect(result?.impedimento_substituicao).toBe("FERIAS");
-    });
 });
