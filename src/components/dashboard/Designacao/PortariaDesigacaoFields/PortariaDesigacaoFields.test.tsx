@@ -23,6 +23,18 @@ vi.mock("@/components/ui/popover", () => ({
   PopoverContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
+vi.mock("@/hooks/useTiposImpedimentos", () => ({
+  useFetchImpedimentos: () => ({
+    mutate: vi.fn(),
+    data: [
+      { value: 1, label: "Licença médica" },
+      { value: 2, label: "Férias" },
+    ],
+    isSuccess: true,
+    isLoading: false,
+  }),
+}));
+
 vi.mock("@/components/ui/calendar", () => ({
   Calendar: ({
     onSelect,
@@ -238,9 +250,16 @@ describe("PortariaDesigacaoFields", () => {
     expect(methods.getValues("numero_sei")).toBe("123");
     expect(methods.getValues("doc")).toBe("123");
 
-    // Selects (onValueChange -> field.onChange)
+    // Calendar
+    const calendars = screen.getAllByTestId("mock-calendar-select");
+    fireEvent.click(calendars[0]);
+    fireEvent.click(calendars[1]);
+
+    // Select ano
     const currentYear = `${new Date().getFullYear()}`;
     fireEvent.click(screen.getByTestId(`select-item-${currentYear}`));
+
+    // ✅ Select impedimento (agora existe)
     fireEvent.click(screen.getByTestId("select-item-1"));
 
     expect(methods.getValues("ano")).toBe(currentYear);
@@ -251,10 +270,6 @@ describe("PortariaDesigacaoFields", () => {
     fireEvent.click(within(caraterEspecialGroup).getByRole("button", { name: /marcar sim/i }));
     expect(methods.getValues("carater_especial")).toBe("sim");
 
-    // Calendar (onSelect -> field.onChange)
-    const calendars = screen.getAllByTestId("mock-calendar-select");
-    fireEvent.click(calendars[0]);
-    fireEvent.click(calendars[1]);
 
     expect(methods.getValues("a_partir_de")).toBeInstanceOf(Date);
     expect(methods.getValues("designacao_data_final")).toBeInstanceOf(Date);
