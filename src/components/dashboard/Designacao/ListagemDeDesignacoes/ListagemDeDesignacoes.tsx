@@ -13,6 +13,7 @@ import Lixeira from '@/assets/icons/Lixeira';
 import Eye from '@/assets/icons/Eye';
 import { ListagemDesignacoesResponse, StatusDesignacao } from '@/types/designacao';
 import { downloadCSV } from '@/utils/export/exportCSV';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -59,95 +60,6 @@ const items = [
 ];
 
 
-const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
-  {
-    title: 'RF',
-    dataIndex: 'rf_servidor_indicado',
-    key: 'rf_servidor_indicado',
-    sorter: (a, b) => a.rf_servidor_indicado - b.rf_servidor_indicado,
-  },
-  {
-    title: 'SERVIDOR INDICADO',
-    dataIndex: 'servidor_indicado',
-    key: 'servidor_indicado',
-
-  },
-
-  {
-    title: 'RF',
-    dataIndex: 'rf_servidor_titular',
-    key: 'rf_servidor_titular',
-    sorter: (a, b) => a.rf_servidor_titular - b.rf_servidor_titular,
-  },
-  {
-    title: 'SERVIDOR TITULAR',
-    dataIndex: 'servidor_titular',
-    key: 'servidor_titular',
-
-  },
-
-  {
-    title: 'SEI',
-    dataIndex: 'sei_titular',
-    key: 'sei_titular',
-    sorter: (a, b) => a.sei_titular - b.sei_titular,
-
-  },
-  {
-    title: 'PORTARIA DESIGNAÇÃO',
-    dataIndex: 'portaria_designacao',
-    key: 'portaria_designacao',
-    sorter: (a, b) => a.portaria_designacao - b.portaria_designacao,
-  },
-  {
-    title: 'ANO DESIGNAÇÃO',
-    dataIndex: 'ano_designacao',
-    key: 'ano_designacao',
-    sorter: (a, b) => a.ano_designacao - b.ano_designacao,
-  },
-  {
-    title: 'SEI',
-    dataIndex: 'sei_designacao',
-    key: 'sei_designacao',
-    sorter: (a, b) => a.sei_designacao - b.sei_designacao,
-  },
-  {
-    title: 'PORTARIA CESSAÇÃO',
-    dataIndex: 'portaria_cessacao',
-    key: 'portaria_cessacao',
-    sorter: (a, b) => a.portaria_cessacao - b.portaria_cessacao,
-  },
-  {
-    title: 'ANO DA CESSAÇÃO',
-    dataIndex: 'ano_cessacao',
-    key: 'ano_cessacao',
-    sorter: (a, b) => a.ano_cessacao - b.ano_cessacao,
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (_, record) => TagStatusDesignacao(record.status, record.key + '_status'),
-  },
-
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='space-x-2 flex items-center'>
-
-        <div>
-          <Eye className='w-4 h-4 fill-[#86858D]' />
-        </div>
-        <Dropdown menu={{ items }}>
-          <div>
-            <MoreOutlined />
-          </div>
-        </Dropdown>
-      </div>
-    ),
-  },
-];
 
 
 
@@ -177,7 +89,103 @@ const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => 
 
 
 const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> = ({ data }) => {
+  const router = useRouter();
+
+  const handleVisualizarDesignacao = (record: ListagemDesignacoesResponse) => {
+    router.push(
+      `/pages/listagem-designacoes/visualizar-designacao?id=${record.key}`
+    );
+  }
   
+  const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
+    {
+      title: 'RF',
+      dataIndex: 'rf_servidor_indicado',
+      key: 'rf_servidor_indicado',
+      sorter: (a, b) => a.rf_servidor_indicado - b.rf_servidor_indicado,
+    },
+    {
+      title: 'SERVIDOR INDICADO',
+      dataIndex: 'servidor_indicado',
+      key: 'servidor_indicado',
+  
+    },
+  
+    {
+      title: 'RF',
+      dataIndex: 'rf_servidor_titular',
+      key: 'rf_servidor_titular',
+      sorter: (a, b) => a.rf_servidor_titular - b.rf_servidor_titular,
+    },
+    {
+      title: 'SERVIDOR TITULAR',
+      dataIndex: 'servidor_titular',
+      key: 'servidor_titular',
+  
+    },
+  
+    {
+      title: 'SEI',
+      dataIndex: 'sei_titular',
+      key: 'sei_titular',
+      sorter: (a, b) => a.sei_titular - b.sei_titular,
+  
+    },
+    {
+      title: 'PORTARIA DESIGNAÇÃO',
+      dataIndex: 'portaria_designacao',
+      key: 'portaria_designacao',
+      sorter: (a, b) => a.portaria_designacao - b.portaria_designacao,
+    },
+    {
+      title: 'ANO DESIGNAÇÃO',
+      dataIndex: 'ano_designacao',
+      key: 'ano_designacao',
+      sorter: (a, b) => a.ano_designacao - b.ano_designacao,
+    },
+    {
+      title: 'SEI',
+      dataIndex: 'sei_designacao',
+      key: 'sei_designacao',
+      sorter: (a, b) => a.sei_designacao - b.sei_designacao,
+    },
+    {
+      title: 'PORTARIA CESSAÇÃO',
+      dataIndex: 'portaria_cessacao',
+      key: 'portaria_cessacao',
+      sorter: (a, b) => a.portaria_cessacao - b.portaria_cessacao,
+    },
+    {
+      title: 'ANO DA CESSAÇÃO',
+      dataIndex: 'ano_cessacao',
+      key: 'ano_cessacao',
+      sorter: (a, b) => a.ano_cessacao - b.ano_cessacao,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (_, record) => TagStatusDesignacao(record.status, record.key + '_status'),
+    },
+  
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <div className='space-x-2 flex items-center'>
+  
+          <div>
+            <Eye className='w-4 h-4 fill-[#86858D]' onClick={() => handleVisualizarDesignacao(record)}/>
+          </div>
+          <Dropdown menu={{ items }}>
+            <div>
+              <MoreOutlined />
+            </div>
+          </Dropdown>
+        </div>
+      ),
+    },
+  ];
   
   const handleDownloadCSV = () => {
 
