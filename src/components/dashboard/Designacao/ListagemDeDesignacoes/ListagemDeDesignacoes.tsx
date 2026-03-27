@@ -80,14 +80,14 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 }) => {
   const router = useRouter();
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<number | null>(null);
-  
+
   const handleVisualizarDesignacao = (record: ListagemDesignacoesResponse) => {
     router.push(
       `/pages/listagem-designacoes/visualizar-designacao/${record.id}`
     );
   }
 
-  const getItems = ( record: ListagemDesignacoesResponse ): MenuProps['items'] => [
+  const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
     {
       key: '1', label: 'Apostilar', icon: <Apostilar />, onClick: () => {
         console.log('Apostilar');
@@ -110,65 +110,23 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       onClick: () => {
         setConfirmDeleteKey(record.id);
       }
-      },
+    },
   ];
 
- 
+
 
 
   const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
-    {
-      title: 'RF',
-      dataIndex: 'rf_servidor_indicado',
-      key: 'rf_servidor_indicado',
-    },
-    {
-      title: 'SERVIDOR INDICADO',
-      dataIndex: 'servidor_indicado',
-      key: 'servidor_indicado',
-
-    },
-
-    {
-      title: 'RF',
-      dataIndex: 'rf_servidor_titular',
-      key: 'rf_servidor_titular',
-    },
-    {
-      title: 'SERVIDOR TITULAR',
-      dataIndex: 'servidor_titular',
-      key: 'servidor_titular',
-    },
-    {
-      title: 'SEI',
-      dataIndex: 'sei_titular',
-      key: 'sei_titular',
-    },
-    {
-      title: 'PORTARIA DESIGNAÇÃO',
-      dataIndex: 'portaria_designacao',
-      key: 'portaria_designacao',
-    },
-    {
-      title: 'ANO DESIGNAÇÃO',
-      dataIndex: 'ano_designacao',
-      key: 'ano_designacao',
-    },
-    {
-      title: 'SEI',
-      dataIndex: 'sei_designacao',
-      key: 'sei_designacao',
-    },
-    {
-      title: 'PORTARIA CESSAÇÃO',
-      dataIndex: 'portaria_cessacao',
-      key: 'portaria_cessacao',
-    },
-    {
-      title: 'ANO DA CESSAÇÃO',
-      dataIndex: 'ano_cessacao',
-      key: 'ano_cessacao',
-    },
+    { title: 'RF INDICADO', dataIndex: 'indicado_rf', key: 'indicado_rf' },
+    { title: 'SERVIDOR INDICADO', dataIndex: 'indicado_nome_servidor', key: 'indicado_nome_servidor' },
+    { title: 'RF TITULAR', dataIndex: 'titular_rf', key: 'titular_rf' },
+    { title: 'SERVIDOR TITULAR', dataIndex: 'titular_nome_servidor', key: 'titular_nome_servidor' },
+    { title: 'SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
+    { title: 'PORTARIA DESIGNAÇÃO', dataIndex: 'numero_portaria', key: 'numero_portaria' },
+    { title: 'ANO DESIGNAÇÃO', dataIndex: 'ano_vigente', key: 'ano_vigente' },
+    { title: 'DRE', dataIndex: 'dre_nome', key: 'dre_nome' },
+    { title: 'UNIDADE', dataIndex: 'unidade_proponente', key: 'unidade_proponente' },
+    { title: 'CARGO', dataIndex: 'cargo_vaga_display', key: 'cargo_vaga_display' },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -183,10 +141,10 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
         <div className='space-x-2 flex items-center'>
 
           <div>
-          <Eye
-            className='w-4 h-4 fill-[#86858D] cursor-pointer'
-            onClick={() => handleVisualizarDesignacao(record)}
-          />
+            <Eye
+              className='w-4 h-4 fill-[#86858D] cursor-pointer'
+              onClick={() => handleVisualizarDesignacao(record)}
+            />
           </div>
           <Popconfirm
             title="Excluir designação"
