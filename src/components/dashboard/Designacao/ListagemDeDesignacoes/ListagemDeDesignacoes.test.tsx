@@ -9,9 +9,16 @@ const tableMock = vi.fn<(props: TableProps<ListagemDesignacoesResponse>) => Reac
 const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
 const downloadCSVMock = vi.fn();
+const pushMock = vi.fn();
 
 vi.mock("@/utils/export/exportCSV", () => ({
   downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: (...args: unknown[]) => pushMock(...args),
+  }),
 }));
 
 vi.mock("antd", () => ({
@@ -84,8 +91,14 @@ vi.mock("@/assets/icons/Lixeira", () => ({
   default: () => <span data-testid="lixeira-icon" />,
 }));
 vi.mock("@/assets/icons/Eye", () => ({
-  default: ({ className }: { className?: string }) => (
-    <span data-testid="eye-icon" className={className} />
+  default: ({
+    className,
+    onClick,
+  }: {
+    className?: string;
+    onClick?: () => void;
+  }) => (
+    <span data-testid="eye-icon" className={className} onClick={onClick} />
   ),
 }));
 
@@ -122,6 +135,7 @@ describe("ListagemDeDesignacoes", () => {
     paginationMock.mockClear();
     dropdownMock.mockClear();
     downloadCSVMock.mockClear();
+    pushMock.mockClear();
   });
 
   it("renderiza o cabeçalho e configura a tabela corretamente", () => {
@@ -140,20 +154,25 @@ describe("ListagemDeDesignacoes", () => {
     expect(typeof props.rowKey).toBe("function");
     expect((props.rowKey as (r: ListagemDesignacoesResponse) => string)(makeRow(5))).toBe("5");
     expect(props.pagination).toBe(false);
+
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
+
     expect(paginationMock).toHaveBeenCalledTimes(1);
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
+
     expect(paginationProps.current).toBe(1);
     expect(paginationProps.pageSize).toBe(10);
     expect(paginationProps.total).toBe(0);
     expect(paginationProps.showSizeChanger).toBe(false);
     expect(typeof paginationProps.itemRender).toBe("function");
+
     expect(props.columns).toHaveLength(12);
   });
 
   it("exibe o total de registros ao lado da paginação", () => {
     render(<ListagemDeDesignacoes data={data} total={107} />);
     expect(screen.getByText("107")).toBeInTheDocument();
+
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
     expect(paginationProps.total).toBe(107);
   });
@@ -165,6 +184,7 @@ describe("ListagemDeDesignacoes", () => {
 
     expect(downloadCSVMock).toHaveBeenCalledTimes(1);
     const [receivedData, receivedColumns] = downloadCSVMock.mock.calls[0];
+
     expect(receivedData).toEqual(data);
     expect(receivedColumns).toHaveLength(12);
   });
@@ -172,6 +192,7 @@ describe("ListagemDeDesignacoes", () => {
   it("renderiza o status para todos os valores previstos", () => {
     render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
+
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const statusRender = columns[10]?.render as
       | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
@@ -188,8 +209,10 @@ describe("ListagemDeDesignacoes", () => {
       const record: ListagemDesignacoesResponse = { ...makeRow(0), status };
       const { unmount } = render(<>{statusRender?.(null, record)}</>);
       const tag = screen.getByTestId("tag");
+
       expect(tag).toHaveTextContent(text);
       expect(tag).toHaveAttribute("data-color", color);
+
       unmount();
     });
   });
@@ -197,6 +220,7 @@ describe("ListagemDeDesignacoes", () => {
   it("renderiza status INDISPONÍVEL quando status é undefined", () => {
     render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
+
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const statusRender = columns[10]?.render as
       | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
@@ -205,15 +229,17 @@ describe("ListagemDeDesignacoes", () => {
     const record = { ...makeRow(0), status: undefined as unknown as StatusDesignacao };
     const { unmount } = render(<>{statusRender?.(null, record)}</>);
     const tag = screen.getByTestId("tag");
+
     expect(tag).toHaveTextContent("INDISPONÍVEL");
     expect(tag).toHaveAttribute("data-color", "#9E9E9E");
+
     unmount();
   });
 
-  it("renderiza a coluna de ação e executa os callbacks do menu", () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+  it("renderiza a coluna de ação e executa os callbacks", () => {
     render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
+
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const actionRender = columns[11]?.render as
       | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
@@ -226,25 +252,17 @@ describe("ListagemDeDesignacoes", () => {
     expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
     expect(dropdownMock).toHaveBeenCalledTimes(1);
 
-    const menu = dropdownMock.mock.calls[0][0] as { items: Array<{ onClick: () => void }> };
-    expect(menu.items).toHaveLength(4);
-    menu.items.forEach((item) => item.onClick());
-
-    expect(logSpy).toHaveBeenNthCalledWith(1, "Apostilar");
-    expect(logSpy).toHaveBeenNthCalledWith(2, "Cessar");
-    expect(logSpy).toHaveBeenNthCalledWith(3, "Tornar Insubsistente");
-    expect(logSpy).toHaveBeenNthCalledWith(4, "Deletar");
-
-    logSpy.mockRestore();
+    fireEvent.click(screen.getByTestId("eye-icon"));
+    expect(pushMock).toHaveBeenCalledWith(
+      `/pages/listagem-designacoes/visualizar-designacao/${row.id}`
+    );
   });
 
-  it("mantém prev/next desabilitados quando o elemento original estiver desabilitado", () => {
+  it("mantém prev/next desabilitados corretamente", () => {
     render(<ListagemDeDesignacoes data={data} />);
 
-    expect(paginationMock).toHaveBeenCalledTimes(1);
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
     const itemRenderFn = paginationProps.itemRender as NonNullable<PaginationProps["itemRender"]>;
-    expect(typeof itemRenderFn).toBe("function");
 
     const prevOriginal = <button aria-disabled="true">prev</button>;
     const nextOriginal = <button aria-disabled="true">next</button>;
@@ -256,12 +274,14 @@ describe("ListagemDeDesignacoes", () => {
 
     const { rerender } = render(<>{renderedPrev}</>);
     const prevLabel = screen.getByText("Anterior");
+
     expect(prevLabel).toBeInTheDocument();
     expect(prevLabel.closest("button")).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByTestId("left-outlined")).toBeInTheDocument();
 
     rerender(<>{renderedNext}</>);
     const nextLabel = screen.getByText("Próximo");
+
     expect(nextLabel).toBeInTheDocument();
     expect(nextLabel.closest("button")).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByTestId("right-outlined")).toBeInTheDocument();
