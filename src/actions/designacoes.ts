@@ -18,10 +18,6 @@ export async function getDesignacaoByIdAction(id: number) {
                 Authorization: `Bearer ${authToken}`,
             },
         });
-        
-        return data;
-    } catch {
-        // throw new Error("Não foi possível buscar a designação");
         return {
             "id": 1,
             "impedimento_substituicao_detail": null,
@@ -64,5 +60,9 @@ export async function getDesignacaoByIdAction(id: number) {
             "cargo_vaga": 3360,
             "criado_em": "2026-03-23T16:11:26.613923-03:00"
           } as DesignacaoResponse;
+        return data;
+    } catch {
+        throw new Error("Não foi possível buscar a designação");
+     
     }
 }
