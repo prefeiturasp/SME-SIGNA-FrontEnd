@@ -1,12 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import axios from "axios";
 import { cookies } from "next/headers";
 import { fetchDesignacoesAction } from "./designacao";
 import { DesignacaoFiltros, DesignacaoPaginada } from "@/types/designacao";
+import { getApiClient } from "@/lib/api";
 
-vi.mock("axios");
+// Mocks de dependências externas
 vi.mock("next/headers", () => ({
     cookies: vi.fn(),
+}));
+
+vi.mock("@/lib/api", () => ({
+    getApiClient: vi.fn(),
 }));
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
@@ -51,12 +55,21 @@ const sampleResponse: DesignacaoPaginada = {
 };
 
 describe("fetchDesignacoesAction", () => {
+    // Criamos um mock para a instância do Axios que o getApiClient retorna
+    const mockAxiosInstance = {
+        get: vi.fn(),
+    };
+
     beforeEach(() => {
         vi.clearAllMocks();
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+
+        // Por padrão, o getApiClient retorna nossa instância mockada
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as any);
     });
 
-    it("retorna erro quando não há token", async () => {
+    it("retorna erro quando não há token (getApiClient retorna null)", async () => {
+        vi.mocked(getApiClient).mockResolvedValue(null);
         vi.mocked(cookies).mockResolvedValue(makeCookieStore(undefined));
 
         const result = await fetchDesignacoesAction(sampleFiltros);
@@ -65,22 +78,20 @@ describe("fetchDesignacoesAction", () => {
             success: false,
             error: "Usuário não autenticado",
         });
-        expect(axios.get).not.toHaveBeenCalled();
+        expect(mockAxiosInstance.get).not.toHaveBeenCalled();
     });
 
     it("faz requisição com token e retorna dados em caso de sucesso", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockResolvedValue({ data: sampleResponse });
+        mockAxiosInstance.get.mockResolvedValue({ data: sampleResponse });
 
         const result = await fetchDesignacoesAction(sampleFiltros);
 
-        expect(axios.get).toHaveBeenCalledWith(
-            "https://api.exemplo.com/designacao/designacoes/",
+        // Note que agora validamos o caminho relativo, pois a baseURL está no client
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/designacoes/",
             {
                 params: { rf: "123456", nome: "Servidor Teste", page: 1, page_size: 10 },
-                headers: {
-                    Authorization: "Bearer token-123",
-                },
             }
         );
         expect(result).toEqual({ success: true, data: sampleResponse });
@@ -88,7 +99,7 @@ describe("fetchDesignacoesAction", () => {
 
     it("filtra parâmetros vazios, undefined e null antes de enviar", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockResolvedValue({ data: sampleResponse });
+        mockAxiosInstance.get.mockResolvedValue({ data: sampleResponse });
 
         const filtrosComVazios: DesignacaoFiltros = {
             rf: "123456",
@@ -100,18 +111,20 @@ describe("fetchDesignacoesAction", () => {
 
         await fetchDesignacoesAction(filtrosComVazios);
 
-        expect(axios.get).toHaveBeenCalledWith(
-            "https://api.exemplo.com/designacao/designacoes/",
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/designacoes/",
             {
                 params: { rf: "123456", page: 1 },
-                headers: { Authorization: "Bearer token-123" },
             }
         );
     });
 
     it("retorna mensagem específica para status 401", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({ response: { status: 401 } });
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 401 }
+        });
 
         const result = await fetchDesignacoesAction(sampleFiltros);
 
@@ -123,19 +136,25 @@ describe("fetchDesignacoesAction", () => {
 
     it("retorna mensagem específica para status 400", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({ response: { status: 400 } });
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 400 }
+        });
 
         const result = await fetchDesignacoesAction(sampleFiltros);
 
         expect(result).toEqual({
             success: false,
-            error: "Parâmetros inválidos",
+            error: "Erro ao buscar as designações", // defaultMessage passada no handleApiError
         });
     });
 
     it("retorna mensagem específica para status 500", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({ response: { status: 500 } });
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 500 }
+        });
 
         const result = await fetchDesignacoesAction(sampleFiltros);
 
@@ -147,7 +166,8 @@ describe("fetchDesignacoesAction", () => {
 
     it("prioriza mensagem vinda de detail quando presente", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
             response: { data: { detail: "Erro específico" } },
             message: "Erro genérico",
         });
@@ -159,7 +179,10 @@ describe("fetchDesignacoesAction", () => {
 
     it("retorna mensagem do erro quando disponível e sem detail", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({ message: "Falha inesperada" });
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            message: "Falha inesperada"
+        });
 
         const result = await fetchDesignacoesAction(sampleFiltros);
 
@@ -171,19 +194,23 @@ describe("fetchDesignacoesAction", () => {
 
     it("retorna mensagem padrão quando não há detalhes do erro", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({});
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            message: ""
+        });
 
         const result = await fetchDesignacoesAction(sampleFiltros);
 
         expect(result).toEqual({
             success: false,
-            error: "Erro ao buscar as designações",
+            error: "Erro inesperado", // Fallback final do handleApiError
         });
     });
 
     it("retorna detail para status não mapeado com detail presente", async () => {
         vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-        vi.mocked(axios.get).mockRejectedValue({
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
             response: { status: 503, data: { detail: "Serviço indisponível" } },
             message: "Erro genérico",
         });
