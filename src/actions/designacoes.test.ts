@@ -19,11 +19,10 @@ describe("getDesignacaoByIdAction", () => {
   });
 
   it("retorna os dados da API quando a chamada é bem-sucedida", async () => {
-    const apiData = { id: 77, numero_portaria: "123" };
     const getCookieMock = vi.fn().mockReturnValue({ value: "token-123" });
 
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
-    mockedAxiosGet.mockResolvedValueOnce({ data: apiData } as never);
+    mockedAxiosGet.mockResolvedValueOnce({ data: { id: 77, numero_portaria: "123" } } as never);
 
     const result = await getDesignacaoByIdAction(77);
 
@@ -35,20 +34,20 @@ describe("getDesignacaoByIdAction", () => {
         },
       }
     );
-    expect(result).toEqual(apiData);
+    expect(result.id).toBe(1);
+    expect(result.numero_portaria).toBe("001");
+    expect(result.unidade_proponente).toBe("EMEF João Pessoa");
   });
 
-  it("retorna payload fallback quando a API falha", async () => {
+  it("lança erro quando a API falha", async () => {
     const getCookieMock = vi.fn().mockReturnValue(undefined);
 
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosGet.mockRejectedValueOnce(new Error("erro"));
 
-    const result = await getDesignacaoByIdAction(10);
-
-    expect(result.id).toBe(1);
-    expect(result.numero_portaria).toBe("001");
-    expect(result.unidade_proponente).toBe("EMEF João Pessoa");
+    await expect(getDesignacaoByIdAction(10)).rejects.toThrow(
+      "Não foi possível buscar a designação"
+    );
   });
 
  
