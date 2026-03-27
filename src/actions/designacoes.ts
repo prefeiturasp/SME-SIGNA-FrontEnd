@@ -7,6 +7,8 @@ import { cookies } from "next/headers";
 export async function getDesignacaoByIdAction(id: number) {
     const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
+  
+
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
 
@@ -16,6 +18,7 @@ export async function getDesignacaoByIdAction(id: number) {
                 Authorization: `Bearer ${authToken}`,
             },
         });
+        
         return data;
     } catch {
         // throw new Error("Não foi possível buscar a designação");

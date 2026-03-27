@@ -23,9 +23,16 @@ type Row = {
 const tableMock = vi.fn<(props: TableProps<Row>) => ReactNode>();
 const dropdownMock = vi.fn();
 const downloadCSVMock = vi.fn();
+const pushMock = vi.fn();
 
 vi.mock("@/utils/export/exportCSV", () => ({
   downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: (...args: unknown[]) => pushMock(...args),
+  }),
 }));
 
 vi.mock("antd", () => ({
@@ -90,8 +97,14 @@ vi.mock("@/assets/icons/Lixeira", () => ({
   default: () => <span data-testid="lixeira-icon" />,
 }));
 vi.mock("@/assets/icons/Eye", () => ({
-  default: ({ className }: { className?: string }) => (
-    <span data-testid="eye-icon" className={className} />
+  default: ({
+    className,
+    onClick,
+  }: {
+    className?: string;
+    onClick?: () => void;
+  }) => (
+    <span data-testid="eye-icon" className={className} onClick={onClick} />
   ),
 }));
 const data: ListagemDesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) => ({
@@ -113,6 +126,7 @@ describe("ListagemDeDesignacoes", () => {
     tableMock.mockClear();
     dropdownMock.mockClear();
     downloadCSVMock.mockClear();
+    pushMock.mockClear();
   });
 
   it("renderiza o cabeçalho e configura a tabela corretamente", () => {
@@ -133,8 +147,7 @@ describe("ListagemDeDesignacoes", () => {
       defaultPageSize: 10,
       placement: ["bottomCenter"],
     });
-    const pagination =
-      props.pagination && props.pagination !== false ? props.pagination : undefined;
+    const pagination = props.pagination as PaginationProps | undefined;
     expect(pagination).toBeDefined();
     expect(typeof pagination?.itemRender).toBe("function");
     expect(props.columns).toHaveLength(12);
@@ -248,6 +261,10 @@ describe("ListagemDeDesignacoes", () => {
     expect(screen.getByTestId("eye-icon")).toBeInTheDocument();
     expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
     expect(dropdownMock).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByTestId("eye-icon"));
+    expect(pushMock).toHaveBeenCalledWith(
+      `/pages/listagem-designacoes/visualizar-designacao/${row.key}`
+    );
 
     const menu = dropdownMock.mock.calls[0][0] as { items: Array<{ onClick: () => void }> };
     expect(menu.items).toHaveLength(4);
@@ -264,27 +281,29 @@ describe("ListagemDeDesignacoes", () => {
   it("mantém prev/next desabilitados quando o elemento original estiver desabilitado", () => {
     render(<ListagemDeDesignacoes data={data}   />);
     const props = tableMock.mock.calls[0][0];
-    const pagination =
-      props.pagination && props.pagination !== false ? props.pagination : undefined;
+    const pagination = props.pagination as PaginationProps | undefined;
     expect(pagination).toBeDefined();
     const itemRender = pagination?.itemRender;
     expect(typeof itemRender).toBe("function");
+    if (!itemRender) {
+      throw new Error("itemRender não foi configurado na paginação");
+    }
 
     const prevOriginal = <button aria-disabled="true">prev</button>;
     const nextOriginal = <button aria-disabled="true">next</button>;
     const pageOriginal = <button>2</button>;
 
-    const renderedPrev = (itemRender as PaginationProps["itemRender"])(
+    const renderedPrev = itemRender(
       1,
       "prev",
       prevOriginal
     );
-    const renderedNext = (itemRender as PaginationProps["itemRender"])(
+    const renderedNext = itemRender(
       2,
       "next",
       nextOriginal
     );
-    const renderedPage = (itemRender as PaginationProps["itemRender"])(
+    const renderedPage = itemRender(
       2,
       "page",
       pageOriginal

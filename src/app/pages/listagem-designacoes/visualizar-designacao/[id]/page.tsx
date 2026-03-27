@@ -10,19 +10,20 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 
 import Designacao from "@/assets/icons/Designacao";
 
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Loader2 } from "lucide-react";
 
 export default function VisualizarDesignacao() {
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const params = useParams();
+  const id = params.id;
+
+  
   const { data: designacao, isLoading: isLoadingDesignacao, error: errorDesignacao } = useFetchDesignacoesById(
     Number(id),
   );
-
 
 
 
@@ -34,12 +35,7 @@ export default function VisualizarDesignacao() {
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
-      
-      {errorDesignacao && (
-        <div className="text-red-500 text-sm animate-in shake-1">
-          {errorDesignacao?.message}
-        </div>
-      )}
+
 
       <Card
         title={
@@ -49,6 +45,13 @@ export default function VisualizarDesignacao() {
         }
         className="mt-4 m-0"
       >
+        {errorDesignacao && (
+          <div className="text-red-500 text-sm animate-in shake-1">
+            {errorDesignacao?.message}
+          </div>
+        )}
+
+
         {isLoadingDesignacao ? (
           <div className="flex justify-center h-full">
             <Loader2 className="h-16 w-16 text-primary animate-spin" />

@@ -93,7 +93,7 @@ const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> =
 
   const handleVisualizarDesignacao = (record: ListagemDesignacoesResponse) => {
     router.push(
-      `/pages/listagem-designacoes/visualizar-designacao?id=${record.key}`
+      `/pages/listagem-designacoes/visualizar-designacao/${record.key}`
     );
   }
   
