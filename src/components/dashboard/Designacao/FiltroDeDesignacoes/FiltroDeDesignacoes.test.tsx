@@ -4,12 +4,25 @@ import { vi } from "vitest";
 import FiltroDeDesignacoes from "./FiltroDeDesignacoes";
 
 const registerMock = vi.fn();
+const resetMock = vi.fn();
+const clearErrorsMock = vi.fn();
+const setValueMock = vi.fn();
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
+
+const watchValues: Record<string, string> = {};
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
     register: registerMock,
     control: {},
+    watch: (fields?: string | string[]) => {
+      if (!fields) return {};
+      if (Array.isArray(fields)) return fields.map((f) => watchValues[f] ?? "");
+      return watchValues[fields] ?? "";
+    },
+    setValue: setValueMock,
+    clearErrors: clearErrorsMock,
+    reset: resetMock,
   }),
 }));
 
@@ -23,8 +36,8 @@ vi.mock("@/components/ui/FieldsForm", () => ({
     label: string;
     "data-testid"?: string;
   }) => <div data-testid={dataTestId ?? `input-${name}`}>{label}</div>,
-  DateField: ({ name, label }: { name: string; label: string }) => (
-    <div data-testid={`date-${name}`}>{label}</div>
+  DateRangeField: ({ name, label }: { name: string; label: string }) => (
+    <div data-testid={`date-range-${name}`}>{label}</div>
   ),
 }));
 
@@ -38,7 +51,11 @@ vi.mock("@/components/ui/form", () => ({
   }) => {
     const onChange = vi.fn();
     onChangeByField[name] = onChange;
-    return <div data-testid={`form-field-${name}`}>{render({ field: { value: "", onChange } })}</div>;
+    return (
+      <div data-testid={`form-field-${name}`}>
+        {render({ field: { value: "", onChange } })}
+      </div>
+    );
   },
   FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   FormMessage: () => <span data-testid="form-message" />,
@@ -77,17 +94,45 @@ vi.mock("@/components/ui/select", () => ({
   SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
 }));
 
+vi.mock("@/components/ui/Combobox", () => ({
+  Combobox: ({
+    onChange,
+    placeholder,
+  }: {
+    onChange: (value: string) => void;
+    placeholder?: string;
+    value?: string;
+    options?: { label: string; value: string }[];
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => (
+    <button
+      type="button"
+      data-testid="select-ue"
+      onClick={() => onChange("mock-ue")}
+    >
+      {placeholder}
+    </button>
+  ),
+}));
+
 vi.mock("@/components/ui/button", () => ({
   Button: ({
     children,
     type,
     className,
+    disabled,
+    onClick,
+    "data-testid": dataTestId,
   }: {
     children: ReactNode;
     type?: "button" | "submit" | "reset";
     className?: string;
+    disabled?: boolean;
+    onClick?: () => void;
+    "data-testid"?: string;
   }) => (
-    <button type={type} className={className}>
+    <button type={type} className={className} disabled={disabled} onClick={onClick} data-testid={dataTestId}>
       {children}
     </button>
   ),
@@ -95,6 +140,32 @@ vi.mock("@/components/ui/button", () => ({
 
 vi.mock("lucide-react", () => ({
   Search: () => <svg data-testid="search-icon" />,
+  Loader2: () => <svg data-testid="loader-icon" />,
+  X: () => <svg data-testid="x-icon" />,
+}));
+
+vi.mock("@/hooks/useUnidades", () => ({
+  useFetchDREs: () => ({
+    data: [
+      { codigoDRE: "01", nomeDRE: "DRE Centro", siglaDRE: "DC" },
+      { codigoDRE: "02", nomeDRE: "DRE Norte", siglaDRE: "DN" },
+    ],
+  }),
+  useFetchUEs: () => ({
+    data: [
+      { codigoEscola: "001", nomeEscola: "Escola Alpha", siglaTipoEscola: "EMEF" },
+    ],
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@/hooks/useCargos", () => ({
+  useFetchCargos: () => ({
+    data: [
+      { codigoCargo: "1", nomeCargo: "Diretor" },
+      { codigoCargo: "2", nomeCargo: "Coordenador" },
+    ],
+  }),
 }));
 
 describe("FiltroDeDesignacoes", () => {
@@ -103,27 +174,40 @@ describe("FiltroDeDesignacoes", () => {
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
   });
 
-  it("renderiza todos os campos e opções esperadas", () => {
+  it("renderiza todos os campos esperados", () => {
     render(<FiltroDeDesignacoes />);
 
     expect(screen.getByTestId("input-rf")).toHaveTextContent("RF servidor Indicado / Titular");
     expect(screen.getByTestId("input-nome-servidor")).toHaveTextContent("Nome do servidor");
-    expect(screen.getByTestId("date-periodo")).toHaveTextContent("Período");
-    expect(screen.getByTestId("input-dre")).toHaveTextContent("DRE");
+    expect(screen.getByTestId("date-range-periodo")).toHaveTextContent("Período");
 
     expect(screen.getByTestId("select-cargo-base")).toBeInTheDocument();
     expect(screen.getByTestId("select-cargo-sobreposto")).toBeInTheDocument();
-    expect(screen.getByTestId("select-unidade-escolar")).toBeInTheDocument();
     expect(screen.getByTestId("select-ano")).toBeInTheDocument();
+    expect(screen.getByTestId("select-dre")).toBeInTheDocument();
+    expect(screen.getByTestId("select-ue")).toBeInTheDocument();
 
-    expect(screen.getAllByText("Diretor").length).toBeGreaterThan(0);
-    expect(screen.getByText("Outro")).toBeInTheDocument();
-    expect(screen.getByText("UE 01")).toBeInTheDocument();
     expect(screen.getByText(String(new Date().getFullYear()))).toBeInTheDocument();
     expect(screen.getByText("1980")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: "Pesquisar" })).toBeInTheDocument();
+    expect(screen.getByTestId("btn-pesquisar")).toBeInTheDocument();
+    expect(screen.getByTestId("btn-limpar-filtros")).toBeInTheDocument();
     expect(screen.getByTestId("search-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("x-icon")).toBeInTheDocument();
+  });
+
+  it("renderiza as opções de cargo vindas do hook", () => {
+    render(<FiltroDeDesignacoes />);
+
+    expect(screen.getAllByText("Diretor").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Coordenador").length).toBeGreaterThan(0);
+  });
+
+  it("renderiza as opções de DRE vindas do hook", () => {
+    render(<FiltroDeDesignacoes />);
+
+    expect(screen.getByText("DRE Centro")).toBeInTheDocument();
+    expect(screen.getByText("DRE Norte")).toBeInTheDocument();
   });
 
   it("executa onChange dos selects quando valores são alterados", () => {
@@ -134,7 +218,35 @@ describe("FiltroDeDesignacoes", () => {
 
     expect(onChangeByField.cargo_base).toHaveBeenCalledWith("mock-option");
     expect(onChangeByField.cargo_sobreposto).toHaveBeenCalledWith("mock-option");
-    expect(onChangeByField.unidade_escolar).toHaveBeenCalledWith("mock-option");
     expect(onChangeByField.ano).toHaveBeenCalledWith("mock-option");
+    expect(onChangeByField.dre).toHaveBeenCalledWith("mock-option");
+  });
+
+  it("executa onChange do Combobox de unidade escolar", () => {
+    render(<FiltroDeDesignacoes />);
+
+    const combobox = screen.getByTestId("select-ue");
+    fireEvent.click(combobox);
+
+    expect(onChangeByField.unidade_escolar).toHaveBeenCalledWith("mock-ue");
+  });
+
+  it("botões de ação estão desabilitados quando não há filtros", () => {
+    render(<FiltroDeDesignacoes />);
+
+    expect(screen.getByTestId("btn-pesquisar")).toBeDisabled();
+    expect(screen.getByTestId("btn-limpar-filtros")).toBeDisabled();
+  });
+
+  it("chama reset ao clicar em 'Limpar filtros'", () => {
+    // Simula um filtro ativo para habilitar o botão
+    watchValues["rf"] = "12345";
+    render(<FiltroDeDesignacoes />);
+
+    const btnLimpar = screen.getByTestId("btn-limpar-filtros");
+    fireEvent.click(btnLimpar);
+
+    expect(resetMock).toHaveBeenCalled();
+    delete watchValues["rf"];
   });
 });

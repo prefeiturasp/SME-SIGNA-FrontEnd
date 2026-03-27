@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { Dropdown, Table, Tag } from 'antd';
+import { Dropdown, Pagination, Table, Tag } from 'antd';
 import type { PaginationProps, TableProps } from 'antd';
 import { LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
 
@@ -14,26 +14,28 @@ import Eye from '@/assets/icons/Eye';
 import { ListagemDesignacoesResponse, StatusDesignacao } from '@/types/designacao';
 import { downloadCSV } from '@/utils/export/exportCSV';
 
-
-
 const NameColorStatusDesignacao = {
   [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
   [StatusDesignacao.AGUARD_PUBLICACAO]: { color: '#764FC3', name: 'AGUARD. PUBLICAÇÃO' },
   [StatusDesignacao.PUBLICADO_COM_PENDENCIA]: { color: '#FE9239', name: 'PÚBLICADO COM PENDÊNCIA' },
   [StatusDesignacao.PUBLICADO]: { color: '#10A957', name: 'PUBLICADO' },
 }
-const TagStatusDesignacao = (status: StatusDesignacao, key: string) => {
 
-  const color = NameColorStatusDesignacao[status].color;
-  const name = NameColorStatusDesignacao[status].name;
+const TagStatusDesignacao = (status: StatusDesignacao | undefined, key: string) => {
+  const config = status === undefined ? undefined : NameColorStatusDesignacao[status];
+
+  if (!config) return (
+    <Tag key={key} color='#9E9E9E' variant='outlined' className='rounded-full'>
+      INDISPONÍVEL
+    </Tag>
+  );
 
   return (
-    <Tag color={color} key={key} variant='outlined' className='rounded-full'>
-      {name}
+    <Tag color={config.color} key={key} variant='outlined' className='rounded-full'>
+      {config.name}
     </Tag>
   )
 }
-
 
 const items = [
   {
@@ -58,84 +60,69 @@ const items = [
   },
 ];
 
-
 const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
   {
-    title: 'RF',
-    dataIndex: 'rf_servidor_indicado',
-    key: 'rf_servidor_indicado',
-    sorter: (a, b) => a.rf_servidor_indicado - b.rf_servidor_indicado,
+    title: 'RF INDICADO',
+    dataIndex: 'indicado_rf',
+    key: 'indicado_rf',
   },
   {
     title: 'SERVIDOR INDICADO',
-    dataIndex: 'servidor_indicado',
-    key: 'servidor_indicado',
-
+    dataIndex: 'indicado_nome_servidor',
+    key: 'indicado_nome_servidor',
   },
-
   {
-    title: 'RF',
-    dataIndex: 'rf_servidor_titular',
-    key: 'rf_servidor_titular',
-    sorter: (a, b) => a.rf_servidor_titular - b.rf_servidor_titular,
+    title: 'RF TITULAR',
+    dataIndex: 'titular_rf',
+    key: 'titular_rf',
   },
   {
     title: 'SERVIDOR TITULAR',
-    dataIndex: 'servidor_titular',
-    key: 'servidor_titular',
-
+    dataIndex: 'titular_nome_servidor',
+    key: 'titular_nome_servidor',
   },
-
   {
     title: 'SEI',
-    dataIndex: 'sei_titular',
-    key: 'sei_titular',
-    sorter: (a, b) => a.sei_titular - b.sei_titular,
-
+    dataIndex: 'sei_numero',
+    key: 'sei_numero',
   },
   {
     title: 'PORTARIA DESIGNAÇÃO',
-    dataIndex: 'portaria_designacao',
-    key: 'portaria_designacao',
-    sorter: (a, b) => a.portaria_designacao - b.portaria_designacao,
+    dataIndex: 'numero_portaria',
+    key: 'numero_portaria',
   },
   {
     title: 'ANO DESIGNAÇÃO',
-    dataIndex: 'ano_designacao',
-    key: 'ano_designacao',
-    sorter: (a, b) => a.ano_designacao - b.ano_designacao,
+    dataIndex: 'ano_vigente',
+    key: 'ano_vigente',
   },
   {
-    title: 'SEI',
-    dataIndex: 'sei_designacao',
-    key: 'sei_designacao',
-    sorter: (a, b) => a.sei_designacao - b.sei_designacao,
+    title: 'DRE',
+    dataIndex: 'dre_nome',
+    key: 'dre_nome',
   },
   {
-    title: 'PORTARIA CESSAÇÃO',
-    dataIndex: 'portaria_cessacao',
-    key: 'portaria_cessacao',
-    sorter: (a, b) => a.portaria_cessacao - b.portaria_cessacao,
+    title: 'UNIDADE',
+    dataIndex: 'unidade_proponente',
+    key: 'unidade_proponente',
   },
   {
-    title: 'ANO DA CESSAÇÃO',
-    dataIndex: 'ano_cessacao',
-    key: 'ano_cessacao',
-    sorter: (a, b) => a.ano_cessacao - b.ano_cessacao,
+    title: 'CARGO',
+    dataIndex: 'cargo_vaga_display',
+    key: 'cargo_vaga_display',
   },
   {
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
-    render: (_, record) => TagStatusDesignacao(record.status, record.key + '_status'),
+    render: (_, record) =>
+      TagStatusDesignacao(record.status, String(record.id) + '_status'),
   },
-
   {
     title: 'Action',
     key: 'action',
     render: () => (
       <div className='space-x-2 flex items-center'>
-
         <div>
           <Eye className='w-4 h-4 fill-[#86858D]' />
         </div>
@@ -148,8 +135,6 @@ const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
     ),
   },
 ];
-
-
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
   if ((type === 'prev' || type === 'next') && React.isValidElement(originalElement)) {
@@ -167,66 +152,75 @@ const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => 
             <RightOutlined />
           </div>
         );
-
     return React.cloneElement(originalElement, {}, label);
   }
-
   return originalElement;
 };
 
+interface ListagemDeDesignacoesProps {
+  data: ListagemDesignacoesResponse[];
+  isLoading?: boolean;
+  total?: number;
+  page?: number;
+  onPageChange?: (page: number) => void;
+}
 
+const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
+  data,
+  isLoading = false,
+  total = 0,
+  page = 1,
+  onPageChange,
+}) => {
 
-const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> = ({ data }) => {
-  
-  
   const handleDownloadCSV = () => {
-
-    // to-do adicionar a integração pra buscar os dados filtrados 
-    
+    // to-do adicionar a integração pra buscar os dados filtrados
     downloadCSV(data, columns)
   }
+
   return (
     <>
       <div className="flex flex-col gap-1 bg-white p-4 rounded-t-lg border border-[#DCDCDC]">
-        <div className="flex justify-between items-center pb-0 pt-0 ">
+        <div className="flex justify-between items-center pb-0 pt-0">
           <span className="text-[#333] text-lg font-medium">
             Lista de designações
           </span>
-          <div className="flex gap-2"   >
+          <div className="flex gap-2">
             <Button variant="tertiary" size={"sm"} className="gap-2" onClick={() => handleDownloadCSV()}>
               <>
                 <Download />
-                <p className="text-[14px] ">Exportar CSV</p>
-              </>
-            </Button>
-            <Button variant="tertiary" size={"sm"} className="gap-2" >
-              <>
-                <Download />
-                <p className="text-[14px] ">Exportar PDF</p>
+                <p className="text-[14px]">Exportar CSV</p>
               </>
             </Button>
           </div>
         </div>
       </div>
-      <div className=" bg-white  rounded--b-lg border border-[#DCDCDC]  ">
-        <div className="flex justify-center items-center p-2 ">
-
+      <div className="bg-white rounded-b-lg border border-[#DCDCDC] overflow-x-auto">
+        <div className="w-full min-w-0 p-2">
           <Table<ListagemDesignacoesResponse>
-            className="tabela-designacoes"
-
+            className="tabela-designacoes w-full"
+            scroll={{ x: 'max-content' }}
+            loading={isLoading}
             columns={columns}
             dataSource={data}
-            pagination={{
-              // current: listRequest.pagination.page,
-              pageSize: 10,
-              defaultPageSize: 10,
-              placement: ["bottomCenter"],
-              itemRender: itemRender,
-            }}
+            rowKey={(record) => record.id.toString()}
+            pagination={false}
           />
+          <div className="flex items-center justify-center gap-16 py-3">
+            <span className="text-sm text-[#555] whitespace-nowrap">
+              Total: <strong>{total}</strong>
+            </span>
+            <Pagination
+              current={page}
+              pageSize={10}
+              total={total}
+              showSizeChanger={false}
+              itemRender={itemRender}
+              onChange={onPageChange}
+            />
+          </div>
         </div>
       </div>
-
     </>
   );
 }

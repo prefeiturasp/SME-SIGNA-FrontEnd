@@ -157,7 +157,7 @@ export default function DesignacoesPasso3() {
       setModalSucesso(true);
       setSalvando(false);
       setTimeout(() => {
-        router.push("/");
+        router.push("/pages/listagem-designacoes");
       }, 2200);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);

@@ -1,47 +1,80 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { vi } from "vitest";
 import ListagemDesignacoesPage from "./page";
 
+/* ================= MOCKS ================= */
+
 const pageHeaderSpy = vi.fn();
 const fundoBrancoSpy = vi.fn();
 const listagemSpy = vi.fn();
-const mockedSubmitValues = {
-  rf: "",
-  nome_servidor: "",
-  periodo: new Date("2026-01-01T00:00:00.000Z"),
-  cargo_base: "",
-  cargo_sobreposto: "",
-  dre: "",
-  unidade_escolar: "",
-  ano: "",
-};
+
+const mockResults = [
+  { id: 1, indicado_rf: "111", indicado_nome_servidor: "Servidor A", status: 0 },
+  { id: 2, indicado_rf: "222", indicado_nome_servidor: "Servidor B", status: 1 },
+];
+
+const mockFetchDesignacoesAction = vi.fn();
+
+vi.mock("@/actions/designacao", () => ({
+  fetchDesignacoesAction: (...args: unknown[]) =>
+    mockFetchDesignacoesAction(...args),
+}));
+
+vi.mock("@/hooks/useUnidades", () => ({
+  useFetchDREs: () => ({ data: [] }),
+  useFetchUEs: () => ({ data: [] }),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
+
+vi.mock("date-fns", () => ({
+  format: (date: Date, fmt: string) => `formatted-${fmt}`,
+}));
 
 vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: () => undefined,
+  zodResolver: () => () => ({ values: {}, errors: {} }),
 }));
+
+vi.mock("react", async () => {
+  const actual = await vi.importActual<typeof import("react")>("react");
+  return {
+    ...actual,
+    useTransition: () => [false, (cb: () => void) => cb()],
+  };
+});
+
+const mockGetValues = vi.fn();
+
+const mockHandleSubmit =
+  (submitFn: (values: Record<string, unknown>) => void) =>
+    (event?: { preventDefault?: () => void }) => {
+      event?.preventDefault?.();
+      submitFn(mockGetValues());
+    };
 
 vi.mock("react-hook-form", () => ({
   useForm: () => ({
-    handleSubmit:
-      (submitFn: (values: typeof mockedSubmitValues) => void) =>
-      (event?: { preventDefault?: () => void }) => {
-        event?.preventDefault?.();
-        submitFn(mockedSubmitValues);
-      },
+    handleSubmit: mockHandleSubmit,
+    getValues: mockGetValues,
+    control: {},
+    formState: { errors: {} },
+    register: vi.fn(),
+    setValue: vi.fn(),
+    watch: vi.fn().mockReturnValue(""),
+    reset: vi.fn(),
+    clearErrors: vi.fn(),
   }),
   FormProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
-  default: (props: {
-    icon?: ReactNode;
-    createButton?: ReactNode;
-    title: string;
-    showBackButton: boolean;
-    breadcrumbs: Array<{ title: string; href?: string }>;
-  }) => {
+  default: (props: any) => {
     pageHeaderSpy(props);
     return (
       <div data-testid="page-header">
@@ -64,8 +97,8 @@ vi.mock(
   "@/components/dashboard/Designacao/ListagemDeDesignacoes/ListagemDeDesignacoes",
   () => ({
     __esModule: true,
-    default: ({ data }: { data: unknown[] }) => {
-      listagemSpy(data);
+    default: (props: any) => {
+      listagemSpy(props);
       return <div data-testid="listagem-de-designacoes" />;
     },
   })
@@ -89,12 +122,14 @@ vi.mock("@/components/ui/button", () => ({
     children,
     type,
     className,
+    onClick,
   }: {
     children: ReactNode;
     type?: "button" | "submit" | "reset";
     className?: string;
+    onClick?: () => void;
   }) => (
-    <button type={type} className={className}>
+    <button type={type} className={className} onClick={onClick}>
       {children}
     </button>
   ),
@@ -110,57 +145,138 @@ vi.mock("@/assets/icons/Designacao", () => ({
   default: () => <span data-testid="icon-designacao" />,
 }));
 
+/* ================= TESTES ================= */
+
 describe("ListagemDesignacoesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockFetchDesignacoesAction.mockResolvedValue({
+      success: true,
+      data: {
+        count: 2,
+        next: null,
+        previous: null,
+        results: mockResults,
+      },
+    });
+
+    mockGetValues.mockReturnValue({
+      rf: "",
+      nome_servidor: "",
+      periodo: undefined,
+      cargo_base: "",
+      cargo_sobreposto: "",
+      dre: "",
+      unidade_escolar: "",
+      ano: "",
+    });
   });
 
-  it("renderiza cabeçalho, container e listagem com dados mockados", () => {
+  it("renderiza cabeçalho, container e listagem", async () => {
     render(<ListagemDesignacoesPage />);
 
     expect(screen.getByTestId("page-header")).toBeInTheDocument();
     expect(screen.getByTestId("fundo-branco")).toBeInTheDocument();
     expect(screen.getByTestId("listagem-de-designacoes")).toBeInTheDocument();
     expect(screen.getByText("Filtros")).toBeInTheDocument();
-    expect(screen.getByText("Iniciar Nova Designação")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-filter")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-designacao")).toBeInTheDocument();
+    expect(
+      screen.getByText("Iniciar Nova Designação")
+    ).toBeInTheDocument();
 
-    expect(fundoBrancoSpy).toHaveBeenCalled();
-    expect(listagemSpy).toHaveBeenCalled();
-
-    const listagemData = listagemSpy.mock.calls[0][0] as Array<{
-      key: string;
-      status: number;
-    }>;
-    expect(listagemData).toHaveLength(20);
-    expect(listagemData[0]).toMatchObject({ key: "0", status: 0 });
-    expect(listagemData[1]).toMatchObject({ key: "1", status: 1 });
-    expect(listagemData[2]).toMatchObject({ key: "2", status: 2 });
-    expect(listagemData[3]).toMatchObject({ key: "3", status: 3 });
-
-    const headerProps = pageHeaderSpy.mock.calls[0][0] as {
-      title: string;
-      showBackButton: boolean;
-      breadcrumbs: Array<{ title: string; href?: string }>;
-    };
+    const headerProps = pageHeaderSpy.mock.calls[0][0];
     expect(headerProps.title).toBe("");
     expect(headerProps.showBackButton).toBe(false);
-    expect(headerProps.breadcrumbs).toEqual([
-      { title: "Início", href: "/" },
-      { title: "Designação" },
-    ]);
   });
 
-  it("submete o formulário e executa o onSubmit com os valores padrão", () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+  it("chama fetch no mount", async () => {
     render(<ListagemDesignacoesPage />);
+
+    await waitFor(() => {
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("atualiza a listagem com dados", async () => {
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() => {
+      const lastCall =
+        listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
+      expect(lastCall.data).toEqual(mockResults);
+    });
+  });
+
+  it("submete o formulário", async () => {
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "Pesquisar" }));
 
-    expect(logSpy).toHaveBeenCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith(mockedSubmitValues);
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(2)
+    );
+  });
 
-    logSpy.mockRestore();
+  it("paginação chama API com nova página", async () => {
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
+    );
+
+    const lastProps =
+      listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
+
+    lastProps.onPageChange(2);
+
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(2)
+    );
+
+    expect(mockFetchDesignacoesAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        page: 2,
+      })
+    );
+  });
+
+  it("atualiza estado da página", async () => {
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
+    );
+
+    const lastProps =
+      listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
+
+    lastProps.onPageChange(3);
+
+    await waitFor(() => {
+      const updated =
+        listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
+      expect(updated.page).toBe(3);
+    });
+  });
+
+  it("loga erro quando falha", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+
+    mockFetchDesignacoesAction.mockResolvedValueOnce({
+      success: false,
+      error: "Erro",
+    });
+
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith("Erro");
+    });
+
+    errorSpy.mockRestore();
   });
 });
