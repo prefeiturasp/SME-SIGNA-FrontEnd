@@ -92,6 +92,33 @@ export default function DesignacoesPasso1() {
     buscar(form.getValues(), newPage);
   };
 
+  const handleClear = () => {
+    form.reset({
+      rf: "",
+      nome_servidor: "",
+      periodo: undefined,
+      cargo_base: "",
+      cargo_sobreposto: "",
+      dre: "",
+      unidade_escolar: "",
+      ano: "",
+    });
+
+    buscar(
+      {
+        rf: "",
+        nome_servidor: "",
+        periodo: undefined,
+        cargo_base: "",
+        cargo_sobreposto: "",
+        dre: "",
+        unidade_escolar: "",
+        ano: "",
+      },
+      1
+    );
+  };
+
   return (
     <>
       <PageHeader
@@ -131,7 +158,7 @@ export default function DesignacoesPasso1() {
       <FundoBranco className="mb-4">
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FiltroDeDesignacoes />
+            <FiltroDeDesignacoes onClear={handleClear} />
           </form>
         </FormProvider>
       </FundoBranco>
