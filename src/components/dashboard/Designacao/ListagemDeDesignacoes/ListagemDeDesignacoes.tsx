@@ -1,7 +1,7 @@
 'use client'
-import React from 'react';
-import { Dropdown, Table, Tag } from 'antd';
-import type { PaginationProps, TableProps } from 'antd';
+import React, { useState } from 'react';
+import { Dropdown, Popconfirm, Table, Tag } from 'antd';
+import type { MenuProps, PaginationProps, TableProps } from 'antd';
 import { LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ import Eye from '@/assets/icons/Eye';
 import { ListagemDesignacoesResponse, StatusDesignacao } from '@/types/designacao';
 import { downloadCSV } from '@/utils/export/exportCSV';
 import { useRouter } from 'next/navigation';
+import { toast } from '@/components/ui/headless-toast';
+import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
 
 
 
@@ -36,28 +38,6 @@ const TagStatusDesignacao = (status: StatusDesignacao, key: string) => {
 }
 
 
-const items = [
-  {
-    key: '1', label: 'Apostilar', icon: <Apostilar />, onClick: () => {
-      console.log('Apostilar');
-    }
-  },
-  {
-    key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
-      console.log('Cessar');
-    }
-  },
-  {
-    key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
-      console.log('Tornar Insubsistente');
-    }
-  },
-  {
-    key: '4', label: 'Deletar', icon: <Lixeira />, onClick: () => {
-      console.log('Deletar');
-    }
-  },
-];
 
 
 
@@ -90,13 +70,43 @@ const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => 
 
 const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> = ({ data }) => {
   const router = useRouter();
-
+  const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
+  
   const handleVisualizarDesignacao = (record: ListagemDesignacoesResponse) => {
     router.push(
       `/pages/listagem-designacoes/visualizar-designacao/${record.key}`
     );
   }
-  
+
+  const getItems = ( record: ListagemDesignacoesResponse ): MenuProps['items'] => [
+    {
+      key: '1', label: 'Apostilar', icon: <Apostilar />, onClick: () => {
+        console.log('Apostilar');
+      }
+    },
+    {
+      key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
+        console.log('Cessar');
+      }
+    },
+    {
+      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
+        console.log('Tornar Insubsistente');
+      }
+    },
+    {
+      key: '4',
+      icon: <Lixeira />,
+      label: 'Deletar',
+      onClick: () => {
+        setConfirmDeleteKey(record.key);
+      }
+      },
+  ];
+
+ 
+
+
   const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
     {
       title: 'RF',
@@ -108,9 +118,9 @@ const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> =
       title: 'SERVIDOR INDICADO',
       dataIndex: 'servidor_indicado',
       key: 'servidor_indicado',
-  
+
     },
-  
+
     {
       title: 'RF',
       dataIndex: 'rf_servidor_titular',
@@ -121,15 +131,15 @@ const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> =
       title: 'SERVIDOR TITULAR',
       dataIndex: 'servidor_titular',
       key: 'servidor_titular',
-  
+
     },
-  
+
     {
       title: 'SEI',
       dataIndex: 'sei_titular',
       key: 'sei_titular',
       sorter: (a, b) => a.sei_titular - b.sei_titular,
-  
+
     },
     {
       title: 'PORTARIA DESIGNAÇÃO',
@@ -167,30 +177,70 @@ const ListagemDeDesignacoes: React.FC<{ data: ListagemDesignacoesResponse[] }> =
       key: 'status',
       render: (_, record) => TagStatusDesignacao(record.status, record.key + '_status'),
     },
-  
+
     {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
         <div className='space-x-2 flex items-center'>
-  
+
           <div>
-            <Eye className='w-4 h-4 fill-[#86858D]' onClick={() => handleVisualizarDesignacao(record)}/>
+            <Eye className='w-4 h-4 fill-[#86858D]' onClick={() => handleVisualizarDesignacao(record)} />
           </div>
-          <Dropdown menu={{ items }}>
-            <div>
-              <MoreOutlined />
-            </div>
-          </Dropdown>
+          <Popconfirm
+            title="Excluir designação"
+            description="Tem certeza que deseja excluir esta designação?"
+            open={confirmDeleteKey === record.key}
+            onConfirm={() => {
+              handleExcluir(Number(record.key));
+              setConfirmDeleteKey(null);
+            }}
+            onCancel={() => setConfirmDeleteKey(null)}
+            okText="Sim"
+            cancelText="Não"
+          >
+            <Dropdown
+              menu={{
+                items: getItems(record),
+              }}
+              trigger={['click']}
+            >
+              <div>
+                <MoreOutlined />
+              </div>
+            </Dropdown>
+          </Popconfirm>
         </div>
       ),
     },
   ];
-  
+
+  const { mutateAsync } = useExcluirDesignacao();
+
+  async function handleExcluir(id: number) {
+    const response = await mutateAsync(id);
+    if (!response.success) {
+      toast({
+        variant: "error",
+        title: "Erro ao excluir a designação.",
+        description: "Por favor, tente novamente.",
+      });
+      return;
+    }
+
+    toast({
+      variant: "success",
+      title: "Tudo certo por aqui!",
+      description: "A designação foi excluída com sucesso!",
+    });
+  }
+
+
+
   const handleDownloadCSV = () => {
 
     // to-do adicionar a integração pra buscar os dados filtrados 
-    
+
     downloadCSV(data, columns)
   }
   return (
