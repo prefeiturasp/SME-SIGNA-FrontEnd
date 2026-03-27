@@ -18,6 +18,7 @@ export async function getDesignacaoByIdAction(id: number) {
                 Authorization: `Bearer ${authToken}`,
             },
         });
+        console.log('data',data);
         return {
             "id": 1,
             "impedimento_substituicao_detail": null,
