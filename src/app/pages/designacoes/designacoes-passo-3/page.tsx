@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Card, message, Modal, Result } from "antd";
 import { useRouter } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
@@ -70,17 +70,38 @@ function gerarHtmlPortaria(texto: string): string {
 export default function DesignacoesPasso3() {
   const router = useRouter();
   const { formDesignacaoData } = useDesignacaoContext();
+  const textoPlanoRef = useRef<string>("");
 
   const [salvando, setSalvando] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
 
-  const textoPlanoRef = useRef("");
+  useEffect(() => {
+    if (!formDesignacaoData) return;
+
+    const dadosPuros = gerarDadosPortaria({
+      ...formDesignacaoData,
+      designacao_data_final: formDesignacaoData.designacao_data_final ?? undefined,
+      impedimento_substituicao: formDesignacaoData.impedimento_substituicao ?? undefined,
+    });
+
+    const textoRaw = preencherTemplate(TEMPLATE_PORTARIA, dadosPuros);
+
+    const textoPlano = normalizarQuebras(
+      textoRaw.replaceAll(/<\/?strong>/g, "")
+    );
+
+    textoPlanoRef.current = textoPlano;
+  }, [formDesignacaoData]);
 
   const htmlInicial = useMemo(() => {
     if (!formDesignacaoData) return "";
 
-    const dadosPuros = gerarDadosPortaria(formDesignacaoData);
+    const dadosPuros = gerarDadosPortaria({
+      ...formDesignacaoData,
+      designacao_data_final: formDesignacaoData.designacao_data_final ?? undefined,
+      impedimento_substituicao: formDesignacaoData.impedimento_substituicao ?? undefined,
+    });
 
     const dadosEscapados: Record<string, string> = {};
     for (const [k, v] of Object.entries(dadosPuros)) {
@@ -96,12 +117,6 @@ export default function DesignacoesPasso3() {
     }
 
     const textoRaw = preencherTemplate(TEMPLATE_PORTARIA, dadosEscapados);
-
-    const textoPlano = normalizarQuebras(
-      textoRaw
-        .replaceAll(/<\/?strong>/g, "")
-    );
-    textoPlanoRef.current = textoPlano;
 
     return gerarHtmlPortaria(textoRaw);
   }, [formDesignacaoData]);

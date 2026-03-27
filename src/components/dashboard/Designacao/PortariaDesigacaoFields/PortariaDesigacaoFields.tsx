@@ -18,8 +18,10 @@ import {
   FormControl,
 } from "@/components/ui/form";
 
+import { useFetchImpedimentos } from "@/hooks/useTiposImpedimentos";
+
 import { Popconfirm } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import {
@@ -34,6 +36,14 @@ interface Props {
 
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
   const { register, control, setValue, watch } = useFormContext();
+  const { mutate, data, isPending } = useFetchImpedimentos();
+
+  const impedimentos =
+    data?.map((item) => ({
+      codigo: item.value.toString(),
+      nome: item.label,
+    })) ?? [];
+
 
   const anos = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
@@ -43,58 +53,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
     }
   );
 
-  const impedimentoSubstituicao = [
-    { codigo: "1", nome: "por licença gestante" },
-    { codigo: "2", nome: "por licença médica" },
-    { codigo: "3", nome: "por licença paternidade" },
-    { codigo: "4", nome: "por férias" },
-    { codigo: "5", nome: "por licença maternidade especial" },
-    { codigo: "6", nome: "por liçença adoção" },
-    { codigo: "7", nome: "por licença guarda de menor" },
-    {
-      codigo: "8",
-      nome: "para concorrer a mandato eletivo, nos termos da Portaria nº 20/SEGES/2024 e da Lei Complementar nº 64, de 18 de maio de 1990",
-    },
-    { codigo: "9", nome: "por licença nojo" },
-    { codigo: "10", nome: "por licenca gala" },
-    {
-      codigo: "11",
-      nome: "por afastamento por Cursos/Congressos/Competições",
-    },
-    { codigo: "12", nome: "por licença maternidade" },
-    { codigo: "13", nome: "por prorrogação da licença à gestante" },
-    { codigo: "14", nome: "por licença parental de curta duração" },
-    { codigo: "15", nome: "por licença parental de longa duração" },
-    { codigo: "16", nome: "por Evento/Reunião" },
-    {
-      codigo: "17",
-      nome: "por readaptação funcional, nos termos do art. 39 da Lei nº 8.979, de 1979",
-    },
-    {
-      codigo: "18",
-      nome: 'para prestar serviços técnico-educacionais, nos termos da alínea "a", inciso IX, do artigo 66 da Lei nº 14.660, de 2007',
-    },
-    {
-      codigo: "19",
-      nome: "por exercer cargos em comissão, nos termos do § 1º do art. 45 da Lei nº 8.989, de 1979, art. 70 da Lei nº 14.660, de 2007",
-    },
-    {
-      codigo: "20",
-      nome: 'para prestar serviços técnico-educacionais, nos termos da alínea "b", inciso IX, do artigo 66 da Lei nº 14.660, de 2007',
-    },
-    {
-      codigo: "21",
-      nome: "por transferência temporária do servidor, nos termos do art. 8º do Decreto Municipal nº 57.444, de 2016",
-    },
-    {
-      codigo: "22",
-      nome: "por exercer mandato de dirigente sindical, nos termos do disposto no inciso VII do art. 66 da Lei nº 14.660, de 2007",
-    },
-    {
-      codigo: "23",
-      nome: "pelo afastamento, em caráter excepcional, nos termos da alínea 'b', inciso IX, do artigo 66 da Lei nº 14.660, de 2007",
-    },
-  ];
+  const dataFinal = watch("designacao_data_final");
+  const isImpedimentoDisabled = !dataFinal;
 
   const [pendingValue, setPendingValue] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -115,6 +75,10 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
     setPendingValue(null);
     setOpenConfirm(false);
   };
+
+  useEffect(() => {
+    mutate();
+  }, []);
 
   return (
     <>
@@ -261,13 +225,20 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                       <Select
                         value={field.value}
                         onValueChange={(value) => field.onChange(value)}
+                        disabled={isImpedimentoDisabled || isPending}
                       >
                         <SelectTrigger data-testid="select-impedimento-substituicao">
-                          <SelectValue placeholder="Selecione uma opção" />
+                          <SelectValue
+                            placeholder={
+                              isImpedimentoDisabled
+                                ? "Preencha a data 'Até' primeiro"
+                                : "Selecione uma opção"
+                            }
+                          />
                         </SelectTrigger>
 
                         <SelectContent>
-                          {impedimentoSubstituicao.map((impedimento) => (
+                          {impedimentos.map((impedimento) => (
                             <SelectItem
                               key={impedimento.codigo}
                               value={impedimento.codigo}
