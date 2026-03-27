@@ -4,10 +4,8 @@ import { InputBase } from "@/components/ui/input-base";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
-import { FieldValues, UseFormRegister } from "react-hook-form";
-import { FormControl, FormField, FormLabel, FormMessage } from "./form";
-import { Control } from "react-hook-form";
-import { FormItem } from "./form";
+import { FieldValues, UseFormRegister, Control } from "react-hook-form";
+import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
@@ -153,6 +151,63 @@ export const DateField = ({ register, control, name, label, placeholder }: Props
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
+                            />
+                        </PopoverContent>
+                    </Popover>
+
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+    );
+};
+
+export const DateRangeField = ({ register, control, name, label, placeholder }: PropsField) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FormItem className="flex flex-col">
+                    <FormLabel className="required text-[#42474a] font-bold">
+                        {label}
+                    </FormLabel>
+
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button
+                                    variant="customOutline"
+                                    size="xl"
+                                    className={cn(
+                                        "pl-3 text-left font-normal",
+                                        !field.value?.from && "text-muted-foreground",
+                                    )}
+                                >
+                                    {field.value?.from ? (
+                                        field.value.to ? (
+                                            <>
+                                                {format(field.value.from, "dd/MM/yyyy")} -{" "}
+                                                {format(field.value.to, "dd/MM/yyyy")}
+                                            </>
+                                        ) : (
+                                            format(field.value.from, "dd/MM/yyyy")
+                                        )
+                                    ) : (
+                                        <span>{placeholder ?? "Selecione um período"}</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                                mode="range"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                numberOfMonths={2}
                             />
                         </PopoverContent>
                     </Popover>
