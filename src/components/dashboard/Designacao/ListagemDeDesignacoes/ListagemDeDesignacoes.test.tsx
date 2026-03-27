@@ -3,24 +3,10 @@ import { vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
 import ListagemDeDesignacoes from "./ListagemDeDesignacoes";
-import { ListagemDesignacoesResponse } from "@/types/designacao";
+import { ListagemDesignacoesResponse, StatusDesignacao } from "@/types/designacao";
 
-type Row = {
-  key: string;
-  servidor_indicado: string;
-  rf_servidor_indicado: number;
-  servidor_titular: string;
-  rf_servidor_titular: number;
-  sei_titular: number;
-  portaria_designacao: number;
-  ano_designacao: number;
-  sei_designacao: number;
-  portaria_cessacao: number;
-  ano_cessacao: number;
-  status: number;
-};
-
-const tableMock = vi.fn<(props: TableProps<Row>) => ReactNode>();
+const tableMock = vi.fn<(props: TableProps<ListagemDesignacoesResponse>) => ReactNode>();
+const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
 const downloadCSVMock = vi.fn();
 const pushMock = vi.fn();
@@ -36,9 +22,13 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("antd", () => ({
-  Table: (props: TableProps<Row>) => {
+  Table: (props: TableProps<ListagemDesignacoesResponse>) => {
     tableMock(props);
     return <div data-testid="table" />;
+  },
+  Pagination: (props: PaginationProps) => {
+    paginationMock(props);
+    return <div data-testid="pagination" />;
   },
   Dropdown: ({ children, menu }: { children: ReactNode; menu: unknown }) => {
     dropdownMock(menu);
@@ -70,12 +60,16 @@ vi.mock("@/components/ui/button", () => ({
     children,
     className,
     onClick,
+    variant,
+    size,
   }: {
     children: ReactNode;
     className?: string;
     onClick?: () => void;
+    variant?: string;
+    size?: string;
   }) => (
-    <button className={className} onClick={onClick}>
+    <button className={className} data-variant={variant} data-size={size} onClick={onClick}>
       {children}
     </button>
   ),
@@ -107,23 +101,38 @@ vi.mock("@/assets/icons/Eye", () => ({
     <span data-testid="eye-icon" className={className} onClick={onClick} />
   ),
 }));
-const data: ListagemDesignacoesResponse[] = Array.from({ length: 20 }).map((_, index) => ({
-  key: index.toString(),
-  servidor_indicado: 'Mateus Antônio Miranda',
-  rf_servidor_indicado: 987654,
-  servidor_titular: 'Mateus Antônio Miranda',
-  rf_servidor_titular: 654321,
-  sei_titular: 123,
-  portaria_designacao: 123,
-  ano_designacao: 2025,
-  sei_designacao: 123,
-  portaria_cessacao: 123,
-  ano_cessacao: 123,
-  status: index % 4,
-}))
+
+const makeRow = (index: number): ListagemDesignacoesResponse => ({
+  id: index,
+  indicado_rf: "987654",
+  indicado_nome_servidor: "Mateus Antônio Miranda",
+  titular_rf: "654321",
+  titular_nome_servidor: "Mateus Antônio Miranda",
+  sei_numero: "123",
+  numero_portaria: "123",
+  ano_vigente: "2025",
+  dre_nome: "DRE Centro",
+  unidade_proponente: "Escola Alpha",
+  cargo_vaga_display: "Diretor",
+  cargo_vaga: null,
+  data_inicio: "2025-01-01",
+  data_fim: null,
+  tipo_vaga: "vago",
+  tipo_vaga_display: "Vago",
+  status: [
+    StatusDesignacao.PENDENTE,
+    StatusDesignacao.AGUARD_PUBLICACAO,
+    StatusDesignacao.PUBLICADO_COM_PENDENCIA,
+    StatusDesignacao.PUBLICADO,
+  ][index % 4],
+});
+
+const data: ListagemDesignacoesResponse[] = Array.from({ length: 20 }, (_, i) => makeRow(i));
+
 describe("ListagemDeDesignacoes", () => {
   beforeEach(() => {
     tableMock.mockClear();
+    paginationMock.mockClear();
     dropdownMock.mockClear();
     downloadCSVMock.mockClear();
     pushMock.mockClear();
@@ -134,23 +143,38 @@ describe("ListagemDeDesignacoes", () => {
 
     expect(screen.getByText("Lista de designações")).toBeInTheDocument();
     expect(screen.getByText("Exportar CSV")).toBeInTheDocument();
-    expect(screen.getByText("Exportar PDF")).toBeInTheDocument();
-    expect(screen.getAllByTestId("download-icon")).toHaveLength(2);
+    expect(screen.getByTestId("download-icon")).toBeInTheDocument();
     expect(screen.getByTestId("table")).toBeInTheDocument();
 
     expect(tableMock).toHaveBeenCalledTimes(1);
     const props = tableMock.mock.calls[0][0];
 
-    expect(props.className).toBe("tabela-designacoes");
-     expect(props.pagination).toMatchObject({
-      pageSize: 10,
-      defaultPageSize: 10,
-      placement: ["bottomCenter"],
-    });
-    const pagination = props.pagination as PaginationProps | undefined;
-    expect(pagination).toBeDefined();
-    expect(typeof pagination?.itemRender).toBe("function");
+    expect(props.className).toBe("tabela-designacoes w-full");
+    expect(props.scroll).toEqual({ x: "max-content" });
+    expect(typeof props.rowKey).toBe("function");
+    expect((props.rowKey as (r: ListagemDesignacoesResponse) => string)(makeRow(5))).toBe("5");
+    expect(props.pagination).toBe(false);
+
+    expect(screen.getByTestId("pagination")).toBeInTheDocument();
+
+    expect(paginationMock).toHaveBeenCalledTimes(1);
+    const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
+
+    expect(paginationProps.current).toBe(1);
+    expect(paginationProps.pageSize).toBe(10);
+    expect(paginationProps.total).toBe(0);
+    expect(paginationProps.showSizeChanger).toBe(false);
+    expect(typeof paginationProps.itemRender).toBe("function");
+
     expect(props.columns).toHaveLength(12);
+  });
+
+  it("exibe o total de registros ao lado da paginação", () => {
+    render(<ListagemDeDesignacoes data={data} total={107} />);
+    expect(screen.getByText("107")).toBeInTheDocument();
+
+    const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
+    expect(paginationProps.total).toBe(107);
   });
 
   it("chama downloadCSV ao clicar em Exportar CSV", () => {
@@ -160,163 +184,104 @@ describe("ListagemDeDesignacoes", () => {
 
     expect(downloadCSVMock).toHaveBeenCalledTimes(1);
     const [receivedData, receivedColumns] = downloadCSVMock.mock.calls[0];
+
     expect(receivedData).toEqual(data);
     expect(receivedColumns).toHaveLength(12);
-  });
-
-  it("executa todos os sorters das colunas", () => {
-    render(<ListagemDeDesignacoes data={data} />);
-    const props = tableMock.mock.calls[0][0];
-    const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
-
-    const rowA: Row = {
-      key: "a",
-      servidor_indicado: "Servidor A",
-      rf_servidor_indicado: 100,
-      servidor_titular: "Titular A",
-      rf_servidor_titular: 200,
-      sei_titular: 300,
-      portaria_designacao: 400,
-      ano_designacao: 2024,
-      sei_designacao: 500,
-      portaria_cessacao: 600,
-      ano_cessacao: 2025,
-      status: 0,
-    };
-    const rowB: Row = {
-      ...rowA,
-      key: "b",
-      rf_servidor_indicado: 101,
-      rf_servidor_titular: 201,
-      sei_titular: 301,
-      portaria_designacao: 401,
-      ano_designacao: 2025,
-      sei_designacao: 501,
-      portaria_cessacao: 601,
-      ano_cessacao: 2026,
-    };
-
-    const sortableIndexes = [0, 2, 4, 5, 6, 7, 8, 9];
-    sortableIndexes.forEach((index) => {
-      const sorter = columns[index]?.sorter as
-        | ((a: Row, b: Row) => number)
-        | undefined;
-      expect(sorter).toBeTypeOf("function");
-      expect(sorter?.(rowA, rowB)).toBe(-1);
-    });
   });
 
   it("renderiza o status para todos os valores previstos", () => {
     render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
-    const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
+
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const statusRender = columns[10]?.render as
-      | ((_: unknown, record: Row) => ReactNode)
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
       | undefined;
 
     const expected = [
-      { status: 0, text: "PENDENTE", color: "#B22B2A" },
-      { status: 1, text: "AGUARD. PUBLICAÇÃO", color: "#764FC3" },
-      { status: 2, text: "PÚBLICADO COM PENDÊNCIA", color: "#FE9239" },
-      { status: 3, text: "PUBLICADO", color: "#10A957" },
+      { status: StatusDesignacao.PENDENTE, text: "PENDENTE", color: "#B22B2A" },
+      { status: StatusDesignacao.AGUARD_PUBLICACAO, text: "AGUARD. PUBLICAÇÃO", color: "#764FC3" },
+      { status: StatusDesignacao.PUBLICADO_COM_PENDENCIA, text: "PÚBLICADO COM PENDÊNCIA", color: "#FE9239" },
+      { status: StatusDesignacao.PUBLICADO, text: "PUBLICADO", color: "#10A957" },
     ];
 
     expected.forEach(({ status, text, color }) => {
-      const { unmount } = render(
-        <>{statusRender?.(null, { ...(props.dataSource?.[0] as Row), key: String(status), status })}</>,
-      );
+      const record: ListagemDesignacoesResponse = { ...makeRow(0), status };
+      const { unmount } = render(<>{statusRender?.(null, record)}</>);
       const tag = screen.getByTestId("tag");
+
       expect(tag).toHaveTextContent(text);
       expect(tag).toHaveAttribute("data-color", color);
+
       unmount();
     });
   });
 
-  it("renderiza a coluna de ação e executa os callbacks do menu", () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+  it("renderiza status INDISPONÍVEL quando status é undefined", () => {
     render(<ListagemDeDesignacoes data={data} />);
     const props = tableMock.mock.calls[0][0];
-    const columns = props.columns as NonNullable<TableProps<Row>["columns"]>;
-    const actionRender = columns[11]?.render as
-      | ((_: unknown, record: Row) => ReactNode)
+
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const statusRender = columns[10]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
       | undefined;
 
-    const row = (props.dataSource?.[0] as Row) ?? {
-      key: "0",
-      servidor_indicado: "",
-      rf_servidor_indicado: 0,
-      servidor_titular: "",
-      rf_servidor_titular: 0,
-      sei_titular: 0,
-      portaria_designacao: 0,
-      ano_designacao: 0,
-      sei_designacao: 0,
-      portaria_cessacao: 0,
-      ano_cessacao: 0,
-      status: 0,
-    };
+    const record = { ...makeRow(0), status: undefined as unknown as StatusDesignacao };
+    const { unmount } = render(<>{statusRender?.(null, record)}</>);
+    const tag = screen.getByTestId("tag");
 
+    expect(tag).toHaveTextContent("INDISPONÍVEL");
+    expect(tag).toHaveAttribute("data-color", "#9E9E9E");
+
+    unmount();
+  });
+
+  it("renderiza a coluna de ação e executa os callbacks", () => {
+    render(<ListagemDeDesignacoes data={data} />);
+    const props = tableMock.mock.calls[0][0];
+
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const actionRender = columns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    const row = makeRow(0);
     render(<>{actionRender?.(null, row)}</>);
 
     expect(screen.getByTestId("eye-icon")).toBeInTheDocument();
     expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
     expect(dropdownMock).toHaveBeenCalledTimes(1);
+
     fireEvent.click(screen.getByTestId("eye-icon"));
     expect(pushMock).toHaveBeenCalledWith(
-      `/pages/listagem-designacoes/visualizar-designacao/${row.key}`
+      `/pages/listagem-designacoes/visualizar-designacao/${row.id}`
     );
-
-    const menu = dropdownMock.mock.calls[0][0] as { items: Array<{ onClick: () => void }> };
-    expect(menu.items).toHaveLength(4);
-    menu.items.forEach((item) => item.onClick());
-
-    expect(logSpy).toHaveBeenNthCalledWith(1, "Apostilar");
-    expect(logSpy).toHaveBeenNthCalledWith(2, "Cessar");
-    expect(logSpy).toHaveBeenNthCalledWith(3, "Tornar Insubsistente");
-    expect(logSpy).toHaveBeenNthCalledWith(4, "Deletar");
-
-    logSpy.mockRestore();
   });
 
-  it("mantém prev/next desabilitados quando o elemento original estiver desabilitado", () => {
-    render(<ListagemDeDesignacoes data={data}   />);
-    const props = tableMock.mock.calls[0][0];
-    const pagination = props.pagination as PaginationProps | undefined;
-    expect(pagination).toBeDefined();
-    const itemRender = pagination?.itemRender;
-    expect(typeof itemRender).toBe("function");
-    if (!itemRender) {
-      throw new Error("itemRender não foi configurado na paginação");
-    }
+  it("mantém prev/next desabilitados corretamente", () => {
+    render(<ListagemDeDesignacoes data={data} />);
+
+    const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
+    const itemRenderFn = paginationProps.itemRender as NonNullable<PaginationProps["itemRender"]>;
 
     const prevOriginal = <button aria-disabled="true">prev</button>;
     const nextOriginal = <button aria-disabled="true">next</button>;
     const pageOriginal = <button>2</button>;
 
-    const renderedPrev = itemRender(
-      1,
-      "prev",
-      prevOriginal
-    );
-    const renderedNext = itemRender(
-      2,
-      "next",
-      nextOriginal
-    );
-    const renderedPage = itemRender(
-      2,
-      "page",
-      pageOriginal
-    );
+    const renderedPrev = itemRenderFn(1, "prev", prevOriginal);
+    const renderedNext = itemRenderFn(2, "next", nextOriginal);
+    const renderedPage = itemRenderFn(2, "page", pageOriginal);
 
     const { rerender } = render(<>{renderedPrev}</>);
     const prevLabel = screen.getByText("Anterior");
+
     expect(prevLabel).toBeInTheDocument();
     expect(prevLabel.closest("button")).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByTestId("left-outlined")).toBeInTheDocument();
 
     rerender(<>{renderedNext}</>);
     const nextLabel = screen.getByText("Próximo");
+
     expect(nextLabel).toBeInTheDocument();
     expect(nextLabel.closest("button")).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByTestId("right-outlined")).toBeInTheDocument();

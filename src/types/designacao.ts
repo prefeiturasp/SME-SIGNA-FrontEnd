@@ -62,19 +62,43 @@ export enum StatusDesignacao {
 }
 
 export interface ListagemDesignacoesResponse {
-  key: string;
-  servidor_indicado: string;
-  rf_servidor_indicado: number;
-  servidor_titular: string;
-  rf_servidor_titular: number;
+  id: number;
+  dre_nome: string;
+  unidade_proponente: string;
+  indicado_nome_servidor: string;
+  indicado_rf: string;
+  titular_nome_servidor: string;
+  titular_rf: string;
+  numero_portaria: string;
+  ano_vigente: string;
+  sei_numero: string;
+  data_inicio: string;
+  data_fim: string | null;
+  tipo_vaga: string;
+  tipo_vaga_display: string;
+  cargo_vaga: number | null;
+  cargo_vaga_display: string;
+  status?: StatusDesignacao;
+}
+export interface DesignacaoFiltros {
+  rf?: string;
+  nome?: string;
+  periodo_after?: string;
+  periodo_before?: string;
+  cargo_base?: string;
+  cargo_sobreposto?: string;
+  dre?: string;
+  unidade?: string;
+  ano?: string;
+  page?: number;
+  page_size?: number;
+}
 
-  sei_titular: number,
-  portaria_designacao: number,
-  ano_designacao: number,
-  sei_designacao: number,
-  portaria_cessacao: number,
-  ano_cessacao: number,
-  status: StatusDesignacao,
+export interface DesignacaoPaginada {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ListagemDesignacoesResponse[];
 }
 
 

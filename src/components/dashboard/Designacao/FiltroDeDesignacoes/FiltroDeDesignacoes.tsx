@@ -1,40 +1,38 @@
-import { DateField, InputField } from '@/components/ui/FieldsForm';
-import { FormControl,FormLabel,FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { DateRangeField, InputField } from '@/components/ui/FieldsForm';
+import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Loader2, Search, X } from 'lucide-react';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-
-
-
- 
-
+import { Combobox } from '@/components/ui/Combobox';
+import { useFetchDREs, useFetchUEs } from '@/hooks/useUnidades';
+import { useFetchCargos } from '@/hooks/useCargos';
 
 const FiltroDeDesignacoes: React.FC = () => {
-  const { register, control  } = useFormContext();
-  const cargosBase = [
-    { codigo: "1", nome: "Diretor" },
-    { codigo: "2", nome: "Supervisor" },
-    { codigo: "3", nome: "Coordenador" },
-    { codigo: "4", nome: "Secretário de escola" },
-    { codigo: "5", nome: "Assistente de diretor" },
-  ];
-  const cargosSobreposto = [
-    ...cargosBase,
-    { codigo: "6", nome: "Professor" },
-    { codigo: "7", nome: "Assistente" },
-    { codigo: "8", nome: "Outro" },
-  ]
+  const { register, control, watch, setValue, clearErrors, reset } = useFormContext();
 
+  const dreValue = watch("dre"); // agora armazena nomeDRE
 
-  const unidadesEscolares = [
-    { codigo: "1", nome: "UE 01" },
-    { codigo: "2", nome: "UE 02" },
-    { codigo: "3", nome: "UE 03" },
-    { codigo: "4", nome: "UE 04" },
-    { codigo: "5", nome: "UE 05" },
-  ];
+  const watchedValues = watch(["rf", "nome_servidor", "periodo", "cargo_base", "cargo_sobreposto", "ano", "dre", "unidade_escolar"]);
+  const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
+
+  const { data: dreOptions = [] } = useFetchDREs();
+
+  const dreCodigoParaUEs = React.useMemo(() => {
+    const found = dreOptions.find(
+      (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => dre.nomeDRE === dreValue
+    );
+    return found?.codigoDRE ?? "";
+  }, [dreValue, dreOptions]);
+
+  const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(dreCodigoParaUEs);
+  const { data: cargosData = [] } = useFetchCargos();
+
+  const cargos = cargosData.map((cargo: { codigoCargo: string | number; nomeCargo: string }) => ({
+    codigo: String(cargo.codigoCargo),
+    nome: cargo.nomeCargo,
+  }));
 
   const anos = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
@@ -71,15 +69,15 @@ const FiltroDeDesignacoes: React.FC = () => {
             />
           </div>
         </div>
+
         <div className="w-full flex gap-4">
           <div className="w-[35%]">
-            <DateField
+            <DateRangeField
               register={register}
               control={control}
               name="periodo"
               label="Período"
               placeholder="Selecione um período"
-
             />
           </div>
           <div className="w-[65%]">
@@ -88,24 +86,15 @@ const FiltroDeDesignacoes: React.FC = () => {
               name="cargo_base"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Cargo Base
-                  </FormLabel>
+                  <FormLabel className="text-[#42474a] font-bold">Cargo Base</FormLabel>
                   <FormControl>
-                     <Select
-                      value={field.value}
-                      onValueChange={(value) => field.onChange(value)}
-                    >
+                    <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger data-testid="select-cargo-base">
                         <SelectValue placeholder="Selecione uma opção" />
                       </SelectTrigger>
-
                       <SelectContent>
-                        {cargosBase.map((cargo) => (
-                          <SelectItem
-                            key={cargo.codigo}
-                            value={cargo.codigo}
-                          >
+                        {cargos.map((cargo) => (
+                          <SelectItem key={cargo.codigo} value={cargo.codigo}>
                             {cargo.nome}
                           </SelectItem>
                         ))}
@@ -116,10 +105,8 @@ const FiltroDeDesignacoes: React.FC = () => {
                 </FormItem>
               )}
             />
-
           </div>
         </div>
-
 
         <div className="w-full flex gap-4">
           <div className="w-[65%]">
@@ -128,24 +115,15 @@ const FiltroDeDesignacoes: React.FC = () => {
               name="cargo_sobreposto"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Cargo Sobreposto
-                  </FormLabel>
+                  <FormLabel className="text-[#42474a] font-bold">Cargo Sobreposto</FormLabel>
                   <FormControl>
-                     <Select
-                      value={field.value}
-                      onValueChange={(value) => field.onChange(value)}
-                    >
+                    <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger data-testid="select-cargo-sobreposto">
                         <SelectValue placeholder="Selecione uma opção" />
                       </SelectTrigger>
-
                       <SelectContent>
-                        {cargosSobreposto.map((cargo) => (
-                          <SelectItem
-                            key={cargo.codigo}
-                            value={cargo.codigo}
-                          >
+                        {cargos.map((cargo) => (
+                          <SelectItem key={cargo.codigo} value={cargo.codigo}>
                             {cargo.nome}
                           </SelectItem>
                         ))}
@@ -158,82 +136,17 @@ const FiltroDeDesignacoes: React.FC = () => {
             />
           </div>
           <div className="w-[35%]">
-            {/* to-do verificar qual o tipo desse input */}
-
-            <InputField
-              register={register}
-              control={control}
-              name="dre"
-              label="DRE"
-              placeholder="Informe a DRE"
-              data-testid="input-dre"
-              type="text"
-            />
-          </div>
-        </div>
-
-
-        <div className="w-full flex gap-4">
-          <div className="w-[65%]">
-            <FormField
-             
-              control={control}
-              name="unidade_escolar"
-              
-              render={({ field }) => (
-                <FormItem >
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Unidade escolar
-                  </FormLabel>
-                  <FormControl>
-                     <Select
-                      value={field.value}
-                      onValueChange={(value) => field.onChange(value)}
-                    >
-                      <SelectTrigger data-testid="select-unidade-escolar">
-                        <SelectValue placeholder="Selecione uma opção" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        {unidadesEscolares.map((ue) => (
-                          <SelectItem
-                            key={ue.codigo}
-                            value={ue.codigo}
-                          >
-                            {ue.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="w-[35%]">
-
-
             <FormField
               control={control}
               name="ano"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Ano
-                  </FormLabel>
+                  <FormLabel className="text-[#42474a] font-bold">Ano</FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-
-                        field.onChange(value);
-                      }}
-                    >
+                    <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger data-testid="select-ano">
                         <SelectValue placeholder="Selecione um ano" />
                       </SelectTrigger>
-
                       <SelectContent>
                         {anos.map((ano) => (
                           <SelectItem key={ano.codigo} value={ano.codigo}>
@@ -241,8 +154,6 @@ const FiltroDeDesignacoes: React.FC = () => {
                           </SelectItem>
                         ))}
                       </SelectContent>
-
-
                     </Select>
                   </FormControl>
                   <FormMessage />
@@ -251,16 +162,104 @@ const FiltroDeDesignacoes: React.FC = () => {
             />
           </div>
         </div>
-      </div >
-      <div className="flex justify-end mt-4">
-        <Button type="submit" variant="outline" className="gap-2" >
+
+        <div className="w-full flex gap-4">
+          <div className="w-[35%]">
+            <FormField
+              control={control}
+              name="dre"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#42474a] font-bold">DRE</FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        clearErrors("dre");
+                        setValue("unidade_escolar", "");
+                      }}
+                    >
+                      <SelectTrigger data-testid="select-dre">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dreOptions.map((dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => (
+                          <SelectItem key={dre.siglaDRE} value={dre.nomeDRE}>
+                            {dre.nomeDRE}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-[65%]">
+            <FormField
+              control={control}
+              name="unidade_escolar"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#42474a] font-bold">Unidade Escolar</FormLabel>
+                  <FormControl>
+                    {isLoadingUEs ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <Combobox
+                        options={ueOptions.map((ue: { codigoEscola: string; nomeEscola: string; siglaTipoEscola: string }) => ({
+                          label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
+                          value: ue.codigoEscola,
+                        }))}
+                        value={field.value}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          clearErrors("unidade_escolar");
+                        }}
+                        placeholder="Digite o nome da UE"
+                        disabled={!dreValue}
+                        data-testid="select-ue"
+                      />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-2 mt-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2"
+          disabled={!hasFilters}
+          onClick={() => reset()}
+          data-testid="btn-limpar-filtros"
+        >
+          <span className="font-bold">Limpar filtros</span>
+          <X />
+        </Button>
+        <Button
+          type="submit"
+          variant="outline"
+          className="gap-2"
+          disabled={!hasFilters}
+          data-testid="btn-pesquisar"
+        >
           <span className="font-bold">Pesquisar</span>
           <Search />
         </Button>
       </div>
-
     </>
   );
-}
+};
 
 export default FiltroDeDesignacoes;
