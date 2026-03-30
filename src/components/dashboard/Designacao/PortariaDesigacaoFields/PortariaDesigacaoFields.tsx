@@ -219,7 +219,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="required text-[#42474a] font-bold">
-                      Impendimento para substituição:
+                      Impedimento para substituição:
                     </FormLabel>
                     <FormControl>
                       <Select
