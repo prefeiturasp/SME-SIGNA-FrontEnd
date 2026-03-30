@@ -76,15 +76,16 @@ export const excluirDesignacao = async (
     try {
         const cookieStore = await cookies();
         const authToken = cookieStore.get("auth_token")?.value;
-    
+        const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
         if (!authToken) {
             return {
                 success: false,
                 error: "Usuário não autenticado. Token não encontrado.",
             };
         }
-
-        await axios.delete(`/designacao/designacoes/${id}/`, {
+        
+        await axios.delete(`${API_URL}/designacao/designacoes/${id}/`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
             },

@@ -76,7 +76,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
   isLoading = false,
   total = 0,
   page = 1,
-  onPageChange,
+  onPageChange = () => {},
 }) => {
   const router = useRouter();
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<number | null>(null);
@@ -179,12 +179,12 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
   async function handleExcluir(id: number) {
     const response = await mutateAsync(id);
     if (!response.success) {
-      toast({
+       toast({
         variant: "error",
         title: "Erro ao excluir a designação.",
-        description: "Por favor, tente novamente.",
+        description: response.error,
       });
-      return;
+      return onPageChange(page);
     }
 
     toast({
@@ -192,6 +192,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       title: "Tudo certo por aqui!",
       description: "A designação foi excluída com sucesso!",
     });
+    
   }
 
 
