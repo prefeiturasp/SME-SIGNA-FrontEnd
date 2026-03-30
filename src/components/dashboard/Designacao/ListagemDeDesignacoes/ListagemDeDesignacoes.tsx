@@ -89,19 +89,22 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 
   const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
     {
-      key: '1', label: 'Apostilar', icon: <Apostilar />, onClick: () => {
+      key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
         console.log('Apostilar');
-      }
+      },
+      disabled: true,
     },
     {
       key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
         console.log('Cessar');
-      }
+      },
+      disabled: true
     },
     {
       key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
         console.log('Tornar Insubsistente');
-      }
+      },
+      disabled: true
     },
     {
       key: '4',
