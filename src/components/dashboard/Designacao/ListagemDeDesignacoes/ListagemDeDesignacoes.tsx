@@ -1,8 +1,8 @@
 'use client'
-import React from 'react';
-import { Dropdown, Pagination, Table, Tag } from 'antd';
-import type { PaginationProps, TableProps } from 'antd';
-import { LeftOutlined, MoreOutlined, RightOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Dropdown, Pagination, Popconfirm, Table, Tag } from 'antd';
+import type { MenuProps, PaginationProps, TableProps } from 'antd';
+import { LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
 
 import { Button } from '@/components/ui/button';
 import Download from '@/assets/icons/Download';
@@ -14,6 +14,8 @@ import Eye from '@/assets/icons/Eye';
 import { ListagemDesignacoesResponse, StatusDesignacao } from '@/types/designacao';
 import { downloadCSV } from '@/utils/export/exportCSV';
 import { useRouter } from 'next/navigation';
+import { toast } from '@/components/ui/headless-toast';
+import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
 
 const NameColorStatusDesignacao = {
   [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
@@ -40,12 +42,6 @@ const TagStatusDesignacao = (status: StatusDesignacao | undefined, key: string) 
   );
 };
 
-const items = [
-  { key: '1', label: 'Apostilar', icon: <Apostilar /> },
-  { key: '2', label: 'Cessar', icon: <Cancelar /> },
-  { key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta /> },
-  { key: '4', label: 'Deletar', icon: <Lixeira /> },
-];
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
   if ((type === 'prev' || type === 'next') && React.isValidElement(originalElement)) {
@@ -80,13 +76,48 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
   isLoading = false,
   total = 0,
   page = 1,
-  onPageChange,
+  onPageChange = () => {},
 }) => {
   const router = useRouter();
+  const [confirmDeleteKey, setConfirmDeleteKey] = useState<number | null>(null);
 
   const handleVisualizarDesignacao = (record: ListagemDesignacoesResponse) => {
-    router.push(`/pages/listagem-designacoes/visualizar-designacao/${record.id}`);
-  };
+    router.push(
+      `/pages/listagem-designacoes/visualizar-designacao/${record.id}`
+    );
+  }
+
+  const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
+    {
+      key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
+        console.log('Apostilar');
+      },
+      disabled: true,
+    },
+    {
+      key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
+        console.log('Cessar');
+      },
+      disabled: true
+    },
+    {
+      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
+        console.log('Tornar Insubsistente');
+      },
+      disabled: true
+    },
+    {
+      key: '4',
+      icon: <Lixeira />,
+      label: 'Deletar',
+      onClick: () => {
+        setConfirmDeleteKey(record.id);
+      }
+    },
+  ];
+
+
+
 
   const columns: TableProps<ListagemDesignacoesResponse>['columns'] = [
     { title: 'RF INDICADO', dataIndex: 'indicado_rf', key: 'indicado_rf' },
@@ -111,22 +142,67 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       key: 'action',
       render: (_, record) => (
         <div className='space-x-2 flex items-center'>
-          <Eye
-            className='w-4 h-4 fill-[#86858D] cursor-pointer'
-            onClick={() => handleVisualizarDesignacao(record)}
-          />
-          <Dropdown menu={{ items }}>
-            <MoreOutlined className='cursor-pointer' />
-          </Dropdown>
+
+          <div>
+            <Eye
+              className='w-4 h-4 fill-[#86858D] cursor-pointer'
+              onClick={() => handleVisualizarDesignacao(record)}
+            />
+          </div>
+          <Popconfirm
+            title="Excluir designação"
+            description="Tem certeza que deseja excluir esta designação?"
+            open={confirmDeleteKey === record.id}
+            onConfirm={() => {
+              handleExcluir(Number(record.id));
+              setConfirmDeleteKey(null);
+            }}
+            onCancel={() => setConfirmDeleteKey(null)}
+            okText="Sim"
+            cancelText="Não"
+          >
+            <Dropdown
+              menu={{
+                items: getItems(record),
+              }}
+              trigger={['click']}
+            >
+              <div>
+                <MoreOutlined />
+              </div>
+            </Dropdown>
+          </Popconfirm>
         </div>
       ),
     },
   ];
 
-  const handleDownloadCSV = () => {
-    downloadCSV(data, columns);
-  };
+  const { mutateAsync } = useExcluirDesignacao();
 
+  async function handleExcluir(id: number) {
+    const response = await mutateAsync(id);
+    if (!response.success) {
+       toast({
+        variant: "error",
+        title: "Erro ao excluir a designação.",
+        description: response.error,
+      });
+      return;
+    }
+
+    toast({
+      variant: "success",
+      title: "Tudo certo por aqui!",
+      description: "A designação foi excluída com sucesso!",
+    });
+    onPageChange(page);
+  }
+
+
+
+  const handleDownloadCSV = () => {
+    downloadCSV(data, columns)
+  }
   return (
     <>
       <div className="flex flex-col gap-1 bg-white p-4 rounded-t-lg border border-[#DCDCDC]">

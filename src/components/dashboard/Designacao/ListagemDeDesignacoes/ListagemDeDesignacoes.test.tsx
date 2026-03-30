@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
 import ListagemDeDesignacoes from "./ListagemDeDesignacoes";
@@ -8,11 +8,24 @@ import { ListagemDesignacoesResponse, StatusDesignacao } from "@/types/designaca
 const tableMock = vi.fn<(props: TableProps<ListagemDesignacoesResponse>) => ReactNode>();
 const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
+const popconfirmMock = vi.fn();
 const downloadCSVMock = vi.fn();
 const pushMock = vi.fn();
+const toastMock = vi.fn();
+const mutateAsyncMock = vi.fn();
 
 vi.mock("@/utils/export/exportCSV", () => ({
   downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
+}));
+
+vi.mock("@/components/ui/headless-toast", () => ({
+  toast: (...args: unknown[]) => toastMock(...args),
+}));
+
+vi.mock("@/hooks/useExcluirDesignacao", () => ({
+  useExcluirDesignacao: () => ({
+    mutateAsync: (...args: unknown[]) => mutateAsyncMock(...args),
+  }),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -30,9 +43,52 @@ vi.mock("antd", () => ({
     paginationMock(props);
     return <div data-testid="pagination" />;
   },
-  Dropdown: ({ children, menu }: { children: ReactNode; menu: unknown }) => {
+  Dropdown: ({
+    children,
+    menu,
+  }: {
+    children: ReactNode;
+    menu?: { items?: Array<{ key: string; label?: ReactNode; onClick?: () => void }> };
+  }) => {
     dropdownMock(menu);
-    return <div data-testid="dropdown">{children}</div>;
+    return (
+      <div data-testid="dropdown">
+        {children}
+        {menu?.items?.map((item) => (
+          <button key={item.key} data-testid={`menu-item-${item.key}`} onClick={item.onClick}>
+            {item.label}
+          </button>
+        ))}
+      </div>
+    );
+  },
+  Popconfirm: ({
+    children,
+    open,
+    onConfirm,
+    onCancel,
+  }: {
+    children: ReactNode;
+    open?: boolean;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  }) => {
+    popconfirmMock({ open, onConfirm, onCancel });
+    return (
+      <div data-testid="popconfirm">
+        {children}
+        {open && (
+          <>
+            <button data-testid="popconfirm-confirm" onClick={onConfirm}>
+              Sim
+            </button>
+            <button data-testid="popconfirm-cancel" onClick={onCancel}>
+              Não
+            </button>
+          </>
+        )}
+      </div>
+    );
   },
   Tag: ({
     children,
@@ -134,8 +190,16 @@ describe("ListagemDeDesignacoes", () => {
     tableMock.mockClear();
     paginationMock.mockClear();
     dropdownMock.mockClear();
+    popconfirmMock.mockClear();
     downloadCSVMock.mockClear();
     pushMock.mockClear();
+    toastMock.mockClear();
+    mutateAsyncMock.mockReset();
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("renderiza o cabeçalho e configura a tabela corretamente", () => {
@@ -167,6 +231,7 @@ describe("ListagemDeDesignacoes", () => {
     expect(typeof paginationProps.itemRender).toBe("function");
 
     expect(props.columns).toHaveLength(12);
+    expect(props.loading).toBe(false);
   });
 
   it("exibe o total de registros ao lado da paginação", () => {
@@ -175,6 +240,19 @@ describe("ListagemDeDesignacoes", () => {
 
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
     expect(paginationProps.total).toBe(107);
+  });
+
+  it("respeita loading, page e callback de paginação customizados", () => {
+    const onPageChange = vi.fn();
+    render(<ListagemDeDesignacoes data={data} isLoading page={3} onPageChange={onPageChange} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
+    expect(tableProps.loading).toBe(true);
+    expect(paginationProps.current).toBe(3);
+
+    paginationProps.onChange?.(4, 10);
+    expect(onPageChange).toHaveBeenCalledWith(4, 10);
   });
 
   it("chama downloadCSV ao clicar em Exportar CSV", () => {
@@ -258,6 +336,167 @@ describe("ListagemDeDesignacoes", () => {
     );
   });
 
+  it("executa os itens de menu e abre confirmação de exclusão", () => {
+    render(<ListagemDeDesignacoes data={data} />);
+    const props = tableMock.mock.calls[0][0];
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const actionRender = columns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{actionRender?.(null, makeRow(1))}</>);
+
+    fireEvent.click(screen.getByTestId("menu-item-1"));
+    fireEvent.click(screen.getByTestId("menu-item-2"));
+    fireEvent.click(screen.getByTestId("menu-item-3"));
+    expect(console.log).toHaveBeenNthCalledWith(1, "Apostilar");
+    expect(console.log).toHaveBeenNthCalledWith(2, "Cessar");
+    expect(console.log).toHaveBeenNthCalledWith(3, "Tornar Insubsistente");
+
+    fireEvent.click(screen.getByTestId("menu-item-4"));
+
+    const updatedProps = tableMock.mock.calls.at(-1)?.[0];
+    const updatedColumns = updatedProps?.columns as NonNullable<
+      TableProps<ListagemDesignacoesResponse>["columns"]
+    >;
+    const updatedActionRender = updatedColumns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{updatedActionRender?.(null, makeRow(1))}</>);
+    expect(screen.getByTestId("popconfirm-confirm")).toBeInTheDocument();
+  });
+
+  it("exibe toast de erro e recarrega a página quando exclusão falha", async () => {
+    mutateAsyncMock.mockResolvedValueOnce({ success: false, error: "Falha ao excluir" });
+    const onPageChange = vi.fn();
+
+    render(<ListagemDeDesignacoes data={data} page={6} onPageChange={onPageChange} />);
+    const props = tableMock.mock.calls[0][0];
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const actionRender = columns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{actionRender?.(null, makeRow(8))}</>);
+    fireEvent.click(screen.getByTestId("menu-item-4"));
+
+    const updatedProps = tableMock.mock.calls.at(-1)?.[0];
+    const updatedColumns = updatedProps?.columns as NonNullable<
+      TableProps<ListagemDesignacoesResponse>["columns"]
+    >;
+    const updatedActionRender = updatedColumns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{updatedActionRender?.(null, makeRow(8))}</>);
+    fireEvent.click(screen.getByTestId("popconfirm-confirm"));
+
+    await vi.waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(8);
+    });
+    expect(toastMock).toHaveBeenCalledWith({
+      variant: "error",
+      title: "Erro ao excluir a designação.",
+      description: "Falha ao excluir",
+    });    
+  });
+
+  it("exibe toast de sucesso quando exclusão é bem sucedida", async () => {
+    mutateAsyncMock.mockResolvedValueOnce({ success: true });
+
+    render(<ListagemDeDesignacoes data={data} />);
+    const props = tableMock.mock.calls[0][0];
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const actionRender = columns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{actionRender?.(null, makeRow(9))}</>);
+    fireEvent.click(screen.getByTestId("menu-item-4"));
+
+    const updatedProps = tableMock.mock.calls.at(-1)?.[0];
+    const updatedColumns = updatedProps?.columns as NonNullable<
+      TableProps<ListagemDesignacoesResponse>["columns"]
+    >;
+    const updatedActionRender = updatedColumns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{updatedActionRender?.(null, makeRow(9))}</>);
+    fireEvent.click(screen.getByTestId("popconfirm-confirm"));
+
+    await vi.waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(9);
+    });
+    expect(toastMock).toHaveBeenCalledWith({
+      variant: "success",
+      title: "Tudo certo por aqui!",
+      description: "A designação foi excluída com sucesso!",
+    });
+  });
+
+  it("usa onPageChange padrão quando exclusão falha sem callback informado", async () => {
+    mutateAsyncMock.mockResolvedValueOnce({ success: false, error: "Falha padrão" });
+
+    render(<ListagemDeDesignacoes data={data} />);
+    const props = tableMock.mock.calls[0][0];
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const actionRender = columns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{actionRender?.(null, makeRow(10))}</>);
+    fireEvent.click(screen.getByTestId("menu-item-4"));
+
+    const updatedProps = tableMock.mock.calls.at(-1)?.[0];
+    const updatedColumns = updatedProps?.columns as NonNullable<
+      TableProps<ListagemDesignacoesResponse>["columns"]
+    >;
+    const updatedActionRender = updatedColumns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{updatedActionRender?.(null, makeRow(10))}</>);
+    fireEvent.click(screen.getByTestId("popconfirm-confirm"));
+
+    await vi.waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(10);
+    });
+    expect(toastMock).toHaveBeenCalledWith({
+      variant: "error",
+      title: "Erro ao excluir a designação.",
+      description: "Falha padrão",
+    });
+  });
+
+  it("fecha confirmação ao cancelar exclusão", () => {
+    render(<ListagemDeDesignacoes data={data} />);
+    const props = tableMock.mock.calls[0][0];
+    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const actionRender = columns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{actionRender?.(null, makeRow(2))}</>);
+    fireEvent.click(screen.getByTestId("menu-item-4"));
+
+    const updatedProps = tableMock.mock.calls.at(-1)?.[0];
+    const updatedColumns = updatedProps?.columns as NonNullable<
+      TableProps<ListagemDesignacoesResponse>["columns"]
+    >;
+    const updatedActionRender = updatedColumns[11]?.render as
+      | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
+      | undefined;
+
+    render(<>{updatedActionRender?.(null, makeRow(2))}</>);
+    expect(screen.getByTestId("popconfirm-cancel")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("popconfirm-cancel"));
+    expect(mutateAsyncMock).not.toHaveBeenCalled();
+    expect(toastMock).not.toHaveBeenCalled();
+  });
+
   it("mantém prev/next desabilitados corretamente", () => {
     render(<ListagemDeDesignacoes data={data} />);
 
@@ -288,5 +527,8 @@ describe("ListagemDeDesignacoes", () => {
 
     rerender(<>{renderedPage}</>);
     expect(screen.getByText("2")).toBeInTheDocument();
+
+    const renderedInvalidOriginal = itemRenderFn(3, "prev", "texto" as unknown as ReactNode);
+    expect(renderedInvalidOriginal).toBe("texto");
   });
 });
