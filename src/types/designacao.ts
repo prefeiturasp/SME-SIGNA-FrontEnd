@@ -106,6 +106,7 @@ export interface DesignacaoResponse {
   id: number,
   impedimento_substituicao_detail: string | null,
   impedimento_substituicao: string | null,
+  impedimento_display: string ,
   tipo_vaga_display: string,
   cargo_vaga_display: string,
   dre_nome: string,
