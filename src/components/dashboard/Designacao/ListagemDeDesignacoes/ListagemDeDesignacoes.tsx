@@ -187,9 +187,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
         title: "Erro ao excluir a designação.",
         description: response.error,
       });
-      setTimeout(() => {
-         onPageChange(page);
-      }, 2000);
+      return;
     }
 
     toast({
@@ -197,7 +195,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       title: "Tudo certo por aqui!",
       description: "A designação foi excluída com sucesso!",
     });
-    
+    await onPageChange(page);
   }
 
 
