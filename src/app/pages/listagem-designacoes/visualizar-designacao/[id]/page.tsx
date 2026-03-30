@@ -14,17 +14,19 @@ import { useParams } from "next/navigation";
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Loader2 } from "lucide-react";
+import { InfoItem } from "@/components/ui/info-item";
 
 export default function VisualizarDesignacao() {
 
   const params = useParams();
   const id = params.id;
 
-  
+
   const { data: designacao, isLoading: isLoadingDesignacao, error: errorDesignacao } = useFetchDesignacoesById(
     Number(id),
   );
- 
+  console.log("designacao", designacao);
+
   return (
     <>
       <PageHeader
@@ -89,7 +91,7 @@ export default function VisualizarDesignacao() {
                     data_inicio: designacao.data_inicio,
                     data_fim: designacao.data_fim,
                     carater_excepcional: designacao.carater_excepcional,
-                    impedimento_substituicao: designacao.impedimento_substituicao,
+                    impedimento_substituicao: designacao.impedimento_display,
                     motivo_afastamento: designacao.motivo_afastamento,
                     pendencias: designacao.pendencias
                   }}
@@ -129,33 +131,47 @@ export default function VisualizarDesignacao() {
                   onSubmitEditarServidor={console.log}
                 />
               </CustomAccordionItem>
-              <CustomAccordionItem
-                title="Dados do Servidor Titular"
-                value="servidor-titular"
-                color="green"
-              >
-                <ResumoDesignacaoServidorIndicado
-                  defaultValues={
-                    {
-                      rf: designacao.titular_rf,
-                      nome_servidor: designacao.titular_nome_servidor,
-                      nome_civil: designacao.titular_nome_civil,
-                      vinculo: designacao.titular_vinculo,
-                      lotacao: designacao.titular_lotacao,
-                      cargo_base: designacao.titular_cargo_base,
-                      cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
-                      cursos_titulos: '-',
-                      codigo_hierarquia: '-',
-                      lotacao_cargo_base: '-',
-                      laudo_medico: '-',
-                      local_de_servico: designacao.titular_local_servico,
-                      local_de_exercicio: designacao.titular_local_exercicio
+
+              {designacao.tipo_vaga === "VAGO"  ?
+                <CustomAccordionItem
+                  title="Cargo Disponível"
+                  value="servidor-titular"
+                  color="green"
+                >
+                  <InfoItem
+                    label="Nome do Cargo Disponível"
+                    value={designacao.cargo_vaga_display}
+                  />
+                </CustomAccordionItem>
+                :
+                <CustomAccordionItem
+                  title="Dados do Servidor Titular"
+                  value="servidor-titular"
+                  color="green"
+                >
+                  <ResumoDesignacaoServidorIndicado
+                    defaultValues={
+                      {
+                        rf: designacao.titular_rf,
+                        nome_servidor: designacao.titular_nome_servidor,
+                        nome_civil: designacao.titular_nome_civil,
+                        vinculo: designacao.titular_vinculo,
+                        lotacao: designacao.titular_lotacao,
+                        cargo_base: designacao.titular_cargo_base,
+                        cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
+                        cursos_titulos: '-',
+                        codigo_hierarquia: '-',
+                        lotacao_cargo_base: '-',
+                        laudo_medico: '-',
+                        local_de_servico: designacao.titular_local_servico,
+                        local_de_exercicio: designacao.titular_local_exercicio
+                      }
                     }
-                  }
-                  showEditar={false}
-                  onSubmitEditarServidor={console.log}
-                />
-              </CustomAccordionItem>
+                    showEditar={false}
+                    onSubmitEditarServidor={console.log}
+                  />
+                </CustomAccordionItem>
+              }
             </Accordion>
           )
         )}

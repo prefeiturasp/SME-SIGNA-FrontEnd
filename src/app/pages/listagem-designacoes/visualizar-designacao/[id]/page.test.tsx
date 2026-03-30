@@ -10,6 +10,7 @@ const resumoPortariaSpy = vi.fn();
 const resumoServidorSpy = vi.fn();
 const customAccordionItemSpy = vi.fn();
 const accordionSpy = vi.fn();
+const infoItemSpy = vi.fn();
 
 const useParamsMock = vi.fn();
 
@@ -99,6 +100,17 @@ vi.mock(
 vi.mock("@/assets/icons/Designacao", () => ({
   __esModule: true,
   default: () => <span data-testid="icon-designacao" />,
+}));
+
+vi.mock("@/components/ui/info-item", () => ({
+  InfoItem: (props: { label: string; value?: string | number | null }) => {
+    infoItemSpy(props);
+    return (
+      <div data-testid="info-item">
+        {props.label}: {props.value}
+      </div>
+    );
+  },
 }));
 
 vi.mock("lucide-react", () => ({
@@ -238,5 +250,29 @@ describe("VisualizarDesignacao page", () => {
 
     expect(useFetchDesignacoesById).toHaveBeenCalledWith(0);
     expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
+  });
+
+  it('renderiza "Cargo Disponível" quando tipo_vaga é VAGO', () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: {
+        ...designacaoMock,
+        tipo_vaga: "VAGO",
+        cargo_vaga_display: "Professor Adjunto",
+      },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    expect(screen.getByText("Cargo Disponível")).toBeInTheDocument();
+    expect(screen.getByTestId("info-item")).toHaveTextContent(
+      "Nome do Cargo Disponível: Professor Adjunto"
+    );
+    expect(infoItemSpy).toHaveBeenCalledWith({
+      label: "Nome do Cargo Disponível",
+      value: "Professor Adjunto",
+    });
+    expect(screen.getAllByTestId("resumo-servidor")).toHaveLength(1);
   });
 });
