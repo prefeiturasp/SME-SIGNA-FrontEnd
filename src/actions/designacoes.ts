@@ -1,9 +1,9 @@
 "use server";
 
 import { DesignacaoResponse } from "@/types/designacao";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
- 
+
 export async function getDesignacaoByIdAction(id: number) {
     const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -68,7 +68,6 @@ export async function getDesignacaoByIdAction(id: number) {
     }
 }
  
-import { AxiosError } from "axios";
  
 export const excluirDesignacao = async (
     id: number
