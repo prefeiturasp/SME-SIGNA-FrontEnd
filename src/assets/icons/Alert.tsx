@@ -1,26 +1,19 @@
-export default function Alert(props: Readonly<React.SVGProps<SVGSVGElement>>) {
+export default function Filter(
+    props: Readonly<React.SVGProps<SVGSVGElement>>
+  ) {
     return (
-        <svg
-            width="22"
-            xmlns="http://www.w3.org/2000/svg"
-            height="19"
-            data-testid="icon-alert"
-            id="screenshot-a27ebe5e-65f7-80eb-8006-54990463d0f6"
-            viewBox="-124 1246 22 19"
-            style={{ WebkitPrintColorAdjust: "exact" }}
-            xmlnsXlink="http://www.w3.org/1999/xlink"
-            fill="none"
-            version="1.1"
-            {...props}
-        >
-            <g id="shape-a27ebe5e-65f7-80eb-8006-54990463d0f6">
-                <g
-                    className="fills"
-                    id="fills-a27ebe5e-65f7-80eb-8006-54990463d0f6"
-                >
-                    <path d="M-112.000,1258.000L-114.000,1258.000L-114.000,1253.000L-112.000,1253.000M-112.000,1262.000L-114.000,1262.000L-114.000,1260.000L-112.000,1260.000M-124.000,1265.000L-102.000,1265.000L-113.000,1246.000Z"></path>
-                </g>
-            </g>
-        </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        {...props}
+      >
+        <path
+          d="M3.54157 4.67467C5.2249 6.83301 8.33324 10.833 8.33324 10.833V15.833C8.33324 16.2913 8.70824 16.6663 9.16657 16.6663H10.8332C11.2916 16.6663 11.6666 16.2913 11.6666 15.833V10.833C11.6666 10.833 14.7666 6.83301 16.4499 4.67467C16.8749 4.12467 16.4832 3.33301 15.7916 3.33301H4.1999C3.50824 3.33301 3.11657 4.12467 3.54157 4.67467Z"
+          fill="currentColor"
+        />
+      </svg>
     );
-}
+  }

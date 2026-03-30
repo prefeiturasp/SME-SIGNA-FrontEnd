@@ -20,7 +20,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import ResumoTitular from "@/components/dashboard/Designacao/ResumoTitular";
 
-
 import { formSchemaDesignacaoPasso2Data } from "../../../../app/pages/designacoes/designacoes-passo-2/schema";
 
 // Componentes Customizados
@@ -28,6 +27,7 @@ import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDe
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { FormEditarServidorData } from "../ModalEditarServidor/schema";
 import { Servidor } from "@/types/designacao-unidade";
+import { useFetchCargos } from "@/hooks/useCargos";
 
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
@@ -48,7 +48,15 @@ export default function SelecaoServidorIndicado({
   setDadosTitular,
   setErrorBusca,
 }: Readonly<SelecaoTipoCargoProps>) {
-  function handleSubmitEditarServidor(data: FormEditarServidorData) {
+ 
+
+  const { data: cargosData = []  } = useFetchCargos( );
+  const cargos = cargosData.map(cargo => ({
+    id: cargo.codigoCargo,
+    label: cargo.nomeCargo,
+  }));
+ 
+   function handleSubmitEditarServidor(data: FormEditarServidorData) {
     if (dadosTitular) {
       setDadosTitular({
         ...dadosTitular,
@@ -57,6 +65,7 @@ export default function SelecaoServidorIndicado({
       });
     }
   }
+
   return (
     <div className="p-4 pt-4 border-t mt-4">
       <div className="flex flex-col gap-6">
@@ -72,11 +81,10 @@ export default function SelecaoServidorIndicado({
                 <RadioGroup
                   onValueChange={(val) => {
                     field.onChange(val);
-                    // Resetar estados ao trocar o tipo
                     setDadosTitular(null);
                     setErrorBusca(null);
                     form.setValue("rf_titular", "");
-                    form.setValue("cargo_vago_selecionado", "");
+                    form.setValue("cargo_vago_selecionado", null);
                   }}
                   defaultValue={field.value}
                   className="flex flex-row gap-8"
@@ -110,26 +118,29 @@ export default function SelecaoServidorIndicado({
                     <FormLabel className="font-bold text-[#42474a]">
                       Selecione o cargo
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+
+                    <Select
+                      onValueChange={(value) => {                        
+                        const cargoSelecionado = cargos.find(
+                          (cargo) => String(cargo.id) === value);
+                        field.onChange({id: cargoSelecionado?.id, label: cargoSelecionado?.label});
+                      }}
+                      value={field.value?.id ? String(field.value.id) : ""}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o cargo..." />
                         </SelectTrigger>
                       </FormControl>
+
                       <SelectContent>
-                        {[
-                          { id: 3360, label: "Diretor" },
-                          { id: 3352, label: "Supervisor" },
-                          { id: 3379, label: "Coordenador" },
-                          { id: 3182, label: "Secretário de escola" },
-                          { id: 3085, label: "Assistente de diretor" },
-                        ].map((cargo) => (
-                          <SelectItem key={cargo.id} value={String(cargo.id)}>
-                            {cargo.label}
+                        {cargos.map((cargo) => (
+                          <SelectItem key={cargo.id} value={String(cargo.id)}>{cargo.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -138,7 +149,10 @@ export default function SelecaoServidorIndicado({
           ) : (
             <div className="w-full space-y-4">
               <div className="pt-2">
-                <FormularioBuscaDesignacao label={"RF Titular"} onBuscaDesignacao={onBuscaTitular} />
+                <FormularioBuscaDesignacao
+                  label={"RF Titular"}
+                  onBuscaDesignacao={onBuscaTitular}
+                />
               </div>
 
               {errorBusca && (

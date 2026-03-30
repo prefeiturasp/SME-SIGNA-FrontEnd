@@ -67,8 +67,8 @@ export function montarTrechoFinal(data: DesignacaoData): string {
 
 export function montarAutoridade(data: DesignacaoData): string {
     if (data?.impedimento_substituicao === "4") {
-        return "O Chefe de Gabinete, no uso de suas atribuições legais,";
+        return "O Chefe de Gabinete";
     }
 
-    return "O Secretário Municipal de Educação, no uso de suas atribuições legais,";
+    return "O Secretário Municipal de Educação";
 }

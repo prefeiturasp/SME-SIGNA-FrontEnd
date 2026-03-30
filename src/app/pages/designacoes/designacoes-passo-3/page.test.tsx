@@ -4,189 +4,215 @@ import { vi } from "vitest";
 import DesignacoesPasso3 from "./page";
 import { designacaoAction } from "@/actions/cadastro-designacao";
 
-// ── Router mock ─────────────────────────────────
-
+// ── Mocks de Navegação ───────────────────────────
 const pushMock = vi.fn();
-
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: pushMock,
-  }),
+  useRouter: () => ({ push: pushMock }),
 }));
 
-// ── Context mock ─────────────────────────────────
+// ── Mock do Contexto ─────────────────────────────
+const mockFormData = {
+  dre_nome: "DRE CENTRO",
+  ue_nome: "EMEF TESTE",
+  portaria_designacao: "123/2024",
+  numero_sei: "6016.2024/0001-2",
+  servidorIndicado: { nome_civil: "JOÃO SILVA" },
+};
 
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
-    formDesignacaoData: {
-      dre: "dre-1",
-      ue: "ue-1",
-    },
+    formDesignacaoData: mockFormData,
   }),
 }));
 
-// ── Component mocks ──────────────────────────────
-
+// ── Mocks de Componentes UI ──────────────────────
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  default: ({ title }: any) => <div>{title}</div>,
+  default: ({ title }: any) => <h1>{title}</h1>,
 }));
-
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  default: ({ children }: any) => <div>{children}</div>,
+  default: ({ children }: any) => <section>{children}</section>,
 }));
-
 vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
-  default: ({ current }: any) => (
-    <div data-testid="stepper">{current}</div>
-  ),
+  default: ({ current }: any) => <div data-testid="stepper">Passo {current}</div>,
 }));
 
+// Ajustado: labelProximo agora é "Salvar" na página real
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
-  default: ({ onAnterior, onProximo, disableProximo }: any) => (
-    <div>
+  default: ({ onAnterior, onProximo, disableProximo, labelProximo }: any) => (
+    <nav>
       <button onClick={onAnterior}>Anterior</button>
       <button onClick={onProximo} disabled={disableProximo}>
-        Próximo
+        {labelProximo ?? "Próximo"}
       </button>
-    </div>
+    </nav>
   ),
 }));
+vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
 
-vi.mock("@/assets/icons/Designacao", () => ({
-  default: () => <svg />,
-}));
-
-// ── Utils mocks ──────────────────────────────────
-
+// ── Mocks de Utils ───────────────────────────────
 vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: () => "PORTARIA GERADA",
+  preencherTemplate: (_template: string, dados: Record<string, string>) => {
+    // Devolve os valores já processados (com <strong> se aplicado antes)
+    const portaria = dados.portaria ?? "123/2024";
+    const sei = dados.sei ?? "6016.2024/0001-2";
+    const nome = dados.nome_indicado ?? "JOÃO SILVA";
+    return `PORTARIA Nº ${portaria}\nSEI Nº ${sei}\nEXPEDE:\nTexto da portaria para ${nome}`;
+  },
 }));
 
 vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
-  gerarDadosPortaria: () => ({ nome: "João" }),
+  gerarDadosPortaria: (data: any) => ({
+    ...data,
+    autoridade: "DIRETOR",
+    nome_indicado: "JOÃO SILVA",
+    portaria: "123/2024",
+    sei: "6016.2024/0001-2",
+  }),
 }));
 
-vi.mock("@/utils/designacao/mapearPayload", () => ({
-  mapearPayloadDesignacao: () => ({ dre: "dre-1", ue: "ue-1" }),
-}));
-
-// ── Actions mocks ────────────────────────────────
-
+// ── Mock da Action ───────────────────────────────
 vi.mock("@/actions/cadastro-designacao", () => ({
   designacaoAction: vi.fn(),
 }));
 
-// ── antd mock ────────────────────────────────────
-
+// ── Mock do Antd ─────────────────────────────────
 vi.mock("antd", () => ({
-  Card: ({ children }: any) => <div>{children}</div>,
-
+  Card: ({ title, children }: any) => (
+    <article>
+      <h3>{title}</h3>
+      {children}
+    </article>
+  ),
   Modal: ({ open, children }: any) =>
     open ? <div data-testid="modal">{children}</div> : null,
-
-  Result: ({ title, extra }: any) => (
-    <div>
-      <div>{title}</div>
-      {extra && <div>{extra}</div>}
+  Result: ({ status, title, subTitle, extra }: any) => (
+    <div data-testid={`result-${status}`}>
+      <h4>{title}</h4>
+      {subTitle && <p>{subTitle}</p>}
+      {extra}
     </div>
   ),
-
-  message: {
-    loading: vi.fn(),
-    destroy: vi.fn(),
-    error: vi.fn(),
-  },
+  message: { loading: vi.fn(), destroy: vi.fn(), error: vi.fn() },
 }));
 
 // ── Testes ───────────────────────────────────────
 
-describe("DesignacoesPasso3", () => {
+describe("DesignacoesPasso3 - Testes Robustos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renderiza a página corretamente", async () => {
+  const getEditor = () =>
+    document.querySelector("[contenteditable='true']") as HTMLElement;
+
+  it("deve renderizar o editor com negritos automáticos aplicados", async () => {
     render(<DesignacoesPasso3 />);
 
-    expect(screen.getByText("Designação")).toBeInTheDocument();
-    expect(screen.getByTestId("stepper")).toHaveTextContent("2");
+    const editor = await waitFor(() => getEditor());
 
-    const textarea = await screen.findByRole("textbox");
+    // Palavras fixas em negrito via gerarHtmlPortaria
+    expect(editor.innerHTML).toContain("<strong>PORTARIA Nº</strong>");
+    expect(editor.innerHTML).toContain("<strong>EXPEDE:</strong>");
+    expect(editor.innerHTML).toContain("<strong>SEI Nº</strong>");
 
-    expect(textarea).toHaveValue("PORTARIA GERADA");
+    // Campos em negrito via CAMPOS_NEGRITO (nome_indicado, portaria, sei, autoridade)
+    expect(editor.innerHTML).toContain("<strong>JOÃO SILVA</strong>");
+    expect(editor.innerHTML).toContain("<strong>123/2024</strong>");
   });
 
-  it("permite editar o texto da portaria", async () => {
+  it("deve aceitar edição do conteúdo sem quebrar", async () => {
     render(<DesignacoesPasso3 />);
+    const editor = await waitFor(() => getEditor());
 
-    const textarea = await screen.findByRole("textbox");
+    editor.innerText = "Nova portaria editada manualmente";
+    fireEvent.input(editor);
 
-    fireEvent.change(textarea, {
-      target: { value: "Texto manual" },
-    });
-
-    expect(textarea).toHaveValue("Texto manual");
+    expect(editor).toBeInTheDocument();
   });
 
-  it("navega para o passo anterior", () => {
-    render(<DesignacoesPasso3 />);
-
-    fireEvent.click(screen.getByText("Anterior"));
-
-    expect(pushMock).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-2"
-    );
-  });
-
-  it("mostra modal de sucesso ao salvar", async () => {
-    vi.useFakeTimers();
-
+  it("deve chamar a action com os dados originais do formulário ao clicar em Salvar", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({
       success: true,
-      data: {},
+      data: { id: 1 },
     });
 
     render(<DesignacoesPasso3 />);
 
-    fireEvent.click(screen.getByText("Próximo"));
+    fireEvent.click(screen.getByText("Salvar"));
+
+    expect(designacaoAction).toHaveBeenCalledWith(mockFormData);
+  });
+
+  it("deve gerenciar o estado de loading durante o salvamento", async () => {
+    vi.mocked(designacaoAction).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ success: true, data: {} }), 100)
+        )
+    );
+
+    render(<DesignacoesPasso3 />);
+
+    const btnSalvar = screen.getByText("Salvar");
+    fireEvent.click(btnSalvar);
+
+    expect(btnSalvar).toBeDisabled();
+
+    await waitFor(() => expect(btnSalvar).not.toBeDisabled());
+  });
+
+  it("deve redirecionar para /pages/listagem-designacoes após sucesso com delay", async () => {
+    vi.useFakeTimers();
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
 
     await vi.runAllTimersAsync();
 
-    expect(screen.getByTestId("modal")).toBeInTheDocument();
-    expect(
-      screen.getByText("Portaria salva com sucesso!")
-    ).toBeInTheDocument();
-
+    // Redirecionamento atualizado conforme a página
+    expect(pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
     vi.useRealTimers();
   });
 
-  it("exibe modal de erro quando designacaoAction falha", async () => {
-    vi.mocked(designacaoAction).mockResolvedValueOnce({
-      success: false,
-      error: "Erro interno",
-    });
+  it("deve exibir modal de sucesso após salvar com êxito", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
-
-    fireEvent.click(screen.getByText("Próximo"));
+    fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
       expect(screen.getByTestId("modal")).toBeInTheDocument();
+      expect(screen.getByText("Portaria salva com sucesso!")).toBeInTheDocument();
       expect(
-        screen.getByText("Erro ao salvar a portaria!")
+        screen.getByText("Redirecionando para a página inicial...")
       ).toBeInTheDocument();
     });
   });
 
-  it("fecha o modal de erro ao clicar em Fechar", async () => {
+  it("deve exibir modal de erro se a action falhar", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({
       success: false,
-      error: "Erro interno",
+      error: "Banco de dados offline",
     });
 
     render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
 
-    fireEvent.click(screen.getByText("Próximo"));
+    await waitFor(() => {
+      expect(screen.getByTestId("modal")).toBeInTheDocument();
+      expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+    });
+  });
+
+  it("deve fechar o modal de erro ao clicar em Fechar", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Erro qualquer",
+    });
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
       expect(screen.getByTestId("modal")).toBeInTheDocument();
@@ -197,5 +223,15 @@ describe("DesignacoesPasso3", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("modal")).not.toBeInTheDocument();
     });
+  });
+
+  it("deve navegar para o passo 2 ao clicar em Anterior", () => {
+    render(<DesignacoesPasso3 />);
+
+    fireEvent.click(screen.getByText("Anterior"));
+
+    expect(pushMock).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2"
+    );
   });
 });

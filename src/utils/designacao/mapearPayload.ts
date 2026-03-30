@@ -6,11 +6,34 @@ function formatarData(valor: any): string | null {
     return null;
 }
 
+function getCargoVaga(form: any, titular: any): number | undefined {
+    if (titular) {
+        return 3360; // to-do: ajustar quando vier da API
+    }
+
+    const cargo = form.cargo_vago_selecionado;
+
+    if (cargo) {
+        if (typeof cargo === "string") {
+            return Number(cargo);
+        }
+        return cargo.id;
+    }
+
+    if (form.cargo_vaga) {
+        return Number.parseInt(form.cargo_vaga, 10);
+    }
+
+    return undefined;
+}
+
 export function mapearPayloadDesignacao(form: any) {
     if (!form) return null;
 
     const { servidorIndicado, dadosTitular } = form;
     const titular = dadosTitular ?? null;
+
+    const cargoVaga = getCargoVaga(form, titular);
 
     return {
         dre_nome: form.dre_nome,
@@ -47,15 +70,13 @@ export function mapearPayloadDesignacao(form: any) {
         data_fim: formatarData(form.designacao_data_final),
 
         carater_excepcional: form.carater_especial === "sim",
-        impedimento_substituicao: "FERIAS", //to-do: arrumar quando front tiver consumindo endpint //form.impedimento_substituicao,
+        impedimento_substituicao: form.impedimento_substituicao,
         com_afastamento: form.com_afastamento === "sim",
         motivo_afastamento: form.motivo_afastamento ?? null,
         possui_pendencia: form.com_pendencia === "sim",
         pendencias: form.motivo_pendencia ?? null,
 
         tipo_vaga: form.tipo_cargo?.toUpperCase(),
-        // to-do: corigir para pegar da api o valor correto de cargo_vaga do titular
-        //cargo_vaga: titular?.cargo_vaga ?? form.cargo_vago_selecionado ?? Number.parseInt(form.cargo_vaga, 10),
-        cargo_vaga: titular ? 3360 : (form.cargo_vago_selecionado ?? Number.parseInt(form.cargo_vaga, 10)),
+        cargo_vaga: cargoVaga,
     };
 }
