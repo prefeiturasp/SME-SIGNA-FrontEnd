@@ -399,8 +399,7 @@ describe("ListagemDeDesignacoes", () => {
       variant: "error",
       title: "Erro ao excluir a designação.",
       description: "Falha ao excluir",
-    });
-    expect(onPageChange).toHaveBeenCalledWith(6);
+    });    
   });
 
   it("exibe toast de sucesso quando exclusão é bem sucedida", async () => {

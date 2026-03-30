@@ -96,7 +96,7 @@ describe("getDesignacaoByIdAction", () => {
 
     const result = await getDesignacaoByIdAction(10);
 
-    expect(result).toEqual({ success: false, error: "Erro ao excluir designação." });
+    expect(result).toEqual({ success: false, error: "Erro ao executar ação." });
   });
 });
 
@@ -141,7 +141,7 @@ describe("excluirDesignacao", () => {
 
   it.each([
     { status: 401, message: "Não autorizado. Faça login novamente." },
-    { status: 404, message: "Arquivo não encontrado." },
+    { status: 404, message: "Designação não encontrada." },
     { status: 500, message: "Erro interno no servidor." },
   ])("mapeia status $status para mensagem amigável", async ({ status, message }) => {
     const getCookieMock = vi.fn().mockReturnValue({ value: "token-abc" });
@@ -193,6 +193,6 @@ describe("excluirDesignacao", () => {
 
     const result = await excluirDesignacao(21);
 
-    expect(result).toEqual({ success: false, error: "Erro ao excluir arquivo." });
+    expect(result).toEqual({ success: false, error: "Erro ao executar ação." });
   });
 });

@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 
 
 function getMessage(error: AxiosError<{ detail?: string }>) {
-    let message = "Erro ao excluir designação.";
+    let message = "Erro ao executar ação.";
 
     if (error.response?.status === 401) {
         message = "Não autorizado. Faça login novamente.";
