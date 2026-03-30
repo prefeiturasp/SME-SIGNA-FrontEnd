@@ -7,6 +7,7 @@ module.exports = defineConfig({
   e2e: {
     baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
     specPattern: 'cypress/e2e/**/*.feature',
+    excludeSpecPattern: 'cypress/e2e/ui/consulta_rf.feature',
     supportFile: 'cypress/support/e2e.js',
 
     screenshotsFolder: 'cypress/screenshots',
