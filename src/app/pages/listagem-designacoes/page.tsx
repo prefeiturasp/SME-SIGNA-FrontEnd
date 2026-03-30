@@ -51,8 +51,8 @@ export default function DesignacoesPasso1() {
   const { data: ueOptions = [] } = useFetchUEs(dreCodigoParaUEs);
 
   const buscar = (values: formSchemaFiltroDesignacaoData, currentPage = 1) => {
-    startTransition(async () => {
-      const ueSelecionada = ueOptions.find(
+     startTransition(async () => {
+       const ueSelecionada = ueOptions.find(
         (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
       );
 

@@ -4,6 +4,25 @@ import { DesignacaoResponse } from "@/types/designacao";
 import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
 
+
+
+function getMessage(error: AxiosError<{ detail?: string }>) {
+    let message = "Erro ao excluir designação.";
+
+    if (error.response?.status === 401) {
+        message = "Não autorizado. Faça login novamente.";
+    } else if (error.response?.status === 404) {
+        message = "Designação não encontrada.";
+    } else if (error.response?.status === 500) {
+        message = "Erro interno no servidor.";
+    } else if (error.response?.data?.detail) {
+        message = error.response.data.detail;
+    } else if (error.message) {
+        message = error.message;
+    }
+    return message
+
+}
 export async function getDesignacaoByIdAction(id: number) {
     const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -20,27 +39,10 @@ export async function getDesignacaoByIdAction(id: number) {
         return { success: true, data:data };
 
     } catch (err) {
-        console.log("err", err);
 
         const error = err as AxiosError<{ detail?: string }>;
-        let message = "Erro ao excluir designação.";
 
-        if (error.response?.status === 401) {
-            message = "Não autorizado. Faça login novamente.";
-        } else if (error.response?.status === 404) {
-            message = "Designação não encontrada.";
-        } else if (error.response?.status === 500) {
-            message = "Erro interno no servidor.";
-        } else if (error.response?.data?.detail) {
-            message = error.response.data.detail;
-        } else if (error.message) {
-            message = error.message;
-        }
-
-        
-         
-
-        return { success: false, error: message };
+        return { success: false, error: getMessage(error) };
     }
 }
  
@@ -70,20 +72,7 @@ export const excluirDesignacao = async (
         return { success: true };
     } catch (err) {
         const error = err as AxiosError<{ detail?: string }>;
-        let message = "Erro ao excluir arquivo.";
+        return { success: false, error: getMessage(error) };
 
-        if (error.response?.status === 401) {
-            message = "Não autorizado. Faça login novamente.";
-        } else if (error.response?.status === 404) {
-            message = "Arquivo não encontrado.";
-        } else if (error.response?.status === 500) {
-            message = "Erro interno no servidor.";
-        } else if (error.response?.data?.detail) {
-            message = error.response.data.detail;
-        } else if (error.message) {
-            message = error.message;
-        }
-
-        return { success: false, error: message };
     }
 };
