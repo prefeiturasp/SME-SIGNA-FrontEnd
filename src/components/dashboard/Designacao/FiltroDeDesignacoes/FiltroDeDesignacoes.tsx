@@ -98,7 +98,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
                       </SelectTrigger>
                       <SelectContent>
                         {cargos.map((cargo) => (
-                          <SelectItem key={cargo.codigo} value={cargo.codigo}>
+                          <SelectItem key={cargo.codigo} value={cargo.nome}>
                             {cargo.nome}
                           </SelectItem>
                         ))}
@@ -127,7 +127,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
                       </SelectTrigger>
                       <SelectContent>
                         {cargos.map((cargo) => (
-                          <SelectItem key={cargo.codigo} value={cargo.codigo}>
+                          <SelectItem key={cargo.codigo} value={cargo.nome}>
                             {cargo.nome}
                           </SelectItem>
                         ))}
