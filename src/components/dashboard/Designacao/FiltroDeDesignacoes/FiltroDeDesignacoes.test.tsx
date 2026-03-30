@@ -238,15 +238,18 @@ describe("FiltroDeDesignacoes", () => {
     expect(screen.getByTestId("btn-limpar-filtros")).toBeDisabled();
   });
 
-  it("chama reset ao clicar em 'Limpar filtros'", () => {
-    // Simula um filtro ativo para habilitar o botão
+  it("chama onClear ao clicar em 'Limpar filtros'", () => {
+    const onClearMock = vi.fn();
+
     watchValues["rf"] = "12345";
-    render(<FiltroDeDesignacoes />);
+
+    render(<FiltroDeDesignacoes onClear={onClearMock} />);
 
     const btnLimpar = screen.getByTestId("btn-limpar-filtros");
     fireEvent.click(btnLimpar);
 
-    expect(resetMock).toHaveBeenCalled();
+    expect(onClearMock).toHaveBeenCalled();
+
     delete watchValues["rf"];
   });
 });

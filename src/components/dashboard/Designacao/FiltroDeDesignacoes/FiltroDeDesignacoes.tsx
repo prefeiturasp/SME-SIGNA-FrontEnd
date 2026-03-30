@@ -9,8 +9,12 @@ import { Combobox } from '@/components/ui/Combobox';
 import { useFetchDREs, useFetchUEs } from '@/hooks/useUnidades';
 import { useFetchCargos } from '@/hooks/useCargos';
 
-const FiltroDeDesignacoes: React.FC = () => {
-  const { register, control, watch, setValue, clearErrors, reset } = useFormContext();
+interface Props {
+  onClear?: () => void;
+}
+
+const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
+  const { register, control, watch, setValue, clearErrors } = useFormContext();
 
   const dreValue = watch("dre"); // agora armazena nomeDRE
 
@@ -241,7 +245,7 @@ const FiltroDeDesignacoes: React.FC = () => {
           variant="outline"
           className="gap-2"
           disabled={!hasFilters}
-          onClick={() => reset()}
+          onClick={onClear}
           data-testid="btn-limpar-filtros"
         >
           <span className="font-bold">Limpar filtros</span>
