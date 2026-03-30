@@ -24,8 +24,7 @@ export default function VisualizarDesignacao() {
   const { data: designacao, isLoading: isLoadingDesignacao, error: errorDesignacao } = useFetchDesignacoesById(
     Number(id),
   );
-
-
+ 
   return (
     <>
       <PageHeader

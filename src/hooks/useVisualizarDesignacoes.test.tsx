@@ -28,7 +28,10 @@ describe("useFetchDesignacoesById", () => {
   });
 
   it("busca os dados quando o id é válido", async () => {
-    vi.mocked(getDesignacaoByIdAction).mockResolvedValueOnce({ id: 8 } as never);
+    vi.mocked(getDesignacaoByIdAction).mockResolvedValueOnce({
+      success: true,
+      data: { id: 8 },
+    } as never);
 
     const { result } = renderHook(() => useFetchDesignacoesById(8), { wrapper });
 
@@ -38,6 +41,22 @@ describe("useFetchDesignacoesById", () => {
 
     expect(getDesignacaoByIdAction).toHaveBeenCalledWith(8);
     expect(result.current.data).toEqual({ id: 8 });
+  });
+
+  it("retorna erro quando a action devolve success false", async () => {
+    vi.mocked(getDesignacaoByIdAction).mockResolvedValueOnce({
+      success: false,
+      error: "Falha ao buscar designação",
+    } as never);
+
+    const { result } = renderHook(() => useFetchDesignacoesById(8), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect((result.current.error as Error).message).toBe("Falha ao buscar designação");
   });
 
   it("não executa a query quando o id é 0", () => {

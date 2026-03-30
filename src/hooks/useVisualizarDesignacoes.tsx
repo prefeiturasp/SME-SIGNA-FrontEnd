@@ -1,12 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDesignacaoByIdAction } from "@/actions/designacoes";
-import { DesignacaoResponse } from "@/types/designacao";
 
  
 export function useFetchDesignacoesById(id: number) {
-    return useQuery<DesignacaoResponse>({
+    return useQuery({
         queryKey: ["get-designacao-by-id", id],
-        queryFn: () => getDesignacaoByIdAction(id),
+        queryFn: async () => {
+            const response = await getDesignacaoByIdAction(id);
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+            return response.data;
+        },
         enabled: !!id,
         refetchOnWindowFocus: false,
     });
