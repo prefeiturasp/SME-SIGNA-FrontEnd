@@ -195,7 +195,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       title: "Tudo certo por aqui!",
       description: "A designação foi excluída com sucesso!",
     });
-    await onPageChange(page);
+    onPageChange(page);
   }
 
 
