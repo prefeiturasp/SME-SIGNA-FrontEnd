@@ -3,11 +3,16 @@ const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
 
+// 🔥 IMPORTANTE (Cloud)
+const { cloudPlugin } = require('cypress-cloud/plugin');
+
 module.exports = defineConfig({
   e2e: {
     baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
+
     specPattern: 'cypress/e2e/**/*.feature',
-    excludeSpecPattern: 'cypress/e2e/ui/consulta_rf.feature',
+    excludeSpecPattern: ['cypress/e2e/ui/consulta_rf.feature'],
+
     supportFile: 'cypress/support/e2e.js',
 
     screenshotsFolder: 'cypress/screenshots',
@@ -46,7 +51,12 @@ module.exports = defineConfig({
     async setupNodeEvents(on, config) {
 
       // =========================
-      // 1️⃣ Cucumber (SEMPRE PRIMEIRO)
+      // 1️⃣ CLOUD (PRIMEIRO!)
+      // =========================
+      cloudPlugin(on, config);
+
+      // =========================
+      // 2️⃣ CUCUMBER
       // =========================
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
 
@@ -58,7 +68,7 @@ module.exports = defineConfig({
       );
 
       // =========================
-      // 2️⃣ Tasks personalizadas
+      // 3️⃣ TASKS
       // =========================
       on('task', {
         log(message) {
@@ -72,7 +82,7 @@ module.exports = defineConfig({
       });
 
       // =========================
-      // 3️⃣ Config Firefox
+      // 4️⃣ FIREFOX
       // =========================
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.family === 'firefox') {
@@ -85,12 +95,7 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
-      // =========================
-      // 4️⃣ Configuração final
-      // =========================
       return config;
     },
   },
 });
-
-

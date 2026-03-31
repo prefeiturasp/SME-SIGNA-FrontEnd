@@ -70,6 +70,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "baseline-browser-mapping": "^2.9.2",
     "cypress": "^13.17.0",
+    "cypress-cloud": "^1.13.1",
     "cypress-mochawesome-reporter": "^3.8.4",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
