@@ -13,7 +13,6 @@ cypress/downloads/
 cypress/reports/
 cypress/logs/
 .cypress-cucumber-preprocessorrc
-.currents/
 
 # Relatórios de teste
 allure-results/
