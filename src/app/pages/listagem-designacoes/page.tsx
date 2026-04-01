@@ -54,22 +54,8 @@ export default function DesignacoesPasso1() {
   const generateExportData = async (): Promise<ListagemDesignacoesResponse[]> => {
     const values = form.getValues();
 
-    const ueSelecionada = ueOptions.find(
-      (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
-    );
-
-    const response = await fetchDesignacoesAction({
-      rf: values.rf,
-      nome: values.nome_servidor,
-      periodo_after: values.periodo?.from ? format(values.periodo.from, "yyyy-MM-dd") : undefined,
-      periodo_before: values.periodo?.to ? format(values.periodo.to, "yyyy-MM-dd") : undefined,
-      cargo_base: values.cargo_base,
-      cargo_sobreposto: values.cargo_sobreposto,
-      dre: values.dre,
-      unidade: ueSelecionada?.nomeEscola ?? values.unidade_escolar,
-      ano: values.ano,
-      no_pagination: true,
-    });
+ 
+    const response = await buscarDesignacoes(values, 0, true);
 
     if (response.success) {
       return response.data.results;
@@ -85,14 +71,14 @@ export default function DesignacoesPasso1() {
 
   };
 
-  const buscar = (values: formSchemaFiltroDesignacaoData, currentPage = 1) => {
-    console.log("busca");
-    startTransition(async () => {
-      console.log("values", values);
-      const ueSelecionada = ueOptions.find(
+  const buscarDesignacoes = async (values: formSchemaFiltroDesignacaoData, currentPage = 1, no_pagination = false) => {
+        const ueSelecionada = ueOptions.find(
         (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
       );
-
+      const paginationPayload = no_pagination
+        ? { no_pagination: true }
+        : { page: currentPage, page_size: 10 };
+    
       const response = await fetchDesignacoesAction({
         rf: values.rf,
         nome: values.nome_servidor,
@@ -103,9 +89,22 @@ export default function DesignacoesPasso1() {
         dre: values.dre,
         unidade: ueSelecionada?.nomeEscola ?? values.unidade_escolar,
         ano: values.ano,
-        page: currentPage,
-        page_size: 10,
+        ...paginationPayload,
       });
+
+      
+      return response;
+    }
+
+  const buscar = (values: formSchemaFiltroDesignacaoData, currentPage = 1) => {
+    console.log("busca");
+    startTransition(async () => {
+      console.log("values", values);
+      const ueSelecionada = ueOptions.find(
+        (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
+      );
+
+      const response = await buscarDesignacoes(values, currentPage, false);
 
       if (response.success) {
 
