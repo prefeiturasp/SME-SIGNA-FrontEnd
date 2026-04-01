@@ -1,0 +1,278 @@
+"use client";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
+import { Separator } from "@/components/ui/separator";
+import { Card } from "antd";
+import type { Servidor } from "@/types/designacao-unidade";
+import { InputField } from "@/components/ui/FieldsForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type Control, type FieldValues, type UseFormRegister } from "react-hook-form";
+import formSchemaEditarServidor, { FormEditarServidorData } from "./schema";
+import { Form } from "@/components/ui/form";
+ 
+type ModalEditarServidorProps = {
+    isLoading: boolean;
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+    defaultValues: Servidor;
+    handleSubmitEditarServidor: (data: FormEditarServidorData) => void;
+};
+
+
+
+export default function ModalEditarServidor({
+    isLoading,
+    open,
+    onOpenChange,
+    defaultValues,
+    handleSubmitEditarServidor
+}: Readonly<ModalEditarServidorProps>) {
+    function handleOpenChange(v: boolean) {
+        onOpenChange(v);
+    }
+ 
+    const form = useForm<FormEditarServidorData>({
+        resolver: zodResolver(formSchemaEditarServidor),
+        defaultValues: {
+            nome_servidor: defaultValues.nome_servidor,
+            nome_civil: defaultValues.nome_civil ?? defaultValues.nome_servidor,
+            rf: defaultValues.rf,
+            vinculo: defaultValues.vinculo,
+            
+            cargo_base: defaultValues.cargo_base,
+            lotacao: defaultValues.lotacao,
+            cursos_titulos: defaultValues.cursos_titulos,
+            laudo_medico: defaultValues.laudo_medico,
+            local_de_servico: defaultValues.local_de_servico,
+
+            cargo_sobreposto_funcao_atividade: defaultValues.cargo_sobreposto_funcao_atividade,
+            local_de_exercicio: defaultValues.local_de_exercicio,
+
+
+
+        },
+        mode: "onChange",
+    });
+    const { register, control } = form;
+    const registerFieldValues = register as unknown as UseFormRegister<FieldValues>;
+    const controlFieldValues = control as unknown as Control<FieldValues>;
+ 
+    const handleSubmitEditar = (data: FormEditarServidorData) => {
+        handleSubmitEditarServidor(data);
+        onOpenChange(false);
+    };
+
+
+    return (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent className="max-w-[900px] p-8 rounded-none rounded-0">          <Form {...form} >
+
+                <form
+                    id="editar-servidor-form"
+                    onSubmit={(e) => {
+                        e.stopPropagation();
+                        form.handleSubmit(handleSubmitEditar)(e);
+                    }}
+                    data-testid="form-editar-servidor"
+                >
+                    <DialogHeader>
+                        <DialogTitle>Editar dados servidor indicado</DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Modal com a lista de dados do servidor selecionado.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <Separator className="mt-2" />
+
+
+
+                    <div className="h-[550px] overflow-y-auto pt-4">
+
+                        <Card
+
+                            className={`m-0 border-l-4 bg-[#F9F9F9] border-l-[#EBB466]`}
+                        >
+
+
+                            <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-3 ">
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="nome_servidor"
+                                        label="Nome servidor"
+                                        placeholder="Nome servidor"
+                                        data-testid="input-nome-servidor"
+                                    />
+                                </div>
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="nome_civil"
+                                        label="Nome Civil"
+                                        placeholder="Nome Civil"
+                                        data-testid="input-nome-civil"
+                                    />
+                                </div>
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="rf"
+                                        label="RF"
+                                        placeholder="Digite o RF"
+                                        data-testid="input-rf"
+                                        type="number"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+
+
+                            <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-2 ">
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="vinculo"
+                                        label="Vínculo"
+                                        placeholder="Vínculo"
+                                        data-testid="input-vinculo-cargo-sobreposto"
+                                        disabled
+                                    />
+                                </div>
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="cargo_base"
+                                        label="Cargo base"
+                                        placeholder="Cargo base"
+                                        data-testid="input-cargo-base"
+                                        disabled
+                                    />
+                                </div>
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="lotacao"
+                                        label="Lotação"
+                                        placeholder="Lotação cargo sobreposto"
+                                        data-testid="input-lotacao-cargo-sobreposto"
+                                        disabled
+                                    />
+                                </div>
+
+
+
+
+
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="cargo_sobreposto_funcao_atividade"
+                                        label="Cargo sobreposto/Função atividade"
+                                        placeholder="Cargo sobreposto"
+                                        data-testid="input-cargo-sobreposto"
+                                        disabled
+                                    />
+                                </div>
+
+
+
+
+
+
+
+
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="local_de_exercicio"
+                                        label="Local de exercício"
+                                        placeholder="Local de exercício"
+                                        data-testid="input-local-de-exercicio"
+                                        disabled
+                                    />
+                                </div>
+
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="laudo_medico"
+                                        label="Laudo médico"
+                                        placeholder="Laudo médico"
+                                        data-testid="input-laudo-medico"
+                                        disabled
+                                    />
+                                </div>
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
+                                        name="local_de_servico"
+                                        label="Local de serviço"
+                                        placeholder="Local de serviço"
+                                        data-testid="input-local-de-servico"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+
+                        </Card>
+                    </div>
+                    <Separator className="mt-4 mb-4" />
+
+
+                    <div className="flex justify-end gap-10">
+
+                        <Button
+                            type="button"
+                            size="lg"
+                            className="flex items-center justify-center gap-6 w-[140px]"
+                            variant="outline"
+                            onClick={() => handleOpenChange(false)}
+                            data-testid="botao-cancelar"
+                        >
+                            <p className="text-[16px] font-bold">Cancelar</p>
+                        </Button>
+
+                        <Button
+                            form="editar-servidor-form"
+                            type="submit"
+                            size="lg"
+                            className="flex items-center justify-center gap-6 w-[140px]"
+                            variant="destructive"
+                            disabled={isLoading}
+                            data-testid="botao-salvar"
+                        >
+                            <p className="text-[16px] font-bold">Salvar</p>
+                        </Button>
+                    </div>
+
+                </form>
+            </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}

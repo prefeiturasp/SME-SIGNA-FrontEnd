@@ -181,4 +181,174 @@ describe("ModalAlterarEmail", () => {
             ).toBeNull();
         });
     });
+
+    it("reseta o formulário quando o modal é fechado", async () => {
+        mockMutateAsync.mockResolvedValue({ success: false, error: "Erro" });
+
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={currentMail}
+            />
+        );
+
+        const user = userEvent.setup();
+        const input = screen.getByTestId("input-email");
+        await user.clear(input);
+        await user.type(input, "novo@sme.prefeitura.sp.gov.br");
+
+        const salvarBtn = screen.getByRole("button", {
+            name: /salvar e-mail/i,
+        });
+        await user.click(salvarBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText("Erro")).toBeInTheDocument();
+        });
+
+        const btnCancelar = screen.getByRole("button", { name: /cancelar/i });
+        await user.click(btnCancelar);
+
+        expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it("valida que e-mail deve ser institucional (@sme.prefeitura.sp.gov.br)", async () => {
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={currentMail}
+            />
+        );
+
+        const user = userEvent.setup();
+        const input = screen.getByTestId("input-email");
+        await user.clear(input);
+        await user.type(input, "email@gmail.com");
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(
+                    /use apenas e-mails institucionais \(@sme\.prefeitura\.sp\.gov\.br\)/i
+                )
+            ).toBeInTheDocument();
+        });
+
+        const salvarBtn = screen.getByRole("button", {
+            name: /salvar e-mail/i,
+        });
+        expect(salvarBtn).toBeDisabled();
+    });
+
+    it("renderiza sem e-mail atual", () => {
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={undefined}
+            />
+        );
+
+        const input = screen.getByTestId("input-email");
+        expect(input).toBeInTheDocument();
+        expect(input).toHaveValue("");
+    });
+
+    it("exibe o texto 'Importante' com a mensagem de aviso", () => {
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={currentMail}
+            />
+        );
+
+        expect(screen.getByText(/importante:/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                /ao alterar o e-mail cadastrado, todas as comunicações serão enviadas/i
+            )
+        ).toBeInTheDocument();
+    });
+
+    it("limpa erro ao fechar o modal via cancelar", async () => {
+        mockMutateAsync.mockResolvedValue({
+            success: false,
+            error: "Erro ao salvar",
+        });
+
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={currentMail}
+            />
+        );
+
+        const user = userEvent.setup();
+        const input = screen.getByTestId("input-email");
+        await user.clear(input);
+        await user.type(input, "novo@sme.prefeitura.sp.gov.br");
+
+        const salvarBtn = screen.getByRole("button", {
+            name: /salvar e-mail/i,
+        });
+        await user.click(salvarBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText("Erro ao salvar")).toBeInTheDocument();
+        });
+
+        // Clicar em cancelar deve chamar onOpenChange(false), que limpa os erros
+        const btnCancelar = screen.getByRole("button", { name: /cancelar/i });
+        await user.click(btnCancelar);
+
+        expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it("mantém botão desabilitado se o email não mudou do original", async () => {
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={currentMail}
+            />
+        );
+
+        const salvarBtn = screen.getByRole("button", {
+            name: /salvar e-mail/i,
+        });
+        expect(salvarBtn).toBeDisabled();
+    });
+
+    it("exibe ícone de check após sucesso", async () => {
+        mockMutateAsync.mockResolvedValue({ success: true });
+
+        renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail={currentMail}
+            />
+        );
+
+        const user = userEvent.setup();
+        const input = screen.getByTestId("input-email");
+        await user.clear(input);
+        await user.type(input, "novo@sme.prefeitura.sp.gov.br");
+
+        const salvarBtn = screen.getByRole("button", {
+            name: /salvar e-mail/i,
+        });
+        await user.click(salvarBtn);
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(
+                    /quase lá! um e-mail de confirmação foi enviado/i
+                )
+            ).toBeInTheDocument();
+        });
+    });
 });

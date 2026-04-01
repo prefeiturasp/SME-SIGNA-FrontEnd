@@ -27,7 +27,7 @@ export function proxy(request: NextRequest) {
     }
 
     if (isAuthenticated && isPublic(pathname)) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+        return NextResponse.redirect(new URL("/pages", request.url));
     }
     return NextResponse.next();
 }
