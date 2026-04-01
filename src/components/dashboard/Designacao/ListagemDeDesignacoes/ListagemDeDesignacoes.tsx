@@ -69,6 +69,7 @@ interface ListagemDeDesignacoesProps {
   total?: number;
   page?: number;
   onPageChange?: (page: number) => void;
+  generateExportData: () => Promise<ListagemDesignacoesResponse[]>;
 }
 
 const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
@@ -77,6 +78,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
   total = 0,
   page = 1,
   onPageChange = () => {},
+  generateExportData
 }) => {
   const router = useRouter();
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<number | null>(null);
@@ -200,8 +202,16 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 
 
 
-  const handleDownloadCSV = () => {
-    downloadCSV(data, columns)
+  const handleDownloadCSV = async () => {
+    const exportData = await generateExportData();
+    if (exportData.length === 0) {      
+      return;
+    }
+
+    const exportColumns = columns
+    .filter((column)=>column.key!=="action")
+
+    downloadCSV(exportData, exportColumns)
   }
   return (
     <>

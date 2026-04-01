@@ -34,18 +34,20 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
 
   const headers = Object.keys(data[0] as Record<string, unknown>).slice(1);
   const csvRows: string[] = [];
-
-  const headersCSV = headers.map((item) => {
-    const title = columns.find((column) => String(column.key) === item)?.title;
+  
+  const headersCSV = columns
+  .map((columns) => {
+    const title = headers.find((item) => String(columns.key) === item);
     const titleCSV = serializeCSVValue(title);
-    return titleCSV || item;
+    return titleCSV ||  String(columns.key);
   });
-
+  
   csvRows.push(headersCSV.join(","));
 
   for (const row of data) {
-    const values = headers.map((header) => {
+    const values = headersCSV.map((header) => {
       const value = (row as Record<string, unknown>)[header];
+ 
       const escaped = serializeCSVValue(value).replace(/"/g, '\\"');
       return `"${escaped}"`;
     });

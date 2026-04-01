@@ -8,13 +8,14 @@ import Designacao from "@/assets/icons/Designacao";
 import FiltroDeDesignacoes from "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DesignacaoPaginada } from "@/types/designacao";
+import { DesignacaoPaginada, ListagemDesignacoesResponse } from "@/types/designacao";
 import Filter from "@/assets/icons/Alert";
 import formSchemaFiltroDesignacao, { formSchemaFiltroDesignacaoData } from "./schema";
 import { fetchDesignacoesAction } from "@/actions/designacao";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
+import { toast } from "@/components/ui/headless-toast";
 
 export default function DesignacoesPasso1() {
   const [resultado, setResultado] = useState<DesignacaoPaginada | null>(null);
@@ -50,8 +51,42 @@ export default function DesignacoesPasso1() {
 
   const { data: ueOptions = [] } = useFetchUEs(dreCodigoParaUEs);
 
+  const generateExportData = async (): Promise<ListagemDesignacoesResponse[]> => {
+    const values = form.getValues();
+
+    const ueSelecionada = ueOptions.find(
+      (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
+    );
+
+    const response = await fetchDesignacoesAction({
+      rf: values.rf,
+      nome: values.nome_servidor,
+      periodo_after: values.periodo?.from ? format(values.periodo.from, "yyyy-MM-dd") : undefined,
+      periodo_before: values.periodo?.to ? format(values.periodo.to, "yyyy-MM-dd") : undefined,
+      cargo_base: values.cargo_base,
+      cargo_sobreposto: values.cargo_sobreposto,
+      dre: values.dre,
+      unidade: ueSelecionada?.nomeEscola ?? values.unidade_escolar,
+      ano: values.ano,
+      no_pagination: true,
+    });
+
+    if (response.success) {
+      return response.data.results;
+    } else {
+      toast({
+        variant: "error",
+        title: "Erro ao gerar o arquivo CSV.",
+        description: response.error,
+      });
+      return [];
+
+    }
+
+  };
+
   const buscar = (values: formSchemaFiltroDesignacaoData, currentPage = 1) => {
-    console.log("busca" );
+    console.log("busca");
     startTransition(async () => {
       console.log("values", values);
       const ueSelecionada = ueOptions.find(
@@ -171,6 +206,7 @@ export default function DesignacoesPasso1() {
         total={resultado?.count ?? 0}
         page={page}
         onPageChange={onPageChange}
+        generateExportData={generateExportData}
       />
     </>
   );
