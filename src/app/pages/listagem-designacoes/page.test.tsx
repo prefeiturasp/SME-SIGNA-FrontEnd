@@ -8,6 +8,9 @@ import ListagemDesignacoesPage from "./page";
 const pageHeaderSpy = vi.fn();
 const fundoBrancoSpy = vi.fn();
 const listagemSpy = vi.fn();
+const toastMock = vi.fn();
+const pushMock = vi.fn();
+const useFetchUEsSpy = vi.fn();
 
 const mockResults = [
   { id: 1, indicado_rf: "111", indicado_nome_servidor: "Servidor A", status: 0 },
@@ -15,6 +18,9 @@ const mockResults = [
 ];
 
 const mockFetchDesignacoesAction = vi.fn();
+const resetMock = vi.fn();
+const dreOptionsMock: Array<{ codigoDRE: string; nomeDRE: string }> = [];
+const ueOptionsMock: Array<{ codigoEscola: string; nomeEscola: string }> = [];
 
 vi.mock("@/actions/designacao", () => ({
   fetchDesignacoesAction: (...args: unknown[]) =>
@@ -22,13 +28,20 @@ vi.mock("@/actions/designacao", () => ({
 }));
 
 vi.mock("@/hooks/useUnidades", () => ({
-  useFetchDREs: () => ({ data: [] }),
-  useFetchUEs: () => ({ data: [] }),
+  useFetchDREs: () => ({ data: dreOptionsMock }),
+  useFetchUEs: (codigo: string) => {
+    useFetchUEsSpy(codigo);
+    return { data: ueOptionsMock };
+  },
+}));
+
+vi.mock("@/components/ui/headless-toast", () => ({
+  toast: (...args: unknown[]) => toastMock(...args),
 }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: vi.fn(),
+    push: (...args: unknown[]) => pushMock(...args),
   }),
 }));
 
@@ -49,6 +62,7 @@ vi.mock("react", async () => {
 });
 
 const mockGetValues = vi.fn();
+const watchMock = vi.fn();
 
 const mockHandleSubmit =
   (submitFn: (values: Record<string, unknown>) => void) =>
@@ -65,8 +79,8 @@ vi.mock("react-hook-form", () => ({
     formState: { errors: {} },
     register: vi.fn(),
     setValue: vi.fn(),
-    watch: vi.fn().mockReturnValue(""),
-    reset: vi.fn(),
+    watch: (...args: unknown[]) => watchMock(...args),
+    reset: (...args: unknown[]) => resetMock(...args),
     clearErrors: vi.fn(),
   }),
   FormProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -108,9 +122,12 @@ vi.mock(
   "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes",
   () => ({
     __esModule: true,
-    default: () => (
+    default: ({ onClear }: { onClear: () => void }) => (
       <div>
         <span>Filtro de Designacoes</span>
+        <button type="button" onClick={onClear}>
+          Limpar
+        </button>
         <button type="submit">Pesquisar</button>
       </div>
     ),
@@ -150,6 +167,8 @@ vi.mock("@/assets/icons/Designacao", () => ({
 describe("ListagemDesignacoesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    dreOptionsMock.splice(0, dreOptionsMock.length);
+    ueOptionsMock.splice(0, ueOptionsMock.length);
 
     mockFetchDesignacoesAction.mockResolvedValue({
       success: true,
@@ -171,6 +190,7 @@ describe("ListagemDesignacoesPage", () => {
       unidade_escolar: "",
       ano: "",
     });
+    watchMock.mockReturnValue("");
   });
 
   it("renderiza cabeçalho, container e listagem", async () => {
@@ -278,5 +298,119 @@ describe("ListagemDesignacoesPage", () => {
     });
 
     errorSpy.mockRestore();
+  });
+
+  it("executa limpar filtros e refaz a busca com payload vazio", async () => {
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpar" }));
+
+    expect(resetMock).toHaveBeenCalledWith({
+      rf: "",
+      nome_servidor: "",
+      periodo: undefined,
+      cargo_base: "",
+      cargo_sobreposto: "",
+      dre: "",
+      unidade_escolar: "",
+      ano: "",
+    });
+
+    await waitFor(() =>
+      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(2)
+    );
+    expect(mockFetchDesignacoesAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 1, page_size: 10, unidade: "" })
+    );
+  });
+
+  it("aciona navegação ao clicar em Iniciar Nova Designação", async () => {
+    render(<ListagemDesignacoesPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Iniciar Nova Designação" }));
+    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
+  });
+
+  it("gera exportação com unidade mapeada e datas formatadas", async () => {
+    dreOptionsMock.push({ codigoDRE: "DRE-01", nomeDRE: "DRE Norte" });
+    ueOptionsMock.push({ codigoEscola: "UE-1", nomeEscola: "Escola Mapeada" });
+    watchMock.mockReturnValue("DRE Norte");
+    mockGetValues.mockReturnValue({
+      rf: "123",
+      nome_servidor: "Servidor X",
+      periodo: { from: new Date("2026-01-02"), to: new Date("2026-01-30") },
+      cargo_base: "Cargo Base",
+      cargo_sobreposto: "Cargo Sobreposto",
+      dre: "DRE Norte",
+      unidade_escolar: "UE-1",
+      ano: "2026",
+    });
+
+    mockFetchDesignacoesAction
+      .mockResolvedValueOnce({
+        success: true,
+        data: {
+          count: 2,
+          next: null,
+          previous: null,
+          results: mockResults,
+        },
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        data: {
+          count: 1,
+          next: null,
+          previous: null,
+          results: [{ id: 99 }],
+        },
+      });
+
+    render(<ListagemDesignacoesPage />);
+
+    await waitFor(() => {
+      expect(useFetchUEsSpy).toHaveBeenCalledWith("DRE-01");
+    });
+
+    const lastProps = listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
+    const result = await lastProps.generateExportData();
+
+    expect(result).toEqual([{ id: 99 }]);
+    expect(mockFetchDesignacoesAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        periodo_after: "formatted-yyyy-MM-dd",
+        periodo_before: "formatted-yyyy-MM-dd",
+        unidade: "Escola Mapeada",
+        no_pagination: true,
+      })
+    );
+  });
+
+  it("retorna lista vazia e exibe toast quando exportação falha", async () => {
+    mockFetchDesignacoesAction
+      .mockResolvedValueOnce({
+        success: true,
+        data: { count: 0, next: null, previous: null, results: [] },
+      })
+      .mockResolvedValueOnce({
+        success: false,
+        error: "Falha no CSV",
+      });
+
+    render(<ListagemDesignacoesPage />);
+    const lastProps = listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
+
+    const result = await lastProps.generateExportData();
+
+    expect(result).toEqual([]);
+    expect(toastMock).toHaveBeenCalledWith({
+      variant: "error",
+      title: "Erro ao gerar o arquivo CSV.",
+      description: "Falha no CSV",
+    });
   });
 });
