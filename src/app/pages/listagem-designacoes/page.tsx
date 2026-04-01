@@ -97,13 +97,8 @@ export default function DesignacoesPasso1() {
     }
 
   const buscar = (values: formSchemaFiltroDesignacaoData, currentPage = 1) => {
-    console.log("busca");
-    startTransition(async () => {
-      console.log("values", values);
-      const ueSelecionada = ueOptions.find(
-        (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
-      );
-
+     startTransition(async () => {
+  
       const response = await buscarDesignacoes(values, currentPage, false);
 
       if (response.success) {

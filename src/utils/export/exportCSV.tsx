@@ -36,7 +36,7 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
 
   const headersCSV = columns
   .map((columns) => {    
-    return String(columns.title);
+    return columns.title;
   });
 
   csvRows.push(headersCSV.join(","));
