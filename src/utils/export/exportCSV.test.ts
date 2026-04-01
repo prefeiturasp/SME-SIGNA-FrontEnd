@@ -48,7 +48,6 @@ describe("downloadCSV", () => {
 
     const data: TestRow[] = [{ key: "1", nome: 'Ana "Maria"', idade: 30 }];
     const columns: ColumnsType<TestRow> = [
-      { key: "key", title: "Chave" },
       { key: "nome", title: "Nome" },
       { key: "idade", title: "Idade" },
     ];

@@ -32,21 +32,18 @@ const serializeCSVValue = (value: unknown): string => {
 const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => {
   if (!data || data.length === 0) return "";
 
-  const headers = Object.keys(data[0] as Record<string, unknown>).slice(1);
   const csvRows: string[] = [];
-  
+
   const headersCSV = columns
-  .map((columns) => {
-    const title = headers.find((item) => String(columns.key) === item);
-    const titleCSV = serializeCSVValue(title);
-    return titleCSV ||  String(columns.key);
+  .map((columns) => {    
+    return String(columns.title);
   });
-  
+
   csvRows.push(headersCSV.join(","));
 
   for (const row of data) {
-    const values = headersCSV.map((header) => {
-      const value = (row as Record<string, unknown>)[header];
+    const values = columns.map((header) => {
+      const value = (row as Record<string, unknown>)[String(header.key)];
  
       const escaped = serializeCSVValue(value).replace(/"/g, '\\"');
       return `"${escaped}"`;
