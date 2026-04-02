@@ -3,15 +3,23 @@ import { useState, useTransition, useEffect, useMemo } from "react";
 import ListagemDeDesignacoes from "@/components/dashboard/Designacao/ListagemDeDesignacoes/ListagemDeDesignacoes";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import Designacao from "@/assets/icons/Designacao";
 import FiltroDeDesignacoes from "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DesignacaoPaginada, ListagemDesignacoesResponse } from "@/types/designacao";
+import {
+  DesignacaoPaginada,
+  ListagemDesignacoesResponse,
+} from "@/types/designacao";
 import Filter from "@/assets/icons/Alert";
-import formSchemaFiltroDesignacao, { formSchemaFiltroDesignacaoData } from "./schema";
-import { fetchDesignacoesAction } from "@/actions/designacao";
+import formSchemaFiltroDesignacao, {
+  formSchemaFiltroDesignacaoData,
+} from "./schema";
+import {
+  fetchDesignacoesAction,
+  fetchDesignacoesSemPaginacaoAction,
+} from "@/actions/designacao";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
@@ -44,21 +52,22 @@ export default function DesignacoesPasso1() {
 
   const dreCodigoParaUEs = useMemo(() => {
     const found = dreOptions.find(
-      (dre: { codigoDRE: string; nomeDRE: string }) => dre.nomeDRE === dreValue
+      (dre: { codigoDRE: string; nomeDRE: string }) => dre.nomeDRE === dreValue,
     );
     return found?.codigoDRE ?? "";
   }, [dreValue, dreOptions]);
 
   const { data: ueOptions = [] } = useFetchUEs(dreCodigoParaUEs);
 
-  const generateExportData = async (): Promise<ListagemDesignacoesResponse[]> => {
+  const generateExportData = async (): Promise<
+    ListagemDesignacoesResponse[]
+  > => {
     const values = form.getValues();
 
- 
-    const response = await buscarDesignacoes(values, 0, true);
+    const response = await buscarDesignacoesExport(values);
 
     if (response.success) {
-      return response.data.results;
+      return response.data;
     } else {
       toast({
         variant: "error",
@@ -66,43 +75,71 @@ export default function DesignacoesPasso1() {
         description: response.error,
       });
       return [];
-
     }
+  };
+  const generateDesignacaoFiltros = (
+    values: formSchemaFiltroDesignacaoData,
+    ueOptions: { codigoEscola: string; nomeEscola: string }[],
+  ) => {
+    const ueSelecionada = ueOptions.find(
+      (ue) => ue.codigoEscola === values.unidade_escolar,
+    );
 
+    return {
+      rf: values.rf,
+      nome: values.nome_servidor,
+      periodo_after: values.periodo?.from
+        ? format(values.periodo.from, "yyyy-MM-dd")
+        : undefined,
+      periodo_before: values.periodo?.to
+        ? format(values.periodo.to, "yyyy-MM-dd")
+        : undefined,
+      cargo_base: values.cargo_base,
+      cargo_sobreposto: values.cargo_sobreposto,
+      dre: values.dre,
+      unidade: ueSelecionada?.nomeEscola ?? values.unidade_escolar,
+      ano: values.ano,
+    };
   };
 
-  const buscarDesignacoes = async (values: formSchemaFiltroDesignacaoData, currentPage = 1, no_pagination = false) => {
-        const ueSelecionada = ueOptions.find(
-        (ue: { codigoEscola: string; nomeEscola: string }) => ue.codigoEscola === values.unidade_escolar
-      );
-      const paginationPayload = no_pagination
-        ? { no_pagination: true }
-        : { page: currentPage, page_size: 10 };
-    
-      const response = await fetchDesignacoesAction({
-        rf: values.rf,
-        nome: values.nome_servidor,
-        periodo_after: values.periodo?.from ? format(values.periodo.from, "yyyy-MM-dd") : undefined,
-        periodo_before: values.periodo?.to ? format(values.periodo.to, "yyyy-MM-dd") : undefined,
-        cargo_base: values.cargo_base,
-        cargo_sobreposto: values.cargo_sobreposto,
-        dre: values.dre,
-        unidade: ueSelecionada?.nomeEscola ?? values.unidade_escolar,
-        ano: values.ano,
-        ...paginationPayload,
-      });
-
-      
-      return response;
+  const generatePagination = (currentPage = 1, no_pagination = false) => {
+    if (no_pagination) {
+      return { no_pagination: true };
     }
 
+    return {
+      page: currentPage,
+      page_size: 10,
+    };
+  };
+
+  const buscarDesignacoesExport = async (
+    values: formSchemaFiltroDesignacaoData,
+  ) => {
+    const filtros = {
+      ...generateDesignacaoFiltros(values, ueOptions),
+      ...generatePagination(1, true),
+    };
+
+    return fetchDesignacoesSemPaginacaoAction(filtros);
+  };
+  const buscarDesignacoes = async (
+    values: formSchemaFiltroDesignacaoData,
+    currentPage = 1,
+    no_pagination = false,
+  ) => {
+    const filtros = {
+      ...generateDesignacaoFiltros(values, ueOptions),
+      ...generatePagination(currentPage, no_pagination),
+    };
+
+    return fetchDesignacoesAction(filtros);
+  };
   const buscar = (values: formSchemaFiltroDesignacaoData, currentPage = 1) => {
-     startTransition(async () => {
-  
+    startTransition(async () => {
       const response = await buscarDesignacoes(values, currentPage, false);
 
       if (response.success) {
-
         setResultado(response.data);
         setPage(currentPage);
       } else {
@@ -146,18 +183,15 @@ export default function DesignacoesPasso1() {
         unidade_escolar: "",
         ano: "",
       },
-      1
+      1,
     );
   };
 
   return (
     <>
       <PageHeader
-        title={''}
-        breadcrumbs={[
-          { title: "Início", href: "/" },
-          { title: "Designação" },
-        ]}
+        title={""}
+        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação" }]}
         icon={
           <div className="flex justify-start">
             <Button
@@ -178,7 +212,9 @@ export default function DesignacoesPasso1() {
             type="button"
             variant="destructive"
             size="lg"
-            onClick={() => router.push("/pages/designacoes/designacoes-passo-1")}
+            onClick={() =>
+              router.push("/pages/designacoes/designacoes-passo-1")
+            }
           >
             <span className="font-bold">Iniciar Nova Designação</span>
             <Designacao width={20} height={20} fill="white" />
