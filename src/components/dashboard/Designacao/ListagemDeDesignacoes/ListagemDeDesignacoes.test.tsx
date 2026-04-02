@@ -13,6 +13,7 @@ const downloadCSVMock = vi.fn();
 const pushMock = vi.fn();
 const toastMock = vi.fn();
 const mutateAsyncMock = vi.fn();
+const generateExportDataMock = vi.fn();
 
 vi.mock("@/utils/export/exportCSV", () => ({
   downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
@@ -186,6 +187,17 @@ const makeRow = (index: number): ListagemDesignacoesResponse => ({
 const data: ListagemDesignacoesResponse[] = Array.from({ length: 20 }, (_, i) => makeRow(i));
 
 describe("ListagemDeDesignacoes", () => {
+  const renderComponent = (
+    props?: Partial<React.ComponentProps<typeof ListagemDeDesignacoes>>
+  ) =>
+    render(
+      <ListagemDeDesignacoes
+        data={data}
+        generateExportData={generateExportDataMock}
+        {...props}
+      />
+    );
+
   beforeEach(() => {
     tableMock.mockClear();
     paginationMock.mockClear();
@@ -195,6 +207,8 @@ describe("ListagemDeDesignacoes", () => {
     pushMock.mockClear();
     toastMock.mockClear();
     mutateAsyncMock.mockReset();
+    generateExportDataMock.mockReset();
+    generateExportDataMock.mockResolvedValue(data);
     vi.spyOn(console, "log").mockImplementation(() => undefined);
   });
 
@@ -203,7 +217,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("renderiza o cabeçalho e configura a tabela corretamente", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
 
     expect(screen.getByText("Lista de designações")).toBeInTheDocument();
     expect(screen.getByText("Exportar CSV")).toBeInTheDocument();
@@ -235,7 +249,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("exibe o total de registros ao lado da paginação", () => {
-    render(<ListagemDeDesignacoes data={data} total={107} />);
+    renderComponent({ total: 107 });
     expect(screen.getByText("107")).toBeInTheDocument();
 
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
@@ -244,7 +258,7 @@ describe("ListagemDeDesignacoes", () => {
 
   it("respeita loading, page e callback de paginação customizados", () => {
     const onPageChange = vi.fn();
-    render(<ListagemDeDesignacoes data={data} isLoading page={3} onPageChange={onPageChange} />);
+    renderComponent({ isLoading: true, page: 3, onPageChange });
 
     const tableProps = tableMock.mock.calls[0][0];
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
@@ -255,20 +269,34 @@ describe("ListagemDeDesignacoes", () => {
     expect(onPageChange).toHaveBeenCalledWith(4, 10);
   });
 
-  it("chama downloadCSV ao clicar em Exportar CSV", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+  it("chama downloadCSV ao clicar em Exportar CSV quando há dados para exportar", async () => {
+    renderComponent();
 
     fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/i }));
 
-    expect(downloadCSVMock).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => {
+      expect(downloadCSVMock).toHaveBeenCalledTimes(1);
+    });
     const [receivedData, receivedColumns] = downloadCSVMock.mock.calls[0];
 
     expect(receivedData).toEqual(data);
-    expect(receivedColumns).toHaveLength(12);
+    expect(receivedColumns).toHaveLength(11);
+  });
+
+  it("não chama downloadCSV quando exportação retorna lista vazia", async () => {
+    generateExportDataMock.mockResolvedValueOnce([]);
+    renderComponent();
+
+    fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/i }));
+
+    await vi.waitFor(() => {
+      expect(generateExportDataMock).toHaveBeenCalledTimes(1);
+    });
+    expect(downloadCSVMock).not.toHaveBeenCalled();
   });
 
   it("renderiza o status para todos os valores previstos", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
 
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
@@ -296,7 +324,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("renderiza status INDISPONÍVEL quando status é undefined", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
 
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
@@ -315,7 +343,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("renderiza a coluna de ação e executa os callbacks", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
 
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
@@ -337,7 +365,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("executa os itens de menu e abre confirmação de exclusão", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const actionRender = columns[11]?.render as
@@ -371,7 +399,7 @@ describe("ListagemDeDesignacoes", () => {
     mutateAsyncMock.mockResolvedValueOnce({ success: false, error: "Falha ao excluir" });
     const onPageChange = vi.fn();
 
-    render(<ListagemDeDesignacoes data={data} page={6} onPageChange={onPageChange} />);
+    renderComponent({ page: 6, onPageChange });
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const actionRender = columns[11]?.render as
@@ -405,7 +433,7 @@ describe("ListagemDeDesignacoes", () => {
   it("exibe toast de sucesso quando exclusão é bem sucedida", async () => {
     mutateAsyncMock.mockResolvedValueOnce({ success: true });
 
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const actionRender = columns[11]?.render as
@@ -439,7 +467,7 @@ describe("ListagemDeDesignacoes", () => {
   it("usa onPageChange padrão quando exclusão falha sem callback informado", async () => {
     mutateAsyncMock.mockResolvedValueOnce({ success: false, error: "Falha padrão" });
 
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const actionRender = columns[11]?.render as
@@ -471,7 +499,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("fecha confirmação ao cancelar exclusão", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
     const props = tableMock.mock.calls[0][0];
     const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
     const actionRender = columns[11]?.render as
@@ -498,7 +526,7 @@ describe("ListagemDeDesignacoes", () => {
   });
 
   it("mantém prev/next desabilitados corretamente", () => {
-    render(<ListagemDeDesignacoes data={data} />);
+    renderComponent();
 
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
     const itemRenderFn = paginationProps.itemRender as NonNullable<PaginationProps["itemRender"]>;
