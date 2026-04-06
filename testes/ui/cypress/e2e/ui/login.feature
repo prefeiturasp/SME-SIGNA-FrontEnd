@@ -12,7 +12,7 @@ Funcionalidade: Autenticação no Sistema SIGNA
   @login-sucesso @critico
   Cenário: Login com credenciais válidas
     Quando eu insiro credenciais válidas
-    E clico no botão de acessa
+    E clico no botão de acessar
     Então devo ser redirecionado para o dashboard
     E devo visualizar a página principal do sistema
 
