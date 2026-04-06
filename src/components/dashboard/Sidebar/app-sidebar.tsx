@@ -27,20 +27,19 @@ import {
 const items = [
     {
         title: "Início",
-        url: "/dashboard",
+        url: "/pages",
         icon: Home,
     },
     {
         title: "Meus dados",
-        url: "/dashboard/meus-dados",
+        url: "/pages/meus-dados",
         icon: User,
     },
     {
         title: "Designações",
-        url: "/dashboard/designacoes-passo-1",
+        url: "/pages/listagem-designacoes",
         icon: Designacao,
     },
- 
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
