@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cookies } from "next/headers";
-import { fetchDesignacoesAction } from "./designacao";
+import {
+    fetchDesignacoesAction,
+    fetchDesignacoesSemPaginacaoAction,
+} from "./designacao";
 import { DesignacaoFiltros, DesignacaoPaginada } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 
@@ -218,5 +221,21 @@ describe("fetchDesignacoesAction", () => {
         const result = await fetchDesignacoesAction(sampleFiltros);
 
         expect(result).toEqual({ success: false, error: "Serviço indisponível" });
+    });
+
+    it("busca designações sem paginação com o mesmo endpoint", async () => {
+        vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
+        const semPaginacao = sampleResponse.results;
+        mockAxiosInstance.get.mockResolvedValue({ data: semPaginacao });
+
+        const result = await fetchDesignacoesSemPaginacaoAction(sampleFiltros);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/designacoes/",
+            {
+                params: { rf: "123456", nome: "Servidor Teste", page: 1, page_size: 10 },
+            }
+        );
+        expect(result).toEqual({ success: true, data: semPaginacao });
     });
 });

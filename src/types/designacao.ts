@@ -92,6 +92,7 @@ export interface DesignacaoFiltros {
   ano?: string;
   page?: number;
   page_size?: number;
+  no_pagination?: boolean;
 }
 
 export interface DesignacaoPaginada {
