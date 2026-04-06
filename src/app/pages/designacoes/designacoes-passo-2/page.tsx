@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
@@ -19,7 +19,7 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import SelecaoServidorIndicado from "@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado";
 
 // Context, Icons & Hooks
-import { useDesignacaoContext } from "../DesignacaoContext";
+import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "../DesignacaoContext";
 import Designacao from "@/assets/icons/Designacao";
 import Historico from "@/assets/icons/Historico";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
@@ -31,19 +31,22 @@ import formSchemaDesignacaoPasso2, {
 } from "./schema";
 import ModalUltimaDesignacao from "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 import { Servidor } from "@/types/designacao-unidade";
+import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 
 export default function DesignacoesPasso2() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
-
+  const { data: designacao, isLoading: isLoadingDesignacao, error: errorDesignacao } = useFetchDesignacoesById(
+    Number(id)
+  );
   const { formDesignacaoData, setFormDesignacaoData } =
     useDesignacaoContext();
-  const { mutateAsync } = useServidorDesignacao();
-  const router = useRouter();
-  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(null);
-  const [errorBusca, setErrorBusca] = useState<string | null>(null);
+  const [isPopulateScreen, setIsPopulateScreen] = useState(false);  
+
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso2),
@@ -60,7 +63,7 @@ export default function DesignacoesPasso2() {
       motivo_afastamento: "",
       com_pendencia: "nao",
       motivo_pendencia: "",
-      tipo_cargo: "vago",
+      tipo_cargo: "disponivel",
       rf_titular: "",
       cargo_vago_selecionado: {
         id: undefined,
@@ -68,7 +71,103 @@ export default function DesignacoesPasso2() {
       },
     },
     mode: "onChange",
+
   });
+    
+  useEffect(() => {
+    if (designacao) {
+      setIsPopulateScreen(true);
+      form.setValue("tipo_cargo", designacao.tipo_vaga.toLowerCase() as "vago" | "disponivel");
+      form.setValue("cargo_vago_selecionado", {
+        id: designacao.cargo_vaga,
+        label: designacao.cargo_vaga_display,
+      });
+      form.setValue("portaria_designacao", designacao.numero_portaria);
+      form.setValue("numero_sei", designacao.sei_numero);
+      form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
+      form.setValue("designacao_data_final", designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null);
+      form.setValue("ano", new Date(designacao.ano_vigente).getFullYear().toString(), {shouldDirty:false, shouldTouch:false, shouldValidate:false});
+      form.setValue("doc", designacao.doc);
+      form.setValue("impedimento_substituicao", designacao.impedimento_substituicao);
+      form.setValue("carater_especial", designacao.carater_excepcional ? "sim" : "nao");
+      form.setValue("com_afastamento", designacao.com_afastamento ? "sim" : "nao");
+      form.setValue("motivo_afastamento", designacao.motivo_afastamento);
+      form.setValue("com_pendencia", designacao.possui_pendencia ? "sim" : "nao");
+      form.setValue("motivo_pendencia", designacao.pendencias);
+      
+      form.setValue("rf_titular", designacao.titular_rf, { shouldValidate: true, shouldTouch: true });
+
+
+       setDadosTitular({
+        rf: designacao.titular_rf,
+        nome_servidor: designacao.titular_nome_servidor,
+        nome_civil: designacao.titular_nome_civil,
+        vinculo: designacao.titular_vinculo,
+        lotacao: designacao.titular_lotacao,
+        cargo_base: designacao.titular_cargo_base,
+        cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
+        cursos_titulos: 'faltante',//designacao.titular_cursos_titulos,       
+        codigo_hierarquia: 'faltante',//designacao.titular_codigo_hierarquia, 
+        lotacao_cargo_base: 'faltante',//designacao.titular_lotacao_cargo_base, 
+        laudo_medico: 'faltante',//designacao.titular_laudo_medico, 
+        local_de_servico: designacao.titular_local_servico,
+        local_de_exercicio: designacao.titular_local_exercicio,
+      })
+      setFormDesignacaoData(
+        {
+          servidorIndicado: {
+            "nome_servidor": designacao.indicado_nome_servidor,
+            "nome_civil": designacao.indicado_nome_civil,
+            "rf": designacao.indicado_rf,
+            "vinculo": designacao.indicado_vinculo,
+            "cargo_base": designacao.indicado_cargo_base,
+            "lotacao": designacao.indicado_lotacao,
+            "cargo_sobreposto_funcao_atividade": designacao.indicado_cargo_sobreposto,
+            "local_de_exercicio": designacao.indicado_local_exercicio,
+            "laudo_medico": "Indisponível",
+            "local_de_servico": designacao.indicado_local_servico
+          },
+          dre: 'faltante',
+          dre_nome: designacao.dre_nome,
+          ue: 'faltante',
+          ue_nome: designacao.unidade_proponente,
+
+          funcionarios_da_unidade: "faltante",
+          quantidade_turmas: "faltante",
+          codigo_hierarquico: designacao.codigo_hierarquico,
+          cargo_sobreposto: designacao.titular_cargo_sobreposto,
+          modulos: 1,
+          portaria_designacao: designacao.numero_portaria,
+          numero_sei: designacao.sei_numero,
+          a_partir_de: designacao.data_inicio,
+          designacao_data_final: designacao.data_fim,
+          com_afastamento: designacao.com_afastamento,
+          motivo_afastamento: designacao.motivo_afastamento,
+          com_pendencia: designacao.possui_pendencia,
+          motivo_pendencia: designacao.pendencias,
+          tipo_cargo: designacao.tipo_vaga.toLowerCase(),
+          rf_titular: designacao.titular_rf,
+          cargo_vago_selecionado: {
+            id: designacao.cargo_vaga,
+            label: designacao.cargo_vaga_display
+          },
+          dadosTitular: null
+        } as unknown as FormDesignacaoEServidorIndicado);
+
+
+      
+      form.clearErrors();
+      setIsPopulateScreen(false);
+    }
+  }, [designacao, setFormDesignacaoData, form]);
+
+
+  const { mutateAsync } = useServidorDesignacao();
+  const router = useRouter();
+  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(null);
+  const [errorBusca, setErrorBusca] = useState<string | null>(null);
+
+
 
   const tipoCargo = form.watch("tipo_cargo");
   const cargoVago = form.watch("cargo_vago_selecionado");
@@ -90,9 +189,10 @@ export default function DesignacoesPasso2() {
     }
   };
 
+  // console.log("form", form.formState.errors,form.formState.isValid);
   // Validação para o botão Próximo
   const canAdvance =
-    form.formState.isValid &&
+    form.formState.errors &&
     (tipoCargo === "vago" ? !!cargoVago : (!!dadosTitular && !!rfTitular));
 
   // to-do: corrigir quando houver passo 3
@@ -103,7 +203,13 @@ export default function DesignacoesPasso2() {
       dadosTitular: dadosTitular,
     });
 
-    router.push("/pages/designacoes/designacoes-passo-3");
+    if (id) {
+      router.push(
+        `/pages/designacoes/designacoes-passo-3?id=${id}`
+      );
+    } else {
+      router.push("/pages/designacoes/designacoes-passo-3");
+    }
   };
 
   const [modalHistoricoUltimaDesignacaoOpen, setModalHistoricoUltimaDesignacaoOpen] = useState(false);
@@ -133,6 +239,7 @@ export default function DesignacoesPasso2() {
             <StepperDesignacao current={1} />
           </FundoBranco>
           <Card
+          
             title={
               <div className="flex justify-between items-center">
                 <span className="text-[#333]">Designação</span>
@@ -182,7 +289,7 @@ export default function DesignacoesPasso2() {
                   value="portarias-designacao"
                 >
                   <PortariaDesigacaoFields
-                    isLoading={false}
+                    isLoading={isPopulateScreen || isLoadingDesignacao}
                   />
                 </CustomAccordionItem>
                 <CustomAccordionItem
@@ -203,6 +310,7 @@ export default function DesignacoesPasso2() {
             )}
             {/* to-do: arrumar nome */}
             <SelecaoServidorIndicado
+              isLoading={isPopulateScreen || isLoadingDesignacao}
               form={form}
               tipoCargo={tipoCargo}
               dadosTitular={dadosTitular}
@@ -219,9 +327,13 @@ export default function DesignacoesPasso2() {
               onProximo={form.handleSubmit(onSubmitDesignacao)}
               showAnterior={true}
               onAnterior={() => {
-                router.push(
-                  `/pages/designacoes/designacoes-passo-1`
-                );
+                if (id !== null ) {
+                  router.push(
+                    `/pages/listagem-designacoes`
+                  );
+                } else {
+                  router.push("/pages/designacoes/designacoes-passo-1");
+                }
               }}
             />
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Card, message, Modal, Result } from "antd";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
@@ -68,6 +68,8 @@ function gerarHtmlPortaria(texto: string): string {
 }
 
 export default function DesignacoesPasso3() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const router = useRouter();
   const { formDesignacaoData } = useDesignacaoContext();
   const textoPlanoRef = useRef<string>("");
@@ -139,7 +141,7 @@ export default function DesignacoesPasso3() {
       throw new Error("Dados do formulário não encontrados.");
     }
 
-    const result = await designacaoAction(formDesignacaoData);
+    const result = await designacaoAction(formDesignacaoData, id);
 
     if (!result.success) {
       throw new Error(result.error);
@@ -205,7 +207,13 @@ export default function DesignacoesPasso3() {
           disableProximo={salvando}
           labelProximo="Salvar"
           showAnterior
-          onAnterior={() => router.push("/pages/designacoes/designacoes-passo-2")}
+          onAnterior={() => {
+            if (id) {
+              router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`);
+            } else {
+              router.push("/pages/designacoes/designacoes-passo-2");
+            }
+          }}
           onProximo={handleSalvar}
         />
       </div>

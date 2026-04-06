@@ -14,5 +14,7 @@ export function useFetchDesignacoesById(id: number) {
         },
         enabled: !!id,
         refetchOnWindowFocus: false,
+        staleTime: 0,
+        gcTime: 0,
     });
 }

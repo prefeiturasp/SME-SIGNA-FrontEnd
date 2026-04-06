@@ -16,6 +16,7 @@ import { downloadCSV } from '@/utils/export/exportCSV';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/headless-toast';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
+import EditarAction from '@/assets/icons/EditarAction';
 
 const NameColorStatusDesignacao = {
   [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
@@ -88,8 +89,18 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       `/pages/listagem-designacoes/visualizar-designacao/${record.id}`
     );
   }
+  const handleEditarDesignacao = (record: ListagemDesignacoesResponse) => {
+    router.push(
+      `/pages/designacoes/designacoes-passo-2?id=${record.id}`
+    );
+  }
 
   const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
+    {
+      key: 'editar', label: 'Editar', icon: <EditarAction className='cursor-pointer' />, onClick: () => {
+        handleEditarDesignacao(record);
+      }
+    },
     {
       key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
         console.log('Apostilar');

@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
+import { DesignacaoResponse } from "@/types/designacao";
 
 type DesignacaoErrorResponse = {
     detail?: string;
@@ -15,7 +16,8 @@ type DesignacaoResult =
     | { success: false; error: string; field?: string };
 
 export async function designacaoAction(
-    formData: FormDesignacaoEServidorIndicado | null
+    formData: FormDesignacaoEServidorIndicado | null,
+    id: string | null
 ): Promise<DesignacaoResult> {
     if (!formData) {
         return { success: false, error: "Dados do formulário ausentes." };
@@ -25,18 +27,26 @@ export async function designacaoAction(
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
     const payload = mapearPayloadDesignacao(formData);
-
-    try {
-        const { data } = await axios.post(
-            `${API_URL}/designacao/designacoes/`,
-            payload,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-                },
-            }
-        );
+     try {
+        let data: DesignacaoResponse;
+        const headers = {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        };
+        if (id) {
+             data = await axios.patch(
+                `${API_URL}/designacao/designacoes/${id}/`,
+                payload,
+                { headers }
+            );
+        } else {
+ 
+            data = await axios.post(
+                `${API_URL}/designacao/designacoes/`,
+                payload,
+                { headers }
+            );
+        }
 
         return { success: true, data };
     } catch (err) {

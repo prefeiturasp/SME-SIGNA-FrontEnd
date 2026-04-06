@@ -28,12 +28,14 @@ import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAcc
 import { FormEditarServidorData } from "../ModalEditarServidor/schema";
 import { Servidor } from "@/types/designacao-unidade";
 import { useFetchCargos } from "@/hooks/useCargos";
+import { Loader2 } from "lucide-react";
 
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
   readonly tipoCargo: string;
   readonly dadosTitular: Servidor | null;
   readonly errorBusca: string | null;
+  readonly isLoading: boolean;
   readonly onBuscaTitular: (values: BuscaDesignacaoRequest) => Promise<void>;
   readonly setDadosTitular: (val: Servidor | null) => void;
   readonly setErrorBusca: (val: string | null) => void;
@@ -44,19 +46,19 @@ export default function SelecaoServidorIndicado({
   tipoCargo,
   dadosTitular,
   errorBusca,
+  isLoading = false,
   onBuscaTitular,
   setDadosTitular,
   setErrorBusca,
 }: Readonly<SelecaoTipoCargoProps>) {
- 
 
-  const { data: cargosData = []  } = useFetchCargos( );
+  const { data: cargosData = [] } = useFetchCargos();
   const cargos = cargosData.map(cargo => ({
     id: cargo.codigoCargo,
     label: cargo.nomeCargo,
   }));
- 
-   function handleSubmitEditarServidor(data: FormEditarServidorData) {
+
+  function handleSubmitEditarServidor(data: FormEditarServidorData) {
     if (dadosTitular) {
       setDadosTitular({
         ...dadosTitular,
@@ -66,121 +68,134 @@ export default function SelecaoServidorIndicado({
     }
   }
 
+
+
+  console.log("tipoCargo", tipoCargo);
+
+
   return (
     <div className="p-4 pt-4 border-t mt-4">
-      <div className="flex flex-col gap-6">
-        <FormField
-          control={form.control}
-          name="tipo_cargo"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="font-bold text-[#42474a] text-lg">
-                Selecione o tipo de cargo:
-              </FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={(val) => {
-                    field.onChange(val);
-                    setDadosTitular(null);
-                    setErrorBusca(null);
-                    form.setValue("rf_titular", "");
-                    form.setValue("cargo_vago_selecionado", null);
-                  }}
-                  defaultValue={field.value}
-                  className="flex flex-row gap-8"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="disponivel" id="disponivel" />
-                    <Label htmlFor="disponivel" className="font-normal cursor-pointer">
-                      Cargo Disponível
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="vago" id="vago" />
-                    <Label htmlFor="vago" className="font-normal cursor-pointer">
-                      Cargo Vago
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-            </FormItem>
-          )}
-        />
+      {isLoading ? (
+        <div className="flex justify-center h-full">
+          <Loader2
+           data-testid="loading-spinner"
+            className="h-16 w-16 text-primary animate-spin "/>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <FormField
+            control={form.control}
+            name="tipo_cargo"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel className="font-bold text-[#42474a] text-lg">
+                  Selecione o tipo de cargo:
+                </FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      setDadosTitular(null);
+                      setErrorBusca(null);
+                      form.setValue("rf_titular", "");
+                      form.setValue("cargo_vago_selecionado", null);
+                    }}
+                    value={field.value}
+                    className="flex flex-row gap-8"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="disponivel" id="disponivel" />
+                      <Label htmlFor="disponivel" className="font-normal cursor-pointer">
+                        Cargo Disponível
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="vago" id="vago" />
+                      <Label htmlFor="vago" className="font-normal cursor-pointer">
+                        Cargo Vago
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-        <div className="w-full">
-          {tipoCargo === "vago" ? (
-            <div className="w-full md:w-[60%] animate-in fade-in duration-300">
-              <FormField
-                control={form.control}
-                name="cargo_vago_selecionado"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold text-[#42474a]">
-                      Selecione o cargo
-                    </FormLabel>
+          <div className="w-full">
+            {tipoCargo === "vago" ? (
+              <div className="w-full md:w-[60%] animate-in fade-in duration-300">
+                <FormField
+                  control={form.control}
+                  name="cargo_vago_selecionado"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold text-[#42474a]">
+                        Selecione o cargo
+                      </FormLabel>
 
-                    <Select
-                      onValueChange={(value) => {                        
-                        const cargoSelecionado = cargos.find(
-                          (cargo) => String(cargo.id) === value);
-                        field.onChange({id: cargoSelecionado?.id, label: cargoSelecionado?.label});
-                      }}
-                      value={field.value?.id ? String(field.value.id) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o cargo..." />
-                        </SelectTrigger>
-                      </FormControl>
+                      <Select
+                        onValueChange={(value) => {
+                          const cargoSelecionado = cargos.find(
+                            (cargo) => String(cargo.id) === value);
+                          field.onChange({ id: cargoSelecionado?.id, label: cargoSelecionado?.label });
+                        }}
+                        value={field.value?.id ? String(field.value.id) : ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o cargo..." />
+                          </SelectTrigger>
+                        </FormControl>
 
-                      <SelectContent>
-                        {cargos.map((cargo) => (
-                          <SelectItem key={cargo.id} value={String(cargo.id)}>{cargo.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectContent>
+                          {cargos.map((cargo) => (
+                            <SelectItem key={cargo.id} value={String(cargo.id)}>{cargo.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          ) : (
-            <div className="w-full space-y-4">
-              <div className="pt-2">
-                <FormularioBuscaDesignacao
-                  label={"RF Titular"}
-                  onBuscaDesignacao={onBuscaTitular}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-
-              {errorBusca && (
-                <div className="text-red-500 text-sm animate-in shake-1">
-                  {errorBusca}
+            ) : (
+              <div className="w-full space-y-4">
+                <div className="pt-2">
+                  <FormularioBuscaDesignacao                    
+                    label={"RF Titular"}
+                    onBuscaDesignacao={onBuscaTitular}
+                  />
                 </div>
-              )}
 
-              {dadosTitular && (
-                <div className="mt-4 animate-in zoom-in-95 duration-300">
-                  <Accordion type="single" collapsible defaultValue="resultado">
-                    <CustomAccordionItem
-                      title="Dados do Servidor Titular"
-                      value="resultado"
-                      color="green"
-                    >
-                      <ResumoTitular
-                        data={dadosTitular}
-                        onSubmitEditarServidor={handleSubmitEditarServidor}
-                      />
-                    </CustomAccordionItem>
-                  </Accordion>
-                </div>
-              )}
-            </div>
-          )}
+                {errorBusca && (
+                  <div className="text-red-500 text-sm animate-in shake-1">
+                    {errorBusca}
+                  </div>
+                )}
+
+                {dadosTitular && (
+                  <div className="mt-4 animate-in zoom-in-95 duration-300">
+                    <Accordion type="single" collapsible defaultValue="resultado">
+                      <CustomAccordionItem
+                        title="Dados do Servidor Titular"
+                        value="resultado"
+                        color="green"
+                      >
+                        <ResumoTitular
+                          data={dadosTitular}
+                          onSubmitEditarServidor={handleSubmitEditarServidor}
+                        />
+                      </CustomAccordionItem>
+                    </Accordion>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
