@@ -8,7 +8,9 @@ export type Servidor = {
     nome_civil?: string;
     vinculo: number;
     lotacao: string;
+    cd_cargo_base: number;
     cargo_base: string;
+    cd_cargo_sobreposto_funcao_atividade: number;
     cargo_sobreposto_funcao_atividade: string;
     cursos_titulos: string;       
     codigo_hierarquia?: string;
