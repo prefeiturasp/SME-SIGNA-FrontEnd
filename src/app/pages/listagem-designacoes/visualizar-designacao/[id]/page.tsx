@@ -122,7 +122,10 @@ export default function VisualizarDesignacao() {
                       lotacao_cargo_base: designacao.indicado_lotacao,
                       laudo_medico: '-',
                       local_de_servico: designacao.indicado_local_servico,
-                      local_de_exercicio: designacao.indicado_local_exercicio
+                      local_de_exercicio: designacao.indicado_local_exercicio,
+                      cd_cargo_base: designacao.indicado_codigo_cargo_base ?? 0,
+                      cd_cargo_sobreposto_funcao_atividade:
+                        designacao.indicado_codigo_cargo_sobreposto ?? 0,
                     }
                   }
                   showCursosTitulos={true}
@@ -132,7 +135,7 @@ export default function VisualizarDesignacao() {
                 />
               </CustomAccordionItem>
 
-              {designacao.tipo_vaga === "VAGO"  ?
+              {designacao.tipo_vaga === "VAGO" ?
                 <CustomAccordionItem
                   title="Cargo Disponível"
                   value="servidor-titular"
@@ -164,7 +167,10 @@ export default function VisualizarDesignacao() {
                         lotacao_cargo_base: '-',
                         laudo_medico: '-',
                         local_de_servico: designacao.titular_local_servico,
-                        local_de_exercicio: designacao.titular_local_exercicio
+                        local_de_exercicio: designacao.titular_local_exercicio,
+                        cd_cargo_base: designacao.titular_codigo_cargo_base ?? 0,
+                        cd_cargo_sobreposto_funcao_atividade:
+                        designacao.titular_codigo_cargo_sobreposto ?? 0,
                       }
                     }
                     showEditar={false}
