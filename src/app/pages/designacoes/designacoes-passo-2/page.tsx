@@ -86,7 +86,7 @@ export default function DesignacoesPasso2() {
       form.setValue("numero_sei", designacao.sei_numero);
       form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
       form.setValue("designacao_data_final", designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null);
-      form.setValue("ano", new Date(designacao.ano_vigente).getFullYear().toString(), {shouldDirty:false, shouldTouch:false, shouldValidate:false});
+      form.setValue("ano", designacao.ano_vigente, {shouldDirty:false, shouldTouch:false, shouldValidate:false});
       form.setValue("doc", designacao.doc);
       form.setValue("impedimento_substituicao", designacao.impedimento_substituicao);
       form.setValue("carater_especial", designacao.carater_excepcional ? "sim" : "nao");
@@ -189,7 +189,6 @@ export default function DesignacoesPasso2() {
     }
   };
 
-  // console.log("form", form.formState.errors,form.formState.isValid);
   // Validação para o botão Próximo
   const canAdvance =
     form.formState.errors &&

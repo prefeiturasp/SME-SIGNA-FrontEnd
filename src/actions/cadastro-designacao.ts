@@ -1,7 +1,7 @@
 "use server";
 
 import axios, { AxiosError } from "axios";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 import { DesignacaoResponse } from "@/types/designacao";
@@ -28,27 +28,31 @@ export async function designacaoAction(
     const authToken = cookieStore.get("auth_token")?.value;
     const payload = mapearPayloadDesignacao(formData);
      try {
-        let data: DesignacaoResponse;
-        const headers = {
+         const headers = {
             "Content-Type": "application/json",
             ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-        };
-        if (id) {
-             data = await axios.patch(
-                `${API_URL}/designacao/designacoes/${id}/`,
-                payload,
-                { headers }
+        };      
+          
+          let data;
+          
+          if (id) {
+            const response = await axios.patch(
+              `${API_URL}/designacao/designacoes/${id}/`,
+              payload,
+              { headers }
             );
-        } else {
- 
-            data = await axios.post(
-                `${API_URL}/designacao/designacoes/`,
-                payload,
-                { headers }
+            data = response.data;
+          } else {
+            const response = await axios.post(
+              `${API_URL}/designacao/designacoes/`,
+              payload,
+              { headers }
             );
-        }
-
-        return { success: true, data };
+            data = response.data;
+          }
+          
+          
+        return { success: true,  data };
     } catch (err) {
         const error = err as AxiosError<DesignacaoErrorResponse>;
 

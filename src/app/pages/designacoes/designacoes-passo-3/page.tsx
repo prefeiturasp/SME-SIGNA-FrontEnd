@@ -68,9 +68,9 @@ function gerarHtmlPortaria(texto: string): string {
 }
 
 export default function DesignacoesPasso3() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const router = useRouter();
   const { formDesignacaoData } = useDesignacaoContext();
   const textoPlanoRef = useRef<string>("");
 
@@ -136,11 +136,11 @@ export default function DesignacoesPasso3() {
     textoPlanoRef.current = e.currentTarget.innerText;
   }, []);
 
-  const salvarPortaria = async () => {
+  const salvarPortaria = async (id: string | null) => {
     if (!formDesignacaoData) {
       throw new Error("Dados do formulário não encontrados.");
     }
-
+    
     const result = await designacaoAction(formDesignacaoData, id);
 
     if (!result.success) {
@@ -150,11 +150,11 @@ export default function DesignacoesPasso3() {
     return result.data;
   };
 
-  const handleSalvar = async () => {
+  const handleSalvar = async (id: string | null) => {
     try {
       setSalvando(true);
       message.loading({ content: "Salvando portaria...", duration: 0 });
-      await salvarPortaria();
+      await salvarPortaria(id);
       message.destroy();
       setModalSucesso(true);
       setSalvando(false);
@@ -207,14 +207,8 @@ export default function DesignacoesPasso3() {
           disableProximo={salvando}
           labelProximo="Salvar"
           showAnterior
-          onAnterior={() => {
-            if (id) {
-              router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`);
-            } else {
-              router.push("/pages/designacoes/designacoes-passo-2");
-            }
-          }}
-          onProximo={handleSalvar}
+          onAnterior={() => router.push("/pages/designacoes/designacoes-passo-2")}
+          onProximo={() => handleSalvar(id)}  
         />
       </div>
 
