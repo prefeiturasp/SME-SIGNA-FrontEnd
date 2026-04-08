@@ -122,10 +122,10 @@ export default function DesignacoesPasso2() {
         cd_cargo_base: designacao.titular_codigo_cargo_base,
         cd_cargo_sobreposto_funcao_atividade: designacao.titular_codigo_cargo_sobreposto,
         cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
-        cursos_titulos: 'faltante',//designacao.titular_cursos_titulos,       
-        codigo_hierarquia: 'faltante',//designacao.titular_codigo_hierarquia, 
-        lotacao_cargo_base: 'faltante',//designacao.titular_lotacao_cargo_base, 
-        laudo_medico: 'faltante',//designacao.titular_laudo_medico, 
+        cursos_titulos: '-',
+        codigo_hierarquia: '-',
+        lotacao_cargo_base: '-',
+        laudo_medico: '-',
         local_de_servico: designacao.titular_local_servico,
         local_de_exercicio: designacao.titular_local_exercicio,
       })
@@ -143,13 +143,13 @@ export default function DesignacoesPasso2() {
             "laudo_medico": "Indisponível",
             "local_de_servico": designacao.indicado_local_servico
           },
-          dre: 'faltante',
+          dre: '-',
           dre_nome: designacao.dre_nome,
-          ue: 'faltante',
+          ue: '-',
           ue_nome: designacao.unidade_proponente,
 
-          funcionarios_da_unidade: "faltante",
-          quantidade_turmas: "faltante",
+          funcionarios_da_unidade: "-",
+          quantidade_turmas: "-",
           codigo_hierarquico: designacao.codigo_hierarquico,
           cargo_sobreposto: designacao.titular_cargo_sobreposto,
           modulos: 1,
@@ -204,18 +204,42 @@ export default function DesignacoesPasso2() {
     }
   };
 
-  // Validação para o botão Próximo
   const canAdvance =
     form.formState.errors &&
     (tipoCargo === "vago" ? !!cargoVago : (!!dadosTitular && !!rfTitular));
 
-  // to-do: corrigir quando houver passo 3
-  const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
-    setFormDesignacaoData({
-      ...formDesignacaoData,
-      ...values,
-      dadosTitular: dadosTitular,
-    });
+   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
+    if(values.tipo_cargo.toLowerCase() === "vago") {
+      setFormDesignacaoData({
+        ...formDesignacaoData,
+        ...values,
+        dadosTitular: {
+          rf: "",
+          nome_servidor: "",
+          nome_civil: "",
+          vinculo: 0,
+          lotacao: "",
+          cargo_base: "",
+          cd_cargo_base: 0,
+          cd_cargo_sobreposto_funcao_atividade: 0,
+          cargo_sobreposto_funcao_atividade: "",
+          cursos_titulos: "",
+          codigo_hierarquia: "",
+          lotacao_cargo_base: "",
+          laudo_medico: "",
+          local_de_servico: "",
+          local_de_exercicio: "",
+        }
+        
+      });
+    } else {
+      setFormDesignacaoData({
+        ...formDesignacaoData,
+        ...values,
+        dadosTitular: dadosTitular,
+      });
+    }
+    
 
     if (id) {
       router.push(
