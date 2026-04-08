@@ -59,19 +59,15 @@ export default function SelecaoServidorIndicado({
   }));
 
   function handleSubmitEditarServidor(data: FormEditarServidorData) {
-    if (dadosTitular) {
-      setDadosTitular({
-        ...dadosTitular,
-        nome_servidor: data.nome_servidor,
-        nome_civil: data.nome_civil,
-      });
-    }
+    setDadosTitular({
+      ...dadosTitular!,
+      nome_servidor: data.nome_servidor,
+      nome_civil: data.nome_civil,
+    });
   }
 
 
-
   console.log("tipoCargo", tipoCargo);
-
 
   return (
     <div className="p-4 pt-4 border-t mt-4">

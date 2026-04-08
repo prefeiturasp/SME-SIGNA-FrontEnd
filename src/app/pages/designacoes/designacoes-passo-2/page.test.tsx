@@ -1,67 +1,46 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach } from "vitest";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import DesignacoesPasso2Page from "./page";
 
-interface MockState {
-  formDesignacaoData: {
-    servidorIndicado?: {
-      nome_servidor: string;
-      rf: string;
-      lotacao_cargo_sobreposto: string;
-      dre: string;
-    };
-  } | null;
-}
-
-class ResizeObserverMock {
-  observe() {
-    return undefined;
-  }
-  unobserve() {
-    return undefined;
-  }
-  disconnect() {
-    return undefined;
-  }
-}
-
-vi.stubGlobal("ResizeObserver", ResizeObserverMock);
-
-const mockRouterPush = vi.fn();
-
-const h = vi.hoisted(() => ({
-  state: { formDesignacaoData: null } as MockState,
-  mutateAsync: vi.fn(),
-  setFormDesignacaoData: vi.fn(),
-}));
-
-// ✅ React Query wrapper
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+type DesignacaoContextData = {
+  servidorIndicado?: {
+    nome_servidor: string;
+    nome_civil: string;
+    rf: string;
+    vinculo: number;
+    cargo_base: string;
+    lotacao: string;
+    cargo_sobreposto_funcao_atividade: string;
+    local_de_exercicio: string;
+    laudo_medico: string;
+    local_de_servico: string;
+  };
+  ue_nome?: string;
+  dre_nome?: string;
+  codigo_hierarquico?: string;
 };
 
-// ✅ helper
-const renderWithQuery = (ui: React.ReactNode) =>
-  render(ui, { wrapper: createWrapper() });
+const h = vi.hoisted(() => ({
+  searchId: null as string | null,
+  designacao: null as any,
+  isLoadingDesignacao: false,
+  formDesignacaoData: null as DesignacaoContextData | null,
+  mutateAsync: vi.fn(),
+  setFormDesignacaoData: vi.fn(),
+  push: vi.fn(),
+}));
 
-// ---------------- MOCKS ----------------
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: h.push }),
+  useSearchParams: () => ({
+    get: (key: string) => (key === "id" ? h.searchId : null),
+  }),
+}));
 
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
-    formDesignacaoData: h.state.formDesignacaoData,
+    formDesignacaoData: h.formDesignacaoData,
     setFormDesignacaoData: h.setFormDesignacaoData,
   }),
 }));
@@ -69,194 +48,256 @@ vi.mock("../DesignacaoContext", () => ({
 vi.mock("@/hooks/useServidorDesignacao", () => ({
   default: () => ({
     mutateAsync: h.mutateAsync,
-    isPending: false,
   }),
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: mockRouterPush,
+vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
+  useFetchDesignacoesById: () => ({
+    data: h.designacao,
+    isLoading: h.isLoadingDesignacao,
   }),
 }));
 
-vi.mock("antd", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("antd")>();
-  return {
-    ...actual,
-    Card: ({ children, title }: any) => (
-      <div data-testid="card">
-        <div data-testid="card-title">{title}</div>
-        {children}
-      </div>
-    ),
-  };
-});
+vi.mock("antd", () => ({
+  Card: ({ title, children }: any) => (
+    <section>
+      <div>{title}</div>
+      {children}
+    </section>
+  ),
+}));
 
-// ✅ Accordion completo (corrige erro anterior)
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: any) => (
-    <div data-testid="accordion">{children}</div>
-  ),
-  AccordionItem: ({ children }: any) => (
-    <div data-testid="accordion-item">{children}</div>
-  ),
-  AccordionTrigger: ({ children }: any) => (
-    <button data-testid="accordion-trigger">{children}</button>
-  ),
-  AccordionContent: ({ children }: any) => (
-    <div data-testid="accordion-content">{children}</div>
+  Accordion: ({ children }: any) => <div data-testid="accordion">{children}</div>,
+}));
+
+vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
+  default: ({ title }: any) => <h1>{title}</h1>,
+}));
+
+vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
+  default: ({ children }: any) => <div>{children}</div>,
+}));
+
+vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
+  default: () => <div data-testid="stepper" />,
+}));
+
+vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
+  CustomAccordionItem: ({ children, title }: any) => (
+    <div>
+      <h2>{title}</h2>
+      {children}
+    </div>
   ),
 }));
 
-vi.mock(
-  "@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado",
-  () => ({
-    default: ({ onBuscaTitular }: any) => (
-      <div data-testid="selecao-vaga">
-        <button onClick={() => onBuscaTitular({ rf: "1234567" })}>
-          Simular Busca
-        </button>
-      </div>
-    ),
-  })
-);
+vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields", () => ({
+  default: ({ isLoading }: any) => (
+    <div data-testid="portaria-fields">{String(Boolean(isLoading))}</div>
+  ),
+}));
 
-vi.mock(
-  "@/components/dashboard/Designacao/BotoesDeNavegacao",
-  () => ({
-    default: ({ onAnterior, onProximo, disableProximo }: any) => (
-      <div>
-        <button data-testid="botao-anterior" onClick={onAnterior}>
-          Anterior
-        </button>
-        <button
-          data-testid="botao-proximo"
-          onClick={onProximo}
-          disabled={disableProximo}
-        >
-          Próximo
-        </button>
-      </div>
-    ),
-  })
-);
+vi.mock("@/components/dashboard/Designacao/ResumoPesquisaDaUnidade", () => ({
+  default: () => <div data-testid="resumo-unidade" />,
+}));
 
-vi.mock(
-  "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado",
-  () => ({
-    default: ({ defaultValues }: any) => (
-      <div data-testid="resumo-designacao">
-        {defaultValues?.nome_servidor}
-      </div>
-    ),
-  })
-);
+vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
+  default: ({ onSubmitEditarServidor }: any) => (
+    <div>
+      <button
+        data-testid="editar-indicado"
+        onClick={() =>
+          onSubmitEditarServidor({
+            nome_servidor: "Nome Atualizado",
+            nome_civil: "Civil Atualizado",
+          })
+        }
+      >
+        Editar Indicado
+      </button>
+    </div>
+  ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
+  default: ({ onBuscaTitular }: any) => (
+    <button data-testid="buscar-titular" onClick={() => onBuscaTitular({ rf: "1234567" })}>
+      Buscar titular
+    </button>
+  ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
+  default: ({ disableProximo, onProximo, onAnterior }: any) => (
+    <div>
+      <button data-testid="anterior" onClick={onAnterior}>
+        Anterior
+      </button>
+      <button data-testid="proximo" disabled={disableProximo} onClick={onProximo}>
+        Proximo
+      </button>
+    </div>
+  ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao", () => ({
+  default: ({ open }: { open: boolean }) => (
+    <div data-testid="modal-historico" data-open={String(open)} />
+  ),
+}));
+
+vi.mock("@/components/ui/button", () => ({
+  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+}));
 
 vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
 vi.mock("@/assets/icons/Historico", () => ({ default: () => <svg /> }));
 
-vi.mock(
-  "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao",
-  () => ({
-    default: ({ open }: { open: boolean }) => (
-      <div data-testid="modal-historico" data-open={String(open)} />
-    ),
-  })
-);
-
-// ---------------- TESTES ----------------
-
 describe("DesignacoesPasso2", () => {
+  const designacaoCompleta = {
+    tipo_vaga: "VAGO",
+    cargo_vaga: 321,
+    cargo_vaga_display: "Diretor",
+    numero_portaria: "100/2026",
+    sei_numero: "6016.2026/000001",
+    data_inicio: "2026-01-10",
+    data_fim: "2026-12-20",
+    ano_vigente: "2026",
+    doc: "DOC",
+    impedimento_substituicao: "Nenhum",
+    carater_excepcional: true,
+    com_afastamento: true,
+    motivo_afastamento: "Licenca",
+    possui_pendencia: false,
+    pendencias: "",
+    titular_rf: "1234567",
+    titular_nome_servidor: "Titular A",
+    titular_nome_civil: "Titular Civil",
+    titular_vinculo: 1,
+    titular_lotacao: "Lotacao A",
+    titular_cargo_base: "Cargo Base",
+    titular_codigo_cargo_base: "001",
+    titular_codigo_cargo_sobreposto: "002",
+    titular_cargo_sobreposto: "Cargo Sobreposto",
+    titular_local_servico: "Local Servico",
+    titular_local_exercicio: "Local Exercicio",
+    indicado_nome_servidor: "Indicado",
+    indicado_nome_civil: "Indicado Civil",
+    indicado_rf: "7654321",
+    indicado_vinculo: 2,
+    indicado_cargo_base: "Cargo Base I",
+    indicado_lotacao: "Lotacao I",
+    indicado_cargo_sobreposto: "Cargo Sobreposto I",
+    indicado_local_exercicio: "Local Exercicio I",
+    indicado_local_servico: "Local Servico I",
+    dre_nome: "DRE Centro",
+    unidade_proponente: "UE 10",
+    codigo_hierarquico: "12345",
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
-    h.state.formDesignacaoData = null;
+    h.searchId = null;
+    h.designacao = null;
+    h.formDesignacaoData = null;
+    h.isLoadingDesignacao = false;
+    h.mutateAsync.mockResolvedValue({ success: true, data: { rf: "1234567" } });
   });
 
-  it("renderiza sem accordion quando não há servidor", () => {
-    renderWithQuery(<DesignacoesPasso2Page />);
+  it("renderiza e executa fluxo sem id", async () => {
+    render(<DesignacoesPasso2Page />);
 
     expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
-    expect(screen.getByTestId("selecao-vaga")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("proximo")).toBeDisabled();
 
-  it("renderiza accordion quando há servidor", () => {
-    h.state.formDesignacaoData = {
-      servidorIndicado: {
-        nome_servidor: "Fulano",
-        rf: "123",
-        lotacao_cargo_sobreposto: "Escola X",
-        dre: "DRE 1",
-      },
-    };
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
 
-    renderWithQuery(<DesignacoesPasso2Page />);
-
-    expect(screen.getByTestId("accordion")).toBeInTheDocument();
-    expect(screen.getByText("Fulano")).toBeInTheDocument();
-  });
-
-  it("chama busca de titular com sucesso", async () => {
-    h.mutateAsync.mockResolvedValue({
-      success: true,
-      data: { nome_servidor: "Novo Titular", rf: "1234567" },
-    });
-
-    renderWithQuery(<DesignacoesPasso2Page />);
-
-    fireEvent.click(screen.getByText("Simular Busca"));
-
-    await waitFor(() => {
-      expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" });
-    });
-  });
-
-  it("trata erro na busca de titular", async () => {
-    h.mutateAsync.mockResolvedValue({
-      success: false,
-      error: "Erro na busca",
-    });
-
-    renderWithQuery(<DesignacoesPasso2Page />);
-
-    fireEvent.click(screen.getByText("Simular Busca"));
-
-    await waitFor(() => {
-      expect(h.mutateAsync).toHaveBeenCalled();
-    });
-  });
-
-  it("botão próximo inicia desabilitado", () => {
-    renderWithQuery(<DesignacoesPasso2Page />);
-
-    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
-  });
-
-  it("navega para passo anterior", async () => {
-    renderWithQuery(<DesignacoesPasso2Page />);
-
-    fireEvent.click(screen.getByTestId("botao-anterior"));
-
-    await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        "/pages/designacoes/designacoes-passo-1"
-      );
-    });
-  });
-
-  it("abre modal de histórico", async () => {
-    renderWithQuery(<DesignacoesPasso2Page />);
+    fireEvent.click(screen.getByTestId("anterior"));
+    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
 
     const modal = screen.getByTestId("modal-historico");
     expect(modal).toHaveAttribute("data-open", "false");
+    fireEvent.click(screen.getByRole("button", { name: /ver histórico da última designação/i }));
+    await waitFor(() => expect(modal).toHaveAttribute("data-open", "true"));
+  });
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /ver histórico da última designação/i,
-      })
-    );
+  it("executa fluxo com id, popula tela e salva em passo 3 com id", async () => {
+    h.searchId = "55";
+    h.designacao = designacaoCompleta;
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+      ue_nome: "UE X",
+      dre_nome: "DRE Y",
+      codigo_hierarquico: "abc",
+    };
+    h.mutateAsync.mockResolvedValueOnce({ success: false, error: "Erro busca" });
+
+    render(<DesignacoesPasso2Page />);
+
+    expect(screen.getByTestId("accordion")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(modal).toHaveAttribute("data-open", "true");
+      expect(h.setFormDesignacaoData).toHaveBeenCalled();
+    });
+
+    fireEvent.click(screen.getByTestId("editar-indicado"));
+    expect(h.setFormDesignacaoData).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    fireEvent.click(screen.getByTestId("proximo"));
+    await waitFor(() =>
+      expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3?id=55")
+    );
+
+    fireEvent.click(screen.getByTestId("anterior"));
+    expect(h.push).toHaveBeenCalledWith("/pages/listagem-designacoes");
+  });
+
+  it("salva sem id e navega para o passo 3 sem query", async () => {
+    h.searchId = null;
+    h.designacao = {
+      ...designacaoCompleta,
+      data_fim: null,
+      carater_excepcional: false,
+      com_afastamento: false,
+      possui_pendencia: true,
+      pendencias: "Pendencia A",
+    };
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2Page />);
+    fireEvent.click(screen.getByTestId("proximo"));
+
+    await waitFor(() => {
+      expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3");
     });
   });
 });

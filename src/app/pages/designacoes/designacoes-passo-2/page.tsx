@@ -229,11 +229,10 @@ export default function DesignacoesPasso2() {
   const [modalHistoricoUltimaDesignacaoOpen, setModalHistoricoUltimaDesignacaoOpen] = useState(false);
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
-    if (!formDesignacaoData?.servidorIndicado) return;
     setFormDesignacaoData({
-      ...formDesignacaoData,
+      ...formDesignacaoData!,
       servidorIndicado: {
-        ...formDesignacaoData.servidorIndicado,
+        ...formDesignacaoData!.servidorIndicado!,
         nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
       },
