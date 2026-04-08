@@ -1,10 +1,9 @@
 "use server";
 
 import axios, { AxiosError } from "axios";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
-import { DesignacaoResponse } from "@/types/designacao";
 
 type DesignacaoErrorResponse = {
     detail?: string;
@@ -35,7 +34,8 @@ export async function designacaoAction(
           
           let data;
           
-          if (id) {
+          if (id) {            
+            
             const response = await axios.patch(
               `${API_URL}/designacao/designacoes/${id}/`,
               payload,

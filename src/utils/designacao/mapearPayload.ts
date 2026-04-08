@@ -6,10 +6,7 @@ function formatarData(valor: any): string | null {
     return null;
 }
 
-function getCargoVaga(form: any, titular: any): number | undefined {
-    if (titular) {
-        return 3360; // to-do: ajustar quando vier da API
-    }
+function getCargoVaga(form: any): number | undefined {
 
     const cargo = form.cargo_vago_selecionado;
 
@@ -33,7 +30,7 @@ export function mapearPayloadDesignacao(form: any) {
     const { servidorIndicado, dadosTitular } = form;
     const titular = dadosTitular ?? null;
 
-    const cargoVaga = getCargoVaga(form, titular);
+    const cargoVaga = getCargoVaga(form);
 
     return {
         dre_nome: form.dre_nome,

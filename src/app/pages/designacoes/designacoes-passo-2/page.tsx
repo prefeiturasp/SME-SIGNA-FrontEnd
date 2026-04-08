@@ -40,7 +40,7 @@ export default function DesignacoesPasso2() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
-  const { data: designacao, isLoading: isLoadingDesignacao, error: errorDesignacao } = useFetchDesignacoesById(
+  const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
   );
   const { formDesignacaoData, setFormDesignacaoData } =
@@ -98,6 +98,20 @@ export default function DesignacoesPasso2() {
       form.setValue("rf_titular", designacao.titular_rf, { shouldValidate: true, shouldTouch: true });
 
 
+       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      console.log('designacao', designacao)
+      console.log('')
+
        setDadosTitular({
         rf: designacao.titular_rf,
         nome_servidor: designacao.titular_nome_servidor,
@@ -105,6 +119,8 @@ export default function DesignacoesPasso2() {
         vinculo: designacao.titular_vinculo,
         lotacao: designacao.titular_lotacao,
         cargo_base: designacao.titular_cargo_base,
+        cd_cargo_base: designacao.titular_codigo_cargo_base,
+        cd_cargo_sobreposto_funcao_atividade: designacao.titular_codigo_cargo_sobreposto,
         cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
         cursos_titulos: 'faltante',//designacao.titular_cursos_titulos,       
         codigo_hierarquia: 'faltante',//designacao.titular_codigo_hierarquia, 
@@ -153,7 +169,6 @@ export default function DesignacoesPasso2() {
           },
           dadosTitular: null
         } as unknown as FormDesignacaoEServidorIndicado);
-
 
       
       form.clearErrors();
