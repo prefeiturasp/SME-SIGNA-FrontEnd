@@ -67,7 +67,6 @@ export default function SelecaoServidorIndicado({
   }
 
 
-  console.log("tipoCargo", tipoCargo);
 
   return (
     <div className="p-4 pt-4 border-t mt-4">

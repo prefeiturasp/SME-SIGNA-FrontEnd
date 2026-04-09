@@ -158,7 +158,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 
           <div>
             <Eye
-              className='w-4 h-4 fill-[#86858D] cursor-pointer'
+              className='w-4 h-4 fill-[#000000] cursor-pointer'
               onClick={() => handleVisualizarDesignacao(record)}
             />
           </div>
@@ -181,7 +181,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
               trigger={['click']}
             >
               <div>
-                <MoreOutlined />
+                <MoreOutlined color='#000000'/>
               </div>
             </Dropdown>
           </Popconfirm>

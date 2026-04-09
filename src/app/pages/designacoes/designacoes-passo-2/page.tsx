@@ -98,20 +98,7 @@ export default function DesignacoesPasso2() {
       form.setValue("rf_titular", designacao.titular_rf, { shouldValidate: true, shouldTouch: true });
 
 
-       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      console.log('designacao', designacao)
-      console.log('')
-
+ 
        setDadosTitular({
         rf: designacao.titular_rf,
         nome_servidor: designacao.titular_nome_servidor,
