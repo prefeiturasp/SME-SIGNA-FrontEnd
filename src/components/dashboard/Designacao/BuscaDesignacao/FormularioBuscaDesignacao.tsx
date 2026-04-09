@@ -23,14 +23,14 @@ interface FormularioBuscaDesignacaoProps {
   onBuscaDesignacao: (values: BuscaDesignacaoRequest) => Promise<void>;
   label?: string;
   placeholder?: string;
-}
+ }
 
 const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
   className,
   onBuscaDesignacao,
   label = "RF do servidor indicado",
   placeholder = "Entre com RF",
-}) => {
+ }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<BuscaDesignacaoRequest>({

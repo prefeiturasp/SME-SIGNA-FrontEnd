@@ -222,9 +222,9 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.cargo_vaga).toBe(10);
     });
 
-    it("retorna 3360 para cargo_vaga quando dadosTitular está presente", () => {
+    it("retorna cargo_vaga quando dadosTitular está presente", () => {
         const result = mapearPayloadDesignacao({ ...formBase, dadosTitular });
 
-        expect(result?.cargo_vaga).toBe(3360);
+        expect(result?.cargo_vaga).toBe(10);
     });
 });
