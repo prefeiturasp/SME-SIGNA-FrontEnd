@@ -228,7 +228,7 @@ describe("ListagemDeDesignacoes", () => {
     const props = tableMock.mock.calls[0][0];
 
     expect(props.className).toBe("tabela-designacoes w-full");
-    expect(props.scroll).toEqual({ x: "max-content" });
+    expect(props.scroll).toEqual({ x: "100%" });
     expect(typeof props.rowKey).toBe("function");
     expect((props.rowKey as (r: ListagemDesignacoesResponse) => string)(makeRow(5))).toBe("5");
     expect(props.pagination).toBe(false);

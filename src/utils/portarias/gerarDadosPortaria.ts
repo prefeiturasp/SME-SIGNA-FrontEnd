@@ -35,7 +35,7 @@ export function gerarDadosPortaria(data: DesignacaoData) {
         lotacao_indicado: data?.servidorIndicado?.lotacao,
         cargo_indicado,
         ue: data?.ue_nome,
-        eh: data?.codigo_estrutura_hierarquica,
+        eh: data?.codigo_hierarquico,
         trecho_substituicao: montarTrechoSubstituicao(data),
         trecho_final: montarTrechoFinal(data),
     };

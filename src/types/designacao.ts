@@ -30,7 +30,7 @@ export interface DesignacaoData {
   ue?: string;
   ue_nome?: string;
 
-  codigo_estrutura_hierarquica?: string;
+  codigo_hierarquico?: string;
 
   tipo_cargo?: "vago" | "substituicao" | "disponivel";
 
