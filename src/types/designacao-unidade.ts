@@ -3,24 +3,24 @@ export type AtualizarEmailRequest = {
 };
 
 export type Servidor = {
-    rf: string;
-    nome_servidor?: string;
-    nome_civil?: string;
-    vinculo: number;
-    lotacao: string;
-    cd_cargo_base: number;
-    cargo_base: string;
-    cd_cargo_sobreposto_funcao_atividade: number;
-    cargo_sobreposto_funcao_atividade: string;
-    cursos_titulos: string;       
-    codigo_hierarquia?: string;
-    lotacao_cargo_base?: string;
-    laudo_medico: string;
-    local_de_servico: string;
-    local_de_exercicio: string;
-  }
-  
- 
+  rf: string;
+  nome_servidor?: string;
+  nome_civil?: string;
+  vinculo: number;
+  lotacao: string;
+  cd_cargo_base: number;
+  cargo_base: string;
+  cd_cargo_sobreposto_funcao_atividade: number;
+  cargo_sobreposto_funcao_atividade: string;
+  cursos_titulos: string;
+  codigo_hierarquia?: string;
+  lotacao_cargo_base?: string;
+  laudo_medico: string;
+  local_de_servico: string;
+  local_de_exercicio: string;
+}
+
+
 
 type Cargo = {
   codigo_cargo: number;
@@ -35,16 +35,13 @@ type CargoSelect = {
   codigoCargo: string;
 };
 
-type Turma = {
-  por_turno: {
-    integral: string;
-    manha: string;
-    tarde: string;
-    noite: string;
-    vespertino: string;
-
-  };
+type TurnoTurma = {
+  turno: string;
   total: number;
+  cicloAlfabetizacao: number;
+  cicloInterdisciplinar: number;
+  cicloAutoral: number;
+  semCiclo: number;
 };
 
 export type DesignacaoUnidadeResponse = {
@@ -53,9 +50,12 @@ export type DesignacaoUnidadeResponse = {
   cargos: CargoSelect[];
   turmas: {
     total: number;
-    por_turno: {
-      [turno: string]: number;
-    };
+    turnos: TurnoTurma[];
+  };
+  spi: {
+    tipo: string;
+    total: number;
+    turnos: TurnoTurma[];
   };
 };
 

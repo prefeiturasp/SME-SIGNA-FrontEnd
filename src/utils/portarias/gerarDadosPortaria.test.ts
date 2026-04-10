@@ -22,7 +22,7 @@ describe("gerarDadosPortaria", () => {
             numero_sei: "000123",
             dre_nome: "DRE Centro",
             ue_nome: "Escola Teste",
-            codigo_estrutura_hierarquica: "123456",
+            codigo_hierarquico: "123456",
             servidorIndicado: {
                 nome_civil: "João Silva",
                 rf: "123456",

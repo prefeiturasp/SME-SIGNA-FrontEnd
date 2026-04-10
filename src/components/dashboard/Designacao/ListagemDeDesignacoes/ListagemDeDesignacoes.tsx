@@ -238,11 +238,11 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-b-lg border border-[#DCDCDC] overflow-x-auto">
-        <div className="w-full min-w-0 p-2">
+      <div className="bg-white rounded-b-lg border border-[#DCDCDC] w-full overflow-hidden">
+        <div className="w-full p-2">
           <Table<ListagemDesignacoesResponse>
             className="tabela-designacoes w-full"
-            scroll={{ x: 'max-content' }}
+            scroll={{ x: '100%' }}
             loading={isLoading}
             columns={columns}
             dataSource={data}

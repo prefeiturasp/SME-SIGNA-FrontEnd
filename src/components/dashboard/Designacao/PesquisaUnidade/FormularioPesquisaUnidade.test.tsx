@@ -6,7 +6,6 @@ import FormularioPesquisaUnidade from "./FormularioPesquisaUnidade";
 import * as unidadesActions from "@/actions/unidades";
 import * as designacaoActions from "@/actions/designacao-unidade";
 import { createRef } from "react";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { FormularioPesquisaUnidadeRef } from "./FormularioPesquisaUnidade";
 
 
@@ -35,10 +34,27 @@ vi.mock("@/hooks/useDesignacaoUnidade", async () => {
   };
 });
 
-vi.mock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
+vi.doMock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
   __esModule: true,
-  default: ({ open }: { open: boolean }) =>
-    open ? <div>Detalhamento de turmas</div> : null,
+  default: ({
+    dre,
+    unidadeEscolar,
+    qtdTotalTurmas,
+    spi,
+    rows,
+    spiRows,
+  }: {
+    dre: string;
+    unidadeEscolar: string;
+    qtdTotalTurmas: string;
+    spi: string;
+    rows: unknown[];
+    spiRows: unknown[];
+  }) => (
+    <div data-testid="detalhamento-props">
+      {dre}|{unidadeEscolar}|{qtdTotalTurmas}|{spi}|{rows.length}|{spiRows.length}
+    </div>
+  ),
 }));
 
 vi.mock("../ModalResumoServidor/ModalResumoServidor", () => ({
@@ -161,7 +177,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -185,7 +201,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -202,7 +218,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={setDisableProximo}
       />
     );
@@ -233,7 +249,7 @@ describe("FormularioPesquisaUnidade", () => {
     const { container } = renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -257,7 +273,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("submete formulário (sucesso) e exibe seção adicional com funcionários", async () => {
     const user = userEvent.setup();
-     const consoleErrorSpy = vi
+    const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => { });
 
@@ -312,7 +328,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -321,7 +337,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
-  
+
 
     await waitFor(() => {
       expect(getDesignacaoUnidadeSpy).toHaveBeenCalledWith("ue-1");
@@ -358,7 +374,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -410,7 +426,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -468,7 +484,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -512,7 +528,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -567,7 +583,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -630,7 +646,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -658,7 +674,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("quando API retorna success:false, trata erro ", async () => {
     const user = userEvent.setup();
- 
+
 
     getDesignacaoUnidadeSpy.mockResolvedValue({
       success: false,
@@ -668,7 +684,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -676,7 +692,7 @@ describe("FormularioPesquisaUnidade", () => {
     await selectDreAndUe(user);
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
- 
+
     expect(screen.getByText("Erro interno do servidor")).toBeInTheDocument();
     expect(
       screen.queryByText("Funcionários da unidade")
@@ -686,7 +702,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("quando API lança exceção, trata erro (catch)  ", async () => {
     const user = userEvent.setup();
-     const consoleLogSpy = vi
+    const consoleLogSpy = vi
       .spyOn(console, "log")
       .mockImplementation(() => { });
 
@@ -695,7 +711,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -703,7 +719,7 @@ describe("FormularioPesquisaUnidade", () => {
     await selectDreAndUe(user);
     await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
 
- 
+
     expect(
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
@@ -745,7 +761,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -776,7 +792,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -828,7 +844,7 @@ describe("FormularioPesquisaUnidade", () => {
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -844,57 +860,9 @@ describe("FormularioPesquisaUnidade", () => {
     ).toBeInTheDocument();
   });
 
-  // it.only("renderiza modal resumo servidor sem dados ", async () => {
-  //   const dreOptions = [
-  //     { codigoDRE: "dre-1",  siglaDRE: "DRE1" },
-  //     { codigoDRE: "dre-2",  siglaDRE: "DRE2" },
-  //   ];
-  //   getDREsSpy = vi
-  //     .spyOn(unidadesActions, "getDREs")
-  //     .mockResolvedValue(dreOptions as never);
-
-  //   const user = userEvent.setup();
-
-  //   getDesignacaoUnidadeSpy.mockResolvedValue({
-  //     success: true,
-  //     data: {
-  //       cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
-  //       funcionarios_unidade: {
-  //         "cargo-1": {
-  //           codigo_cargo: 1,
-  //           nome_cargo: "Coordenador",
-  //           modulo: "1",            
-  //         },
-  //       },
-  //     },
-  //   } as never);
-
-  //   renderWithQueryClient(
-  //     <FormularioPesquisaUnidade
-  //       isLoading={false}
-  //        
-  //       setDisableProximo={vi.fn()}
-  //     />
-  //   );
-
-  //   await selectDreAndUe(user);
-  //   await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
-
-  //   screen.debug();
-  //   const modalButton = await screen.findByTestId("btn-visualizar-servidor");
-  //   await user.click(modalButton);
-
-  //   expect(
-  //     await screen.findByText("Nenhum servidor encontrado")
-  //   ).toBeInTheDocument();
-  // });
-
-
-
   it("coverage: usa fallback '-' no DetalhamentoTurmasModal quando valores são nullish", async () => {
-    // Esse teste é isolado para cobrir branches de `?? "-"` que são inalcançáveis
-    // com os valores padrão do react-hook-form (que sempre inicializa como string vazia).
     vi.resetModules();
+    vi.clearAllMocks();
 
     vi.doMock("@/hooks/useUnidades", () => ({
       useFetchDREs: () => ({ data: [] }),
@@ -908,42 +876,40 @@ describe("FormularioPesquisaUnidade", () => {
 
     vi.doMock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
       __esModule: true,
-      default: ({
-        dre,
-        unidadeEscolar,
-        qtdTotalTurmas,
-      }: {
-        dre: string;
-        unidadeEscolar: string;
-        qtdTotalTurmas: string;
-      }) => (
-        <div data-testid="detalhamento-props">
-          {dre}|{unidadeEscolar}|{qtdTotalTurmas}
-        </div>
-      ),
+      default: (props: any) => {
+        const {
+          dre,
+          unidadeEscolar,
+          qtdTotalTurmas,
+          spi,
+          rows,
+          spiRows,
+        } = props;
+
+        return (
+          <div data-testid="detalhamento-props">
+            {dre}|{unidadeEscolar}|{qtdTotalTurmas}|{spi}|{rows.length}|{spiRows.length}
+          </div>
+        );
+      },
     }));
 
     vi.doMock("@/components/ui/form", () => ({
-      Form: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-      FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-      FormField: ({
-        render,
-      }: {
-        render: (args: {
-          field: { value: string; onChange: (v: string) => void };
-        }) => ReactNode;
-      }) => render({ field: { value: "", onChange: vi.fn() } }),
-      FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-      FormLabel: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      Form: ({ children }: any) => <div>{children}</div>,
+      FormControl: ({ children }: any) => <div>{children}</div>,
+      FormField: ({ render }: any) =>
+        render({ field: { value: "", onChange: vi.fn() } }),
+      FormItem: ({ children }: any) => <div>{children}</div>,
+      FormLabel: ({ children }: any) => <div>{children}</div>,
       FormMessage: () => null,
     }));
 
     vi.doMock("@/components/ui/select", () => ({
-      Select: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-      SelectTrigger: ({ children }: { children: ReactNode }) => <button>{children}</button>,
-      SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
-      SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-      SelectItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      Select: ({ children }: any) => <div>{children}</div>,
+      SelectTrigger: ({ children }: any) => <button>{children}</button>,
+      SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
+      SelectContent: ({ children }: any) => <div>{children}</div>,
+      SelectItem: ({ children }: any) => <div>{children}</div>,
     }));
 
     vi.doMock("@/components/ui/Combobox", () => ({
@@ -951,24 +917,8 @@ describe("FormularioPesquisaUnidade", () => {
     }));
 
     vi.doMock("@/components/ui/button", () => ({
-      Button: (
-        props: ButtonHTMLAttributes<HTMLButtonElement> & { children?: ReactNode },
-      ) => {
-        const { children, ...rest } = props;
-        return <button {...rest}>{children}</button>;
-      },
-    }));
-
-    vi.doMock("@/components/ui/input-base", () => ({
-      InputBase: () => <input />,
-    }));
-
-    vi.doMock("../ResumoDesignacaoServidorIndicado", () => ({
-      InfoItem: ({ label, value }: { label: string; value?: string }) => (
-        <div>
-          <span>{label}</span>
-          <span>{value}</span>
-        </div>
+      Button: ({ children, ...rest }: any) => (
+        <button {...rest}>{children}</button>
       ),
     }));
 
@@ -984,9 +934,6 @@ describe("FormularioPesquisaUnidade", () => {
 
     vi.doMock("react-hook-form", () => ({
       useForm: () => ({
-        resolver: undefined,
-        defaultValues: {},
-        mode: "onChange",
         watch: () => ({
           dre: undefined,
           ue: undefined,
@@ -997,8 +944,8 @@ describe("FormularioPesquisaUnidade", () => {
           modulos: "",
         }),
         handleSubmit:
-          (fn: (values: Record<string, unknown>) => unknown) =>
-            (e?: { preventDefault?: () => void }) => {
+          (fn: any) =>
+            (e?: any) => {
               e?.preventDefault?.();
               return fn({
                 dre: undefined,
@@ -1017,17 +964,26 @@ describe("FormularioPesquisaUnidade", () => {
       }),
     }));
 
-    const { default: FormularioPesquisaUnidadeIsolated } = await import("./FormularioPesquisaUnidade");
-
-    renderWithQueryClient(
-      <FormularioPesquisaUnidadeIsolated
-        isLoading={false}
-         
-        setDisableProximo={vi.fn()}
-      />
+    const { default: FormularioPesquisaUnidadeIsolated } = await import(
+      "./FormularioPesquisaUnidade"
     );
 
-    expect(screen.getByTestId("detalhamento-props")).toHaveTextContent("-|-|-");
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <FormularioPesquisaUnidadeIsolated
+          isLoading={false}
+          setDisableProximo={vi.fn()}
+        />
+      </QueryClientProvider>
+    );
+
+    expect(screen.getByTestId("detalhamento-props")).toHaveTextContent(
+      "-|-|-|-|0|0"
+    );
   });
 
   it("expõe getValues via ref", async () => {
@@ -1038,7 +994,7 @@ describe("FormularioPesquisaUnidade", () => {
       <FormularioPesquisaUnidade
         isLoading={false}
         ref={ref}
-         
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -1063,11 +1019,11 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("valida campos obrigatórios ao submeter sem preencher", async () => {
     const user = userEvent.setup();
- 
+
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={false}
-        
+
         setDisableProximo={vi.fn()}
       />
     );
@@ -1078,14 +1034,14 @@ describe("FormularioPesquisaUnidade", () => {
       expect(screen.getByText("Selecione uma DRE")).toBeInTheDocument();
     });
 
-   });
+  });
 
   it("valida loading", async () => {
- 
+
     renderWithQueryClient(
       <FormularioPesquisaUnidade
         isLoading={true}
-        
+
         setDisableProximo={vi.fn()}
       />
     );
