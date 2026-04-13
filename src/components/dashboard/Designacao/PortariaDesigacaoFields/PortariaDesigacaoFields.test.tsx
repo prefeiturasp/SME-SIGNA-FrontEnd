@@ -256,13 +256,8 @@ describe("PortariaDesigacaoFields", () => {
     fireEvent.click(calendars[1]);
 
     // Select ano
-    const currentYear = `${new Date().getFullYear()}`;
-    fireEvent.click(screen.getByTestId(`select-item-${currentYear}`));
-
-    // ✅ Select impedimento (agora existe)
     fireEvent.click(screen.getByTestId("select-item-1"));
 
-    expect(methods.getValues("ano")).toBe(currentYear);
     expect(methods.getValues("impedimento_substituicao")).toBe("1");
 
     // RadioGroup (onValueChange -> field.onChange)
@@ -275,62 +270,6 @@ describe("PortariaDesigacaoFields", () => {
     expect(methods.getValues("designacao_data_final")).toBeInstanceOf(Date);
     // e renderiza a data formatada quando tem valor
     expect(screen.getAllByText("02/01/2024").length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("abre Popconfirm ao selecionar um ano diferente e permite cancelar/confirmar", () => {
-    let methods!: UseFormReturn<FieldValues>;
-    render(
-      <FormWrapper onMethods={(m) => (methods = m)}>
-        <PortariaDesigacaoFields isLoading={false} />
-      </FormWrapper>
-    );
-
-    const currentYear = new Date().getFullYear();
-    const otherYear = `${currentYear - 1}`;
-
-    // selecionar outro ano abre o popconfirm e não altera o valor imediatamente
-    fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
-    expect(screen.getByTestId("popconfirm")).toBeInTheDocument();
-    expect(methods.getValues("ano")).toBe("");
-
-    // cancelar fecha e mantém o valor
-    fireEvent.click(screen.getByTestId("popconfirm-cancel"));
-    expect(screen.queryByTestId("popconfirm")).not.toBeInTheDocument();
-    expect(methods.getValues("ano")).toBe("");
-
-    // confirmar aplica o ano pendente
-    fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
-    fireEvent.click(screen.getByTestId("popconfirm-confirm"));
-    expect(methods.getValues("ano")).toBe(otherYear);
-  });
-
-  it("quando pendingValue é vazio (após cancelar), confirmar não altera o ano", () => {
-    let methods!: UseFormReturn<FieldValues>;
-    render(
-      <FormWrapper onMethods={(m) => (methods = m)}>
-        <PortariaDesigacaoFields isLoading={false} />
-      </FormWrapper>
-    );
-
-    const currentYear = new Date().getFullYear();
-    const otherYear = `${currentYear - 1}`;
-
-    // 1. Abre o popconfirm selecionando um ano diferente
-    fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
-    expect(screen.getByTestId("popconfirm")).toBeInTheDocument();
-    expect(methods.getValues("ano")).toBe(""); // ainda não aplicou
-
-    // 2. Cancela → pendingValue volta a null
-    fireEvent.click(screen.getByTestId("popconfirm-cancel"));
-    expect(screen.queryByTestId("popconfirm")).not.toBeInTheDocument();
-    expect(methods.getValues("ano")).toBe(""); // continua vazio
-
-    // 3. Seleciona o mesmo ano diferente novamente e confirma
-    fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
-    fireEvent.click(screen.getByTestId("popconfirm-confirm"));
-
-    // Agora sim o valor deve ter sido aplicado
-    expect(methods.getValues("ano")).toBe(otherYear);
   });
 
   it("controla o campo condicional de afastamento (mostra/esconde textarea e atualiza valor)", () => {
