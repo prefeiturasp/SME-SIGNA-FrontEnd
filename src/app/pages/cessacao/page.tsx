@@ -237,7 +237,8 @@ export default function CessacaoPage() {
 
       router.push("/pages/listagem-designacoes");
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error("Erro ao salvar cessação:", error);
       message.error("Erro ao salvar");
     }
   };
