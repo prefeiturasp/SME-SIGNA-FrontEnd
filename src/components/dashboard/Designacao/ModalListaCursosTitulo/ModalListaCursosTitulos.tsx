@@ -1,5 +1,5 @@
 "use client";
- 
+
 import {
     Dialog,
     DialogContent,
@@ -21,7 +21,7 @@ type ModalListaCursosTitulosProps = {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: Servidor;
-     data: IConcursoType[];
+    data: IConcursoType[];
 };
 
 
@@ -31,7 +31,7 @@ export default function ModalListaCursosTitulos({
     open,
     onOpenChange,
     defaultValues,
-     data
+    data
 }: Readonly<ModalListaCursosTitulosProps>) {
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
@@ -62,7 +62,7 @@ export default function ModalListaCursosTitulos({
                 <div className="flex flex-row gap-20 bg-[#FAFAFA] p-4 my-4">
                     <InfoItem label="Servidor" value={defaultValues.nome_servidor} />
                     <InfoItem label="RF" value={defaultValues.rf} />
-                    <InfoItem label="Função" value={defaultValues.cargo_sobreposto_funcao_atividade } />
+                    <InfoItem label="Função" value={defaultValues.cargo_sobreposto_funcao_atividade} />
                 </div>
 
 
@@ -90,7 +90,9 @@ export default function ModalListaCursosTitulos({
                     </Button>
                 </div>
 
-
+                <span className="block w-full text-[20px] font-bold text-red-500 text-center">
+                    Dados fixos no código, ainda sem conexão com API do EOL e banco de dados.
+                </span>
             </DialogContent>
         </Dialog>
     );
