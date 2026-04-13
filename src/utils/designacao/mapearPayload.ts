@@ -7,18 +7,22 @@ function formatarData(valor: any): string | null {
 }
 
 function getCargoVaga(form: any): number | undefined {
+    const tipo = form.tipo_cargo?.toLowerCase();
 
-    const cargo = form.cargo_vago_selecionado;
-
-    if (cargo) {
-        if (typeof cargo === "string") {
-            return Number(cargo);
-        }
-        return cargo.id;
+    if (tipo === "disponivel") {
+        const codigo = form.dadosTitular?.cd_cargo_sobreposto_funcao_atividade;
+        return codigo ? Number(codigo) : undefined;
     }
 
-    if (form.cargo_vaga) {
-        return Number.parseInt(form.cargo_vaga, 10);
+    if (tipo === "vago") {
+        const cargo = form.cargo_vago_selecionado;
+
+        if (cargo) {
+            if (typeof cargo === "string") {
+                return Number(cargo);
+            }
+            return cargo.id;
+        }
     }
 
     return undefined;
