@@ -17,6 +17,8 @@ const mockServidorIndicado: Servidor = {
   lotacao: "Unidade X",
   cargo_base: "Professor",
   cargo_sobreposto_funcao_atividade: "Docente",
+  cd_cargo_base: 1,
+  cd_cargo_sobreposto_funcao_atividade: 1,
   cursos_titulos: "Licenciatura",
   laudo_medico: "Não",
   local_de_servico: "Escola X",

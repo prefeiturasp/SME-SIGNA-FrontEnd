@@ -45,7 +45,7 @@ export default function DesignacoesPasso2() {
   );
   const { formDesignacaoData, setFormDesignacaoData } =
     useDesignacaoContext();
-  const [isPopulateScreen, setIsPopulateScreen] = useState(false);  
+  const [isPopulateScreen, setIsPopulateScreen] = useState(false);
 
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
@@ -65,15 +65,12 @@ export default function DesignacoesPasso2() {
       motivo_pendencia: "",
       tipo_cargo: "disponivel",
       rf_titular: "",
-      cargo_vago_selecionado: {
-        id: undefined,
-        label: "",
-      },
+      cargo_vago_selecionado: null,
     },
     mode: "onChange",
 
   });
-    
+
   useEffect(() => {
     if (designacao) {
       setIsPopulateScreen(true);
@@ -86,7 +83,7 @@ export default function DesignacoesPasso2() {
       form.setValue("numero_sei", designacao.sei_numero);
       form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
       form.setValue("designacao_data_final", designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null);
-      form.setValue("ano", designacao.ano_vigente, {shouldDirty:false, shouldTouch:false, shouldValidate:false});
+      form.setValue("ano", designacao.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
       form.setValue("doc", designacao.doc);
       form.setValue("impedimento_substituicao", designacao.impedimento_substituicao);
       form.setValue("carater_especial", designacao.carater_excepcional ? "sim" : "nao");
@@ -94,12 +91,12 @@ export default function DesignacoesPasso2() {
       form.setValue("motivo_afastamento", designacao.motivo_afastamento);
       form.setValue("com_pendencia", designacao.possui_pendencia ? "sim" : "nao");
       form.setValue("motivo_pendencia", designacao.pendencias);
-      
+
       form.setValue("rf_titular", designacao.titular_rf, { shouldValidate: true, shouldTouch: true });
 
 
- 
-       setDadosTitular({
+
+      setDadosTitular({
         rf: designacao.titular_rf,
         nome_servidor: designacao.titular_nome_servidor,
         nome_civil: designacao.titular_nome_civil,
@@ -157,19 +154,16 @@ export default function DesignacoesPasso2() {
           dadosTitular: null
         } as unknown as FormDesignacaoEServidorIndicado);
 
-      
+
       form.clearErrors();
       setIsPopulateScreen(false);
     }
   }, [designacao, setFormDesignacaoData, form]);
 
-
   const { mutateAsync } = useServidorDesignacao();
   const router = useRouter();
   const [dadosTitular, setDadosTitular] = useState<Servidor | null>(null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
-
-
 
   const tipoCargo = form.watch("tipo_cargo");
   const cargoVago = form.watch("cargo_vago_selecionado");
@@ -192,11 +186,13 @@ export default function DesignacoesPasso2() {
   };
 
   const canAdvance =
-    form.formState.errors &&
-    (tipoCargo === "vago" ? !!cargoVago : (!!dadosTitular && !!rfTitular));
+    Object.keys(form.formState.errors).length === 0 &&
+    (tipoCargo === "vago"
+      ? !!cargoVago?.id
+      : (!!dadosTitular && !!rfTitular));
 
-   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
-    if(values.tipo_cargo.toLowerCase() === "vago") {
+  const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
+    if (values.tipo_cargo.toLowerCase() === "vago") {
       setFormDesignacaoData({
         ...formDesignacaoData,
         ...values,
@@ -217,7 +213,7 @@ export default function DesignacoesPasso2() {
           local_de_servico: "",
           local_de_exercicio: "",
         }
-        
+
       });
     } else {
       setFormDesignacaoData({
@@ -226,7 +222,7 @@ export default function DesignacoesPasso2() {
         dadosTitular: dadosTitular,
       });
     }
-    
+
 
     if (id) {
       router.push(
@@ -238,6 +234,13 @@ export default function DesignacoesPasso2() {
   };
 
   const [modalHistoricoUltimaDesignacaoOpen, setModalHistoricoUltimaDesignacaoOpen] = useState(false);
+
+  useEffect(() => {
+    if (tipoCargo === "disponivel") {
+      form.setValue("cargo_vago_selecionado", null);
+      form.clearErrors("cargo_vago_selecionado");
+    }
+  }, [tipoCargo]);
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
     setFormDesignacaoData({
@@ -263,7 +266,7 @@ export default function DesignacoesPasso2() {
             <StepperDesignacao current={1} />
           </FundoBranco>
           <Card
-          
+
             title={
               <div className="flex justify-between items-center">
                 <span className="text-[#333]">Designação</span>

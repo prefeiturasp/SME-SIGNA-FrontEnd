@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import DesignacoesPasso2Page from "./page";
+import DesignacoesPasso2 from "./page";
 
 type DesignacaoContextData = {
   servidorIndicado?: {
@@ -206,7 +206,7 @@ describe("DesignacoesPasso2", () => {
   });
 
   it("renderiza e executa fluxo sem id", async () => {
-    render(<DesignacoesPasso2Page />);
+    render(<DesignacoesPasso2 />);
 
     expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
     expect(screen.getByTestId("proximo")).toBeDisabled();
@@ -225,7 +225,10 @@ describe("DesignacoesPasso2", () => {
 
   it("executa fluxo com id, popula tela e salva em passo 3 com id", async () => {
     h.searchId = "55";
-    h.designacao = designacaoCompleta;
+    h.designacao = {
+      ...designacaoCompleta,
+      tipo_vaga: "DISPONIVEL",
+    };
     h.formDesignacaoData = {
       servidorIndicado: {
         nome_servidor: "Servidor Inicial",
@@ -243,9 +246,8 @@ describe("DesignacoesPasso2", () => {
       dre_nome: "DRE Y",
       codigo_hierarquico: "abc",
     };
-    h.mutateAsync.mockResolvedValueOnce({ success: false, error: "Erro busca" });
 
-    render(<DesignacoesPasso2Page />);
+    render(<DesignacoesPasso2 />);
 
     expect(screen.getByTestId("accordion")).toBeInTheDocument();
 
@@ -258,6 +260,8 @@ describe("DesignacoesPasso2", () => {
 
     fireEvent.click(screen.getByTestId("buscar-titular"));
     await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
 
     fireEvent.click(screen.getByTestId("proximo"));
     await waitFor(() =>
@@ -272,6 +276,7 @@ describe("DesignacoesPasso2", () => {
     h.searchId = null;
     h.designacao = {
       ...designacaoCompleta,
+      tipo_vaga: "DISPONIVEL",
       data_fim: null,
       carater_excepcional: false,
       com_afastamento: false,
@@ -293,7 +298,13 @@ describe("DesignacoesPasso2", () => {
       },
     };
 
-    render(<DesignacoesPasso2Page />);
+    render(<DesignacoesPasso2 />);
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+
     fireEvent.click(screen.getByTestId("proximo"));
 
     await waitFor(() => {
