@@ -108,10 +108,12 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       disabled: true,
     },
     {
-      key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
-        console.log('Cessar');
+      key: '2',
+      label: 'Cessar',
+      icon: <Cancelar />,
+      onClick: () => {
+        router.push(`/pages/cessacao?id=${record.id}`);
       },
-      disabled: true
     },
     {
       key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
