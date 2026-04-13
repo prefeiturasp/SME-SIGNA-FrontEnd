@@ -20,8 +20,7 @@ import {
 
 import { useFetchImpedimentos } from "@/hooks/useTiposImpedimentos";
 
-import { Popconfirm } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import {

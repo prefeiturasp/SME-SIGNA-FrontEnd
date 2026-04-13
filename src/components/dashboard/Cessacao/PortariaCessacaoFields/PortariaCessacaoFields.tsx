@@ -2,24 +2,6 @@
 
 import { useFormContext } from "react-hook-form";
 
-import {
-  SelectItem,
-  Select,
-  SelectValue,
-  SelectContent,
-  SelectTrigger,
-} from "@/components/ui/select";
-
-import {
-  FormField,
-  FormLabel,
-  FormItem,
-  FormMessage,
-  FormControl,
-} from "@/components/ui/form";
-
-import { Popconfirm } from "antd";
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import {
