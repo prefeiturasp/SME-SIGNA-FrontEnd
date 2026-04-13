@@ -35,7 +35,6 @@ interface Props {
 const PortariaCessacaoFields = ({ isLoading }: Props) => {
   const { register, control, setValue } = useFormContext();
 
-  // 🔥 anos igual designação
   const anos = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
     (_, i) => {
@@ -64,6 +63,32 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
     setOpenConfirm(false);
   };
 
+  const inputFields = [
+    {
+      name: "cessacao.numero_portaria",
+      label: "Portaria de cessação*",
+      placeholder: "Nº da portaria",
+      type: "number",
+    },
+    {
+      name: "cessacao.numero_sei",
+      label: "Nº SEI*",
+      placeholder: "Número SEI",
+      type: "number",
+    },
+    {
+      name: "cessacao.doc",
+      label: "D.O*",
+      placeholder: "Número do DOC",
+    },
+  ];
+
+  const checkboxFields = [
+    { name: "cessacao.a_pedido", label: "A pedido?*" },
+    { name: "cessacao.remocao", label: "Remoção?*" },
+    { name: "cessacao.aposentadoria", label: "Aposentadoria?*" },
+  ];
+
   return (
     <>
       {isLoading ? (
@@ -73,79 +98,65 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
       ) : (
         <>
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-            <InputField
-              register={register}
-              control={control}
-              name="cessacao.numero_portaria"
-              label="Portaria de cessação*"
-              placeholder="Nº da portaria"
-              type="number"
-            />
+              {inputFields.map((field) => (
+                <InputField
+                key={field.name}
+                register={register}
+                control={control}
+                name={field.name}
+                label={field.label}
+                placeholder={field.placeholder}
+                type={field.type}
+                />
+              ))}
 
-            <FormField
-              control={control}
-              name="cessacao.ano"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required text-[#42474a] font-bold">
-                    Ano Vigente*
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        if (
-                          value !== new Date().getFullYear().toString()
-                        ) {
-                          return handleValueChange(value);
-                        }
-                        field.onChange(value);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um ano" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        {anos.map((ano) => (
-                          <SelectItem key={ano.codigo} value={ano.codigo}>
-                            {ano.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-
-                      <Popconfirm
-                        title="Mudar o ano"
-                        description="Tem certeza que deseja mudar o ano?"
-                        open={openConfirm}
-                        onConfirm={handleConfirm}
-                        onCancel={handleCancel}
-                        okText="Sim"
-                        cancelText="Não"
-                      />
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <InputField
-              register={register}
-              control={control}
-              name="cessacao.numero_sei"
-              label="Nº SEI*"
-              placeholder="Número SEI"
-              type="number"
-            />
-
-            <InputField
-              register={register}
-              control={control}
-              name="cessacao.doc"
-              label="D.O*"
-              placeholder="Número do DOC"
-            />
+              <FormField
+                control={control}
+                name="cessacao.ano"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-[#42474a] font-bold">
+                      Ano Vigente*
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          if (
+                            value !== new Date().getFullYear().toString()
+                          ) {
+                            return handleValueChange(value);
+                          }
+                          field.onChange(value);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um ano" />
+                        </SelectTrigger>
+  
+                        <SelectContent>
+                          {anos.map((ano) => (
+                            <SelectItem key={ano.codigo} value={ano.codigo}>
+                              {ano.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+  
+                        <Popconfirm
+                          title="Mudar o ano"
+                          description="Tem certeza que deseja mudar o ano?"
+                          open={openConfirm}
+                          onConfirm={handleConfirm}
+                          onCancel={handleCancel}
+                          okText="Sim"
+                          cancelText="Não"
+                        />
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4 mt-4">
@@ -156,26 +167,15 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
               label="Designação a partir de:*"
             />
 
-            <CheckboxField
-              register={register}
-              control={control}
-              name="cessacao.a_pedido"
-              label="A pedido?*"
-            />
-
-            <CheckboxField
-              register={register}
-              control={control}
-              name="cessacao.remocao"
-              label="Remoção?*"
-            />
-
-            <CheckboxField
-              register={register}
-              control={control}
-              name="cessacao.aposentadoria"
-              label="Aposentadoria?*"
-            />
+            {checkboxFields.map((field) => (
+              <CheckboxField
+                key={field.name}
+                register={register}
+                control={control}
+                name={field.name}
+                label={field.label}
+              />
+            ))}
           </div>
         </>
       )}
