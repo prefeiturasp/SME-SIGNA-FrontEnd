@@ -38,7 +38,7 @@ export default function ModalResumoServidor({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-w-[900px] p-8 rounded-none rounded-0">
+            <DialogContent className="max-w-[900px] p-8 rounded-none rounded-0 overflow-y-auto max-h-[90vh]">
                 <DialogHeader>
                     <DialogTitle>Detalhes do funcionário da unidade</DialogTitle>
                     <DialogDescription className="sr-only">

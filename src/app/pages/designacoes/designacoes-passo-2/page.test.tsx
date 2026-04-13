@@ -1,201 +1,314 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach } from "vitest";
-import DesignacoesPasso2Page from "./page";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import DesignacoesPasso2 from "./page";
 
-interface MockState {
-  formDesignacaoData: {
-    servidorIndicado: {
-      nome: string;
-      rf: string;
-      lotacao_cargo_sobreposto: string;
-      dre: string;
-    };
-  } | null;
-}
-const mockRouterPush = vi.fn();
+type DesignacaoContextData = {
+  servidorIndicado?: {
+    nome_servidor: string;
+    nome_civil: string;
+    rf: string;
+    vinculo: number;
+    cargo_base: string;
+    lotacao: string;
+    cargo_sobreposto_funcao_atividade: string;
+    local_de_exercicio: string;
+    laudo_medico: string;
+    local_de_servico: string;
+  };
+  ue_nome?: string;
+  dre_nome?: string;
+  codigo_hierarquico?: string;
+};
 
 const h = vi.hoisted(() => ({
-  state: { formDesignacaoData: null } as MockState,
+  searchId: null as string | null,
+  designacao: null as any,
+  isLoadingDesignacao: false,
+  formDesignacaoData: null as DesignacaoContextData | null,
   mutateAsync: vi.fn(),
+  setFormDesignacaoData: vi.fn(),
+  push: vi.fn(),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: h.push }),
+  useSearchParams: () => ({
+    get: (key: string) => (key === "id" ? h.searchId : null),
+  }),
+}));
 
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
-    formDesignacaoData: h.state.formDesignacaoData,
+    formDesignacaoData: h.formDesignacaoData,
+    setFormDesignacaoData: h.setFormDesignacaoData,
   }),
 }));
 
 vi.mock("@/hooks/useServidorDesignacao", () => ({
   default: () => ({
     mutateAsync: h.mutateAsync,
-    isPending: false,
   }),
 }));
 
-vi.mock("antd", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("antd")>();
-  return {
-    ...actual,
-    Card: ({ children, title }: { children: React.ReactNode; title: React.ReactNode }) => (
-      <div data-testid="card">
-        <div data-testid="card-title">{title}</div>
-        {children}
-      </div>
-    ),
-    Flex: ({ children, className }: any) => <div className={className}>{children}</div>,
-    Steps: ({ current }: any) => <div data-testid="mock-steps">Step: {current}</div>,
-  };
-});
-
-vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: { children: React.ReactNode }) => <div data-testid="accordion">{children}</div>,
-  AccordionItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  AccordionTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-  AccordionContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
+  useFetchDesignacoesById: () => ({
+    data: h.designacao,
+    isLoading: h.isLoadingDesignacao,
+  }),
 }));
 
+vi.mock("antd", () => ({
+  Card: ({ title, children }: any) => (
+    <section>
+      <div>{title}</div>
+      {children}
+    </section>
+  ),
+}));
 
-vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
-  default: ({ onBuscaTitular, tipoCargo }: any) => (
-    <div data-testid="selecao-vaga">
-      <span>Tipo: {tipoCargo}</span>
-      <button onClick={() => onBuscaTitular({ rf: "1234567" })}>Simular Busca</button>
+vi.mock("@/components/ui/accordion", () => ({
+  Accordion: ({ children }: any) => <div data-testid="accordion">{children}</div>,
+}));
+
+vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
+  default: ({ title }: any) => <h1>{title}</h1>,
+}));
+
+vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
+  default: ({ children }: any) => <div>{children}</div>,
+}));
+
+vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
+  default: () => <div data-testid="stepper" />,
+}));
+
+vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
+  CustomAccordionItem: ({ children, title }: any) => (
+    <div>
+      <h2>{title}</h2>
+      {children}
     </div>
   ),
 }));
 
 vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields", () => ({
-  default: () => <div data-testid="portaria-fields">Campos Portaria</div>,
+  default: ({ isLoading }: any) => (
+    <div data-testid="portaria-fields">{String(Boolean(isLoading))}</div>
+  ),
 }));
 
- 
+vi.mock("@/components/dashboard/Designacao/ResumoPesquisaDaUnidade", () => ({
+  default: () => <div data-testid="resumo-unidade" />,
+}));
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
-  default: ({ defaultValues }: { defaultValues: any }) => (
-    <div data-testid="resumo-designacao">
-      Mock Resumo: {defaultValues?.nome}
-    </div>
-  ),
-  InfoItem: ({ label, value }: { label: string; value: string }) => (
+  default: ({ onSubmitEditarServidor }: any) => (
     <div>
-      <strong>{label}:</strong> {value}
+      <button
+        data-testid="editar-indicado"
+        onClick={() =>
+          onSubmitEditarServidor({
+            nome_servidor: "Nome Atualizado",
+            nome_civil: "Civil Atualizado",
+          })
+        }
+      >
+        Editar Indicado
+      </button>
     </div>
   ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
+  default: ({ onBuscaTitular }: any) => (
+    <button data-testid="buscar-titular" onClick={() => onBuscaTitular({ rf: "1234567" })}>
+      Buscar titular
+    </button>
+  ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
+  default: ({ disableProximo, onProximo, onAnterior }: any) => (
+    <div>
+      <button data-testid="anterior" onClick={onAnterior}>
+        Anterior
+      </button>
+      <button data-testid="proximo" disabled={disableProximo} onClick={onProximo}>
+        Proximo
+      </button>
+    </div>
+  ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao", () => ({
+  default: ({ open }: { open: boolean }) => (
+    <div data-testid="modal-historico" data-open={String(open)} />
+  ),
+}));
+
+vi.mock("@/components/ui/button", () => ({
+  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
 vi.mock("@/assets/icons/Historico", () => ({ default: () => <svg /> }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: mockRouterPush,
-  }),
-}));
+describe("DesignacoesPasso2", () => {
+  const designacaoCompleta = {
+    tipo_vaga: "VAGO",
+    cargo_vaga: 321,
+    cargo_vaga_display: "Diretor",
+    numero_portaria: "100/2026",
+    sei_numero: "6016.2026/000001",
+    data_inicio: "2026-01-10",
+    data_fim: "2026-12-20",
+    ano_vigente: "2026",
+    doc: "DOC",
+    impedimento_substituicao: "Nenhum",
+    carater_excepcional: true,
+    com_afastamento: true,
+    motivo_afastamento: "Licenca",
+    possui_pendencia: false,
+    pendencias: "",
+    titular_rf: "1234567",
+    titular_nome_servidor: "Titular A",
+    titular_nome_civil: "Titular Civil",
+    titular_vinculo: 1,
+    titular_lotacao: "Lotacao A",
+    titular_cargo_base: "Cargo Base",
+    titular_codigo_cargo_base: "001",
+    titular_codigo_cargo_sobreposto: "002",
+    titular_cargo_sobreposto: "Cargo Sobreposto",
+    titular_local_servico: "Local Servico",
+    titular_local_exercicio: "Local Exercicio",
+    indicado_nome_servidor: "Indicado",
+    indicado_nome_civil: "Indicado Civil",
+    indicado_rf: "7654321",
+    indicado_vinculo: 2,
+    indicado_cargo_base: "Cargo Base I",
+    indicado_lotacao: "Lotacao I",
+    indicado_cargo_sobreposto: "Cargo Sobreposto I",
+    indicado_local_exercicio: "Local Exercicio I",
+    indicado_local_servico: "Local Servico I",
+    dre_nome: "DRE Centro",
+    unidade_proponente: "UE 10",
+    codigo_hierarquico: "12345",
+  };
 
-vi.mock(
-  "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao",
-  () => ({
-    default: ({ open }: { open: boolean }) => (
-      <div data-testid="modal-historico" data-open={String(open)} />
-    ),
-  })
-);
-
-describe("DesignacoesPasso2 - Integração da Página", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    h.state.formDesignacaoData = null;
+    h.searchId = null;
+    h.designacao = null;
+    h.formDesignacaoData = null;
+    h.isLoadingDesignacao = false;
+    h.mutateAsync.mockResolvedValue({ success: true, data: { rf: "1234567" } });
   });
 
-  it("deve renderizar o estado inicial sem os accordions se não houver servidor no contexto", () => {
-    render(<DesignacoesPasso2Page />);
+  it("renderiza e executa fluxo sem id", async () => {
+    render(<DesignacoesPasso2 />);
 
     expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
-    expect(screen.getByTestId("selecao-vaga")).toBeInTheDocument();
+    expect(screen.getByTestId("proximo")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    fireEvent.click(screen.getByTestId("anterior"));
+    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
+
+    const modal = screen.getByTestId("modal-historico");
+    expect(modal).toHaveAttribute("data-open", "false");
+    fireEvent.click(screen.getByRole("button", { name: /ver histórico da última designação/i }));
+    await waitFor(() => expect(modal).toHaveAttribute("data-open", "true"));
   });
 
-  it("deve renderizar os resumos quando houver servidor no contexto", () => {
-    h.state.formDesignacaoData = {
+  it("executa fluxo com id, popula tela e salva em passo 3 com id", async () => {
+    h.searchId = "55";
+    h.designacao = {
+      ...designacaoCompleta,
+      tipo_vaga: "DISPONIVEL",
+    };
+    h.formDesignacaoData = {
       servidorIndicado: {
-        nome: "Fulano",
-        rf: "123",
-        lotacao_cargo_sobreposto: "Escola X",
-        dre: "DRE 1",
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+      ue_nome: "UE X",
+      dre_nome: "DRE Y",
+      codigo_hierarquico: "abc",
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    expect(screen.getByTestId("accordion")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoData).toHaveBeenCalled();
+    });
+
+    fireEvent.click(screen.getByTestId("editar-indicado"));
+    expect(h.setFormDesignacaoData).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+
+    fireEvent.click(screen.getByTestId("proximo"));
+    await waitFor(() =>
+      expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3?id=55")
+    );
+
+    fireEvent.click(screen.getByTestId("anterior"));
+    expect(h.push).toHaveBeenCalledWith("/pages/listagem-designacoes");
+  });
+
+  it("salva sem id e navega para o passo 3 sem query", async () => {
+    h.searchId = null;
+    h.designacao = {
+      ...designacaoCompleta,
+      tipo_vaga: "DISPONIVEL",
+      data_fim: null,
+      carater_excepcional: false,
+      com_afastamento: false,
+      possui_pendencia: true,
+      pendencias: "Pendencia A",
+    };
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
       },
     };
 
-    render(<DesignacoesPasso2Page />);
+    render(<DesignacoesPasso2 />);
 
-    expect(screen.getByTestId("accordion")).toBeInTheDocument();
-    expect(screen.getByText("Unidade Proponente")).toBeInTheDocument();
-    expect(screen.getByText("Dados do servidor indicado")).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
 
-  it("deve chamar a API de busca e atualizar o estado ao buscar titular", async () => {
-    h.mutateAsync.mockResolvedValue({
-      success: true,
-      data: { nome: "Novo Titular", rf: "1234567" },
-    });
+    await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
 
-    render(<DesignacoesPasso2Page />);
-
-    const btnBusca = screen.getByText("Simular Busca");
-    fireEvent.click(btnBusca);
+    fireEvent.click(screen.getByTestId("proximo"));
 
     await waitFor(() => {
-      expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" });
-    });
-  });
-
-  it("deve manter o botão próximo desabilitado se o formulário for inválido", () => {
-    render(<DesignacoesPasso2Page />);
-    const btnProximo = screen.getByTestId("botao-proximo");
-    expect(btnProximo).toBeDisabled();
-  });
-
-  it("navega ao passo anterior", async () => {
-    render(<DesignacoesPasso2Page />);
-    
-    const botaoAnterior = screen.getByTestId("botao-anterior");
-    fireEvent.click(botaoAnterior);
-
-    await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalled();
-    });
-
-    expect(mockRouterPush).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-1"
-    );
-  });
-
-  it("deve abrir o modal de histórico ao clicar no botão Histórico", async () => {
-    // Arrange: mock do ModalUltimaDesignacao para capturar a prop `open`
-    vi.mock(
-      "@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalHistoricoUltimaDesignacao",
-      () => ({
-        default: ({ open }: { open: boolean }) => (
-          <div data-testid="modal-historico" data-open={String(open)} />
-        ),
-      })
-    );
-
-    render(<DesignacoesPasso2Page />);
-
-    // Assert: modal começa fechado
-    const modal = screen.getByTestId("modal-historico");
-    expect(modal).toHaveAttribute("data-open", "false");
-
-    // Act: clica no botão Histórico pelo aria-label
-    const btnHistorico = screen.getByRole("button", {
-      name: /ver histórico da última designação/i,
-    });
-    fireEvent.click(btnHistorico);
-
-    // Assert: modal agora está aberto
-    await waitFor(() => {
-      expect(modal).toHaveAttribute("data-open", "true");
+      expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3");
     });
   });
 });

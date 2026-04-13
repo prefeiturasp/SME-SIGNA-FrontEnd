@@ -16,6 +16,7 @@ import { downloadCSV } from '@/utils/export/exportCSV';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/headless-toast';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
+import EditarAction from '@/assets/icons/EditarAction';
 
 const NameColorStatusDesignacao = {
   [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
@@ -69,6 +70,7 @@ interface ListagemDeDesignacoesProps {
   total?: number;
   page?: number;
   onPageChange?: (page: number) => void;
+  generateExportData: () => Promise<ListagemDesignacoesResponse[]>;
 }
 
 const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
@@ -77,6 +79,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
   total = 0,
   page = 1,
   onPageChange = () => {},
+  generateExportData
 }) => {
   const router = useRouter();
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<number | null>(null);
@@ -86,8 +89,18 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       `/pages/listagem-designacoes/visualizar-designacao/${record.id}`
     );
   }
+  const handleEditarDesignacao = (record: ListagemDesignacoesResponse) => {
+    router.push(
+      `/pages/designacoes/designacoes-passo-2?id=${record.id}`
+    );
+  }
 
   const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
+    {
+      key: 'editar', label: 'Editar', icon: <EditarAction className='cursor-pointer' />, onClick: () => {
+        handleEditarDesignacao(record);
+      }
+    },
     {
       key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
         console.log('Apostilar');
@@ -95,10 +108,12 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       disabled: true,
     },
     {
-      key: '2', label: 'Cessar', icon: <Cancelar />, onClick: () => {
-        console.log('Cessar');
+      key: '2',
+      label: 'Cessar',
+      icon: <Cancelar />,
+      onClick: () => {
+        router.push(`/pages/cessacao?id=${record.id}`);
       },
-      disabled: true
     },
     {
       key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
@@ -145,7 +160,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 
           <div>
             <Eye
-              className='w-4 h-4 fill-[#86858D] cursor-pointer'
+              className='w-4 h-4 fill-[#000000] cursor-pointer'
               onClick={() => handleVisualizarDesignacao(record)}
             />
           </div>
@@ -168,7 +183,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
               trigger={['click']}
             >
               <div>
-                <MoreOutlined />
+                <MoreOutlined color='#000000'/>
               </div>
             </Dropdown>
           </Popconfirm>
@@ -200,8 +215,16 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 
 
 
-  const handleDownloadCSV = () => {
-    downloadCSV(data, columns)
+  const handleDownloadCSV = async () => {
+    const exportData = await generateExportData();
+    if (exportData.length === 0) {      
+      return;
+    }
+
+    const exportColumns = columns
+    .filter((column)=>column.key!=="action")
+
+    downloadCSV(exportData, exportColumns)
   }
   return (
     <>
@@ -217,11 +240,11 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-b-lg border border-[#DCDCDC] overflow-x-auto">
-        <div className="w-full min-w-0 p-2">
+      <div className="bg-white rounded-b-lg border border-[#DCDCDC] w-full overflow-hidden">
+        <div className="w-full p-2">
           <Table<ListagemDesignacoesResponse>
             className="tabela-designacoes w-full"
-            scroll={{ x: 'max-content' }}
+            scroll={{ x: '100%' }}
             loading={isLoading}
             columns={columns}
             dataSource={data}

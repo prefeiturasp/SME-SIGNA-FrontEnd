@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Card, message, Modal, Result } from "antd";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
@@ -69,6 +69,8 @@ function gerarHtmlPortaria(texto: string): string {
 
 export default function DesignacoesPasso3() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const { formDesignacaoData } = useDesignacaoContext();
   const textoPlanoRef = useRef<string>("");
 
@@ -134,12 +136,12 @@ export default function DesignacoesPasso3() {
     textoPlanoRef.current = e.currentTarget.innerText;
   }, []);
 
-  const salvarPortaria = async () => {
+  const salvarPortaria = async (id: string | null) => {
     if (!formDesignacaoData) {
       throw new Error("Dados do formulário não encontrados.");
     }
 
-    const result = await designacaoAction(formDesignacaoData);
+    const result = await designacaoAction(formDesignacaoData, id);
 
     if (!result.success) {
       throw new Error(result.error);
@@ -148,11 +150,11 @@ export default function DesignacoesPasso3() {
     return result.data;
   };
 
-  const handleSalvar = async () => {
+  const handleSalvar = async (id: string | null) => {
     try {
       setSalvando(true);
       message.loading({ content: "Salvando portaria...", duration: 0 });
-      await salvarPortaria();
+      await salvarPortaria(id);
       message.destroy();
       setModalSucesso(true);
       setSalvando(false);
@@ -206,7 +208,7 @@ export default function DesignacoesPasso3() {
           labelProximo="Salvar"
           showAnterior
           onAnterior={() => router.push("/pages/designacoes/designacoes-passo-2")}
-          onProximo={handleSalvar}
+          onProximo={() => handleSalvar(id)}  
         />
       </div>
 
