@@ -28,40 +28,14 @@ import {
   InputField,
 } from "@/components/ui/FieldsForm";
 
+import {SelectAnoField} from "@/components/ui/SelectAnoField"
+
 interface Props {
   isLoading?: boolean;
 }
 
 const PortariaCessacaoFields = ({ isLoading }: Props) => {
-  const { register, control, setValue } = useFormContext();
-
-  const anos = Array.from(
-    { length: new Date().getFullYear() - 1980 + 1 },
-    (_, i) => {
-      const ano = new Date().getFullYear() - i;
-      return { codigo: ano.toString(), nome: ano.toString() };
-    }
-  );
-
-  const [pendingValue, setPendingValue] = useState<string | null>(null);
-  const [openConfirm, setOpenConfirm] = useState(false);
-
-  const handleValueChange = (value: string) => {
-    setPendingValue(value);
-    setOpenConfirm(true);
-  };
-
-  const handleConfirm = () => {
-    if (pendingValue) {
-      setValue("cessacao.ano", pendingValue);
-    }
-    setOpenConfirm(false);
-  };
-
-  const handleCancel = () => {
-    setPendingValue(null);
-    setOpenConfirm(false);
-  };
+  const { register, control } = useFormContext();
 
   const inputFields = [
     {
@@ -110,53 +84,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
                 />
               ))}
 
-              <FormField
-                control={control}
-                name="cessacao.ano"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Ano Vigente*
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          if (
-                            value !== new Date().getFullYear().toString()
-                          ) {
-                            return handleValueChange(value);
-                          }
-                          field.onChange(value);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um ano" />
-                        </SelectTrigger>
-  
-                        <SelectContent>
-                          {anos.map((ano) => (
-                            <SelectItem key={ano.codigo} value={ano.codigo}>
-                              {ano.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-  
-                        <Popconfirm
-                          title="Mudar o ano"
-                          description="Tem certeza que deseja mudar o ano?"
-                          open={openConfirm}
-                          onConfirm={handleConfirm}
-                          onCancel={handleCancel}
-                          okText="Sim"
-                          cancelText="Não"
-                        />
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <SelectAnoField name="cessacao.ano" label="Ano Vigente" />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4 mt-4">

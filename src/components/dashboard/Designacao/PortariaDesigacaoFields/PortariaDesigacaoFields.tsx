@@ -29,13 +29,15 @@ import {
   DateField,
   InputField,
 } from "@/components/ui/FieldsForm";
+import {SelectAnoField} from "@/components/ui/SelectAnoField"
+
 
 interface Props {
   isLoading: boolean;
 }
 
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
-  const { register, control, setValue, watch } = useFormContext();
+  const { register, control, watch } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
 
   const impedimentos =
@@ -45,36 +47,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
     })) ?? [];
 
 
-  const anos = Array.from(
-    { length: new Date().getFullYear() - 1980 + 1 },
-    (_, i) => {
-      const ano = new Date().getFullYear() - i;
-      return { codigo: ano.toString(), nome: ano.toString() };
-    }
-  );
-
   const dataFinal = watch("designacao_data_final");
   const isImpedimentoDisabled = !dataFinal;
-
-  const [pendingValue, setPendingValue] = useState<string | null>(null);
-  const [openConfirm, setOpenConfirm] = useState(false);
-
-  const handleValueChange = (value: string) => {
-    setPendingValue(value);
-    setOpenConfirm(true);
-  };
-
-  const handleConfirm = () => {
-    if (pendingValue) {
-      setValue("ano", pendingValue);
-    }
-    setOpenConfirm(false);
-  };
-
-  const handleCancel = () => {
-    setPendingValue(null);
-    setOpenConfirm(false);
-  };
 
   useEffect(() => {
     mutate();
@@ -105,54 +79,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
 
             <div className="w-full">
-              <FormField
-                control={control}
-                name="ano"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
-                      Ano Vigente
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          if (
-                            value.toString() !==
-                            new Date().getFullYear().toString()
-                          ) {
-                            return handleValueChange(value);
-                          }
-                          field.onChange(value);
-                        }}
-                      >
-                        <SelectTrigger data-testid="select-ano">
-                          <SelectValue placeholder="Selecione um ano" />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                          {anos.map((ano) => (
-                            <SelectItem key={ano.codigo} value={ano.codigo}>
-                              {ano.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-
-                        <Popconfirm
-                          title="Mudar o ano"
-                          description="Tem certeza que deseja mudar o ano?"
-                          open={openConfirm}
-                          onConfirm={handleConfirm}
-                          onCancel={handleCancel}
-                          okText="Sim"
-                          cancelText="Não"
-                        />
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+               <SelectAnoField name="cessacao.ano" label="Ano Vigente" />
             </div>
 
             <div className="w-full">
