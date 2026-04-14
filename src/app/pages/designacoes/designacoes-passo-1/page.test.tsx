@@ -11,6 +11,8 @@ import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUn
 
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
+const mockClearFormDesignacaoData = vi.fn();
+let formDesignacaoDataRef: any = {};
 
 const mockResponse = {
   nome: "Servidor Teste",
@@ -66,11 +68,15 @@ vi.mock("../DesignacaoContext", async () => {
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
       React.useState<any>({});
-    
+    formDesignacaoDataRef = formDesignacaoData;
 
     return (
       <DesignacaoContext.Provider
-        value={{ formDesignacaoData, setFormDesignacaoData , clearFormDesignacaoData: vi.fn()}}
+        value={{
+          formDesignacaoData,
+          setFormDesignacaoData,
+          clearFormDesignacaoData: mockClearFormDesignacaoData,
+        }}
       >
         {children}
       </DesignacaoContext.Provider>
@@ -153,7 +159,18 @@ vi.mock(
     __esModule: true,
     default: (props: any) => (
       <div data-testid="resumo-designacao">
-        {props.defaultValues?.nome}
+        <span>{props.defaultValues?.nome_servidor}</span>
+        <button
+          data-testid="botao-editar-servidor-indicado"
+          onClick={() =>
+            props.onSubmitEditarServidor?.({
+              nome_servidor: "Servidor Editado",
+              nome_civil: "Servidor Civil Editado",
+            })
+          }
+        >
+          Editar servidor indicado
+        </button>
       </div>
     ),
   })
@@ -259,6 +276,11 @@ describe("DesignacoesPasso1", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetValuesVazio = false;
+    mockClearFormDesignacaoData.mockImplementation(() => {
+      if (formDesignacaoDataRef) {
+        formDesignacaoDataRef.servidorIndicado = undefined;
+      }
+    });
     mockMutateAsync.mockResolvedValue({
       success: true,
       data: mockResponse,
@@ -337,6 +359,41 @@ describe("DesignacoesPasso1", () => {
     expect(mockRouterPush).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-2?123"
     );
+  });
+
+  it("atualiza dados do servidor indicado ao editar resumo", async () => {
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId("botao-editar-servidor-indicado"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Servidor Editado")).toBeInTheDocument();
+    });
+  });
+
+  it("não atualiza servidor ao editar quando contexto perde servidorIndicado", async () => {
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    mockClearFormDesignacaoData();
+    await userEvent.click(screen.getByTestId("botao-editar-servidor-indicado"));
+
+    expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
+    expect(screen.queryByText("Servidor Editado")).not.toBeInTheDocument();
   });
 
 

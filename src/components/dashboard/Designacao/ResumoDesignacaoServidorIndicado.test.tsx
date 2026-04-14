@@ -54,6 +54,30 @@ vi.mock("../DesignacaoContext", () => ({
   }),
 }));
 
+vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
+  default: ({
+    open,
+    onOpenChange,
+    handleSubmitEditarServidor,
+  }: {
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+    handleSubmitEditarServidor: (data: { nome_civil: string }) => void;
+  }) => (
+    <div data-testid="modal-editar-servidor">
+      {open && (
+        <>
+          <span>Editar dados servidor indicado</span>
+          <button onClick={() => handleSubmitEditarServidor({ nome_civil: "Novo nome" })}>
+            Salvar edição
+          </button>
+          <button onClick={() => onOpenChange(false)}>Fechar edição</button>
+        </>
+      )}
+    </div>
+  ),
+}));
+
 const mockData: Servidor = {
   rf: "123",
   nome_servidor: "Servidor Teste",
@@ -381,6 +405,55 @@ describe("ResumoDesignacao", () => {
 
     await user.click(screen.getByRole("button", { name: /Editar/i }));
     expect(screen.getByText('Editar dados servidor indicado')).toBeInTheDocument();
+  });
+
+  it("encaminha o submit de edição para onSubmitEditarServidor", async () => {
+    const user = userEvent.setup();
+    const onSubmitEditarServidor = vi.fn();
+
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={true}
+        defaultValues={mockData}
+        onSubmitEditarServidor={onSubmitEditarServidor}
+      />,
+      { wrapper }
+    );
+
+    await user.click(screen.getByRole("button", { name: /Editar/i }));
+    await user.click(screen.getByRole("button", { name: /Salvar edição/i }));
+
+    expect(onSubmitEditarServidor).toHaveBeenCalledWith({ nome_civil: "Novo nome" });
+  });
+
+  it("aplica valores fallback quando campos opcionais não existem", () => {
+    const dadosSemCampos = {
+      ...mockData,
+      vinculo: undefined,
+      lotacao: undefined,
+      cargo_base: undefined,
+      cursos_titulos: undefined,
+      cargo_sobreposto_funcao_atividade: undefined,
+      local_de_exercicio: undefined,
+      laudo_medico: undefined,
+      local_de_servico: undefined,
+    } as unknown as Servidor;
+
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={false}
+        defaultValues={dadosSemCampos}
+        onSubmitEditarServidor={vi.fn()}
+      />,
+      { wrapper }
+    );
+
+    expect(screen.getByText("Cursos/Títulos de exemplo")).toBeInTheDocument();
+    expect(screen.getAllByText("-").length).toBeGreaterThanOrEqual(6);
   });
 });
 
