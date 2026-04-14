@@ -255,7 +255,7 @@ export default function DesignacoesPasso2() {
   return (
     <>
       <PageHeader
-        title="Designação"
+        title={id ? "Edição de Designação" : "Designação"}
         breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação" }]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}

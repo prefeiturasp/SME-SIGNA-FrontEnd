@@ -63,4 +63,28 @@ describe("FormularioBuscaDesignacao", () => {
     
     expect(onBuscaDesignacao).toHaveBeenCalledTimes(1);
   });
+
+  it("deve exibir estado de loading enquanto busca está pendente", async () => {
+    const user = userEvent.setup();
+    let resolveBusca!: () => void;
+    const onBuscaDesignacao = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveBusca = resolve;
+        })
+    );
+
+    render(<FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />);
+
+    await user.type(screen.getByPlaceholderText("Entre com RF"), "1234567");
+    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+    expect(screen.getByRole("button", { name: /Pesquisando.../i })).toBeDisabled();
+
+    resolveBusca();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Pesquisar/i })).toBeEnabled();
+    });
+  });
 });
