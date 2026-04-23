@@ -25,7 +25,7 @@ describe("gerarDadosPortaria", () => {
             codigo_hierarquico: "123456",
             servidorIndicado: {
                 nome_civil: "João Silva",
-                rf: "123456",
+                rf: "1234567",
                 vinculo: "Efetivo",
                 cargo_base: "Professor",
                 lotacao: "Escola Teste",
@@ -41,7 +41,7 @@ describe("gerarDadosPortaria", () => {
             dre: "DRE Centro",
             autoridade: "Autoridade Teste",
             nome_indicado: "João Silva",
-            rf: "123456",
+            rf: "123.456.7",
             vinculo: "Efetivo",
             cargo_base: "Professor",
             lotacao_indicado: "Escola Teste",

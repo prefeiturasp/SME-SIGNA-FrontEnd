@@ -44,7 +44,7 @@ const ResumoPortariaDesigacao: React.FC<{
 
                 <InfoItem
                   label="D.O"
-                  value={defaultValues.doc ?? '-'}
+                  value={defaultValues.doc || "-"}
                 />
                 {showExtraFields && (
                   <>
