@@ -378,6 +378,8 @@ describe("ListagemDeDesignacoes", () => {
 
     render(<>{actionRender?.(null, makeRow(1))}</>);
 
+    fireEvent.click(screen.getByTestId("menu-item-editar"));
+
     fireEvent.click(screen.getByTestId("menu-item-1"));
 
     fireEvent.click(screen.getByTestId("menu-item-2"));
@@ -386,6 +388,7 @@ describe("ListagemDeDesignacoes", () => {
 
     expect(console.log).toHaveBeenNthCalledWith(1, "Apostilar");
     expect(console.log).toHaveBeenNthCalledWith(2, "Tornar Insubsistente");
+    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-2?id=1");
 
     expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=1");
 
