@@ -247,7 +247,7 @@ describe("PortariaDesigacaoFields", () => {
     fireEvent.change(screen.getByPlaceholderText("Número SEI"), {
       target: { value: "123" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Número doc"), {
+    fireEvent.change(screen.getByPlaceholderText("Número DO"), {
       target: { value: "123" },
     });
 

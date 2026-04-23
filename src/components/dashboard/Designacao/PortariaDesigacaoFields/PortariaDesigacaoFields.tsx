@@ -99,8 +99,9 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 control={control}
                 name="doc"
                 label="D.O"
-                placeholder="Número doc"
+                placeholder="Número DO"
                 data-testid="input-doc"
+                disabled
               />
             </div>
           </div>

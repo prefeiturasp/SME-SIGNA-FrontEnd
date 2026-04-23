@@ -10,7 +10,7 @@ const formSchemaCessacao = z.object({
     data_inicio: z.date(),
     remocao: z.enum(["sim", "nao"]),
     aposentadoria: z.enum(["sim", "nao"]),
-    doc: z.string().min(1, "Campo obrigatório"),
+    doc: z.string().optional(),
   }),
 });
 

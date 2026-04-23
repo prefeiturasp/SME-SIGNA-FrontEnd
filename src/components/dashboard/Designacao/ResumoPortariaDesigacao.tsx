@@ -43,14 +43,14 @@ const ResumoPortariaDesigacao: React.FC<{
 
                 <InfoItem
                   label="D.O"
-                  value={defaultValues.doc ?? '-'}
+                  value={defaultValues.doc || "-"}
                 />
                 <InfoItem label="A partir de" value={defaultValues.data_inicio ?? '-'} />
                 <InfoItem label="Até" value={defaultValues.data_fim ?? '-'} />
                 <InfoItem label="Caráter Especial" value={defaultValues.carater_excepcional? 'Sim':'Não'} />
                 <InfoItem label="Impedimento para substituição:" value={defaultValues.impedimento_substituicao ?? '-'} />
-                <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento ?? '-'} />
-                <InfoItem label="Pendência:" value={defaultValues.pendencias ?? '-'} />
+                <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento || '-'} />
+                <InfoItem label="Pendência:" value={defaultValues.pendencias || '-'} />
                 
               </div>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, message } from "antd";
@@ -28,43 +28,9 @@ import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
 import Designacao from "@/assets/icons/Designacao";
 
-const TEMPLATE_CESSACAO = `EXPEDE:
-PORTARIA Nº {{portaria}}/{{ano}} SEI nº {{sei}}
-{{dre}}
-O Secretário Municipal de Educação, usando das atribuições que lhe são conferidas,
-
-R E S O L V E:
-
-FAZER CESSAR, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) Sr.(a). {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}}, a partir de {{data_inicio}}.
-`;
-
-function normalizarQuebras(texto: string) {
-  return texto
-    .replaceAll("\r\n", "\n")
-    .replaceAll("\r", "\n");
-}
-
-function gerarHtmlPortaria(texto: string): string {
-  if (!texto) return "";
-
-  const textoLimpo = normalizarQuebras(texto);
-
-  const palavrasFixas = ["EXPEDE:", "PORTARIA Nº", "SEI Nº", "R E S O L V E:", "FAZER CESSAR", "O Secretário Municipal de Educação"];
-
-  const linhasHtml = textoLimpo.split("\n").map((linha) => {
-    if (!linha.trim()) return `<div><br></div>`;
-
-    let l = linha;
-
-    for (const palavra of palavrasFixas) {
-      l = l.replaceAll(new RegExp(`(${palavra})`, "g"), "<strong>$1</strong>");
-    }
-
-    return `<div>${l}</div>`;
-  });
-
-  return linhasHtml.join("");
-}
+import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
+import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
 
 export default function CessacaoPage() {
   const searchParams = useSearchParams();
@@ -174,7 +140,6 @@ export default function CessacaoPage() {
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
-  const textoPlanoRef = useRef("");
 
   const gerarDados = (values: formSchemaCessacaoData) => ({
     portaria: values.cessacao.numero_portaria,
@@ -187,11 +152,11 @@ export default function CessacaoPage() {
     doc_designacao: designacao?.doc ?? "-",
     sei_designacao: designacao?.sei_numero ?? "-",
     nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-    rf: designacao?.indicado_rf ?? "-",
+    rf: formatarRF(designacao?.indicado_rf ?? "-"),
     vinculo: designacao?.indicado_vinculo ?? "-",
-    cargo_base: designacao?.indicado_cargo_base ?? "-",
-    cargo: designacao?.indicado_cargo_sobreposto ?? "-",
-    ue: designacao?.indicado_local_exercicio ?? "-",
+    cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+    cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
+    ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
     data_inicio:
       values.cessacao.data_inicio?.toLocaleDateString("pt-BR"),
   });
@@ -212,18 +177,9 @@ export default function CessacaoPage() {
       texto = texto.replaceAll(`{{${key}}}`, val);
     });
 
-    textoPlanoRef.current = texto;
     setHtmlPortaria(gerarHtmlPortaria(texto));
     setMostrarEditor(true);
   };
-
-  const editorRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (editorRef.current && htmlPortaria) {
-      editorRef.current.innerHTML = htmlPortaria;
-    }
-  }, [htmlPortaria]);
 
   const onSubmit = async (values: formSchemaCessacaoData) => {
     try {
@@ -271,38 +227,38 @@ export default function CessacaoPage() {
 
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>          <Card className="mt-4">
-            <Accordion type="multiple">
-              <CustomAccordionItem title="Portaria de designação" value="1" color="purple">
-                {dadosPortaria && (
-                  <ResumoPortariaDesigacao defaultValues={dadosPortaria} />
-                )}
-              </CustomAccordionItem>
+          <Accordion type="multiple">
+            <CustomAccordionItem title="Portaria de designação" value="1" color="purple">
+              {dadosPortaria && (
+                <ResumoPortariaDesigacao defaultValues={dadosPortaria} />
+              )}
+            </CustomAccordionItem>
 
-              <CustomAccordionItem title="Servidor indicado" value="2" color="gold">
-                {dadosIndicado && (
-                  <ResumoDesignacaoServidorIndicado defaultValues={dadosIndicado} onSubmitEditarServidor={() => {}}/>
-                )}
-              </CustomAccordionItem>
+            <CustomAccordionItem title="Servidor indicado" value="2" color="gold">
+              {dadosIndicado && (
+                <ResumoDesignacaoServidorIndicado defaultValues={dadosIndicado} onSubmitEditarServidor={() => { }} />
+              )}
+            </CustomAccordionItem>
 
-              <CustomAccordionItem title="Servidor titular" value="3" color="blue">
-                {dadosTitular ? (
-                  <ResumoTitular data={dadosTitular}   onSubmitEditarServidor={() => {}}/>
-                ) : (
-                  <div className="text-center text-[#777] p-4">
-                    Não há servidor titular
-                  </div>
-                )}
-              </CustomAccordionItem>
+            <CustomAccordionItem title="Servidor titular" value="3" color="blue">
+              {dadosTitular ? (
+                <ResumoTitular data={dadosTitular} onSubmitEditarServidor={() => { }} />
+              ) : (
+                <div className="text-center text-[#777] p-4">
+                  Não há servidor titular
+                </div>
+              )}
+            </CustomAccordionItem>
 
-              <CustomAccordionItem title="Portaria de cessação" value="4" color="silver">
-                <PortariaCessacaoFields />
-                <div className="w-full flex justify-end pt-[2rem]">
-                  <div className="w-[200px]">
-                  <Button 
+            <CustomAccordionItem title="Portaria de cessação" value="4" color="silver">
+              <PortariaCessacaoFields />
+              <div className="w-full flex justify-end pt-[2rem]">
+                <div className="w-[200px]">
+                  <Button
                     type="button"
                     size="lg"
                     className="w-full flex items-center justify-center gap-6"
-                    variant="destructive" 
+                    variant="destructive"
                     onClick={async () => {
                       const isValid = await form.trigger("cessacao");
 
@@ -312,49 +268,22 @@ export default function CessacaoPage() {
                     }}>
                     Trechos para o SEI
                   </Button>
-                  </div>
                 </div>
-              </CustomAccordionItem>
-            </Accordion>
-
-            {/* BOTÃO */}
-
-            {/* EDITOR */}
-            {mostrarEditor && (
-              <div className="flex flex-col gap-4 mt-4">
-                
-                {/* 🔹 Título */}
-                <span className="text-sm font-semibold text-[#333] uppercase tracking-wide">
-                  PORTARIA
-                </span>
-
-                {/* 🔹 Editor */}
-                <div
-                  ref={editorRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  className="w-full min-h-[350px] border border-gray-300 rounded p-4 text-sm text-gray-800 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400 leading-relaxed overflow-auto"
-                />
-
-                {/* 🔹 Botão salvar só aparece depois */}
-                <div className="w-full flex justify-end pt-[2rem]">
-                  <div className="w-[200px]">
-                    <Button
-                      type="submit"
-                      size="lg"
-                      className="w-full flex items-center justify-center gap-6"
-                      variant="destructive"
-                      data-testid="botao-proximo"
-                    >
-                      <p className="text-[16px] font-bold">Salvar</p>
-                    </Button>
-                  </div>
-                </div>
-
               </div>
-            )}
+            </CustomAccordionItem>
+          </Accordion>
 
-          </Card>
+          {mostrarEditor && (
+            <EditorSEI
+              html={htmlPortaria}
+              titulo="PORTARIA"
+              labelBotao="Salvar"
+              tipoBotao="submit"
+              testId="botao-proximo"
+            />
+          )}
+
+        </Card>
         </form>
       </FormProvider>
     </>
