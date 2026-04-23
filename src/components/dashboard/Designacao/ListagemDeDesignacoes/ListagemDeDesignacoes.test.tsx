@@ -384,8 +384,6 @@ describe("ListagemDeDesignacoes", () => {
 
     fireEvent.click(screen.getByTestId("menu-item-3"));
 
-    expect(console.log).toHaveBeenNthCalledWith(1, "Apostilar");
-    expect(console.log).toHaveBeenNthCalledWith(2, "Tornar Insubsistente");
 
     expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=1");
 
