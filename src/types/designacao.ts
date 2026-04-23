@@ -1,3 +1,5 @@
+import { InsubsistenciaBody } from "./insubsistencia";
+
 export interface BuscaDesignacaoRequest {
   rf: string;
 }
@@ -79,6 +81,7 @@ export interface ListagemDesignacoesResponse {
   cargo_vaga: number | null;
   cargo_vaga_display: string;
   status?: StatusDesignacao;
+  insubsistencia?: InsubsistenciaBody;
 }
 export interface DesignacaoFiltros {
   rf?: string;
@@ -103,11 +106,29 @@ export interface DesignacaoPaginada {
 }
 
 
+
+export interface Cessacao {
+  id: number,
+  numero_portaria: string,
+  ano_vigente: string,
+  sei_numero: string,
+  a_pedido: boolean,
+  remocao: boolean,
+  aposentadoria: boolean,
+  data_designacao: string,
+  doc: string,
+  criado_em: string,
+  is_deleted: boolean,
+  deleted_at: string | null,
+  designacao: number,
+  insubsistencia:InsubsistenciaBody
+}
+
 export interface DesignacaoResponse {
   id: number,
   impedimento_substituicao_detail: string | null,
   impedimento_substituicao: string | null,
-  impedimento_display: string ,
+  impedimento_display: string,
   tipo_vaga_display: string,
   cargo_vaga_display: string,
   dre_nome: string,
@@ -145,8 +166,9 @@ export interface DesignacaoResponse {
   com_afastamento: false,
   possui_pendencia: false,
   pendencias: string,
-  motivo_afastamento:  string,
+  motivo_afastamento: string,
   tipo_vaga: string,
   cargo_vaga: number,
   criado_em: string,
+  cessacao: Cessacao | null,
 }

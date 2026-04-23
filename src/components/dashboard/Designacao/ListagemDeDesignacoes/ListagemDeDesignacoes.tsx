@@ -116,10 +116,11 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       },
     },
     {
-      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
-        console.log('Tornar Insubsistente');
-      },
-      disabled: true
+      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />,
+      onClick: () => {
+        router.push(`/pages/insubsistencia?id=${record.id}`);
+      },      
+      disabled: record?.insubsistencia ? true : false,
     },
     {
       key: '4',
