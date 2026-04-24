@@ -149,23 +149,21 @@ export default function InsubsistenciaPage() {
     </span>
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
-      </div>
-    );
-  }
-
+ 
   return (
     <>
+   
       <PageHeader
         title={title}
         breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação", href: "/pages/listagem-designacoes" }, { title: "Tornar Insubsistente" }]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
-
+ {isLoading ? (
+    <div className="flex justify-center items-center h-[60vh]">
+      <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
+    </div>
+  ) : ( 
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card className="mt-4">
@@ -298,7 +296,7 @@ export default function InsubsistenciaPage() {
 
           </Card>
         </form>
-      </FormProvider>
+      </FormProvider>)}
     </>
   );
 }
