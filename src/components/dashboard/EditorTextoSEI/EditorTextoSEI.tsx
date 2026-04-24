@@ -11,6 +11,7 @@ const PALAVRAS_FIXAS_PADRAO = [
     "SEI Nº",
     "R E S O L V E:",
     "FAZER CESSAR",
+    "TORNAR INSUBSISTENTE",
     "O Secretário Municipal de Educação",
 ];
 
