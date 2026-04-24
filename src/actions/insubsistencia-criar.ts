@@ -20,7 +20,6 @@ export async function insubsistenciaAction(
 
   const cookieStore = await cookies();
   const authToken = cookieStore.get("auth_token")?.value;
-  console.log('payload', payload);
   try {
     const headers = {
       "Content-Type": "application/json",
@@ -44,7 +43,9 @@ export async function insubsistenciaAction(
     if (error.response?.status === 500) {
       message = "Erro interno no servidor";
     } else if (error?.response?.data?.detail?.includes("string")) {
-      message = error?.response?.data?.detail.match(/string='(.*?)'/)?.[1]||'';
+      const regex = /string='(.*?)'/;
+      const match = regex.exec(error?.response?.data?.detail);
+      message = match?.[1] ?? '';
     } else if (error.response?.data?.detail) {
       message = error.response.data.detail;
     } else if (error.message) {

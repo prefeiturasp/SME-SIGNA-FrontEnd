@@ -120,7 +120,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       onClick: () => {
         router.push(`/pages/insubsistencia?id=${record.id}`);
       },      
-      disabled: record?.insubsistencia ? true : false,
+      disabled: !!record?.insubsistencia,
     },
     {
       key: '4',

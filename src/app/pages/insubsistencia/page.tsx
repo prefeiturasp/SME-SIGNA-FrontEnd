@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState} from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, message, Tooltip } from "antd";
-import { HelpCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,6 @@ import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAcc
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 
-import {
-  formSchemaInsubsistenciaData,
-} from "./schema";
-
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
@@ -29,10 +25,8 @@ import PortariaInsubsistenciaFields from "@/components/dashboard/Insubsistencia/
 import { FormControl, FormField, FormLabel, FormItem } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import formSchemaInsubsistencia from "./schema";
+import formSchemaInsubsistencia, { formSchemaInsubsistenciaData } from "./schema";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
-import { TooltipContent } from "@/components/ui/tooltip";
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
 
 
 
@@ -48,7 +42,6 @@ export default function InsubsistenciaPage() {
   const { data: designacao, isLoading } =
     useFetchDesignacoesById(Number(id));
 
-  const tem_insubsistencia_na_cessacao = designacao?.cessacao?.insubsistencia ? true : false;
   const form = useForm<formSchemaInsubsistenciaData>({
     resolver: zodResolver(formSchemaInsubsistencia),
     defaultValues: {
@@ -102,6 +95,7 @@ export default function InsubsistenciaPage() {
       local_de_servico: designacao.indicado_local_servico,
     } as Servidor;
   }, [designacao]);
+  const desabilita_radio = !!designacao?.cessacao?.insubsistencia || !dadosPortariaCessacao;
 
   useEffect(() => {
     if (!designacao) return;
@@ -225,7 +219,7 @@ export default function InsubsistenciaPage() {
                             }}
                             value={field.value}
                             className="flex flex-row gap-8"
-                            disabled={tem_insubsistencia_na_cessacao}
+                            disabled={desabilita_radio}
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="designacao" id="designacao" />
@@ -235,8 +229,8 @@ export default function InsubsistenciaPage() {
                             </div>
                             <Tooltip placement="topLeft"
                               title={
-                                tem_insubsistencia_na_cessacao ?
-                                  'A cessação já possui insubsistência.'
+                                desabilita_radio ?
+                                  'A cessação já possui insubsistência ou não foi encontrada.'
                                   : ''}>
                               <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="cessacao" id="cessacao" />
