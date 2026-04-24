@@ -44,7 +44,7 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
       name: "insubsistencia.doc",
       label: "D.O",
       placeholder: "D.O",
-
+      disabled: true, 
     },
   ];
 
@@ -73,6 +73,7 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
                     label={field.label}
                     placeholder={field.placeholder}
                     type={field.type}
+                    disabled={field.disabled}
                   />
                 )               
               ))}              

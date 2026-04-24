@@ -163,6 +163,7 @@ export default function CessacaoPage() {
 
   const handleGerarPortaria = () => {
     const values = form.getValues();
+    console.log('values', values);
     const dados = gerarDados(values);
 
     let texto = TEMPLATE_CESSACAO;
