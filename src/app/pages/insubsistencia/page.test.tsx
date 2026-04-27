@@ -4,12 +4,61 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import InsubsistenciaPage from "./page";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
+import { message } from "antd";
+
+const testControls = vi.hoisted(() => ({
+  routerPush: vi.fn(),
+  searchParamsGet: vi.fn(() => "5"),
+  radioOnValueChange: undefined as ((value: string) => void) | undefined,
+  forceTriggerResult: null as boolean | null,
+  forceUndefinedGetValues: false,
+  gerarHtmlPortaria: vi.fn((texto: string) => texto),
+}));
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
+vi.mock("react-hook-form", async () => {
+  const actual =
+    await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
+
+  return {
+    ...actual,
+    useForm: (...args: unknown[]) => {
+      const form = (actual.useForm as (...callArgs: unknown[]) => any)(...args);
+      const originalTrigger = form.trigger.bind(form);
+      const originalGetValues = form.getValues.bind(form);
+
+      form.trigger = async (...triggerArgs: unknown[]) => {
+        if (testControls.forceTriggerResult !== null) {
+          return testControls.forceTriggerResult;
+        }
+        return originalTrigger(...triggerArgs);
+      };
+      form.getValues = (...getValuesArgs: unknown[]) => {
+        if (testControls.forceUndefinedGetValues) {
+          return {
+            insubsistencia: {
+              doc: undefined,
+              numero_portaria: undefined,
+              ano: undefined,
+              numero_sei: undefined,
+              observacoes: undefined,
+              tipo_insubsistencia: "designacao",
+            },
+          };
+        }
+
+        return originalGetValues(...getValuesArgs);
+      };
+
+      return form;
+    },
+  };
+});
+
 vi.mock("next/navigation", () => ({
-  useSearchParams: vi.fn(() => ({ get: vi.fn(() => "5") })),
-  useRouter: vi.fn(() => ({ push: vi.fn() })),
+  useSearchParams: vi.fn(() => ({ get: testControls.searchParamsGet })),
+  useRouter: vi.fn(() => ({ push: testControls.routerPush })),
 }));
 
 vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
@@ -68,7 +117,17 @@ vi.mock(
   "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado",
   () => ({
     __esModule: true,
-    default: () => <div data-testid="resumo-servidor-indicado" />,
+    default: ({ onSubmitEditarServidor }: { onSubmitEditarServidor?: () => void }) => (
+      <div data-testid="resumo-servidor-indicado">
+        <button
+          type="button"
+          data-testid="editar-servidor"
+          onClick={() => onSubmitEditarServidor?.()}
+        >
+          editar
+        </button>
+      </div>
+    ),
   })
 );
 
@@ -105,23 +164,21 @@ vi.mock("@/components/ui/radio-group", () => ({
       data-testid="radio-group"
       data-disabled={disabled ? "true" : "false"}
     >
-      {React.Children.map(children, (child) =>
-        React.isValidElement(child)
-          ? React.cloneElement(child as React.ReactElement<{ onValueChange?: (v: string) => void }>, { onValueChange })
-          : child
-      )}
+      {(() => {
+        testControls.radioOnValueChange = onValueChange;
+        return children;
+      })()}
     </div>
   ),
-  RadioGroupItem: ({ value, id, onValueChange }: {
+  RadioGroupItem: ({ value, id }: {
     value: string;
     id: string;
-    onValueChange?: (v: string) => void;
   }) => (
     <input
       type="radio"
       data-testid={`radio-${id}`}
       value={value}
-      onChange={() => onValueChange?.(value)}
+      onChange={() => testControls.radioOnValueChange?.(value)}
     />
   ),
 }));
@@ -142,6 +199,16 @@ vi.mock("@radix-ui/react-tooltip", () => ({
 
 vi.mock("@hookform/resolvers/zod", () => ({
   zodResolver: () => async (values: unknown) => ({ values, errors: {} }),
+}));
+
+vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
+  __esModule: true,
+  default: ({ testId, labelBotao, tipoBotao }: { testId: string; labelBotao: string; tipoBotao?: "button" | "submit" | "reset" }) => (
+    <button data-testid={testId} type={tipoBotao ?? "button"}>
+      {labelBotao}
+    </button>
+  ),
+  gerarHtmlPortaria: (texto: string) => testControls.gerarHtmlPortaria(texto),
 }));
 
 // ── Dados de teste ────────────────────────────────────────────────────────────
@@ -194,6 +261,9 @@ describe("InsubsistenciaPage", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    testControls.forceTriggerResult = null;
+    testControls.forceUndefinedGetValues = false;
+    testControls.searchParamsGet.mockReturnValue("5");
 
     vi.mocked(useSalvarInsubsistencia).mockReturnValue({
       mutateAsync: mutateAsyncMock,
@@ -289,6 +359,8 @@ describe("InsubsistenciaPage", () => {
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
+      expect(message.success).toHaveBeenCalledWith("Insubsistência salva com sucesso!");
+      expect(testControls.routerPush).toHaveBeenCalledWith("/pages/listagem-designacoes");
     });
   });
 
@@ -310,7 +382,95 @@ describe("InsubsistenciaPage", () => {
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
+      expect(message.error).toHaveBeenCalledWith(
+        expect.stringContaining("Erro ao salvar:"),
+        3
+      );
     });
+  });
+
+  it("gera texto de cessação com período fechado ao trocar o radio", async () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: {
+        ...designacaoMock,
+        data_inicio: "2026-01-01",
+        data_fim: "2026-01-31",
+        cessacao: cessacaoMock,
+      },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByTestId("radio-cessacao"));
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+    });
+
+    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
+    expect(textoGerado).toContain("no período de 01/01/2026 a 31/01/2026");
+    expect(textoGerado).toContain("<strong>SERVIDOR TESTE</strong>");
+  });
+
+  it("não gera trechos para o SEI quando o trigger do formulário é inválido", async () => {
+    testControls.forceTriggerResult = false;
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
+      expect(testControls.gerarHtmlPortaria).not.toHaveBeenCalled();
+    });
+  });
+
+  it("gera texto com fallbacks quando não existe designação", async () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: null,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+    });
+
+    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
+    expect(textoGerado).toContain("a partir de undefined/undefined/");
+    expect(textoGerado).toContain("-");
+  });
+
+  it("usa fallbacks de data e valores indefinidos ao gerar texto", async () => {
+    testControls.forceUndefinedGetValues = true;
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: {
+        ...designacaoMock,
+        data_inicio: undefined as never,
+        data_fim: "2026-01-31",
+      },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+    });
+
+    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
+    expect(textoGerado).toContain("no período de undefined/undefined/ a 31/01/2026");
   });
 
   it("radio group fica desabilitado quando cessação já possui insubsistência", () => {
@@ -374,5 +534,18 @@ describe("InsubsistenciaPage", () => {
     render(<InsubsistenciaPage />);
 
     expect(screen.getByText("-")).toBeInTheDocument();
+  });
+
+  it("executa callback de edição do resumo do servidor indicado", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByTestId("editar-servidor"));
+
+    expect(screen.getByTestId("resumo-servidor-indicado")).toBeInTheDocument();
   });
 });
