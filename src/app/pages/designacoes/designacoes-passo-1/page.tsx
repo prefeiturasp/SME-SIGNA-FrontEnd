@@ -14,21 +14,25 @@ import FormularioPesquisaUnidade, {
   FormularioPesquisaUnidadeRef,
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 
 export default function DesignacoesPasso1() {
+  const searchParams = useSearchParams();
+  const rf = searchParams.get("rf");
+
   const { mutateAsync, isPending } = useServidorDesignacao();
   const [error, setError] = useState<string | null>(null);
-  const [disableProximo, setDisableProximo] = useState(true);
+  
   const formularioPesquisaUnidadeRef =
     useRef<FormularioPesquisaUnidadeRef | null>(null);
 
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
+  const [disableProximo, setDisableProximo] = useState(formDesignacaoData?.designacaoUnidade?false:true);
 
   const router = useRouter();
 
@@ -74,14 +78,18 @@ export default function DesignacoesPasso1() {
       ...valoresFormulario,
     });
 
+    
     router.push(
-      `/pages/designacoes/designacoes-passo-2?${formDesignacaoData.servidorIndicado.rf}`
+      `/pages/designacoes/designacoes-passo-2`
     );
   };
-
+ 
   useEffect(() => {
-    clearFormDesignacaoData();    
+    if (!rf) {
+      clearFormDesignacaoData();
+    }
   }, []);
+  
   
   return (
     <>
@@ -111,11 +119,12 @@ export default function DesignacoesPasso1() {
       >
         <Accordion
           type="multiple"
-          defaultValue={["portarias-designacao"]}
+          defaultValue={["unidade-proponente"]}
         >
           <div className="pt-4 pb-6">
             <FormularioBuscaDesignacao
               onBuscaDesignacao={onBuscaDesignacao}
+              defaultValues={formDesignacaoData?.servidorIndicado ?? { rf: "" }}
             />
           </div>
 
@@ -151,6 +160,7 @@ export default function DesignacoesPasso1() {
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
                setDisableProximo={setDisableProximo}
+               defaultValues={formDesignacaoData ?? {}}
             />
           </CustomAccordionItem>
         </Accordion>

@@ -29,7 +29,7 @@ export default function DesignacoesPasso3() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const { formDesignacaoData } = useDesignacaoContext();
+  const { formDesignacaoData, clearFormDesignacaoData } = useDesignacaoContext();
 
   const editorSEIRef = useRef<EditorSEIHandle>(null);
   const textoPlanoRef = useRef<string>("");
@@ -96,6 +96,7 @@ export default function DesignacoesPasso3() {
       message.destroy();
       setModalSucesso(true);
       setSalvando(false);
+      clearFormDesignacaoData();
       setTimeout(() => router.push("/pages/listagem-designacoes"), 2200);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
