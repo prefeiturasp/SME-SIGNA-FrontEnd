@@ -1,282 +1,274 @@
+import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { vi } from "vitest";
-import ListagemDesignacoesPage from "./page";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import DesignacoesPasso1 from "./page";
 
-/* ================= MOCKS ================= */
-
-const pageHeaderSpy = vi.fn();
-const fundoBrancoSpy = vi.fn();
-const listagemSpy = vi.fn();
-
-const mockResults = [
-  { id: 1, indicado_rf: "111", indicado_nome_servidor: "Servidor A", status: 0 },
-  { id: 2, indicado_rf: "222", indicado_nome_servidor: "Servidor B", status: 1 },
-];
-
-const mockFetchDesignacoesAction = vi.fn();
+const fetchDesignacoesActionMock = vi.fn();
+const fetchDesignacoesSemPaginacaoActionMock = vi.fn();
+const pushMock = vi.fn();
+const toastMock = vi.fn();
+const exportResultHandlerMock = vi.fn();
 
 vi.mock("@/actions/designacao", () => ({
-  fetchDesignacoesAction: (...args: unknown[]) =>
-    mockFetchDesignacoesAction(...args),
-}));
-
-vi.mock("@/hooks/useUnidades", () => ({
-  useFetchDREs: () => ({ data: [] }),
-  useFetchUEs: () => ({ data: [] }),
+  fetchDesignacoesAction: (...args: unknown[]) => fetchDesignacoesActionMock(...args),
+  fetchDesignacoesSemPaginacaoAction: (...args: unknown[]) =>
+    fetchDesignacoesSemPaginacaoActionMock(...args),
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: vi.fn(),
+  useRouter: () => ({ push: pushMock }),
+}));
+
+vi.mock("@/components/ui/headless-toast", () => ({
+  toast: (...args: unknown[]) => toastMock(...args),
+}));
+
+vi.mock("@/hooks/useUnidades", () => ({
+  useFetchDREs: () => ({
+    data: [{ codigoDRE: "108100", nomeDRE: "DRE TESTE" }],
   }),
-}));
-
-vi.mock("date-fns", () => ({
-  format: (date: Date, fmt: string) => `formatted-${fmt}`,
-}));
-
-vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: () => () => ({ values: {}, errors: {} }),
-}));
-
-vi.mock("react", async () => {
-  const actual = await vi.importActual<typeof import("react")>("react");
-  return {
-    ...actual,
-    useTransition: () => [false, (cb: () => void) => cb()],
-  };
-});
-
-const mockGetValues = vi.fn();
-
-const mockHandleSubmit =
-  (submitFn: (values: Record<string, unknown>) => void) =>
-    (event?: { preventDefault?: () => void }) => {
-      event?.preventDefault?.();
-      submitFn(mockGetValues());
-    };
-
-vi.mock("react-hook-form", () => ({
-  useForm: () => ({
-    handleSubmit: mockHandleSubmit,
-    getValues: mockGetValues,
-    control: {},
-    formState: { errors: {} },
-    register: vi.fn(),
-    setValue: vi.fn(),
-    watch: vi.fn().mockReturnValue(""),
-    reset: vi.fn(),
-    clearErrors: vi.fn(),
+  useFetchUEs: () => ({
+    data: [{ codigoEscola: "0001", nomeEscola: "EMEF TESTE" }],
   }),
-  FormProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
-}));
-
-vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  __esModule: true,
-  default: (props: any) => {
-    pageHeaderSpy(props);
-    return (
-      <div data-testid="page-header">
-        {props.icon}
-        {props.createButton}
-      </div>
-    );
-  },
 }));
 
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => {
-    fundoBrancoSpy();
-    return <section data-testid="fundo-branco">{children}</section>;
-  },
+  default: ({ children }: { children: React.ReactNode }) => (
+    <section data-testid="quadro-branco">{children}</section>
+  ),
 }));
 
-vi.mock(
-  "@/components/dashboard/Designacao/ListagemDeDesignacoes/ListagemDeDesignacoes",
-  () => ({
-    __esModule: true,
-    default: (props: any) => {
-      listagemSpy(props);
-      return <div data-testid="listagem-de-designacoes" />;
-    },
-  })
-);
-
-vi.mock(
-  "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes",
-  () => ({
-    __esModule: true,
-    default: () => (
-      <div>
-        <span>Filtro de Designacoes</span>
-        <button type="submit">Pesquisar</button>
-      </div>
-    ),
-  })
-);
+vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
+  default: ({
+    createButton,
+    icon,
+  }: {
+    createButton?: React.ReactNode;
+    icon?: React.ReactNode;
+  }) => (
+    <header>
+      {icon}
+      {createButton}
+    </header>
+  ),
+}));
 
 vi.mock("@/components/ui/button", () => ({
   Button: ({
     children,
-    type,
-    className,
     onClick,
+    type,
   }: {
-    children: ReactNode;
-    type?: "button" | "submit" | "reset";
-    className?: string;
+    children: React.ReactNode;
     onClick?: () => void;
+    type?: "button" | "submit" | "reset";
   }) => (
-    <button type={type} className={className} onClick={onClick}>
+    <button type={type ?? "button"} onClick={onClick}>
       {children}
     </button>
   ),
 }));
 
-vi.mock("@/assets/icons/Alert", () => ({
-  __esModule: true,
-  default: () => <span data-testid="icon-filter" />,
-}));
-
 vi.mock("@/assets/icons/Designacao", () => ({
-  __esModule: true,
-  default: () => <span data-testid="icon-designacao" />,
+  default: () => <span data-testid="designacao-icon" />,
 }));
 
-/* ================= TESTES ================= */
+vi.mock("@/assets/icons/Alert", () => ({
+  default: () => <span data-testid="alert-icon" />,
+}));
 
-describe("ListagemDesignacoesPage", () => {
+vi.mock("@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes", () => ({
+  default: ({ onClear }: { onClear: () => void }) => (
+    <div>
+      <button onClick={onClear}>Limpar filtros</button>
+      <button type="submit">Buscar</button>
+    </div>
+  ),
+}));
+
+vi.mock(
+  "@/components/dashboard/Designacao/ListagemDeDesignacoes/ListagemDeDesignacoes",
+  () => ({
+    default: ({
+      data,
+      total,
+      page,
+      isLoading,
+      onPageChange,
+      generateExportData,
+    }: {
+      data: unknown[];
+      total: number;
+      page: number;
+      isLoading: boolean;
+      onPageChange: (newPage: number) => void;
+      generateExportData: () => Promise<unknown[]>;
+    }) => (
+      <div>
+        <span data-testid="list-data-length">{data.length}</span>
+        <span data-testid="list-total">{total}</span>
+        <span data-testid="list-page">{page}</span>
+        <span data-testid="list-loading">{String(isLoading)}</span>
+        <button onClick={() => onPageChange(2)}>Ir para página 2</button>
+        <button
+          onClick={async () => {
+            const result = await generateExportData();
+            exportResultHandlerMock(result);
+          }}
+        >
+          Exportar dados
+        </button>
+      </div>
+    ),
+  })
+);
+
+describe("Página de listagem de designações", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockFetchDesignacoesAction.mockResolvedValue({
+    fetchDesignacoesActionMock.mockResolvedValue({
       success: true,
       data: {
-        count: 2,
+        count: 1,
         next: null,
         previous: null,
-        results: mockResults,
+        results: [
+          {
+            id: 1,
+            dre_nome: "DRE TESTE",
+            unidade_proponente: "EMEF TESTE",
+            indicado_nome_servidor: "Servidor",
+            indicado_rf: "123456",
+            titular_nome_servidor: "Titular",
+            titular_rf: "654321",
+            numero_portaria: "12",
+            ano_vigente: "2026",
+            sei_numero: "SEI-1",
+            data_inicio: "2026-01-01",
+            data_fim: null,
+            tipo_vaga: "vago",
+            tipo_vaga_display: "Vago",
+            cargo_vaga: null,
+            cargo_vaga_display: "Diretor",
+            status: 0,
+          },
+        ],
       },
     });
-
-    mockGetValues.mockReturnValue({
-      rf: "",
-      nome_servidor: "",
-      periodo: undefined,
-      cargo_base: "",
-      cargo_sobreposto: "",
-      dre: "",
-      unidade_escolar: "",
-      ano: "",
+    fetchDesignacoesSemPaginacaoActionMock.mockResolvedValue({
+      success: true,
+      data: [{ id: 1 }],
     });
   });
 
-  it("renderiza cabeçalho, container e listagem", async () => {
-    render(<ListagemDesignacoesPage />);
-
-    expect(screen.getByTestId("page-header")).toBeInTheDocument();
-    expect(screen.getByTestId("fundo-branco")).toBeInTheDocument();
-    expect(screen.getByTestId("listagem-de-designacoes")).toBeInTheDocument();
-    expect(screen.getByText("Filtros")).toBeInTheDocument();
-    expect(
-      screen.getByText("Iniciar Nova Designação")
-    ).toBeInTheDocument();
-
-    const headerProps = pageHeaderSpy.mock.calls[0][0];
-    expect(headerProps.title).toBe("");
-    expect(headerProps.showBackButton).toBe(false);
-  });
-
-  it("chama fetch no mount", async () => {
-    render(<ListagemDesignacoesPage />);
+  it("carrega a listagem inicial com os filtros padrão", async () => {
+    render(<DesignacoesPasso1 />);
 
     await waitFor(() => {
-      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1);
+      expect(fetchDesignacoesActionMock).toHaveBeenCalledTimes(1);
     });
+
+    expect(fetchDesignacoesActionMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rf: "",
+        nome: "",
+        cargo_base: "",
+        cargo_sobreposto: "",
+        dre: "",
+        unidade: "",
+        ano: "",
+        page: 1,
+        page_size: 10,
+      })
+    );
+
+    expect(screen.getByTestId("list-data-length")).toHaveTextContent("1");
+    expect(screen.getByTestId("list-total")).toHaveTextContent("1");
+    expect(screen.getByTestId("list-page")).toHaveTextContent("1");
   });
 
-  it("atualiza a listagem com dados", async () => {
-    render(<ListagemDesignacoesPage />);
+  it("executa paginação e limpeza de filtros", async () => {
+    render(<DesignacoesPasso1 />);
 
     await waitFor(() => {
-      const lastCall =
-        listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
-      expect(lastCall.data).toEqual(mockResults);
+      expect(fetchDesignacoesActionMock).toHaveBeenCalledTimes(1);
     });
-  });
 
-  it("submete o formulário", async () => {
-    render(<ListagemDesignacoesPage />);
+    fireEvent.click(screen.getByText("Ir para página 2"));
 
-    await waitFor(() =>
-      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Pesquisar" }));
-
-    await waitFor(() =>
-      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(2)
-    );
-  });
-
-  it("paginação chama API com nova página", async () => {
-    render(<ListagemDesignacoesPage />);
-
-    await waitFor(() =>
-      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
-    );
-
-    const lastProps =
-      listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
-
-    lastProps.onPageChange(2);
-
-    await waitFor(() =>
-      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(2)
-    );
-
-    expect(mockFetchDesignacoesAction).toHaveBeenLastCalledWith(
+    await waitFor(() => {
+      expect(fetchDesignacoesActionMock).toHaveBeenCalledTimes(2);
+    });
+    expect(fetchDesignacoesActionMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
         page: 2,
+        page_size: 10,
+      })
+    );
+
+    fireEvent.click(screen.getByText("Limpar filtros"));
+    await waitFor(() => {
+      expect(fetchDesignacoesActionMock).toHaveBeenCalledTimes(3);
+    });
+    expect(fetchDesignacoesActionMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        rf: "",
+        nome: "",
+        cargo_base: "",
+        cargo_sobreposto: "",
+        dre: "",
+        unidade: "",
+        ano: "",
+        page: 1,
+        page_size: 10,
       })
     );
   });
 
-  it("atualiza estado da página", async () => {
-    render(<ListagemDesignacoesPage />);
-
-    await waitFor(() =>
-      expect(mockFetchDesignacoesAction).toHaveBeenCalledTimes(1)
-    );
-
-    const lastProps =
-      listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
-
-    lastProps.onPageChange(3);
+  it("exporta sem paginação e retorna os dados para o componente filho", async () => {
+    render(<DesignacoesPasso1 />);
 
     await waitFor(() => {
-      const updated =
-        listagemSpy.mock.calls[listagemSpy.mock.calls.length - 1][0];
-      expect(updated.page).toBe(3);
+      expect(fetchDesignacoesActionMock).toHaveBeenCalledTimes(1);
     });
+
+    fireEvent.click(screen.getByText("Exportar dados"));
+
+    await waitFor(() => {
+      expect(fetchDesignacoesSemPaginacaoActionMock).toHaveBeenCalledTimes(1);
+    });
+    expect(fetchDesignacoesSemPaginacaoActionMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        no_pagination: true,
+      })
+    );
+    expect(exportResultHandlerMock).toHaveBeenCalledWith([{ id: 1 }]);
+    expect(toastMock).not.toHaveBeenCalled();
   });
 
-  it("loga erro quando falha", async () => {
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
-
-    mockFetchDesignacoesAction.mockResolvedValueOnce({
+  it("mostra toast de erro ao falhar exportação e navega ao iniciar nova designação", async () => {
+    fetchDesignacoesSemPaginacaoActionMock.mockResolvedValueOnce({
       success: false,
-      error: "Erro",
+      error: "Erro no CSV",
     });
-
-    render(<ListagemDesignacoesPage />);
+    render(<DesignacoesPasso1 />);
 
     await waitFor(() => {
-      expect(errorSpy).toHaveBeenCalledWith("Erro");
+      expect(fetchDesignacoesActionMock).toHaveBeenCalledTimes(1);
     });
 
-    errorSpy.mockRestore();
+    fireEvent.click(screen.getByText("Exportar dados"));
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith({
+        variant: "error",
+        title: "Erro ao gerar o arquivo CSV.",
+        description: "Erro no CSV",
+      });
+    });
+    expect(exportResultHandlerMock).toHaveBeenCalledWith([]);
+
+    fireEvent.click(screen.getByText("Iniciar Nova Designação"));
+    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
   });
 });
