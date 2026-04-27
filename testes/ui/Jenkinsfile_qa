@@ -3,6 +3,10 @@ pipeline {
         label 'cypress-node'
     }
 
+    triggers {
+        cron('30 20 * * 0-5')
+    }
+
     options {
         ansiColor('xterm')
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '20'))
