@@ -1,6 +1,6 @@
 // Step Definitions para Alteração de E-mail
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import { alterarEmailLocators, alterarEmailTextos } from '../locators/alterar_email_locators';
+import { alterarEmailLocators, alterarEmailTextos } from '../../ui/locators/alterar_email_locators';
 
 Given('o usuário acessa a página de alteração de e-mail', () => {
   cy.visit('/alterar-email');

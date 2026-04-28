@@ -39,6 +39,7 @@ import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 export default function DesignacoesPasso2() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  
 
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
@@ -47,25 +48,24 @@ export default function DesignacoesPasso2() {
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
 
-
   const form = useForm<formSchemaDesignacaoPasso2Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso2),
     defaultValues: {
-      portaria_designacao: "",
-      numero_sei: "",
-      a_partir_de: new Date(),
-      designacao_data_final: null,
-      ano: new Date().getFullYear().toString(),
-      doc: "",
-      impedimento_substituicao: null,
-      carater_especial: "nao",
-      com_afastamento: "nao",
-      motivo_afastamento: "",
-      com_pendencia: "nao",
-      motivo_pendencia: "",
-      tipo_cargo: "disponivel",
-      rf_titular: "",
-      cargo_vago_selecionado: null,
+      portaria_designacao: formDesignacaoData?.portaria_designacao ?? "" ,
+      numero_sei: formDesignacaoData?.numero_sei ?? "",
+      a_partir_de: formDesignacaoData?.a_partir_de ?? new Date(),
+      designacao_data_final: formDesignacaoData?.designacao_data_final ?? null,
+      ano: formDesignacaoData?.ano ?? new Date().getFullYear().toString(),
+      doc: formDesignacaoData?.doc ?? "",
+      impedimento_substituicao: formDesignacaoData?.impedimento_substituicao ?? null,
+      carater_especial: formDesignacaoData?.carater_especial ?? "nao",
+      com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
+      motivo_afastamento: formDesignacaoData?.motivo_afastamento ?? "",
+      com_pendencia: formDesignacaoData?.com_pendencia ?? "nao", 
+      motivo_pendencia: formDesignacaoData?.motivo_pendencia ?? "",
+      tipo_cargo: formDesignacaoData?.tipo_cargo ?? "disponivel",
+      rf_titular: formDesignacaoData?.rf_titular ?? "",
+      cargo_vago_selecionado: formDesignacaoData?.cargo_vago_selecionado ?? null,
     },
     mode: "onChange",
 
@@ -162,7 +162,7 @@ export default function DesignacoesPasso2() {
 
   const { mutateAsync } = useServidorDesignacao();
   const router = useRouter();
-  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(null);
+  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(formDesignacaoData?.dadosTitular ?? null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
   const tipoCargo = form.watch("tipo_cargo");
@@ -337,6 +337,7 @@ export default function DesignacoesPasso2() {
             )}
             {/* to-do: arrumar nome */}
             <SelecaoServidorIndicado
+              rf_default={rfTitular ?? ""}
               isLoading={isPopulateScreen || isLoadingDesignacao}
               form={form}
               tipoCargo={tipoCargo}
@@ -354,12 +355,14 @@ export default function DesignacoesPasso2() {
               onProximo={form.handleSubmit(onSubmitDesignacao)}
               showAnterior={true}
               onAnterior={() => {
+                onSubmitDesignacao(form.getValues());
                 if (id !== null ) {
                   router.push(
                     `/pages/listagem-designacoes`
                   );
                 } else {
-                  router.push("/pages/designacoes/designacoes-passo-1");
+                  router.push(`/pages/designacoes/designacoes-passo-1?rf=${formDesignacaoData?.servidorIndicado?.rf}`);
+                  
                 }
               }}
             />

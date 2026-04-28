@@ -1,5 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import Esqueci_Senha_Localizadores from '../locators/esqueci_senha_locators';
+import Esqueci_Senha_Localizadores from '../../ui/locators/esqueci_senha_locators';
 
 const locators = new Esqueci_Senha_Localizadores();
 

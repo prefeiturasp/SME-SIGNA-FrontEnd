@@ -174,3 +174,14 @@ export interface DesignacaoResponse {
   criado_em: string,
   cessacao: Cessacao | null,
 }
+
+
+export type CargoAPI = {
+  codigoCargo: string;
+  nomeCargo: string;
+};
+
+export type CargoSelect = {
+  codigo: string;
+  cargo: string;
+};
