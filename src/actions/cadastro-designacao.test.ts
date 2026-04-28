@@ -57,6 +57,20 @@ describe("designacaoAction", () => {
         expect(result).toEqual({ success: true, data: { id: 1 } });
     });
 
+    it("retorna sucesso quando axios.patch resolve para edição", async () => {
+        mockCookies("token-abc");
+        mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } } as any);
+
+        const result = await designacaoAction(formDataMock, "99");
+
+        expect(result).toEqual({ success: true, data: { id: 99 } });
+        expect(mockedAxios.patch).toHaveBeenCalledWith(
+            "https://api.example.com/designacao/designacoes/99/",
+            { dre: "dre-1" },
+            expect.any(Object)
+        );
+    });
+
     it("envia Authorization header quando auth_token está presente", async () => {
         mockCookies("meu-token");
         mockedAxios.post.mockResolvedValueOnce({ data: {} });

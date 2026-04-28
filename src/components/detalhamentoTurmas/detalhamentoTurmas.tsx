@@ -1,12 +1,15 @@
+"use client";
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 
 interface TurnoRow {
   turno: string
-  cicloAlfabetizacao?: number
-  cicloAltoral?: number
-  semCiclo?: number
-  total?: number
+  cicloAlfabetizacao: number
+  cicloInterdisciplinar: number
+  cicloAutoral: number
+  semCiclo: number
+  total: number
 }
 
 interface DetalhamentoTurmasModalProps {
@@ -17,7 +20,7 @@ interface DetalhamentoTurmasModalProps {
   readonly qtdTotalTurmas: string
   readonly spi: string
   readonly rows: TurnoRow[]
-  readonly spiTotal?: number
+  readonly spiRows?: TurnoRow[]
 }
 
 interface InfoItemProps {
@@ -44,26 +47,25 @@ export default function DetalhamentoTurmasModal({
   qtdTotalTurmas,
   spi,
   rows,
-  spiTotal = 5,
+  spiRows,
 }: DetalhamentoTurmasModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 z-50" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white shadow-lg">
+
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <Dialog.Title className="text-lg font-semibold text-gray-900">
               Detalhamento de turmas
             </Dialog.Title>
             <Dialog.Close asChild>
-              <button
-                className="text-gray-400 hover:text-gray-600"
-                aria-label="Fechar modal"
-              >
+              <button className="text-gray-400 hover:text-gray-600" aria-label="Fechar modal">
                 <X size={20} />
               </button>
             </Dialog.Close>
           </div>
+
           <div className="px-6 py-4">
             <div className="grid grid-cols-4 gap-8 border-b border-gray-200 bg-gray-50 px-4 py-4">
               <InfoItem label="DRE" value={dre} />
@@ -72,47 +74,59 @@ export default function DetalhamentoTurmasModal({
               <InfoItem label="SPI" value={spi} />
             </div>
           </div>
+
           <div className="px-6 py-4">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <Th className="text-left">TURNO</Th>
                   <Th className="text-center">CICLO ALFABETIZAÇÃO</Th>
+                  <Th className="text-center">CICLO INTERDISCIPLINAR</Th>
                   <Th className="text-center">CICLO AUTORAL</Th>
                   <Th className="text-center">SEM CICLO</Th>
                   <Th className="text-right">TOTAL</Th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.turno} className="border-b border-gray-100">
                     <Td className="font-medium">{row.turno}</Td>
-                    <Td className="text-center">
-                      {row.cicloAlfabetizacao ?? ''}
-                    </Td>
-                    <Td className="text-center">{row.cicloAltoral ?? ''}</Td>
-                    <Td className="text-center">{row.semCiclo ?? ''}</Td>
-                    <Td className="text-right font-semibold">
-                      {row.total ?? ''}
-                    </Td>
+                    <Td className="text-center">{row.cicloAlfabetizacao}</Td>
+                    <Td className="text-center">{row.cicloInterdisciplinar}</Td>
+                    <Td className="text-center">{row.cicloAutoral}</Td>
+                    <Td className="text-center">{row.semCiclo}</Td>
+                    <Td className="text-right font-semibold">{row.total}</Td>
                   </tr>
                 ))}
+
                 <tr className="border-b border-gray-100 bg-gray-50">
-                  <Td colSpan={4} className="font-semibold">
+                  <Td colSpan={5} className="font-semibold">
                     TOTAL GERAL DE TURMAS
                   </Td>
-                  <Td className="text-right font-semibold">{qtdTotalTurmas}</Td>
+                  <Td className="text-right font-semibold">
+                    {qtdTotalTurmas}
+                  </Td>
                 </tr>
-                <tr className="border-b border-gray-100">
-                  <Td className="font-medium">SPI</Td>
-                  <Td className="text-center">{spiTotal}</Td>
-                  <Td className="text-center"></Td>
-                  <Td className="text-center"></Td>
-                  <Td className="text-right font-semibold">{spiTotal}</Td>
-                </tr>
+
+                {spi != "Indisponível" && spiRows && spiRows.length > 0 && (
+                  <>
+                    {spiRows.map((row) => (
+                      <tr key={`spi-${row.turno}`} className="border-b border-gray-100">
+                        <Td className="font-medium">{row.turno}</Td>
+                        <Td className="text-center">{row.cicloAlfabetizacao}</Td>
+                        <Td className="text-center">{row.cicloInterdisciplinar}</Td>
+                        <Td className="text-center">{row.cicloAutoral}</Td>
+                        <Td className="text-center">{row.semCiclo}</Td>
+                        <Td className="text-right font-semibold">{row.total}</Td>
+                      </tr>
+                    ))}
+                  </>
+                )}
               </tbody>
             </table>
           </div>
+
           <div className="flex justify-end border-t border-gray-200 px-6 py-4">
             <Dialog.Close asChild>
               <button className="rounded bg-red-600 px-8 py-2 text-sm font-medium text-white hover:bg-red-700">
@@ -120,6 +134,7 @@ export default function DetalhamentoTurmasModal({
               </button>
             </Dialog.Close>
           </div>
+
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
@@ -137,9 +152,7 @@ function InfoItem({ label, value }: Readonly<InfoItemProps>) {
 
 function Th({ children, className = '' }: Readonly<ThProps>) {
   return (
-    <th
-      className={`px-4 py-3 text-xs font-bold uppercase text-gray-700 ${className}`}
-    >
+    <th className={`px-4 py-3 text-xs font-bold uppercase text-gray-700 ${className}`}>
       {children}
     </th>
   )

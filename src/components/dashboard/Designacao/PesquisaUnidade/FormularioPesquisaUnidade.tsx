@@ -168,47 +168,9 @@ const FormularioPesquisaUnidade = forwardRef<
             dre={values.dre ?? "-"}
             unidadeEscolar={values.ue ?? "-"}
             qtdTotalTurmas={values.quantidade_turmas ?? "-"}
-            spi="São Paulo Integral"
-            // to-do: remover mock
-            rows={[
-              {
-                turno: "Manhã",
-                cicloAlfabetizacao: 3,
-                cicloAltoral: 3,
-                total: 5,
-              },
-              {
-                turno: "Intermediário",
-                cicloAlfabetizacao: 3,
-                cicloAltoral: 3,
-                total: 5,
-              },
-              {
-                turno: "Tarde",
-                cicloAltoral: 7,
-                semCiclo: 4,
-                total: 11,
-              },
-              {
-                turno: "Vespertino",
-                cicloAlfabetizacao: 3,
-                cicloAltoral: 3,
-                total: 5,
-              },
-              {
-                turno: "Noite",
-                cicloAltoral: 7,
-                semCiclo: 4,
-                total: 11,
-              },
-              {
-                turno: "Integral",
-                cicloAlfabetizacao: 3,
-                cicloAltoral: 7,
-                semCiclo: 8,
-                total: 18,
-              },
-            ]}
+            spi={designacaoUnidade?.spi?.tipo ?? "-"}
+            rows={designacaoUnidade?.turmas?.turnos ?? []}
+            spiRows={designacaoUnidade?.spi?.turnos ?? []}
           />
 
           <form

@@ -25,6 +25,7 @@ export default function BotoesDeNavegacao({
       <div className="w-[200px] pt-[2rem] ">
         {showAnterior && (
           <Button
+          type="button"
             size="lg"
             className="w-full flex items-center justify-center gap-6"
             variant="default"

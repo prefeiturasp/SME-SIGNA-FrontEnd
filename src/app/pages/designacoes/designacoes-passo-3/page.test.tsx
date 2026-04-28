@@ -3,25 +3,33 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import DesignacoesPasso3 from "./page";
 import { designacaoAction } from "@/actions/cadastro-designacao";
+import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
+import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 
 // ── Mocks de Navegação ───────────────────────────
-const pushMock = vi.fn();
+const h = vi.hoisted(() => ({
+  pushMock: vi.fn(),
+  searchId: null as string | null,
+  formData: {
+    dre_nome: "DRE CENTRO",
+    ue_nome: "EMEF TESTE",
+    portaria_designacao: "123/2024",
+    numero_sei: "6016.2024/0001-2",
+    servidorIndicado: { nome_civil: "JOÃO SILVA" },
+  } as any,
+}));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: h.pushMock }),
+  useSearchParams: () => ({
+    get: (key: string) => (key === "id" ? h.searchId : null),
+  }),
 }));
 
 // ── Mock do Contexto ─────────────────────────────
-const mockFormData = {
-  dre_nome: "DRE CENTRO",
-  ue_nome: "EMEF TESTE",
-  portaria_designacao: "123/2024",
-  numero_sei: "6016.2024/0001-2",
-  servidorIndicado: { nome_civil: "JOÃO SILVA" },
-};
-
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
-    formDesignacaoData: mockFormData,
+    formDesignacaoData: h.formData,
   }),
 }));
 
@@ -51,23 +59,24 @@ vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
 
 // ── Mocks de Utils ───────────────────────────────
 vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: (_template: string, dados: Record<string, string>) => {
-    // Devolve os valores já processados (com <strong> se aplicado antes)
-    const portaria = dados.portaria ?? "123/2024";
-    const sei = dados.sei ?? "6016.2024/0001-2";
-    const nome = dados.nome_indicado ?? "JOÃO SILVA";
-    return `PORTARIA Nº ${portaria}\nSEI Nº ${sei}\nEXPEDE:\nTexto da portaria para ${nome}`;
-  },
+  preencherTemplate: vi.fn(
+    (_template: string, dados: Record<string, string>) => {
+      const portaria = dados.portaria ?? "123/2024";
+      const sei = dados.sei ?? "6016.2024/0001-2";
+      const nome = dados.nome_indicado ?? "JOÃO SILVA";
+      return `PORTARIA Nº ${portaria}\nSEI Nº ${sei}\nEXPEDE:\nTexto da portaria para ${nome}`;
+    }
+  ),
 }));
 
 vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
-  gerarDadosPortaria: (data: any) => ({
+  gerarDadosPortaria: vi.fn((data: any) => ({
     ...data,
     autoridade: "DIRETOR",
     nome_indicado: "JOÃO SILVA",
     portaria: "123/2024",
     sei: "6016.2024/0001-2",
-  }),
+  })),
 }));
 
 // ── Mock da Action ───────────────────────────────
@@ -98,8 +107,36 @@ vi.mock("antd", () => ({
 // ── Testes ───────────────────────────────────────
 
 describe("DesignacoesPasso3 - Testes Robustos", () => {
+  const mockedPreencherTemplate = vi.mocked(preencherTemplate);
+  const mockedGerarDadosPortaria = vi.mocked(gerarDadosPortaria);
+
   beforeEach(() => {
     vi.clearAllMocks();
+    h.searchId = null;
+    h.formData = {
+      dre_nome: "DRE CENTRO",
+      ue_nome: "EMEF TESTE",
+      portaria_designacao: "123/2024",
+      numero_sei: "6016.2024/0001-2",
+      servidorIndicado: { nome_civil: "JOÃO SILVA" },
+    } as any;
+
+    mockedPreencherTemplate.mockImplementation(
+      (_template: string, dados: Record<string, string>) => {
+        const portaria = dados.portaria ?? "123/2024";
+        const sei = dados.sei ?? "6016.2024/0001-2";
+        const nome = dados.nome_indicado ?? "JOÃO SILVA";
+        return `PORTARIA Nº ${portaria}\nSEI Nº ${sei}\nEXPEDE:\nTexto da portaria para ${nome}`;
+      }
+    );
+
+    mockedGerarDadosPortaria.mockImplementation((data: any) => ({
+      ...data,
+      autoridade: "DIRETOR",
+      nome_indicado: "JOÃO SILVA",
+      portaria: "123/2024",
+      sei: "6016.2024/0001-2",
+    }));
   });
 
   const getEditor = () =>
@@ -140,7 +177,21 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
 
     fireEvent.click(screen.getByText("Salvar"));
 
-    expect(designacaoAction).toHaveBeenCalledWith(mockFormData);
+    await waitFor(() => {
+      expect(designacaoAction).toHaveBeenCalledWith(h.formData, null);
+    });
+  });
+
+  it("deve enviar id para a action quando query param id existir", async () => {
+    h.searchId = "42";
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(designacaoAction).toHaveBeenCalledWith(h.formData, "42");
+    });
   });
 
   it("deve gerenciar o estado de loading durante o salvamento", async () => {
@@ -171,7 +222,7 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     await vi.runAllTimersAsync();
 
     // Redirecionamento atualizado conforme a página
-    expect(pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
+    expect(h.pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
     vi.useRealTimers();
   });
 
@@ -230,8 +281,55 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
 
     fireEvent.click(screen.getByText("Anterior"));
 
-    expect(pushMock).toHaveBeenCalledWith(
+    expect(h.pushMock).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-2"
     );
+  });
+
+  it("deve abrir modal de erro quando não existir formDesignacaoData", async () => {
+    h.formData = null;
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+    });
+  });
+
+  it("deve renderizar quebra de linha vazia no HTML da portaria", async () => {
+    mockedPreencherTemplate.mockImplementationOnce(
+      () => "PORTARIA Nº 1\n\nEXPEDE:\nLinha final"
+    );
+
+    render(<DesignacoesPasso3 />);
+    const editor = await waitFor(() => getEditor());
+    expect(editor.innerHTML).toContain("<div><br></div>");
+  });
+
+  it("deve aceitar template vazio sem quebrar renderização", async () => {
+    mockedPreencherTemplate.mockImplementationOnce(() => "");
+
+    render(<DesignacoesPasso3 />);
+    const editor = await waitFor(() => getEditor());
+    expect(editor.innerHTML).toBe("");
+  });
+
+  it("não aplica negrito quando campo de destaque estiver ausente", async () => {
+    mockedGerarDadosPortaria.mockImplementationOnce((data: any) => ({
+      ...data,
+      autoridade: undefined,
+      nome_indicado: "JOÃO SILVA",
+      portaria: "123/2024",
+      sei: "6016.2024/0001-2",
+    }));
+    mockedPreencherTemplate.mockImplementationOnce(
+      (_template, dados) => `Autoridade: ${String(dados.autoridade)}`
+    );
+
+    render(<DesignacoesPasso3 />);
+    const editor = await waitFor(() => getEditor());
+    expect(editor.innerHTML).toContain("Autoridade: undefined");
+    expect(editor.innerHTML).not.toContain("<strong>undefined</strong>");
   });
 });

@@ -6,22 +6,23 @@ function formatarData(valor: any): string | null {
     return null;
 }
 
-function getCargoVaga(form: any, titular: any): number | undefined {
-    if (titular) {
-        return 3360; // to-do: ajustar quando vier da API
+function getCargoVaga(form: any): number | undefined {
+    const tipo = form.tipo_cargo?.toLowerCase();
+
+    if (tipo === "disponivel") {
+        const codigo = form.dadosTitular?.cd_cargo_sobreposto_funcao_atividade;
+        return codigo ? Number(codigo) : undefined;
     }
 
-    const cargo = form.cargo_vago_selecionado;
+    if (tipo === "vago") {
+        const cargo = form.cargo_vago_selecionado;
 
-    if (cargo) {
-        if (typeof cargo === "string") {
-            return Number(cargo);
+        if (cargo) {
+            if (typeof cargo === "string") {
+                return Number(cargo);
+            }
+            return cargo.id;
         }
-        return cargo.id;
-    }
-
-    if (form.cargo_vaga) {
-        return Number.parseInt(form.cargo_vaga, 10);
     }
 
     return undefined;
@@ -33,7 +34,7 @@ export function mapearPayloadDesignacao(form: any) {
     const { servidorIndicado, dadosTitular } = form;
     const titular = dadosTitular ?? null;
 
-    const cargoVaga = getCargoVaga(form, titular);
+    const cargoVaga = getCargoVaga(form);
 
     return {
         dre_nome: form.dre_nome,
@@ -45,8 +46,10 @@ export function mapearPayloadDesignacao(form: any) {
         indicado_rf: servidorIndicado.rf,
         indicado_vinculo: servidorIndicado.vinculo,
         indicado_cargo_base: servidorIndicado.cargo_base,
+        indicado_codigo_cargo_base: servidorIndicado.cd_cargo_base,
         indicado_lotacao: servidorIndicado.lotacao,
         indicado_cargo_sobreposto: servidorIndicado.cargo_sobreposto_funcao_atividade,
+        indicado_codigo_cargo_sobreposto: servidorIndicado.cd_cargo_sobreposto_funcao_atividade,
         indicado_local_exercicio: servidorIndicado.local_de_exercicio,
         indicado_local_servico: servidorIndicado.local_de_servico,
 
@@ -56,8 +59,10 @@ export function mapearPayloadDesignacao(form: any) {
             titular_rf: titular.rf,
             titular_vinculo: titular.vinculo,
             titular_cargo_base: titular.cargo_base,
+            titular_codigo_cargo_base: titular.cd_cargo_base,
             titular_lotacao: titular.lotacao,
             titular_cargo_sobreposto: titular.cargo_sobreposto_funcao_atividade,
+            titular_codigo_cargo_sobreposto: titular.cd_cargo_sobreposto_funcao_atividade,
             titular_local_exercicio: titular.local_de_exercicio,
             titular_local_servico: titular.local_de_servico,
         }),

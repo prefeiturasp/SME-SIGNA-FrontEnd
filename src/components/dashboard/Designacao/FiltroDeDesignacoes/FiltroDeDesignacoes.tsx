@@ -7,6 +7,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Combobox } from '@/components/ui/Combobox';
 import { useFetchDREs, useFetchUEs } from '@/hooks/useUnidades';
+import { useFetchCargosBase } from '@/hooks/useCargosBancoDeDados';
 import { useFetchCargos } from '@/hooks/useCargos';
 
 interface Props {
@@ -16,7 +17,7 @@ interface Props {
 const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
   const { register, control, watch, setValue, clearErrors } = useFormContext();
 
-  const dreValue = watch("dre"); // agora armazena nomeDRE
+  const dreValue = watch("dre");
 
   const watchedValues = watch(["rf", "nome_servidor", "periodo", "cargo_base", "cargo_sobreposto", "ano", "dre", "unidade_escolar"]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
@@ -31,9 +32,15 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
   }, [dreValue, dreOptions]);
 
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(dreCodigoParaUEs);
-  const { data: cargosData = [] } = useFetchCargos();
+  const { data: cargosBaseData = [] } = useFetchCargosBase();
+  const { data: cargosSobrepostosData = [] } = useFetchCargos();
 
-  const cargos = cargosData.map((cargo: { codigoCargo: string | number; nomeCargo: string }) => ({
+  const cargosBase = cargosBaseData.map((cargo: { codigoCargo: string | number; nomeCargo: string }) => ({
+    codigo: String(cargo.codigoCargo),
+    nome: cargo.nomeCargo,
+  }));
+
+  const cargosSobrepostos = cargosSobrepostosData.map((cargo: { codigoCargo: string | number; nomeCargo: string }) => ({
     codigo: String(cargo.codigoCargo),
     nome: cargo.nomeCargo,
   }));
@@ -97,8 +104,8 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
                         <SelectValue placeholder="Selecione uma opção" />
                       </SelectTrigger>
                       <SelectContent>
-                        {cargos.map((cargo) => (
-                          <SelectItem key={cargo.codigo} value={cargo.nome}>
+                        {cargosBase.map((cargo) => (
+                          <SelectItem key={cargo.codigo} value={cargo.codigo}>
                             {cargo.nome}
                           </SelectItem>
                         ))}
@@ -126,8 +133,8 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
                         <SelectValue placeholder="Selecione uma opção" />
                       </SelectTrigger>
                       <SelectContent>
-                        {cargos.map((cargo) => (
-                          <SelectItem key={cargo.codigo} value={cargo.nome}>
+                        {cargosSobrepostos.map((cargo) => (
+                          <SelectItem key={cargo.codigo} value={cargo.codigo}>
                             {cargo.nome}
                           </SelectItem>
                         ))}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Card, message, Modal, Result } from "antd";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
@@ -12,70 +12,33 @@ import { useDesignacaoContext } from "../DesignacaoContext";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 import { designacaoAction } from "@/actions/cadastro-designacao";
-
-const TEMPLATE_PORTARIA = `PORTARIA Nº {{portaria}}
-SEI Nº {{sei}}
-
-{{dre}}
-
-{{autoridade}}, no uso de suas atribuições legais,
-
-EXPEDE:
-
-A presente portaria, designando o(a) Sr.(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}}, para exercer cargo de {{cargo_indicado}}, no {{ue}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`;
+import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
+import EditorSEI, {
+  gerarHtmlPortaria,
+  normalizarQuebras,
+  EditorSEIHandle,
+} from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
-
-function normalizarQuebras(texto: string) {
-  return texto
-    .replaceAll("<​br>", "\n")
-    .replaceAll("<​BR>", "\n")
-    .replaceAll("<​br/>", "\n")
-    .replaceAll("<​BR/>", "\n")
-    .replaceAll("<​br />", "\n")
-    .replaceAll("<​BR />", "\n")
-    .replaceAll("<​​br>", "\n")
-    .replaceAll("<​​BR>", "\n")
-    .replaceAll("<​​br/>", "\n")
-    .replaceAll("<​​BR/>", "\n")
-    .replaceAll("<​​br />", "\n")
-    .replaceAll("<​​BR />", "\n")
-    .replaceAll("\r\n", "\n")
-    .replaceAll("\r", "\n");
-}
 
 function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
-function gerarHtmlPortaria(texto: string): string {
-  if (!texto) return "";
-
-  const textoLimpo = normalizarQuebras(texto);
-
-  const linhasHtml = textoLimpo.split("\n").map((linha) => {
-    if (!linha.trim()) return `<div><br></div>`;
-    let l = linha;
-    const palavrasFixas = ["EXPEDE:", "PORTARIA Nº", "SEI Nº"];
-    for (const palavra of palavrasFixas) {
-      l = l.replaceAll(new RegExp(`(${palavra})`, "g"), "<strong>$1</strong>");
-    }
-
-    return `<div>${l}</div>`;
-  });
-
-  return linhasHtml.join("");
-}
-
 export default function DesignacoesPasso3() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const { formDesignacaoData } = useDesignacaoContext();
+
+  const editorSEIRef = useRef<EditorSEIHandle>(null);
   const textoPlanoRef = useRef<string>("");
 
   const [salvando, setSalvando] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
 
+  // Mantém textoPlanoRef sincronizado (usado caso precise do texto puro)
   useEffect(() => {
     if (!formDesignacaoData) return;
 
@@ -85,13 +48,8 @@ export default function DesignacoesPasso3() {
       impedimento_substituicao: formDesignacaoData.impedimento_substituicao ?? undefined,
     });
 
-    const textoRaw = preencherTemplate(TEMPLATE_PORTARIA, dadosPuros);
-
-    const textoPlano = normalizarQuebras(
-      textoRaw.replaceAll(/<\/?strong>/g, "")
-    );
-
-    textoPlanoRef.current = textoPlano;
+    const textoRaw = preencherTemplate(TEMPLATE_DESIGNACAO, dadosPuros);
+    textoPlanoRef.current = normalizarQuebras(textoRaw.replaceAll(/<\/?strong>/g, ""));
   }, [formDesignacaoData]);
 
   const htmlInicial = useMemo(() => {
@@ -111,54 +69,34 @@ export default function DesignacoesPasso3() {
 
     for (const campo of CAMPOS_NEGRITO) {
       const val = dadosEscapados[campo];
-      if (val) {
-        dadosEscapados[campo] = `<strong>${val}</strong>`;
-      }
+      if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
     }
 
-    const textoRaw = preencherTemplate(TEMPLATE_PORTARIA, dadosEscapados);
-
-    return gerarHtmlPortaria(textoRaw);
+    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapados));
   }, [formDesignacaoData]);
-
-  const editorRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (node !== null) {
-        node.innerHTML = htmlInicial;
-      }
-    },
-    [htmlInicial]
-  );
 
   const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
     textoPlanoRef.current = e.currentTarget.innerText;
   }, []);
 
-  const salvarPortaria = async () => {
-    if (!formDesignacaoData) {
-      throw new Error("Dados do formulário não encontrados.");
-    }
+  const salvarPortaria = async (id: string | null) => {
+    if (!formDesignacaoData) throw new Error("Dados do formulário não encontrados.");
 
-    const result = await designacaoAction(formDesignacaoData);
-
-    if (!result.success) {
-      throw new Error(result.error);
-    }
+    const result = await designacaoAction(formDesignacaoData, id);
+    if (!result.success) throw new Error(result.error);
 
     return result.data;
   };
 
-  const handleSalvar = async () => {
+  const handleSalvar = async (id: string | null) => {
     try {
       setSalvando(true);
       message.loading({ content: "Salvando portaria...", duration: 0 });
-      await salvarPortaria();
+      await salvarPortaria(id);
       message.destroy();
       setModalSucesso(true);
       setSalvando(false);
-      setTimeout(() => {
-        router.push("/pages/listagem-designacoes");
-      }, 2200);
+      setTimeout(() => router.push("/pages/listagem-designacoes"), 2200);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
       message.destroy();
@@ -184,19 +122,13 @@ export default function DesignacoesPasso3() {
         title={<span className="text-[#333]">Designação</span>}
         className="mt-4 m-0"
       >
-        <div className="flex flex-col gap-4">
-          <span className="text-sm font-semibold text-[#333] uppercase tracking-wide">
-            PORTARIA
-          </span>
-
-          <div
-            ref={editorRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={handleInput}
-            className="w-full min-h-[350px] border border-gray-300 rounded p-4 text-sm text-gray-800 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400 leading-relaxed overflow-auto"
-          />
-        </div>
+        <EditorSEI
+          ref={editorSEIRef}
+          html={htmlInicial}
+          titulo="PORTARIA"
+          onInput={handleInput}
+          mostrarBotao={false}
+        />
       </Card>
 
       <div className="w-full flex flex-col mt-6">
@@ -206,7 +138,7 @@ export default function DesignacoesPasso3() {
           labelProximo="Salvar"
           showAnterior
           onAnterior={() => router.push("/pages/designacoes/designacoes-passo-2")}
-          onProximo={handleSalvar}
+          onProximo={() => handleSalvar(id)}
         />
       </div>
 

@@ -57,4 +57,20 @@ describe("ResumoPortariaDesigacao", () => {
 
     expect(screen.getByText("Não")).toBeInTheDocument();
   });
+
+  it("não renderiza campos extras quando showExtraFields é false", () => {
+    render(
+      <ResumoPortariaDesigacao
+        defaultValues={baseDefaultValues}
+        showExtraFields={false}
+      />
+    );
+
+    expect(screen.queryByText("A partir de")).not.toBeInTheDocument();
+    expect(screen.queryByText("Até")).not.toBeInTheDocument();
+    expect(screen.queryByText("Caráter Especial")).not.toBeInTheDocument();
+    expect(screen.queryByText("Impedimento para substituição:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Motivo do afastamento:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Pendência:")).not.toBeInTheDocument();
+  });
 });
