@@ -128,6 +128,6 @@ describe("ApostilaAction", () => {
 
     const result = await ApostilaAction(payloadMock as any);
 
-    expect(result.error).toBe("Erro ao salvar insubsistência");
+    expect(result.error).toBe("Erro ao salvar apostila");
   });
 });
