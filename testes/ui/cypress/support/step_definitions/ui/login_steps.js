@@ -1,6 +1,6 @@
 // Step Definitions para Login
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import { loginLocators, loginTextos } from '../locators/login_locators';
+import { loginLocators, loginTextos } from '../../ui/locators/login_locators';
 
 // Steps de ações
 When('eu insiro credenciais válidas', () => {

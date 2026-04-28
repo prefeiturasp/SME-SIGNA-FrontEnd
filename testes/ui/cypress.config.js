@@ -2,6 +2,10 @@ const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
+const dotenv = require('dotenv');
+const path = require('path');
+
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 // 🔥 IMPORTANTE (Cloud)
 const { cloudPlugin } = require('cypress-cloud/plugin');
@@ -45,7 +49,19 @@ module.exports = defineConfig({
       loginUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
       username: '7311559',
       password: 'Sgp1559',
-      newPasswordTest: 'Sgp1559@New'
+      newPasswordTest: 'Sgp1559@New',
+
+      // Detectar contexto de execução (CI=true na esteira Jenkins)
+      CI: process.env.CI || false,
+
+      // API EOL — SME Integração
+      // CI: credenciais vêm do secret cypress_env_signa (Jenkins)
+      // Local: credenciais carregadas do arquivo .env via dotenv
+      API_EOL_BASE_URL: process.env.API_EOL_BASE_URL || 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br',
+      API_EOL_KEY: process.env.API_EOL_KEY,
+      API_RF_LOGIN: process.env.API_RF_LOGIN,
+      API_PASSWORD: process.env.API_PASSWORD,
+      API_EMAIL: process.env.API_EMAIL,
     },
 
     async setupNodeEvents(on, config) {
@@ -78,7 +94,24 @@ module.exports = defineConfig({
         table(message) {
           console.table(message);
           return null;
-        }
+        },
+        // Leitura segura de arquivo — nunca falha se o arquivo não existe
+        // Obrigatório para testes de API (token.json, etc.)
+        lerArquivoSeguro(caminho) {
+          try {
+            const fs = require('fs');
+            const path = require('path');
+            const caminhoAbsoluto = path.isAbsolute(caminho)
+              ? caminho
+              : path.join(process.cwd(), caminho);
+            if (fs.existsSync(caminhoAbsoluto)) {
+              return fs.readFileSync(caminhoAbsoluto, 'utf8');
+            }
+            return null;
+          } catch (e) {
+            return null;
+          }
+        },
       });
 
       // =========================
