@@ -71,7 +71,7 @@ export function CustomAccordionItem({
         </div>
       </AccordionTrigger>
 
-      <AccordionContent forceMount className="mt-0 m-0">
+      <AccordionContent  className="mt-0 m-0">
         <Card
           className={`m-0 border-l-4 ${variant.bg} ${variant.border}`}
         >

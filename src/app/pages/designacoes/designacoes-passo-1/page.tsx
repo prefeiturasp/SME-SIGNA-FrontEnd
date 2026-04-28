@@ -54,11 +54,11 @@ export default function DesignacoesPasso1() {
   };
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
-    if (!formDesignacaoData?.servidorIndicado) return;
+    const servidorIndicado = formDesignacaoData!.servidorIndicado!;
     setFormDesignacaoData({
       ...formDesignacaoData,
       servidorIndicado: {
-        ...formDesignacaoData.servidorIndicado,
+        ...servidorIndicado,
         nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
       },
@@ -120,6 +120,14 @@ export default function DesignacoesPasso1() {
         <Accordion
           type="multiple"
           defaultValue={["unidade-proponente"]}   
+          onValueChange={(values) => {
+            if (!values.includes("unidade-proponente")) {
+              const vals = formularioPesquisaUnidadeRef.current?.getValues();
+              if (vals) {
+                setFormDesignacaoData({ ...formDesignacaoData, ...vals });
+              }
+            }
+          }}
         >
           <div className="pt-4 pb-6">
             <FormularioBuscaDesignacao
