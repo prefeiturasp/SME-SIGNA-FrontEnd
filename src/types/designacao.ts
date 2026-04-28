@@ -1,4 +1,5 @@
 import { InsubsistenciaBody } from "./insubsistencia";
+import { ApostilaBody } from "./apostila";
 
 export interface BuscaDesignacaoRequest {
   rf: string;
@@ -121,7 +122,8 @@ export interface Cessacao {
   is_deleted: boolean,
   deleted_at: string | null,
   designacao: number,
-  insubsistencia:InsubsistenciaBody
+  insubsistencia:InsubsistenciaBody,
+  apostila:ApostilaBody
 }
 
 export interface DesignacaoResponse {
