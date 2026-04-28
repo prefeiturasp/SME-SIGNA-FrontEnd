@@ -119,7 +119,7 @@ export default function DesignacoesPasso1() {
       >
         <Accordion
           type="multiple"
-          defaultValue={["unidade-proponente"]}
+          defaultValue={["unidade-proponente"]}   
         >
           <div className="pt-4 pb-6">
             <FormularioBuscaDesignacao
