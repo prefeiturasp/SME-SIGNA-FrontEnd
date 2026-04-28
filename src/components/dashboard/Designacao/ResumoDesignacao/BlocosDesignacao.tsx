@@ -16,7 +16,7 @@ function BlocosDesignacao({
   dadosPortaria,
   dadosPortariaCessacao,
   onSubmitEditarServidor,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <>
       <CustomAccordionItem
