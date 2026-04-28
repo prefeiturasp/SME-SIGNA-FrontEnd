@@ -32,7 +32,7 @@ export default function DesignacoesPasso1() {
 
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
-  const [disableProximo, setDisableProximo] = useState(formDesignacaoData?.designacaoUnidade);
+  const [disableProximo, setDisableProximo] = useState(!formDesignacaoData?.designacaoUnidade);
 
   const router = useRouter();
 
