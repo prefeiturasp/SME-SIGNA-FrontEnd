@@ -76,4 +76,32 @@ describe("gerarDadosPortaria", () => {
 
         expect(resultado.cargo_indicado).toBe("Coordenador");
     });
+
+    it("usa cargo_vago_selecionado.label quando for um objeto", () => {
+        vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
+        vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
+
+        const data: any = {
+            tipo_cargo: "vago",
+            cargo_vago_selecionado: { label: "Vice-Diretor", value: "vice_diretor" },
+            portaria_designacao: "456",
+            ano: "2025",
+            numero_sei: "000456",
+            dre_nome: "DRE Sul",
+            ue_nome: "Escola B",
+            codigo_hierarquico: "654321",
+            servidorIndicado: {
+                nome_civil: "Ana Lima",
+                rf: "7654321",
+                vinculo: "Efetivo",
+                cargo_base: "Professor",
+                lotacao: "Escola B",
+            },
+        };
+
+        const resultado = gerarDadosPortaria(data);
+
+        expect(resultado.cargo_indicado).toBe("Vice-diretor");
+    });
 });
