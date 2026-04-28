@@ -12,6 +12,7 @@ import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUn
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
 const mockClearFormDesignacaoData = vi.fn();
+const mockSetFormDesignacaoData = vi.fn();
 let mockRfParam: string | null = null;
 let initialContextData: any = {};
 
@@ -69,13 +70,16 @@ vi.mock("../DesignacaoContext", async () => {
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
       React.useState<any>(initialContextData);
-    
+    const setFormDesignacaoDataWithSpy = (value: any) => {
+      mockSetFormDesignacaoData(value);
+      setFormDesignacaoData(value);
+    };
 
     return (
       <DesignacaoContext.Provider
         value={{
           formDesignacaoData,
-          setFormDesignacaoData,
+          setFormDesignacaoData: setFormDesignacaoDataWithSpy,
           clearFormDesignacaoData: mockClearFormDesignacaoData,
         }}
       >
@@ -141,8 +145,30 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 }));
 
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="accordion">{children}</div>
+  Accordion: ({
+    children,
+    onValueChange,
+  }: {
+    children: React.ReactNode;
+    onValueChange?: (values: string[]) => void;
+  }) => (
+    <div data-testid="accordion">
+      {children}
+      <button
+        type="button"
+        data-testid="accordion-fechar-unidade"
+        onClick={() => onValueChange?.([])}
+      >
+        Fechar unidade proponente
+      </button>
+      <button
+        type="button"
+        data-testid="accordion-manter-unidade"
+        onClick={() => onValueChange?.(["unidade-proponente"])}
+      >
+        Manter unidade proponente
+      </button>
+    </div>
   ),
 }));
 
@@ -409,6 +435,40 @@ describe("DesignacoesPasso1", () => {
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
     expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it("persiste valores da unidade ao fechar o acordeão da unidade proponente", async () => {
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByTestId("accordion-fechar-unidade"));
+
+    expect(mockSetFormDesignacaoData).toHaveBeenCalled();
+  });
+
+  it("não persiste valores ao manter a unidade proponente aberta", async () => {
+    renderWithProvider();
+    mockSetFormDesignacaoData.mockClear();
+
+    await userEvent.click(screen.getByTestId("accordion-manter-unidade"));
+
+    expect(mockSetFormDesignacaoData).not.toHaveBeenCalled();
+  });
+
+  it("não persiste valores ao fechar acordeão quando getValues retorna undefined", async () => {
+    mockGetValuesVazio = true;
+    renderWithProvider();
+    mockSetFormDesignacaoData.mockClear();
+
+    await userEvent.click(screen.getByTestId("accordion-fechar-unidade"));
+
+    expect(mockSetFormDesignacaoData).not.toHaveBeenCalled();
   });
 
 });

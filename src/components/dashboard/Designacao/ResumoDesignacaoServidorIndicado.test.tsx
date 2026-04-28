@@ -48,6 +48,40 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
   ),
 }));
 
+vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
+  default: ({
+    open,
+    onOpenChange,
+    handleSubmitEditarServidor,
+  }: {
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+    handleSubmitEditarServidor: (data: {
+      nome_servidor: string;
+      nome_civil: string;
+    }) => void;
+  }) => (
+    <div data-testid="modal-editar-servidor">
+      {open && (
+        <>
+          <span>Modal Editar Servidor Aberto</span>
+          <button onClick={() => onOpenChange(false)}>Fechar Edição</button>
+          <button
+            onClick={() =>
+              handleSubmitEditarServidor({
+                nome_servidor: "Servidor Editado no Modal",
+                nome_civil: "Nome Civil Editado no Modal",
+              })
+            }
+          >
+            Salvar Edição
+          </button>
+        </>
+      )}
+    </div>
+  ),
+}));
+
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
     setFormDesignacaoData: mockSetFormDesignacaoData,
@@ -68,6 +102,17 @@ const mockData: Servidor = {
   local_de_servico: "Local do servico teste"
 
 };
+const mockDataComFallbacks = {
+  ...mockData,
+  vinculo: undefined,
+  cargo_base: undefined,
+  lotacao: undefined,
+  cursos_titulos: undefined,
+  cargo_sobreposto_funcao_atividade: undefined,
+  local_de_exercicio: undefined,
+  laudo_medico: undefined,
+  local_de_servico: undefined,
+} as unknown as Servidor;
 
 const mockCursosETitulos: IConcursoType[] = [
   { id: 1, concurso: "201002757777 - PROF ENS FUND II MEDIO" },
@@ -199,6 +244,21 @@ describe("ResumoDesignacao", () => {
     expect(
       screen.getByTestId("btn-visualizar-cursos-titulos")
     ).toBeInTheDocument();
+  });
+
+  it("exibe os fallbacks de texto quando dados opcionais estão ausentes", () => {
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={false}
+        defaultValues={mockDataComFallbacks}
+      />,
+      { wrapper }
+    );
+
+    expect(screen.getByText("Cursos/Títulos de exemplo")).toBeInTheDocument();
+    expect(screen.getAllByText("-").length).toBeGreaterThanOrEqual(6);
   });
 
   it("não renderiza o botão Eye para Cursos/Títulos", () => {
@@ -380,7 +440,31 @@ describe("ResumoDesignacao", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /Editar/i }));
-    expect(screen.getByText('Editar dados servidor indicado')).toBeInTheDocument();
+    expect(screen.getByText("Modal Editar Servidor Aberto")).toBeInTheDocument();
+  });
+
+  it("repassa os dados editados para o callback externo", async () => {
+    const user = userEvent.setup();
+    const mockOnSubmitEditarServidor = vi.fn();
+
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={true}
+        defaultValues={mockData}
+        onSubmitEditarServidor={mockOnSubmitEditarServidor}
+      />,
+      { wrapper }
+    );
+
+    await user.click(screen.getByRole("button", { name: /Editar/i }));
+    await user.click(screen.getByRole("button", { name: /Salvar Edição/i }));
+
+    expect(mockOnSubmitEditarServidor).toHaveBeenCalledWith({
+      nome_servidor: "Servidor Editado no Modal",
+      nome_civil: "Nome Civil Editado no Modal",
+    });
   });
 });
 

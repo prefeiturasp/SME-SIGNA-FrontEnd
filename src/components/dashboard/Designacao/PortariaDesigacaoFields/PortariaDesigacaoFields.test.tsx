@@ -10,6 +10,13 @@ import {
 import { vi } from "vitest";
 import PortariaDesigacaoFields from "./PortariaDesigacaoFields";
 
+const mockMutateImpedimentos = vi.fn();
+let mockImpedimentosData: Array<{ value: number; label: string }> | undefined = [
+  { value: 1, label: "Licença médica" },
+  { value: 2, label: "Férias" },
+];
+let mockIsPendingImpedimentos = false;
+
 // Simplifica dependências de UI (Radix/Shadcn) para facilitar interação e cobrir callbacks.
 vi.mock("@/components/ui/button", () => ({
   Button: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -25,13 +32,9 @@ vi.mock("@/components/ui/popover", () => ({
 
 vi.mock("@/hooks/useTiposImpedimentos", () => ({
   useFetchImpedimentos: () => ({
-    mutate: vi.fn(),
-    data: [
-      { value: 1, label: "Licença médica" },
-      { value: 2, label: "Férias" },
-    ],
-    isSuccess: true,
-    isLoading: false,
+    mutate: mockMutateImpedimentos,
+    data: mockImpedimentosData,
+    isPending: mockIsPendingImpedimentos,
   }),
 }));
 
@@ -217,6 +220,15 @@ function FormWrapper({
 }
 
 describe("PortariaDesigacaoFields", () => {
+  beforeEach(() => {
+    mockMutateImpedimentos.mockClear();
+    mockImpedimentosData = [
+      { value: 1, label: "Licença médica" },
+      { value: 2, label: "Férias" },
+    ];
+    mockIsPendingImpedimentos = false;
+  });
+
   it("mostra loading quando isLoading é true", () => {
     render(
       <FormWrapper onMethods={() => { }}>
@@ -314,6 +326,58 @@ describe("PortariaDesigacaoFields", () => {
     fireEvent.click(within(afastamentoGroup).getByRole("button", { name: /marcar nao/i }));
     expect(methods.getValues("com_afastamento")).toBe("nao");
     expect(screen.queryByTestId("input-motivo-afastamento")).not.toBeInTheDocument();
+  });
+
+  it("controla o campo condicional de pendência (mostra/esconde textarea e atualiza valor)", () => {
+    let methods!: UseFormReturn<FieldValues>;
+    render(
+      <FormWrapper
+        onMethods={(m) => (methods = m)}
+        defaultValues={{
+          portaria_designacao: "",
+          numero_sei: "",
+          a_partir_de: undefined,
+          designacao_data_final: undefined,
+          ano: "",
+          doc: "",
+          carater_especial: "",
+          motivo_cancelamento: "",
+          impedimento_substituicao: "",
+          com_afastamento: "nao",
+          motivo_afastamento: "",
+          com_pendencia: "nao",
+          motivo_pendencia: "",
+        }}
+      >
+        <PortariaDesigacaoFields isLoading={false} />
+      </FormWrapper>
+    );
+
+    expect(screen.queryByTestId("input-descricao-pendencia")).not.toBeInTheDocument();
+
+    const radioGroups = screen.getAllByTestId("mock-radio-group");
+    const pendenciaGroup = radioGroups[2];
+
+    fireEvent.click(within(pendenciaGroup).getByRole("button", { name: /marcar sim/i }));
+    expect(methods.getValues("com_pendencia")).toBe("sim");
+    const textarea = screen.getByTestId("input-descricao-pendencia");
+    fireEvent.change(textarea, { target: { value: "Pendência cadastrada" } });
+    expect(methods.getValues("motivo_pendencia")).toBe("Pendência cadastrada");
+
+    fireEvent.click(within(pendenciaGroup).getByRole("button", { name: /marcar nao/i }));
+    expect(methods.getValues("com_pendencia")).toBe("nao");
+    expect(screen.queryByTestId("input-descricao-pendencia")).not.toBeInTheDocument();
+  });
+
+  it("renderiza sem opções quando impedimentos não são retornados", () => {
+    mockImpedimentosData = undefined;
+    render(
+      <FormWrapper onMethods={() => {}}>
+        <PortariaDesigacaoFields isLoading={false} />
+      </FormWrapper>
+    );
+
+    expect(screen.queryByTestId("select-item-1")).not.toBeInTheDocument();
   });
 });
 

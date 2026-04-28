@@ -8,15 +8,27 @@ vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
   default: ({
     open,
     onOpenChange,
+    handleSubmitEditarServidor,
   }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
+    handleSubmitEditarServidor: (data: { nome_servidor: string; nome_civil: string }) => void;
   }) => (
     <div data-testid="modal-editar">
       {open && (
         <>
           <span>Modal Editar Aberto</span>
           <button onClick={() => onOpenChange(false)}>Fechar Modal</button>
+          <button
+            onClick={() =>
+              handleSubmitEditarServidor({
+                nome_servidor: "Servidor Alterado",
+                nome_civil: "Nome Civil Alterado",
+              })
+            }
+          >
+            Salvar Modal
+          </button>
         </>
       )}
     </div>
@@ -117,5 +129,23 @@ describe("ResumoTitular", () => {
     );
 
     expect(screen.getByRole("button", { name: /editar/i })).toBeInTheDocument();
+  });
+
+  it("deve repassar os dados ao callback ao salvar no modal", async () => {
+    const user = userEvent.setup();
+    render(
+      <ResumoTitular
+        data={mockData}
+        onSubmitEditarServidor={mockOnSubmitEditarServidor}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: /editar/i }));
+    await user.click(screen.getByRole("button", { name: /salvar modal/i }));
+
+    expect(mockOnSubmitEditarServidor).toHaveBeenCalledWith({
+      nome_servidor: "Servidor Alterado",
+      nome_civil: "Nome Civil Alterado",
+    });
   });
 });
