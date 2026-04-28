@@ -50,6 +50,12 @@ cypress/support/locators/consulta_rf_locators.js
 cypress/support/locators/design_portaria_locators.js
 cypress/support/locators/unidade_proponente_locators.js
 
+# Postman - coleções locais (não subir ao repositório)
+postman/
+
+# Prompts do Copilot - uso local (não subir ao repositório)
+.github/prompts/
+
 # Variáveis de ambiente e credenciais
 .env
 .env.local
