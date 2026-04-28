@@ -24,11 +24,11 @@ describe("nameToCamelCase", () => {
 });
 
 describe("nameToCamelCaseUe", () => {
-    it("deve parar de considerar sigla após hífen", () => {
-        expect(nameToCamelCaseUe("EMEF - JOAO DA SILVA")).toBe("EMEF - Joao da Silva");
+    it("deve parar de considerar sigla após hífen separado (remove o hífen)", () => {
+        expect(nameToCamelCaseUe("EMEF - JOAO DA SILVA")).toBe("EMEF  Joao da Silva");
     });
 
-    it("deve tratar hífen junto com palavra", () => {
+    it("deve tratar hífen junto com palavra e capitalizar o restante", () => {
         expect(nameToCamelCaseUe("EMEF-JOAO DA SILVA")).toBe("EMEF-JOAO da Silva");
     });
 
