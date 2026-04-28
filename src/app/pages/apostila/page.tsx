@@ -8,6 +8,10 @@ import { Loader2 } from "lucide-react";
 
 import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
+import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
+import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
+import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado"
+
 
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -15,15 +19,13 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import BlocosDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao";
 
-import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
-import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
 import Designacao from "@/assets/icons/Designacao";
-import ResumoPortariaCessacao from "@/components/dashboard/Designacao/ResumoPortariaCessacao";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
 import { FormControl, FormField, FormLabel, FormItem } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -51,41 +53,20 @@ export default function ApostilaPage() {
     },
   });
 
-  const dadosPortaria = useMemo(() => {
-    if (!designacao) return null;
-    return {
-      numero_portaria: designacao.numero_portaria,
-      ano_vigente: designacao.ano_vigente,
-      sei_numero: designacao.sei_numero,
-      doc: designacao.doc,
-      data_inicio: designacao.data_inicio,
-      data_fim: designacao.data_fim,
-      carater_excepcional: designacao.carater_excepcional,
-      impedimento_substituicao: designacao.impedimento_substituicao,
-      motivo_afastamento: designacao.motivo_afastamento,
-      pendencias: designacao.pendencias,
-    };
-  }, [designacao]);
+  const dadosPortaria = useMemo(
+    () => getDadosPortaria(designacao),
+    [designacao]
+  );
 
-  const dadosPortariaCessacao = useMemo(() => {
-    if (!designacao?.cessacao) return null;
-    return designacao.cessacao;
-  }, [designacao]);
+  const dadosPortariaCessacao = useMemo(
+    () => getDadosPortariaCessacao(designacao),
+    [designacao]
+  );
 
-  const dadosIndicado: Servidor | null = useMemo(() => {
-    if (!designacao) return null;
-    return {
-      rf: designacao.indicado_rf,
-      nome_servidor: designacao.indicado_nome_servidor,
-      nome_civil: designacao.indicado_nome_civil,
-      vinculo: designacao.indicado_vinculo,
-      cargo_base: designacao.indicado_cargo_base,
-      lotacao: designacao.indicado_lotacao,
-      cargo_sobreposto_funcao_atividade: designacao.indicado_cargo_sobreposto,
-      local_de_exercicio: designacao.indicado_local_exercicio,
-      local_de_servico: designacao.indicado_local_servico,
-    } as Servidor;
-  }, [designacao]);
+  const dadosIndicado: Servidor | null = useMemo(
+    () => getDadosIndicado(designacao),
+    [designacao]
+  );
 
   const desabilita_radio = !!designacao?.cessacao?.apostila || !dadosPortariaCessacao;
 
@@ -197,26 +178,12 @@ export default function ApostilaPage() {
                   "portaria-apostila",
                 ]}
               >
-                <CustomAccordionItem title="Servidor indicado" value="servidor-indicado" color="gold">
-                  {dadosIndicado && (
-                    <ResumoDesignacaoServidorIndicado defaultValues={dadosIndicado} onSubmitEditarServidor={() => { }} />
-                  )}
-                </CustomAccordionItem>
-                <CustomAccordionItem title="Portaria de designação" value="portaria-designacao" color="purple">
-                  {dadosPortaria && (
-                    <ResumoPortariaDesigacao defaultValues={dadosPortaria} showExtraFields={false} />
-                  )}
-                </CustomAccordionItem>
-
-                <CustomAccordionItem title="Portarias de Cessação" value="portarias-cessacao" color="green">
-                  {dadosPortariaCessacao ? (
-                    <ResumoPortariaCessacao defaultValues={dadosPortariaCessacao} />
-                  ) : (
-                    <div className="text-center text-[#777] p-4">
-                      Não há portaria de cessão
-                    </div>
-                  )}
-                </CustomAccordionItem>
+                <BlocosDesignacao
+                  dadosIndicado={dadosIndicado}
+                  dadosPortaria={dadosPortaria}
+                  dadosPortariaCessacao={dadosPortariaCessacao}
+                  onSubmitEditarServidor={() => {}}
+                />
 
                 <div className="p-4 pt-4 border-t mt-4 mb-8">
                   <div className="flex flex-col gap-6">
