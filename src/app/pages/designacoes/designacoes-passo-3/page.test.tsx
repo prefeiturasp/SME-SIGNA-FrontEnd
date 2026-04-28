@@ -30,6 +30,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
     formDesignacaoData: h.formData,
+    clearFormDesignacaoData: vi.fn(),
   }),
 }));
 
@@ -174,12 +175,12 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     });
 
     render(<DesignacoesPasso3 />);
-
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(designacaoAction).toHaveBeenCalledWith(h.formData, null);
-    });
+    await waitFor(
+      () => expect(designacaoAction).toHaveBeenCalledWith(h.formData, null),
+      { timeout: 500 }
+    );
   });
 
   it("deve enviar id para a action quando query param id existir", async () => {
@@ -189,17 +190,16 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(designacaoAction).toHaveBeenCalledWith(h.formData, "42");
-    });
+    await waitFor(
+      () => expect(designacaoAction).toHaveBeenCalledWith(h.formData, "42"),
+      { timeout: 500 }
+    );
   });
 
   it("deve gerenciar o estado de loading durante o salvamento", async () => {
+    let resolveFn!: (val: any) => void;
     vi.mocked(designacaoAction).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ success: true, data: {} }), 100)
-        )
+      () => new Promise((resolve) => { resolveFn = resolve; })
     );
 
     render(<DesignacoesPasso3 />);
@@ -209,6 +209,7 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
 
     expect(btnSalvar).toBeDisabled();
 
+    resolveFn({ success: true, data: {} });
     await waitFor(() => expect(btnSalvar).not.toBeDisabled());
   });
 
@@ -232,13 +233,14 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("modal")).toBeInTheDocument();
-      expect(screen.getByText("Portaria salva com sucesso!")).toBeInTheDocument();
-      expect(
-        screen.getByText("Redirecionando para a página inicial...")
-      ).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("modal")).toBeInTheDocument();
+        expect(screen.getByText("Portaria salva com sucesso!")).toBeInTheDocument();
+        expect(screen.getByText("Redirecionando para a página inicial...")).toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
   });
 
   it("deve exibir modal de erro se a action falhar", async () => {
@@ -250,10 +252,13 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("modal")).toBeInTheDocument();
-      expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("modal")).toBeInTheDocument();
+        expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
   });
 
   it("deve fechar o modal de erro ao clicar em Fechar", async () => {
@@ -265,25 +270,23 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("modal")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => expect(screen.getByTestId("modal")).toBeInTheDocument(),
+      { timeout: 500 }
+    );
 
     fireEvent.click(screen.getByText("Fechar"));
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("modal")).not.toBeInTheDocument();
-    });
+    await waitFor(
+      () => expect(screen.queryByTestId("modal")).not.toBeInTheDocument(),
+      { timeout: 500 }
+    );
   });
 
   it("deve navegar para o passo 2 ao clicar em Anterior", () => {
     render(<DesignacoesPasso3 />);
-
     fireEvent.click(screen.getByText("Anterior"));
-
-    expect(h.pushMock).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-2"
-    );
+    expect(h.pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-2");
   });
 
   it("deve abrir modal de erro quando não existir formDesignacaoData", async () => {
@@ -292,9 +295,10 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument(),
+      { timeout: 500 }
+    );
   });
 
   it("deve renderizar quebra de linha vazia no HTML da portaria", async () => {
