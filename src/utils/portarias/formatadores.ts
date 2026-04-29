@@ -27,8 +27,12 @@ export const nameToCamelCaseUe = (text: string) => {
         .trim()
         .split(/\s+/)
         .map((originalWord, index) => {
-            // detecta separador e "encerra" zona de siglas
-            if (originalWord === "-" || originalWord.includes("-")) {
+            if (originalWord === "-") {
+                passedPrefix = true;
+                return ""; // remove o hífen
+            }
+
+            if (originalWord.includes("-")) {
                 passedPrefix = true;
                 return originalWord;
             }
@@ -37,8 +41,8 @@ export const nameToCamelCaseUe = (text: string) => {
 
             const isAcronym =
                 !passedPrefix &&
-                originalWord === originalWord.toUpperCase() 
-                // && originalWord.length <= 6; // caso precise colocar limite
+                originalWord === originalWord.toUpperCase()
+            // && originalWord.length <= 6; // caso precise colocar limite
 
             if (isAcronym) {
                 return originalWord;

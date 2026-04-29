@@ -121,4 +121,24 @@ describe('DetalhamentoTurmasModal', () => {
 
         expect(mockOnOpenChange).toHaveBeenCalled()
     })
+
+    it('deve exibir o valor de SPI quando spi possui conteúdo', () => {
+        render(<DetalhamentoTurmasModal {...defaultProps} />)
+
+        const spiLabel = screen.getByText('SPI')
+        const spiContainer = spiLabel.closest('div')!
+        const utils = within(spiContainer)
+
+        expect(utils.getByText('5')).toBeInTheDocument()
+    })
+
+    it('deve exibir "-" no campo SPI quando spi está vazio ou apenas espaços', () => {
+        render(<DetalhamentoTurmasModal {...defaultProps} spi="   " />)
+
+        const spiLabel = screen.getByText('SPI')
+        const spiContainer = spiLabel.closest('div')!
+        const utils = within(spiContainer)
+
+        expect(utils.getByText('-')).toBeInTheDocument()
+    })
 })
