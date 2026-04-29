@@ -48,6 +48,31 @@ vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
   ),
 }));
 
+const mockSubmitData = {
+  cargo_base: "Professor atualizado",
+};
+
+vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
+  default: ({
+    open,
+    handleSubmitEditarServidor,
+  }: {
+    open: boolean;
+    handleSubmitEditarServidor: (data: typeof mockSubmitData) => void;
+  }) => (
+    <div data-testid="modal-editar-servidor">
+      {open && (
+        <>
+          <div>Editar dados servidor indicado</div>
+          <button onClick={() => handleSubmitEditarServidor(mockSubmitData)}>
+            Salvar edição
+          </button>
+        </>
+      )}
+    </div>
+  ),
+}));
+
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
     setFormDesignacaoData: mockSetFormDesignacaoData,
@@ -381,6 +406,98 @@ describe("ResumoDesignacao", () => {
 
     await user.click(screen.getByRole("button", { name: /Editar/i }));
     expect(screen.getByText('Editar dados servidor indicado')).toBeInTheDocument();
+  });
+
+  it("não renderiza Lotação quando showLotacao é false", () => {
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={false}
+        showEditar={true}
+        defaultValues={mockData}
+        onSubmitEditarServidor={vi.fn()}
+      />,
+      { wrapper }
+    );
+
+    expect(screen.queryByText("Lotação")).not.toBeInTheDocument();
+  });
+
+  it("não renderiza Local de serviço quando showLocalDeServico é false", () => {
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={true}
+        showLocalDeServico={false}
+        defaultValues={mockData}
+        onSubmitEditarServidor={vi.fn()}
+      />,
+      { wrapper }
+    );
+
+    expect(screen.queryByText("Local de serviço")).not.toBeInTheDocument();
+  });
+
+  it("exibe fallback de Cursos/Títulos quando valor não existir", () => {
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={false}
+        defaultValues={{
+          ...mockData,
+          cursos_titulos: undefined as unknown as string,
+        }}
+        onSubmitEditarServidor={vi.fn()}
+      />,
+      { wrapper }
+    );
+
+    expect(screen.getByText("Cursos/Títulos de exemplo")).toBeInTheDocument();
+  });
+
+  it("abre e fecha o modal de cursos ao clicar duas vezes no botão Eye", async () => {
+    const user = userEvent.setup();
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={false}
+        defaultValues={mockData}
+        onSubmitEditarServidor={vi.fn()}
+      />,
+      { wrapper }
+    );
+
+    const eyeButton = screen.getByTestId("btn-visualizar-cursos-titulos");
+    await user.click(eyeButton);
+    expect(screen.getByText("Modal Aberto")).toBeInTheDocument();
+
+    await user.click(eyeButton);
+    expect(screen.queryByText("Modal Aberto")).not.toBeInTheDocument();
+  });
+
+  it("dispara onSubmitEditarServidor ao salvar no modal de edição", async () => {
+    const user = userEvent.setup();
+    const onSubmitEditarServidor = vi.fn();
+
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={true}
+        defaultValues={mockData}
+        onSubmitEditarServidor={onSubmitEditarServidor}
+      />,
+      { wrapper }
+    );
+
+    await user.click(screen.getByRole("button", { name: /Editar/i }));
+    await user.click(screen.getByRole("button", { name: /Salvar edição/i }));
+
+    expect(onSubmitEditarServidor).toHaveBeenCalledWith(mockSubmitData);
+    expect(onSubmitEditarServidor).toHaveBeenCalledTimes(1);
   });
 });
 
