@@ -6,8 +6,11 @@ import './commands';
 import '@shelex/cypress-allure-plugin';
 
 // Importar comandos personalizados
-import './commands_ui/commands_globais';
-import './commands_ui/commands_login';
+import './ui/commands/commands_globais';
+import './ui/commands/commands_login';
+
+// Importar comandos de API EOL
+import './api/commands';
 
 // Configurações globais
 Cypress.on('uncaught:exception', (err, runnable) => {

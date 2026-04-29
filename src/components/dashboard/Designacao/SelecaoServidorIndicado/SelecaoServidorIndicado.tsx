@@ -39,6 +39,7 @@ interface SelecaoTipoCargoProps {
   readonly onBuscaTitular: (values: BuscaDesignacaoRequest) => Promise<void>;
   readonly setDadosTitular: (val: Servidor | null) => void;
   readonly setErrorBusca: (val: string | null) => void;
+  readonly rf_default: string;
 }
 
 export default function SelecaoServidorIndicado({
@@ -50,6 +51,7 @@ export default function SelecaoServidorIndicado({
   onBuscaTitular,
   setDadosTitular,
   setErrorBusca,
+  rf_default
 }: Readonly<SelecaoTipoCargoProps>) {
 
   const { data: cargosData = [] } = useFetchCargos();
@@ -161,6 +163,7 @@ export default function SelecaoServidorIndicado({
                   <FormularioBuscaDesignacao                    
                     label={"RF Titular"}
                     onBuscaDesignacao={onBuscaTitular}
+                    defaultValues={{ rf: rf_default }}
                   />
                 </div>
 

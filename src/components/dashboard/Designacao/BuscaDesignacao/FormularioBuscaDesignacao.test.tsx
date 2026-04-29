@@ -63,4 +63,28 @@ describe("FormularioBuscaDesignacao", () => {
     
     expect(onBuscaDesignacao).toHaveBeenCalledTimes(1);
   });
+
+  it("exibe estado de carregamento durante a busca", async () => {
+    const user = userEvent.setup();
+    let resolver!: () => void;
+    const onBuscaDesignacao = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolver = resolve;
+        })
+    );
+
+    render(<FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />);
+
+    await user.type(screen.getByTestId("input-rf"), "9999999");
+    await user.click(screen.getByTestId("botao-pesquisar-servidor"));
+
+    expect(screen.getByText("Pesquisando...")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Pesquisando/i })).toBeDisabled();
+
+    resolver();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Pesquisar/i })).toBeEnabled()
+    );
+  });
 });

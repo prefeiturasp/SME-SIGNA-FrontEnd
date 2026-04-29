@@ -23,6 +23,7 @@ interface FormularioBuscaDesignacaoProps {
   onBuscaDesignacao: (values: BuscaDesignacaoRequest) => Promise<void>;
   label?: string;
   placeholder?: string;
+  defaultValues?: BuscaDesignacaoRequest;
  }
 
 const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
@@ -30,12 +31,13 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
   onBuscaDesignacao,
   label = "RF do servidor indicado",
   placeholder = "Entre com RF",
+  defaultValues,
  }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<BuscaDesignacaoRequest>({
     resolver: zodResolver(buscaDesignacaoSchema),
-    defaultValues: { rf: "" },
+    defaultValues: defaultValues ?? { rf: "" },
     mode: "onChange",
   });
 
