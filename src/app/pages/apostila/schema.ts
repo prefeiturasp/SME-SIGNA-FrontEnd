@@ -4,8 +4,8 @@ const formSchemaApostila = z.object({
   apostila: z.object({
     numero_sei: z.string().min(1, "Campo obrigatório"),
     doc: z.string().optional(),
-    observacoes: z.string().optional(),
-    tipo_apostila: z.string().nonempty("Campo obrigatório"),
+    observacao: z.string().optional(),
+    ato_apostilado: z.string().nonempty("Campo obrigatório"),
   }),
 });
 

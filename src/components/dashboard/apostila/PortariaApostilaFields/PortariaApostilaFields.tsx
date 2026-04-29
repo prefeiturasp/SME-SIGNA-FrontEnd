@@ -30,7 +30,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
 
   const textareaFields = [
     {
-      name: "apostila.observacoes",
+      name: "apostila.observacao",
       label: "Observações",
       placeholder: "Texto",
     },
