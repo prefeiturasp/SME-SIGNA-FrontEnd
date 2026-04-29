@@ -11,6 +11,9 @@ import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUn
 
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
+const mockClearFormDesignacaoData = vi.fn();
+let mockRfParam: string | null = null;
+let initialContextData: any = {};
 
 const mockResponse = {
   nome: "Servidor Teste",
@@ -65,12 +68,16 @@ vi.mock("../DesignacaoContext", async () => {
 
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
-      React.useState<any>({});
+      React.useState<any>(initialContextData);
     
 
     return (
       <DesignacaoContext.Provider
-        value={{ formDesignacaoData, setFormDesignacaoData , clearFormDesignacaoData: vi.fn()}}
+        value={{
+          formDesignacaoData,
+          setFormDesignacaoData,
+          clearFormDesignacaoData: mockClearFormDesignacaoData,
+        }}
       >
         {children}
       </DesignacaoContext.Provider>
@@ -90,6 +97,9 @@ vi.mock("../DesignacaoContext", async () => {
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: mockRouterPush,
+  }),
+  useSearchParams: () => ({
+    get: (key: string) => (key === "rf" ? mockRfParam : null),
   }),
 }));
 
@@ -154,6 +164,18 @@ vi.mock(
     default: (props: any) => (
       <div data-testid="resumo-designacao">
         {props.defaultValues?.nome}
+        <button
+          type="button"
+          data-testid="editar-servidor-indicado"
+          onClick={() =>
+            props.onSubmitEditarServidor?.({
+              nome_servidor: "Servidor Editado",
+              nome_civil: "Civil Editado",
+            })
+          }
+        >
+          Editar
+        </button>
       </div>
     ),
   })
@@ -259,6 +281,8 @@ describe("DesignacoesPasso1", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetValuesVazio = false;
+    mockRfParam = null;
+    initialContextData = {};
     mockMutateAsync.mockResolvedValue({
       success: true,
       data: mockResponse,
@@ -284,6 +308,25 @@ describe("DesignacoesPasso1", () => {
     expect(screen.getByTestId("page-header")).toHaveTextContent("Designação");
     expect(screen.getByTestId("stepper-designacao")).toBeInTheDocument();
     expect(screen.getByTestId("input-rf")).toBeInTheDocument();
+    expect(mockClearFormDesignacaoData).toHaveBeenCalledTimes(1);
+  });
+
+  it("não limpa os dados quando rf vem na URL", () => {
+    mockRfParam = "123456";
+    renderWithProvider();
+    expect(mockClearFormDesignacaoData).not.toHaveBeenCalled();
+  });
+
+  it("inicia com próximo habilitado quando já existe designação de unidade", () => {
+    initialContextData = { designacaoUnidade: { id: "1" } };
+    renderWithProvider();
+    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
+  });
+
+  it("renderiza formulário de unidade com contexto nulo", () => {
+    initialContextData = null;
+    renderWithProvider();
+    expect(screen.getByTestId("formulario-pesquisa-unidade")).toBeInTheDocument();
   });
 
   it("exibe o resumo após busca bem-sucedida", async () => {
@@ -299,6 +342,9 @@ describe("DesignacoesPasso1", () => {
     });
 
     expect(screen.getByText("Servidor Teste")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId("editar-servidor-indicado"));
+    expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
   });
 
   it("mostra erro quando a busca falha", async () => {
@@ -335,7 +381,7 @@ describe("DesignacoesPasso1", () => {
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
     expect(mockRouterPush).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-2?123"
+      "/pages/designacoes/designacoes-passo-2"
     );
   });
 

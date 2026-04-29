@@ -4,6 +4,7 @@ import {
     montarTrechoFinal,
     montarAutoridade,
 } from "./regrasPortaria";
+import { nameToCamelCase, formatarRF, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
 
 function getCargoIndicado(data: DesignacaoData): string | undefined {
     const cargo = data?.cargo_vago_selecionado;
@@ -29,12 +30,12 @@ export function gerarDadosPortaria(data: DesignacaoData) {
         dre: data?.dre_nome,
         autoridade: montarAutoridade(data),
         nome_indicado: data?.servidorIndicado?.nome_civil,
-        rf: data?.servidorIndicado?.rf,
+        rf: formatarRF(data?.servidorIndicado?.rf ?? ""),
         vinculo: data?.servidorIndicado?.vinculo,
-        cargo_base: data?.servidorIndicado?.cargo_base,
-        lotacao_indicado: data?.servidorIndicado?.lotacao,
-        cargo_indicado,
-        ue: data?.ue_nome,
+        cargo_base: nameToCamelCase(data?.servidorIndicado?.cargo_base ?? ""),
+        lotacao_indicado: nameToCamelCaseUe(data?.servidorIndicado?.lotacao ?? ""),
+        cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
+        ue: nameToCamelCaseUe(data?.ue_nome ?? ""),
         eh: data?.codigo_hierarquico,
         trecho_substituicao: montarTrechoSubstituicao(data),
         trecho_final: montarTrechoFinal(data),

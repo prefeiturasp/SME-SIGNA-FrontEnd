@@ -34,8 +34,9 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
     },
     {
       name: "cessacao.doc",
-      label: "D.O*",
+      label: "D.O",
       placeholder: "Número do DOC",
+      disabled: true,
     },
   ];
 
@@ -63,6 +64,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
                 label={field.label}
                 placeholder={field.placeholder}
                 type={field.type}
+                disabled={field.disabled}
                 />
               ))}
 
@@ -74,7 +76,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
               register={register}
               control={control}
               name="cessacao.data_inicio"
-              label="Designação a partir de:*"
+              label="Cessação a partir de:*"
             />
 
             {checkboxFields.map((field) => (

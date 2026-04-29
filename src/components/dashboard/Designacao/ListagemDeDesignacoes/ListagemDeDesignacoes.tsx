@@ -102,10 +102,12 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       }
     },
     {
-      key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
-        console.log('Apostilar');
+      key: '1', 
+      label: 'Apostilar', 
+      icon: <Apostilar  />,
+      onClick: () => {
+        router.push(`/pages/apostila?id=${record.id}`);
       },
-      disabled: true,
     },
     {
       key: '2',
@@ -116,10 +118,11 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       },
     },
     {
-      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
-        console.log('Tornar Insubsistente');
-      },
-      disabled: true
+      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />,
+      onClick: () => {
+        router.push(`/pages/insubsistencia?id=${record.id}`);
+      },      
+      disabled: !!record?.insubsistencia,
     },
     {
       key: '4',

@@ -72,6 +72,7 @@
     "cypress": "^13.17.0",
     "cypress-cloud": "^1.13.1",
     "cypress-mochawesome-reporter": "^3.8.4",
+    "dotenv": "^16.6.1",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
     "jsdom": "^27.2.0",
