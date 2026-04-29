@@ -16,9 +16,10 @@ export const useSalvarApostila = () => {
       const payload = {
          sei_numero: values.apostila.numero_sei,
          doc: values.apostila.doc,
-         observacoes: values.apostila.observacoes,
-         tipo_apostila: values.apostila.tipo_apostila,
+         observacao: values.apostila.observacao,
+         ato_apostilado: values.apostila.ato_apostilado,
          designacao: designacaoId,
+         tipo: "APOSTILA"
         } as ApostilaBody;
       
 

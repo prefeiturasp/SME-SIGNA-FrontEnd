@@ -21,8 +21,8 @@ const mockCookies = (token: string | undefined) => {
 const payloadMock = {
   sei_numero: "6016.2024/000123-4",
   doc: "2024-05-20",
-  observacoes: "Teste",
-  tipo_apostila: "designacao",
+  observacao: "Teste",
+  ato_apostilado: "designacao",
   designacao: 10,
 };
 

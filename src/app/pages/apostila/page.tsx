@@ -47,8 +47,8 @@ export default function ApostilaPage() {
       apostila: {
         numero_sei: "",
         doc: "",
-        observacoes: "",
-        tipo_apostila: "designacao",
+        observacao: "",
+        ato_apostilado: "designacao",
       },
     },
   });
@@ -76,8 +76,8 @@ export default function ApostilaPage() {
       apostila: {
         numero_sei: "",
         doc: "",
-        tipo_apostila: "designacao",
-        observacoes: "",
+        ato_apostilado: "designacao",
+        observacao: "",
       },
     });
   }, [designacao, form]);
@@ -86,7 +86,7 @@ export default function ApostilaPage() {
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
   const gerarDados = (values: formSchemaApostilaData) => {
-      const isCessacao = values.apostila.tipo_apostila === "cessacao";
+      const isCessacao = values.apostila.ato_apostilado === "cessacao";
       
       const fonteDados = isCessacao ? designacao?.cessacao : designacao;
 
@@ -95,7 +95,7 @@ export default function ApostilaPage() {
         dre: designacao?.dre_nome ?? "-",
         eh: designacao?.codigo_hierarquico ?? "-",
         doc: values.apostila.doc,
-        tipo_apostila: values.apostila.tipo_apostila,
+        ato_apostilado: values.apostila.ato_apostilado,
         
         portaria_designacao: fonteDados?.numero_portaria ?? "-",
         ano: fonteDados?.ano_vigente ?? "-",
@@ -108,7 +108,7 @@ export default function ApostilaPage() {
         cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
         cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
         ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
-        observacoes: values.apostila.observacoes ?? "",
+        observacao: values.apostila.observacao ?? "",
       };
     };
 
@@ -189,7 +189,7 @@ export default function ApostilaPage() {
                   <div className="flex flex-col gap-6">
                     <FormField
                       control={form.control}
-                      name="apostila.tipo_apostila"
+                      name="apostila.ato_apostilado"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
                           <FormLabel className="font-bold text-[#42474a] text-lg">
