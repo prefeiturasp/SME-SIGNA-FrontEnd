@@ -102,10 +102,12 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       }
     },
     {
-      key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
-        console.log('Apostilar');
+      key: '1', 
+      label: 'Apostilar', 
+      icon: <Apostilar  />,
+      onClick: () => {
+        router.push(`/pages/apostila?id=${record.id}`);
       },
-      disabled: true,
     },
     {
       key: '2',
