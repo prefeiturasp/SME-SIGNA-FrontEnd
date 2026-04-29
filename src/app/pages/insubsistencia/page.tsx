@@ -236,7 +236,7 @@ export default function InsubsistenciaPage() {
               >
                 <CustomAccordionItem title="Servidor indicado" value="servidor-indicado" color="gold">
                   {dadosIndicado && (
-                    <ResumoDesignacaoServidorIndicado defaultValues={dadosIndicado} onSubmitEditarServidor={() => { }} />
+                    <ResumoDesignacaoServidorIndicado defaultValues={dadosIndicado} onSubmitEditarServidor={() => { }} showLotacao showLocalDeServico={false} />
                   )}
                 </CustomAccordionItem>
                 <CustomAccordionItem title="Portaria de designação" value="portaria-designacao" color="purple">
