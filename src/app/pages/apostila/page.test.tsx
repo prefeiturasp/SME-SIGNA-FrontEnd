@@ -147,8 +147,8 @@ vi.mock("react-hook-form", async () => {
           apostila: {
             numero_sei: "123",
             doc: "DOC",
-            tipo_apostila: "designacao",
-            observacoes: "",
+            ato_apostilado: "designacao",
+            observacao: "",
           },
         });
       },
@@ -159,8 +159,8 @@ vi.mock("react-hook-form", async () => {
         apostila: {
           numero_sei: "123",
           doc: "DOC",
-          tipo_apostila: "designacao",
-          observacoes: "",
+          ato_apostilado: "designacao",
+          observacao: "",
         },
       }),
       reset: vi.fn(),
@@ -282,8 +282,8 @@ describe("ApostilaPage", () => {
           apostila: {
             numero_sei: "123",
             doc: "DOC",
-            tipo_apostila: "cessacao",
-            observacoes: "",
+            ato_apostilado: "cessacao",
+            observacao: "",
           },
         });
       },
@@ -294,8 +294,8 @@ describe("ApostilaPage", () => {
         apostila: {
           numero_sei: "123",
           doc: "DOC",
-          tipo_apostila: "cessacao",
-          observacoes: "",
+          ato_apostilado: "cessacao",
+          observacao: "",
         },
       }),
       reset: vi.fn(),
@@ -362,8 +362,8 @@ describe("ApostilaPage", () => {
           apostila: {
             numero_sei: "123",
             doc: "DOC",
-            tipo_apostila: "cessacao",
-            observacoes: "",
+            ato_apostilado: "cessacao",
+            observacao: "",
           },
         });
       },
@@ -372,7 +372,7 @@ describe("ApostilaPage", () => {
       trigger: vi.fn().mockResolvedValue(true),
       getValues: () => ({
         apostila: {
-          tipo_apostila: "cessacao",
+          ato_apostilado: "cessacao",
         },
       }),
       reset: vi.fn(),

@@ -31,17 +31,19 @@ const valuesMock = {
   apostila: {
     numero_sei: "6016.2024/000123-4",
     doc: "2024-05-20",
-    observacoes: "Teste de apostila",
-    tipo_apostila: "designacao",
+    observacao: "Teste de apostila",
+    ato_apostilado: "designacao",
+    tipo: "APOSTILA",
   },
 };
 
 const expectedPayload = {
   sei_numero: "6016.2024/000123-4",
   doc: "2024-05-20",
-  observacoes: "Teste de apostila",
-  tipo_apostila: "designacao",
+  observacao: "Teste de apostila",
+  ato_apostilado: "designacao",
   designacao: 10,
+  tipo: "APOSTILA",
 };
 
 describe("useSalvarApostila", () => {

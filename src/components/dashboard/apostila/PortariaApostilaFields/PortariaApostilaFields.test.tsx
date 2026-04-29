@@ -22,7 +22,7 @@ vi.mock("@/components/ui/SelectAnoField", () => ({
 
 vi.mock("@/components/ui/textarea", () => ({
   Textarea: ({ value, onChange, ...props }: any) => (
-    <textarea data-testid="input-observacoes" value={value} onChange={onChange} {...props} />
+    <textarea data-testid="input-observacao" value={value} onChange={onChange} {...props} />
   ),
 }));
 
@@ -32,8 +32,8 @@ function FormWrapper({ children }: { children: React.ReactNode }) {
       apostila: {
         numero_sei: "",
         doc: "",
-        observacoes: "",
-        tipo_apostila: "designacao",
+        observacao: "",
+        ato_apostilado: "designacao",
       },
     },
   });
@@ -50,7 +50,7 @@ describe("PortariaApostilaFields", () => {
     );
 
     expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
-    expect(screen.queryByTestId("input-observacoes")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("input-observacao")).not.toBeInTheDocument();
   });
 
   it("renderiza os campos corretos de apostila quando não está carregando", () => {
@@ -64,7 +64,7 @@ describe("PortariaApostilaFields", () => {
     
     expect(screen.getByTestId("input-field-apostila.numero_sei")).toBeInTheDocument();
     expect(screen.getByTestId("input-field-apostila.doc")).toBeInTheDocument();
-    expect(screen.getByTestId("input-apostila.observacoes")).toBeInTheDocument();
+    expect(screen.getByTestId("input-apostila.observacao")).toBeInTheDocument();
   });
 
   it("exibe as labels corretas conforme definido no array inputFields", () => {
@@ -86,7 +86,7 @@ describe("PortariaApostilaFields", () => {
       </FormWrapper>
     );
 
-    const textarea = screen.getByTestId("input-apostila.observacoes");
+    const textarea = screen.getByTestId("input-apostila.observacao");
     fireEvent.change(textarea, { target: { value: "Texto de teste para apostila" } });
     
     expect((textarea as HTMLTextAreaElement).value).toBe("Texto de teste para apostila");
