@@ -40,6 +40,7 @@ lerna-debug.log*
 
 
 # Features em desenvolvimento (não subir ao repositório)
+cypress/e2e/api/api_abrangencia.feature
 cypress/e2e/ui/consulta_rf.feature
 cypress/e2e/ui/design_portaria.feature
 cypress/e2e/ui/unidade_proponente.feature
