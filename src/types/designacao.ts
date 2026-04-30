@@ -1,4 +1,5 @@
 import { InsubsistenciaBody } from "./insubsistencia";
+import { ApostilaBody } from "./apostila";
 
 export interface BuscaDesignacaoRequest {
   rf: string;
@@ -121,7 +122,8 @@ export interface Cessacao {
   is_deleted: boolean,
   deleted_at: string | null,
   designacao: number,
-  insubsistencia:InsubsistenciaBody
+  insubsistencia:InsubsistenciaBody,
+  apostila:ApostilaBody
 }
 
 export interface DesignacaoResponse {
@@ -172,3 +174,14 @@ export interface DesignacaoResponse {
   criado_em: string,
   cessacao: Cessacao | null,
 }
+
+
+export type CargoAPI = {
+  codigoCargo: string;
+  nomeCargo: string;
+};
+
+export type CargoSelect = {
+  codigo: string;
+  cargo: string;
+};

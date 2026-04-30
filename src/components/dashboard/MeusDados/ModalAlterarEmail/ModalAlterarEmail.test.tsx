@@ -13,6 +13,7 @@ vi.mock("@/hooks/useAtualizarEmail", () => {
         __mutateAsync,
     };
 });
+const mockReset = vi.fn();
 
 import * as useAtualizarEmailModule from "@/hooks/useAtualizarEmail";
 const mockMutateAsync = (
@@ -350,5 +351,38 @@ describe("ModalAlterarEmail", () => {
                 )
             ).toBeInTheDocument();
         });
+    });
+
+    it("reseta o formulário ao fechar o modal", async () => {
+        const { rerender } = renderWithQueryProvider(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail="usuario@sme.prefeitura.sp.gov.br"
+            />
+        );
+
+        const user = userEvent.setup();
+
+        const input = screen.getByTestId("input-email");
+
+        await user.clear(input);
+        await user.type(input, "novo@sme.prefeitura.sp.gov.br");
+
+        expect(input).toHaveValue("novo@sme.prefeitura.sp.gov.br");
+
+        await user.click(screen.getByRole("button", { name: /cancelar/i }));
+
+        rerender(
+            <ModalAlterarEmail
+                open={true}
+                onOpenChange={onOpenChange}
+                currentMail="usuario@sme.prefeitura.sp.gov.br"
+            />
+        );
+
+        const novoInput = screen.getByTestId("input-email");
+
+        expect(novoInput).toHaveValue("usuario@sme.prefeitura.sp.gov.br");
     });
 });

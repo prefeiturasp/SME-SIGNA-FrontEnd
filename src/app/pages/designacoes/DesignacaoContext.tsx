@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
-import { Servidor } from "@/types/designacao-unidade";
+import { DesignacaoUnidadeResponse, Servidor } from "@/types/designacao-unidade";
 import { formSchemaDesignacaoPasso2Data } from "@/app/pages/designacoes/designacoes-passo-2/schema";
+import { CargoSelect } from "@/types/designacao";
 
 const STORAGE_KEY = "designacao-form-data";
 
@@ -12,6 +13,8 @@ export type FormDesignacaoEServidorIndicado =
   Partial<formSchemaDesignacaoPasso2Data> & {
     servidorIndicado?: Servidor;
     dadosTitular?: Servidor | null;
+    designacaoUnidade?: DesignacaoUnidadeResponse;
+    funcionariosOptions?: CargoSelect[];
   };
 
 type DesignacaoContextValue = {

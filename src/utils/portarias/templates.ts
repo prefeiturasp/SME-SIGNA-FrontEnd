@@ -42,3 +42,11 @@ SEI Nº {{sei}}
 EXPEDE:
 
 A presente portaria, designando o(a) Sr.(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}}, para exercer cargo de {{cargo_indicado}}, no {{ue}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`;
+
+export const TEMPLATE_APOSTILA = `SEI nº {{sei}}
+
+APOSTILA FEITA NA PORTARIA, Nº {{portaria_designacao}}/{{ano}}, DA S.M.E., D.O.C. DE {{doc_designacao}}, SEI Nº {{sei_designacao}}, EM NOME DE {{nome_indicado}}, RF {{rf}}, VÍNCULO {{vinculo}}.
+
+{{dre}}
+
+É a presente portaria apostilada, a fim de declarar que a servidora foi designada para exercer cargo vago de {{cargo}}, na {{ue}} E.H: {{eh}} e não como constou.`;
