@@ -4,7 +4,7 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 import { Card } from "antd";
-type ColorVariant = "gold" | "purple" | "green" | "blue";
+type ColorVariant = "gold" | "purple" | "green" | "blue" | "silver";
 
 type CustomAccordionItemProps = {
   readonly title: string;
@@ -40,6 +40,12 @@ const colorVariants: Record<
     text: "text-[#274D9B]",
     bg: "bg-[#F9F9F9]",
   },
+  silver: {
+    border: "border-l-[#565656]",
+    text: "text-silver",
+    bg: "bg-[#F9F9F9]",
+  }
+
 };
 export function CustomAccordionItem({
   title,

@@ -1,3 +1,5 @@
+import { InsubsistenciaBody } from "./insubsistencia";
+
 export interface BuscaDesignacaoRequest {
   rf: string;
 }
@@ -30,7 +32,7 @@ export interface DesignacaoData {
   ue?: string;
   ue_nome?: string;
 
-  codigo_estrutura_hierarquica?: string;
+  codigo_hierarquico?: string;
 
   tipo_cargo?: "vago" | "substituicao" | "disponivel";
 
@@ -79,6 +81,7 @@ export interface ListagemDesignacoesResponse {
   cargo_vaga: number | null;
   cargo_vaga_display: string;
   status?: StatusDesignacao;
+  insubsistencia?: InsubsistenciaBody;
 }
 export interface DesignacaoFiltros {
   rf?: string;
@@ -103,11 +106,29 @@ export interface DesignacaoPaginada {
 }
 
 
+
+export interface Cessacao {
+  id: number,
+  numero_portaria: string,
+  ano_vigente: string,
+  sei_numero: string,
+  a_pedido: boolean,
+  remocao: boolean,
+  aposentadoria: boolean,
+  data_designacao: string,
+  doc: string,
+  criado_em: string,
+  is_deleted: boolean,
+  deleted_at: string | null,
+  designacao: number,
+  insubsistencia:InsubsistenciaBody
+}
+
 export interface DesignacaoResponse {
   id: number,
   impedimento_substituicao_detail: string | null,
   impedimento_substituicao: string | null,
-  impedimento_display: string ,
+  impedimento_display: string,
   tipo_vaga_display: string,
   cargo_vaga_display: string,
   dre_nome: string,
@@ -118,8 +139,10 @@ export interface DesignacaoResponse {
   indicado_rf: string,
   indicado_vinculo: number,
   indicado_cargo_base: string,
+  indicado_codigo_cargo_base: number,
   indicado_lotacao: string,
   indicado_cargo_sobreposto: string,
+  indicado_codigo_cargo_sobreposto: number,
   indicado_local_exercicio: string,
   indicado_local_servico: string,
   titular_nome_civil: string,
@@ -127,8 +150,10 @@ export interface DesignacaoResponse {
   titular_rf: string,
   titular_vinculo: number,
   titular_cargo_base: string,
+  titular_codigo_cargo_base: number,
   titular_lotacao: string,
   titular_cargo_sobreposto: string,
+  titular_codigo_cargo_sobreposto: number,
   titular_local_exercicio: string,
   titular_local_servico: string,
   numero_portaria: string,
@@ -141,8 +166,9 @@ export interface DesignacaoResponse {
   com_afastamento: false,
   possui_pendencia: false,
   pendencias: string,
-  motivo_afastamento:  string,
+  motivo_afastamento: string,
   tipo_vaga: string,
   cargo_vaga: number,
   criado_em: string,
+  cessacao: Cessacao | null,
 }

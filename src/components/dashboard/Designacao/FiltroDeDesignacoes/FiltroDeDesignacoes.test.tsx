@@ -101,10 +101,6 @@ vi.mock("@/components/ui/Combobox", () => ({
   }: {
     onChange: (value: string) => void;
     placeholder?: string;
-    value?: string;
-    options?: { label: string; value: string }[];
-    disabled?: boolean;
-    "data-testid"?: string;
   }) => (
     <button
       type="button"
@@ -168,6 +164,15 @@ vi.mock("@/hooks/useCargos", () => ({
   }),
 }));
 
+vi.mock("@/hooks/useCargosBancoDeDados", () => ({
+  useFetchCargosBase: () => ({
+    data: [
+      { codigoCargo: "10", nomeCargo: "Professor" },
+      { codigoCargo: "20", nomeCargo: "Supervisor" },
+    ],
+  }),
+}));
+
 describe("FiltroDeDesignacoes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -192,12 +197,13 @@ describe("FiltroDeDesignacoes", () => {
 
     expect(screen.getByTestId("btn-pesquisar")).toBeInTheDocument();
     expect(screen.getByTestId("btn-limpar-filtros")).toBeInTheDocument();
-    expect(screen.getByTestId("search-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("x-icon")).toBeInTheDocument();
   });
 
-  it("renderiza as opções de cargo vindas do hook", () => {
+  it("renderiza as opções de cargos (base e sobrepostos)", () => {
     render(<FiltroDeDesignacoes />);
+
+    expect(screen.getAllByText("Professor").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Supervisor").length).toBeGreaterThan(0);
 
     expect(screen.getAllByText("Diretor").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Coordenador").length).toBeGreaterThan(0);
@@ -220,6 +226,17 @@ describe("FiltroDeDesignacoes", () => {
     expect(onChangeByField.cargo_sobreposto).toHaveBeenCalledWith("mock-option");
     expect(onChangeByField.ano).toHaveBeenCalledWith("mock-option");
     expect(onChangeByField.dre).toHaveBeenCalledWith("mock-option");
+  });
+
+  it("reseta unidade_escolar ao trocar DRE", () => {
+    render(<FiltroDeDesignacoes />);
+
+    const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
+
+    fireEvent.click(triggerButtons[3]);
+
+    expect(setValueMock).toHaveBeenCalledWith("unidade_escolar", "");
+    expect(clearErrorsMock).toHaveBeenCalledWith("dre");
   });
 
   it("executa onChange do Combobox de unidade escolar", () => {

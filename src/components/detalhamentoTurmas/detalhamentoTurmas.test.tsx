@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import DetalhamentoTurmasModal from './detalhamentoTurmas'
@@ -17,19 +17,30 @@ describe('DetalhamentoTurmasModal', () => {
             {
                 turno: 'Manhã',
                 cicloAlfabetizacao: 3,
-                cicloAltoral: 2,
-                semCiclo: 1,
+                cicloInterdisciplinar: 2,
+                cicloAutoral: 1,
+                semCiclo: 0,
                 total: 6,
             },
             {
                 turno: 'Tarde',
                 cicloAlfabetizacao: 4,
-                cicloAltoral: 3,
-                semCiclo: 2,
+                cicloInterdisciplinar: 3,
+                cicloAutoral: 1,
+                semCiclo: 1,
                 total: 9,
             },
         ],
-        spiTotal: 5,
+        spiRows: [
+            {
+                turno: 'SPI Manhã',
+                cicloAlfabetizacao: 1,
+                cicloInterdisciplinar: 1,
+                cicloAutoral: 1,
+                semCiclo: 0,
+                total: 3,
+            },
+        ],
     }
 
     beforeEach(() => {
@@ -62,6 +73,7 @@ describe('DetalhamentoTurmasModal', () => {
 
         expect(screen.getByText('TURNO')).toBeInTheDocument()
         expect(screen.getByText('CICLO ALFABETIZAÇÃO')).toBeInTheDocument()
+        expect(screen.getByText('CICLO INTERDISCIPLINAR')).toBeInTheDocument()
         expect(screen.getByText('CICLO AUTORAL')).toBeInTheDocument()
         expect(screen.getByText('SEM CICLO')).toBeInTheDocument()
         expect(screen.getByText('TOTAL')).toBeInTheDocument()
@@ -72,21 +84,33 @@ describe('DetalhamentoTurmasModal', () => {
 
         expect(screen.getByText('Manhã')).toBeInTheDocument()
         expect(screen.getByText('Tarde')).toBeInTheDocument()
-        expect(screen.getAllByText('3').length).toBeGreaterThan(0)
-        expect(screen.getAllByText('4').length).toBeGreaterThan(0)
     })
 
     it('deve renderizar a linha de total geral', () => {
         render(<DetalhamentoTurmasModal {...defaultProps} />)
 
         expect(screen.getByText('TOTAL GERAL DE TURMAS')).toBeInTheDocument()
+        expect(screen.getAllByText('15').length).toBeGreaterThan(0)
     })
 
-    it('deve renderizar a linha SPI com valor correto', () => {
+    it('deve renderizar linhas de SPI quando fornecidas', () => {
         render(<DetalhamentoTurmasModal {...defaultProps} />)
 
-        const spiCells = screen.getAllByText('5')
-        expect(spiCells.length).toBeGreaterThan(0)
+        const spiRowLabel = screen.getByText('SPI Manhã')
+        expect(spiRowLabel).toBeInTheDocument()
+
+        const row = spiRowLabel.closest('tr')!
+        const utils = within(row)
+
+        expect(utils.getByText('3')).toBeInTheDocument()
+    })
+
+    it('não deve renderizar SPI quando spiRows não for fornecido', () => {
+        const { spiRows, ...propsWithoutSpi } = defaultProps
+
+        render(<DetalhamentoTurmasModal {...propsWithoutSpi} />)
+
+        expect(screen.queryByText('SPI Manhã')).not.toBeInTheDocument()
     })
 
     it('deve chamar onOpenChange ao clicar no botão Sair', async () => {
@@ -96,49 +120,5 @@ describe('DetalhamentoTurmasModal', () => {
         await userEvent.click(exitButton)
 
         expect(mockOnOpenChange).toHaveBeenCalled()
-    })
-
-    it('deve usar spiTotal padrão quando não fornecido', () => {
-        const { spiTotal, ...propsWithoutSpiTotal } = defaultProps
-
-        render(<DetalhamentoTurmasModal {...propsWithoutSpiTotal} />)
-
-        const spiCells = screen.getAllByText('5')
-        expect(spiCells.length).toBeGreaterThan(0)
-    })
-
-    it('deve renderizar células vazias quando valores opcionais não são fornecidos', () => {
-        const propsWithEmptyRows = {
-            ...defaultProps,
-            rows: [
-                {
-                    turno: 'Noite',
-                },
-            ],
-        }
-
-        render(<DetalhamentoTurmasModal {...propsWithEmptyRows} />)
-
-        expect(screen.getByText('Noite')).toBeInTheDocument()
-    })
-
-    it('deve renderizar múltiplas linhas de turnos corretamente', () => {
-        render(<DetalhamentoTurmasModal {...defaultProps} />)
-
-        expect(screen.getByText('Manhã')).toBeInTheDocument()
-        expect(screen.getByText('Tarde')).toBeInTheDocument()
-
-        const rows = screen.getAllByRole('row')
-        expect(rows.length).toBeGreaterThan(2)
-    })
-
-    it('deve exibir o total correto na linha de total geral', () => {
-        render(<DetalhamentoTurmasModal {...defaultProps} />)
-
-        const totalGeralRow = screen.getByText('TOTAL GERAL DE TURMAS')
-        expect(totalGeralRow).toBeInTheDocument()
-
-        const totalValue = screen.getAllByText('15')
-        expect(totalValue.length).toBeGreaterThan(0)
     })
 })

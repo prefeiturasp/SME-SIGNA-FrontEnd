@@ -23,6 +23,7 @@ const dadosTitular = {
     cargo_base: "Coordenador",
     lotacao: "EMEF Outra",
     cargo_sobreposto_funcao_atividade: "Vice-Diretor",
+    cd_cargo_sobreposto_funcao_atividade: "77",
     local_de_exercicio: "Escola B",
     local_de_servico: "DRE Sul",
 };
@@ -45,7 +46,6 @@ const formBase = {
     motivo_pendencia: null,
     tipo_cargo: "substituto",
     cargo_vago_selecionado: null,
-    cargo_vaga: "10",
 };
 
 // ── Testes ───────────────────────────────────────
@@ -194,37 +194,71 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.tipo_vaga).toBe("SUBSTITUTO");
     });
 
-    it("usa cargo_vago_selecionado quando presente como objeto com .id", () => {
+    // ── getCargoVaga ──────────────────────────────
+
+    it("retorna cargo_vaga undefined quando tipo_cargo não é 'vago' nem 'disponivel'", () => {
+        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "substituto" });
+
+        expect(result?.cargo_vaga).toBeUndefined();
+    });
+
+    it("usa cargo_vago_selecionado.id quando tipo_cargo é 'vago' e é objeto com .id", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
+            tipo_cargo: "vago",
             cargo_vago_selecionado: { id: 99 },
         });
 
         expect(result?.cargo_vaga).toBe(99);
     });
 
-    it("usa cargo_vago_selecionado quando presente como string", () => {
+    it("usa Number(cargo_vago_selecionado) quando tipo_cargo é 'vago' e é string", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
+            tipo_cargo: "vago",
             cargo_vago_selecionado: "99",
         });
 
         expect(result?.cargo_vaga).toBe(99);
     });
 
-    it("faz parseInt de cargo_vaga quando cargo_vago_selecionado é null/falsy", () => {
+    it("retorna undefined quando tipo_cargo é 'vago' e cargo_vago_selecionado é null", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
+            tipo_cargo: "vago",
             cargo_vago_selecionado: null,
-            cargo_vaga: "10",
         });
 
-        expect(result?.cargo_vaga).toBe(10);
+        expect(result?.cargo_vaga).toBeUndefined();
     });
 
-    it("retorna 3360 para cargo_vaga quando dadosTitular está presente", () => {
-        const result = mapearPayloadDesignacao({ ...formBase, dadosTitular });
+    it("usa cd_cargo_sobreposto_funcao_atividade do titular quando tipo_cargo é 'disponivel'", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            tipo_cargo: "disponivel",
+            dadosTitular,
+        });
 
-        expect(result?.cargo_vaga).toBe(3360);
+        expect(result?.cargo_vaga).toBe(77);
+    });
+
+    it("retorna undefined quando tipo_cargo é 'disponivel' mas dadosTitular não tem cd_cargo_sobreposto", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            tipo_cargo: "disponivel",
+            dadosTitular: { ...dadosTitular, cd_cargo_sobreposto_funcao_atividade: undefined },
+        });
+
+        expect(result?.cargo_vaga).toBeUndefined();
+    });
+
+    it("retorna undefined quando tipo_cargo é 'disponivel' e dadosTitular é null", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            tipo_cargo: "disponivel",
+            dadosTitular: null,
+        });
+
+        expect(result?.cargo_vaga).toBeUndefined();
     });
 });

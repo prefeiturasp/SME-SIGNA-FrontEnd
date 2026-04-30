@@ -15,7 +15,8 @@ type DesignacaoResult =
     | { success: false; error: string; field?: string };
 
 export async function designacaoAction(
-    formData: FormDesignacaoEServidorIndicado | null
+    formData: FormDesignacaoEServidorIndicado | null,
+    id: string | null
 ): Promise<DesignacaoResult> {
     if (!formData) {
         return { success: false, error: "Dados do formulário ausentes." };
@@ -25,20 +26,33 @@ export async function designacaoAction(
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
     const payload = mapearPayloadDesignacao(formData);
-
-    try {
-        const { data } = await axios.post(
-            `${API_URL}/designacao/designacoes/`,
-            payload,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-                },
-            }
-        );
-
-        return { success: true, data };
+     try {
+         const headers = {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        };      
+          
+          let data;
+          
+          if (id) {            
+            
+            const response = await axios.patch(
+              `${API_URL}/designacao/designacoes/${id}/`,
+              payload,
+              { headers }
+            );
+            data = response.data;
+          } else {
+            const response = await axios.post(
+              `${API_URL}/designacao/designacoes/`,
+              payload,
+              { headers }
+            );
+            data = response.data;
+          }
+          
+          
+        return { success: true,  data };
     } catch (err) {
         const error = err as AxiosError<DesignacaoErrorResponse>;
 

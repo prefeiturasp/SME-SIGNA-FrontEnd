@@ -228,7 +228,7 @@ describe("ListagemDeDesignacoes", () => {
     const props = tableMock.mock.calls[0][0];
 
     expect(props.className).toBe("tabela-designacoes w-full");
-    expect(props.scroll).toEqual({ x: "max-content" });
+    expect(props.scroll).toEqual({ x: "100%" });
     expect(typeof props.rowKey).toBe("function");
     expect((props.rowKey as (r: ListagemDesignacoesResponse) => string)(makeRow(5))).toBe("5");
     expect(props.pagination).toBe(false);
@@ -366,8 +366,12 @@ describe("ListagemDeDesignacoes", () => {
 
   it("executa os itens de menu e abre confirmação de exclusão", () => {
     renderComponent();
+
     const props = tableMock.mock.calls[0][0];
-    const columns = props.columns as NonNullable<TableProps<ListagemDesignacoesResponse>["columns"]>;
+    const columns = props.columns as NonNullable<
+      TableProps<ListagemDesignacoesResponse>["columns"]
+    >;
+
     const actionRender = columns[11]?.render as
       | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
       | undefined;
@@ -375,11 +379,13 @@ describe("ListagemDeDesignacoes", () => {
     render(<>{actionRender?.(null, makeRow(1))}</>);
 
     fireEvent.click(screen.getByTestId("menu-item-1"));
+
     fireEvent.click(screen.getByTestId("menu-item-2"));
+
     fireEvent.click(screen.getByTestId("menu-item-3"));
-    expect(console.log).toHaveBeenNthCalledWith(1, "Apostilar");
-    expect(console.log).toHaveBeenNthCalledWith(2, "Cessar");
-    expect(console.log).toHaveBeenNthCalledWith(3, "Tornar Insubsistente");
+
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=1");
 
     fireEvent.click(screen.getByTestId("menu-item-4"));
 
@@ -387,11 +393,13 @@ describe("ListagemDeDesignacoes", () => {
     const updatedColumns = updatedProps?.columns as NonNullable<
       TableProps<ListagemDesignacoesResponse>["columns"]
     >;
+
     const updatedActionRender = updatedColumns[11]?.render as
       | ((_: unknown, record: ListagemDesignacoesResponse) => ReactNode)
       | undefined;
 
     render(<>{updatedActionRender?.(null, makeRow(1))}</>);
+
     expect(screen.getByTestId("popconfirm-confirm")).toBeInTheDocument();
   });
 

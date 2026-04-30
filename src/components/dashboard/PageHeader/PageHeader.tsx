@@ -17,7 +17,7 @@ import ArrowCircleDark from "@/assets/icons/ArrowCircleDark";
 import HomeIcon from "@/assets/icons/Home";
 
 interface PageHeaderProps {
-    title: string;
+    title: React.ReactNode;
     showBackButton?: boolean;
     onClickBack?: () => void;
     icon?: React.ReactNode;

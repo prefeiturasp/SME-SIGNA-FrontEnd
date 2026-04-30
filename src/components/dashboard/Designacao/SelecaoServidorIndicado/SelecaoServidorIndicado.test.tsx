@@ -257,4 +257,22 @@ describe("SelecaoServidorIndicado", () => {
       screen.getByText("Diretor de Escola")
     ).toBeInTheDocument();
   });
+
+  it("deve renderizar spinner quando isLoading for true", () => {
+    render(
+      <TestWrapper tipoCargoInicial="vago">
+        {(form) => (
+          <SelecaoServidorIndicado
+            {...baseProps}
+            form={form}
+            tipoCargo="vago"
+            isLoading={true}
+          />
+        )}
+      </TestWrapper>
+    );
+
+    expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Selecione o cargo")).not.toBeInTheDocument();
+  });
 });
