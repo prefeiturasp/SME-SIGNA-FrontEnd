@@ -11,8 +11,8 @@ import { Servidor } from "@/types/designacao-unidade";
 const ResumoTitular: React.FC<{
   data: Servidor;
   onSubmitEditarServidor: (data: FormEditarServidorData) => void;
-
-}> = ({ data, onSubmitEditarServidor }) => {
+  showLocalDeServico?: boolean;
+}> = ({ data, onSubmitEditarServidor, showLocalDeServico = false }) => {
   const [openModalEditar, setOpenModalEditar] = useState(false);
   function handleSubmitEditarServidor(data: FormEditarServidorData) {
     onSubmitEditarServidor(data);
@@ -27,7 +27,12 @@ const ResumoTitular: React.FC<{
         <InfoItem label="Cargo Base" value={data.cargo_base} />
         <InfoItem label="Lotação" value={data.lotacao} />
         <InfoItem label="Laudo Médico" value={data.laudo_medico} />
-        <InfoItem label="Local de Serviço" value={data.local_de_servico} />
+        {showLocalDeServico && (
+          <InfoItem
+            label="Local de serviço"
+            value={data.local_de_servico}
+          />
+        )}
         <InfoItem label="Cargo Sobreposto/Função Atividade" value={data.cargo_sobreposto_funcao_atividade} />
         <InfoItem label="Local de Exercício" value={data.local_de_exercicio} />
       </div>
@@ -42,7 +47,7 @@ const ResumoTitular: React.FC<{
         isLoading={false}
         open={openModalEditar}
         onOpenChange={setOpenModalEditar}
-        defaultValues={data }
+        defaultValues={data}
         handleSubmitEditarServidor={handleSubmitEditarServidor}
       />
     </div>

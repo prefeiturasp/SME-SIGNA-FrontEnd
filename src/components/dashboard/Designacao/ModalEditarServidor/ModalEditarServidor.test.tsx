@@ -36,6 +36,7 @@ function renderModal(
     open: boolean;
     onOpenChange: (v: boolean) => void;
     defaultValues: Servidor;
+    showLocalDeServico: boolean;
   }> = {}
 ) {
   const onOpenChange = overrides.onOpenChange ?? vi.fn();
@@ -48,6 +49,7 @@ function renderModal(
         onOpenChange={onOpenChange}
         defaultValues={overrides.defaultValues ?? defaultServidor}
         handleSubmitEditarServidor={handleSubmitEditarServidor}
+        showLocalDeServico={overrides.showLocalDeServico ?? false}
       />  
     ),
   };
@@ -91,7 +93,6 @@ describe("ModalEditarServidor", () => {
       
       "Local de exercício",
       "Laudo médico",
-      "Local de serviço", 
     ];
 
     labels.forEach((label) => {
@@ -121,7 +122,7 @@ describe("ModalEditarServidor", () => {
 
  
   it("Verifica se os campos estão desabilitados", () => {
-    renderModal();
+    renderModal({ showLocalDeServico: true });
     expect(screen.getByPlaceholderText("Nome servidor")).not.toBeDisabled();
  
 
@@ -140,6 +141,14 @@ describe("ModalEditarServidor", () => {
  
 
   });
+
+  it("Verifica se o campo local de serviço não aparece quando showLocalDeServico é false", () => {
+    renderModal({ showLocalDeServico: false });
+ 
+    expect(screen.queryByPlaceholderText(/Local de serviço/)).not.toBeInTheDocument(); 
+
+  });
+
 
   
   it("desabilita o botão Salvar quando isLoading é true", () => {

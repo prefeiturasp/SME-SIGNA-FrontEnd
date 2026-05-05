@@ -48,7 +48,7 @@ describe("ResumoPortariaDesigacao", () => {
     expect(screen.getByText("Sim")).toBeInTheDocument();
   });
 
-  it("renderiza 'Não' quando caráter especial for false", () => {
+  it("renderiza 'Não' quando caráter excepcional for false", () => {
     render(
       <ResumoPortariaDesigacao
         defaultValues={{ ...baseDefaultValues, carater_excepcional: false }}
@@ -68,7 +68,7 @@ describe("ResumoPortariaDesigacao", () => {
 
     expect(screen.queryByText("A partir de")).not.toBeInTheDocument();
     expect(screen.queryByText("Até")).not.toBeInTheDocument();
-    expect(screen.queryByText("Caráter Especial")).not.toBeInTheDocument();
+    expect(screen.queryByText("Caráter Excepcional")).not.toBeInTheDocument();
     expect(screen.queryByText("Impedimento para substituição:")).not.toBeInTheDocument();
     expect(screen.queryByText("Motivo do afastamento:")).not.toBeInTheDocument();
     expect(screen.queryByText("Pendência:")).not.toBeInTheDocument();
