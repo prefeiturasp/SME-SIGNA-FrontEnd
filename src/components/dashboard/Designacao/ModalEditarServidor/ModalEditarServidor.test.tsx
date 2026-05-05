@@ -23,7 +23,15 @@ const defaultServidor: Servidor = {
   local_de_servico: "Regi.de Educação São Mateus",
 };
 
-function renderModal(overrides: Partial<any> = {}) {
+function renderModal(
+  overrides: Partial<{
+    isLoading: boolean;
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+    defaultValues: Servidor;
+    showLocalDeServico: boolean;
+  }> = {}
+) {
   const onOpenChange = overrides.onOpenChange ?? vi.fn();
 
   return {
@@ -35,6 +43,7 @@ function renderModal(overrides: Partial<any> = {}) {
         onOpenChange={onOpenChange}
         defaultValues={overrides.defaultValues ?? defaultServidor}
         handleSubmitEditarServidor={handleSubmitEditarServidor}
+        showLocalDeServico={overrides.showLocalDeServico ?? false}
       />
     ),
   };
@@ -95,7 +104,7 @@ describe("ModalEditarServidor", () => {
     );
   });
 
-  it("valida campos desabilitados corretamente", () => {
+  it("valida campos habilitados/desabilitados corretamente", () => {
     renderModal();
 
     expect(screen.getByRole("textbox", { name: /nome servidor/i })).toBeEnabled();
@@ -105,7 +114,15 @@ describe("ModalEditarServidor", () => {
     expect(screen.getByRole("textbox", { name: /vínculo/i })).toBeDisabled();
   });
 
-  it("desabilita botão salvar quando isLoading", () => {
+  it("não exibe local de serviço quando showLocalDeServico é false", () => {
+    renderModal({ showLocalDeServico: false });
+
+    expect(
+      screen.queryByPlaceholderText(/local de serviço/i)
+    ).not.toBeInTheDocument();
+  });
+
+  it("desabilita o botão salvar quando isLoading é true", () => {
     renderModal({ isLoading: true });
 
     expect(screen.getByTestId("botao-salvar")).toBeDisabled();

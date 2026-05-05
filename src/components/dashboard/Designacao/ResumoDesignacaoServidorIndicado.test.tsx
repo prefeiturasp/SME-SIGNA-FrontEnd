@@ -143,7 +143,23 @@ describe("ResumoDesignacao", () => {
   it("exibe rótulos e valores", () => {
     renderResumo();
 
-    expect(screen.getByText("Nome Servidor")).toBeInTheDocument();
+    const labels = [
+      "Nome Servidor",
+      "Nome Social",
+      "RF",
+      "Vínculo",
+      "Cargo base",
+      "Lotação",
+      "Cursos/Títulos",
+      "Cargo sobreposto/Função atividade",
+      "Local de exercício",
+      "Laudo médico",
+    ];
+
+    labels.forEach((label) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
     expect(screen.getByText(mockData.rf)).toBeInTheDocument();
   });
 
@@ -187,17 +203,45 @@ describe("ResumoDesignacao", () => {
     });
   });
 
-  it("renderiza botão editar", () => {
-    renderResumo();
-    expect(
-      screen.getByRole("button", { name: /Editar/i })
-    ).toBeInTheDocument();
-  });
+  it("mostra loading no modal quando os cursos estão carregando", async () => {
+    mockUseCursosETitulos.mockReturnValue({
+      isLoading: true,
+      data: [],
+      isError: false,
+      error: null,
+      isSuccess: false,
+    });
 
-  it("abre modal editar", async () => {
     const { user } = setup();
 
-    await user.click(screen.getByRole("button", { name: /Editar/i }));
+    await user.click(screen.getByTestId("btn-visualizar-cursos-titulos"));
+
+    expect(await screen.findByText("Loading: true")).toBeInTheDocument();
+  });
+
+  it("passa array vazio quando data é undefined", async () => {
+    mockUseCursosETitulos.mockReturnValue({
+      isLoading: false,
+      data: undefined,
+      isError: false,
+      error: null,
+      isSuccess: true,
+    });
+
+    const { user } = setup();
+
+    await user.click(screen.getByTestId("btn-visualizar-cursos-titulos"));
+
+    expect(await screen.findByText("Data Length: 2")).toBeInTheDocument();
+  });
+
+  it("renderiza botão editar e abre modal", async () => {
+    const { user } = setup();
+
+    const btn = screen.getByRole("button", { name: /editar/i });
+    expect(btn).toBeInTheDocument();
+
+    await user.click(btn);
 
     expect(
       screen.getByText("Editar dados servidor indicado")

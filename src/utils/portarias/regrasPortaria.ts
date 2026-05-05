@@ -1,6 +1,5 @@
 import { DesignacaoData } from "@/types/designacao";
 import { formatarRF, nameToCamelCase } from "./formatadores";
-import { toUpperCase } from "zod";
 
 function formatarData(data?: string | Date) {
     if (!data) return "____";

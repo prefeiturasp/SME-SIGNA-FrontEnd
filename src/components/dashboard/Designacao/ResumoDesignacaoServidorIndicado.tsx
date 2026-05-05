@@ -31,7 +31,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showCursosTitulos = false,
   showEditar = false,
   showLotacao = false,
-  showLocalDeServico = true,
+  showLocalDeServico = false,
   onSubmitEditarServidor
 }) => {
 

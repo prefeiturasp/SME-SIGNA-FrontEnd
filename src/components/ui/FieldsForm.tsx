@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { InputBase } from "@/components/ui/input-base";
+import { InputBase, InputBaseMask } from "@/components/ui/input-base";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -75,7 +75,7 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean }) => {
+export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string }) => {
     return (
         <FormField
             {...register(name)}
@@ -88,7 +88,8 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                         {label}
                     </FormLabel>
                     <FormControl >
-                        <InputBase
+                        <InputBaseMask
+                            mask={mask}
                             type={type}
                             placeholder={placeholder}
                             value={field.value}
