@@ -26,13 +26,13 @@ const InputBase = React.forwardRef<HTMLInputElement, InputBaseProps>(
 InputBase.displayName = "InputBase";
 
 export interface InputBaseMaskProps extends InputBaseProps {
-  maskProps: BaseInputMaskProps;
+    mask?: string;
 }
 
 const InputBaseMask = React.forwardRef<HTMLInputElement, InputBaseMaskProps>(
-  ({ maskProps, ...props }, ref) => {
+  ({  mask,...props }, ref) => {
     return (
-      <BaseInputMask {...maskProps} {...props} maskPlaceholder={null} ref={ref}>
+      <BaseInputMask   {...props} maskPlaceholder={null} mask={mask} ref={ref}>
         <InputBase />
       </BaseInputMask>
     );
