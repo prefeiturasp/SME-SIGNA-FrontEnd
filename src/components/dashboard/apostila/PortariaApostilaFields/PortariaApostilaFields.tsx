@@ -19,6 +19,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
       label: "Nº SEI",
       placeholder: "Número SEI",
       type: "string",
+      mask: "9999.9999/9999999-9",
     },
     {
       name: "apostila.doc",
@@ -55,6 +56,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
                   placeholder={field.placeholder}
                   type={field.type}
                   disabled={field.disabled}
+                  mask={field.mask}
                 />
             )}
           </div>

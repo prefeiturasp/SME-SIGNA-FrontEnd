@@ -152,7 +152,6 @@ describe("ResumoDesignacao", () => {
       "Cargo sobreposto/Função atividade",
       "Local de exercício",
       "Laudo médico",
-      "Local de serviço",
     ];
 
     labels.forEach((label) => {
@@ -390,6 +389,20 @@ describe("ResumoDesignacao", () => {
     );
 
     expect(screen.getByRole("button", { name: /Editar/i })).toBeInTheDocument();
+  });
+
+  it("renderiza o local de serviço quando showLocalDeServico é true", () => {
+    render(
+      <ResumoDesignacaoServidorIndicado
+        showCursosTitulos={true}
+        showLotacao={true}
+        showEditar={true}
+        showLocalDeServico={true}
+        defaultValues={mockData} />,
+      { wrapper }
+    );
+
+    expect(screen.queryByPlaceholderText(/Local de serviço/)).not.toBeInTheDocument();     
   });
 
   it("chama modalEditarServidor ao clicar no botão Editar", async () => {
