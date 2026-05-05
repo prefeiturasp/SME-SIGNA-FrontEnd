@@ -40,7 +40,7 @@ describe("gerarDadosPortaria", () => {
             sei: "000123",
             dre: "DRE Centro",
             autoridade: "Autoridade Teste",
-            nome_indicado: "João Silva",
+            nome_indicado: "JOÃO SILVA",
             rf: "123.456.7",
             vinculo: "Efetivo",
             cargo_base: "Professor",

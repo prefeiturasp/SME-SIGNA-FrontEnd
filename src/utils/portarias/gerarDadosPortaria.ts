@@ -23,13 +23,15 @@ function getCargoIndicado(data: DesignacaoData): string | undefined {
 export function gerarDadosPortaria(data: DesignacaoData) {
     const cargo_indicado = getCargoIndicado(data);
 
+    const nome_indicado = data?.servidorIndicado?.nome_civil || data?.servidorIndicado?.nome_servidor;
+
     return {
         portaria: `${data?.portaria_designacao}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
         dre: data?.dre_nome,
         autoridade: montarAutoridade(data),
-        nome_indicado: data?.servidorIndicado?.nome_civil,
+        nome_indicado: nome_indicado?.toUpperCase(),
         rf: formatarRF(data?.servidorIndicado?.rf ?? ""),
         vinculo: data?.servidorIndicado?.vinculo,
         cargo_base: nameToCamelCase(data?.servidorIndicado?.cargo_base ?? ""),

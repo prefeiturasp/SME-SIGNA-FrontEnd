@@ -21,7 +21,7 @@ const ResumoTitular: React.FC<{
     <div className="w-full bg-[#FAFAFA] p-4 flex flex-col gap-6">
       <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
         <InfoItem label="Nome Servidor" value={data.nome_servidor} />
-        <InfoItem label="Nome Civil" value={data.nome_civil} />
+        <InfoItem label="Nome Social" value={data.nome_civil} />
         <InfoItem label="RF" value={data.rf} />
         <InfoItem label="Vínculo" value={String(data.vinculo)} />
         <InfoItem label="Cargo Base" value={data.cargo_base} />
