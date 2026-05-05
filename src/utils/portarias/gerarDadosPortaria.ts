@@ -23,7 +23,7 @@ function getCargoIndicado(data: DesignacaoData): string | undefined {
 export function gerarDadosPortaria(data: DesignacaoData) {
     const cargo_indicado = getCargoIndicado(data);
 
-    const nome_indicado = data?.servidorIndicado?.nome_civil || data?.servidorIndicado?.nome_servidor;
+    const nome_indicado = data?.servidorIndicado?.nome_civil ?? data?.servidorIndicado?.nome_servidor;
 
     return {
         portaria: `${data?.portaria_designacao}/${data?.ano}`,
