@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
@@ -39,7 +39,7 @@ import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 export default function DesignacoesPasso2() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  
+
 
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
@@ -47,11 +47,12 @@ export default function DesignacoesPasso2() {
   const { formDesignacaoData, setFormDesignacaoData } =
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
+  const hasPopulatedFromApi = useRef(false);
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso2),
     defaultValues: {
-      portaria_designacao: formDesignacaoData?.portaria_designacao ?? "" ,
+      portaria_designacao: formDesignacaoData?.portaria_designacao ?? "",
       numero_sei: formDesignacaoData?.numero_sei ?? "",
       a_partir_de: formDesignacaoData?.a_partir_de ?? new Date(),
       designacao_data_final: formDesignacaoData?.designacao_data_final ?? null,
@@ -61,7 +62,7 @@ export default function DesignacoesPasso2() {
       carater_especial: formDesignacaoData?.carater_especial ?? "nao",
       com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
       motivo_afastamento: formDesignacaoData?.motivo_afastamento ?? "",
-      com_pendencia: formDesignacaoData?.com_pendencia ?? "nao", 
+      com_pendencia: formDesignacaoData?.com_pendencia ?? "nao",
       motivo_pendencia: formDesignacaoData?.motivo_pendencia ?? "",
       tipo_cargo: formDesignacaoData?.tipo_cargo ?? "disponivel",
       rf_titular: formDesignacaoData?.rf_titular ?? "",
@@ -72,13 +73,12 @@ export default function DesignacoesPasso2() {
   });
 
   useEffect(() => {
-    if (designacao) {
+    if (designacao && !hasPopulatedFromApi.current) {
+      hasPopulatedFromApi.current = true;
       setIsPopulateScreen(true);
+
       form.setValue("tipo_cargo", designacao.tipo_vaga.toLowerCase() as "vago" | "disponivel");
-      form.setValue("cargo_vago_selecionado", {
-        id: designacao.cargo_vaga,
-        label: designacao.cargo_vaga_display,
-      });
+      form.setValue("cargo_vago_selecionado", { id: designacao.cargo_vaga, label: designacao.cargo_vaga_display });
       form.setValue("portaria_designacao", designacao.numero_portaria);
       form.setValue("numero_sei", designacao.sei_numero);
       form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
@@ -91,10 +91,7 @@ export default function DesignacoesPasso2() {
       form.setValue("motivo_afastamento", designacao.motivo_afastamento);
       form.setValue("com_pendencia", designacao.possui_pendencia ? "sim" : "nao");
       form.setValue("motivo_pendencia", designacao.pendencias);
-
       form.setValue("rf_titular", designacao.titular_rf, { shouldValidate: true, shouldTouch: true });
-
-
 
       setDadosTitular({
         rf: designacao.titular_rf,
@@ -106,59 +103,52 @@ export default function DesignacoesPasso2() {
         cd_cargo_base: designacao.titular_codigo_cargo_base,
         cd_cargo_sobreposto_funcao_atividade: designacao.titular_codigo_cargo_sobreposto,
         cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
-        cursos_titulos: '-',
-        codigo_hierarquia: '-',
-        lotacao_cargo_base: '-',
-        laudo_medico: '-',
+        cursos_titulos: '-', codigo_hierarquia: '-', lotacao_cargo_base: '-', laudo_medico: '-',
         local_de_servico: designacao.titular_local_servico,
         local_de_exercicio: designacao.titular_local_exercicio,
-      })
-      setFormDesignacaoData(
-        {
-          servidorIndicado: {
-            "nome_servidor": designacao.indicado_nome_servidor,
-            "nome_civil": designacao.indicado_nome_civil,
-            "rf": designacao.indicado_rf,
-            "vinculo": designacao.indicado_vinculo,
-            "cargo_base": designacao.indicado_cargo_base,
-            "lotacao": designacao.indicado_lotacao,
-            "cargo_sobreposto_funcao_atividade": designacao.indicado_cargo_sobreposto,
-            "local_de_exercicio": designacao.indicado_local_exercicio,
-            "laudo_medico": "Indisponível",
-            "local_de_servico": designacao.indicado_local_servico
-          },
-          dre: '-',
-          dre_nome: designacao.dre_nome,
-          ue: '-',
-          ue_nome: designacao.unidade_proponente,
+      });
 
-          funcionarios_da_unidade: "-",
-          quantidade_turmas: "-",
-          codigo_hierarquico: designacao.codigo_hierarquico,
-          cargo_sobreposto: designacao.titular_cargo_sobreposto,
-          modulos: 1,
-          portaria_designacao: designacao.numero_portaria,
-          numero_sei: designacao.sei_numero,
-          a_partir_de: designacao.data_inicio,
-          designacao_data_final: designacao.data_fim,
-          com_afastamento: designacao.com_afastamento,
-          motivo_afastamento: designacao.motivo_afastamento,
-          com_pendencia: designacao.possui_pendencia,
-          motivo_pendencia: designacao.pendencias,
-          tipo_cargo: designacao.tipo_vaga.toLowerCase(),
-          rf_titular: designacao.titular_rf,
-          cargo_vago_selecionado: {
-            id: designacao.cargo_vaga,
-            label: designacao.cargo_vaga_display
-          },
-          dadosTitular: null
-        } as unknown as FormDesignacaoEServidorIndicado);
-
+      setFormDesignacaoData({
+        // Preserva servidorIndicado do context (pode ter sido editado no Passo 1)
+        servidorIndicado: formDesignacaoData?.servidorIndicado ?? {
+          nome_servidor: designacao.indicado_nome_servidor,
+          nome_civil: designacao.indicado_nome_civil,
+          rf: designacao.indicado_rf,
+          vinculo: designacao.indicado_vinculo,
+          cargo_base: designacao.indicado_cargo_base,
+          lotacao: designacao.indicado_lotacao,
+          cargo_sobreposto_funcao_atividade: designacao.indicado_cargo_sobreposto,
+          local_de_exercicio: designacao.indicado_local_exercicio,
+          laudo_medico: "Indisponível",
+          local_de_servico: designacao.indicado_local_servico,
+        },
+        dre: formDesignacaoData?.dre ?? '-',
+        dre_nome: formDesignacaoData?.dre_nome ?? designacao.dre_nome,
+        ue: formDesignacaoData?.ue ?? '-',
+        ue_nome: formDesignacaoData?.ue_nome ?? designacao.unidade_proponente,
+        funcionarios_da_unidade: formDesignacaoData?.funcionarios_da_unidade ?? "-",
+        quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
+        codigo_hierarquico: formDesignacaoData?.codigo_hierarquico ?? designacao.codigo_hierarquico,
+        cargo_sobreposto: formDesignacaoData?.cargo_sobreposto ?? designacao.titular_cargo_sobreposto,
+        modulos: formDesignacaoData?.modulos ?? 1,
+        portaria_designacao: designacao.numero_portaria,
+        numero_sei: designacao.sei_numero,
+        a_partir_de: designacao.data_inicio,
+        designacao_data_final: designacao.data_fim,
+        com_afastamento: designacao.com_afastamento,
+        motivo_afastamento: designacao.motivo_afastamento,
+        com_pendencia: designacao.possui_pendencia,
+        motivo_pendencia: designacao.pendencias,
+        tipo_cargo: designacao.tipo_vaga.toLowerCase(),
+        rf_titular: designacao.titular_rf,
+        cargo_vago_selecionado: { id: designacao.cargo_vaga, label: designacao.cargo_vaga_display },
+        dadosTitular: null,
+      } as unknown as FormDesignacaoEServidorIndicado);
 
       form.clearErrors();
       setIsPopulateScreen(false);
     }
-  }, [designacao, setFormDesignacaoData, form]);
+  }, [designacao]);
 
   const { mutateAsync } = useServidorDesignacao();
   const router = useRouter();
@@ -356,13 +346,10 @@ export default function DesignacoesPasso2() {
               showAnterior={true}
               onAnterior={() => {
                 onSubmitDesignacao(form.getValues());
-                if (id !== null ) {
-                  router.push(
-                    `/pages/listagem-designacoes`
-                  );
-                } else {
+                if (id === null) {
                   router.push(`/pages/designacoes/designacoes-passo-1?rf=${formDesignacaoData?.servidorIndicado?.rf}`);
-                  
+                } else {
+                  router.push(`/pages/listagem-designacoes`);
                 }
               }}
             />
