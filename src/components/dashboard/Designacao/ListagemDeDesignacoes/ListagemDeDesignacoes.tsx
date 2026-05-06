@@ -108,6 +108,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       onClick: () => {
         router.push(`/pages/apostila?id=${record.id}`);
       },
+      disabled: !!record?.apostilas?.length,
     },
     {
       key: '2',

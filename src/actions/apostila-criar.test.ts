@@ -86,7 +86,7 @@ describe("ApostilaAction", () => {
       isAxiosError: true,
       response: {
         status: 400,
-        data: { detail: "Error detail with string='Mensagem customizada via backend'" },
+        data: { detail: "Mensagem customizada via backend" },
       },
     };
     mockedAxios.post.mockRejectedValueOnce(axiosError);
