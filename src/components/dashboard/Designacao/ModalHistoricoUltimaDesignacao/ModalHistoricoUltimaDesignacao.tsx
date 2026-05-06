@@ -79,7 +79,7 @@ export default function ModalUltimaDesignacao({
                                 value={ultimoServidor.nome_servidor}
                             />
                             <CampoInfo
-                                label="Nome Civil"
+                                label="Nome Social"
                                 value={ultimoServidor.nome_civil}
                             />
                             <CampoInfo

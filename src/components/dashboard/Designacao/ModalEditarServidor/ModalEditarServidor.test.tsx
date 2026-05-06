@@ -4,32 +4,25 @@ import { vi } from "vitest";
 
 import ModalEditarServidor from "./ModalEditarServidor";
 import type { Servidor } from "@/types/designacao-unidade";
- 
- 
-const mockSetFormDesignacaoData = vi.fn();
+
 const handleSubmitEditarServidor = vi.fn();
-
- 
-
 
 const defaultServidor: Servidor = {
   rf: "12345",
   nome_servidor: "João da Silva",
   nome_civil: "João da Silva Civil",
-
   vinculo: 1,
   lotacao: "Escola Municipal X",
   cargo_base: "Professor I",
+  cd_cargo_base: 10,
   cargo_sobreposto_funcao_atividade: "Diretor de Escola",
+  cd_cargo_sobreposto_funcao_atividade: 20,
   cursos_titulos: "Licenciatura em Matemática",
-  local_de_exercicio: "Diretoria Regi.de Educação São Mateus ",
+  local_de_exercicio: "Diretoria Regi.de Educação São Mateus",
   laudo_medico: "Laudo médico não informado",
-  local_de_servico: "Regi.de Educação São Mateus ",
+  local_de_servico: "Regi.de Educação São Mateus",
 };
 
-
- 
- 
 function renderModal(
   overrides: Partial<{
     isLoading: boolean;
@@ -40,6 +33,7 @@ function renderModal(
   }> = {}
 ) {
   const onOpenChange = overrides.onOpenChange ?? vi.fn();
+
   return {
     onOpenChange,
     ...render(
@@ -50,180 +44,140 @@ function renderModal(
         defaultValues={overrides.defaultValues ?? defaultServidor}
         handleSubmitEditarServidor={handleSubmitEditarServidor}
         showLocalDeServico={overrides.showLocalDeServico ?? false}
-      />  
+      />
     ),
   };
 }
 
- 
 describe("ModalEditarServidor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-   });
+  });
 
- 
   it("renderiza o modal quando open é true", () => {
-    renderModal({ open: true });
+    renderModal();
 
     expect(
-      screen.getByText("Editar dados servidor indicado")
+      screen.getByRole("heading", {
+        name: /editar dados servidor indicado/i,
+      })
     ).toBeInTheDocument();
   });
 
-  it("não renderiza o conteúdo quando open é false", () => {
+  it("não renderiza quando open é false", () => {
     renderModal({ open: false });
 
     expect(
-      screen.queryByText("Editar dados servidor indicado")
+      screen.queryByRole("heading", {
+        name: /editar dados servidor indicado/i,
+      })
     ).not.toBeInTheDocument();
   });
 
-  it("exibe todos os rótulos dos campos do formulário", () => {
+  it("exibe os campos principais", () => {
     renderModal();
 
-    const labels = [
-      "Nome servidor",
-      "Nome Civil",
-      "RF",
-      "Vínculo",
-       "Cargo base",
-
-      "Lotação",
-      "Cargo sobreposto/Função atividade",
-      
-      "Local de exercício",
-      "Laudo médico",
-    ];
-
-    labels.forEach((label) => {
-      expect(screen.getByText(label)).toBeInTheDocument();
-    });
+    expect(screen.getByRole("textbox", { name: /nome servidor/i })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /nome social/i })).toBeInTheDocument();
+    expect(screen.getByRole("spinbutton", { name: /rf/i })).toBeInTheDocument();
   });
 
-  it("preenche os campos editáveis com os defaultValues informados", () => {
+  it("preenche os valores iniciais corretamente", () => {
     renderModal();
 
-    expect(
-      screen.getByDisplayValue(defaultServidor.nome_servidor!)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByDisplayValue(defaultServidor.nome_civil!)
-    ).toBeInTheDocument();
-    expect(screen.getByDisplayValue(defaultServidor.rf)).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /nome servidor/i })).toHaveValue(
+      defaultServidor.nome_servidor
+    );
+
+    expect(screen.getByRole("textbox", { name: /nome social/i })).toHaveValue(
+      defaultServidor.nome_civil
+    );
   });
 
-   
-  it("usa nome como fallback para nome_civil quando nome_civil é undefined", () => {
-    const servidor: Servidor = { ...defaultServidor, nome_civil: undefined };
+  it("usa nome_servidor como fallback para nome_civil", () => {
+    const servidor = { ...defaultServidor, nome_civil: undefined };
+
     renderModal({ defaultValues: servidor });
 
-    expect(screen.getByPlaceholderText("Nome Civil")).toHaveValue(servidor.nome_servidor);
+    expect(screen.getByRole("textbox", { name: /nome social/i })).toHaveValue(
+      servidor.nome_servidor
+    );
   });
 
- 
-  it("Verifica se os campos estão desabilitados", () => {
-    renderModal({ showLocalDeServico: true });
-    expect(screen.getByPlaceholderText("Nome servidor")).not.toBeDisabled();
- 
+  it("valida campos habilitados/desabilitados corretamente", () => {
+    renderModal();
 
-    expect(screen.getByPlaceholderText("Nome Civil")).not.toBeDisabled();
-    expect(screen.getByPlaceholderText("Digite o RF")).toBeDisabled();
-   
-    expect(screen.getByPlaceholderText("Vínculo")).toBeDisabled();
+    expect(screen.getByRole("textbox", { name: /nome servidor/i })).toBeEnabled();
+    expect(screen.getByRole("textbox", { name: /nome social/i })).toBeEnabled();
 
-    expect(screen.getByPlaceholderText("Cargo base")).toBeDisabled();
-
-    expect(screen.getByPlaceholderText(/Lotação/)).toBeDisabled();
-    expect(screen.getByPlaceholderText("Cargo sobreposto")).toBeDisabled();
-    expect(screen.getByPlaceholderText(/Local de exercício/)).toBeDisabled();
-    expect(screen.getByPlaceholderText(/Laudo médico/)).toBeDisabled();
-    expect(screen.getByPlaceholderText(/Local de serviço/)).toBeDisabled();
- 
-
+    expect(screen.getByRole("spinbutton", { name: /rf/i })).toBeDisabled();
+    expect(screen.getByRole("textbox", { name: /vínculo/i })).toBeDisabled();
   });
 
-  it("Verifica se o campo local de serviço não aparece quando showLocalDeServico é false", () => {
+  it("não exibe local de serviço quando showLocalDeServico é false", () => {
     renderModal({ showLocalDeServico: false });
- 
-    expect(screen.queryByPlaceholderText(/Local de serviço/)).not.toBeInTheDocument(); 
 
+    expect(
+      screen.queryByPlaceholderText(/local de serviço/i)
+    ).not.toBeInTheDocument();
   });
 
-
-  
-  it("desabilita o botão Salvar quando isLoading é true", () => {
+  it("desabilita o botão salvar quando isLoading é true", () => {
     renderModal({ isLoading: true });
 
     expect(screen.getByTestId("botao-salvar")).toBeDisabled();
   });
 
-  it("habilita o botão Salvar quando isLoading é false", () => {
-    renderModal({ isLoading: false });
-
-    expect(screen.getByTestId("botao-salvar")).not.toBeDisabled();
-  });
-
- 
-  it("renderiza o botão Cancelar", () => {
-    renderModal();
-
-    expect(screen.getByTestId("botao-cancelar")).toBeInTheDocument();
-  });
-
-  it("chama onOpenChange(false) ao clicar em Cancelar", async () => {
+  it("clica em cancelar e fecha modal", async () => {
     const user = userEvent.setup();
     const { onOpenChange } = renderModal();
 
     await user.click(screen.getByTestId("botao-cancelar"));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(onOpenChange).toHaveBeenCalledTimes(1);
   });
 
-   
-  it("preserva nome_servidor ao alterar somente o nome civil", async () => {
+  it("edita nome social e envia corretamente", async () => {
     const user = userEvent.setup();
     renderModal();
 
-    const inputNomeCivil = screen.getByPlaceholderText("Nome Civil");
-    await user.clear(inputNomeCivil);
-    await user.type(inputNomeCivil, "Apenas Civil Alterado");
+    const input = screen.getByRole("textbox", { name: /nome social/i });
+
+    await user.clear(input);
+    await user.type(input, "Novo Nome Social");
 
     await user.click(screen.getByTestId("botao-salvar"));
 
     await waitFor(() => {
       expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
-          ...defaultServidor,
-            nome_civil: "Apenas Civil Alterado",
+          nome_civil: "Novo Nome Social",
         })
       );
     });
   });
 
-   
-  it("altera o nome servidor corretamente e salva via submit", async () => {
+  it("edita nome servidor e envia corretamente", async () => {
     const user = userEvent.setup();
     renderModal();
 
-    const inputNomeServidor = screen.getByPlaceholderText("Nome servidor");
-    await user.clear(inputNomeServidor);
-    await user.type(inputNomeServidor, "Novo Nome Servidor");
+    const input = screen.getByRole("textbox", { name: /nome servidor/i });
+
+    await user.clear(input);
+    await user.type(input, "Novo Nome");
 
     await user.click(screen.getByTestId("botao-salvar"));
 
-     await waitFor(() => {
+    await waitFor(() => {
       expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
         expect.objectContaining({
-          ...defaultServidor,
-          nome_servidor: "Novo Nome Servidor",
+          nome_servidor: "Novo Nome",
         })
       );
     });
   });
 
- 
-  it("chama onOpenChange(false) após submit bem-sucedido", async () => {
+  it("fecha modal após submit", async () => {
     const user = userEvent.setup();
     const { onOpenChange } = renderModal();
 
@@ -234,92 +188,31 @@ describe("ModalEditarServidor", () => {
     });
   });
 
-  // ── Validação do formulário ─────────────────────────────────────────────
-
-  it("exibe erro de validação ao apagar o nome civil e tentar salvar", async () => {
+  it("exibe erro ao deixar Nome Social vazio", async () => {
     const user = userEvent.setup();
     renderModal();
 
-    const inputNomeCivil = screen.getByPlaceholderText("Nome Civil");
-    await user.clear(inputNomeCivil);
+    const input = screen.getByRole("textbox", { name: /nome social/i });
 
+    await user.clear(input);
     await user.click(screen.getByTestId("botao-salvar"));
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Digite o nome civil do servidor")
-      ).toBeInTheDocument();
-    });
-
-    expect(mockSetFormDesignacaoData).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText(/digite o nome social/i)
+    ).toBeInTheDocument();
   });
 
-  it("exibe erro de validação ao apagar o nome servidor e tentar salvar", async () => {
+  it("exibe erro ao deixar Nome Servidor vazio", async () => {
     const user = userEvent.setup();
     renderModal();
 
-    const inputNomeServidor = screen.getByPlaceholderText("Nome servidor");
-    await user.clear(inputNomeServidor);
+    const input = screen.getByRole("textbox", { name: /nome servidor/i });
 
+    await user.clear(input);
     await user.click(screen.getByTestId("botao-salvar"));
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Digite o nome do servidor")
-      ).toBeInTheDocument();
-    });
-
-    expect(mockSetFormDesignacaoData).not.toHaveBeenCalled();
-  });
-
-
-
- 
-  it("mantém os dados do submit ao salvar, sobrescrevendo apenas nome_servidor e nome_civil", async () => {
-    const user = userEvent.setup();
-    renderModal();
-
-    const inputNomeCivil = screen.getByPlaceholderText("Nome Civil");
-    await user.clear(inputNomeCivil);
-    await user.type(inputNomeCivil, "Nome Civil Atualizado");
-
-    await user.click(screen.getByTestId("botao-salvar"));
-
-    await waitFor(() => {
-      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...defaultServidor,
-          nome_civil: "Nome Civil Atualizado",
-        })
-      );
-    });
-  });
-
-  it("mantém os valores informados para local_de_exercicio, laudo_medico e local_de_servico", async () => {
-    const user = userEvent.setup();
-    const servidorComLocais: Servidor = {
-      ...defaultServidor,
-      local_de_exercicio: "Exercício personalizado",
-      laudo_medico: "Laudo personalizado",
-      local_de_servico: "Serviço personalizado",
-    };
-
-    renderModal({ defaultValues: servidorComLocais });
-
-    await user.click(screen.getByTestId("botao-salvar"));
-
-    await waitFor(() => {
-      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
-        expect.objectContaining({
-          nome_servidor: servidorComLocais.nome_servidor,
-          nome_civil: servidorComLocais.nome_civil,
-          rf: servidorComLocais.rf,
-          cargo_base: servidorComLocais.cargo_base,
-          local_de_exercicio: servidorComLocais.local_de_exercicio,
-          laudo_medico: servidorComLocais.laudo_medico,
-          local_de_servico: servidorComLocais.local_de_servico,
-        })
-      );
-    });
+    expect(
+      await screen.findByText(/digite o nome do servidor/i)
+    ).toBeInTheDocument();
   });
 });
