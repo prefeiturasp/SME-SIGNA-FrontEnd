@@ -85,6 +85,7 @@ export interface ListagemDesignacoesResponse {
   cargo_vaga_display: string;
   status?: StatusDesignacao;
   insubsistencia?: InsubsistenciaBody;
+  apostilas?: ApostilaBody[];
 }
 export interface DesignacaoFiltros {
   rf?: string;
