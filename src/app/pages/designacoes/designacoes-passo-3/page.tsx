@@ -18,7 +18,19 @@ import EditorSEI, {
   normalizarQuebras,
   EditorSEIHandle,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-
+import { FormField, FormLabel } from "@/components/ui/form";
+import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import formSchemaDesignacaoPasso3, { formSchemaDesignacaoPasso3Data } from "./schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
 
 function escapeHtml(s: string) {
@@ -29,7 +41,7 @@ export default function DesignacoesPasso3() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const { formDesignacaoData, clearFormDesignacaoData } = useDesignacaoContext();
+  const { formDesignacaoData, clearFormDesignacaoData, setFormDesignacaoData } = useDesignacaoContext();
 
   const editorSEIRef = useRef<EditorSEIHandle>(null);
   const textoPlanoRef = useRef<string>("");
@@ -37,6 +49,16 @@ export default function DesignacoesPasso3() {
   const [salvando, setSalvando] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
+
+  const form = useForm<formSchemaDesignacaoPasso3Data>({
+    resolver: zodResolver(formSchemaDesignacaoPasso3),
+    defaultValues: {
+      informacoes_adicionais: "",
+      detalhe_para_quadro_de_historico_por_ano: "",
+    },
+    mode: "onChange",
+  });
+
 
   // Mantém textoPlanoRef sincronizado (usado caso precise do texto puro)
   useEffect(() => {
@@ -109,11 +131,11 @@ export default function DesignacoesPasso3() {
   return (
     <>
       <PageHeader
-        title="Designação"
+        title={id ? "Editar Designação" : "Designação"}
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
-          { title: "Designação" }  
+          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
+          { title: "Designação" }
         ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
@@ -135,6 +157,88 @@ export default function DesignacoesPasso3() {
           mostrarBotao={false}
         />
       </Card>
+
+      <Card
+        title={<span className="text-[#333]">Informações adicionais</span>}
+        className="mt-4 m-0"
+      >
+        <FormProvider {...form}>
+          <form >
+            <div className="w-full pt-4">
+              <FormField
+                {...form.register("informacoes_adicionais")}
+                control={form.control}
+                name="informacoes_adicionais"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required font-[400] ">
+                      Insira informações que considerar importante no processo da designação. Este é um campo opcional.
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={4}
+                        placeholder=""
+                        value={field.value}
+                        onChange={(value) => {
+                          setFormDesignacaoData({
+                            ...formDesignacaoData,
+                            informacoes_adicionais: value.target.value,
+                          });
+                          return field.onChange(value.target.value)
+                        }
+                        }
+                        data-testid="input-descricao-pendencia"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+
+            <div className="w-full pt-4">
+              <FormField
+                control={form.control}
+                name="detalhe_para_quadro_de_historico_por_ano"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold text-[#42474a]">
+                      Detalhe para quadro de histórico por ano
+                    </FormLabel>
+
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        setFormDesignacaoData({
+                          ...formDesignacaoData,
+                          detalhe_para_quadro_de_historico_por_ano: value,
+                        });
+
+                        return field.onChange(value)
+                      }
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o cargo..." />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        <SelectItem value="nao_contabilizar">Não contabilizar</SelectItem>
+                        <SelectItem value="contabilizar">Contabilizar</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </form>
+        </FormProvider>
+      </Card>
+
+
 
       <div className="w-full flex flex-col mt-6">
         <BotoesDeNavegacao
