@@ -157,7 +157,7 @@ export default function ApostilaPage() {
     <>
       <PageHeader
         title={title}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Apostila" }]}
+        breadcrumbs={[{ title: "Início", href: "/" },  { title: "Listagem de Designações", href: "/pages/listagem-designacoes" }, { title: "Apostila" }]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
