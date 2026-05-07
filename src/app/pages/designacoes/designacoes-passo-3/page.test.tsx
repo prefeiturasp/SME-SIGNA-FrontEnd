@@ -57,6 +57,14 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
   ),
 }));
 
+vi.mock("@/components/ui/select", () => ({
+  Select: ({ children }: any) => <div>{children}</div>,
+  SelectContent: ({ children }: any) => <div>{children}</div>,
+  SelectItem: ({ children, value }: any) => <div data-value={value}>{children}</div>,
+  SelectTrigger: ({ children }: any) => <div>{children}</div>,
+  SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
+}));
+
 vi.mock("@/assets/icons/Designacao", () => ({
   default: () => <svg />,
 }));

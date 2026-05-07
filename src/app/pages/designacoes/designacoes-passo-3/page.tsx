@@ -54,7 +54,7 @@ export default function DesignacoesPasso3() {
     resolver: zodResolver(formSchemaDesignacaoPasso3),
     defaultValues: {
       informacoes_adicionais: "",
-      detalhe_para_quadro_de_historico_por_ano: "",
+      detalhe_para_quadro_de_historico_por_ano: true,
     },
     mode: "onChange",
   });
@@ -208,24 +208,26 @@ export default function DesignacoesPasso3() {
                     </FormLabel>
 
                     <Select
-                      value={field.value}
+                      value={field.value !== undefined ? String(field.value) : undefined}
                       onValueChange={(value) => {
+                        const booleanValue = value === "true";
+
                         setFormDesignacaoData({
                           ...formDesignacaoData,
-                          detalhe_para_quadro_de_historico_por_ano: value,
+                          detalhe_para_quadro_de_historico_por_ano: booleanValue,
                         });
 
-                        return field.onChange(value)
+                        return field.onChange(booleanValue)
                       }
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o cargo..." />
+                        <SelectValue placeholder="Selecione o Detalhe..." />
                       </SelectTrigger>
 
                       <SelectContent>
-                        <SelectItem value="nao_contabilizar">Não contabilizar</SelectItem>
-                        <SelectItem value="contabilizar">Contabilizar</SelectItem>
+                        <SelectItem value="false">Não contabilizar</SelectItem>
+                        <SelectItem value="true">Contabilizar</SelectItem>
                       </SelectContent>
                     </Select>
 

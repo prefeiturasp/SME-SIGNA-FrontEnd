@@ -16,7 +16,7 @@ export type FormDesignacaoEServidorIndicado =
     designacaoUnidade?: DesignacaoUnidadeResponse;
     funcionariosOptions?: CargoSelect[];
     informacoes_adicionais?: string;
-    detalhe_para_quadro_de_historico_por_ano?: string;
+    detalhe_para_quadro_de_historico_por_ano?: boolean;
   };
 
 type DesignacaoContextValue = {
