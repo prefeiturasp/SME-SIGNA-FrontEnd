@@ -2,13 +2,11 @@ const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
+const { cloudPlugin } = require('cypress-cloud/plugin');
 const dotenv = require('dotenv');
 const path = require('path');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-// 🔥 IMPORTANTE (Cloud)
-const { cloudPlugin } = require('cypress-cloud/plugin');
 
 module.exports = defineConfig({
   e2e: {
