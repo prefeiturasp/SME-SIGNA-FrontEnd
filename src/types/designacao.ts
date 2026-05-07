@@ -6,6 +6,7 @@ export interface BuscaDesignacaoRequest {
 }
 
 export interface Servidor {
+  nome_servidor: string,
   nome_civil?: string;
   rf?: string;
   vinculo?: number;
@@ -14,6 +15,7 @@ export interface Servidor {
 }
 
 export interface Titular {
+  nome_servidor?: string;
   nome_civil?: string;
   rf?: string;
   vinculo?: number;
@@ -83,6 +85,7 @@ export interface ListagemDesignacoesResponse {
   cargo_vaga_display: string;
   status?: StatusDesignacao;
   insubsistencia?: InsubsistenciaBody;
+  apostilas?: ApostilaBody[];
 }
 export interface DesignacaoFiltros {
   rf?: string;

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const formSchemaEditarServidor = z.object({
   nome_servidor: z.string().min(1, "Digite o nome do servidor"),
-  nome_civil: z.string().min(1, "Digite o nome civil do servidor"),
+  nome_civil: z.string().min(1, "Digite o Nome Social do servidor"),
   rf: z.string().optional(),
   
   funcao: z.string().nullable().optional(),

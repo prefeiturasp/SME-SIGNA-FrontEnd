@@ -105,7 +105,7 @@ describe("insubsistenciaAction", () => {
     vi.mocked(axios.post).mockRejectedValue({
       response: {
         status: 400,
-        data: { detail: "Invalid value for field: string='valor inválido'" },
+        data: { detail: "valor inválido" },
       },
     });
 

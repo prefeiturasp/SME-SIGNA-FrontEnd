@@ -121,8 +121,8 @@ export default function ModalEditarServidor({
                                         register={registerFieldValues}
                                         control={controlFieldValues}
                                         name="nome_civil"
-                                        label="Nome Civil"
-                                        placeholder="Nome Civil"
+                                        label="Nome Social"
+                                        placeholder="Nome Social"
                                         data-testid="input-nome-civil"
                                     />
                                 </div>
