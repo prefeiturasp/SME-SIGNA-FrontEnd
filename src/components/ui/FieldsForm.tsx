@@ -100,7 +100,9 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             disabled={disabled}
                         />
                     </FormControl>
-                    <FormMessage />
+                    <div className="h-[10px]">
+                        <FormMessage />
+                    </div>                    
                 </FormItem>
             )}
         />

@@ -191,7 +191,7 @@ export default function DesignacoesPasso1() {
     <>
       <PageHeader
         title={""}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação" }]}
+        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Listagem de Designacoes" }]}
         icon={
           <div className="flex justify-start">
             <Button
@@ -216,7 +216,7 @@ export default function DesignacoesPasso1() {
               router.push("/pages/designacoes/designacoes-passo-1")
             }
           >
-            <span className="font-bold">Iniciar Nova Designação</span>
+            <span className="font-bold">Nova Designação</span>
             <Designacao width={20} height={20} fill="white" />
           </Button>
         }

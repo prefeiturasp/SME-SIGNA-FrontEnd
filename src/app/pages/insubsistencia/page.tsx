@@ -213,7 +213,11 @@ export default function InsubsistenciaPage() {
 
       <PageHeader
         title={title}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designação", href: "/pages/listagem-designacoes" }, { title: "Tornar Insubsistente" }]}
+        breadcrumbs={[
+          { title: "Início", href: "/" },
+          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
+          { title: "Tornar Insubsistente" }
+        ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
