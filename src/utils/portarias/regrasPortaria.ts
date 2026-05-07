@@ -23,8 +23,13 @@ export function montarTrechoSubstituicao(data: DesignacaoData): string {
 
     const inicio = formatarData(data?.a_partir_de);
     const fim = formatarData(data?.designacao_data_final);
+    const nomeTitular = (
+        titular?.nome_civil?.trim()
+            ? titular.nome_civil
+            : titular?.nome_servidor ?? "____"
+    ).toUpperCase();
 
-    const base = `em substituição a ${titular?.nome_civil ?? "____"}, Registro nº ${formatarRF(titular?.rf ?? "____")
+    const base = `em substituição a ${nomeTitular ?? "____"}, Registro nº ${formatarRF(titular?.rf ?? "____")
         }, Vínculo ${titular?.vinculo ?? "____"}, ${nameToCamelCase(titular?.cargo_base ?? "____")}, ${titular?.tipo_vinculo ?? "efetivo"
         }`;
 

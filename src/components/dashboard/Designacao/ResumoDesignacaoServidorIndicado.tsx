@@ -74,7 +74,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                   value={defaultValues.nome_servidor}
                 />
                 <InfoItem
-                  label="Nome Civil"
+                  label="Nome Social"
                   value={defaultValues.nome_civil}
                 />
                 <InfoItem label="RF" value={defaultValues.rf} />
