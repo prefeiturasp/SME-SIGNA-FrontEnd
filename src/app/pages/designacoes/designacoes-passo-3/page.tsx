@@ -52,8 +52,8 @@ export default function DesignacoesPasso3() {
   const form = useForm<formSchemaDesignacaoPasso3Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso3),
     defaultValues: {
-      informacoes_adicionais: "",
-      detalhe_para_quadro_de_historico_por_ano: true,
+      informacoes_adicionais: formDesignacaoData?.informacoes_adicionais ?? "",
+      detalhe_para_quadro_de_historico_por_ano: formDesignacaoData?.detalhe_para_quadro_de_historico_por_ano ?? true,
     },
     mode: "onChange",
   });
@@ -247,7 +247,9 @@ export default function DesignacoesPasso3() {
           disableProximo={salvando}
           labelProximo="Salvar"
           showAnterior
-          onAnterior={() => router.push("/pages/designacoes/designacoes-passo-2")}
+          onAnterior={() => {            
+            id ? router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`) : router.push(`/pages/designacoes/designacoes-passo-2`);             
+          }}
           onProximo={() => handleSalvar(id)}
         />
       </div>

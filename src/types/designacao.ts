@@ -176,6 +176,8 @@ export interface DesignacaoResponse {
   cargo_vaga: number,
   criado_em: string,
   cessacao: Cessacao | null,
+  informacoes_adicionais?: string,
+  detalhe_para_quadro_de_historico_por_ano: boolean,
 }
 
 
