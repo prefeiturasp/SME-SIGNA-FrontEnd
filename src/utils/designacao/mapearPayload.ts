@@ -83,5 +83,7 @@ export function mapearPayloadDesignacao(form: any) {
 
         tipo_vaga: form.tipo_cargo?.toUpperCase(),
         cargo_vaga: cargoVaga,
+        informacoes_adicionais: form.informacoes_adicionais,
+        detalhe_para_quadro_de_historico_por_ano: form.detalhe_para_quadro_de_historico_por_ano,
     };
 }
