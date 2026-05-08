@@ -143,6 +143,8 @@ export default function DesignacoesPasso2() {
         rf_titular: designacao.titular_rf,
         cargo_vago_selecionado: { id: designacao.cargo_vaga, label: designacao.cargo_vaga_display },
         dadosTitular: null,
+        informacoes_adicionais: designacao?.informacoes_adicionais ?? "",
+        detalhe_para_quadro_de_historico_por_ano: designacao?.detalhe_para_quadro_de_historico_por_ano ?? true,
       } as unknown as FormDesignacaoEServidorIndicado);
 
       form.clearErrors();
@@ -351,7 +353,8 @@ export default function DesignacoesPasso2() {
                 onSubmitDesignacao(form.getValues());
                 if (id === null) {
                   router.push(`/pages/designacoes/designacoes-passo-1?rf=${formDesignacaoData?.servidorIndicado?.rf}`);
-                } else {
+                } 
+                else {
                   router.push(`/pages/listagem-designacoes`);
                 }
               }}
