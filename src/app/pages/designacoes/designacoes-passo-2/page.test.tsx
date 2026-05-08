@@ -289,7 +289,8 @@ describe("DesignacoesPasso2", () => {
     );
 
     fireEvent.click(screen.getByTestId("anterior"));
-    expect(h.push).toHaveBeenCalledWith("/pages/listagem-designacoes");
+    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1?rf=1111111")
+    
   });
 
   it("salva sem id e navega para o passo 3 sem query", async () => {

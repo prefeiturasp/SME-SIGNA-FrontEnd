@@ -92,7 +92,8 @@ const FormularioPesquisaUnidade = forwardRef<
     [form],
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { mutateAsync, isPending: isLoadingDesiganaçãoUnidade, } =
+  const [isLoadingDesiganaçãoUnidade, setIsLoadingDesiganaçãoUnidade] = useState(false);
+  const { mutateAsync } =
     useFetchDesignacaoUnidadeMutation();
 
   const [funcionariosOptions, setFuncionariosOptions] = useState<
@@ -104,7 +105,10 @@ const FormularioPesquisaUnidade = forwardRef<
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
+    
+    console.log("submit 1",values.ue);
 
+    setIsLoadingDesiganaçãoUnidade(true);
     try {
       const response = await mutateAsync(values.ue);
       if (response.success) {
@@ -118,12 +122,6 @@ const FormularioPesquisaUnidade = forwardRef<
         setDesignacaoUnidade(response.data);
 
 
-        setFormDesignacaoData({
-          ...formDesignacaoData,
-          designacaoUnidade:response.data,
-          funcionariosOptions:cargosSelect,
-        });
-
         form.setValue("quantidade_turmas", response.data.turmas?.total?.toString() ?? "-");
         form.setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
 
@@ -134,8 +132,7 @@ const FormularioPesquisaUnidade = forwardRef<
     } catch (error) {
       console.log('error', error);
     }
-
-
+    setIsLoadingDesiganaçãoUnidade(false);
    };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
@@ -150,12 +147,13 @@ const FormularioPesquisaUnidade = forwardRef<
   const codigoEstrutura = form.watch("codigo_hierarquico");
 
   useEffect(() => {
-    if (formDesignacaoData?.funcionariosOptions) {
-      setFuncionariosOptions(formDesignacaoData.funcionariosOptions);
+    if (defaultValues?.ue) {
+      (async () => {
+        console.log("submit 0",defaultValues);
+        await onSubmit(defaultValues as FormDesignacaoData);
+        setDisableProximo(false);
+      })();
     }
-    if (formDesignacaoData?.designacaoUnidade) {
-      setDesignacaoUnidade(formDesignacaoData.designacaoUnidade);
-    }    
   }, []);
 
   return (
@@ -271,6 +269,7 @@ const FormularioPesquisaUnidade = forwardRef<
                           </div>
                         ) : (
                           <Combobox
+                            
                             options={ueOptions.map(
                               (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
                                 label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
@@ -290,7 +289,7 @@ const FormularioPesquisaUnidade = forwardRef<
                               limpa_dados_funcionarios()
                             }}
                             placeholder="Digite o nome da UE"
-                            disabled={!values.dre}
+                            disabled={!values.dre|| isLoadingDesiganaçãoUnidade}
                             data-testid="select-ue"
                           />
                         )}

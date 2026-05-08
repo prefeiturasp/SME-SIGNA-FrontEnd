@@ -26,6 +26,7 @@ export async function designacaoAction(
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
     const payload = mapearPayloadDesignacao(formData);
+    console.log("payload", payload);
      try {
          const headers = {
             "Content-Type": "application/json",
