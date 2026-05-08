@@ -11,6 +11,7 @@ const resumoServidorSpy = vi.fn();
 const customAccordionItemSpy = vi.fn();
 const accordionSpy = vi.fn();
 const infoItemSpy = vi.fn();
+const editorSEISpy = vi.fn();
 
 const useParamsMock = vi.fn();
 
@@ -119,6 +120,30 @@ vi.mock("lucide-react", () => ({
   ),
 }));
 
+vi.mock(
+  "@/components/dashboard/EditorTextoSEI/EditorTextoSEI",
+  () => ({
+    __esModule: true,
+    default: (props: { html: string; titulo: string; mostrarBotao: boolean }) => {
+      editorSEISpy(props);
+      return <div data-testid="editor-sei" />;
+    },
+    gerarHtmlPortaria: (html: string) => html,
+  })
+);
+
+vi.mock("@/utils/portarias/preencherTemplate", () => ({
+  preencherTemplate: (_template: string, _dados: Record<string, string>) => "",
+}));
+
+vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
+  gerarDadosPortaria: () => ({}),
+}));
+
+vi.mock("@/utils/portarias/templates", () => ({
+  TEMPLATE_DESIGNACAO: "",
+}));
+
 describe("VisualizarDesignacao page", () => {
   const designacaoMock = {
     dre_nome: "DRE Centro",
@@ -132,8 +157,13 @@ describe("VisualizarDesignacao page", () => {
     data_fim: null,
     carater_excepcional: false,
     impedimento_substituicao: null,
+    impedimento_display: "",
     motivo_afastamento: "Motivo",
     pendencias: "Nenhuma",
+    tipo_vaga: "SUBSTITUICAO",
+    tipo_vaga_display: "Substituição",
+    cargo_vaga: null,
+    cargo_vaga_display: "",
     indicado_rf: "123456",
     indicado_nome_servidor: "INDICADO",
     indicado_nome_civil: "Indicado Civil",
@@ -141,6 +171,8 @@ describe("VisualizarDesignacao page", () => {
     indicado_lotacao: "Lotacao I",
     indicado_cargo_base: "Cargo I",
     indicado_cargo_sobreposto: "Sobreposto I",
+    indicado_codigo_cargo_base: 1,
+    indicado_codigo_cargo_sobreposto: 2,
     indicado_local_servico: "Servico I",
     indicado_local_exercicio: "Exercicio I",
     titular_rf: "654321",
@@ -150,6 +182,8 @@ describe("VisualizarDesignacao page", () => {
     titular_lotacao: "Lotacao T",
     titular_cargo_base: "Cargo T",
     titular_cargo_sobreposto: "Sobreposto T",
+    titular_codigo_cargo_base: 3,
+    titular_codigo_cargo_sobreposto: 4,
     titular_local_servico: "Servico T",
     titular_local_exercicio: "Exercicio T",
   };
@@ -199,6 +233,7 @@ describe("VisualizarDesignacao page", () => {
     expect(screen.getByTestId("resumo-unidade")).toBeInTheDocument();
     expect(screen.getByTestId("resumo-portaria")).toBeInTheDocument();
     expect(screen.getAllByTestId("resumo-servidor")).toHaveLength(2);
+    expect(screen.getByTestId("editor-sei")).toBeInTheDocument();
     expect(customAccordionItemSpy).toHaveBeenCalledTimes(4);
     expect(accordionSpy).toHaveBeenCalled();
     expect(pageHeaderSpy).toHaveBeenCalled();
@@ -209,6 +244,12 @@ describe("VisualizarDesignacao page", () => {
           dre: "DRE Centro",
           estrutura_hierarquica: "1234",
         },
+      })
+    );
+    expect(editorSEISpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        titulo: "PORTARIA",
+        mostrarBotao: false,
       })
     );
   });
