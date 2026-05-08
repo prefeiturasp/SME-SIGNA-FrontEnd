@@ -245,7 +245,7 @@ export default function DesignacoesPasso2() {
   return (
     <>
       <PageHeader
-        title="Designação"
+        title= {id ? "Editar Designação" : "Designação"}
         breadcrumbs={[
           { title: "Início", href: "/" }, 
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
