@@ -289,7 +289,7 @@ describe("DesignacoesPasso2", () => {
     );
 
     fireEvent.click(screen.getByTestId("anterior"));
-    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1?rf=1111111")
+    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1?id=55&rf=1111111")
     
   });
 
@@ -330,6 +330,43 @@ describe("DesignacoesPasso2", () => {
 
     await waitFor(() => {
       expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3");
+    });
+  });
+
+  it("usa servidor indicado do contexto quando API não retorna indicado", async () => {
+    h.searchId = "88";
+    h.designacao = {
+      ...designacaoCompleta,
+      indicado_nome_servidor: "",
+      indicado_nome_civil: "",
+      indicado_rf: "",
+    };
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Contexto",
+        nome_civil: "Civil Contexto",
+        rf: "9999999",
+        vinculo: 1,
+        cargo_base: "Cargo Contexto",
+        lotacao: "Lotacao Contexto",
+        cargo_sobreposto_funcao_atividade: "Sobreposto Contexto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          servidorIndicado: expect.objectContaining({
+            nome_servidor: "Servidor Contexto",
+            rf: "9999999",
+          }),
+        })
+      );
     });
   });
 
