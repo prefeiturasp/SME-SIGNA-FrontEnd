@@ -23,6 +23,7 @@ import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalE
 export default function DesignacoesPasso1() {
   const searchParams = useSearchParams();
   const rf = searchParams.get("rf");
+  const id = searchParams.get("id");
 
   const { mutateAsync, isPending } = useServidorDesignacao();
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +77,11 @@ export default function DesignacoesPasso1() {
       servidorIndicado: formDesignacaoData.servidorIndicado,
     });
 
-    router.push(`/pages/designacoes/designacoes-passo-2`);
+    if (id) {
+      router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`);
+    } else {
+      router.push(`/pages/designacoes/designacoes-passo-2`);
+    }
   };
 
   useEffect(() => {

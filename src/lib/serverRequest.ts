@@ -20,7 +20,6 @@ export async function postWithAuth<TPayload, TResponse = unknown>(
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const cookieStore = await cookies();
   const authToken = cookieStore.get("auth_token")?.value;
-  console.log("payload", payload);
 
   try {
     const response = await axios.post(`${API_URL}${url}`, payload, {

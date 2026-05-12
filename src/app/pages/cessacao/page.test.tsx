@@ -105,12 +105,18 @@ vi.mock("@/components/dashboard/Designacao/ResumoPortariaDesigacao", () => ({
 vi.mock(
   "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado",
   () => ({
-    default: () => <div data-testid="resumo-indicado" />,
+    default: ({ onSubmitEditarServidor }: any) => {
+      onSubmitEditarServidor?.();
+      return <div data-testid="resumo-indicado" />;
+    },
   })
 );
 
 vi.mock("@/components/dashboard/Designacao/ResumoTitular", () => ({
-  default: () => <div data-testid="resumo-titular" />,
+  default: ({ onSubmitEditarServidor }: any) => {
+    onSubmitEditarServidor?.();
+    return <div data-testid="resumo-titular" />;
+  },
 }));
 
 vi.mock(
@@ -121,6 +127,7 @@ vi.mock(
 );
 
 const mockTrigger = vi.fn();
+const mockGetValues = vi.fn();
 
 vi.mock("react-hook-form", async () => {
   const actual = await vi.importActual<any>("react-hook-form");
@@ -131,20 +138,22 @@ vi.mock("react-hook-form", async () => {
       register: vi.fn(),
       handleSubmit: (fn: any) => (e: any) => fn(e),
       reset: vi.fn(),
-      getValues: vi.fn(() => ({
-        cessacao: {
-          numero_portaria: "123",
-          ano: "2026",
-          numero_sei: "SEI",
-          data_inicio: new Date(),
-          a_pedido: "nao",
-        },
-      })),
+      getValues: mockGetValues,
       trigger: mockTrigger,
       control: {},
     }),
     FormProvider: ({ children }: any) => children,
   };
+});
+
+const defaultGetValues = () => ({
+  cessacao: {
+    numero_portaria: "123",
+    ano: "2026",
+    numero_sei: "SEI",
+    data_inicio: new Date(),
+    a_pedido: "nao",
+  },
 });
 
 describe("CessacaoPage", () => {
@@ -154,6 +163,7 @@ describe("CessacaoPage", () => {
       data: mockDesignacao,
       isLoading: false,
     });
+    mockGetValues.mockImplementation(defaultGetValues);
   });
 
   it("renderiza página corretamente", () => {
@@ -273,5 +283,187 @@ describe("CessacaoPage", () => {
     const editor = await screen.findByTestId("editor-sei");
 
     expect(editor).not.toHaveTextContent("{{");
+  });
+
+  it("exibe loader quando isLoading é true", () => {
+    mockUseFetch.mockReturnValue({ data: undefined, isLoading: true });
+
+    render(<CessacaoPage />);
+
+    expect(screen.queryByTestId("page-header")).not.toBeInTheDocument();
+  });
+
+  it("exibe mensagem de erro quando salvar falha", async () => {
+    const { message } = await import("antd");
+    mockTrigger.mockResolvedValue(true);
+    mockMutateAsync.mockRejectedValueOnce(new Error("Erro de rede"));
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+    await screen.findByText("PORTARIA");
+    await userEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(message.error).toHaveBeenCalledWith("Erro ao salvar");
+    });
+  });
+
+  it("exibe 'Não há servidor titular' quando titular tem strings vazias", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        titular_nome_servidor: "",
+        titular_rf: "",
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(screen.getByText("Não há servidor titular")).toBeInTheDocument();
+  });
+
+  it("exibe 'Não há servidor titular' quando titular_nome_servidor é apenas espaços", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        titular_nome_servidor: "   ",
+        titular_rf: "111",
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(screen.getByText("Não há servidor titular")).toBeInTheDocument();
+  });
+
+  it("exibe 'Não há servidor titular' quando titular_nome_servidor é null", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        titular_nome_servidor: null,
+        titular_rf: "111",
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(screen.getByText("Não há servidor titular")).toBeInTheDocument();
+  });
+
+  it("exibe 'Não há servidor titular' quando titular_rf é null", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        titular_nome_servidor: "Titular Teste",
+        titular_rf: null,
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(screen.getByText("Não há servidor titular")).toBeInTheDocument();
+  });
+
+  it("não renderiza resumos quando designacao é undefined", () => {
+    mockUseFetch.mockReturnValue({ data: undefined, isLoading: false });
+
+    render(<CessacaoPage />);
+
+    expect(screen.queryByTestId("resumo-portaria")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("resumo-indicado")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("resumo-titular")).not.toBeInTheDocument();
+  });
+
+  it("gera portaria com tipo_cessacao 'a pedido' quando a_pedido é sim", async () => {
+    mockTrigger.mockResolvedValue(true);
+    mockGetValues.mockReturnValue({
+      cessacao: {
+        numero_portaria: "456",
+        ano: "2026",
+        numero_sei: "SEI-002",
+        data_inicio: new Date("2026-03-01"),
+        a_pedido: "sim",
+      },
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+
+    const editor = await screen.findByTestId("editor-sei");
+
+    expect(editor).toBeInTheDocument();
+  });
+
+  it("gera portaria com data_inicio indefinida cobrindo branch de optional chaining", async () => {
+    mockTrigger.mockResolvedValue(true);
+    mockGetValues.mockReturnValue({
+      cessacao: {
+        numero_portaria: "789",
+        ano: "2026",
+        numero_sei: "SEI-003",
+        data_inicio: undefined,
+        a_pedido: "nao",
+      },
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+
+    const editor = await screen.findByTestId("editor-sei");
+
+    expect(editor).toBeInTheDocument();
+    expect(editor).not.toHaveTextContent("{{");
+  });
+
+  it("constrói dadosTitular com titular_codigo_cargo_sobreposto nulo usando fallback 0", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        titular_codigo_cargo_sobreposto: null,
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(screen.getByTestId("resumo-titular")).toBeInTheDocument();
+  });
+
+  it("gera portaria com campos opcionais nulos no designacao", async () => {
+    mockTrigger.mockResolvedValue(true);
+
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        dre_nome: null,
+        numero_portaria: null,
+        doc: null,
+        sei_numero: null,
+        indicado_nome_servidor: null,
+        indicado_rf: null,
+        indicado_vinculo: null,
+        indicado_cargo_base: null,
+        indicado_cargo_sobreposto: null,
+        indicado_local_exercicio: null,
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+
+    const editor = await screen.findByTestId("editor-sei");
+
+    expect(editor).toBeInTheDocument();
+    expect(editor).not.toHaveTextContent("{{");
+    expect(editor).not.toHaveTextContent("null");
   });
 });
