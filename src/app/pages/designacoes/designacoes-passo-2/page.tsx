@@ -44,7 +44,6 @@ export default function DesignacoesPasso2() {
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
   );
-  console.log("designacao", designacao);
   const { formDesignacaoData, setFormDesignacaoData } =
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);

@@ -106,7 +106,6 @@ const FormularioPesquisaUnidade = forwardRef<
 
   const onSubmit = async (values: FormDesignacaoData) => {
     
-    console.log("submit 1",values.ue);
 
     setIsLoadingDesiganaçãoUnidade(true);
     try {
@@ -149,7 +148,6 @@ const FormularioPesquisaUnidade = forwardRef<
   useEffect(() => {
     if (defaultValues?.ue) {
       (async () => {
-        console.log("submit 0",defaultValues);
         await onSubmit(defaultValues as FormDesignacaoData);
         setDisableProximo(false);
       })();
