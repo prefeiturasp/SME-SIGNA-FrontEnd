@@ -87,6 +87,20 @@ export interface ListagemDesignacoesResponse {
   insubsistencia?: InsubsistenciaBody;
   apostilas?: ApostilaBody[];
 }
+
+export interface ListagemAlterarDataDoResponse {
+  id: number;
+  portaria_designacao: string;
+  doc: string;
+  tipo_ato: string;
+  titular_nome_servidor: string;
+  cargo_vaga_display: string; 
+  do: string;
+  data_designacao: string;
+  data_cessacao: string;
+  sei_numero: string;
+}
+
 export interface DesignacaoFiltros {
   rf?: string;
   nome?: string;

@@ -3,6 +3,7 @@
 import {
   DesignacaoFiltros,
   DesignacaoPaginada,
+  ListagemAlterarDataDoResponse,
   ListagemDesignacoesResponse,
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
@@ -53,6 +54,22 @@ export const fetchDesignacoesAction = async (
     "Erro ao buscar as designações"
   );
 };
+
+
+
+export const fetchAlterarDataDoAction = async (
+  filtros: DesignacaoFiltros
+): Promise<
+  | { success: true; data: ListagemAlterarDataDoResponse[] }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<ListagemAlterarDataDoResponse[]>(
+    "/designacao/alterar-data-do/",
+    filtros,
+    "Erro ao buscar as dados para alterar a data do D.O"
+  );
+};
+
 
 
 export const fetchDesignacoesSemPaginacaoAction = async (
