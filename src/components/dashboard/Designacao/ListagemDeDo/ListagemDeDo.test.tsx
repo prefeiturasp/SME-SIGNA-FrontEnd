@@ -123,7 +123,7 @@ describe("ListagemDeDo", () => {
     tableMock.mockClear();
   });
 
-  it("renderiza lista e mantém botão desabilitado sem seleção", () => {
+  it("renderiza lista e mantém botão desabilitado sem seleção ", () => {
     render(
       <ListagemDeDo
         value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
