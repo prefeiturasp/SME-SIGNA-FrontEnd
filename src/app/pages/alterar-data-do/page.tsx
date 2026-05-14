@@ -87,6 +87,7 @@ export default function AlterarDataDo() {
     const filtros = {
       ...generateDesignacaoFiltros(values),
     };
+     
     return fetchPortariasDO(filtros);
   };
   const buscar = (values: PortariasDOFiltros) => {

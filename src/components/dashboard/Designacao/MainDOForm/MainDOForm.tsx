@@ -26,7 +26,13 @@ function OptionRadioCard({
   const { register, control } = useFormContext();
 
   return (
-    <div className="rounded-lg border border-[#DCDCDC] p-4" onClick={onChange}>
+    <div
+      className="rounded-lg border border-[#DCDCDC] p-4"
+      role="button"
+      tabIndex={0}
+      onClick={onChange}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onChange(); }}
+    >
       <Radio checked={checked} className="radio-do-option">
         <div>
           <p className="text-[14px] font-bold">{title}</p>

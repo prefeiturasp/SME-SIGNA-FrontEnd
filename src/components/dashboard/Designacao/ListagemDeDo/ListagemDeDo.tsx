@@ -1,41 +1,16 @@
 'use client'
 import React, { useState } from 'react';
-import { Table, Tag } from 'antd';
+import { Table } from 'antd';
 import type { TableProps } from 'antd';
-
 import { Button } from '@/components/ui/button';
-import { ListagemPortariasResponse, StatusDesignacao } from '@/types/designacao';
-import { CheckOutlined } from '@ant-design/icons';
-import Check from '@/assets/icons/Check';
-import CloseCheck from '@/assets/icons/CloseCheck';
+import { ListagemPortariasResponse } from '@/types/designacao';
 import SimpleCheck from '@/assets/icons/SimpleCheck';
 import { format, parseISO } from 'date-fns';
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO, PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA } from '../MainDOForm/MainDOForm';
 
-const NameColorStatusDesignacao = {
-  [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
-  [StatusDesignacao.AGUARD_PUBLICACAO]: { color: '#764FC3', name: 'AGUARD. PUBLICAÇÃO' },
-  [StatusDesignacao.PUBLICADO_COM_PENDENCIA]: { color: '#FE9239', name: 'PÚBLICADO COM PENDÊNCIA' },
-  [StatusDesignacao.PUBLICADO]: { color: '#10A957', name: 'PUBLICADO' },
-};
+ 
 
-const TagStatusDesignacao = (status: StatusDesignacao | undefined, key: string) => {
-  const config = status === undefined ? undefined : NameColorStatusDesignacao[status];
-
-  if (!config) {
-    return (
-      <Tag key={key} color='#9E9E9E' className='rounded-full'>
-        INDISPONÍVEL
-      </Tag>
-    );
-  }
-
-  return (
-    <Tag color={config.color} key={key} className='rounded-full'>
-      {config.name}
-    </Tag>
-  );
-};
+ 
 
 interface ListagemDeDoProps {
   value: number;
@@ -43,9 +18,6 @@ interface ListagemDeDoProps {
   data_publicacao?: Date;
   data: ListagemPortariasResponse[];
   isLoading?: boolean;
-  total?: number;
-  page?: number;
-  onPageChange?: (page: number) => void;
   onClickButton?: (rows: ListagemPortariasResponse[]) => void;
   labelButton?: string; 
   isDisabled?: boolean;
@@ -99,7 +71,6 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
     { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' }   
   ];
   return (
-    <>
       <div className="flex flex-col gap-1 bg-white  ">
         <div className="py-8">
 
@@ -150,7 +121,6 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
           </div>
         </div>
       </div>
-    </>
   );
 };
 

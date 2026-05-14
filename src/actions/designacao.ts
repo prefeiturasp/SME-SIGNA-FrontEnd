@@ -31,8 +31,8 @@ const fetchWithClient = async <T>(
     return { success: false, error: "Usuário não autenticado" };
   }
 
-  const params = sanitizeParams(filtros);
-
+    const params = sanitizeParams(filtros);
+  console.log('params33', params);
   try {
     const { data } = await apiClient.get<T>(url, { params });
     return { success: true, data };
@@ -64,6 +64,7 @@ export const fetchPortariasDO = async (
   | { success: true; data: ListagemPortariasResponse[] }
   | { success: false; error: string }
 > => {
+  console.log('filtros2', filtros);
   return fetchWithClient<ListagemPortariasResponse[]>(
     "/designacao/alterar-data-do/",
     filtros,
