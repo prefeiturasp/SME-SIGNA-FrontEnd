@@ -32,7 +32,6 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
   }]
 
   const anos =  [{codigo: new Date().getFullYear().toString(), nome: new Date().getFullYear().toString()}]
-  console.log(anos);
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>

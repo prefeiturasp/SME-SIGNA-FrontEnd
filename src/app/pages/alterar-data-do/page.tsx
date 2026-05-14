@@ -16,6 +16,9 @@ import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/Listage
 import filterFormSchemaFiltroDO, { filterFormSchemaFiltroDOData } from "./filterFormSchemaFiltroDO";
 import mainDOFormSchema, { mainDOFormSchemaData } from "./mainDOFormSchema";
 import MainDOForm, { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
+import { useRouter } from "next/navigation";
+import { message, Modal, Result } from "antd";
+import { useSalvarPortariasDo } from "@/hooks/useSalvarPortariasDO";
 
 export default function AlterarDataDo() {
   const [resultado, setResultado] = useState<ListagemPortariasResponse[]>([
@@ -44,6 +47,13 @@ export default function AlterarDataDo() {
       sei_numero: "6016.2026/0041487",
     }
   ]);
+  const [salvando, setSalvando] = useState(false);
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [modalErro, setModalErro] = useState(false);
+  const router = useRouter();
+
+  const salvarPortariasDo = useSalvarPortariasDo();
+
   const [isPending, startTransition] = useTransition();
   const mainDOForm = useForm<mainDOFormSchemaData>({
     resolver: zodResolver(mainDOFormSchema),
@@ -153,10 +163,25 @@ export default function AlterarDataDo() {
 
     );
   };
-  const handleAlterarDataDo = (selectedRows: ListagemPortariasResponse[]) => {
-    console.log('handleAlterarDataDo', selectedRows);
-    console.log('data_publicacao', data_publicacao);
-    // fazer a integração com o backend
+  const handleAlterarDataDo = async (selectedRows: ListagemPortariasResponse[]) => {
+ 
+    try {
+      setSalvando(true);
+      message.loading({ content: "Salvando portaria...", duration: 0 });
+      await salvarPortariasDo.mutateAsync({
+        values: selectedRows,
+        data_publicacao: data_publicacao.toISOString() 
+      });
+      message.destroy();
+      setModalSucesso(true);
+      setSalvando(false);
+      setTimeout(() => router.push("/pages/listagem-designacoes"), 2200);
+    } catch (error) {
+      console.error("Erro ao salvar portaria:", error);
+      message.destroy();
+      setModalErro(true);
+      setSalvando(false);
+    }
   };
 
 
@@ -186,6 +211,7 @@ export default function AlterarDataDo() {
 
 
         <ListagemDeDo
+          isDisabled={salvando}
           data_considerada_portaria={data_considerada_portaria}
           data_publicacao={data_publicacao}
           value={portarias_selecionadas}
@@ -196,6 +222,33 @@ export default function AlterarDataDo() {
           labelButton="Alterar data"
         />
       </FundoBranco>
+      
+
+      <Modal open={modalSucesso} footer={null} closable={false} centered>
+        <Result
+          status="success"
+          title="Tudo certo por aqui!"
+          subTitle="A alteração de data do Diário Oficial foi concluída com sucesso!"
+        />
+      </Modal>
+
+      <Modal open={modalErro} footer={null} closable={false} centered>
+        <Result
+          status="error"
+          title="Ocorreu um erro!"
+          subTitle="Não foi possível realizar a alteração de data do Diário Oficial.
+Por favor, tente novamente."
+          extra={[
+            <button
+              key="fechar"
+              onClick={() => setModalErro(false)}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            >
+              Fechar
+            </button>,
+          ]}
+        />
+      </Modal>
     </>
   );
 }

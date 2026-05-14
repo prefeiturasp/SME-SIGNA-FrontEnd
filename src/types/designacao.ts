@@ -88,6 +88,11 @@ export interface ListagemDesignacoesResponse {
   apostilas?: ApostilaBody[];
 }
 
+
+export interface PortariasDOBody {
+  ids: number[];
+  data_publicacao: string;  
+}
 export interface ListagemPortariasResponse {
   id: number;
   portaria_designacao: string;

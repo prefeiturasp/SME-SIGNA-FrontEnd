@@ -47,10 +47,12 @@ interface ListagemDeDoProps {
   page?: number;
   onPageChange?: (page: number) => void;
   onClickButton?: (rows: ListagemPortariasResponse[]) => void;
-  labelButton?: string;
+  labelButton?: string; 
+  isDisabled?: boolean;
 }
 
 const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
+  isDisabled = false,
   value,
   data_considerada_portaria,
   data_publicacao,
@@ -71,6 +73,9 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
     const data_considerada_portaria_string = data_considerada_portaria ? format(data_considerada_portaria, "yyyy-MM-dd") : "";
     filtredRows = selectedRows.filter((row) => ["",data_considerada_portaria_string].includes(row.data_designacao) || ["",data_considerada_portaria_string].includes(row.data_cessacao));      
   }
+
+  const semDataConsideradaPortaria =  data_considerada_portaria === undefined && value === PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA;  
+  const isDisabledButton = filtredRows.length === 0 || data_publicacao === undefined || semDataConsideradaPortaria || isDisabled;
   
   const handleAlterarDataDo = () => {
       onClickButton(filtredRows);
@@ -134,7 +139,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
               size="lg"
               className="w-full flex items-center justify-center gap-2"
               variant="destructive"
-              disabled={filtredRows.length === 0 || data_publicacao === undefined}
+              disabled={isDisabledButton}
               onClick={handleAlterarDataDo}
               data-testid="botao-proximo"
             >
