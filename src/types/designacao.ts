@@ -121,6 +121,14 @@ export interface DesignacaoFiltros {
   no_pagination?: boolean;
 }
 
+export interface PortariasDOFiltros {
+  numero_sei?: string;
+  portaria_inicial?: string;
+  portaria_final?: string;
+  ano?: string;
+  tipo_ato?: string;
+}
+ 
 export interface DesignacaoPaginada {
   count: number;
   next: string | null;

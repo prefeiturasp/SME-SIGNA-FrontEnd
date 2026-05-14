@@ -2,6 +2,7 @@
 
 import {
   DesignacaoFiltros,
+  PortariasDOFiltros,
   DesignacaoPaginada,
   ListagemPortariasResponse,
   ListagemDesignacoesResponse,
@@ -10,7 +11,7 @@ import { getApiClient } from "@/lib/api";
 import { handleApiError } from "@/lib/api-error";
 
 
-const sanitizeParams = (filtros: DesignacaoFiltros) => {
+const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
   return Object.fromEntries(
     Object.entries(filtros).filter(
       ([_, v]) => v !== "" && v !== undefined && v !== null
@@ -21,7 +22,7 @@ const sanitizeParams = (filtros: DesignacaoFiltros) => {
 
 const fetchWithClient = async <T>(
   url: string,
-  filtros: DesignacaoFiltros,
+  filtros: DesignacaoFiltros|PortariasDOFiltros,
   errorMessage: string
 ): Promise<{ success: true; data: T } | { success: false; error: string }> => {
   const apiClient = await getApiClient();
@@ -57,8 +58,8 @@ export const fetchDesignacoesAction = async (
 
 
 
-export const fetchPortarias = async (
-  filtros: DesignacaoFiltros
+export const fetchPortariasDO = async (
+  filtros: PortariasDOFiltros
 ): Promise<
   | { success: true; data: ListagemPortariasResponse[] }
   | { success: false; error: string }

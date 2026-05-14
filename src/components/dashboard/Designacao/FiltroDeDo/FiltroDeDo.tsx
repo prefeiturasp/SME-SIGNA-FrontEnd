@@ -27,7 +27,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
 
 
   const listarParaOpcoes = [{
-    codigo: '1',
+    codigo: 'DESIGNACAO_CESSACAO',
     nome: 'Cargos (Designação / Cessação)',
   }]
 

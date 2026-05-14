@@ -7,9 +7,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ListagemPortariasResponse,
+  PortariasDOFiltros,
 } from "@/types/designacao";
 import {
-  fetchPortarias,
+  fetchPortariasDO,
 } from "@/actions/designacao";
 
 import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo";
@@ -21,32 +22,7 @@ import { message, Modal, Result } from "antd";
 import { useSalvarPortariasDo } from "@/hooks/useSalvarPortariasDO";
 
 export default function AlterarDataDo() {
-  const [resultado, setResultado] = useState<ListagemPortariasResponse[]>([
-    {
-      id: 1,
-      portaria_designacao: "25986",
-      doc: "123456",
-      tipo_ato: "CESSAR",
-      titular_nome_servidor: "Jader Santos",
-      cargo_vaga_display: "AD",
-      do: "0025985",
-      data_designacao: "2026-01-01",
-      data_cessacao: "2026-01-01",
-      sei_numero: "6016.2026/0041487",
-    },
-    {
-      id: 2,
-      portaria_designacao: "25987",
-      doc: "123456",
-      tipo_ato: "SUBSTITUIÇÃO",
-      titular_nome_servidor: "Christian Chang",
-      cargo_vaga_display: "Secretário",
-      do: "021489",
-      data_designacao: "",
-      data_cessacao: "2026-05-07",
-      sei_numero: "6016.2026/0041487",
-    }
-  ]);
+  const [resultado, setResultado] = useState<ListagemPortariasResponse[]>([]);
   const [salvando, setSalvando] = useState(true);
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
@@ -106,15 +82,14 @@ export default function AlterarDataDo() {
 
 
   const buscarPortarias = async (
-    values: filterFormSchemaFiltroDOData,
+    values: PortariasDOFiltros,
   ) => {
     const filtros = {
       ...generateDesignacaoFiltros(values),
     };
-
-    return fetchPortarias(filtros);
+    return fetchPortariasDO(filtros);
   };
-  const buscar = (values: filterFormSchemaFiltroDOData) => {
+  const buscar = (values: PortariasDOFiltros) => {
     startTransition(async () => {
 
       const response = await buscarPortarias(values);
