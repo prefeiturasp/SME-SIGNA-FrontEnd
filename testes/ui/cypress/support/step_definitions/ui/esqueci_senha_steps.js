@@ -10,7 +10,7 @@ Cypress.on('uncaught:exception', (err) => {
 
 Given('que eu acesso o sistema SIGNA', () => {
   cy.visit('/');
-  cy.url({ timeout: 10000 }).should('include', Cypress.env('baseUrl').replace('https://', ''));
+  cy.url({ timeout: 10000 }).should('include', Cypress.config('baseUrl').replace('https://', ''));
   cy.wait(2000);
 });
 

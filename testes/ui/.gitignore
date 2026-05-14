@@ -39,7 +39,7 @@ lerna-debug.log*
 # Integrações externas (não configuradas)
 
 
-# Features em desenvolvimento (não subir ao repositório)
+# Features em desenvolvimento / rascunhos (não subir ao repositório)
 cypress/e2e/api/api_abrangencia.feature
 cypress/e2e/ui/consulta_rf.feature
 cypress/e2e/ui/design_portaria.feature
@@ -50,6 +50,11 @@ cypress/support/step_definitions/unidade_proponente_steps.js
 cypress/support/locators/consulta_rf_locators.js
 cypress/support/locators/design_portaria_locators.js
 cypress/support/locators/unidade_proponente_locators.js
+# Rascunhos sem extensão .feature (notas/protótipos locais)
+cypress/e2e/ui/criaçao
+cypress/e2e/ui/criacao
+# Pasta plugins obsoleta (Cypress 10+ não usa)
+cypress/plugins/
 
 # Postman - coleções locais (não subir ao repositório)
 postman/
