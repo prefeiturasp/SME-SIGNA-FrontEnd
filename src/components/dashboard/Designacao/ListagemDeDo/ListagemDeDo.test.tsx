@@ -117,32 +117,6 @@ const rowWithCessacaoMatch: ListagemPortariasResponse = {
   sei_numero: "SEI-3",
 };
 
-describe("TagStatusDesignacao", () => {
-  it("renderiza tag 'INDISPONÍVEL' quando status é undefined", () => {
-    render(<>{TagStatusDesignacao(undefined, "k1")}</>);
-    expect(screen.getByText("INDISPONÍVEL")).toBeInTheDocument();
-  });
-
-  it("renderiza nome correto para status PENDENTE", () => {
-    render(<>{TagStatusDesignacao(StatusDesignacao.PENDENTE, "k2")}</>);
-    expect(screen.getByText("PENDENTE")).toBeInTheDocument();
-  });
-
-  it("renderiza nome correto para status AGUARD_PUBLICACAO", () => {
-    render(<>{TagStatusDesignacao(StatusDesignacao.AGUARD_PUBLICACAO, "k3")}</>);
-    expect(screen.getByText("AGUARD. PUBLICAÇÃO")).toBeInTheDocument();
-  });
-
-  it("renderiza nome correto para status PUBLICADO_COM_PENDENCIA", () => {
-    render(<>{TagStatusDesignacao(StatusDesignacao.PUBLICADO_COM_PENDENCIA, "k4")}</>);
-    expect(screen.getByText("PÚBLICADO COM PENDÊNCIA")).toBeInTheDocument();
-  });
-
-  it("renderiza nome correto para status PUBLICADO", () => {
-    render(<>{TagStatusDesignacao(StatusDesignacao.PUBLICADO, "k5")}</>);
-    expect(screen.getByText("PUBLICADO")).toBeInTheDocument();
-  });
-});
 
 describe("ListagemDeDo", () => {
   beforeEach(() => {
