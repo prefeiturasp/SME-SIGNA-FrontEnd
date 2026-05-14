@@ -3,7 +3,7 @@
 import {
   DesignacaoFiltros,
   DesignacaoPaginada,
-  ListagemAlterarDataDoResponse,
+  ListagemPortariasResponse,
   ListagemDesignacoesResponse,
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
@@ -57,13 +57,13 @@ export const fetchDesignacoesAction = async (
 
 
 
-export const fetchAlterarDataDoAction = async (
+export const fetchPortarias = async (
   filtros: DesignacaoFiltros
 ): Promise<
-  | { success: true; data: ListagemAlterarDataDoResponse[] }
+  | { success: true; data: ListagemPortariasResponse[] }
   | { success: false; error: string }
 > => {
-  return fetchWithClient<ListagemAlterarDataDoResponse[]>(
+  return fetchWithClient<ListagemPortariasResponse[]>(
     "/designacao/alterar-data-do/",
     filtros,
     "Erro ao buscar as dados para alterar a data do D.O"

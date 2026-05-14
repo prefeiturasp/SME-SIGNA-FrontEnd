@@ -88,7 +88,7 @@ export interface ListagemDesignacoesResponse {
   apostilas?: ApostilaBody[];
 }
 
-export interface ListagemAlterarDataDoResponse {
+export interface ListagemPortariasResponse {
   id: number;
   portaria_designacao: string;
   doc: string;

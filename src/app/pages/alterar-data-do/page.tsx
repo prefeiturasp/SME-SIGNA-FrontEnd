@@ -6,52 +6,59 @@ import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo"
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ListagemAlterarDataDoResponse,
+  ListagemPortariasResponse,
 } from "@/types/designacao";
 import {
-  fetchAlterarDataDoAction,
+  fetchPortarias,
 } from "@/actions/designacao";
- 
+
 import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo";
 import filterFormSchemaFiltroDO, { filterFormSchemaFiltroDOData } from "./filterFormSchemaFiltroDO";
-import mainDOFormSchema, { mainDOFormSchemaData }  from "./mainDOFormSchema";
-import MainDOForm from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
+import mainDOFormSchema, { mainDOFormSchemaData } from "./mainDOFormSchema";
+import MainDOForm, { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
 
 export default function AlterarDataDo() {
-  const [resultado, setResultado] = useState<ListagemAlterarDataDoResponse[]>([
+  const [resultado, setResultado] = useState<ListagemPortariasResponse[]>([
     {
       id: 1,
       portaria_designacao: "25986",
       doc: "123456",
       tipo_ato: "CESSAR",
       titular_nome_servidor: "Jader Santos",
-      cargo_vaga_display: "AD", 
+      cargo_vaga_display: "AD",
       do: "0025985",
       data_designacao: "2026-01-01",
       data_cessacao: "2026-01-01",
       sei_numero: "6016.2026/0041487",
     },
     {
-    id: 2,
-    portaria_designacao: "25987",
-    doc: "123456",
-    tipo_ato: "SUBSTITUIÇÃO",
-    titular_nome_servidor: "Christian Chang",
-    cargo_vaga_display: "Secretário", 
-    do: "021489",
-    data_designacao: "2026-12-05",
-    data_cessacao: "2026-05-07",
-    sei_numero: "6016.2026/0041487",
-  }
+      id: 2,
+      portaria_designacao: "25987",
+      doc: "123456",
+      tipo_ato: "SUBSTITUIÇÃO",
+      titular_nome_servidor: "Christian Chang",
+      cargo_vaga_display: "Secretário",
+      do: "021489",
+      data_designacao: "",
+      data_cessacao: "2026-05-07",
+      sei_numero: "6016.2026/0041487",
+    }
   ]);
   const [isPending, startTransition] = useTransition();
   const mainDOForm = useForm<mainDOFormSchemaData>({
     resolver: zodResolver(mainDOFormSchema),
-    defaultValues: {      
-      portarias_selecionadas: "",
+    defaultValues: {
+      portarias_selecionadas: PORTARIAS_SEM_DATA_DE_PUBLICACAO,
+      data_considerada_portaria: undefined,
     },
     mode: "onChange",
   });
+
+
+  const data_considerada_portaria = mainDOForm.watch("data_considerada_portaria");
+  const data_publicacao = mainDOForm.watch("data_publicacao");
+
+  const portarias_selecionadas = mainDOForm.watch("portarias_selecionadas");
   const filterForm = useForm<filterFormSchemaFiltroDOData>({
     resolver: zodResolver(filterFormSchemaFiltroDO),
     defaultValues: {
@@ -67,15 +74,15 @@ export default function AlterarDataDo() {
 
   const portariaInicial = filterForm.watch("portaria_inicial");
   const portariaFinal = filterForm.watch("portaria_final");
-  
+
   useEffect(() => {
     filterForm.trigger(["portaria_inicial", "portaria_final"]);
   }, [portariaInicial, portariaFinal, filterForm]);
 
   const generateDesignacaoFiltros = (
     values: filterFormSchemaFiltroDOData
-   ) => {
-  
+  ) => {
+
     return {
       numero_sei: values.numero_sei,
       portaria_inicial: values.portaria_inicial,
@@ -87,20 +94,20 @@ export default function AlterarDataDo() {
 
 
 
- 
-  const buscarDesignacoes = async (
+
+  const buscarPortarias = async (
     values: filterFormSchemaFiltroDOData,
   ) => {
     const filtros = {
       ...generateDesignacaoFiltros(values),
     };
 
-    return fetchAlterarDataDoAction(filtros);
+    return fetchPortarias(filtros);
   };
   const buscar = (values: filterFormSchemaFiltroDOData) => {
     startTransition(async () => {
-    
-      const response = await buscarDesignacoes(values);
+
+      const response = await buscarPortarias(values);
 
       if (response.success) {
         setResultado(response.data);
@@ -143,18 +150,22 @@ export default function AlterarDataDo() {
         ano: new Date().getFullYear().toString(),
         listar_para: "",
       },
-      
+
     );
   };
-  const handleAlterarDataDo = (selectedRows: ListagemAlterarDataDoResponse[]) => {
+  const handleAlterarDataDo = (selectedRows: ListagemPortariasResponse[]) => {
     console.log('handleAlterarDataDo', selectedRows);
+    console.log('data_publicacao', data_publicacao);
+    // fazer a integração com o backend
   };
+
+
 
   return (
     <>
       <PageHeader
         title={"Alterar data do D.O"}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designações", href: "/pages/listagem-designacoes" },  { title: "Alterar data do D.O" }]}
+        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designações", href: "/pages/listagem-designacoes" }, { title: "Alterar data do D.O" }]}
         showBackButton={false}
       />
 
@@ -167,20 +178,23 @@ export default function AlterarDataDo() {
       </FundoBranco>
       <FundoBranco className="mb-4">
 
-      <FormProvider {...mainDOForm}>
+        <FormProvider {...mainDOForm}>
           <form onSubmit={mainDOForm.handleSubmit(onSubmitMainDOForm)}>
             <MainDOForm onClear={handleClear} />
           </form>
         </FormProvider>
-        
 
-      <ListagemDeDo
-        data={resultado ?? []}
-        isLoading={isPending}
-        onPageChange={onPageChange}
-         onClickButton={handleAlterarDataDo}
-        labelButton="Alterar data"
-      />
+
+        <ListagemDeDo
+          data_considerada_portaria={data_considerada_portaria}
+          data_publicacao={data_publicacao}
+          value={portarias_selecionadas}
+          data={resultado ?? []}
+          isLoading={isPending}
+          onPageChange={onPageChange}
+          onClickButton={handleAlterarDataDo}
+          labelButton="Alterar data"
+        />
       </FundoBranco>
     </>
   );

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import {  Search, X } from 'lucide-react';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useListarPara } from '@/hooks/useListarPara';
 
 interface Props {
   onClear?: () => void;
@@ -27,15 +26,10 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
 
-
-  const { data: listarParaData = [] } = useListarPara();
-
-
-
-  const listarParaOpcoes = listarParaData.map((cargo: { codigoCargo: string | number; nomeCargo: string }) => ({
-    codigo: String(cargo.codigoCargo),
-    nome: cargo.nomeCargo,
-  }));
+  const listarParaOpcoes = [{
+    codigo: '1',
+    nome: 'Cargos (Designação / Cessação)',
+  }]
 
   const anos =  [{codigo: new Date().getFullYear().toString(), nome: new Date().getFullYear().toString()}]
   console.log(anos);
