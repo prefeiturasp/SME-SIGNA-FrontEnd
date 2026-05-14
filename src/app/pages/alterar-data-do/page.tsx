@@ -47,7 +47,7 @@ export default function AlterarDataDo() {
       sei_numero: "6016.2026/0041487",
     }
   ]);
-  const [salvando, setSalvando] = useState(false);
+  const [salvando, setSalvando] = useState(true);
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
   const router = useRouter();
@@ -76,7 +76,7 @@ export default function AlterarDataDo() {
       portaria_inicial: "",
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
-      listar_para: "",
+      tipo_ato: "",
     },
     mode: "onChange",
   });
@@ -98,7 +98,7 @@ export default function AlterarDataDo() {
       portaria_inicial: values.portaria_inicial,
       portaria_final: values.portaria_final,
       ano: values.ano,
-      listar_para: values.listar_para,
+      tipo_ato: values.tipo_ato,
     };
   };
 
@@ -149,7 +149,7 @@ export default function AlterarDataDo() {
       portaria_inicial: "",
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
-      listar_para: "",
+      tipo_ato: "",
     });
 
     buscar(
@@ -158,7 +158,7 @@ export default function AlterarDataDo() {
         portaria_inicial: "",
         portaria_final: "",
         ano: new Date().getFullYear().toString(),
-        listar_para: "",
+        tipo_ato: "",
       },
 
     );

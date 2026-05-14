@@ -21,7 +21,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
     "portaria_inicial",
     "portaria_final",
     "ano",
-    "listar_para"
+    "tipo_ato"
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
@@ -108,7 +108,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
         <div className="w-[50%]">
           <FormField
             control={control}
-            name="listar_para"
+            name="tipo_ato"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#42474a] font-bold">Listar para</FormLabel>

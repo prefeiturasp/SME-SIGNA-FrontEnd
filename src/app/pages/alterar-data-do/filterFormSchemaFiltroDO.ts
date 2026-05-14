@@ -4,7 +4,7 @@ export const filterFormSchemaFiltroDO = z
   .object({
     numero_sei: z.string().optional(),
     ano: z.string().optional(),
-    listar_para: z.string().optional(),
+    tipo_ato: z.string().optional(),
     portaria_inicial: z.string().optional(),
 
     portaria_final: z.string().optional(),
