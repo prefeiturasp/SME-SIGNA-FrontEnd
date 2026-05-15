@@ -24,7 +24,7 @@ export interface Titular {
 }
 
 export interface DesignacaoData {
-  portaria?: string;
+  portaria_designacao?: string;
   ano?: string;
   numero_sei?: string;
   doc?: string;
@@ -192,7 +192,7 @@ export interface DesignacaoResponse {
   titular_local_servico: string,
   numero_portaria: string,
   ano_vigente: string,
-  numero_sei: string,
+  sei_numero: string,
   doc: string,
   data_inicio: string,
   data_fim: string | null,
