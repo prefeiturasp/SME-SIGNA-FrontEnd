@@ -105,6 +105,7 @@ export default function AlterarDataDo() {
   }, []);
 
   const onSubmitFilterForm = (values: filterFormSchemaFiltroDOData) => {
+    console.log('onSubmitFilterForm', values);
     buscar(values);
   };
 

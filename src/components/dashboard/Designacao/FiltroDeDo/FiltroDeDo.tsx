@@ -80,8 +80,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
         <div className="w-[50%]">
           <FormField
             control={control}
-            name="ano"
-            disabled={true}
+            name="ano"           
             render={({ field }) => (
               <FormItem >
                 <FormLabel className="text-[#42474a] font-bold">Ano</FormLabel>
