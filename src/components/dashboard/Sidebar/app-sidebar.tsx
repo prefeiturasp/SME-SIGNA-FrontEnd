@@ -40,6 +40,11 @@ const items = [
         url: "/pages/listagem-designacoes",
         icon: Designacao,
     },
+    {
+        title: "Alterar data do D.O",
+        url: "/pages/alterar-data-do",
+        icon: Designacao,
+    },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

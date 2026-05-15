@@ -227,7 +227,7 @@ describe("ListagemDeDesignacoes", () => {
     expect(tableMock).toHaveBeenCalledTimes(1);
     const props = tableMock.mock.calls[0][0];
 
-    expect(props.className).toBe("tabela-designacoes w-full");
+    expect(props.className).toBe("tabela-principal w-full");
     expect(props.scroll).toEqual({ x: "100%" });
     expect(typeof props.rowKey).toBe("function");
     expect((props.rowKey as (r: ListagemDesignacoesResponse) => string)(makeRow(5))).toBe("5");
