@@ -101,11 +101,7 @@ export default function AlterarDataDo() {
   };
 
   useEffect(() => {
-    buscar({
-      portaria_inicial: "",
-      portaria_final: "",
-
-    });
+    buscar(filterForm.getValues());
   }, []);
 
   const onSubmitFilterForm = (values: filterFormSchemaFiltroDOData) => {
