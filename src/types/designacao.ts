@@ -125,7 +125,7 @@ export interface PortariasDOFiltros {
   portaria_inicial?: string;
   portaria_final?: string;
   ano?: string;
-  tipo_ato?: string;
+  tipo?: string;
 }
  
 export interface DesignacaoPaginada {
