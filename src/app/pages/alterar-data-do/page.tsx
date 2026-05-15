@@ -52,7 +52,7 @@ export default function AlterarDataDo() {
       portaria_inicial: "",
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
-      tipo_ato: "",
+      tipo_ato: "DESIGNACAO_CESSACAO",
     },
     mode: "onChange",
   });
@@ -87,14 +87,11 @@ export default function AlterarDataDo() {
     const filtros = {
       ...generateDesignacaoFiltros(values),
     };
-     
-    return fetchPortariasDO(filtros);
+     return fetchPortariasDO(filtros);
   };
   const buscar = (values: PortariasDOFiltros) => {
     startTransition(async () => {
-
       const response = await buscarPortarias(values);
-
       if (response.success) {
         setResultado(response.data);
       } else {
@@ -104,7 +101,11 @@ export default function AlterarDataDo() {
   };
 
   useEffect(() => {
-    buscar(filterForm.getValues());
+    buscar({
+      portaria_inicial: "",
+      portaria_final: "",
+
+    });
   }, []);
 
   const onSubmitFilterForm = (values: filterFormSchemaFiltroDOData) => {
@@ -115,9 +116,7 @@ export default function AlterarDataDo() {
     console.log('onSubmitMainDOForm', values);
   };
 
-  const onPageChange = () => {
-    buscar(filterForm.getValues());
-  };
+ 
 
   const handleClear = () => {
     filterForm.reset({

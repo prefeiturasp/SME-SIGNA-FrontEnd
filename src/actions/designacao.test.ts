@@ -51,7 +51,7 @@ const sampleResponse: DesignacaoPaginada = {
             titular_rf: "654321",
             numero_portaria: "001",
             ano_vigente: "2025",
-            sei_numero: "SEI-001",
+            numero_sei: "SEI-001",
             data_inicio: "2025-01-01",
             data_fim: null,
             tipo_vaga: "vago",
@@ -255,15 +255,15 @@ const samplePortariasFiltros: PortariasDOFiltros = {
 const samplePortariasResponse: ListagemPortariasResponse[] = [
     {
         id: 1,
-        portaria_designacao: "100",
+        portaria: "100",
         doc: "DOC-1",
-        tipo_ato: "DESIGNACAO_CESSACAO",
-        titular_nome_servidor: "Servidor Teste",
-        cargo_vaga_display: "Diretor",
-        do: "DO-001",
+        tipo_de_ato: "DESIGNACAO_CESSACAO",
+        nome: "Servidor Teste",
+        cargo: "Diretor",
+
         data_designacao: "2026-01-15",
         data_cessacao: "",
-        sei_numero: "SEI-100",
+        numero_sei: "SEI-100",
     },
 ];
 

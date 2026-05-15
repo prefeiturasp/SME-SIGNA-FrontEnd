@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TableProps } from "antd";
-import ListagemDeDo, { TagStatusDesignacao } from "./ListagemDeDo";
-import { ListagemPortariasResponse, StatusDesignacao } from "@/types/designacao";
+import ListagemDeDo from "./ListagemDeDo";
+import { ListagemPortariasResponse} from "@/types/designacao";
 import {
   PORTARIAS_SEM_DATA_DE_PUBLICACAO,
   PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA,
@@ -80,41 +80,41 @@ vi.mock("antd", () => ({
 const rows: ListagemPortariasResponse[] = [
   {
     id: 1,
-    portaria_designacao: "100",
+    portaria: "100",
     doc: "DOC",
-    tipo_ato: "DESIGNACAO_CESSACAO",
-    titular_nome_servidor: "Servidor A",
-    cargo_vaga_display: "Diretor",
-    do: "DO",
+    tipo_de_ato: "DESIGNACAO_CESSACAO",
+    nome: "Servidor A",
+    cargo: "Diretor",
+    
     data_designacao: "",
     data_cessacao: "",
-    sei_numero: "SEI-1",
+    numero_sei: "SEI-1",
   },
   {
     id: 2,
-    portaria_designacao: "101",
+    portaria: "101",
     doc: "DOC",
-    tipo_ato: "DESIGNACAO_CESSACAO",
-    titular_nome_servidor: "Servidor B",
-    cargo_vaga_display: "Coordenador",
-    do: "DO",
+    tipo_de_ato: "DESIGNACAO_CESSACAO",
+    nome: "Servidor B",
+    cargo: "Coordenador",
+    
     data_designacao: "2026-05-10",
     data_cessacao: "2026-05-10",
-    sei_numero: "SEI-2",
+    numero_sei: "SEI-2",
   },
 ];
 
 const rowWithCessacaoMatch: ListagemPortariasResponse = {
   id: 3,
-  portaria_designacao: "102",
+  portaria: "102",
   doc: "DOC",
-  tipo_ato: "DESIGNACAO_CESSACAO",
-  titular_nome_servidor: "Servidor C",
-  cargo_vaga_display: "Coordenador",
-  do: "DO",
+  tipo_de_ato: "DESIGNACAO_CESSACAO",
+  nome: "Servidor C",
+  cargo: "Coordenador",
+  
   data_designacao: "2026-04-01",
   data_cessacao: "2026-05-10",
-  sei_numero: "SEI-3",
+  numero_sei: "SEI-3",
 };
 
 

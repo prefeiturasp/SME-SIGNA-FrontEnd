@@ -24,7 +24,7 @@ export interface Titular {
 }
 
 export interface DesignacaoData {
-  portaria_designacao?: string;
+  portaria?: string;
   ano?: string;
   numero_sei?: string;
   doc?: string;
@@ -76,7 +76,7 @@ export interface ListagemDesignacoesResponse {
   titular_rf: string;
   numero_portaria: string;
   ano_vigente: string;
-  sei_numero: string;
+  numero_sei: string;
   data_inicio: string;
   data_fim: string | null;
   tipo_vaga: string;
@@ -95,15 +95,14 @@ export interface PortariasDOBody {
 }
 export interface ListagemPortariasResponse {
   id: number;
-  portaria_designacao: string;
+  portaria: string;
+  tipo_de_ato: string;
+  nome  : string;
+  cargo: string; 
   doc: string;
-  tipo_ato: string;
-  titular_nome_servidor: string;
-  cargo_vaga_display: string; 
-  do: string;
   data_designacao: string|null;
   data_cessacao: string|null;
-  sei_numero: string;
+  numero_sei: string;
 }
 
 export interface DesignacaoFiltros {
@@ -142,7 +141,7 @@ export interface Cessacao {
   id: number,
   numero_portaria: string,
   ano_vigente: string,
-  sei_numero: string,
+  numero_sei: string,
   a_pedido: boolean,
   remocao: boolean,
   aposentadoria: boolean,
@@ -193,7 +192,7 @@ export interface DesignacaoResponse {
   titular_local_servico: string,
   numero_portaria: string,
   ano_vigente: string,
-  sei_numero: string,
+  numero_sei: string,
   doc: string,
   data_inicio: string,
   data_fim: string | null,
