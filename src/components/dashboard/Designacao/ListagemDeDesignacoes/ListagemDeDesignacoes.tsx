@@ -247,7 +247,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       <div className="bg-white rounded-b-lg border border-[#DCDCDC] w-full overflow-hidden">
         <div className="w-full p-2">
           <Table<ListagemDesignacoesResponse>
-            className="tabela-designacoes w-full"
+            className="tabela-principal w-full"
             scroll={{ x: '100%' }}
             loading={isLoading}
             columns={columns}
