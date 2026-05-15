@@ -76,7 +76,7 @@ export interface ListagemDesignacoesResponse {
   titular_rf: string;
   numero_portaria: string;
   ano_vigente: string;
-  numero_sei: string;
+  sei_numero: string;
   data_inicio: string;
   data_fim: string | null;
   tipo_vaga: string;
@@ -125,7 +125,7 @@ export interface PortariasDOFiltros {
   portaria_inicial?: string;
   portaria_final?: string;
   ano?: string;
-  tipo?: string;
+  tipo_ato?: string;
 }
  
 export interface DesignacaoPaginada {
