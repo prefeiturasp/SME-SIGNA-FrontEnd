@@ -24,7 +24,7 @@ export const useSalvarInsubsistencia = () => {
         numero_portaria: values.insubsistencia.numero_portaria,
         ano_vigente: values.insubsistencia.ano,
         sei_numero: values.insubsistencia.numero_sei,
-        doc: values.insubsistencia.doc || undefined,
+        doc: values.insubsistencia.doc !== "" ? values.insubsistencia.doc : undefined,
         observacoes: values.insubsistencia.observacoes,
       };
 

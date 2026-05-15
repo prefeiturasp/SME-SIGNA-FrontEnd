@@ -9,7 +9,7 @@ export function mapearPayloadCessacao(
     numero_portaria: values.cessacao.numero_portaria,
     ano_vigente: values.cessacao.ano,
     sei_numero: values.cessacao.numero_sei,
-    doc: values.cessacao.doc || undefined,
+    doc: values.cessacao.doc !== "" ? values.cessacao.doc : undefined,
     data_cessacao: values.cessacao.data_inicio?.toISOString().split("T")[0],
     a_pedido: values.cessacao.a_pedido === "sim",
     remocao: values.cessacao.remocao === "sim",

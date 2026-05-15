@@ -22,7 +22,7 @@ export const useSalvarApostila = () => {
       const payload: ApostilaBody = {
         ato_pai: atoPai,
         sei_numero: values.apostila.numero_sei,
-        doc: values.apostila.doc || undefined,
+        doc: values.apostila.doc !== "" ? values.apostila.doc : undefined,
         observacao: values.apostila.observacao,
       };
 
