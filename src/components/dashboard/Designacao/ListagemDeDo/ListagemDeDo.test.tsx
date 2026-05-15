@@ -123,20 +123,20 @@ describe("ListagemDeDo", () => {
     tableMock.mockClear();
   });
 
-  // it("renderiza lista e mantém botão desabilitado sem seleção ", () => {
-  //   render(
-  //     <ListagemDeDo
-  //       value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
-  //       data={rows}
-  //       data_publicacao={new Date("2026-05-20")}
-  //     />
-  //   );
+  it("renderiza lista e mantém botão desabilitado sem seleção ", () => {
+    render(
+      <ListagemDeDo
+        value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
+        data={rows}
+        data_publicacao={new Date("2026-05-20")}
+      />
+    );
 
-  //   expect(screen.getByText("Lista de portarias")).toBeInTheDocument();
-  //   expect(screen.getByText("Portarias selecionadas:")).toBeInTheDocument();
-  //   expect(screen.getByText("Das portarias selecionadas, serão atualizadas:")).toBeInTheDocument();
-  //   expect(screen.getByTestId("botao-proximo")).toBeDisabled();
-  // });
+    expect(screen.getByText("Lista de portarias")).toBeInTheDocument();
+    expect(screen.getByText("Portarias selecionadas:")).toBeInTheDocument();
+    expect(screen.getByText("Das portarias selecionadas, serão atualizadas:")).toBeInTheDocument();
+    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
+  });
 
   it("habilita botão e chama callback com linhas filtradas para opção 1", () => {
     const onClickButton = vi.fn();
