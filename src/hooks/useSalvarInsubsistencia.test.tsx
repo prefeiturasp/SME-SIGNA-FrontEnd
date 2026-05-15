@@ -48,7 +48,7 @@ describe("useSalvarInsubsistencia", () => {
     vi.clearAllMocks();
   });
 
-  it("chama insubsistenciaAction com o payload mapeado corretamente", async () => {
+  it("chama insubsistenciaAction com o payload mapeado corretamente (designacao)", async () => {
     vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: { id: 1 } });
 
     const { result } = renderHook(() => useSalvarInsubsistencia(), {
@@ -60,14 +60,37 @@ describe("useSalvarInsubsistencia", () => {
     });
 
     expect(insubsistenciaAction).toHaveBeenCalledWith({
+      ato_pai: 10,
       numero_portaria: "001",
       ano_vigente: "2026",
       sei_numero: "6016.2026/0001-1",
       doc: "DOC-01",
       observacoes: "obs teste",
-      tipo_insubsistencia: "designacao",
-      designacao: 10,
     });
+  });
+
+  it("usa cessacaoId como ato_pai quando tipo_insubsistencia é cessacao", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: { id: 1 } });
+
+    const { result } = renderHook(() => useSalvarInsubsistencia(), {
+      wrapper: createWrapper(),
+    });
+
+    const valuesCessacao = {
+      insubsistencia: { ...valuesMock.insubsistencia, tipo_insubsistencia: "cessacao" },
+    };
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesCessacao,
+        designacaoId: 10,
+        cessacaoId: 55,
+      });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ ato_pai: 55 })
+    );
   });
 
   it("retorna os dados quando a action é bem-sucedida", async () => {
@@ -134,7 +157,7 @@ describe("useSalvarInsubsistencia", () => {
     });
 
     expect(insubsistenciaAction).toHaveBeenCalledWith(
-      expect.objectContaining({ designacao: undefined })
+      expect.objectContaining({ ato_pai: undefined })
     );
   });
 });

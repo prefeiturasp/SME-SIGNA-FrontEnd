@@ -65,7 +65,7 @@ describe("designacaoAction", () => {
 
         expect(result).toEqual({ success: true, data: { id: 99 } });
         expect(mockedAxios.patch).toHaveBeenCalledWith(
-            "https://api.example.com/designacao/designacoes/99/",
+            "https://api.example.com/designacao/v2/designacoes/99/",
             { dre: "dre-1" },
             expect.any(Object)
         );
@@ -78,7 +78,7 @@ describe("designacaoAction", () => {
         await designacaoAction(formDataMock);
 
         expect(mockedAxios.post).toHaveBeenCalledWith(
-            "https://api.example.com/designacao/designacoes/",
+            "https://api.example.com/designacao/v2/designacoes/",
             { dre: "dre-1" },
             expect.objectContaining({
                 headers: expect.objectContaining({

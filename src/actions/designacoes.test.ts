@@ -28,7 +28,7 @@ describe("getDesignacaoByIdAction", () => {
     const result = await getDesignacaoByIdAction(77);
 
     expect(mockedAxiosGet).toHaveBeenCalledWith(
-      "https://api.teste.com/designacao/designacoes/77",
+      "https://api.teste.com/designacao/v2/designacoes/77/",
       {
         headers: {
           Authorization: "Bearer token-123",
@@ -131,7 +131,7 @@ describe("excluirDesignacao", () => {
     const result = await excluirDesignacao(9);
 
     expect(mockedAxiosDelete).toHaveBeenCalledWith(
-      "https://api.teste.com/designacao/designacoes/9/",
+      "https://api.teste.com/designacao/v2/designacoes/9/",
       {
         headers: { Authorization: "Bearer token-abc" },
       }

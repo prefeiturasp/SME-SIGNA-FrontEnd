@@ -98,7 +98,7 @@ describe("fetchDesignacoesAction", () => {
 
         // Note que agora validamos o caminho relativo, pois a baseURL está no client
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/designacoes/",
+            "/designacao/v2/designacoes/",
             {
                 params: { rf: "123456", nome: "Servidor Teste", page: 1, page_size: 10 },
             }
@@ -121,7 +121,7 @@ describe("fetchDesignacoesAction", () => {
         await fetchDesignacoesAction(filtrosComVazios);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/designacoes/",
+            "/designacao/v2/designacoes/",
             {
                 params: { rf: "123456", page: 1 },
             }
@@ -237,7 +237,7 @@ describe("fetchDesignacoesAction", () => {
         const result = await fetchDesignacoesSemPaginacaoAction(sampleFiltros);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/designacoes/",
+            "/designacao/v2/designacoes/",
             {
                 params: { rf: "123456", nome: "Servidor Teste", page: 1, page_size: 10 },
             }
