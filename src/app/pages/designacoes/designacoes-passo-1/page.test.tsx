@@ -13,7 +13,9 @@ const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
 const mockClearFormDesignacaoData = vi.fn();
 let mockRfParam: string | null = null;
+let mockIdParam: string | null = null;
 let initialContextData: any = {};
+const mockAccordionValueChange = vi.fn();
 
 const mockResponse = {
   nome: "Servidor Teste",
@@ -99,7 +101,11 @@ vi.mock("next/navigation", () => ({
     push: mockRouterPush,
   }),
   useSearchParams: () => ({
-    get: (key: string) => (key === "rf" ? mockRfParam : null),
+    get: (key: string) => {
+      if (key === "rf") return mockRfParam;
+      if (key === "id") return mockIdParam;
+      return null;
+    },
   }),
 }));
 
@@ -141,8 +147,33 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 }));
 
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="accordion">{children}</div>
+  Accordion: ({
+    children,
+    onValueChange,
+  }: {
+    children: React.ReactNode;
+    onValueChange?: (values: string[]) => void;
+  }) => (
+    <div data-testid="accordion">
+      <button
+        type="button"
+        data-testid="accordion-toggle-unidade"
+        onClick={() => {
+          mockAccordionValueChange();
+          onValueChange?.([]);
+        }}
+      >
+        Fechar unidade proponente
+      </button>
+      <button
+        type="button"
+        data-testid="accordion-keep-unidade"
+        onClick={() => onValueChange?.(["unidade-proponente"])}
+      >
+        Manter unidade proponente
+      </button>
+      {children}
+    </div>
   ),
 }));
 
@@ -282,6 +313,7 @@ describe("DesignacoesPasso1", () => {
     vi.clearAllMocks();
     mockGetValuesVazio = false;
     mockRfParam = null;
+    mockIdParam = null;
     initialContextData = {};
     mockMutateAsync.mockResolvedValue({
       success: true,
@@ -378,6 +410,64 @@ describe("DesignacoesPasso1", () => {
     await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
     await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
 
+    await userEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2"
+    );
+  });
+
+  it("navega para o próximo passo com id na query", async () => {
+    mockIdParam = "77";
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+    await userEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2?id=77"
+    );
+  });
+
+  it("salva valores da unidade ao fechar acordeon", async () => {
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+    await userEvent.click(screen.getByTestId("accordion-toggle-unidade"));
+    expect(mockAccordionValueChange).toHaveBeenCalledTimes(1);
+
+    await userEvent.click(screen.getByTestId("botao-proximo"));
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2"
+    );
+  });
+
+  it("não altera estado ao manter seção de unidade aberta", async () => {
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByTestId("accordion-keep-unidade"));
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
     expect(mockRouterPush).toHaveBeenCalledWith(

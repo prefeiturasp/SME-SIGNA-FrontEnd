@@ -138,6 +138,9 @@ export interface DesignacaoResponse {
   cargo_vaga_display: string,
   dre_nome: string,
   unidade_proponente: string,
+  dre: string,  
+  ue: string,
+  funcionarios_da_unidade: string,
   codigo_hierarquico: string,
   indicado_nome_civil: string,
   indicado_nome_servidor: string,
@@ -176,6 +179,8 @@ export interface DesignacaoResponse {
   cargo_vaga: number,
   criado_em: string,
   cessacao: Cessacao | null,
+  informacoes_adicionais?: string,
+  detalhe_para_quadro_de_historico_por_ano: boolean,
 }
 
 

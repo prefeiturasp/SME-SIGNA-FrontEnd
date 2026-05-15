@@ -9,6 +9,8 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 const h = vi.hoisted(() => ({
   pushMock: vi.fn(),
   searchId: null as string | null,
+  clearFormDesignacaoDataMock: vi.fn(),
+  setFormDesignacaoDataMock: vi.fn(),
   formData: {
     dre_nome: "DRE CENTRO",
     ue_nome: "EMEF TESTE",
@@ -17,6 +19,13 @@ const h = vi.hoisted(() => ({
     servidorIndicado: { nome_civil: "JOÃO SILVA" },
   } as any,
 }));
+const defaultFormData = {
+  dre_nome: "DRE CENTRO",
+  ue_nome: "EMEF TESTE",
+  portaria_designacao: "123/2024",
+  numero_sei: "6016.2024/0001-2",
+  servidorIndicado: { nome_civil: "JOÃO SILVA" },
+} as const;
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: h.pushMock }),
@@ -29,7 +38,8 @@ vi.mock("next/navigation", () => ({
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
     formDesignacaoData: h.formData,
-    clearFormDesignacaoData: vi.fn(),
+    clearFormDesignacaoData: h.clearFormDesignacaoDataMock,
+    setFormDesignacaoData: h.setFormDesignacaoDataMock,
   }),
 }));
 
@@ -55,6 +65,32 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
       </button>
     </nav>
   ),
+}));
+
+vi.mock("@/components/ui/select", () => ({
+  Select: ({ children, onValueChange }: any) => (
+    <div>
+      <button
+        type="button"
+        data-testid="select-detalhe-true"
+        onClick={() => onValueChange?.("true")}
+      >
+        Selecionar contabilizar
+      </button>
+      <button
+        type="button"
+        data-testid="select-detalhe-false"
+        onClick={() => onValueChange?.("false")}
+      >
+        Selecionar nao contabilizar
+      </button>
+      {children}
+    </div>
+  ),
+  SelectContent: ({ children }: any) => <div>{children}</div>,
+  SelectItem: ({ children, value }: any) => <div data-value={value}>{children}</div>,
+  SelectTrigger: ({ children }: any) => <div>{children}</div>,
+  SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
 }));
 
 vi.mock("@/assets/icons/Designacao", () => ({
@@ -102,6 +138,7 @@ describe("DesignacoesPasso3 - Testes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     h.searchId = null;
+    h.formData = { ...defaultFormData };
   });
 
   it("renderiza editor com conteúdo formatado", async () => {
@@ -193,12 +230,39 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
   });
 
+  it("fecha modal de erro ao clicar em Fechar", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Erro teste",
+    });
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
+
+    expect(await screen.findByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Fechar"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Erro ao salvar a portaria!")).not.toBeInTheDocument();
+    });
+  });
+
   it("navega ao clicar em Anterior", () => {
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Anterior"));
 
     expect(h.pushMock).toHaveBeenCalledWith(
       "/pages/designacoes/designacoes-passo-2"
+    );
+  });
+
+  it("navega para passo 2 com id ao clicar em Anterior", () => {
+    h.searchId = "42";
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Anterior"));
+
+    expect(h.pushMock).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2?id=42"
     );
   });
 
@@ -228,5 +292,64 @@ describe("DesignacoesPasso3 - Testes", () => {
 
     expect(editor).toHaveTextContent("Autoridade: undefined");
     expect(editor.innerHTML).not.toContain("<strong>undefined</strong>");
+  });
+
+  it("atualiza texto plano ao editar conteúdo do editor", async () => {
+    render(<DesignacoesPasso3 />);
+    const editor = await screen.findByTestId("editor-sei");
+
+    editor.textContent = "Portaria editada manualmente";
+    fireEvent.input(editor);
+
+    expect(editor).toBeInTheDocument();
+  });
+
+  it("atualiza informações adicionais no contexto", async () => {
+    render(<DesignacoesPasso3 />);
+
+    fireEvent.change(screen.getByTestId("input-descricao-pendencia"), {
+      target: { value: "Observacao complementar" },
+    });
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          informacoes_adicionais: "Observacao complementar",
+        })
+      );
+    });
+  });
+
+  it("atualiza detalhe do histórico no contexto", async () => {
+    render(<DesignacoesPasso3 />);
+
+    fireEvent.click(screen.getByTestId("select-detalhe-false"));
+    fireEvent.click(screen.getByTestId("select-detalhe-true"));
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detalhe_para_quadro_de_historico_por_ano: false,
+        })
+      );
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detalhe_para_quadro_de_historico_por_ano: true,
+        })
+      );
+    });
+  });
+
+  it("trata ausência de dados no contexto ao renderizar e salvar", async () => {
+    h.formData = null;
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
+
+    render(<DesignacoesPasso3 />);
+    const editor = await screen.findByTestId("editor-sei");
+    expect(editor).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Salvar"));
+    expect(await screen.findByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+    expect(designacaoAction).not.toHaveBeenCalled();
   });
 });

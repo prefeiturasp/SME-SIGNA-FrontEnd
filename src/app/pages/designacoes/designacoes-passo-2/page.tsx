@@ -110,7 +110,7 @@ export default function DesignacoesPasso2() {
 
       setFormDesignacaoData({
         // Preserva servidorIndicado do context (pode ter sido editado no Passo 1)
-        servidorIndicado: formDesignacaoData?.servidorIndicado ?? {
+        servidorIndicado: designacao.indicado_nome_servidor ? {
           nome_servidor: designacao.indicado_nome_servidor,
           nome_civil: designacao.indicado_nome_civil,
           rf: designacao.indicado_rf,
@@ -121,12 +121,12 @@ export default function DesignacoesPasso2() {
           local_de_exercicio: designacao.indicado_local_exercicio,
           laudo_medico: "Indisponível",
           local_de_servico: designacao.indicado_local_servico,
-        },
-        dre: formDesignacaoData?.dre ?? '-',
+        }:formDesignacaoData?.servidorIndicado,
+        dre: designacao?.dre ?? '-',
         dre_nome: formDesignacaoData?.dre_nome ?? designacao.dre_nome,
-        ue: formDesignacaoData?.ue ?? '-',
+        ue: designacao?.ue ?? '-',
         ue_nome: formDesignacaoData?.ue_nome ?? designacao.unidade_proponente,
-        funcionarios_da_unidade: formDesignacaoData?.funcionarios_da_unidade ?? "-",
+        funcionarios_da_unidade: designacao.funcionarios_da_unidade ?? "-",
         quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
         codigo_hierarquico: formDesignacaoData?.codigo_hierarquico ?? designacao.codigo_hierarquico,
         cargo_sobreposto: formDesignacaoData?.cargo_sobreposto ?? designacao.titular_cargo_sobreposto,
@@ -143,6 +143,8 @@ export default function DesignacoesPasso2() {
         rf_titular: designacao.titular_rf,
         cargo_vago_selecionado: { id: designacao.cargo_vaga, label: designacao.cargo_vaga_display },
         dadosTitular: null,
+        informacoes_adicionais: designacao?.informacoes_adicionais ?? "",
+        detalhe_para_quadro_de_historico_por_ano: designacao?.detalhe_para_quadro_de_historico_por_ano ?? true,
       } as unknown as FormDesignacaoEServidorIndicado);
 
       form.clearErrors();
@@ -245,7 +247,7 @@ export default function DesignacoesPasso2() {
   return (
     <>
       <PageHeader
-        title="Designação"
+        title= {id ? "Editar Designação" : "Designação"}
         breadcrumbs={[
           { title: "Início", href: "/" }, 
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
@@ -349,11 +351,11 @@ export default function DesignacoesPasso2() {
               showAnterior={true}
               onAnterior={() => {
                 onSubmitDesignacao(form.getValues());
-                if (id === null) {
-                  router.push(`/pages/designacoes/designacoes-passo-1?rf=${formDesignacaoData?.servidorIndicado?.rf}`);
+                if (id) {
+                  router.push(`/pages/designacoes/designacoes-passo-1?id=${id}&rf=${formDesignacaoData?.servidorIndicado?.rf}`);
                 } else {
-                  router.push(`/pages/listagem-designacoes`);
-                }
+                  router.push(`/pages/designacoes/designacoes-passo-1?rf=${formDesignacaoData?.servidorIndicado?.rf}`);
+                }               
               }}
             />
           </div>
