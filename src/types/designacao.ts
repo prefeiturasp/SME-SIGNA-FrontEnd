@@ -141,7 +141,7 @@ export interface Cessacao {
   id: number,
   numero_portaria: string,
   ano_vigente: string,
-  numero_sei: string,
+  sei_numero: string,
   a_pedido: boolean,
   remocao: boolean,
   aposentadoria: boolean,
@@ -154,7 +154,6 @@ export interface Cessacao {
   insubsistencia:InsubsistenciaBody,
   apostila:ApostilaBody
 }
-
 export interface DesignacaoResponse {
   id: number,
   impedimento_substituicao_detail: string | null,
