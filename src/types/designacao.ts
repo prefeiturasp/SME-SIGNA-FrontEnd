@@ -19,7 +19,7 @@ export interface Titular {
   nome_civil?: string;
   rf?: string;
   vinculo?: number;
-  tipo_vinculo?: string;
+  tipo_vinculo?: string; // efetivo / nomeado
   cargo_base?: string;
 }
 
@@ -91,20 +91,20 @@ export interface ListagemDesignacoesResponse {
   apostilas?: ApostilaRead[];
 }
 
-
 export interface PortariasDOBody {
   ids: number[];
   data_publicacao: string;
 }
+
 export interface ListagemPortariasResponse {
   id: number;
   portaria: string;
   tipo_de_ato: string;
-  nome  : string;
+  nome: string;
   cargo: string;
   doc: string;
-  data_designacao: string|null;
-  data_cessacao: string|null;
+  data_designacao: string | null;
+  data_cessacao: string | null;
   numero_sei: string;
 }
 
@@ -123,14 +123,6 @@ export interface DesignacaoFiltros {
   no_pagination?: boolean;
 }
 
-export interface PortariasDOFiltros {
-  numero_sei?: string;
-  portaria_inicial?: string;
-  portaria_final?: string;
-  ano?: string;
-  tipo?: string;
-}
- 
 export interface DesignacaoPaginada {
   count: number;
   next: string | null;
@@ -154,6 +146,7 @@ export interface Cessacao {
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
 }
+
 export interface DesignacaoResponse {
   id: number;
   tipo: string;
