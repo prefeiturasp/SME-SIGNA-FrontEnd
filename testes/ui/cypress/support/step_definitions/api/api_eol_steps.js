@@ -100,3 +100,37 @@ Then('o tempo de resposta deve ser menor que {int} milissegundos', (ms) => {
 Then('o header Content-Type deve conter {string}', (valor) => {
   cy.get('@response').its('headers').its('content-type').should('include', valor)
 })
+
+// ============================================================================
+// FIXTURES — DRE aleatória e DRE válida da listagem
+// ============================================================================
+
+When('eu obtenho um código de DRE aleatório da lista', function () {
+  cy.fixture('dres.json').then((fixture) => {
+    const indice = Math.floor(Math.random() * fixture.dres.length)
+    const dreAleatoria = fixture.dres[indice]
+    cy.wrap(dreAleatoria.codigo).as('codigoDREAleatorio')
+    Cypress.log({ name: 'DRE Aleatória', message: `${dreAleatoria.codigo} — ${dreAleatoria.nome}` })
+  })
+})
+
+When('eu obtenho um código de DRE válido da listagem', function () {
+  cy.api_get('/api/DREs').then((res) => {
+    expect(res.status).to.equal(200)
+    const dres = Array.isArray(res.body) ? res.body : []
+    expect(dres.length).to.be.greaterThan(0)
+    const dre = dres[0]
+    cy.wrap(dre.codigoDRE).as('codigoDRE')
+    Cypress.log({ name: 'DRE Válida', message: `${dre.codigoDRE} — ${dre.nomeDRE}` })
+  })
+})
+
+Then('a resposta deve retornar status {int}', (statusEsperado) => {
+  cy.get('@response').its('status').should('eq', statusEsperado)
+})
+
+Then('a resposta deve retornar status {int} ou {int}', (s1, s2) => {
+  cy.get('@response').its('status').then((status) => {
+    expect([s1, s2], `Status deve ser ${s1} ou ${s2}`).to.include(status)
+  })
+})
