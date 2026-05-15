@@ -27,7 +27,7 @@ describe("filterFormSchemaFiltroDO", () => {
     const result = filterFormSchemaFiltroDO.safeParse({
       numero_sei: "123",
       ano: "2026",
-      tipo_ato: "DESIGNACAO",
+      tipo: "DESIGNACAO",
       portaria_inicial: "10",
       portaria_final: "20",
     });

@@ -153,6 +153,6 @@ describe("FiltroDeDo", () => {
     triggerButtons.forEach((btn) => fireEvent.click(btn));
 
     expect(onChangeByField.ano).toHaveBeenCalledWith("mock-value");
-    expect(onChangeByField.tipo_ato).toHaveBeenCalledWith("mock-value");
+    expect(onChangeByField.tipo).toHaveBeenCalledWith("mock-value");
   });
 });

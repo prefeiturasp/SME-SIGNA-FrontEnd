@@ -15,15 +15,14 @@ const filterTriggerMock = vi.fn().mockResolvedValue(true);
 const selectedRowsMock = [
   {
     id: 1,
-    portaria_designacao: "100",
+    portaria: "100",
     doc: "DOC",
-    tipo_ato: "DESIGNACAO_CESSACAO",
-    titular_nome_servidor: "Servidor A",
-    cargo_vaga_display: "Diretor",
-    do: "DO",
+    tipo_de_ato: "DESIGNACAO_CESSACAO",
+    nome: "Servidor A",
+    cargo: "Diretor",
     data_designacao: "",
     data_cessacao: "",
-    sei_numero: "SEI-1",
+    numero_sei: "SEI-1",  
   },
 ];
 
@@ -32,7 +31,7 @@ let filterValues = {
   portaria_inicial: "",
   portaria_final: "",
   ano: "2026",
-  tipo_ato: "",
+  tipo: "",
 };
 
 let mainValues = {
@@ -185,7 +184,7 @@ describe("AlterarDataDo page", () => {
       portaria_inicial: "",
       portaria_final: "",
       ano: "2026",
-      tipo_ato: "",
+      tipo: "",
     };
 
     mainValues = {
@@ -209,7 +208,7 @@ describe("AlterarDataDo page", () => {
         portaria_inicial: "",
         portaria_final: "",
         ano: "2026",
-        tipo_ato: "",
+        tipo: "",
       });
     });
 

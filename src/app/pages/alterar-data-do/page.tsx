@@ -52,7 +52,7 @@ export default function AlterarDataDo() {
       portaria_inicial: "",
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
-      tipo_ato: "DESIGNACAO_CESSACAO",
+      tipo: "DESIGNACAO_CESSACAO",
     },
     mode: "onChange",
   });
@@ -74,7 +74,7 @@ export default function AlterarDataDo() {
       portaria_inicial: values.portaria_inicial,
       portaria_final: values.portaria_final,
       ano: values.ano,
-      tipo_ato: values.tipo_ato,
+      tipo: values.tipo,
     };
   };
 
@@ -120,7 +120,7 @@ export default function AlterarDataDo() {
       portaria_inicial: "",
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
-      tipo_ato: "",
+      tipo: "",
     });
 
     buscar(
@@ -129,7 +129,7 @@ export default function AlterarDataDo() {
         portaria_inicial: "",
         portaria_final: "",
         ano: new Date().getFullYear().toString(),
-        tipo_ato: "",
+        tipo: "",
       },
 
     );
