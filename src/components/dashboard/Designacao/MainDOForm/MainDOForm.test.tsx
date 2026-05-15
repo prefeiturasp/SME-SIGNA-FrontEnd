@@ -35,8 +35,16 @@ vi.mock("@/components/ui/FieldsForm", () => ({
 }));
 
 vi.mock("antd", () => ({
-  Radio: ({ children, checked }: { children: ReactNode; checked: boolean }) => (
-    <div data-testid="radio" data-checked={checked}>
+  Radio: ({
+    children,
+    checked,
+    onChange,
+  }: {
+    children: ReactNode;
+    checked: boolean;
+    onChange?: () => void;
+  }) => (
+    <div role="radio" data-testid="radio" aria-checked={checked} onClick={onChange}>
       {children}
     </div>
   ),
