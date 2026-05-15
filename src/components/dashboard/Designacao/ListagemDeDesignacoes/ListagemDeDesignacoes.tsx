@@ -102,10 +102,13 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       }
     },
     {
-      key: '1', label: 'Apostilar', icon: <Apostilar  />, onClick: () => {
-        console.log('Apostilar');
+      key: '1', 
+      label: 'Apostilar', 
+      icon: <Apostilar  />,
+      onClick: () => {
+        router.push(`/pages/apostila?id=${record.id}`);
       },
-      disabled: true,
+      disabled: !!record?.apostilas?.length,
     },
     {
       key: '2',
@@ -116,10 +119,11 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       },
     },
     {
-      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />, onClick: () => {
-        console.log('Tornar Insubsistente');
-      },
-      disabled: true
+      key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />,
+      onClick: () => {
+        router.push(`/pages/insubsistencia?id=${record.id}`);
+      },      
+      disabled: !!record?.insubsistencia,
     },
     {
       key: '4',
@@ -243,7 +247,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       <div className="bg-white rounded-b-lg border border-[#DCDCDC] w-full overflow-hidden">
         <div className="w-full p-2">
           <Table<ListagemDesignacoesResponse>
-            className="tabela-designacoes w-full"
+            className="tabela-principal w-full"
             scroll={{ x: '100%' }}
             loading={isLoading}
             columns={columns}

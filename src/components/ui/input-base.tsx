@@ -12,6 +12,7 @@ const InputBase = React.forwardRef<HTMLInputElement, InputBaseProps>(
   ({ className, type, ...props }, ref) => {
     return (
       <input
+        onKeyDown={(e) =>type === "number" && ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
         type={type}
         className={cn(
           "flex h-[48px] w-full border border-[#dadada] bg-background px-3 py-2 text-sm font-medium ring-0 ring-offset-0 shadow-none outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none focus:bg-[#E8F0FE] focus:border-[#ced4da] disabled:cursor-not-allowed  disabled:bg-gray-100 rounded-[12px]",
@@ -26,13 +27,13 @@ const InputBase = React.forwardRef<HTMLInputElement, InputBaseProps>(
 InputBase.displayName = "InputBase";
 
 export interface InputBaseMaskProps extends InputBaseProps {
-  maskProps: BaseInputMaskProps;
+    mask?: string;
 }
 
 const InputBaseMask = React.forwardRef<HTMLInputElement, InputBaseMaskProps>(
-  ({ maskProps, ...props }, ref) => {
+  ({  mask,...props }, ref) => {
     return (
-      <BaseInputMask {...maskProps} {...props} maskPlaceholder={null} ref={ref}>
+      <BaseInputMask   {...props} maskPlaceholder={null} mask={mask} ref={ref}>
         <InputBase />
       </BaseInputMask>
     );

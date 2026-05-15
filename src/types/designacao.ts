@@ -1,8 +1,12 @@
+import { InsubsistenciaBody } from "./insubsistencia";
+import { ApostilaBody } from "./apostila";
+
 export interface BuscaDesignacaoRequest {
   rf: string;
 }
 
 export interface Servidor {
+  nome_servidor: string,
   nome_civil?: string;
   rf?: string;
   vinculo?: number;
@@ -11,6 +15,7 @@ export interface Servidor {
 }
 
 export interface Titular {
+  nome_servidor?: string;
   nome_civil?: string;
   rf?: string;
   vinculo?: number;
@@ -79,7 +84,28 @@ export interface ListagemDesignacoesResponse {
   cargo_vaga: number | null;
   cargo_vaga_display: string;
   status?: StatusDesignacao;
+  insubsistencia?: InsubsistenciaBody;
+  apostilas?: ApostilaBody[];
 }
+
+
+export interface PortariasDOBody {
+  ids: number[];
+  data_publicacao: string;  
+}
+export interface ListagemPortariasResponse {
+  id: number;
+  portaria_designacao: string;
+  doc: string;
+  tipo_ato: string;
+  titular_nome_servidor: string;
+  cargo_vaga_display: string; 
+  do: string;
+  data_designacao: string;
+  data_cessacao: string;
+  sei_numero: string;
+}
+
 export interface DesignacaoFiltros {
   rf?: string;
   nome?: string;
@@ -95,6 +121,14 @@ export interface DesignacaoFiltros {
   no_pagination?: boolean;
 }
 
+export interface PortariasDOFiltros {
+  numero_sei?: string;
+  portaria_inicial?: string;
+  portaria_final?: string;
+  ano?: string;
+  tipo_ato?: string;
+}
+ 
 export interface DesignacaoPaginada {
   count: number;
   next: string | null;
@@ -103,15 +137,37 @@ export interface DesignacaoPaginada {
 }
 
 
+
+export interface Cessacao {
+  id: number,
+  numero_portaria: string,
+  ano_vigente: string,
+  sei_numero: string,
+  a_pedido: boolean,
+  remocao: boolean,
+  aposentadoria: boolean,
+  data_designacao: string,
+  doc: string,
+  criado_em: string,
+  is_deleted: boolean,
+  deleted_at: string | null,
+  designacao: number,
+  insubsistencia:InsubsistenciaBody,
+  apostila:ApostilaBody
+}
+
 export interface DesignacaoResponse {
   id: number,
   impedimento_substituicao_detail: string | null,
   impedimento_substituicao: string | null,
-  impedimento_display: string ,
+  impedimento_display: string,
   tipo_vaga_display: string,
   cargo_vaga_display: string,
   dre_nome: string,
   unidade_proponente: string,
+  dre: string,  
+  ue: string,
+  funcionarios_da_unidade: string,
   codigo_hierarquico: string,
   indicado_nome_civil: string,
   indicado_nome_servidor: string,
@@ -145,8 +201,22 @@ export interface DesignacaoResponse {
   com_afastamento: false,
   possui_pendencia: false,
   pendencias: string,
-  motivo_afastamento:  string,
+  motivo_afastamento: string,
   tipo_vaga: string,
   cargo_vaga: number,
   criado_em: string,
+  cessacao: Cessacao | null,
+  informacoes_adicionais?: string,
+  detalhe_para_quadro_de_historico_por_ano: boolean,
 }
+
+
+export type CargoAPI = {
+  codigoCargo: string;
+  nomeCargo: string;
+};
+
+export type CargoSelect = {
+  codigo: string;
+  cargo: string;
+};

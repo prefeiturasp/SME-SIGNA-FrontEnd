@@ -22,6 +22,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   isLoading?: boolean;
   showCursosTitulos?: boolean;
   showLotacao?: boolean;
+  showLocalDeServico?: boolean;
   onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 }> = ({
   className,
@@ -30,6 +31,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showCursosTitulos = false,
   showEditar = false,
   showLotacao = false,
+  showLocalDeServico = false,
   onSubmitEditarServidor
 }) => {
 
@@ -47,9 +49,9 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
     }
 
     const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
-     function handleSubmitEditarServidor(data: FormEditarServidorData) {
+    function handleSubmitEditarServidor(data: FormEditarServidorData) {
       onSubmitEditarServidor(data);
-   
+
     }
     return (
       <>
@@ -72,7 +74,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                   value={defaultValues.nome_servidor}
                 />
                 <InfoItem
-                  label="Nome Civil"
+                  label="Nome Social"
                   value={defaultValues.nome_civil}
                 />
                 <InfoItem label="RF" value={defaultValues.rf} />
@@ -105,9 +107,9 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                         onClick={handleOpenModalListaCursosTitulos}>
                         <Eye
                           width={16}
-                          height={16} 
+                          height={16}
                           className='fill-[#6058A2]'
-                          />
+                        />
                       </Button>
                     }
                   />
@@ -129,10 +131,14 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                   label="Laudo médico"
                   value={defaultValues.laudo_medico ?? '-'}
                 />
-                <InfoItem
-                  label="Local de serviço"
-                  value={defaultValues.local_de_servico ?? '-'}
-                />
+                {showLocalDeServico && (
+                  <InfoItem
+                    label="Local de serviço"
+                    value={defaultValues.local_de_servico ?? '-'}
+                  />
+                )}
+
+
               </div>
             </div>
 

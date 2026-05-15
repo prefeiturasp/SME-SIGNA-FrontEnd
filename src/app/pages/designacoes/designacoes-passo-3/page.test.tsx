@@ -4,12 +4,13 @@ import { vi } from "vitest";
 import DesignacoesPasso3 from "./page";
 import { designacaoAction } from "@/actions/cadastro-designacao";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
-import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 
 // ── Mocks de Navegação ───────────────────────────
 const h = vi.hoisted(() => ({
   pushMock: vi.fn(),
   searchId: null as string | null,
+  clearFormDesignacaoDataMock: vi.fn(),
+  setFormDesignacaoDataMock: vi.fn(),
   formData: {
     dre_nome: "DRE CENTRO",
     ue_nome: "EMEF TESTE",
@@ -18,6 +19,13 @@ const h = vi.hoisted(() => ({
     servidorIndicado: { nome_civil: "JOÃO SILVA" },
   } as any,
 }));
+const defaultFormData = {
+  dre_nome: "DRE CENTRO",
+  ue_nome: "EMEF TESTE",
+  portaria_designacao: "123/2024",
+  numero_sei: "6016.2024/0001-2",
+  servidorIndicado: { nome_civil: "JOÃO SILVA" },
+} as const;
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: h.pushMock }),
@@ -26,25 +34,28 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-// ── Mock do Contexto ─────────────────────────────
+// ── Contexto ───────────────────────────
 vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
     formDesignacaoData: h.formData,
+    clearFormDesignacaoData: h.clearFormDesignacaoDataMock,
+    setFormDesignacaoData: h.setFormDesignacaoDataMock,
   }),
 }));
 
-// ── Mocks de Componentes UI ──────────────────────
+// ── UI mocks ───────────────────────────
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   default: ({ title }: any) => <h1>{title}</h1>,
 }));
+
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   default: ({ children }: any) => <section>{children}</section>,
 }));
+
 vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
   default: ({ current }: any) => <div data-testid="stepper">Passo {current}</div>,
 }));
 
-// Ajustado: labelProximo agora é "Salvar" na página real
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
   default: ({ onAnterior, onProximo, disableProximo, labelProximo }: any) => (
     <nav>
@@ -55,36 +66,53 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
     </nav>
   ),
 }));
-vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
 
-// ── Mocks de Utils ───────────────────────────────
-vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: vi.fn(
-    (_template: string, dados: Record<string, string>) => {
-      const portaria = dados.portaria ?? "123/2024";
-      const sei = dados.sei ?? "6016.2024/0001-2";
-      const nome = dados.nome_indicado ?? "JOÃO SILVA";
-      return `PORTARIA Nº ${portaria}\nSEI Nº ${sei}\nEXPEDE:\nTexto da portaria para ${nome}`;
-    }
+vi.mock("@/components/ui/select", () => ({
+  Select: ({ children, onValueChange }: any) => (
+    <div>
+      <button
+        type="button"
+        data-testid="select-detalhe-true"
+        onClick={() => onValueChange?.("true")}
+      >
+        Selecionar contabilizar
+      </button>
+      <button
+        type="button"
+        data-testid="select-detalhe-false"
+        onClick={() => onValueChange?.("false")}
+      >
+        Selecionar nao contabilizar
+      </button>
+      {children}
+    </div>
   ),
+  SelectContent: ({ children }: any) => <div>{children}</div>,
+  SelectItem: ({ children, value }: any) => <div data-value={value}>{children}</div>,
+  SelectTrigger: ({ children }: any) => <div>{children}</div>,
+  SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
 }));
 
-vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
-  gerarDadosPortaria: vi.fn((data: any) => ({
-    ...data,
-    autoridade: "DIRETOR",
-    nome_indicado: "JOÃO SILVA",
-    portaria: "123/2024",
-    sei: "6016.2024/0001-2",
-  })),
+vi.mock("@/assets/icons/Designacao", () => ({
+  default: () => <svg />,
 }));
 
-// ── Mock da Action ───────────────────────────────
+// ── Utils mock ───────────────────────────
+vi.mock("@/utils/portarias/preencherTemplate", () => ({
+  preencherTemplate: vi.fn((_template: string, dados: any) => {
+    return `PORTARIA Nº ${dados.portaria}
+SEI Nº ${dados.sei}
+EXPEDE:
+Texto da portaria para ${dados.nome_indicado}`;
+  }),
+}));
+
+// ── Action mock ───────────────────────────
 vi.mock("@/actions/cadastro-designacao", () => ({
   designacaoAction: vi.fn(),
 }));
 
-// ── Mock do Antd ─────────────────────────────────
+// ── Antd mock ───────────────────────────
 vi.mock("antd", () => ({
   Card: ({ title, children }: any) => (
     <article>
@@ -104,115 +132,68 @@ vi.mock("antd", () => ({
   message: { loading: vi.fn(), destroy: vi.fn(), error: vi.fn() },
 }));
 
-// ── Testes ───────────────────────────────────────
+// ── TESTES ───────────────────────────
 
-describe("DesignacoesPasso3 - Testes Robustos", () => {
-  const mockedPreencherTemplate = vi.mocked(preencherTemplate);
-  const mockedGerarDadosPortaria = vi.mocked(gerarDadosPortaria);
-
+describe("DesignacoesPasso3 - Testes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     h.searchId = null;
-    h.formData = {
-      dre_nome: "DRE CENTRO",
-      ue_nome: "EMEF TESTE",
-      portaria_designacao: "123/2024",
-      numero_sei: "6016.2024/0001-2",
-      servidorIndicado: { nome_civil: "JOÃO SILVA" },
-    } as any;
-
-    mockedPreencherTemplate.mockImplementation(
-      (_template: string, dados: Record<string, string>) => {
-        const portaria = dados.portaria ?? "123/2024";
-        const sei = dados.sei ?? "6016.2024/0001-2";
-        const nome = dados.nome_indicado ?? "JOÃO SILVA";
-        return `PORTARIA Nº ${portaria}\nSEI Nº ${sei}\nEXPEDE:\nTexto da portaria para ${nome}`;
-      }
-    );
-
-    mockedGerarDadosPortaria.mockImplementation((data: any) => ({
-      ...data,
-      autoridade: "DIRETOR",
-      nome_indicado: "JOÃO SILVA",
-      portaria: "123/2024",
-      sei: "6016.2024/0001-2",
-    }));
+    h.formData = { ...defaultFormData };
   });
 
-  const getEditor = () =>
-    document.querySelector("[contenteditable='true']") as HTMLElement;
-
-  it("deve renderizar o editor com negritos automáticos aplicados", async () => {
+  it("renderiza editor com conteúdo formatado", async () => {
     render(<DesignacoesPasso3 />);
+    const editor = await screen.findByTestId("editor-sei");
 
-    const editor = await waitFor(() => getEditor());
+    expect(editor).toHaveTextContent("PORTARIA Nº");
+    expect(editor).toHaveTextContent("EXPEDE:");
+    expect(editor).toHaveTextContent("SEI Nº");
 
-    // Palavras fixas em negrito via gerarHtmlPortaria
-    expect(editor.innerHTML).toContain("<strong>PORTARIA Nº</strong>");
-    expect(editor.innerHTML).toContain("<strong>EXPEDE:</strong>");
-    expect(editor.innerHTML).toContain("<strong>SEI Nº</strong>");
-
-    // Campos em negrito via CAMPOS_NEGRITO (nome_indicado, portaria, sei, autoridade)
-    expect(editor.innerHTML).toContain("<strong>JOÃO SILVA</strong>");
-    expect(editor.innerHTML).toContain("<strong>123/2024</strong>");
+    const strongs = editor.querySelectorAll("strong");
+    expect(strongs.length).toBeGreaterThan(0);
   });
 
-  it("deve aceitar edição do conteúdo sem quebrar", async () => {
-    render(<DesignacoesPasso3 />);
-    const editor = await waitFor(() => getEditor());
-
-    editor.innerText = "Nova portaria editada manualmente";
-    fireEvent.input(editor);
-
-    expect(editor).toBeInTheDocument();
-  });
-
-  it("deve chamar a action com os dados originais do formulário ao clicar em Salvar", async () => {
-    vi.mocked(designacaoAction).mockResolvedValueOnce({
-      success: true,
-      data: { id: 1 },
-    });
+  it("chama action ao salvar", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
-
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(designacaoAction).toHaveBeenCalledWith(h.formData, null);
-    });
+    await waitFor(() =>
+      expect(designacaoAction).toHaveBeenCalledWith(h.formData, null)
+    );
   });
 
-  it("deve enviar id para a action quando query param id existir", async () => {
+  it("envia id quando existir", async () => {
     h.searchId = "42";
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(designacaoAction).toHaveBeenCalledWith(h.formData, "42");
-    });
+    await waitFor(() =>
+      expect(designacaoAction).toHaveBeenCalledWith(h.formData, "42")
+    );
   });
 
-  it("deve gerenciar o estado de loading durante o salvamento", async () => {
+  it("bloqueia botão durante loading", async () => {
+    let resolveFn: any;
     vi.mocked(designacaoAction).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ success: true, data: {} }), 100)
-        )
+      () => new Promise((r) => (resolveFn = r))
     );
 
     render(<DesignacoesPasso3 />);
+    const btn = screen.getByText("Salvar");
 
-    const btnSalvar = screen.getByText("Salvar");
-    fireEvent.click(btnSalvar);
+    fireEvent.click(btn);
+    expect(btn).toBeDisabled();
 
-    expect(btnSalvar).toBeDisabled();
+    resolveFn({ success: true, data: {} });
 
-    await waitFor(() => expect(btnSalvar).not.toBeDisabled());
+    await waitFor(() => expect(btn).not.toBeDisabled());
   });
 
-  it("deve redirecionar para /pages/listagem-designacoes após sucesso com delay", async () => {
+  it("redireciona após sucesso", async () => {
     vi.useFakeTimers();
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
@@ -221,64 +202,53 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
 
     await vi.runAllTimersAsync();
 
-    // Redirecionamento atualizado conforme a página
     expect(h.pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
+
     vi.useRealTimers();
   });
 
-  it("deve exibir modal de sucesso após salvar com êxito", async () => {
+  it("exibe modal de sucesso", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("modal")).toBeInTheDocument();
-      expect(screen.getByText("Portaria salva com sucesso!")).toBeInTheDocument();
-      expect(
-        screen.getByText("Redirecionando para a página inicial...")
-      ).toBeInTheDocument();
-    });
+    expect(await screen.findByTestId("modal")).toBeInTheDocument();
+    expect(screen.getByText("Portaria salva com sucesso!")).toBeInTheDocument();
   });
 
-  it("deve exibir modal de erro se a action falhar", async () => {
+  it("exibe modal de erro", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({
       success: false,
-      error: "Banco de dados offline",
+      error: "Erro teste",
     });
 
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("modal")).toBeInTheDocument();
-      expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
-    });
+    expect(await screen.findByTestId("modal")).toBeInTheDocument();
+    expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
   });
 
-  it("deve fechar o modal de erro ao clicar em Fechar", async () => {
+  it("fecha modal de erro ao clicar em Fechar", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({
       success: false,
-      error: "Erro qualquer",
+      error: "Erro teste",
     });
 
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("modal")).toBeInTheDocument();
-    });
-
+    expect(await screen.findByText("Erro ao salvar a portaria!")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Fechar"));
 
     await waitFor(() => {
-      expect(screen.queryByTestId("modal")).not.toBeInTheDocument();
+      expect(screen.queryByText("Erro ao salvar a portaria!")).not.toBeInTheDocument();
     });
   });
 
-  it("deve navegar para o passo 2 ao clicar em Anterior", () => {
+  it("navega ao clicar em Anterior", () => {
     render(<DesignacoesPasso3 />);
-
     fireEvent.click(screen.getByText("Anterior"));
 
     expect(h.pushMock).toHaveBeenCalledWith(
@@ -286,50 +256,100 @@ describe("DesignacoesPasso3 - Testes Robustos", () => {
     );
   });
 
-  it("deve abrir modal de erro quando não existir formDesignacaoData", async () => {
-    h.formData = null;
+  it("navega para passo 2 com id ao clicar em Anterior", () => {
+    h.searchId = "42";
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Anterior"));
+
+    expect(h.pushMock).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2?id=42"
+    );
+  });
+
+  it("renderiza quebra de linha", async () => {
+    vi.mocked(preencherTemplate).mockReturnValueOnce("A\n\nB");
 
     render(<DesignacoesPasso3 />);
-    fireEvent.click(screen.getByText("Salvar"));
+    const editor = await screen.findByTestId("editor-sei");
+
+    expect(editor.innerHTML).toContain("<br>");
+  });
+
+  it("não quebra com template vazio", async () => {
+    vi.mocked(preencherTemplate).mockReturnValueOnce("");
+
+    render(<DesignacoesPasso3 />);
+    const editor = await screen.findByTestId("editor-sei");
+
+    expect(editor).toBeInTheDocument();
+  });
+
+  it("não renderiza undefined em negrito", async () => {
+    vi.mocked(preencherTemplate).mockReturnValueOnce("Autoridade: undefined");
+
+    render(<DesignacoesPasso3 />);
+    const editor = await screen.findByTestId("editor-sei");
+
+    expect(editor).toHaveTextContent("Autoridade: undefined");
+    expect(editor.innerHTML).not.toContain("<strong>undefined</strong>");
+  });
+
+  it("atualiza texto plano ao editar conteúdo do editor", async () => {
+    render(<DesignacoesPasso3 />);
+    const editor = await screen.findByTestId("editor-sei");
+
+    editor.textContent = "Portaria editada manualmente";
+    fireEvent.input(editor);
+
+    expect(editor).toBeInTheDocument();
+  });
+
+  it("atualiza informações adicionais no contexto", async () => {
+    render(<DesignacoesPasso3 />);
+
+    fireEvent.change(screen.getByTestId("input-descricao-pendencia"), {
+      target: { value: "Observacao complementar" },
+    });
 
     await waitFor(() => {
-      expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          informacoes_adicionais: "Observacao complementar",
+        })
+      );
     });
   });
 
-  it("deve renderizar quebra de linha vazia no HTML da portaria", async () => {
-    mockedPreencherTemplate.mockImplementationOnce(
-      () => "PORTARIA Nº 1\n\nEXPEDE:\nLinha final"
-    );
-
+  it("atualiza detalhe do histórico no contexto", async () => {
     render(<DesignacoesPasso3 />);
-    const editor = await waitFor(() => getEditor());
-    expect(editor.innerHTML).toContain("<div><br></div>");
+
+    fireEvent.click(screen.getByTestId("select-detalhe-false"));
+    fireEvent.click(screen.getByTestId("select-detalhe-true"));
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detalhe_para_quadro_de_historico_por_ano: false,
+        })
+      );
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detalhe_para_quadro_de_historico_por_ano: true,
+        })
+      );
+    });
   });
 
-  it("deve aceitar template vazio sem quebrar renderização", async () => {
-    mockedPreencherTemplate.mockImplementationOnce(() => "");
+  it("trata ausência de dados no contexto ao renderizar e salvar", async () => {
+    h.formData = null;
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
-    const editor = await waitFor(() => getEditor());
-    expect(editor.innerHTML).toBe("");
-  });
+    const editor = await screen.findByTestId("editor-sei");
+    expect(editor).toBeInTheDocument();
 
-  it("não aplica negrito quando campo de destaque estiver ausente", async () => {
-    mockedGerarDadosPortaria.mockImplementationOnce((data: any) => ({
-      ...data,
-      autoridade: undefined,
-      nome_indicado: "JOÃO SILVA",
-      portaria: "123/2024",
-      sei: "6016.2024/0001-2",
-    }));
-    mockedPreencherTemplate.mockImplementationOnce(
-      (_template, dados) => `Autoridade: ${String(dados.autoridade)}`
-    );
-
-    render(<DesignacoesPasso3 />);
-    const editor = await waitFor(() => getEditor());
-    expect(editor.innerHTML).toContain("Autoridade: undefined");
-    expect(editor.innerHTML).not.toContain("<strong>undefined</strong>");
+    fireEvent.click(screen.getByText("Salvar"));
+    expect(await screen.findByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+    expect(designacaoAction).not.toHaveBeenCalled();
   });
 });

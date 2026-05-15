@@ -227,7 +227,7 @@ describe("ListagemDeDesignacoes", () => {
     expect(tableMock).toHaveBeenCalledTimes(1);
     const props = tableMock.mock.calls[0][0];
 
-    expect(props.className).toBe("tabela-designacoes w-full");
+    expect(props.className).toBe("tabela-principal w-full");
     expect(props.scroll).toEqual({ x: "100%" });
     expect(typeof props.rowKey).toBe("function");
     expect((props.rowKey as (r: ListagemDesignacoesResponse) => string)(makeRow(5))).toBe("5");
@@ -378,17 +378,12 @@ describe("ListagemDeDesignacoes", () => {
 
     render(<>{actionRender?.(null, makeRow(1))}</>);
 
-    fireEvent.click(screen.getByTestId("menu-item-editar"));
-
     fireEvent.click(screen.getByTestId("menu-item-1"));
 
     fireEvent.click(screen.getByTestId("menu-item-2"));
 
     fireEvent.click(screen.getByTestId("menu-item-3"));
 
-    expect(console.log).toHaveBeenNthCalledWith(1, "Apostilar");
-    expect(console.log).toHaveBeenNthCalledWith(2, "Tornar Insubsistente");
-    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-2?id=1");
 
     expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=1");
 

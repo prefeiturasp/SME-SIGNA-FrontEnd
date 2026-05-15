@@ -4,6 +4,7 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 import { Card } from "antd";
+
 type ColorVariant = "gold" | "purple" | "green" | "blue" | "silver";
 
 type CustomAccordionItemProps = {
@@ -64,13 +65,11 @@ export function CustomAccordionItem({
           <span className={`pl-4 text-lg ${variant.text}`}>
             {title}
           </span>
-          <span className="mr-2 text-[16px] text-muted-foreground">
-            Ver
-          </span>
+          
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="mt-0 m-0">
+      <AccordionContent  className="mt-0 m-0">
         <Card
           className={`m-0 border-l-4 ${variant.bg} ${variant.border}`}
         >

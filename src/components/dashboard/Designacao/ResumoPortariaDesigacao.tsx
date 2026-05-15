@@ -9,11 +9,12 @@ const ResumoPortariaDesigacao: React.FC<{
    className?: string;
   defaultValues: PortariaDesignacao;
   isLoading?: boolean;
+  showExtraFields?: boolean;
  }> = ({
   className,
   defaultValues,
   isLoading,
-  
+  showExtraFields = true,
 }) => {
     return (
       <>
@@ -45,13 +46,16 @@ const ResumoPortariaDesigacao: React.FC<{
                   label="D.O"
                   value={defaultValues.doc || "-"}
                 />
-                <InfoItem label="A partir de" value={defaultValues.data_inicio ?? '-'} />
-                <InfoItem label="Até" value={defaultValues.data_fim ?? '-'} />
-                <InfoItem label="Caráter Especial" value={defaultValues.carater_excepcional? 'Sim':'Não'} />
-                <InfoItem label="Impedimento para substituição:" value={defaultValues.impedimento_substituicao ?? '-'} />
-                <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento || '-'} />
-                <InfoItem label="Pendência:" value={defaultValues.pendencias || '-'} />
-                
+                {showExtraFields && (
+                  <>
+                    <InfoItem label="A partir de" value={defaultValues.data_inicio ?? '-'} />
+                    <InfoItem label="Até" value={defaultValues.data_fim ?? '-'} />
+                    <InfoItem label="Caráter Excepcional" value={defaultValues.carater_excepcional? 'Sim':'Não'} />
+                    <InfoItem label="Impedimento para substituição:" value={defaultValues.impedimento_substituicao ?? '-'} />
+                    <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento ?? '-'} />
+                    <InfoItem label="Pendência:" value={defaultValues.pendencias ?? '-'} />
+                  </>
+                )}
               </div>
             </div>
           </div>

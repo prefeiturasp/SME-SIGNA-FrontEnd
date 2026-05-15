@@ -4,7 +4,7 @@ export type AtualizarEmailRequest = {
 
 export type Servidor = {
   rf: string;
-  nome_servidor?: string;
+  nome_servidor: string;
   nome_civil?: string;
   vinculo: number;
   lotacao: string;

@@ -39,6 +39,9 @@ export function mapearPayloadDesignacao(form: any) {
     return {
         dre_nome: form.dre_nome,
         unidade_proponente: form.ue_nome,
+        dre: form.dre,
+        ue: form.ue,
+        funcionarios_da_unidade: form.funcionarios_da_unidade,
         codigo_hierarquico: form.codigo_hierarquico,
 
         indicado_nome_civil: servidorIndicado.nome_civil,
@@ -83,5 +86,7 @@ export function mapearPayloadDesignacao(form: any) {
 
         tipo_vaga: form.tipo_cargo?.toUpperCase(),
         cargo_vaga: cargoVaga,
+        informacoes_adicionais: form.informacoes_adicionais,
+        detalhe_para_quadro_de_historico_por_ano: form.detalhe_para_quadro_de_historico_por_ano,
     };
 }

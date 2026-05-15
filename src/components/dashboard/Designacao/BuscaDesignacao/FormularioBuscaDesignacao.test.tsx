@@ -64,27 +64,27 @@ describe("FormularioBuscaDesignacao", () => {
     expect(onBuscaDesignacao).toHaveBeenCalledTimes(1);
   });
 
-  it("deve exibir estado de loading enquanto busca está pendente", async () => {
+  it("exibe estado de carregamento durante a busca", async () => {
     const user = userEvent.setup();
-    let resolveBusca!: () => void;
+    let resolver!: () => void;
     const onBuscaDesignacao = vi.fn(
       () =>
         new Promise<void>((resolve) => {
-          resolveBusca = resolve;
+          resolver = resolve;
         })
     );
 
     render(<FormularioBuscaDesignacao onBuscaDesignacao={onBuscaDesignacao} />);
 
-    await user.type(screen.getByPlaceholderText("Entre com RF"), "1234567");
-    await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+    await user.type(screen.getByTestId("input-rf"), "9999999");
+    await user.click(screen.getByTestId("botao-pesquisar-servidor"));
 
-    expect(screen.getByRole("button", { name: /Pesquisando.../i })).toBeDisabled();
+    expect(screen.getByText("Pesquisando...")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Pesquisando/i })).toBeDisabled();
 
-    resolveBusca();
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Pesquisar/i })).toBeEnabled();
-    });
+    resolver();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Pesquisar/i })).toBeEnabled()
+    );
   });
 });

@@ -146,6 +146,17 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.data_fim).toBeNull();
     });
 
+    it("retorna null para datas quando valor nao e suportado", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            a_partir_de: 12345,
+            designacao_data_final: { value: "2024-01-01" },
+        });
+
+        expect(result?.data_inicio).toBeNull();
+        expect(result?.data_fim).toBeNull();
+    });
+
     it("mapeia carater_excepcional como boolean", () => {
         const comCarater = mapearPayloadDesignacao({ ...formBase, carater_especial: "sim" });
         const semCarater = mapearPayloadDesignacao({ ...formBase, carater_especial: "nao" });

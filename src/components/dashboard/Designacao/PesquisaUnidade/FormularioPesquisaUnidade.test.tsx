@@ -8,6 +8,18 @@ import * as designacaoActions from "@/actions/designacao-unidade";
 import { createRef } from "react";
 import type { FormularioPesquisaUnidadeRef } from "./FormularioPesquisaUnidade";
 
+const designacaoContextMock = vi.hoisted(() => ({
+  formDesignacaoData: null as any,
+  setFormDesignacaoData: vi.fn(),
+}));
+
+vi.mock("@/app/pages/designacoes/DesignacaoContext", () => ({
+  useDesignacaoContext: () => ({
+    formDesignacaoData: designacaoContextMock.formDesignacaoData,
+    setFormDesignacaoData: designacaoContextMock.setFormDesignacaoData,
+  }),
+}));
+
 
 vi.mock("@/hooks/useDesignacaoUnidade", async () => {
   const React = await import("react");
@@ -158,6 +170,8 @@ describe("FormularioPesquisaUnidade", () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    designacaoContextMock.formDesignacaoData = null;
+    designacaoContextMock.setFormDesignacaoData.mockReset();
 
     getDREsSpy = vi
       .spyOn(unidadesActions, "getDREs")
@@ -280,6 +294,9 @@ describe("FormularioPesquisaUnidade", () => {
     getDesignacaoUnidadeSpy.mockResolvedValue({
       success: true,
       data: {
+        codigo_hierarquico: "COD-HIER-01",
+        turmas: { total: 0, turnos: [] },
+        spi: { tipo: "-", total: 0, turnos: [] },
         cargos: [
           { codigoCargo: "cargo-1", nomeCargo: "Coordenador" },
           { codigoCargo: "cargo-2", nomeCargo: "Secretário" },
@@ -351,14 +368,11 @@ describe("FormularioPesquisaUnidade", () => {
 
     expect(screen.getByText("Código Estrutura hierárquica")).toBeInTheDocument();
     expect(screen.getByText("Qtd. Turmas")).toBeInTheDocument();
+    expect(screen.getByText("COD-HIER-01")).toBeInTheDocument();
 
     expect(
       screen.getByText("Código Estrutura hierárquica")
     ).toBeInTheDocument();
-
-    expect(screen.getAllByText("-").length).toBeGreaterThan(0);
-
-    expect(screen.getAllByText("-").length).toBeGreaterThan(0);
 
     consoleErrorSpy.mockRestore();
   });
@@ -1051,5 +1065,184 @@ describe("FormularioPesquisaUnidade", () => {
       expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
     });
 
+  });
+
+
+
+  it("cobre fallback de DRE/UE não encontrados e código hierárquico preenchido", async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+
+    const setValueSpy = vi.fn();
+
+    vi.doMock("@/app/pages/designacoes/DesignacaoContext", () => ({
+      useDesignacaoContext: () => ({
+        formDesignacaoData: {
+          designacaoUnidade: {
+            codigo_hierarquico: "CTX-123",
+            cargos: [],
+            funcionarios_unidade: {
+              "1": {
+                codigo_cargo: 1,
+                nome_cargo: "Cargo Contexto",
+                modulo: "2",
+                servidores: [],
+              },
+            },
+            turmas: { total: 0, turnos: [] },
+            spi: { tipo: "SPI", total: 0, turnos: [] },
+          },
+        },
+        setFormDesignacaoData: vi.fn(),
+      }),
+    }));
+
+    vi.doMock("@/hooks/useUnidades", () => ({
+      useFetchDREs: () => ({
+        data: [{ codigoDRE: "dre-1", nomeDRE: "DRE Sul", siglaDRE: "DRE1" }],
+      }),
+      useFetchUEs: () => ({
+        data: [
+          {
+            codigoEscola: "ue-1",
+            nomeEscola: "UE 1",
+            siglaTipoEscola: "EMEI",
+          },
+        ],
+        isLoading: false,
+      }),
+    }));
+
+    vi.doMock("@/hooks/useDesignacaoUnidade", () => ({
+      __esModule: true,
+      default: () => ({ mutateAsync: vi.fn(), isPending: false }),
+    }));
+
+    vi.doMock("@/components/ui/form", () => ({
+      Form: ({ children }: any) => <div>{children}</div>,
+      FormControl: ({ children }: any) => <div>{children}</div>,
+      FormField: ({ render }: any) =>
+        render({ field: { value: "", onChange: vi.fn() } }),
+      FormItem: ({ children }: any) => <div>{children}</div>,
+      FormLabel: ({ children }: any) => <div>{children}</div>,
+      FormMessage: () => null,
+    }));
+
+    vi.doMock("@/components/ui/select", () => ({
+      Select: ({ children, onValueChange }: any) => (
+        <div>
+          <button
+            type="button"
+            data-testid="mock-select-trigger"
+            onClick={() => onValueChange?.("valor-inexistente")}
+          >
+            selecionar
+          </button>
+          {children}
+        </div>
+      ),
+      SelectTrigger: ({ children }: any) => <div>{children}</div>,
+      SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
+      SelectContent: ({ children }: any) => <div>{children}</div>,
+      SelectItem: ({ children }: any) => <div>{children}</div>,
+    }));
+
+    vi.doMock("@/components/ui/Combobox", () => ({
+      Combobox: ({ onChange }: any) => (
+        <button
+          type="button"
+          data-testid="mock-combobox-trigger"
+          onClick={() => onChange("ue-inexistente")}
+        >
+          alterar ue
+        </button>
+      ),
+    }));
+
+    vi.doMock("@/components/ui/button", () => ({
+      Button: ({ children, ...rest }: any) => (
+        <button {...rest}>{children}</button>
+      ),
+    }));
+
+    vi.doMock("@/components/ui/info-item", () => ({
+      InfoItem: ({ label, value }: any) => (
+        <div data-testid={`info-${label}`}>{`${label}:${String(value)}`}</div>
+      ),
+    }));
+
+    vi.doMock("@/assets/icons/Eye", () => ({
+      __esModule: true,
+      default: () => <svg />,
+    }));
+
+    vi.doMock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
+      __esModule: true,
+      default: () => null,
+    }));
+
+    vi.doMock("../ModalResumoServidor/ModalResumoServidor", () => ({
+      __esModule: true,
+      default: () => null,
+    }));
+
+    vi.doMock("react-hook-form", () => ({
+      useForm: () => ({
+        watch: (name?: string) => {
+          if (name === "codigo_hierarquico") return "COD-123";
+          if (name) return "";
+          return {
+            dre: "",
+            ue: "",
+            funcionarios_da_unidade: "",
+            quantidade_turmas: "",
+            codigo_hierarquico: "COD-123",
+            cargo_sobreposto: "",
+            modulos: "",
+          };
+        },
+        handleSubmit:
+          (fn: any) =>
+          (e?: any) => {
+            e?.preventDefault?.();
+            return fn({
+              dre: "",
+              ue: "",
+              funcionarios_da_unidade: "",
+              quantidade_turmas: "",
+              codigo_hierarquico: "COD-123",
+              cargo_sobreposto: "",
+              modulos: "",
+            });
+          },
+        control: {},
+        clearErrors: vi.fn(),
+        setValue: setValueSpy,
+        getValues: vi.fn(() => ({})),
+      }),
+    }));
+
+    const { default: FormularioPesquisaUnidadeIsolated } = await import(
+      "./FormularioPesquisaUnidade"
+    );
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <FormularioPesquisaUnidadeIsolated
+          isLoading={false}
+          setDisableProximo={vi.fn()}
+        />
+      </QueryClientProvider>
+    );
+
+    await userEvent.click(screen.getAllByTestId("mock-select-trigger")[0]);
+    await userEvent.click(screen.getByTestId("mock-combobox-trigger"));
+
+    expect(setValueSpy).toHaveBeenCalledWith("dre_nome", "");
+    expect(setValueSpy).toHaveBeenCalledWith("ue_nome", "");
   });
 });

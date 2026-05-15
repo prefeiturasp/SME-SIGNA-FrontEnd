@@ -11,6 +11,7 @@ const PALAVRAS_FIXAS_PADRAO = [
     "SEI Nº",
     "R E S O L V E:",
     "FAZER CESSAR",
+    "TORNAR INSUBSISTENTE",
     "O Secretário Municipal de Educação",
 ];
 
@@ -111,8 +112,9 @@ const EditorSEI = forwardRef<EditorSEIHandle, EditorSEIProps>(
 
                 {/* Editor */}
                 <div
+                    data-testid="editor-sei"
                     ref={editorRef}
-                    contentEditable
+                    contentEditable={false}
                     suppressContentEditableWarning
                     onInput={onInput}
                     style={{ minHeight }}

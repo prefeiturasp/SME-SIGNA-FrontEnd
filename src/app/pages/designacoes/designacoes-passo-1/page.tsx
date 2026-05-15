@@ -14,27 +14,32 @@ import FormularioPesquisaUnidade, {
   FormularioPesquisaUnidadeRef,
 } from "@/components/dashboard/Designacao/PesquisaUnidade/FormularioPesquisaUnidade";
 import { useDesignacaoContext } from "../DesignacaoContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 
 export default function DesignacoesPasso1() {
+  const searchParams = useSearchParams();
+  const rf = searchParams.get("rf");
+  const id = searchParams.get("id");
+
   const { mutateAsync, isPending } = useServidorDesignacao();
   const [error, setError] = useState<string | null>(null);
-  const [disableProximo, setDisableProximo] = useState(true);
+
   const formularioPesquisaUnidadeRef =
     useRef<FormularioPesquisaUnidadeRef | null>(null);
 
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
+  const [disableProximo, setDisableProximo] = useState(!formDesignacaoData?.designacaoUnidade);
 
   const router = useRouter();
 
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
- 
+
     if (response.success) {
       setFormDesignacaoData({
         ...formDesignacaoData,
@@ -50,11 +55,11 @@ export default function DesignacoesPasso1() {
   };
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
-    if (!formDesignacaoData?.servidorIndicado) return;
+    const servidorIndicado = formDesignacaoData!.servidorIndicado!;
     setFormDesignacaoData({
       ...formDesignacaoData,
       servidorIndicado: {
-        ...formDesignacaoData.servidorIndicado,
+        ...servidorIndicado,
         nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
       },
@@ -62,34 +67,38 @@ export default function DesignacoesPasso1() {
   }
 
   const onProximo = () => {
-    const valoresFormulario =
-      formularioPesquisaUnidadeRef.current?.getValues();
+    const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
 
-    if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) {
-      return;
-    }
-     
+    if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) return;
+
     setFormDesignacaoData({
       ...formDesignacaoData,
       ...valoresFormulario,
+      servidorIndicado: formDesignacaoData.servidorIndicado,
     });
 
-    router.push(
-      `/pages/designacoes/designacoes-passo-2?${formDesignacaoData.servidorIndicado.rf}`
-    );
+    if (id) {
+      router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`);
+    } else {
+      router.push(`/pages/designacoes/designacoes-passo-2`);
+    }
   };
 
   useEffect(() => {
-    clearFormDesignacaoData();    
+    if (!rf) {
+      clearFormDesignacaoData();
+    }
   }, []);
-  
+
+
   return (
     <>
       <PageHeader
         title="Designação"
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Designação" },
+          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
+          { title: "Designação" },  
         ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
@@ -111,11 +120,20 @@ export default function DesignacoesPasso1() {
       >
         <Accordion
           type="multiple"
-          defaultValue={["portarias-designacao"]}
+          defaultValue={["unidade-proponente"]}
+          onValueChange={(values) => {
+            if (!values.includes("unidade-proponente")) {
+              const vals = formularioPesquisaUnidadeRef.current?.getValues();
+              if (vals) {
+                setFormDesignacaoData({ ...formDesignacaoData, ...vals });
+              }
+            }
+          }}
         >
           <div className="pt-4 pb-6">
             <FormularioBuscaDesignacao
               onBuscaDesignacao={onBuscaDesignacao}
+              defaultValues={formDesignacaoData?.servidorIndicado ?? { rf: "" }}
             />
           </div>
 
@@ -136,7 +154,7 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showLotacao={true}  
+                showLotacao={true}
                 onSubmitEditarServidor={onSubmitEditarServidor}
               />
             </CustomAccordionItem>
@@ -150,7 +168,8 @@ export default function DesignacoesPasso1() {
             <FormularioPesquisaUnidade
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
-               setDisableProximo={setDisableProximo}
+              setDisableProximo={setDisableProximo}
+              defaultValues={formDesignacaoData ?? {}}
             />
           </CustomAccordionItem>
         </Accordion>
@@ -165,7 +184,7 @@ export default function DesignacoesPasso1() {
           }
           onProximo={onProximo}
           showAnterior={false}
-         />
+        />
       </div>
     </>
   );

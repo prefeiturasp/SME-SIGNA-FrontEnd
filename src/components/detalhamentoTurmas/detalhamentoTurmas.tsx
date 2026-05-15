@@ -71,7 +71,7 @@ export default function DetalhamentoTurmasModal({
               <InfoItem label="DRE" value={dre} />
               <InfoItem label="UNIDADE ESCOLAR" value={unidadeEscolar} />
               <InfoItem label="Qtd. Total Turmas" value={qtdTotalTurmas} />
-              <InfoItem label="SPI" value={spi} />
+              <InfoItem label="SPI" value={spi?.trim() ? spi : "-"} />
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export default function DetalhamentoTurmasModal({
                   </Td>
                 </tr>
 
-                {spi != "Indisponível" && spiRows && spiRows.length > 0 && (
+                {spi?.trim() && spiRows && spiRows.length > 0 && (
                   <>
                     {spiRows.map((row) => (
                       <tr key={`spi-${row.turno}`} className="border-b border-gray-100">

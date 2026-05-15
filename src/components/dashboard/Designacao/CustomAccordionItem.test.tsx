@@ -21,7 +21,6 @@ describe("CustomAccordionItem", () => {
     );
 
     expect(screen.getByText("Meu Título")).toBeInTheDocument();
-    expect(screen.getByText("Ver")).toBeInTheDocument();
   });
 
   it("não exibe o conteúdo inicialmente quando fechado", () => {

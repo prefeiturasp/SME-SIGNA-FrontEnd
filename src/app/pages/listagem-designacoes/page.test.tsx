@@ -268,7 +268,7 @@ describe("Página de listagem de designações", () => {
     });
     expect(exportResultHandlerMock).toHaveBeenCalledWith([]);
 
-    fireEvent.click(screen.getByText("Iniciar Nova Designação"));
+    fireEvent.click(screen.getByText("Nova Designação"));
     expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
   });
 });

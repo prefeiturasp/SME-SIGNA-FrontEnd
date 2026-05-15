@@ -30,12 +30,14 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Search } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhamentoTurmas";
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
 import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
+import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
+import { CargoAPI, CargoSelect } from "@/types/designacao";
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
@@ -44,6 +46,7 @@ export interface FormularioPesquisaUnidadeRef {
 interface Props {
    readonly setDisableProximo: (disable: boolean) => void;
   isLoading: boolean;
+  defaultValues?: Partial<FormDesignacaoEServidorIndicado>;
 }
 
 // to-do: Ajustar a novos campos
@@ -51,9 +54,11 @@ const FormularioPesquisaUnidade = forwardRef<
   FormularioPesquisaUnidadeRef,
   Props
 >(function FormularioPesquisaUnidade(
-  {   setDisableProximo, isLoading }: Props,
+  {   setDisableProximo, isLoading, defaultValues }: Props,
   ref,
 ) {
+  const { formDesignacaoData, setFormDesignacaoData } =
+  useDesignacaoContext();
   const { data: dreOptions = [] } = useFetchDREs();
 
 
@@ -61,7 +66,7 @@ const FormularioPesquisaUnidade = forwardRef<
 
   const form = useForm<FormDesignacaoData>({
     resolver: zodResolver(formSchemaDesignacao),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       dre: "",
       dre_nome: "",
       ue: "",
@@ -74,7 +79,6 @@ const FormularioPesquisaUnidade = forwardRef<
     },
     mode: "onChange",
   });
-
   const values = form.watch();
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
     values.dre,
@@ -88,7 +92,8 @@ const FormularioPesquisaUnidade = forwardRef<
     [form],
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { mutateAsync, isPending: isLoadingDesiganaçãoUnidade, } =
+  const [isLoadingDesiganaçãoUnidade, setIsLoadingDesiganaçãoUnidade] = useState(false);
+  const { mutateAsync } =
     useFetchDesignacaoUnidadeMutation();
 
   const [funcionariosOptions, setFuncionariosOptions] = useState<
@@ -100,16 +105,22 @@ const FormularioPesquisaUnidade = forwardRef<
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
+    
 
+    setIsLoadingDesiganaçãoUnidade(true);
     try {
       const response = await mutateAsync(values.ue);
       if (response.success) {
-        const cargosSelect = response.data.cargos.map((cargo) => ({
-          codigo: cargo.codigoCargo.toString(),
-          cargo: cargo.nomeCargo,
-        }));
+        const cargosSelect: CargoSelect[] = response.data.cargos.map(
+          (cargo: CargoAPI): CargoSelect => ({
+            codigo: cargo.codigoCargo.toString(),
+            cargo: cargo.nomeCargo,
+          })
+        );
         setFuncionariosOptions(cargosSelect);
         setDesignacaoUnidade(response.data);
+
+
         form.setValue("quantidade_turmas", response.data.turmas?.total?.toString() ?? "-");
         form.setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
 
@@ -120,8 +131,7 @@ const FormularioPesquisaUnidade = forwardRef<
     } catch (error) {
       console.log('error', error);
     }
-
-
+    setIsLoadingDesiganaçãoUnidade(false);
    };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
@@ -134,6 +144,15 @@ const FormularioPesquisaUnidade = forwardRef<
     setDisableProximo(true);
   }
   const codigoEstrutura = form.watch("codigo_hierarquico");
+
+  useEffect(() => {
+    if (defaultValues?.ue) {
+      (async () => {
+        await onSubmit(defaultValues as FormDesignacaoData);
+        setDisableProximo(false);
+      })();
+    }
+  }, []);
 
   return (
     <>
@@ -248,6 +267,7 @@ const FormularioPesquisaUnidade = forwardRef<
                           </div>
                         ) : (
                           <Combobox
+                            
                             options={ueOptions.map(
                               (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
                                 label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
@@ -267,7 +287,7 @@ const FormularioPesquisaUnidade = forwardRef<
                               limpa_dados_funcionarios()
                             }}
                             placeholder="Digite o nome da UE"
-                            disabled={!values.dre}
+                            disabled={!values.dre|| isLoadingDesiganaçãoUnidade}
                             data-testid="select-ue"
                           />
                         )}

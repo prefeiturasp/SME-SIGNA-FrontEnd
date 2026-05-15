@@ -121,10 +121,30 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", ()
 }));
 
 vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
-  default: ({ onBuscaTitular }: any) => (
-    <button data-testid="buscar-titular" onClick={() => onBuscaTitular({ rf: "1234567" })}>
-      Buscar titular
-    </button>
+  default: ({ onBuscaTitular, form, rf_default }: any) => (
+    <div>
+      <span data-testid="rf-default">{rf_default}</span>
+      <button data-testid="buscar-titular" onClick={() => onBuscaTitular({ rf: "1234567" })}>
+        Buscar titular
+      </button>
+      <button
+        data-testid="set-vago"
+        onClick={() => {
+          form.setValue("tipo_cargo", "vago");
+          form.setValue("cargo_vago_selecionado", { id: 99, label: "Diretor" });
+        }}
+      >
+        Setar vago
+      </button>
+      <button
+        data-testid="set-rf-undefined"
+        onClick={() => {
+          form.setValue("rf_titular", undefined);
+        }}
+      >
+        Setar RF indefinido
+      </button>
+    </div>
   ),
 }));
 
@@ -215,7 +235,7 @@ describe("DesignacoesPasso2", () => {
     await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
 
     fireEvent.click(screen.getByTestId("anterior"));
-    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
+    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1?rf=undefined");
 
     const modal = screen.getByTestId("modal-historico");
     expect(modal).toHaveAttribute("data-open", "false");
@@ -269,7 +289,8 @@ describe("DesignacoesPasso2", () => {
     );
 
     fireEvent.click(screen.getByTestId("anterior"));
-    expect(h.push).toHaveBeenCalledWith("/pages/listagem-designacoes");
+    expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1?id=55&rf=1111111")
+    
   });
 
   it("salva sem id e navega para o passo 3 sem query", async () => {
@@ -309,6 +330,129 @@ describe("DesignacoesPasso2", () => {
 
     await waitFor(() => {
       expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3");
+    });
+  });
+
+  it("usa servidor indicado do contexto quando API não retorna indicado", async () => {
+    h.searchId = "88";
+    h.designacao = {
+      ...designacaoCompleta,
+      indicado_nome_servidor: "",
+      indicado_nome_civil: "",
+      indicado_rf: "",
+    };
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Contexto",
+        nome_civil: "Civil Contexto",
+        rf: "9999999",
+        vinculo: 1,
+        cargo_base: "Cargo Contexto",
+        lotacao: "Lotacao Contexto",
+        cargo_sobreposto_funcao_atividade: "Sobreposto Contexto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          servidorIndicado: expect.objectContaining({
+            nome_servidor: "Servidor Contexto",
+            rf: "9999999",
+          }),
+        })
+      );
+    });
+  });
+
+  it("trata erro ao buscar titular e mantém botão de próximo desabilitado", async () => {
+    h.mutateAsync.mockResolvedValueOnce({ success: false, error: "Titular inválido" });
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+
+    await waitFor(() => {
+      expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" });
+    });
+
+    expect(screen.getByTestId("proximo")).toBeDisabled();
+  });
+
+  it("salva com tipo de cargo vago", async () => {
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    fireEvent.click(screen.getByTestId("set-vago"));
+    fireEvent.click(screen.getByTestId("anterior"));
+
+    await waitFor(() =>
+      expect(h.setFormDesignacaoData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tipo_cargo: "vago",
+          dadosTitular: expect.objectContaining({
+            rf: "",
+            nome_servidor: "",
+          }),
+        })
+      )
+    );
+  });
+
+  it("usa fallback de rf_default quando rf_titular fica indefinido", async () => {
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+    expect(screen.getByTestId("rf-default")).toHaveTextContent("");
+
+    fireEvent.click(screen.getByTestId("set-rf-undefined"));
+    await waitFor(() => {
+      expect(screen.getByTestId("rf-default")).toHaveTextContent("");
     });
   });
 });
