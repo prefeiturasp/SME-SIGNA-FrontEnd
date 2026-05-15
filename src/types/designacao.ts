@@ -87,6 +87,24 @@ export interface ListagemDesignacoesResponse {
   insubsistencia?: InsubsistenciaBody;
   apostilas?: ApostilaBody[];
 }
+
+
+export interface PortariasDOBody {
+  ids: number[];
+  data_publicacao: string;  
+}
+export interface ListagemPortariasResponse {
+  id: number;
+  portaria: string;
+  tipo_de_ato: string;
+  nome  : string;
+  cargo: string; 
+  doc: string;
+  data_designacao: string|null;
+  data_cessacao: string|null;
+  numero_sei: string;
+}
+
 export interface DesignacaoFiltros {
   rf?: string;
   nome?: string;
@@ -102,6 +120,14 @@ export interface DesignacaoFiltros {
   no_pagination?: boolean;
 }
 
+export interface PortariasDOFiltros {
+  numero_sei?: string;
+  portaria_inicial?: string;
+  portaria_final?: string;
+  ano?: string;
+  tipo?: string;
+}
+ 
 export interface DesignacaoPaginada {
   count: number;
   next: string | null;
@@ -128,7 +154,6 @@ export interface Cessacao {
   insubsistencia:InsubsistenciaBody,
   apostila:ApostilaBody
 }
-
 export interface DesignacaoResponse {
   id: number,
   impedimento_substituicao_detail: string | null,

@@ -3,8 +3,14 @@ import { cookies } from "next/headers";
 import {
     fetchDesignacoesAction,
     fetchDesignacoesSemPaginacaoAction,
+    fetchPortariasDO,
 } from "./designacao";
-import { DesignacaoFiltros, DesignacaoPaginada } from "@/types/designacao";
+import {
+    DesignacaoFiltros,
+    DesignacaoPaginada,
+    ListagemPortariasResponse,
+    PortariasDOFiltros,
+} from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 
 // Mocks de dependências externas
@@ -45,7 +51,7 @@ const sampleResponse: DesignacaoPaginada = {
             titular_rf: "654321",
             numero_portaria: "001",
             ano_vigente: "2025",
-            sei_numero: "SEI-001",
+            numero_sei: "SEI-001",
             data_inicio: "2025-01-01",
             data_fim: null,
             tipo_vaga: "vago",
@@ -237,5 +243,101 @@ describe("fetchDesignacoesAction", () => {
             }
         );
         expect(result).toEqual({ success: true, data: semPaginacao });
+    });
+});
+
+const samplePortariasFiltros: PortariasDOFiltros = {
+    portaria_inicial: "100",
+    portaria_final: "200",
+    ano: "2026",
+};
+
+const samplePortariasResponse: ListagemPortariasResponse[] = [
+    {
+        id: 1,
+        portaria: "100",
+        doc: "DOC-1",
+        tipo_de_ato: "DESIGNACAO_CESSACAO",
+        nome: "Servidor Teste",
+        cargo: "Diretor",
+
+        data_designacao: "2026-01-15",
+        data_cessacao: "",
+        numero_sei: "SEI-100",
+    },
+];
+
+describe("fetchPortariasDO", () => {
+    const mockAxiosInstance = { get: vi.fn() };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as any);
+    });
+
+    it("retorna erro quando getApiClient retorna null", async () => {
+        vi.mocked(getApiClient).mockResolvedValue(null);
+
+        const result = await fetchPortariasDO(samplePortariasFiltros);
+
+        expect(result).toEqual({ success: false, error: "Usuário não autenticado" });
+        expect(mockAxiosInstance.get).not.toHaveBeenCalled();
+    });
+
+    it("retorna dados em caso de sucesso", async () => {
+        vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
+        mockAxiosInstance.get.mockResolvedValue({ data: samplePortariasResponse });
+
+        const result = await fetchPortariasDO(samplePortariasFiltros);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/portarias/",
+            { params: { portaria_inicial: "100", portaria_final: "200", ano: "2026" } }
+        );
+        expect(result).toEqual({ success: true, data: samplePortariasResponse });
+    });
+
+    it("filtra parâmetros vazios e undefined antes de enviar", async () => {
+        vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
+        mockAxiosInstance.get.mockResolvedValue({ data: [] });
+
+        const filtrosComVazios: PortariasDOFiltros = {
+            numero_sei: "",
+            portaria_inicial: "100",
+            portaria_final: undefined,
+            ano: "2026",
+        };
+
+        await fetchPortariasDO(filtrosComVazios);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/portarias/",
+            { params: { portaria_inicial: "100", ano: "2026" } }
+        );
+    });
+
+    it("retorna erro tratado quando a requisição falha", async () => {
+        vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 500 },
+        });
+
+        const result = await fetchPortariasDO(samplePortariasFiltros);
+
+        expect(result).toEqual({ success: false, error: "Erro interno no servidor" });
+    });
+
+    it("retorna mensagem de detail quando presente no erro", async () => {
+        vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { data: { detail: "Portaria não encontrada" } },
+        });
+
+        const result = await fetchPortariasDO(samplePortariasFiltros);
+
+        expect(result).toEqual({ success: false, error: "Portaria não encontrada" });
     });
 });

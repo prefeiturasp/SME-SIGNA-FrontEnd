@@ -2,14 +2,16 @@
 
 import {
   DesignacaoFiltros,
+  PortariasDOFiltros,
   DesignacaoPaginada,
+  ListagemPortariasResponse,
   ListagemDesignacoesResponse,
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 import { handleApiError } from "@/lib/api-error";
 
 
-const sanitizeParams = (filtros: DesignacaoFiltros) => {
+const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
   return Object.fromEntries(
     Object.entries(filtros).filter(
       ([_, v]) => v !== "" && v !== undefined && v !== null
@@ -20,7 +22,7 @@ const sanitizeParams = (filtros: DesignacaoFiltros) => {
 
 const fetchWithClient = async <T>(
   url: string,
-  filtros: DesignacaoFiltros,
+  filtros: DesignacaoFiltros|PortariasDOFiltros,
   errorMessage: string
 ): Promise<{ success: true; data: T } | { success: false; error: string }> => {
   const apiClient = await getApiClient();
@@ -29,8 +31,8 @@ const fetchWithClient = async <T>(
     return { success: false, error: "Usuário não autenticado" };
   }
 
-  const params = sanitizeParams(filtros);
-
+    const params = sanitizeParams(filtros);
+  console.log('params33', params);
   try {
     const { data } = await apiClient.get<T>(url, { params });
     return { success: true, data };
@@ -53,6 +55,22 @@ export const fetchDesignacoesAction = async (
     "Erro ao buscar as designações"
   );
 };
+
+
+
+export const fetchPortariasDO = async (
+  filtros: PortariasDOFiltros
+): Promise<
+  | { success: true; data: ListagemPortariasResponse[] }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<ListagemPortariasResponse[]>(
+    "/designacao/portarias/",
+    filtros,
+    "Erro ao buscar as dados para alterar a data do D.O"
+  );
+};
+
 
 
 export const fetchDesignacoesSemPaginacaoAction = async (

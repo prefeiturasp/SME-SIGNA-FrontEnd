@@ -87,7 +87,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                             {icon}
                         </div>
                     )}
-                    <h1 className="text-[#42474a] text-[20px] font-bold m-0">
+                    <h1 className="text-[#313131] text-[20px] font-bold m-0">
                         {title}
                     </h1>
                 </div>
