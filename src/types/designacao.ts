@@ -108,6 +108,14 @@ export interface ListagemPortariasResponse {
   numero_sei: string;
 }
 
+export interface PortariasDOFiltros {
+  numero_sei?: string;
+  portaria_inicial?: string;
+  portaria_final?: string;
+  ano?: string;
+  tipo?: string;
+}
+
 export interface DesignacaoFiltros {
   rf?: string;
   nome?: string;
