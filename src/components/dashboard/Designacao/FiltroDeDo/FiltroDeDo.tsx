@@ -2,10 +2,9 @@
 import { InputField } from '@/components/ui/FieldsForm';
 import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import {  Search, X } from 'lucide-react';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
 
 interface Props {
   onClear?: () => void;
@@ -136,29 +135,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
 
 
 
-      <div className="flex justify-end gap-2 mt-4">
-        <Button
-          type="button"
-          variant="outline"
-          className="gap-2"
-          disabled={!hasFilters}
-          onClick={onClear}
-          data-testid="btn-limpar-filtros"
-        >
-          <span className="font-bold">Limpar filtros</span>
-          <X />
-        </Button>
-        <Button
-          type="submit"
-          variant="outline"
-          className="gap-2"
-          disabled={!hasFilters}
-          data-testid="btn-pesquisar"
-        >
-          <span className="font-bold">Pesquisar</span>
-          <Search />
-        </Button>
-      </div>
+      <FiltroAcoes hasFilters={hasFilters} onClear={onClear} />
     </>
   );
 };
