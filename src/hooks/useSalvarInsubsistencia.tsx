@@ -7,22 +7,26 @@ export const useSalvarInsubsistencia = () => {
   return useMutation({
     mutationFn: async ({
       values,
-      designacaoId,      
+      designacaoId,
+      cessacaoId,
     }: {
       values: formSchemaInsubsistenciaData;
       designacaoId?: number;
       cessacaoId?: number;
     }) => {
-      const payload = {
-         numero_portaria: values.insubsistencia.numero_portaria,
-         ano_vigente: values.insubsistencia.ano,
-         sei_numero: values.insubsistencia.numero_sei,
-         doc: values.insubsistencia.doc,
-         observacoes: values.insubsistencia.observacoes,
-         tipo_insubsistencia: values.insubsistencia.tipo_insubsistencia,
-         designacao: designacaoId,
-        } as InsubsistenciaBody;
-      
+      const atoPai =
+        values.insubsistencia.tipo_insubsistencia === "cessacao" && cessacaoId
+          ? cessacaoId
+          : (designacaoId as number);
+
+      const payload: InsubsistenciaBody = {
+        ato_pai: atoPai,
+        numero_portaria: values.insubsistencia.numero_portaria,
+        ano_vigente: values.insubsistencia.ano,
+        sei_numero: values.insubsistencia.numero_sei,
+        doc: values.insubsistencia.doc || undefined,
+        observacoes: values.insubsistencia.observacoes,
+      };
 
       const response = await insubsistenciaAction(payload);
 

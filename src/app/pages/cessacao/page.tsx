@@ -195,7 +195,8 @@ export default function CessacaoPage() {
 
     } catch (error: unknown) {
       console.error("Erro ao salvar cessação:", error);
-      message.error("Erro ao salvar");
+      const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      message.error(msg);
     }
   };
 

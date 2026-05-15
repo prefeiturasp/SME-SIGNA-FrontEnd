@@ -50,7 +50,7 @@ export const fetchDesignacoesAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<DesignacaoPaginada>(
-    "/designacao/designacoes/",
+    "/designacao/v2/designacoes/",
     filtros,
     "Erro ao buscar as designações"
   );
@@ -80,7 +80,7 @@ export const fetchDesignacoesSemPaginacaoAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemDesignacoesResponse[]>(
-    "/designacao/designacoes/",
+    "/designacao/v2/designacoes/",
     filtros,
     "Erro ao buscar as designações"
   );
