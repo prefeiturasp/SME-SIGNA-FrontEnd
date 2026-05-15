@@ -7,21 +7,24 @@ export const useSalvarApostila = () => {
   return useMutation({
     mutationFn: async ({
       values,
-      designacaoId,      
+      designacaoId,
+      cessacaoId,
     }: {
       values: formSchemaApostilaData;
       designacaoId?: number;
       cessacaoId?: number;
     }) => {
-      const payload = {
-         sei_numero: values.apostila.numero_sei,
-         doc: values.apostila.doc,
-         observacao: values.apostila.observacao,
-         ato_apostilado: values.apostila.ato_apostilado,
-         designacao: designacaoId,
-         tipo: "APOSTILA"
-        } as ApostilaBody;
-      
+      const atoPai =
+        values.apostila.ato_apostilado === "cessacao" && cessacaoId
+          ? cessacaoId
+          : (designacaoId as number);
+
+      const payload: ApostilaBody = {
+        ato_pai: atoPai,
+        sei_numero: values.apostila.numero_sei,
+        doc: values.apostila.doc !== "" ? values.apostila.doc : undefined,
+        observacao: values.apostila.observacao,
+      };
 
       const response = await ApostilaAction(payload);
 

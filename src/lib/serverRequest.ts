@@ -6,11 +6,31 @@ import { cookies } from "next/headers";
 type ErrorResponse = {
   detail?: string;
   field?: string;
+  [key: string]: string | string[] | undefined;
 };
 
 export type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; field?: string };
+
+function extractErrorMessage(error: AxiosError<ErrorResponse>, defaultMessage: string): ActionResult {
+  if (error.response?.status === 500) {
+    return { success: false, error: "Erro interno no servidor" };
+  }
+
+  const data = error.response?.data;
+  if (data?.detail) return { success: false, error: data.detail, field: data.field };
+
+  if (data) {
+    const firstValue = Object.values(data).find(Boolean);
+    if (firstValue) {
+      const msg = Array.isArray(firstValue) ? firstValue[0] : String(firstValue);
+      return { success: false, error: msg };
+    }
+  }
+
+  return { success: false, error: error.message || defaultMessage };
+}
 
 export async function postWithAuth<TPayload, TResponse = unknown>(
   url: string,
@@ -32,22 +52,6 @@ export async function postWithAuth<TPayload, TResponse = unknown>(
     return { success: true, data: response.data };
   } catch (err) {
     const error = err as AxiosError<ErrorResponse>;
-    
-    if (error.response?.data?.detail) {
-      return {
-        success: false,
-        error: error.response.data.detail,
-        field: error.response.data.field,
-      };
-    }
-
-    if (error.response?.status === 500) {
-      return { success: false, error: "Erro interno no servidor" };
-    }
-
-    return {
-      success: false,
-      error: error.message || defaultErrorMessage,
-    };
+    return extractErrorMessage(error, defaultErrorMessage) as ActionResult<TResponse>;
   }
 }

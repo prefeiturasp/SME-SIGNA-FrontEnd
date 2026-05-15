@@ -52,7 +52,7 @@ describe("cessacaoAction", () => {
     expect(result).toEqual({ success: true, data: { id: 99 } });
 
     expect(mockedAxios.patch).toHaveBeenCalledWith(
-      "https://api.example.com/designacao/cessacoes/99/",
+      "https://api.example.com/designacao/v2/cessacoes/99/",
       payloadMock,
       expect.any(Object)
     );
@@ -65,7 +65,7 @@ describe("cessacaoAction", () => {
     await cessacaoAction(payloadMock, null);
 
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      "https://api.example.com/designacao/cessacoes/",
+      "https://api.example.com/designacao/v2/cessacoes/",
       payloadMock,
       expect.objectContaining({
         headers: expect.objectContaining({
