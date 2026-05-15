@@ -292,7 +292,7 @@ describe("fetchPortariasDO", () => {
         const result = await fetchPortariasDO(samplePortariasFiltros);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/alterar-data-do/",
+            "/designacao/portarias/",
             { params: { portaria_inicial: "100", portaria_final: "200", ano: "2026" } }
         );
         expect(result).toEqual({ success: true, data: samplePortariasResponse });
@@ -312,7 +312,7 @@ describe("fetchPortariasDO", () => {
         await fetchPortariasDO(filtrosComVazios);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/alterar-data-do/",
+            "/designacao/portarias/",
             { params: { portaria_inicial: "100", ano: "2026" } }
         );
     });
