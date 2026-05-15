@@ -101,8 +101,8 @@ export interface ListagemPortariasResponse {
   titular_nome_servidor: string;
   cargo_vaga_display: string; 
   do: string;
-  data_designacao: string;
-  data_cessacao: string;
+  data_designacao: string|null;
+  data_cessacao: string|null;
   sei_numero: string;
 }
 

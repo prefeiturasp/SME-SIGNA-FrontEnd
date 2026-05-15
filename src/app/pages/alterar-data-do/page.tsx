@@ -193,7 +193,6 @@ export default function AlterarDataDo() {
           value={portarias_selecionadas}
           data={resultado ?? []}
           isLoading={isPending}
-          onPageChange={onPageChange}
           onClickButton={handleAlterarDataDo}
           labelButton="Alterar data"
         />
