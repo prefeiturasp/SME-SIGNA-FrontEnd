@@ -52,7 +52,7 @@ export default function AlterarDataDo() {
       portaria_inicial: "",
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
-      tipo: "DESIGNACAO_CESSACAO",
+      tipo: "",
     },
     mode: "onChange",
   });

@@ -382,10 +382,7 @@ describe("InsubsistenciaPage", () => {
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
-      expect(message.error).toHaveBeenCalledWith(
-        expect.stringContaining("Erro ao salvar:"),
-        3
-      );
+      expect(message.error).toHaveBeenCalledWith("Falha na API");
     });
   });
 

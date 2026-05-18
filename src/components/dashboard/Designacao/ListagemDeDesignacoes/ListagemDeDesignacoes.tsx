@@ -117,6 +117,7 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
       onClick: () => {
         router.push(`/pages/cessacao?id=${record.id}`);
       },
+      disabled: !!record?.cessacao,
     },
     {
       key: '3', label: 'Tornar Insubsistente', icon: <DocumentoAlerta />,

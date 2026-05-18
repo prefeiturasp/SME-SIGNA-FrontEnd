@@ -100,7 +100,8 @@ export default function InsubsistenciaPage() {
       local_de_servico: designacao.indicado_local_servico,
     } as Servidor;
   }, [designacao]);
-  const desabilita_radio = !!designacao?.cessacao?.insubsistencia || !dadosPortariaCessacao;
+  const desabilita_radio =
+    !!designacao?.cessacao?.insubsistencia || !dadosPortariaCessacao;
 
   useEffect(() => {
     if (!designacao) return;
@@ -185,7 +186,8 @@ export default function InsubsistenciaPage() {
 
       await salvarInsubsistencia.mutateAsync({
         values,
-        designacaoId: designacaoId
+        designacaoId: designacaoId,
+        cessacaoId: designacao?.cessacao?.id,
       });
 
       message.success("Insubsistência salva com sucesso!");
@@ -193,8 +195,8 @@ export default function InsubsistenciaPage() {
       router.push("/pages/listagem-designacoes");
 
     } catch (error: unknown) {
-      const duracao_em_segundos = 3;
-      message.error("Erro ao salvar: " + error, duracao_em_segundos);
+      const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      message.error(msg);
     }
   };
 

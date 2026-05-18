@@ -18,12 +18,12 @@ describe("mapearPayloadCessacao", () => {
     const result = mapearPayloadCessacao(mockValues, 10);
 
     expect(result).toEqual({
-      designacao: 10,
+      ato_pai: 10,
       numero_portaria: "123",
       ano_vigente: "2026",
       sei_numero: "999999",
       doc: "DOC123",
-      data_designacao: "2026-04-13",
+      data_cessacao: "2026-04-13",
       a_pedido: true,
       remocao: false,
       aposentadoria: false,
@@ -67,7 +67,26 @@ describe("mapearPayloadCessacao", () => {
 
     const result = mapearPayloadCessacao(mockValues, 1);
 
-    expect(result.data_designacao).toBe("2025-12-25");
+    expect(result.data_cessacao).toBe("2025-12-25");
+  });
+
+  it("deve omitir o campo doc quando estiver vazio", () => {
+    const mockValues: any = {
+      cessacao: {
+        numero_portaria: "1",
+        ano: "2025",
+        numero_sei: "123",
+        doc: "",
+        data_inicio: new Date("2025-01-01"),
+        a_pedido: "nao",
+        remocao: "nao",
+        aposentadoria: "nao",
+      },
+    };
+
+    const result = mapearPayloadCessacao(mockValues, 1);
+
+    expect(result.doc).toBeUndefined();
   });
 
   it("deve lidar com data_inicio undefined", () => {
@@ -86,6 +105,6 @@ describe("mapearPayloadCessacao", () => {
 
     const result = mapearPayloadCessacao(mockValues, 1);
 
-    expect(result.data_designacao).toBeUndefined();
+    expect(result.data_cessacao).toBeUndefined();
   });
 });

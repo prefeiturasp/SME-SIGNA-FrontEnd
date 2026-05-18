@@ -19,11 +19,10 @@ const mockCookies = (token: string | undefined) => {
 };
 
 const payloadMock = {
+  ato_pai: 10,
   sei_numero: "6016.2024/000123-4",
   doc: "2024-05-20",
   observacao: "Teste",
-  ato_apostilado: "designacao",
-  designacao: 10,
 };
 
 describe("ApostilaAction", () => {
@@ -40,7 +39,7 @@ describe("ApostilaAction", () => {
 
     expect(result).toEqual({ success: true, data: { id: 1, status: "salvo" } });
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      "https://api.example.com/designacao/apostilas/",
+      "https://api.example.com/designacao/v2/apostilas/",
       payloadMock,
       expect.any(Object)
     );

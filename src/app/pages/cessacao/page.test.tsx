@@ -305,7 +305,7 @@ describe("CessacaoPage", () => {
     await userEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(message.error).toHaveBeenCalledWith("Erro ao salvar");
+      expect(message.error).toHaveBeenCalledWith("Erro de rede");
     });
   });
 

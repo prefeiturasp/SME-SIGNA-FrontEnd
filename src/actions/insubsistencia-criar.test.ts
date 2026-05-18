@@ -25,13 +25,12 @@ const axios = (await import("axios")).default;
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const payloadBase: InsubsistenciaBody = {
+  ato_pai: 10,
   numero_portaria: "001",
   ano_vigente: "2026",
   sei_numero: "6016.2026/0001-1",
   doc: "DOC-01",
   observacoes: "obs",
-  tipo_insubsistencia: "designacao",
-  designacao: 10,
 };
 
 function buildCookieStore(token?: string) {
@@ -58,7 +57,7 @@ describe("insubsistenciaAction", () => {
 
     expect(result).toEqual({ success: true, data: { id: 42 } });
     expect(axios.post).toHaveBeenCalledWith(
-      "http://api.test/designacao/insubsistencias/",
+      "http://api.test/designacao/v2/insubsistencias/",
       payloadBase,
       expect.objectContaining({
         headers: expect.objectContaining({ Authorization: "Bearer meu-token" }),

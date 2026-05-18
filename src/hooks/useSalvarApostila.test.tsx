@@ -33,17 +33,14 @@ const valuesMock = {
     doc: "2024-05-20",
     observacao: "Teste de apostila",
     ato_apostilado: "designacao",
-    tipo: "APOSTILA",
   },
 };
 
 const expectedPayload = {
+  ato_pai: 10,
   sei_numero: "6016.2024/000123-4",
   doc: "2024-05-20",
   observacao: "Teste de apostila",
-  ato_apostilado: "designacao",
-  designacao: 10,
-  tipo: "APOSTILA",
 };
 
 describe("useSalvarApostila", () => {
@@ -51,7 +48,7 @@ describe("useSalvarApostila", () => {
     vi.clearAllMocks();
   });
 
-  it("chama ApostilaAction com o payload formatado corretamente", async () => {
+  it("chama ApostilaAction com o payload formatado corretamente (designacao)", async () => {
     vi.mocked(ApostilaAction).mockResolvedValue({
       success: true,
       data: { id: 1 },
@@ -69,6 +66,33 @@ describe("useSalvarApostila", () => {
     });
 
     expect(ApostilaAction).toHaveBeenCalledWith(expectedPayload);
+  });
+
+  it("usa cessacaoId como ato_pai quando ato_apostilado é cessacao", async () => {
+    vi.mocked(ApostilaAction).mockResolvedValue({
+      success: true,
+      data: { id: 1 },
+    });
+
+    const { result } = renderHook(() => useSalvarApostila(), {
+      wrapper: createWrapper(),
+    });
+
+    const valuesCessacao = {
+      apostila: { ...valuesMock.apostila, ato_apostilado: "cessacao" },
+    };
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesCessacao as any,
+        designacaoId: 10,
+        cessacaoId: 55,
+      });
+    });
+
+    expect(ApostilaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ ato_pai: 55 })
+    );
   });
 
   it("retorna os dados de resposta em caso de sucesso", async () => {
