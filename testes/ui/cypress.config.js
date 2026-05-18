@@ -2,6 +2,7 @@ const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
+const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 const { cloudPlugin } = require('cypress-cloud/plugin');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -63,18 +64,10 @@ module.exports = defineConfig({
     },
 
     async setupNodeEvents(on, config) {
+      allureWriter(on, config);
 
       // =========================
-      // 1️⃣ CLOUD (PRIMEIRO!)
-      // =========================
-      // Só ativa o plugin de cloud quando estiver em modo CI/record,
-      // evitando crash ao rodar localmente sem o servidor Sorry Cypress.
-      if (process.env.CI) {
-        cloudPlugin(on, config);
-      }
-
-      // =========================
-      // 2️⃣ CUCUMBER
+      // 1️⃣ CUCUMBER
       // =========================
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
 
@@ -130,7 +123,9 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
-      return config;
+      const enhancedConfig = await cloudPlugin(on, config);
+
+      return enhancedConfig;
     },
   },
 });
