@@ -6,11 +6,31 @@ import { cookies } from "next/headers";
 type ErrorResponse = {
   detail?: string;
   field?: string;
+  [key: string]: string | string[] | undefined;
 };
 
 export type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; field?: string };
+
+function extractErrorMessage(error: AxiosError<ErrorResponse>, defaultMessage: string): ActionResult {
+  if (error.response?.status === 500) {
+    return { success: false, error: "Erro interno no servidor" };
+  }
+
+  const data = error.response?.data;
+  if (data?.detail) return { success: false, error: data.detail, field: data.field };
+
+  if (data) {
+    const firstValue = Object.values(data).find(Boolean);
+    if (firstValue) {
+      const msg = Array.isArray(firstValue) ? firstValue[0] : String(firstValue);
+      return { success: false, error: msg };
+    }
+  }
+
+  return { success: false, error: error.message || defaultMessage };
+}
 
 export async function postWithAuth<TPayload, TResponse = unknown>(
   url: string,
@@ -18,42 +38,20 @@ export async function postWithAuth<TPayload, TResponse = unknown>(
   defaultErrorMessage = "Erro ao salvar"
 ): Promise<ActionResult<TResponse>> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   const cookieStore = await cookies();
   const authToken = cookieStore.get("auth_token")?.value;
 
   try {
-    const headers = {
-      "Content-Type": "application/json",
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-    };
-
     const response = await axios.post(`${API_URL}${url}`, payload, {
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
     });
 
     return { success: true, data: response.data };
   } catch (err) {
     const error = err as AxiosError<ErrorResponse>;
-
-    let message = defaultErrorMessage;
-
-    if (error.response?.status === 500) {
-      message = "Erro interno no servidor";
-    } else if (error.response?.data?.detail?.includes("string")) {
-      const regex = /string='(.*?)'/;
-      const match = regex.exec(error.response.data.detail);
-      message = match?.[1] ?? "";
-    } else if (error.response?.data?.detail) {
-      message = error.response.data.detail;
-    } else if (error.message) {
-      message = error.message;
-    }
-
-    return {
-      success: false,
-      error: message,
-      field: error.response?.data?.field,
-    };
+    return extractErrorMessage(error, defaultErrorMessage) as ActionResult<TResponse>;
   }
 }

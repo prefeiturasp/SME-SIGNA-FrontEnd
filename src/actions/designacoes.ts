@@ -31,7 +31,7 @@ export async function getDesignacaoByIdAction(id: number) {
     const authToken = cookieStore.get("auth_token")?.value;
 
     try {
-        const { data } = await axios.get<DesignacaoResponse>(`${API_URL}/designacao/designacoes/${id}`, {
+        const { data } = await axios.get<DesignacaoResponse>(`${API_URL}/designacao/v2/designacoes/${id}/`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
             },
@@ -63,7 +63,7 @@ export const excluirDesignacao = async (
             };
         }
         
-        await axios.delete(`${API_URL}/designacao/designacoes/${id}/`, {
+        await axios.delete(`${API_URL}/designacao/v2/designacoes/${id}/`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
             },

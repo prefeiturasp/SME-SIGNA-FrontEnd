@@ -25,6 +25,7 @@ type ModalEditarServidorProps = {
     onOpenChange: (v: boolean) => void;
     defaultValues: Servidor;
     handleSubmitEditarServidor: (data: FormEditarServidorData) => void;
+    showLocalDeServico?: boolean;
 };
 
 
@@ -34,7 +35,8 @@ export default function ModalEditarServidor({
     open,
     onOpenChange,
     defaultValues,
-    handleSubmitEditarServidor
+    handleSubmitEditarServidor,
+    showLocalDeServico = false
 }: Readonly<ModalEditarServidorProps>) {
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
@@ -119,8 +121,8 @@ export default function ModalEditarServidor({
                                         register={registerFieldValues}
                                         control={controlFieldValues}
                                         name="nome_civil"
-                                        label="Nome Civil"
-                                        placeholder="Nome Civil"
+                                        label="Nome Social"
+                                        placeholder="Nome Social"
                                         data-testid="input-nome-civil"
                                     />
                                 </div>
@@ -226,7 +228,8 @@ export default function ModalEditarServidor({
                                         disabled
                                     />
                                 </div>
-                                <div className="w-full">
+                                {showLocalDeServico && (
+                                    <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
@@ -237,6 +240,8 @@ export default function ModalEditarServidor({
                                         disabled
                                     />
                                 </div>
+                                )}
+                                
                             </div>
 
                         </Card>

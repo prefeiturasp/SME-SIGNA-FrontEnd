@@ -56,7 +56,7 @@ describe("montarTrechoSubstituicao", () => {
 
         const resultado = montarTrechoSubstituicao(data);
 
-        expect(resultado).toContain("em substituição a Maria Souza");
+        expect(resultado).toContain("em substituição a MARIA SOUZA, Registro nº 123.456, Vínculo Efetivo, Diretora, efetivo, a partir de 28/02/2025");
         expect(resultado).toContain("a partir de");
     });
 

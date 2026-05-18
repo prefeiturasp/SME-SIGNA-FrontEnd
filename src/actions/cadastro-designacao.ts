@@ -37,14 +37,14 @@ export async function designacaoAction(
           if (id) {            
             
             const response = await axios.patch(
-              `${API_URL}/designacao/designacoes/${id}/`,
+              `${API_URL}/designacao/v2/designacoes/${id}/`,
               payload,
               { headers }
             );
             data = response.data;
           } else {
             const response = await axios.post(
-              `${API_URL}/designacao/designacoes/`,
+              `${API_URL}/designacao/v2/designacoes/`,
               payload,
               { headers }
             );

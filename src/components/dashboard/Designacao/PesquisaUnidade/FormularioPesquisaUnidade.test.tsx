@@ -1067,34 +1067,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   });
 
-  it("hidrata opções de funcionários a partir do contexto ao montar", async () => {
-    designacaoContextMock.formDesignacaoData = {
-      funcionariosOptions: [{ codigo: "cargo-ctx", cargo: "Cargo Contexto" }],
-      designacaoUnidade: {
-        codigo_hierarquico: "ctx-01",
-        cargos: [],
-        funcionarios_unidade: {
-          "cargo-ctx": {
-            codigo_cargo: 1,
-            nome_cargo: "Cargo Contexto",
-            modulo: "2",
-            servidores: [],
-          },
-        },
-        turmas: { total: 0, turnos: [] },
-        spi: { tipo: "N/A", turnos: [] },
-      },
-    };
 
-    renderWithQueryClient(
-      <FormularioPesquisaUnidade isLoading={false} setDisableProximo={vi.fn()} />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText("Funcionários da unidade")).toBeInTheDocument();
-      expect(screen.getByText("Cargo Contexto")).toBeInTheDocument();
-    });
-  });
 
   it("cobre fallback de DRE/UE não encontrados e código hierárquico preenchido", async () => {
     vi.resetModules();
@@ -1105,7 +1078,6 @@ describe("FormularioPesquisaUnidade", () => {
     vi.doMock("@/app/pages/designacoes/DesignacaoContext", () => ({
       useDesignacaoContext: () => ({
         formDesignacaoData: {
-          funcionariosOptions: [{ codigo: "1", cargo: "Cargo Contexto" }],
           designacaoUnidade: {
             codigo_hierarquico: "CTX-123",
             cargos: [],

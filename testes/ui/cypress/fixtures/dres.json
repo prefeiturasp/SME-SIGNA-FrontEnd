@@ -1,0 +1,69 @@
+{
+  "dres": [
+    {
+      "codigo": "108100",
+      "nome": "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
+      "sigla": "DRE - BT"
+    },
+    {
+      "codigo": "108200",
+      "nome": "CAMPO LIMPO",
+      "sigla": "DRE - CL"
+    },
+    {
+      "codigo": "108300",
+      "nome": "CAPELA DO SOCORRO",
+      "sigla": "DRE - CS"
+    },
+    {
+      "codigo": "108400",
+      "nome": "FREGUESIA/BRASILANDIA",
+      "sigla": "DRE - FB"
+    },
+    {
+      "codigo": "108500",
+      "nome": "GUAIANASES",
+      "sigla": "DRE - G"
+    },
+    {
+      "codigo": "108600",
+      "nome": "IPIRANGA",
+      "sigla": "DRE - IP"
+    },
+    {
+      "codigo": "108700",
+      "nome": "ITAQUERA",
+      "sigla": "DRE - IQ"
+    },
+    {
+      "codigo": "108800",
+      "nome": "JACANA/TREMEMBE",
+      "sigla": "DRE - JT"
+    },
+    {
+      "codigo": "108900",
+      "nome": "PENHA",
+      "sigla": "DRE - PE"
+    },
+    {
+      "codigo": "109000",
+      "nome": "PIRITUBA/JARAGUA",
+      "sigla": "DRE - PJ"
+    },
+    {
+      "codigo": "109100",
+      "nome": "SANTO AMARO",
+      "sigla": "DRE - SA"
+    },
+    {
+      "codigo": "109200",
+      "nome": "SAO MATEUS",
+      "sigla": "DRE - SM"
+    },
+    {
+      "codigo": "109300",
+      "nome": "SAO MIGUEL",
+      "sigla": "DRE - MP"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import { postWithAuth } from "@/lib/serverRequest";
 
 export async function insubsistenciaAction(payload: InsubsistenciaBody) {
   return postWithAuth(
-    "/designacao/insubsistencias/",
+    "/designacao/v2/insubsistencias/",
     payload,
     "Erro ao salvar insubsistência"
   );

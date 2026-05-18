@@ -89,7 +89,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 label="Nº SEI"
                 placeholder="Número SEI"
                 data-testid="input-numero-sei"
-                type="number"
+                type="string"                
+                mask= "9999.9999/9999999-9"
               />
             </div>
 

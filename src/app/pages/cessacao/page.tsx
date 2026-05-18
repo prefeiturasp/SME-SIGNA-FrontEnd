@@ -195,7 +195,8 @@ export default function CessacaoPage() {
 
     } catch (error: unknown) {
       console.error("Erro ao salvar cessação:", error);
-      message.error("Erro ao salvar");
+      const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      message.error(msg);
     }
   };
 
@@ -220,7 +221,11 @@ export default function CessacaoPage() {
     <>
       <PageHeader
         title={title}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Cessação" }]}
+        breadcrumbs={[
+          { title: "Início", href: "/" },
+          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
+          { title: "Cessação" }
+        ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />

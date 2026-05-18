@@ -66,6 +66,10 @@ function TestComponent() {
 }
 
 describe("DesignacaoContext", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("renderiza o provider com children", () => {
     render(
       <DesignacaoProvider>

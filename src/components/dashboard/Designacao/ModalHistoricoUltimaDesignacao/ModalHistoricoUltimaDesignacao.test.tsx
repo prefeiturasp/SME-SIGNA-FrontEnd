@@ -122,7 +122,7 @@ describe("ModalUltimaDesignacao", () => {
 
     expect(screen.getByText("Nome Servidor")).toBeInTheDocument();
     expect(screen.getByText("João Silva")).toBeInTheDocument();
-    expect(screen.getByText("Nome Civil")).toBeInTheDocument();
+    expect(screen.getByText("Nome Social")).toBeInTheDocument();
     expect(screen.getByText("João da Silva")).toBeInTheDocument();
     expect(screen.getByText("RF")).toBeInTheDocument();
     expect(screen.getByText("456")).toBeInTheDocument();

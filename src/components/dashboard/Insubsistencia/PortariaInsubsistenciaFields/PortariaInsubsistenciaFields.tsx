@@ -38,7 +38,8 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
       name: "insubsistencia.numero_sei",
       label: "Nº SEI",
       placeholder: "Número SEI",
-      type: "number",
+      type: "string",
+      mask: "9999.9999/9999999-9",
     },
     {
       name: "insubsistencia.doc",
@@ -74,6 +75,7 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
                     placeholder={field.placeholder}
                     type={field.type}
                     disabled={field.disabled}
+                    mask={field.mask}
                   />
                 )               
               ))}              

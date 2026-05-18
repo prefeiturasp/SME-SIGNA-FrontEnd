@@ -68,7 +68,9 @@ export default function ApostilaPage() {
     [designacao]
   );
 
-  const desabilita_radio = !!designacao?.cessacao?.apostila || !dadosPortariaCessacao;
+  const desabilita_radio =
+    !!(designacao?.cessacao?.apostilas?.some((a) => a.status === "ativo")) ||
+    !dadosPortariaCessacao;
 
   useEffect(() => {
     if (!designacao) return;
@@ -135,12 +137,14 @@ export default function ApostilaPage() {
       const designacaoId = Number(id);
       await salvarApostila.mutateAsync({
         values,
-        designacaoId: designacaoId
+        designacaoId: designacaoId,
+        cessacaoId: designacao?.cessacao?.id,
       });
       message.success("Apostila salva com sucesso!");
       router.push("/pages/listagem-designacoes");
     } catch (error: unknown) {
-      message.error("Erro ao salvar: " + error);
+      const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      message.error(msg);
     }
   };
 
@@ -157,7 +161,7 @@ export default function ApostilaPage() {
     <>
       <PageHeader
         title={title}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Apostila" }]}
+        breadcrumbs={[{ title: "Início", href: "/" },  { title: "Listagem de Designações", href: "/pages/listagem-designacoes" }, { title: "Apostila" }]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />

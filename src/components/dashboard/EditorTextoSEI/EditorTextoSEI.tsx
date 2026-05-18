@@ -112,8 +112,9 @@ const EditorSEI = forwardRef<EditorSEIHandle, EditorSEIProps>(
 
                 {/* Editor */}
                 <div
+                    data-testid="editor-sei"
                     ref={editorRef}
-                    contentEditable
+                    contentEditable={false}
                     suppressContentEditableWarning
                     onInput={onInput}
                     style={{ minHeight }}

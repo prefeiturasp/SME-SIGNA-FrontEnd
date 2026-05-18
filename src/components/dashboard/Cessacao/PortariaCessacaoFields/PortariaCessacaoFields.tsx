@@ -30,7 +30,8 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
       name: "cessacao.numero_sei",
       label: "Nº SEI*",
       placeholder: "Número SEI",
-      type: "number",
+      type: "string",
+      mask: "9999.9999/9999999-9",
     },
     {
       name: "cessacao.doc",
@@ -65,6 +66,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
                 placeholder={field.placeholder}
                 type={field.type}
                 disabled={field.disabled}
+                mask={field.mask}
                 />
               ))}
 

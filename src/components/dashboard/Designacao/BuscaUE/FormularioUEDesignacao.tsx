@@ -40,7 +40,6 @@ export default function FormularioUEDesignacao({
 }: Props) {
   const { data: dreOptions = [] } = useFetchDREs();
 
-  console.log("dreOptions", dreOptions)
 
   const form = useForm<FormDesignacaoData>({
     resolver: zodResolver(formSchemaDesignacao),
@@ -55,7 +54,6 @@ export default function FormularioUEDesignacao({
   const { data: ueOptions = [] } = useFetchUEs(values.dre);
   const onProximo = () => {};
 
-  console.log("ueOptions", ueOptions)
 
 
   return (

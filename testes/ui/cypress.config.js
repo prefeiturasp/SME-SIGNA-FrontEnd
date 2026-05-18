@@ -2,13 +2,11 @@ const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
 const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild');
+const { cloudPlugin } = require('cypress-cloud/plugin');
 const dotenv = require('dotenv');
 const path = require('path');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-// 🔥 IMPORTANTE (Cloud)
-const { cloudPlugin } = require('cypress-cloud/plugin');
 
 module.exports = defineConfig({
   e2e: {
@@ -45,11 +43,11 @@ module.exports = defineConfig({
     },
 
     env: {
-      baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
-      loginUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
-      username: '7311559',
-      password: 'Sgp1559',
-      newPasswordTest: 'Sgp1559@New',
+      baseUrl: process.env.BASE_URL || 'https://qa-signa.sme.prefeitura.sp.gov.br',
+      loginUrl: process.env.LOGIN_URL || 'https://qa-signa.sme.prefeitura.sp.gov.br/login',
+      username: process.env.SIGNA_USERNAME || process.env.USERNAME || '',
+      password: process.env.SIGNA_PASSWORD || process.env.PASSWORD || '',
+      newPasswordTest: process.env.SIGNA_NEW_PASSWORD_TEST || '',
 
       // Detectar contexto de execução (CI=true na esteira Jenkins)
       CI: process.env.CI || false,
@@ -69,7 +67,11 @@ module.exports = defineConfig({
       // =========================
       // 1️⃣ CLOUD (PRIMEIRO!)
       // =========================
-      cloudPlugin(on, config);
+      // Só ativa o plugin de cloud quando estiver em modo CI/record,
+      // evitando crash ao rodar localmente sem o servidor Sorry Cypress.
+      if (process.env.CI) {
+        cloudPlugin(on, config);
+      }
 
       // =========================
       // 2️⃣ CUCUMBER

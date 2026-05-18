@@ -65,9 +65,7 @@ export function CustomAccordionItem({
           <span className={`pl-4 text-lg ${variant.text}`}>
             {title}
           </span>
-          <span className="mr-2 text-[16px] text-muted-foreground">
-            Ver
-          </span>
+          
         </div>
       </AccordionTrigger>
 

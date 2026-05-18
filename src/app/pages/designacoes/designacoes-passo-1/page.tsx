@@ -23,10 +23,11 @@ import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalE
 export default function DesignacoesPasso1() {
   const searchParams = useSearchParams();
   const rf = searchParams.get("rf");
+  const id = searchParams.get("id");
 
   const { mutateAsync, isPending } = useServidorDesignacao();
   const [error, setError] = useState<string | null>(null);
-  
+
   const formularioPesquisaUnidadeRef =
     useRef<FormularioPesquisaUnidadeRef | null>(null);
 
@@ -38,7 +39,7 @@ export default function DesignacoesPasso1() {
 
   const onBuscaDesignacao = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
- 
+
     if (response.success) {
       setFormDesignacaoData({
         ...formDesignacaoData,
@@ -66,38 +67,38 @@ export default function DesignacoesPasso1() {
   }
 
   const onProximo = () => {
-    const valoresFormulario =
-      formularioPesquisaUnidadeRef.current?.getValues();
+    const valoresFormulario = formularioPesquisaUnidadeRef.current?.getValues();
 
-    if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) {
-      return;
-    }
-     
+    if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) return;
+
     setFormDesignacaoData({
       ...formDesignacaoData,
       ...valoresFormulario,
+      servidorIndicado: formDesignacaoData.servidorIndicado,
     });
 
-    
-    router.push(
-      `/pages/designacoes/designacoes-passo-2`
-    );
+    if (id) {
+      router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`);
+    } else {
+      router.push(`/pages/designacoes/designacoes-passo-2`);
+    }
   };
- 
+
   useEffect(() => {
     if (!rf) {
       clearFormDesignacaoData();
     }
   }, []);
-  
-  
+
+
   return (
     <>
       <PageHeader
         title="Designação"
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Designação" },
+          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
+          { title: "Designação" },  
         ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
@@ -119,7 +120,7 @@ export default function DesignacoesPasso1() {
       >
         <Accordion
           type="multiple"
-          defaultValue={["unidade-proponente"]}   
+          defaultValue={["unidade-proponente"]}
           onValueChange={(values) => {
             if (!values.includes("unidade-proponente")) {
               const vals = formularioPesquisaUnidadeRef.current?.getValues();
@@ -153,7 +154,7 @@ export default function DesignacoesPasso1() {
                 }
                 showCursosTitulos={true}
                 showEditar={true}
-                showLotacao={true}  
+                showLotacao={true}
                 onSubmitEditarServidor={onSubmitEditarServidor}
               />
             </CustomAccordionItem>
@@ -167,8 +168,8 @@ export default function DesignacoesPasso1() {
             <FormularioPesquisaUnidade
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
-               setDisableProximo={setDisableProximo}
-               defaultValues={formDesignacaoData ?? {}}
+              setDisableProximo={setDisableProximo}
+              defaultValues={formDesignacaoData ?? {}}
             />
           </CustomAccordionItem>
         </Accordion>
@@ -183,7 +184,7 @@ export default function DesignacoesPasso1() {
           }
           onProximo={onProximo}
           showAnterior={false}
-         />
+        />
       </div>
     </>
   );
