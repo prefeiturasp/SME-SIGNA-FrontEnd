@@ -20,6 +20,9 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar";
@@ -37,13 +40,17 @@ const items = [
     },
     {
         title: "Designações",
-        url: "/pages/listagem-designacoes",
         icon: Designacao,
-    },
-    {
-        title: "Alterar data do D.O",
-        url: "/pages/alterar-data-do",
-        icon: Designacao,
+        subItems: [
+            {
+                title: "Designações",
+                url: "/pages/listagem-designacoes",
+            },
+            {
+                title: "Alterar data do D.O",
+                url: "/pages/alterar-data-do",
+            },
+        ],
     },
 ];
 
@@ -65,7 +72,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => {
-                                const isActive = pathname === item.url;
+                                const isSubmenu = Boolean(item.subItems);
+                                const isActive = isSubmenu
+                                    ? item.subItems?.some(
+                                          (subItem) => pathname === subItem.url
+                                      ) ?? false
+                                    : pathname === item.url;
 
                                 return (
                                     <SidebarMenuItem
@@ -81,13 +93,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     >
                                         <SidebarMenuButton asChild>
                                             <SidebarLink
-                                                href={item.url}
+                                                href={
+                                                    item.url ??
+                                                    item.subItems?.[0]?.url ??
+                                                    "/pages"
+                                                }
                                                 icon={item.icon}
                                                 title={item.title}
                                                 active={isActive}
                                                 rightIcon={Bars}
                                             />
                                         </SidebarMenuButton>
+                                       
                                     </SidebarMenuItem>
                                 );
                             })}
