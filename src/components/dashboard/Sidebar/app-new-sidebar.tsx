@@ -2,77 +2,17 @@
 import LogoSigna from "@/assets/images/logo-signa-completo-branco.png";
 
 import * as React from "react";
-import Home from "@/assets/icons/Home";
 import User from "@/assets/icons/User";
-import Bars from "@/assets/icons/Bars";
 import Designacao from "@/assets/icons/Designacao";
-import { cn } from "@/lib/utils";
-import { SidebarLink } from "./SidebarLink";
-import { usePathname, useRouter } from "next/navigation";
-import LogoSignaNome from "@/assets/images/logo-signa.png";
-
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarRail,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
+ 
 import Sider from "../Sider";
 import { Nomeacao } from "@/assets/icons/Nomeacao";
 import { Protocolo } from "@/assets/icons/Protocolo";
 import { Apoio } from "@/assets/icons/Apoio";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-
-export enum ROUTES {
-  PRINCIPAL = '/',
-  LOGIN = '/login',
-  LOGIN_AUTOMATICO_PELO_TOKEN = '/validar-email/:token',
-  CADASTRO_DE_USUARIO = '/cadastre-se',
-  MEUS_DADOS = '/meus-dados',
-  REDEFINIR_SENHA = '/redefinir-senha',
-  REDEFINIR_SENHA_TOKEN = '/redefinir-senha/:token',
-  CADASTRO = '/cadastro',
-  CADASTRO_DE_PROPOSTAS = '/cadastro/cadastro-de-propostas',
-  CADASTRO_DE_PROPOSTAS_NOVO = '/cadastro/cadastro-de-propostas/novo',
-  CADASTRO_DE_PROPOSTAS_EDITAR = '/cadastro/cadastro-de-propostas/editar/:id',
-  AREA_PROMOTORA = '/cadastro/area-promotora',
-  AREA_PROMOTORA_NOVO = '/cadastro/area-promotora/novo',
-  AREA_PROMOTORA_EDITAR = '/cadastro/area-promotora/editar/:id',
-  USUARIO_REDE_PARCERIA = '/cadastro/rede-parceria',
-  USUARIO_REDE_PARCERIA_NOVO = '/cadastro/rede-parceria/novo',
-  USUARIO_REDE_PARCERIA_EDITAR = '/cadastro/rede-parceria/editar/:id',
-  SEM_PERMISSAO = '/sem-permissao',
-  AREA_PUBLICA = '/area-publica',
-  AREA_PUBLICA_VISUALIZAR_FORMACAO = '/area-publica/visualizar/:id',
-  INSCRICAO = '/inscricao',
-  INSCRICAO_CURSISTA = '/inscricao/:id',
-  FORMACAOES_INSCRICOES = '/formacoes/inscricoes',
-  FORMACAOES_INSCRICOES_EDITAR = '/formacoes/inscricoes/editar',
-  FORMACAOES_INSCRICOES_EDITAR_ID = '/formacoes/inscricoes/editar/:id',
-  FORMACAOES_INSCRICOES_NOVO = '/formacoes/inscricoes/novo',
-  FORMACAOES_INSCRICOES_NOVO_ID = '/formacoes/inscricoes/novo/:id',
-  FORMACAOES_INSCRICOES_POR_ARQUIVO = '/formacoes/inscricoes/arquivo',
-  FORMACAOES_INSCRICOES_POR_ARQUIVO_ID = '/formacoes/inscricoes/arquivo/:id',
-  NOTIFICACOES = '/notificacoes',
-  NOTIFICACOES_DETALHES = '/notificacoes/detalhes/:id',
-  LISTA_PRESENCA_CODAF = '/formacoes/lista-presenca-codaf',
-  CERTIFICADOS = '/certificados',
-  CERTIFICADOS_PESQUISA = '/certificados-pesquisa',
-  LISTA_PRESENCA_CODAF_NOVO = '/formacoes/lista-presenca-codaf/novo',
-  LISTA_PRESENCA_CODAF_EDITAR = '/formacoes/lista-presenca-codaf/editar/:id',
-  RELATORIO_INSCRITOS_POR_FORMACAO = '/relatorios/inscritos-por-formacao',
-}
+ 
 
 export type MenuItemSMEProps = {
   url?: string;
@@ -83,12 +23,11 @@ export type MenuItemSMEProps = {
 };
 
 export enum MenuEnum {
-  Principal = 1,
-  MeusDados,
-  ListarMeusDados,
   Designacao,
   Designacoes,
-  AlterarDataDoD,
+  AlterarDataDoD,  
+  MeusDados,
+  ListarMeusDados,
   BaixarLauda,
   Nomeacao,
   Nomeacoes,
@@ -98,10 +37,6 @@ export enum MenuEnum {
   ApoiosAdministrativos,
 }
  
-
-
-
-
 
 
 
