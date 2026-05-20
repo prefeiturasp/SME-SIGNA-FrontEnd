@@ -1,21 +1,11 @@
 "use client";
-import { Button, Menu, MenuProps } from 'antd';
-import React, { useContext } from 'react';
-
-import { CSSProperties } from 'styled-components';
+import { Button, Layout, Menu, MenuProps } from 'antd';
+import React, { CSSProperties, useContext } from 'react';
 
 
 import MenuItem from 'antd/es/menu/MenuItem';
+import SubMenu from 'antd/es/menu/SubMenu';
 import MenuContextProvider, { MenuContext } from './provider';
-import {
-  SiderContainer,
-  SiderIconContainer,
-  SiderMenuButtonToggleStyle,
-  SiderMenuContainer,
-  SiderMenuGroup,
-  SiderMenuTitle,
-  SiderSubMenuContainer,
-} from './styles';
 import Bars from '@/assets/icons/Bars';
 import { X } from 'lucide-react';
 import MenuBurger from '@/assets/icons/MenuBurger';
@@ -112,22 +102,35 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
       const hasRedBackground = !isSubMenu && !itemIsSelected && !isOpen;
 
       return (
-        <SiderSubMenuContainer
-          isSubMenu={isSubMenu}
-          collapsed={collapsed}
+        <SubMenu
           key={menuItem?.key}
+          className={`app-sider-submenu ${
+            collapsed ? 'is-collapsed' : 'is-expanded'
+          } ${isSubMenu ? 'is-submenu' : 'is-root-submenu'}`}
           title={
-            <SiderMenuGroup collapsed={collapsed}>
-              <SiderIconContainer collapsed={collapsed} $hasRedBackground={hasRedBackground}>
+            <div
+              className={`app-sider-menu-group relative flex items-center ${
+                collapsed ? 'flex-col' : 'flex-row'
+              }`}
+            >
+              <div
+                className={`app-sider-icon ${
+                  collapsed ? 'mb-2' : 'ml-[15px] mr-[10px]'
+                } ${hasRedBackground ? 'text-white' : 'text-[#B22B2A]'}`}
+              >
                 {menuItem?.icon}
-              </SiderIconContainer>
-              <SiderMenuTitle collapsed={collapsed} $hasRedBackground={hasRedBackground}>
+              </div>
+              <div
+                className={`app-sider-menu-title whitespace-normal font-bold leading-3 ${
+                  collapsed ? 'text-[10px]' : 'text-sm'
+                } ${hasRedBackground ? 'text-white' : 'text-[#B22B2A]'}`}
+              >
                 {menuItem?.title}
-              </SiderMenuTitle>
+              </div>
               {collapsed && (
                 <Bars width={16} height={16} opacity={0.5} style={{ top: 12, right: 6, position: 'absolute' }} />
               )}
-            </SiderMenuGroup>
+            </div>
           }
         >
           <>
@@ -136,7 +139,7 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
               return montarMenuItem(item);
             })}
           </>
-        </SiderSubMenuContainer>
+        </SubMenu>
       );
     })()
   );
@@ -144,8 +147,8 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
   if (!items?.length) return <></>;
 
   return (
-    <SiderContainer
-      collapsedSider={collapsed}
+    <Layout.Sider
+      className={`app-sider ${collapsed ? 'is-collapsed' : 'is-expanded'}`}
       width={collapsed ? 105 : 232}
       style={{ ...styleSider }}
       trigger={null}
@@ -162,10 +165,15 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
         setCollapsed(true);
       }}
     >
-      <SiderMenuButtonToggleStyle collapsed={collapsed}>
+      <div
+        className={`app-sider-menu-toggle flex h-[70px] items-center bg-[#B22B2A] px-4 py-[6px] ${
+          collapsed ? 'justify-center' : 'justify-between'
+        }`}
+      >
         {collapsed ? null : logoMenu}
         <Button
           type='text'
+          className={`!text-white hover:!text-white ${collapsed ? '' : '!rounded-[24px]'}`}
           icon={collapsed ? <MenuBurger width={18} height={12}  />
           : <X width={24} height={24} />}
           onClick={() => {
@@ -177,10 +185,15 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
             if (onClickMenuButtonToggle) onClickMenuButtonToggle(newValue);
           }}
         />
-      </SiderMenuButtonToggleStyle>
+      </div>
 
-      <SiderMenuContainer collapsed={collapsed} className='secound-child-menu-and-sub-menus'>
+      <div
+        className={`app-sider-menu secound-child-menu-and-sub-menus h-[calc(100vh-70px)] overflow-auto ${
+          collapsed ? 'is-collapsed' : 'is-expanded'
+        }`}
+      >
         <Menu
+          className='app-sider-ant-menu'
           mode='inline'
           {...menuProps}
           openKeys={openKeys}
@@ -200,8 +213,8 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
         >
           <>{items?.map((menuItem: MenuItemSMEProps) => montarSubMenu(menuItem))}</>
         </Menu>
-      </SiderMenuContainer>
-    </SiderContainer>
+      </div>
+    </Layout.Sider>
   );
 };
 

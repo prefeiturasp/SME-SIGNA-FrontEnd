@@ -202,12 +202,9 @@ export const menus: MenuItemConectaProps[] = [
 
 ];
  
-export function AppNewSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
+export function AppNewSidebar() {
   const navigate = useRouter();
 
-  const { open } = useSidebar();
-  const [items, setItems] = React.useState<MenuItemConectaProps[]>(menus);
   const itemMenuEscolhido = (item: MenuItemSMEProps) => {
     if (item?.url) {
       navigate.push(item.url);
@@ -217,11 +214,10 @@ export function AppNewSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
     <Sider
       onClick={itemMenuEscolhido}
       styleSider={{ zIndex: 12 }}
-      items={items}
+      items={menus}
       logoMenu={
         <Image src={LogoSigna} alt="Logo Signa" width={97} height={56} />
-
       }
-    />
+     />
   );
 }
