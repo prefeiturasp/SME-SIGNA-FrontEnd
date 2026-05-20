@@ -23,7 +23,8 @@ module.exports = defineConfig({
     screenshotsFolder: 'cypress/screenshots',
     videosFolder: 'cypress/videos',
 
-    video: false,
+    // Grava vídeo apenas para features da pasta ui, nunca grava no Jenkins (CI)
+    video: process.env.CI ? false : ((process.env.npm_config_spec && process.env.npm_config_spec.startsWith('cypress/e2e/ui/')) ? true : false),
     videoCompression: false,
     screenshotOnRunFailure: true,
 
