@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import React, { PropsWithChildren, createContext, useState } from 'react';
+import React, { PropsWithChildren, createContext, useMemo, useState } from 'react';
 
 type MenuContextProps = {
   collapsed: boolean;
@@ -25,18 +24,20 @@ const MenuContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(DEFAULT_VALUES.collapsed);
   const [openKeys, setOpenKeys] = useState<string[]>(DEFAULT_VALUES.openKeys);
   const [selectedKeys, setSelectedKeys] = useState<string[]>(DEFAULT_VALUES.selectedKeys);
+  const menuContextValue = useMemo(
+    () => ({
+      collapsed,
+      setCollapsed,
+      openKeys,
+      setOpenKeys,
+      selectedKeys,
+      setSelectedKeys,
+    }),
+    [collapsed, openKeys, selectedKeys],
+  );
 
   return (
-    <MenuContext.Provider
-      value={{
-        collapsed,
-        setCollapsed,
-        openKeys,
-        setOpenKeys,
-        selectedKeys,
-        setSelectedKeys,
-      }}
-    >
+    <MenuContext.Provider value={menuContextValue}>
       {children}
     </MenuContext.Provider>
   );

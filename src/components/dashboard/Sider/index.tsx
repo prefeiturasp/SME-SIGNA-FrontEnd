@@ -50,7 +50,7 @@ export const getItemMenu = (
 export type MenuSMEProps = {
   items?: MenuItemSMEProps[];
   menuProps?: MenuProps;
-  styleSider?: CSSProperties | undefined;
+  styleSider?: CSSProperties;
   logoMenu?: React.ReactNode;
   onClick: (item: MenuItemSMEProps) => void;
   onClickMenuButtonToggle?: (collapsed: boolean) => void;
