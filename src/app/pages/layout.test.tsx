@@ -1,97 +1,65 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen } from "@testing-library/react";
 import DashboardLayout from "@/app/pages/layout";
-import { useUserStore } from "@/stores/useUserStore";
-
-vi.mock("next/navigation", () => ({
-    useRouter: () => ({
-        push: vi.fn(),
-        replace: vi.fn(),
-        prefetch: vi.fn(),
-    }),
-    usePathname: () => "/pages",
+vi.mock("@/components/ui/sidebar", () => ({
+    SidebarProvider: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="sidebar-provider">{children}</div>
+    ),
 }));
 
-const mockUser = {
-    username: "testuser",
-    name: "Test User",
-    email: "test@example.com",
-    cpf: "123.456.789-00",
-    rede: "SME",
-    is_core_sso: false,
-    is_validado: true,
-    perfil_acesso: {
-        codigo: 1,
-        nome: "Perfil Teste",
-    },
-    unidades: [
-        {
-            ue: {
-                codigo_eol: "123",
-                nome: "UE Teste",
-                sigla: "UET",
-            },
-            dre: {
-                codigo_eol: "456",
-                nome: "DRE Teste",
-                sigla: "DRET",
-            },
-        },
-    ],
-};
+vi.mock("@/components/dashboard/Navbar/Navbar", () => ({
+    Navbar: () => <div data-testid="navbar">Navbar</div>,
+}));
+
+vi.mock("@/components/dashboard/HydrationGuard", () => ({
+    HydrationGuard: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="hydration-guard">{children}</div>
+    ),
+}));
 
 vi.mock("@/components/providers/AuthGuard", () => ({
-    default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    default: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="auth-guard">{children}</div>
+    ),
 }));
 
-vi.mock("@/hooks/useMe", () => ({
-    default: () => ({
-        isLoading: false,
-        isError: false,
-        data: mockUser,
-    }),
+vi.mock("@/components/dashboard/Sidebar/app-new-sidebar", () => ({
+    AppNewSidebar: () => <div data-testid="app-new-sidebar">Sidebar</div>,
 }));
 
-const queryClient = new QueryClient();
-
-beforeAll(() => {
-    window.matchMedia = () =>
-        ({
-            matches: false,
-            media: "",
-            onchange: null,
-            addEventListener: () => {},
-            removeEventListener: () => {},
-            dispatchEvent: () => false,
-        } as unknown as MediaQueryList);
-});
+vi.mock("antd", () => ({
+    Layout: ({
+        children,
+        hasSider,
+        style,
+    }: {
+        children: React.ReactNode;
+        hasSider?: boolean;
+        style?: React.CSSProperties;
+    }) => (
+        <div data-testid="layout" data-has-sider={String(!!hasSider)} data-min-height={style?.minHeight}>
+            {children}
+        </div>
+    ),
+}));
 
 describe("DashboardLayout (layout.tsx)", () => {
-    beforeEach(() => {
-        useUserStore.setState({ user: mockUser });
-    });
+    it("renderiza wrappers, sidebar, navbar, conteúdo e rodapé", () => {
+        render(
+            <DashboardLayout>
+                <div data-testid="child">Conteudo de teste</div>
+            </DashboardLayout>
+        );
 
-    afterEach(() => {
-        useUserStore.setState({ user: null });
-        vi.clearAllMocks();
-    });
-
-    it("renderiza sidebar, navbar e conteúdo corretamente", async () => {
-        await act(async () => {
-            render(
-                <QueryClientProvider client={queryClient}>
-                    <DashboardLayout>
-                        <div data-testid="child">Conteúdo de teste</div>
-                    </DashboardLayout>
-                </QueryClientProvider>
-            );
-        });
-
-        await waitFor(() => {
-            expect(screen.getByText(mockUser.name)).toBeInTheDocument();
-        });
-
+        expect(screen.getByTestId("hydration-guard")).toBeInTheDocument();
+        expect(screen.getByTestId("layout")).toHaveAttribute("data-has-sider", "true");
+        expect(screen.getByTestId("layout")).toHaveAttribute("data-min-height", "100vh");
+        expect(screen.getByTestId("sidebar-provider")).toBeInTheDocument();
+        expect(screen.getByTestId("app-new-sidebar")).toBeInTheDocument();
+        expect(screen.getByTestId("auth-guard")).toBeInTheDocument();
+        expect(screen.getByTestId("navbar")).toBeInTheDocument();
         expect(screen.getByTestId("child")).toBeInTheDocument();
-        expect(screen.getByText(/sair/i)).toBeInTheDocument();
+        expect(
+            screen.getByText("Sistema homologado para navegadores: Google Chrome e Firefox")
+        ).toBeInTheDocument();
     });
 });
