@@ -417,3 +417,12 @@ input[type="number"] {
   height: 24px;
   width: 24px;
 }
+
+
+.app-sider-menu-title{
+
+  &:hover {
+    opacity: 0.5;
+  }
+
+}

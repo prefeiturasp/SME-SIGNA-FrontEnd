@@ -89,7 +89,9 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           if (onClick) onClick(item);
         }}
       >
-        {item?.title}
+        <div className='app-sider-menu-title'>
+          {item?.title}
+        </div>
       </MenuItem>
     );
   };
@@ -128,7 +130,7 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
                 {menuItem?.title}
               </div>
               {collapsed && (
-                <Bars width={16} height={16} opacity={0.5} style={{ top: 12, right: 6, position: 'absolute' }} />
+                <Bars width={16} height={16} opacity={0.5} style={{ top: 0, right: 6, position: 'absolute' }} />
               )}
             </div>
           }

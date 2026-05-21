@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { HelpCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
@@ -21,11 +20,12 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import useLogin from "@/hooks/useLogin";
-import Link from "next/link";
 import { LoginRequest } from "@/types/login";
 import { useRouter } from "next/navigation";
 import LogoSigna from "../LogoSigna";
 import LogoPrefeituraSPImage from "../LogoPrefeituraSP"
+import formSchemaLogin from "./schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -34,12 +34,14 @@ export default function LoginForm() {
       seu_rf: "",
       senha: "",
     },
+    resolver: zodResolver(formSchemaLogin),
   });
-
+  const { seu_rf, senha } = form.watch();
   const loginMutation = useLogin();
+  console.log(seu_rf, senha)
 
   const { mutateAsync: doLogin, isPending: isLoggingIn } = loginMutation;
-  const estaDesabilitado = !form.formState.isDirty;
+  const estaDesabilitado = !form.formState.isValid;
   const [errorMessage, setErrorMessage] = useState("");
 
   const onSubmit = async (values: LoginRequest) => {
@@ -48,6 +50,8 @@ export default function LoginForm() {
       setErrorMessage(response.error);
     }
   };
+
+  
 
   return (
     <div className="flex items-center justify-center  ">
@@ -58,11 +62,12 @@ export default function LoginForm() {
 
         <div className="pt-16 pb-2">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
               {/* RF / CPF */}
               <FormField
                 control={form.control}
                 name="seu_rf"
+                
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
@@ -83,7 +88,12 @@ export default function LoginForm() {
                     </div>
 
                     <FormControl>
-                      <Input id="seu_rf" placeholder="Seu RF" {...field} />
+                      <Input
+                        id="seu_rf"
+                        placeholder="Seu RF"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,6 +128,7 @@ export default function LoginForm() {
                         type="password"
                         id="senha"
                         placeholder="Sua senha"
+                        autoComplete="new-password"
                         {...field}
                       />
                     </FormControl>
