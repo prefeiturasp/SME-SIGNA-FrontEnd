@@ -42,17 +42,13 @@ pipeline {
                                         --rm \
                                         -e TERM=xterm \
                                         -e CI=true \
-                                        -e NODE_OPTIONS=--max-old-space-size=4096 \
                                         -v "$WORKSPACE/testes/ui:/app" \
                                         -w /app \
                                         registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
-                                        sh -c "set -e; \
-                                            rm -rf allure-results allure-report && \
+                                        sh -c "rm -rf allure-results allure-report && \
                                             npm install && \
                                             npm install cypress@${CYPRESS_VERSION} cypress-cloud@${CYPRESS_CLOUD_VERSION} \
                                             @shelex/cypress-allure-plugin@2.41.2 mocha-allure-reporter@1.4.0 crypto-js@4.1.1 --save-dev && \
-                                            npx cypress install --force && \
-                                            set +e; \
                                             npx cypress-cloud run \
                                                     --parallel \
                                                     --browser chrome \

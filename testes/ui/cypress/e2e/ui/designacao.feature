@@ -9,7 +9,7 @@ Funcionalidade: Designação de Servidores
   Contexto:
     Dado que o usuário está autenticado no sistema
 
-  @skip @designacao-fluxo-completo @critico
+  @designacao-fluxo-completo @critico
   Cenário: Nova designação de servidor Cargo Disponivel
     Dado que o usuário está na página do dashboard
     Quando navega pelo menu lateral e clica em "Designações"
@@ -70,7 +70,7 @@ Funcionalidade: Designação de Servidores
     Então o sistema direciona para a pagina de resumo da designacao
     E deve visualizar os dados do resumo da portaria
 
-  @skip @designacao-fluxo-completo @critico @cargo-vago
+  @designacao-fluxo-completo @critico @cargo-vago
   Cenário: Nova designação de servidor com cargo vago
     Dado que o usuário está na página do dashboard
     Quando navega pelo menu lateral e clica em "Designações"
