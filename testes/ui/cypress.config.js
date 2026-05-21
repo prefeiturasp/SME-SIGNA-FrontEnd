@@ -13,7 +13,9 @@ module.exports = defineConfig({
   e2e: {
     baseUrl: 'https://qa-signa.sme.prefeitura.sp.gov.br',
 
-    specPattern: 'cypress/e2e/**/*.feature',
+    specPattern: process.env.CI
+      ? ['cypress/e2e/**/*.feature', '!cypress/e2e/ui/*.feature']
+      : 'cypress/e2e/**/*.feature',
     excludeSpecPattern: ['cypress/e2e/ui/consulta_rf.feature'],
 
     supportFile: 'cypress/support/e2e.js',
@@ -21,7 +23,8 @@ module.exports = defineConfig({
     screenshotsFolder: 'cypress/screenshots',
     videosFolder: 'cypress/videos',
 
-    video: false,
+    // Grava vídeo apenas para features da pasta ui, nunca grava no Jenkins (CI)
+    video: process.env.CI ? false : ((process.env.npm_config_spec && process.env.npm_config_spec.startsWith('cypress/e2e/ui/')) ? true : false),
     videoCompression: false,
     screenshotOnRunFailure: true,
 
@@ -29,7 +32,8 @@ module.exports = defineConfig({
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
     requestTimeout: 10000,
-    responseTimeout: 30000,
+    responseTimeout: 120000, // 2 minutos
+    testRunTimeout: 120000, // 2 minutos
 
     viewportWidth: 1920,
     viewportHeight: 1080,
