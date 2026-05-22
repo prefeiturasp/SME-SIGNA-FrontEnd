@@ -91,9 +91,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente" }: SelectAnoFieldPr
               />
             </Select>
           </FormControl>
-          <div className="h-[10px]">
             <FormMessage />
-          </div>
         </FormItem>
       )}
     />

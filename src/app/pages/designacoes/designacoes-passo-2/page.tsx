@@ -252,8 +252,8 @@ export default function DesignacoesPasso2() {
           { title: "Início", href: "/" }, 
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
           { title: "Designação" }, ]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
-        showBackButton={false}
+          icon={<Designacao width={24} height={24} color="#660C0B" />}
+          showBackButton={false}
       />
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>

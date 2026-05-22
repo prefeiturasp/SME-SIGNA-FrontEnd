@@ -112,7 +112,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage />
+                    <FormMessage />
                 </FormItem>
               )}
             />

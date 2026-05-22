@@ -136,7 +136,7 @@ export default function DesignacoesPasso3() {
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
           { title: "Designação" }
         ]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
+        icon={<Designacao width={24} height={24} color="#660C0B" />}
         showBackButton={false}
       />
 
