@@ -427,6 +427,11 @@ input[type="number"] {
 
 }
 
+.card-designacao{
+  padding-left: 8px;
+  padding-right: 8px;
+  
+}
 
 .ant-card .ant-card-body{
   padding: 16px;

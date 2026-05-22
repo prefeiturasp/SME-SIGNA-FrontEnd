@@ -261,8 +261,7 @@ export default function DesignacoesPasso2() {
             <StepperDesignacao current={1} />
           </FundoBranco>
           <Card
-
-            title={
+             title={
               <div className="flex justify-between items-center">
                 <span className="text-[#333]">Designação</span>
                 <Button
@@ -286,6 +285,7 @@ export default function DesignacoesPasso2() {
             }
             className="mt-4 m-0"
           >
+            <div className="card-designacao">
             {formDesignacaoData?.servidorIndicado && (
               <Accordion
                 type="multiple"
@@ -342,7 +342,9 @@ export default function DesignacoesPasso2() {
               setDadosTitular={setDadosTitular}
               setErrorBusca={setErrorBusca}
             />
+            </div>
           </Card>
+
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
               disableAnterior={false}
