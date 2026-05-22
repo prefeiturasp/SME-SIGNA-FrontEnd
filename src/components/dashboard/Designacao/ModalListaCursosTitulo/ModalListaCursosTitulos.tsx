@@ -59,7 +59,7 @@ export default function ModalListaCursosTitulos({
                 </DialogHeader>
 
                 <Separator className="mt-2" />
-                <div className="flex flex-row gap-20 bg-[#FAFAFA] p-4 my-4">
+                <div className="flex flex-row gap-20 bg-[#FAFAFA] my-4">
                     <InfoItem label="Servidor" value={defaultValues.nome_servidor} />
                     <InfoItem label="RF" value={defaultValues.rf} />
                     <InfoItem label="Função" value={defaultValues.cargo_sobreposto_funcao_atividade} />

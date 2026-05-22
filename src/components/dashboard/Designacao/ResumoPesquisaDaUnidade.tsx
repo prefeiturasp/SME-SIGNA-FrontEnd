@@ -25,7 +25,7 @@ const ResumoPesquisaDaUnidade: React.FC<{
         </div>
       ) : (
         <div className={className}>
-          <div className=" bg-[#FAFAFA] p-4">
+          <div className=" bg-[#FAFAFA]">
             <div className="flex flex-col md:flex-row gap-4" >
               <InfoItem label="DRE" value={defaultValues.dre} className="w-full md:w-[25%]" />
               <InfoItem label="Unidade proponente" value={defaultValues.lotacao} className="w-full md:w-[50%]" />
