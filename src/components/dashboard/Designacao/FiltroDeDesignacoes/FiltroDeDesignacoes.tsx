@@ -97,7 +97,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
               name="cargo_base"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#42474a] font-bold">Cargo Base</FormLabel>
+                  <FormLabel className="text-[#313131] font-bold">Cargo Base</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger data-testid="select-cargo-base">
@@ -126,7 +126,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
               name="cargo_sobreposto"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#42474a] font-bold">Cargo Sobreposto</FormLabel>
+                  <FormLabel className="text-[#313131] font-bold">Cargo Sobreposto</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger data-testid="select-cargo-sobreposto">
@@ -152,7 +152,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
               name="ano"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#42474a] font-bold">Ano</FormLabel>
+                  <FormLabel className="text-[#313131] font-bold">Ano</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger data-testid="select-ano">
@@ -181,7 +181,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
               name="dre"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#42474a] font-bold">DRE</FormLabel>
+                  <FormLabel className="text-[#313131] font-bold">DRE</FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -215,7 +215,7 @@ const FiltroDeDesignacoes: React.FC<Props> = ({ onClear }) => {
               name="unidade_escolar"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#42474a] font-bold">Unidade Escolar</FormLabel>
+                  <FormLabel className="text-[#313131] font-bold">Unidade Escolar</FormLabel>
                   <FormControl>
                     {isLoadingUEs ? (
                       <div className="flex items-center justify-center">

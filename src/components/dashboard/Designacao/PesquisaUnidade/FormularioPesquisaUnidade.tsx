@@ -58,8 +58,7 @@ const FormularioPesquisaUnidade = forwardRef<
   { setDisableProximo, isLoading, defaultValues }: Props,
   ref,
 ) {
-  const { formDesignacaoData, setFormDesignacaoData } =
-    useDesignacaoContext();
+ 
   const { data: dreOptions = [] } = useFetchDREs();
 
 
@@ -204,7 +203,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   name="dre"
                   render={({ field }) => (
                     <FormItem className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         DRE
                       </FormLabel>
                       <FormControl>
@@ -258,7 +257,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   name="ue"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         Unidade proponente
                       </FormLabel>
                       <FormControl>
@@ -339,7 +338,7 @@ const FormularioPesquisaUnidade = forwardRef<
                       name="funcionarios_da_unidade"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="required text-[#42474a] font-bold">
+                          <FormLabel className="required text-[#313131] font-bold">
                             Funcionários da unidade
                           </FormLabel>
                           <FormControl>

@@ -163,14 +163,14 @@ describe("SelecaoServidorIndicado", () => {
       </TestWrapper>
     );
 
-    expect(screen.getByLabelText("Selecione o cargo")).toBeInTheDocument();
+    expect(screen.getByLabelText("Cargo")).toBeInTheDocument();
 
     const radioDisponivel = screen.getByLabelText(/Cargo Disponível/i);
     await user.click(radioDisponivel);
 
     expect(screen.getByText("Mock Busca RF")).toBeInTheDocument();
     expect(
-      screen.queryByLabelText("Selecione o cargo")
+      screen.queryByLabelText("Cargo")
     ).not.toBeInTheDocument();
   });
 
@@ -273,6 +273,6 @@ describe("SelecaoServidorIndicado", () => {
     );
 
     expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Selecione o cargo")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Cargo")).not.toBeInTheDocument();
   });
 });

@@ -75,7 +75,7 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
                         <p className="font-semibold text-[16px] mt-2">
                             Aguarde um momento!
                         </p>
-                        <p className="text-sm text-center text-[#42474a] mt-1">
+                        <p className="text-sm text-center text-[#313131] mt-1">
                             Estamos validando o seu e-mail...
                         </p>
                     </div>
@@ -142,7 +142,7 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
                     <LogoPrefeituraSP />
                 </div>
                 <div className="flex flex-col items-center">
-                    <span className="text-[#42474a] text-[12px] font-normal mt-3 text-center py-2">
+                    <span className="text-[#313131] text-[12px] font-normal mt-3 text-center py-2">
                         - Sistema homologado para navegadores: Google Chrome e
                         Firefox
                     </span>

@@ -143,7 +143,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="impedimento_substituicao"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                       Impedimento para substituição:
                     </FormLabel>
                     <FormControl>
@@ -200,7 +200,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                   name="motivo_afastamento"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         Motivo do afastamento
                       </FormLabel>
                       <FormControl>
@@ -239,7 +239,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                   name="motivo_pendencia"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         Descrição da pendência
                       </FormLabel>
                       <FormControl>
