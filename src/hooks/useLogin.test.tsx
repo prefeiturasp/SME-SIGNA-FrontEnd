@@ -48,7 +48,7 @@ describe("useLogin", () => {
             });
         });
         await waitFor(() => {
-            expect(pushMock).toHaveBeenCalledWith("/pages");
+            expect(pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
         });
     });
 
