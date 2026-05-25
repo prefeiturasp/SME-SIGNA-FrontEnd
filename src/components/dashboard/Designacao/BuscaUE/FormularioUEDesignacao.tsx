@@ -21,8 +21,7 @@ import {
 } from "@/components/ui/select";
 
 import { Combobox } from "@/components/ui/Combobox";
-import { Button } from "@/components/ui/button";
-
+ 
 import formSchemaDesignacao, {
   FormDesignacaoData,
 } from "./schema";
@@ -41,7 +40,6 @@ export default function FormularioUEDesignacao({
 }: Props) {
   const { data: dreOptions = [] } = useFetchDREs();
 
-  console.log("dreOptions", dreOptions)
 
   const form = useForm<FormDesignacaoData>({
     resolver: zodResolver(formSchemaDesignacao),
@@ -56,7 +54,6 @@ export default function FormularioUEDesignacao({
   const { data: ueOptions = [] } = useFetchUEs(values.dre);
   const onProximo = () => {};
 
-  console.log("ueOptions", ueOptions)
 
 
   return (
@@ -114,9 +111,9 @@ export default function FormularioUEDesignacao({
                     <FormControl>
                     <Combobox
                         options={ueOptions.map(
-                        (ue: { codigoEol: string; nomeOficial: string }) => ({
-                            label: ue.nomeOficial,
-                            value: ue.codigoEol,
+                        (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
+                            label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
+                            value: ue.codigoEscola,
                         })
                         )}
                         value={field.value}

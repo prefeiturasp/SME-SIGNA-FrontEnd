@@ -12,9 +12,9 @@ vi.mock("next/headers", () => ({
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
 
 const makeCookieStore = (token?: string): CookieStore =>
-  ({
-    get: vi.fn().mockReturnValue(token ? { value: token } : undefined),
-  } as unknown as CookieStore);
+({
+  get: vi.fn().mockReturnValue(token ? { value: token } : undefined),
+} as unknown as CookieStore);
 
 const sampleRequest = { rf: "123" };
 
@@ -24,13 +24,12 @@ const sampleResponse: BuscaServidorDesignacaoBody = {
   vinculo_cargo_sobreposto: "Ativo",
   lotacao_cargo_sobreposto: "Escola X",
   cargo_base: "Professor",
-  aulas_atribuidas: "20",
   funcao_atividade: "Docente",
   cargo_sobreposto: "Nenhum",
   cursos_titulos: "Licenciatura",
-  estagio_probatorio: "Sim",
-  aprovado_em_concurso: "Sim",
-  laudo_medico: "Não",
+  dre: "DRE Centro",
+  unidade: "Escola Alpha",
+  codigo: "001",
 };
 
 describe("getServidorDesignacaoAction", () => {
@@ -144,7 +143,7 @@ describe("getServidorDesignacaoAction", () => {
   it("Processa mensagem de erro específica para status 501", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
     vi.mocked(axios.post).mockRejectedValue({
-      response: { data: { detail: "Erro específico", status: 501} },
+      response: { data: { detail: "Erro específico", status: 501 } },
       message: "Erro genérico",
     });
 

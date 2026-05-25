@@ -46,7 +46,7 @@ describe("FormRecuperarSenha", () => {
         mutateAsyncMock.mockResolvedValueOnce({
             success: true,
             message:
-                "Seu link de recuperação de senha foi enviado",
+                "Seu link de recuperação de senha foi enviado para ama***********@prefeitura.sme.gov.br Verifique sua caixa de entrada ou lixo eletrônico!",
         });
         render(<LoginForm />, { wrapper });
         fireEvent.input(screen.getByPlaceholderText("Insira seu RF"), {
@@ -55,7 +55,7 @@ describe("FormRecuperarSenha", () => {
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
         await waitFor(() => {
             expect(
-                screen.getByText(/Seu link de recuperação de senha foi enviado/i)
+                screen.getByText(/Seu link de recuperação de senha foi enviado para ama/i)
             ).toBeInTheDocument();
             expect(
                 screen.getByText(/Verifique sua caixa de entrada ou lixo eletrônico!/i)
@@ -75,7 +75,7 @@ describe("FormRecuperarSenha", () => {
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
         await waitFor(() => {
             expect(
-                screen.getByText(/Seu link de recuperação de senha foi enviado/i)
+                screen.getByText(/Link enviado!/i)
             ).toBeInTheDocument();
         });
     });
@@ -91,7 +91,7 @@ describe("FormRecuperarSenha", () => {
         fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
         await waitFor(() => {
             expect(
-                screen.getByText("E-mail não encontrado!")
+                screen.getByText("Usuário não encontrado")
             ).toBeInTheDocument();
         });
     });

@@ -29,37 +29,40 @@ pipeline {
         stage('Executar') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'jenkins_registry', url: 'https://registry.sme.prefeitura.sp.gov.br/repository/sme-registry/') {
-                        withCredentials([file(credentialsId: "cypress_env_signa", variable: 'env')]){   
-                            sh '''
-                                touch testes/ui/.env
-                                cp "$env" "testes/ui/.env"
-                                docker pull registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2
-                                docker run \
-                                    --rm \
-                                    -v "$WORKSPACE/testes/ui:/app" \
-                                    -w /app \
-                                    registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
-                                    sh -c "rm -rf allure-results && \
-                                        npm install && \
-                                        npm install cypress@14.5.2 cypress-cloud@beta \
-                                        @shelex/cypress-allure-plugin allure-mocha crypto-js@4.1.1 --save-dev && \
-                                        npx cypress-cloud run \
-                                                --parallel \
-                                                --browser chrome \
-                                                --headed true \
-                                                --record \
-                                                --key somekey \
-                                                --reporter mocha-allure-reporter \
-                                                --reporter-options reportDir=allure-results \
-                                                --ci-build-id SME-AUTOSSERVICO_JENKINS-BUILD-${BUILD_NUMBER} && \
-                                        chown 1001:1001 * -R && \
-                                        chmod 777 * -R"
-                            '''
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                        withDockerRegistry(credentialsId: 'jenkins_registry', url: 'https://registry.sme.prefeitura.sp.gov.br/repository/sme-registry/') {
+                            withCredentials([file(credentialsId: "cypress_env_signa", variable: 'env')]){
+                                sh '''
+                                    touch testes/ui/.env
+                                    cp "$env" "testes/ui/.env"
+                                    docker pull registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2
+                                    docker run \
+                                        --rm \
+                                        -e CI=true \
+                                        -v "$WORKSPACE/testes/ui:/app" \
+                                        -w /app \
+                                        registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
+                                        sh -c "rm -rf allure-results && \
+                                            npm install && \
+                                            npm install cypress@14.5.2 cypress-cloud@beta \
+                                            @shelex/cypress-allure-plugin allure-mocha crypto-js@4.1.1 --save-dev && \
+                                            npx cypress-cloud run \
+                                                    --parallel \
+                                                    --browser chrome \
+                                                    --headed true \
+                                                    --record \
+                                                    --key somekey \
+                                                    --reporter mocha-allure-reporter \
+                                                    --reporter-options reportDir=allure-results \
+                                                    --ci-build-id SME-SIGNA_JENKINS-BUILD-${BUILD_NUMBER} ; \
+                                            chown 1001:1001 * -R || true ; \
+                                            chmod 777 * -R || true"
+                                '''
+                            }
                         }
                     }
                     echo "Testes Cypress finalizados."
-                    def logText = currentBuild.rawBuild.getLog(20).join('\n')
+                    def logText = currentBuild.rawBuild.getLog(200).join('\n')
                     def match = logText =~ /Recorded Run:\s*(https?:\/\/\S+)/
                     if (match) {
                         env.CYPRESS_RUN_URL = match[0][1]
@@ -68,14 +71,14 @@ pipeline {
             }
         }
 
-        stage('Gerar Relatório Allure') {
+        stage('Gerar Relatorio Allure') {
             steps {
                 script {
                     catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                         def hasResults = fileExists("${ALLURE_PATH}") && sh(script: "ls -A ${ALLURE_PATH} | wc -l", returnStdout: true).trim() != "0"
 
                         if (hasResults) {
-                            echo "📊 Gerando relatório Allure..."
+                            echo "Gerando relatorio Allure..."
                             sh """
                                 export JAVA_HOME=\$(dirname \$(dirname \$(readlink -f \$(which java)))); \
                                 export PATH=\$JAVA_HOME/bin:/usr/local/bin:\$PATH; \
@@ -84,7 +87,7 @@ pipeline {
                                 zip -r allure-results-${BUILD_NUMBER}-\$(date +"%d-%m-%Y").zip allure-results
                             """
                         } else {
-                            echo "⚠️ Nenhum resultado Allure encontrado em ${ALLURE_PATH}."
+                            echo "Nenhum resultado Allure encontrado em ${ALLURE_PATH}."
                         }
                     }
                 }
@@ -95,38 +98,41 @@ pipeline {
     post {
         always {
             script {
+                // 1o — Allure plugin (deve rodar ANTES do Docker cleanup)
+                if (fileExists("${ALLURE_PATH}") && sh(script: "ls -A ${ALLURE_PATH} | wc -l", returnStdout: true).trim() != "0") {
+                    allure includeProperties: false, jdk: '', results: [[path: "${ALLURE_PATH}"]]
+                } else {
+                    echo "Resultados do Allure nao encontrados ou vazios, plugin nao sera acionado."
+                }
+
+                // 2o — Arquivar zip de resultados
+                def zipExists = sh(script: "ls testes/ui/allure-results-*.zip 2>/dev/null || true", returnStdout: true).trim()
+                if (zipExists) {
+                    archiveArtifacts artifacts: 'testes/ui/allure-results-*.zip', fingerprint: true
+                } else {
+                    echo "Nenhum .zip de Allure encontrado para arquivamento."
+                }
+
+                // 3o — Docker cleanup (por ultimo, apos Allure ter lido os resultados)
                 withDockerRegistry(credentialsId: 'jenkins_registry', url: 'https://registry.sme.prefeitura.sp.gov.br/repository/sme-registry/') {
                     sh '''
                         docker pull registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2
                         docker run \
                             --rm \
+                            -e CI=true \
                             -v "$WORKSPACE:/app" \
                             -w /app \
                             registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
-                            sh -c "rm -rf package-lock.json node_modules/ || true && chown 1001:1001 * -R || true  && chmod 777 * -R || true"
+                            sh -c "rm -rf package-lock.json node_modules/ || true && chown 1001:1001 * -R || true && chmod 777 * -R || true"
                     '''
-                }
-                
-                if (fileExists("${ALLURE_PATH}") && sh(script: "ls -A ${ALLURE_PATH} | wc -l", returnStdout: true).trim() != "0") {
-                    allure includeProperties: false, jdk: '', results: [[path: "${ALLURE_PATH}"]]
-                } else {
-                    echo "⚠️ Resultados do Allure não encontrados ou vazios, plugin não será acionado."
-                }
-
-                def zipExists = sh(script: "ls testes/ui/allure-results-*.zip 2>/dev/null || true", returnStdout: true).trim()
-                if (zipExists) {
-                    archiveArtifacts artifacts: 'testes/ui/allure-results-*.zip', fingerprint: true
-                } else {
-                    echo "⚠️ Nenhum .zip de Allure encontrado para arquivamento."
                 }
             }
         }
-        
-        success { sendTelegram("<b>SUCESSO! ✅</b>") }
-        unstable { sendTelegram("<b>INSTÁVEL! ⚠️</b>") }
-        failure { sendTelegram("<b>FALHA! ❌</b>\n") }
-        aborted { sendTelegram("<b>CANCELADO! ✖️</b>\n") }
-        
+
+        success  { sendTelegram("<b>SUCESSO! ✅</b>")    }
+        unstable { sendTelegram("<b>INSTAVEL ⚠️</b>")  }
+        failure  { sendTelegram("<b>FALHA ❌</b>")      }
+        aborted  { sendTelegram("<b>CANCELADO 🚫</b>") }
     }
 }
 
@@ -139,16 +145,17 @@ def sendTelegram(message) {
         "<b>Dashboard Link:</b> <a href='${env.CYPRESS_RUN_URL}'>Resultados no dashboard</a>\n" +
         "<b>Log:</b> <a href='${env.BUILD_URL}console'>Ver console output</a>"
     )
-    
     def encodedMessage = URLEncoder.encode(messageTemplate, "UTF-8")
 
     withCredentials([string(credentialsId: 'telegramTokensigpae', variable: 'TOKEN'),
-    string(credentialsId: 'telegramChatIdsigpae', variable: 'CHAT_ID')]) {
-        response = httpRequest (consoleLogResponseBody: true,
+                     string(credentialsId: 'telegramChatIdsigpae', variable: 'CHAT_ID')]) {
+        def response = httpRequest(
+            consoleLogResponseBody: true,
             contentType: 'APPLICATION_JSON',
             httpMode: 'GET',
-            url: 'https://api.telegram.org/bot'+"$TOKEN"+'/sendMessage?text='+encodedMessage+'&chat_id='+"$CHAT_ID"+'&parse_mode='+"HTML"+'&disable_web_page_preview=true',
-            validResponseCodes: '200')
+            url: 'https://api.telegram.org/bot' + "$TOKEN" + '/sendMessage?text=' + encodedMessage + '&chat_id=' + "$CHAT_ID" + '&parse_mode=HTML&disable_web_page_preview=true',
+            validResponseCodes: '200'
+        )
         return response
     }
 }

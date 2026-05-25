@@ -14,7 +14,8 @@ describe("BotoesDeNavegacao", () => {
     const onProximo = vi.fn();
 
     render(
-      <BotoesDeNavegacao
+      <BotoesDeNavegacao  
+        showAnterior={true}
         disableAnterior={false}
         disableProximo={false}
         onAnterior={onAnterior}
@@ -36,30 +37,38 @@ describe("BotoesDeNavegacao", () => {
     expect(onProximo).toHaveBeenCalledTimes(1);
   });
 
-  it("aplica estado disabled nos botões conforme props", async () => {
-    const onAnterior = vi.fn();
-    const onProximo = vi.fn();
+    it("aplica estado disabled nos botões conforme props", async () => {
+      const onAnterior = vi.fn();
+      const onProximo = vi.fn();
 
-    render(
-      <BotoesDeNavegacao
-        disableAnterior={true}
-        disableProximo={true}
-        onAnterior={onAnterior}
-        onProximo={onProximo}
-      />
-    );
+      render(
+        <BotoesDeNavegacao
+          showAnterior={true}
+          disableAnterior={true}
+          disableProximo={true}
+          onAnterior={onAnterior}
+          onProximo={onProximo}
+        />
+      );
 
-    const botaoAnterior = screen.getByTestId("botao-anterior");
-    const botaoProximo = screen.getByTestId("botao-proximo");
+      const botaoAnterior = screen.getByTestId("botao-anterior");
+      const botaoProximo = screen.getByTestId("botao-proximo");
 
-    expect(botaoAnterior).toBeDisabled();
-    expect(botaoProximo).toBeDisabled();
+      expect(botaoAnterior).toBeDisabled();
+      expect(botaoProximo).toBeDisabled();
 
-    await userEvent.click(botaoAnterior);
-    await userEvent.click(botaoProximo);
+      await userEvent.click(botaoAnterior);
+      await userEvent.click(botaoProximo);
 
-    expect(onAnterior).not.toHaveBeenCalled();
-    expect(onProximo).not.toHaveBeenCalled();
-  });
+      expect(onAnterior).not.toHaveBeenCalled();
+      expect(onProximo).not.toHaveBeenCalled();
+    });
+
+    it("não renderiza botão de anterior se showAnterior for false", () => {
+      render(
+        <BotoesDeNavegacao showAnterior={false} disableAnterior={false} disableProximo={false} onAnterior={vi.fn()} onProximo={vi.fn()} />
+      );
+      expect(screen.queryByTestId("botao-anterior")).not.toBeInTheDocument();
+    });
 });
 

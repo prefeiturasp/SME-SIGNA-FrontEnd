@@ -14,12 +14,14 @@ const buttonVariants = cva(
                 destructive:
                     "bg-[#B22B2A]  text-destructive-foreground hover:bg-destructive/90",
                     outline:
-                    " border border-[#D85975] text-[#D85975] bg-background hover:bg-accent hover:text-accent-foreground",                  
+                    " border border-[#B22B2A] text-[#B22B2A] bg-background hover:bg-accent hover:text-accent-foreground",                  
                 customOutline:
-                    "flex items-center text-[#D85975] text-[14px] font-[700] border border-[#D85975] bg-white hover:text-[#B22B2A] hover:border-[#B22B2A] hover:bg-white",
+                    "flex items-center  text-[14px] font-[700] border  bg-white hover:text-[#B22B2A] hover:border-[#B22B2A] hover:bg-white",
                 submit: "text-center rounded-md text-[14px] font-[700] bg-[#D85975] text-white ",
                 secondary:
                     "bg-secondary text-secondary-foreground hover:bg-secondary/80  bg-[#D85975]",
+                tertiary:
+                    "bg-secondary text-[#292929] hover:bg-secondary/80  bg-[#F1F1F1]",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
                 pagination:
@@ -31,6 +33,7 @@ const buttonVariants = cva(
                 default: "h-10 px-4 py-2",
                 sm: "h-9 rounded-md px-3",
                 lg: "h-11 rounded-md px-8",
+                xl: "h-12 rounded-xl px-8",
                 icon: "h-10 w-10",
             },
         },

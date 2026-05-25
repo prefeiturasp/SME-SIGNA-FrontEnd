@@ -86,7 +86,8 @@ goto menu
 
 :relatorio
 echo.
-echo Gerando relatorio Allure...
+echo Executando testes com Allure e gerando relatorio...
+call npm run test:allure
 call npm run allure:report
 goto menu
 

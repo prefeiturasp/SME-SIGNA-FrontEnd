@@ -1,9 +1,11 @@
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { CircleX, CircleCheck } from "lucide-react";
+import { CircleX } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FilledCircleCheck } from "@/assets/icons/FilledCircleCheck";
 
 type AlertVariant = "destructive" | "success";
 
+ 
 interface CustomAlertProps {
   message?: string;
   description?: string;
@@ -26,8 +28,8 @@ const variantStyles: Record<
   },
   success: {
     container: "bg-[#15803D1A] border-0",
-    icon: "text-[#15803D]",
-    iconComponent: CircleCheck,
+    icon: "text-[#297805]",
+    iconComponent: FilledCircleCheck,
   },
 };
 
@@ -43,9 +45,9 @@ export function CustomAlert({
 
   return (
     <Alert variant={variant as "error" | "default" | "destructive" | "aviso" | null | undefined} className={cn("mt-6 mb-6", container, className)}>
-      <Icon className={cn("h-6 w-6 shrink-0", icon)} />
+      <Icon className={cn("h-6 w-6 shrink-0 ", icon)} />
 
-      <div className="flex flex-col gap-1 pt-1 min-w-0">
+      <div className="flex flex-col gap-1  min-w-0">
         {message && (
           <AlertTitle className="text-[#42474A] break-words">
             {message}

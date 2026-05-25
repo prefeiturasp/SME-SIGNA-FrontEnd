@@ -105,8 +105,8 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
                                 <Link
                                     href={
                                         returnMessage.success
-                                            ? "/dashboard"
-                                            : "/dashboard/meus-dados"
+                                            ? "/pages"
+                                            : "/pages/meus-dados"
                                     }
                                     replace
                                 >
@@ -129,7 +129,7 @@ export default function ConfirmarEmail({ code }: { readonly code: string }) {
                                     variant="customOutline"
                                     className="w-full mt-2"
                                 >
-                                    <Link href="/dashboard">Cancelar</Link>
+                                    <Link href="/pages">Cancelar</Link>
                                 </Button>
                             )}
                         </div>

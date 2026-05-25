@@ -74,7 +74,8 @@ while true; do
             ;;
         7)
             echo ""
-            echo "Gerando relatório Allure..."
+            echo "Executando testes com Allure e gerando relatório..."
+            npm run test:allure
             npm run allure:report
             ;;
         0)

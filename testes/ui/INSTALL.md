@@ -16,6 +16,9 @@ node --version
 npm --version
 ```
 
+### 1.1 Java (para relatório Allure HTML)
+Se for usar `npm run allure:report`/`npm run allure:open`, instale Java e configure `JAVA_HOME`.
+
 ### 2. Git (Opcional)
 Para clonar o repositório:
 - **Windows**: https://git-scm.com/download/win
@@ -65,6 +68,13 @@ Isso deve abrir a interface do Cypress.
 ```bash
 npm run test:login
 ```
+
+### 3. Validar geração do Allure (Jenkins)
+```bash
+npm run test:allure
+```
+
+Após a execução, a pasta `allure-results/` deve ser criada automaticamente.
 
 ## Troubleshooting
 
