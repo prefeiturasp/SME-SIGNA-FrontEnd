@@ -39,12 +39,13 @@ import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 export default function DesignacoesPasso2() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const rf = searchParams.get("rf");
 
 
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
   );
-  const { formDesignacaoData, setFormDesignacaoData } =
+  const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
   const hasPopulatedFromApi = useRef(false);
@@ -110,7 +111,9 @@ export default function DesignacoesPasso2() {
 
       setFormDesignacaoData({
         // Preserva servidorIndicado do context (pode ter sido editado no Passo 1)
-        servidorIndicado: designacao.indicado_nome_servidor ? {
+        servidorIndicado: formDesignacaoData?.servidorIndicado?.nome_servidor ?
+        formDesignacaoData?.servidorIndicado :
+        {
           nome_servidor: designacao.indicado_nome_servidor,
           nome_civil: designacao.indicado_nome_civil,
           rf: designacao.indicado_rf,
@@ -121,7 +124,7 @@ export default function DesignacoesPasso2() {
           local_de_exercicio: designacao.indicado_local_exercicio,
           laudo_medico: "Indisponível",
           local_de_servico: designacao.indicado_local_servico,
-        }:formDesignacaoData?.servidorIndicado,
+        },
         dre: designacao?.dre ?? '-',
         dre_nome: formDesignacaoData?.dre_nome ?? designacao.dre_nome,
         ue: designacao?.ue ?? '-',
@@ -215,10 +218,9 @@ export default function DesignacoesPasso2() {
       });
     }
 
-
-    if (id) {
+     if (id) {
       router.push(
-        `/pages/designacoes/designacoes-passo-3?id=${id}`
+        `/pages/designacoes/designacoes-passo-3?id=${id}&rf=${formDesignacaoData?.servidorIndicado?.rf}`
       );
     } else {
       router.push("/pages/designacoes/designacoes-passo-3");
@@ -244,6 +246,13 @@ export default function DesignacoesPasso2() {
       },
     });
   }
+
+  useEffect(() => {
+    if (!rf && id) {
+      clearFormDesignacaoData();
+    }
+  }, []);
+  
   return (
     <>
       <PageHeader

@@ -419,6 +419,7 @@ describe("DesignacoesPasso1", () => {
 
   it("navega para o próximo passo com id na query", async () => {
     mockIdParam = "77";
+    mockRfParam = "123456";
     renderWithProvider();
 
     await userEvent.type(screen.getByTestId("input-rf"), "123");
@@ -432,7 +433,7 @@ describe("DesignacoesPasso1", () => {
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
     expect(mockRouterPush).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-2?id=77"
+      "/pages/designacoes/designacoes-passo-2?id=77&rf=123456"
     );
   });
 
