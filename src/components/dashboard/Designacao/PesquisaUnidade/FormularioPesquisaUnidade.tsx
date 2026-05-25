@@ -319,10 +319,6 @@ const FormularioPesquisaUnidade = forwardRef<
             )}
 
             {funcionariosOptions.length > 0 && (
-
-              <>
-
-
                 <div className="flex flex-col md:flex-row gap-5 justify-items-center">
                 <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
                                       <InfoItem
@@ -415,7 +411,6 @@ const FormularioPesquisaUnidade = forwardRef<
                     />
                   </div>
                 </div>
-              </>
             )}
 
             {funcionariosOptions.length > 0 && (
