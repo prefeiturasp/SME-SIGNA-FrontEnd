@@ -36,9 +36,7 @@ export default function LoginForm() {
     },
     resolver: zodResolver(formSchemaLogin),
   });
-  const { seu_rf, senha } = form.watch();
   const loginMutation = useLogin();
-  console.log(seu_rf, senha)
 
   const { mutateAsync: doLogin, isPending: isLoggingIn } = loginMutation;
   const estaDesabilitado = !form.formState.isValid;
