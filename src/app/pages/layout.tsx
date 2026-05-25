@@ -1,8 +1,9 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/dashboard/Sidebar/app-sidebar";
 import { Navbar } from "@/components/dashboard/Navbar/Navbar";
 import { HydrationGuard } from "@/components/dashboard/HydrationGuard";
 import AuthGuard from "@/components/providers/AuthGuard";
+import { AppNewSidebar } from "@/components/dashboard/Sidebar/app-new-sidebar";
+import { Layout } from "antd";
 
 export default function DashboardLayout({
     children,
@@ -11,10 +12,10 @@ export default function DashboardLayout({
 }) {
     return (
         <HydrationGuard>
-            <div className="flex min-h-screen">
+            <Layout hasSider style={{ minHeight: '100vh' }}>
                 <SidebarProvider>
-                    <AppSidebar />
-                    <div className="flex flex-col flex-1 w-full">
+                    <AppNewSidebar />
+                    <div className="flex flex-col flex-1 w-full ml-[105px]">
                         <AuthGuard>
                             <div className="flex min-h-screen flex-col">
                                 <Navbar />
@@ -31,7 +32,7 @@ export default function DashboardLayout({
                         </AuthGuard>
                     </div>
                 </SidebarProvider>
-            </div>
+            </Layout>
         </HydrationGuard>
     );
 }

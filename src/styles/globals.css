@@ -247,3 +247,173 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   @apply appearance-none;
 }
+
+.app-sider.ant-layout-sider {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 1) !important;
+  text-align: center;
+  background-color: #660c0b !important;
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+}
+
+@media screen and (max-width: 768px) {
+  .app-sider.is-collapsed .secound-child-menu-and-sub-menus {
+    display: none;
+  }
+
+  .app-sider.ant-layout-sider.is-collapsed {
+    height: 0;
+  }
+
+  .app-sider.ant-layout-sider.is-expanded {
+    height: 100%;
+  }
+}
+
+.app-sider-menu::-webkit-scrollbar {
+  width: 4px;
+  background: var(--sidebar-primary);
+  border-radius: 4px;
+}
+
+.app-sider-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px !important;
+}
+
+.app-sider-menu .ant-menu-light.ant-menu-root.ant-menu-inline {
+  display: grid;
+  justify-content: center;
+}
+
+.app-sider-menu.is-collapsed .ant-menu-light.ant-menu-root.ant-menu-inline {
+  gap: 4px;
+  padding: 0;
+}
+
+.app-sider-menu.is-expanded .ant-menu-light.ant-menu-root.ant-menu-inline {
+  gap: 8px;
+}
+
+.app-sider-ant-menu.ant-menu {
+  background: transparent;
+}
+
+.app-sider-ant-menu.ant-menu .ant-menu-inline {
+  border-radius: 5px;
+}
+
+.app-sider-ant-menu.ant-menu .ant-menu-item {
+  text-align: left;
+}
+
+.app-sider-ant-menu.ant-menu .ant-menu-item .ant-menu-title-content {
+  white-space: normal;
+  line-height: 16px;
+}
+
+.app-sider-menu.is-collapsed .app-sider-ant-menu .ant-menu-submenu-arrow {
+  display: none;
+}
+
+.app-sider-submenu.ant-menu-submenu {
+  background: white;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.app-sider-submenu.ant-menu-submenu.is-collapsed {
+  width: 97px;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-expanded {
+  width: 224px;
+}
+
+.app-sider-submenu.ant-menu-submenu:not(.ant-menu-submenu-open) {
+  color: white !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-root-submenu:not(.ant-menu-submenu-open) {
+  background: #b22b2a;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-submenu:not(.ant-menu-submenu-open) {
+  background: white;
+}
+
+.app-sider-submenu.ant-menu-submenu .ant-menu-submenu-title {
+  margin: 0;
+  width: 100%;
+  color: inherit;
+  padding: 0 !important;
+  line-height: 20px !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-collapsed .ant-menu-submenu-title {
+  height: 72px !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-expanded .ant-menu-submenu-title {
+  height: 40px !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-submenu .ant-menu-submenu-title {
+  padding-left: 22px !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.ant-menu-submenu-open > .ant-menu-submenu-title {
+  color: var(--sidebar-primary) !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.ant-menu-submenu-open ul li {
+  background: white !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.ant-menu-submenu-open .ant-menu-submenu-open .ant-menu-submenu-title {
+  color: var(--sidebar-primary) !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-submenu .ant-menu-item {
+  padding-left: 52px !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-submenu.is-collapsed {
+  width: 80px;
+}
+
+.app-sider-submenu.ant-menu-submenu.is-submenu.is-expanded {
+  width: 221px;
+}
+
+ 
+
+.app-sider-submenu.ant-menu-submenu.ant-menu-submenu-selected {
+  background: white !important;
+  color: var(--sidebar-primary) !important;
+}
+
+.app-sider-submenu.ant-menu-submenu.ant-menu-submenu-selected .ant-menu-item-selected {
+  color: var(--sidebar-primary) !important;
+  text-decoration: underline;
+}
+
+.app-sider-submenu.ant-menu-submenu:not(.ant-menu-submenu-selected) .ant-menu-submenu-title {
+  color: white;
+}
+
+.app-sider-icon svg,
+.app-sider-icon i {
+  height: 22px;
+  width: 22px;
+  font-size: 18px;
+}
+
+.app-sider-submenu.is-collapsed .app-sider-icon svg,
+.app-sider-submenu.is-collapsed .app-sider-icon i {
+  height: 24px;
+  width: 24px;
+}
