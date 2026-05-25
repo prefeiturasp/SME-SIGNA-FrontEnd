@@ -13,7 +13,9 @@ describe("ModalListaCursosTitulos", () => {
   nome_civil: "João da Silva",
   vinculo: 1,
   lotacao: "UE X",
+  cd_cargo_base: 10,
   cargo_base: "Professor",
+  cd_cargo_sobreposto_funcao_atividade: 20,
   cargo_sobreposto_funcao_atividade: "Docente",
   cursos_titulos: "Licenciatura",
   local_de_exercicio: "Local de exercicio teste",
@@ -98,8 +100,9 @@ describe("ModalListaCursosTitulos", () => {
 
   it("renderiza estado de loading quando isLoading=true", () => {
     render(<ModalListaCursosTitulos {...makeProps({ isLoading: true })} />);
-
-    const spinner = document.querySelector(".ant-spin-nested-loading");
+    const spinner = document.querySelector(
+      '.ant-spin-spinning[aria-busy="true"]'
+    );
     expect(spinner).toBeInTheDocument();
   });
 
