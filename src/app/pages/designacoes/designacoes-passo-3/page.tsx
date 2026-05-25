@@ -40,6 +40,7 @@ export default function DesignacoesPasso3() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const rf = searchParams.get("rf");
   const { formDesignacaoData, clearFormDesignacaoData, setFormDesignacaoData } = useDesignacaoContext();
 
   const editorSEIRef = useRef<EditorSEIHandle>(null);
@@ -248,7 +249,7 @@ export default function DesignacoesPasso3() {
           labelProximo="Salvar"
           showAnterior
           onAnterior={() => {            
-            id ? router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`) : router.push(`/pages/designacoes/designacoes-passo-2`);             
+            id ? router.push(`/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`) : router.push(`/pages/designacoes/designacoes-passo-2?rf=${rf}`);             
           }}
           onProximo={() => handleSalvar(id)}
         />
