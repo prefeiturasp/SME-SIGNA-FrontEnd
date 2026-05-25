@@ -197,12 +197,13 @@ const FormularioPesquisaUnidade = forwardRef<
             className="flex flex-col gap-8"
           >
             <div className="flex flex-col md:flex-row gap-5 justify-items-center">
-              <div >
-                <FormField
+              <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
+                <FormField               
                   control={form.control}
                   name="dre"
                   render={({ field }) => (
-                    <FormItem className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
+                    
+                    <FormItem >
                       <FormLabel className="required text-[#313131] font-bold">
                         DRE
                       </FormLabel>
@@ -322,10 +323,9 @@ const FormularioPesquisaUnidade = forwardRef<
               <>
 
 
-                <div className="flex flex-col md:flex-row gap-5">
-                  <div>
-                    <InfoItem
-                      className="sm:w-full lg:w-[300px] 2xl:w-[390px]"
+                <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+                <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
+                                      <InfoItem
                       label="Código Estrutura hierárquica"
                       value={codigoEstrutura && codigoEstrutura.trim() !== "" ? codigoEstrutura : "-"}
                     />
@@ -397,7 +397,7 @@ const FormularioPesquisaUnidade = forwardRef<
                     />
                   </div>
 
-                  <div className="w-[10%] lg:w-[20%] 2xl:w-[10%]">
+                  <div>
                     <InfoItem
                       className="w-[160px]"
                       label="Qtd. Turmas"
@@ -419,19 +419,18 @@ const FormularioPesquisaUnidade = forwardRef<
             )}
 
             {funcionariosOptions.length > 0 && (
-                <div className="flex flex-col md:flex-row gap-5">
-                <div >
+            <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+                             
+                <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
                   <InfoItem
-                    className="sm:w-full lg:w-[300px] 2xl:w-[390px]"
-
                     label="Cargo sobreposto"
                     value={form.watch("cargo_sobreposto")}
                   />
                 </div>
 
-                <div className="w-full">
+                <div className="w-full mr-[160px]">
                   <InfoItem label="Módulos" value={form.watch("modulos")} />
-                </div>
+                </div>                
               </div>
             )}
           </form>
