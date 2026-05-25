@@ -68,7 +68,7 @@ export default function FormularioUEDesignacao({
                 name="dre"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                     Selecione a DRE
                     </FormLabel>
                     <FormControl>
@@ -105,7 +105,7 @@ export default function FormularioUEDesignacao({
                 name="ue"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                     Selecione a UE
                     </FormLabel>
                     <FormControl>

@@ -87,7 +87,7 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
                   name="insubsistencia.observacoes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                       Observações
                       </FormLabel>
                       <FormControl>

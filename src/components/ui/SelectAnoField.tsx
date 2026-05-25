@@ -54,7 +54,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente" }: SelectAnoFieldPr
       defaultValue={currentYear}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="required text-[#42474a] font-bold">
+          <FormLabel className="required text-[#313131] font-bold">
             {label}*
           </FormLabel>
           <FormControl>
@@ -91,9 +91,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente" }: SelectAnoFieldPr
               />
             </Select>
           </FormControl>
-          <div className="h-[10px]">
             <FormMessage />
-          </div>
         </FormItem>
       )}
     />

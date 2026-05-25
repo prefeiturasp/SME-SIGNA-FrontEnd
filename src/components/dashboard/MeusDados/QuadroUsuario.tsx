@@ -9,13 +9,13 @@ const QuadroUsuario: React.FC = () => {
     return (
         <div className="flex flex-col items-center justify-center bg-[#E8F0FE] rounded-[4px] p-6 h-full">
             <User width={48} height={48} fill="#B22B2A" />
-            <span className="mt-4 text-[24px] font-bold text-[#42474A] text-center">
+            <span className="mt-4 text-[24px] font-bold text-[#313131] text-center">
                 {user?.name}
             </span>
-            <span className="mt-2 text-[14px] text-[#42474A] text-center">
+            <span className="mt-2 text-[14px] text-[#313131] text-center">
                 CPF: {user?.cpf}
             </span>
-            <span className="text-[14px] text-[#42474A] text-center">
+            <span className="text-[14px] text-[#313131] text-center">
                 RF: {user?.username}
             </span>
         </div>

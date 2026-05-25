@@ -12,6 +12,7 @@ type CustomAccordionItemProps = {
   readonly children: React.ReactNode;
   readonly value: string;
   readonly color?: ColorVariant;
+  readonly className?: string;
 };
 const colorVariants: Record<
   ColorVariant,
@@ -53,11 +54,12 @@ export function CustomAccordionItem({
   children,
   value,
   color = "gold",
+  className = "",
 }: CustomAccordionItemProps) {
   const variant = colorVariants[color];
 
   return (
-    <AccordionItem value={value} className="border-b-0 mb-5">
+    <AccordionItem value={value} className={`border-b-0 mb-5 ${className}`}>
       <AccordionTrigger
         className={`mb-0 pr-4 ${variant.bg} rounded-md border-l-4 ${variant.border}`}
       >
