@@ -78,7 +78,7 @@ export default function DesignacoesPasso1() {
     });
 
     if (id) {
-      router.push(`/pages/designacoes/designacoes-passo-2?id=${id}`);
+      router.push(`/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`);
     } else {
       router.push(`/pages/designacoes/designacoes-passo-2`);
     }

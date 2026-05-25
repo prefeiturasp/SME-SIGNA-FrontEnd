@@ -9,6 +9,7 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 const h = vi.hoisted(() => ({
   pushMock: vi.fn(),
   searchId: null as string | null,
+  searchRf: "1234567" as string | null,
   clearFormDesignacaoDataMock: vi.fn(),
   setFormDesignacaoDataMock: vi.fn(),
   formData: {
@@ -30,7 +31,11 @@ const defaultFormData = {
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: h.pushMock }),
   useSearchParams: () => ({
-    get: (key: string) => (key === "id" ? h.searchId : null),
+    get: (key: string) => {
+      if (key === "id") return h.searchId;
+      if (key === "rf") return h.searchRf;
+      return null;
+    },
   }),
 }));
 
@@ -138,6 +143,7 @@ describe("DesignacoesPasso3 - Testes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     h.searchId = null;
+    h.searchRf = "1234567";
     h.formData = { ...defaultFormData };
   });
 
@@ -252,7 +258,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     fireEvent.click(screen.getByText("Anterior"));
 
     expect(h.pushMock).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-2"
+      "/pages/designacoes/designacoes-passo-2?rf=1234567"
     );
   });
 
@@ -262,7 +268,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     fireEvent.click(screen.getByText("Anterior"));
 
     expect(h.pushMock).toHaveBeenCalledWith(
-      "/pages/designacoes/designacoes-passo-2?id=42"
+      "/pages/designacoes/designacoes-passo-2?id=42&rf=1234567"
     );
   });
 

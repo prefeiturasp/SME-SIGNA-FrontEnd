@@ -23,18 +23,24 @@ type DesignacaoContextData = {
 
 const h = vi.hoisted(() => ({
   searchId: null as string | null,
+  searchRf: null as string | null,
   designacao: null as any,
   isLoadingDesignacao: false,
   formDesignacaoData: null as DesignacaoContextData | null,
   mutateAsync: vi.fn(),
   setFormDesignacaoData: vi.fn(),
+  clearFormDesignacaoData: vi.fn(),
   push: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: h.push }),
   useSearchParams: () => ({
-    get: (key: string) => (key === "id" ? h.searchId : null),
+    get: (key: string) => {
+      if (key === "id") return h.searchId;
+      if (key === "rf") return h.searchRf;
+      return null;
+    },
   }),
 }));
 
@@ -42,6 +48,7 @@ vi.mock("../DesignacaoContext", () => ({
   useDesignacaoContext: () => ({
     formDesignacaoData: h.formDesignacaoData,
     setFormDesignacaoData: h.setFormDesignacaoData,
+    clearFormDesignacaoData: h.clearFormDesignacaoData,
   }),
 }));
 
@@ -219,6 +226,7 @@ describe("DesignacoesPasso2", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     h.searchId = null;
+    h.searchRf = null;
     h.designacao = null;
     h.formDesignacaoData = null;
     h.isLoadingDesignacao = false;
@@ -285,7 +293,7 @@ describe("DesignacoesPasso2", () => {
 
     fireEvent.click(screen.getByTestId("proximo"));
     await waitFor(() =>
-      expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3?id=55")
+      expect(h.push).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-3?id=55&rf=1111111")
     );
 
     fireEvent.click(screen.getByTestId("anterior"));
