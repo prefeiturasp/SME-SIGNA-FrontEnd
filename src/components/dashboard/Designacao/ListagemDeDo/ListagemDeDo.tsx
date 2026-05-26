@@ -47,12 +47,12 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
   let filtredRows: ListagemPortariasResponse[] = [];
 
   if (value === PORTARIAS_SEM_DATA_DE_PUBLICACAO) {
-    filtredRows = selectedRows.filter((row) => isEmptyDate(row.data_designacao) || isEmptyDate(row.data_cessacao));
+    filtredRows = selectedRows.filter((row) => isEmptyDate(row.doc));
   }
-  
+
   if (value === PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA) {
     const data_considerada_portaria_string = data_considerada_portaria ? format(data_considerada_portaria, "yyyy-MM-dd") : "";
-    filtredRows = selectedRows.filter((row) => [null, "", data_considerada_portaria_string].includes(row.data_designacao) || [null, "", data_considerada_portaria_string].includes(row.data_cessacao));
+    filtredRows = selectedRows.filter((row) => [null, "", data_considerada_portaria_string].includes(row.doc));
   }
 
   const semDataConsideradaPortaria =  data_considerada_portaria === undefined && value === PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA;  
@@ -74,10 +74,10 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
    
   const columns: TableProps<ListagemPortariasResponse>['columns'] = [
     { title: 'PORTARIA', dataIndex: 'portaria', key: 'portaria' },
-    { title: 'TIPO DE ATO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato' },
+    { title: 'TIPO DE ATO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'NOME', dataIndex: 'nome', key: 'nome' },
     { title: 'CARGO', dataIndex: 'cargo', key: 'cargo' },
-    { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string) => text === "" ? "-" : text },
+    { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string | null) => formatDateCell(text) },
     { title: 'DATA DA DESIGNAÇÃO', dataIndex: 'data_designacao', key: 'data_designacao', render: (text: string | null) => formatDateCell(text) },
     { title: 'DATA DA CESSAÇÃO', dataIndex: 'data_cessacao', key: 'data_cessacao', render: (text: string | null) => formatDateCell(text) },
     { title: 'Nº SEI', dataIndex: 'numero_sei', key: 'numero_sei' }   
