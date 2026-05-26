@@ -81,11 +81,10 @@ const rows: ListagemPortariasResponse[] = [
   {
     id: 1,
     portaria: "100",
-    doc: "DOC",
+    doc: null,           // sem D.O — elegível para opção 1 e opção 2
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",
     cargo: "Diretor",
-    
     data_designacao: "",
     data_cessacao: "",
     numero_sei: "SEI-1",
@@ -93,11 +92,10 @@ const rows: ListagemPortariasResponse[] = [
   {
     id: 2,
     portaria: "101",
-    doc: "DOC",
+    doc: "2026-05-10",  // D.O preenchido com data específica — elegível só para opção 2
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor B",
     cargo: "Coordenador",
-    
     data_designacao: "2026-05-10",
     data_cessacao: "2026-05-10",
     numero_sei: "SEI-2",
@@ -107,11 +105,10 @@ const rows: ListagemPortariasResponse[] = [
 const rowWithCessacaoMatch: ListagemPortariasResponse = {
   id: 3,
   portaria: "102",
-  doc: "DOC",
+  doc: "2026-05-10",   // D.O com data específica — elegível para opção 2
   tipo_de_ato: "DESIGNACAO_CESSACAO",
   nome: "Servidor C",
   cargo: "Coordenador",
-  
   data_designacao: "2026-04-01",
   data_cessacao: "2026-05-10",
   numero_sei: "SEI-3",
@@ -308,7 +305,7 @@ describe("ListagemDeDo", () => {
     expect(col?.render?.("2026-03-25")).toBe("25/03/2026");
   });
 
-  it("inclui linha cujo data_cessacao corresponde à data considerada (branch direito do ||)", () => {
+  it("inclui linha cujo doc corresponde à data considerada na opção 2", () => {
     const onClickButton = vi.fn();
     render(
       <ListagemDeDo

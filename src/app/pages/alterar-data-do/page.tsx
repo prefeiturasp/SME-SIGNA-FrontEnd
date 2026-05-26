@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition, useEffect } from "react";
+import { format } from "date-fns";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
@@ -17,16 +18,15 @@ import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/Listage
 import filterFormSchemaFiltroDO, { filterFormSchemaFiltroDOData } from "./filterFormSchemaFiltroDO";
 import mainDOFormSchema, { mainDOFormSchemaData } from "./mainDOFormSchema";
 import MainDOForm, { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
-import { useRouter } from "next/navigation";
 import { message, Modal, Result } from "antd";
 import { useSalvarPortariasDo } from "@/hooks/useSalvarPortariasDO";
 
 export default function AlterarDataDo() {
   const [resultado, setResultado] = useState<ListagemPortariasResponse[]>([]);
-  const [salvando, setSalvando] = useState(true);
+  const [salvando, setSalvando] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
-  const router = useRouter();
+  const [tabelaKey, setTabelaKey] = useState(0);
 
   const salvarPortariasDo = useSalvarPortariasDo();
 
@@ -113,7 +113,7 @@ export default function AlterarDataDo() {
     console.log('onSubmitMainDOForm', values);
   };
 
- 
+
 
   const handleClear = () => {
     filterForm.reset({
@@ -136,18 +136,23 @@ export default function AlterarDataDo() {
     );
   };
   const handleAlterarDataDo = async (selectedRows: ListagemPortariasResponse[]) => {
- 
+
     try {
       setSalvando(true);
       message.loading({ content: "Salvando portaria...", duration: 0 });
       await salvarPortariasDo.mutateAsync({
         values: selectedRows,
-        data_publicacao: data_publicacao.toISOString() 
+        data_publicacao: format(data_publicacao, "yyyy-MM-dd")
       });
       message.destroy();
       setModalSucesso(true);
       setSalvando(false);
-      setTimeout(() => router.push("/pages/listagem-designacoes"), 2200);
+      setTimeout(() => {
+        setModalSucesso(false);
+        mainDOForm.reset();
+        setTabelaKey((k) => k + 1);
+        buscar(filterForm.getValues());
+      }, 2000);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
       message.destroy();
@@ -183,6 +188,7 @@ export default function AlterarDataDo() {
 
 
         <ListagemDeDo
+          key={tabelaKey}
           isDisabled={salvando}
           data_considerada_portaria={data_considerada_portaria}
           data_publicacao={data_publicacao}
@@ -193,7 +199,7 @@ export default function AlterarDataDo() {
           labelButton="Alterar data"
         />
       </FundoBranco>
-      
+
 
       <Modal open={modalSucesso} footer={null} closable={false} centered>
         <Result
