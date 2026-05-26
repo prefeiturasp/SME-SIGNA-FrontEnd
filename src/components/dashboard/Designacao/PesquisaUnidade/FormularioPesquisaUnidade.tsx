@@ -38,13 +38,14 @@ import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
 import { CargoAPI, CargoSelect } from "@/types/designacao";
+import SearchButton from "../../SearchButton/SearchButton";
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
 }
 
 interface Props {
-   readonly setDisableProximo: (disable: boolean) => void;
+  readonly setDisableProximo: (disable: boolean) => void;
   isLoading: boolean;
   defaultValues?: Partial<FormDesignacaoEServidorIndicado>;
 }
@@ -54,11 +55,10 @@ const FormularioPesquisaUnidade = forwardRef<
   FormularioPesquisaUnidadeRef,
   Props
 >(function FormularioPesquisaUnidade(
-  {   setDisableProximo, isLoading, defaultValues }: Props,
+  { setDisableProximo, isLoading, defaultValues }: Props,
   ref,
 ) {
-  const { formDesignacaoData, setFormDesignacaoData } =
-  useDesignacaoContext();
+ 
   const { data: dreOptions = [] } = useFetchDREs();
 
 
@@ -105,7 +105,7 @@ const FormularioPesquisaUnidade = forwardRef<
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
 
   const onSubmit = async (values: FormDesignacaoData) => {
-    
+
 
     setIsLoadingDesiganaçãoUnidade(true);
     try {
@@ -132,7 +132,7 @@ const FormularioPesquisaUnidade = forwardRef<
       console.log('error', error);
     }
     setIsLoadingDesiganaçãoUnidade(false);
-   };
+  };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
     form.setValue("codigo_hierarquico", '');
@@ -176,7 +176,7 @@ const FormularioPesquisaUnidade = forwardRef<
               servidores={
                 designacaoUnidade?.funcionarios_unidade[
                   values.funcionarios_da_unidade
-                ]?.servidores 
+                ]?.servidores
               }
             />
           )}
@@ -196,14 +196,15 @@ const FormularioPesquisaUnidade = forwardRef<
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-8"
           >
-            <div className="flex flex-col md:flex-row gap-5">
-              <div className="w-full md:w-[20%]">
-                <FormField
+            <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+              <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
+                <FormField               
                   control={form.control}
                   name="dre"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                    
+                    <FormItem >
+                      <FormLabel className="required text-[#313131] font-bold">
                         DRE
                       </FormLabel>
                       <FormControl>
@@ -251,13 +252,13 @@ const FormularioPesquisaUnidade = forwardRef<
                 />
               </div>
 
-              <div className="w-full md:w-[75%]">
+              <div className="w-full">
                 <FormField
                   control={form.control}
                   name="ue"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         Unidade proponente
                       </FormLabel>
                       <FormControl>
@@ -267,7 +268,7 @@ const FormularioPesquisaUnidade = forwardRef<
                           </div>
                         ) : (
                           <Combobox
-                            
+
                             options={ueOptions.map(
                               (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
                                 label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
@@ -287,7 +288,7 @@ const FormularioPesquisaUnidade = forwardRef<
                               limpa_dados_funcionarios()
                             }}
                             placeholder="Digite o nome da UE"
-                            disabled={!values.dre|| isLoadingDesiganaçãoUnidade}
+                            disabled={!values.dre || isLoadingDesiganaçãoUnidade}
                             data-testid="select-ue"
                           />
                         )}
@@ -298,25 +299,14 @@ const FormularioPesquisaUnidade = forwardRef<
                 />
               </div>
 
-              <div className="w-[150px] pt-[2rem] ">
-                <Button
+              <div className="mt-[30px]">
+                <SearchButton
                   type="submit"
-                  className="w-full flex items-center justify-center gap-6"
-                  variant="customOutline"
-                  data-testid="botao-pesquisar-unidade"
+                  isLoading={isLoadingDesiganaçãoUnidade}
                   disabled={isLoadingDesiganaçãoUnidade}
-                >
-                  {isLoadingDesiganaçãoUnidade ? (
-                    <div className="flex items-center justify-center">
-                      <Loader2 className="w-4 h-4 animate-spin text-primary " />
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-[16px] font-bold">Pesquisar</p>
-                      <Search />
-                    </>
-                  )}
-                </Button>
+                  onClick={form.handleSubmit(onSubmit)}
+                  data-testid="botao-pesquisar-unidade"
+                />
               </div>
             </div>
 
@@ -329,110 +319,113 @@ const FormularioPesquisaUnidade = forwardRef<
             )}
 
             {funcionariosOptions.length > 0 && (
-              <div className="flex flex-col md:flex-row  gap-5">
-                <div className="w-full md:w-[20%]">
-                  <InfoItem
-                    label="Código Estrutura hierárquica"
-                    value={codigoEstrutura && codigoEstrutura.trim() !== "" ? codigoEstrutura : "-"}
-                  />
+                <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+                <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
+                                      <InfoItem
+                      label="Código Estrutura hierárquica"
+                      value={codigoEstrutura && codigoEstrutura.trim() !== "" ? codigoEstrutura : "-"}
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <FormField
+
+                      control={form.control}
+                      name="funcionarios_da_unidade"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="required text-[#313131] font-bold">
+                            Funcionários da unidade
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex flex-row gap-2">
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  const cargoSobreposto =
+                                    designacaoUnidade?.funcionarios_unidade[value]
+                                      ?.servidores[0]?.cargo_sobreposto_funcao_atividade ?? "-";
+                                  const modulo =
+                                    designacaoUnidade?.funcionarios_unidade[value]
+                                      ?.modulo ?? "";
+
+                                  form.setValue("cargo_sobreposto", cargoSobreposto);
+                                  form.setValue("modulos", modulo);
+                                  setDisableProximo(false);
+                                }}
+                              >
+                                <SelectTrigger data-testid="select-funcionarios">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+
+                                <SelectContent>
+                                  {funcionariosOptions.map(
+                                    (funcionario: {
+                                      codigo: string;
+                                      cargo: string;
+                                    }) => (
+                                      <SelectItem
+                                        key={funcionario.cargo}
+                                        value={funcionario.codigo}
+                                      >
+                                        {funcionario.cargo}
+                                      </SelectItem>
+                                    ),
+                                  )}
+                                </SelectContent>
+                              </Select>
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={!field.value || !designacaoUnidade?.funcionarios_unidade[field.value]?.servidores[0]}
+                                onClick={() => setOpenModalResumoServidor(true)}
+                                data-testid="btn-visualizar-servidor"
+                              >
+                                <Eye width={16} height={16} className='fill-[#6058A2]' />
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <InfoItem
+                      className="w-[160px]"
+                      label="Qtd. Turmas"
+                      value={form.watch("quantidade_turmas")}
+                      icon={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setOpenModal(true)}
+                          data-testid="btn-visualizar-turmas"
+                        >
+                          <Eye width={16} height={16} className='fill-[#6058A2]' />
+                        </Button>
+                      }
+                    />
+                  </div>
                 </div>
-
-                <div className="w-full md:w-[70%]">
-                  <FormField
-                    control={form.control}
-                    name="funcionarios_da_unidade"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="required text-[#42474a] font-bold">
-                          Funcionários da unidade
-                        </FormLabel>
-                        <FormControl>
-                          <div className="flex flex-row gap-2">
-                            <Select
-                              value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                const cargoSobreposto =
-                                  designacaoUnidade?.funcionarios_unidade[value]
-                                    ?.servidores[0]?.cargo_sobreposto_funcao_atividade?? "-";
-                                const modulo =
-                                  designacaoUnidade?.funcionarios_unidade[value]
-                                    ?.modulo ?? "";
-
-                                form.setValue("cargo_sobreposto", cargoSobreposto);
-                                form.setValue("modulos", modulo);
-                                setDisableProximo(false);
-                              }}
-                            >
-                              <SelectTrigger data-testid="select-funcionarios">
-                                <SelectValue placeholder="Selecione" />
-                              </SelectTrigger>
-
-                              <SelectContent>
-                                {funcionariosOptions.map(
-                                  (funcionario: {
-                                    codigo: string;
-                                    cargo: string;
-                                  }) => (
-                                    <SelectItem
-                                      key={funcionario.cargo}
-                                      value={funcionario.codigo}
-                                    >
-                                      {funcionario.cargo}
-                                    </SelectItem>
-                                  ),
-                                )}
-                              </SelectContent>
-                            </Select>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              disabled={!field.value || !designacaoUnidade?.funcionarios_unidade[field.value]?.servidores[0]}
-                              onClick={() => setOpenModalResumoServidor(true)}
-                              data-testid="btn-visualizar-servidor"
-                            >
-                              <Eye width={16} height={16} className='fill-[#6058A2]'/>
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="w-full md:w-[15%] mt-6">
-                  <InfoItem
-                    label="Qtd. Turmas"
-                    value={form.watch("quantidade_turmas")}
-                    icon={
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setOpenModal(true)}
-                        data-testid="btn-visualizar-turmas"
-                      >
-                        <Eye width={16} height={16} className='fill-[#6058A2]'/>
-                      </Button>
-                    }
-                  />
-                </div>
-              </div>
             )}
 
             {funcionariosOptions.length > 0 && (
-              <div className="flex flex-row">
-                <div className="w-full md:w-[19.5%]">
+            <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+                             
+                <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
                   <InfoItem
                     label="Cargo sobreposto"
                     value={form.watch("cargo_sobreposto")}
                   />
                 </div>
 
-                <div className="w-full md:w-[15%] ">
+                <div className="w-full mr-[160px]">
                   <InfoItem label="Módulos" value={form.watch("modulos")} />
-                </div>
+                </div>                
               </div>
             )}
           </form>

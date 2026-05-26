@@ -261,8 +261,8 @@ export default function DesignacoesPasso2() {
           { title: "Início", href: "/" }, 
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
           { title: "Designação" }, ]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
-        showBackButton={false}
+          icon={<Designacao width={24} height={24} color="#660C0B" />}
+          showBackButton={false}
       />
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>
@@ -270,8 +270,7 @@ export default function DesignacoesPasso2() {
             <StepperDesignacao current={1} />
           </FundoBranco>
           <Card
-
-            title={
+             title={
               <div className="flex justify-between items-center">
                 <span className="text-[#333]">Designação</span>
                 <Button
@@ -295,6 +294,7 @@ export default function DesignacoesPasso2() {
             }
             className="mt-4 m-0"
           >
+            <div className="card-designacao">
             {formDesignacaoData?.servidorIndicado && (
               <Accordion
                 type="multiple"
@@ -351,7 +351,9 @@ export default function DesignacoesPasso2() {
               setDadosTitular={setDadosTitular}
               setErrorBusca={setErrorBusca}
             />
+            </div>
           </Card>
+
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
               disableAnterior={false}

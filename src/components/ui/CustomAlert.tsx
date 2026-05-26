@@ -49,13 +49,13 @@ export function CustomAlert({
 
       <div className="flex flex-col gap-1  min-w-0">
         {message && (
-          <AlertTitle className="text-[#42474A] break-words">
+          <AlertTitle className="text-[#313131] break-words">
             {message}
           </AlertTitle>
         )}
 
         {description && (
-          <AlertDescription className="text-[#42474A] font-normal break-words">
+          <AlertDescription className="text-[#313131] font-normal break-words">
             {description}
           </AlertDescription>
         )}

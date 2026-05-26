@@ -90,7 +90,7 @@ export default function ModalAlterarEmail({
                             className={`mt-6 text-[14px] font-normal ${
                                 updateSuccess
                                     ? "text-[#b0b0b0]"
-                                    : "text-[#42474a]"
+                                    : "text-[#313131]"
                             }`}
                         >
                             Altere ou insira um novo e-mail.
@@ -106,7 +106,7 @@ export default function ModalAlterarEmail({
                                             className={`required text-[14px] font-[700] ${
                                                 updateSuccess
                                                     ? "text-[#b0b0b0]"
-                                                    : "text-[#42474a]"
+                                                    : "text-[#313131]"
                                             }`}
                                         >
                                             E-mail*

@@ -100,7 +100,7 @@ export default function DesignacoesPasso1() {
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
           { title: "Designação" },  
         ]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
+        icon={<Designacao width={24} height={24} color="#660C0B" />}
         showBackButton={false}
       />
 
@@ -118,6 +118,7 @@ export default function DesignacoesPasso1() {
         }
         className="mt-4 m-0"
       >
+        <div className="card-designacao">
         <Accordion
           type="multiple"
           defaultValue={["unidade-proponente"]}
@@ -130,7 +131,7 @@ export default function DesignacoesPasso1() {
             }
           }}
         >
-          <div className="pt-4 pb-6">
+          <div className="pt-2 pb-6">
             <FormularioBuscaDesignacao
               onBuscaDesignacao={onBuscaDesignacao}
               defaultValues={formDesignacaoData?.servidorIndicado ?? { rf: "" }}
@@ -164,6 +165,7 @@ export default function DesignacoesPasso1() {
             title="Unidade Proponente"
             color="blue"
             value="unidade-proponente"
+            className="mb-0"
           >
             <FormularioPesquisaUnidade
               isLoading={isPending}
@@ -173,6 +175,7 @@ export default function DesignacoesPasso1() {
             />
           </CustomAccordionItem>
         </Accordion>
+        </div>
       </Card>
 
       <div className="w-full flex flex-col">

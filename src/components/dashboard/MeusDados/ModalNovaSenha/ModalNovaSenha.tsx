@@ -61,7 +61,7 @@ export default function ModalNovaSenha({
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const STATUS_STYLES: Record<StatusType, string> = {
-        idle: "text-[#42474a]",
+        idle: "text-[#313131]",
         ok: "text-[#297805]",
         error: "text-[#b40c31]",
     };
@@ -165,7 +165,7 @@ export default function ModalNovaSenha({
                     <form onSubmit={form.handleSubmit(handleChangePassword)}>
                         <div className="flex flex-col md:flex-row gap-6 mt-3">
                             <div className="w-full md:w-[40%]">
-                                <span className="text-[14px] font-[700] text-[#42474a] leading-[1.2]">
+                                <span className="text-[14px] font-[700] text-[#313131] leading-[1.2]">
                                     A nova senha deve conter:
                                 </span>
                                 <div className="mt-3">
@@ -195,7 +195,7 @@ export default function ModalNovaSenha({
                                             );
                                         })}
                                 </div>
-                                <span className="text-[14px] font-[700] text-[#42474a] leading-[1.2] mt-4 block">
+                                <span className="text-[14px] font-[700] text-[#313131] leading-[1.2] mt-4 block">
                                     A nova senha NÃO deve conter:
                                 </span>
                                 <div className="mt-3">
@@ -229,7 +229,7 @@ export default function ModalNovaSenha({
                                     name="oldPassword"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="required text-[#42474a] text-[14px] font-[700] mb-2 block">
+                                            <FormLabel className="required text-[#313131] text-[14px] font-[700] mb-2 block">
                                                 Senha atual*
                                             </FormLabel>
                                             <FormControl>
@@ -248,7 +248,7 @@ export default function ModalNovaSenha({
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="required text-[#42474a] text-[14px] font-[700] mb-2 block">
+                                            <FormLabel className="required text-[#313131] text-[14px] font-[700] mb-2 block">
                                                 Nova senha*
                                             </FormLabel>
                                             <FormControl>
@@ -267,7 +267,7 @@ export default function ModalNovaSenha({
                                     name="confirmPassword"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="required text-[#42474a] text-[14px] font-[700] mb-2 block">
+                                            <FormLabel className="required text-[#313131] text-[14px] font-[700] mb-2 block">
                                                 Confirmação da nova senha*
                                             </FormLabel>
                                             <FormControl>

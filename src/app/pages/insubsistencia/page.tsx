@@ -270,7 +270,7 @@ export default function InsubsistenciaPage() {
                       name="insubsistencia.tipo_insubsistencia"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel className="font-bold text-[#42474a] text-lg">
+                          <FormLabel className="font-bold text-[#313131] text-lg">
                             Selecione o tipo de insubsistência:
                           </FormLabel>
                           <FormControl>
