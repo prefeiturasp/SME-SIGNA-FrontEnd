@@ -176,6 +176,11 @@ vi.mock("antd", () => ({
 }));
 
 describe("AlterarDataDo page", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllTimers();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -227,10 +232,15 @@ describe("AlterarDataDo page", () => {
     });
   });
 
-  it("salva portarias com sucesso e agenda redirecionamento", async () => {
-    vi.useFakeTimers();
+  it("salva portarias com sucesso, exibe modal e recarrega dados após 2s", async () => {
     mutateAsyncMock.mockResolvedValueOnce({});
     render(<AlterarDataDoPage />);
+
+    await waitFor(() => {
+      expect(fetchPortariasDOMock).toHaveBeenCalledTimes(1);
+    });
+
+    vi.useFakeTimers();
 
     await act(async () => {
       fireEvent.click(screen.getByTestId("submit-main-action"));
@@ -239,9 +249,8 @@ describe("AlterarDataDo page", () => {
 
     expect(mutateAsyncMock).toHaveBeenCalledWith({
       values: selectedRowsMock,
-      data_publicacao: "2026-05-20T00:00:00.000Z",
+      data_publicacao: "2026-05-19",
     });
-
     expect(messageLoadingMock).toHaveBeenCalledWith({
       content: "Salvando portaria...",
       duration: 0,
@@ -250,10 +259,13 @@ describe("AlterarDataDo page", () => {
     expect(screen.getByText("Tudo certo por aqui!")).toBeInTheDocument();
 
     await act(async () => {
-      vi.advanceTimersByTime(2200);
+      await vi.runAllTimersAsync();
     });
-    expect(pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
+
     vi.useRealTimers();
+
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(fetchPortariasDOMock).toHaveBeenCalledTimes(2);
   });
 
   it("abre modal de erro quando salvar falha", async () => {
