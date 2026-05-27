@@ -124,8 +124,8 @@ export default function AlterarDataDo() {
           value={portarias_selecionadas}
           data={resultado ?? []}
           isLoading={isPending}
-          onClickButton={handleAlterarDataDo}
-          labelButton="Alterar data"
+          onClickAlterarDataDo={handleAlterarDataDo}
+          isListagemDo
         />
       </FundoBranco>
 

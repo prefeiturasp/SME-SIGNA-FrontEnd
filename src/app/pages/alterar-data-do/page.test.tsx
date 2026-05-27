@@ -131,15 +131,15 @@ vi.mock("@/components/dashboard/Designacao/MainDOForm/MainDOForm", () => ({
 vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
   __esModule: true,
   default: ({
-    onClickButton,
+    onClickAlterarDataDo,
     isDisabled,
   }: {
-    onClickButton?: (rows: typeof selectedRowsMock) => void;
+    onClickAlterarDataDo?: (rows: typeof selectedRowsMock) => void;
     isDisabled?: boolean;
   }) => (
     <div>
       <span data-testid="is-disabled-listagem">{String(isDisabled)}</span>
-      <button data-testid="submit-main-action" onClick={() => onClickButton?.(selectedRowsMock)}>
+      <button data-testid="submit-main-action" onClick={() => onClickAlterarDataDo?.(selectedRowsMock)}>
         Alterar data
       </button>
     </div>
