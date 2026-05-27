@@ -59,8 +59,8 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
   }
 
   const semDataConsideradaPortaria = data_considerada_portaria === undefined && value === PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA;
-  const isDisabledButton = filtredRows.length === 0 || data_publicacao === undefined || semDataConsideradaPortaria || isDisabled;
-
+  const isDisabledButtonAlterarDataDo = filtredRows.length === 0 || data_publicacao === undefined || semDataConsideradaPortaria || isDisabled;
+  const isDisabledButtonBaixarLauda = selectedRows.length === 0 || isDisabled;
   const handleAlterarDataDo = () => {
     onClickAlterarDataDo(filtredRows);
 
@@ -129,7 +129,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
                 size="lg"
                 className="w-full flex items-center justify-center gap-2"
                 variant="destructive"
-                disabled={isDisabledButton}
+                disabled={isDisabledButtonAlterarDataDo}
                 onClick={handleAlterarDataDo}
                 data-testid="botao-proximo"
               >
@@ -169,7 +169,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
                  size="lg"
                  className="w-full flex items-center justify-center gap-2"
                  variant="destructive"
-                 disabled={isDisabledButton}
+                 disabled={isDisabledButtonBaixarLauda}
                  onClick={handleAlterarDataDo}
                  data-testid="botao-proximo"
                 >Baixar lauda
