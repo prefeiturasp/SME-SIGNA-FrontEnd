@@ -2,8 +2,9 @@
 
 import React from "react";
  
-import LoginForm from "@/components/login/LoginForm";
+import DesignacaoPasso3 from "@/app/pages/designacoes/designacoes-passo-3/page";
+import { DesignacaoProvider } from "@/app/pages/designacoes/DesignacaoContext";
 
 export default function LoginTela() { 
-     return <LoginForm />;   
+     return <DesignacaoProvider><DesignacaoPasso3 /></DesignacaoProvider> ;   
 }

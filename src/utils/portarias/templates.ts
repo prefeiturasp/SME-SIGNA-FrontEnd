@@ -50,3 +50,19 @@ APOSTILA FEITA NA PORTARIA, Nº {{portaria_designacao}}/{{ano}}, DA S.M.E., D.O.
 {{dre}}
 
 É a presente portaria apostilada, a fim de declarar que a servidora foi designada para exercer cargo vago de {{cargo}}, na {{ue}} E.H: {{eh}} e não como constou.`;
+
+
+
+
+export const TEMPLATE_BAIXAR_LAUDA = `DESIGNANDO
+{{dre}}
+Port. {{portaria}} - SEI nº {{sei}} - 728.817.4, vínculo {{vinculo}} {{nome_indicado}},{{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}},
+para exercer cargo de {{cargo_indicado}}, no {{ue}},  EH: {{eh}},
+
+
+
+{{autoridade}}, no uso de suas atribuições legais,
+
+EXPEDE:
+
+A presente portaria, designando o(a) Sr.(a)  RF {{rf}}, ,   {{trecho_substituicao}}, {{trecho_final}}`;
