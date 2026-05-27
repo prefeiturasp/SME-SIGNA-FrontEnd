@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AlterarDataDoPage from "./page";
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
+import * as usePortariasDOHook from "@/hooks/usePortariasDO";
 
 const pushMock = vi.fn();
 const fetchPortariasDOMock = vi.fn();
@@ -133,12 +134,15 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
   default: ({
     onClickAlterarDataDo,
     isDisabled,
+    data,
   }: {
     onClickAlterarDataDo?: (rows: typeof selectedRowsMock) => void;
     isDisabled?: boolean;
+    data?: unknown[];
   }) => (
     <div>
       <span data-testid="is-disabled-listagem">{String(isDisabled)}</span>
+      <span data-testid="listagem-data-length">{data?.length ?? -1}</span>
       <button data-testid="submit-main-action" onClick={() => onClickAlterarDataDo?.(selectedRowsMock)}>
         Alterar data
       </button>
@@ -282,5 +286,57 @@ describe("AlterarDataDo page", () => {
     expect(messageDestroyMock).toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
     expect(consoleErrorSpy).toHaveBeenCalled();
+  });
+
+  it("fecha modal de erro ao clicar em fechar", async () => {
+    mutateAsyncMock.mockRejectedValueOnce(new Error("Erro"));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    render(<AlterarDataDoPage />);
+    fireEvent.click(screen.getByTestId("submit-main-action"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Ocorreu um erro!")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(screen.queryByText("Ocorreu um erro!")).not.toBeInTheDocument();
+  });
+
+  it("executa submit do formulário principal", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    render(<AlterarDataDoPage />);
+
+    const forms = document.querySelectorAll("form");
+    fireEvent.submit(forms[1]);
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("onSubmitMainDOForm", mainValues);
+  });
+
+  it("passa array vazio para listagem quando resultado é undefined", () => {
+    const hookSpy = vi.spyOn(usePortariasDOHook, "usePortariasDO").mockReturnValue({
+      resultado: undefined,
+      filterForm: {
+        handleSubmit: (fn: (...args: unknown[]) => unknown) => (e?: Event) => {
+          e?.preventDefault?.();
+          return fn(filterValues);
+        },
+        getValues: () => filterValues,
+      },
+      onSubmitFilterForm: vi.fn(),
+      handleClear: vi.fn(),
+      buscar: vi.fn(),
+      isPending: false,
+      salvando: false,
+      setSalvando: vi.fn(),
+      tabelaKey: 0,
+      setTabelaKey: vi.fn(),
+      buscarPortarias: vi.fn(),
+    } as any);
+
+    render(<AlterarDataDoPage />);
+    expect(screen.getByTestId("listagem-data-length")).toHaveTextContent("0");
+
+    hookSpy.mockRestore();
   });
 });
