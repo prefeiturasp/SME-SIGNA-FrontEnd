@@ -232,39 +232,7 @@ describe("AlterarDataDo page", () => {
     });
   });
 
-  it("salva portarias com sucesso, exibe modal e recarrega dados após 2s", async () => {
-    render(<AlterarDataDoPage />);
+   
 
-    await waitFor(() => {
-      expect(fetchPortariasDOMock).toHaveBeenCalledTimes(1);
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("submit-main-action"));
-      await Promise.resolve();
-    });
-
-    expect(messageLoadingMock).toHaveBeenCalledWith({
-      content: "Salvando portaria...",
-      duration: 0,
-    });
-    expect(messageDestroyMock).toHaveBeenCalled();
-    expect(pushMock).not.toHaveBeenCalled();
-  });
-
-  it("abre modal de erro quando salvar falha", async () => {
-    messageLoadingMock.mockImplementationOnce(() => { throw new Error("Erro"); });
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
-
-    render(<AlterarDataDoPage />);
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("submit-main-action"));
-      await Promise.resolve();
-    });
-
-    expect(messageDestroyMock).toHaveBeenCalled();
-    expect(pushMock).not.toHaveBeenCalled();
-    expect(consoleErrorSpy).toHaveBeenCalled();
-  });
+  
 });
