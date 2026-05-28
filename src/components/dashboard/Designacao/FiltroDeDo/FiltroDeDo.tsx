@@ -83,7 +83,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
             name="ano"           
             render={({ field }) => (
               <FormItem >
-                <FormLabel className="text-[#42474a] font-bold">Ano</FormLabel>
+                <FormLabel className="text-[#313131] font-bold">Ano</FormLabel>
                 <FormControl>
                   <Select  disabled={true} value={field.value} onValueChange={(value) => field.onChange(value)}>
                     <SelectTrigger data-testid="select-ano">
@@ -109,7 +109,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
             name="tipo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#42474a] font-bold">Listar para</FormLabel>
+                <FormLabel className="text-[#313131] font-bold">Listar para</FormLabel>
                 <FormControl>
                   <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                     <SelectTrigger data-testid="select-listar-para">

@@ -8,7 +8,8 @@ export default function User(props: Readonly<React.SVGProps<SVGSVGElement>>) {
             viewBox="-11 1316 20 20"
             style={{ WebkitPrintColorAdjust: "exact" }}
             xmlnsXlink="http://www.w3.org/1999/xlink"
-            fill="none"
+            fill="currentColor"
+
             version="1.1"
             data-testid="icon-user"
             {...props}

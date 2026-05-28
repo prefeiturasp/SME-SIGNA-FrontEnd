@@ -11,8 +11,8 @@ const alertVariants = cva(
                 default: "bg-background text-foreground",
                 destructive:
                     "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
-                aviso: "bg-[#F5F5F5] text-[#42474a] border-none",
-                error: "bg-[rgba(180,12,49,0.1)] text-[#42474a] border-none",
+                aviso: "bg-[#F5F5F5] text-[#313131] border-none",
+                error: "bg-[rgba(180,12,49,0.1)] text-[#313131] border-none",
             },
         },
         defaultVariants: {

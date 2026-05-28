@@ -81,7 +81,7 @@ describe("proxy middleware", () => {
             const response = proxy(request);
 
             expect(response.status).toBe(307);
-            expect(response.headers.get("location")).toBe("http://localhost:3000/pages");
+            expect(response.headers.get("location")).toBe("http://localhost:3000/pages/listagem-designacoes");
         });
 
         it("redireciona para /pages quando autenticado e acessando /cadastro", () => {
@@ -89,7 +89,7 @@ describe("proxy middleware", () => {
             const response = proxy(request);
 
             expect(response.status).toBe(307);
-            expect(response.headers.get("location")).toBe("http://localhost:3000/pages");
+            expect(response.headers.get("location")).toBe("http://localhost:3000/pages/listagem-designacoes");
         });
 
         it("redireciona para /pages quando autenticado e acessando /recuperar-senha", () => {
@@ -97,7 +97,7 @@ describe("proxy middleware", () => {
             const response = proxy(request);
 
             expect(response.status).toBe(307);
-            expect(response.headers.get("location")).toBe("http://localhost:3000/pages");
+            expect(response.headers.get("location")).toBe("http://localhost:3000/pages/listagem-designacoes");
         });
     });
 

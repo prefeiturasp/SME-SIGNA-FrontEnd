@@ -17,6 +17,7 @@ import {
 import { InputBase } from "@/components/ui/input-base";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
+import SearchButton from "../../SearchButton/SearchButton";
 
 interface FormularioBuscaDesignacaoProps {
   className?: string;
@@ -24,7 +25,7 @@ interface FormularioBuscaDesignacaoProps {
   label?: string;
   placeholder?: string;
   defaultValues?: BuscaDesignacaoRequest;
- }
+}
 
 const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
   className,
@@ -32,7 +33,7 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
   label = "RF do servidor indicado",
   placeholder = "Entre com RF",
   defaultValues,
- }) => {
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<BuscaDesignacaoRequest>({
@@ -54,8 +55,8 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
     <div className={className}>
       <Form {...form}>
         <div className="w-full flex flex-col h-full flex-1">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="w-full md:w-[50%]">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-[90%]">
               <FormField
                 control={form.control}
                 name="rf"
@@ -77,28 +78,15 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
                 )}
               />
             </div>
+            <div className="mt-[30px]">
 
-            <div className="w-[200px]">
-              <Button
+              <SearchButton
                 type="button"
-                size="lg"
-                className="w-full flex items-center justify-center gap-6"
-                variant="customOutline"
+                isLoading={isLoading}
                 disabled={isLoading}
                 onClick={form.handleSubmit(onSubmit)}
                 data-testid="botao-pesquisar-servidor"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-[16px] font-bold">
-                    {isLoading ? "Pesquisando..." : "Pesquisar"}
-                  </span>
-                  {isLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Search size={20} />
-                  )}
-                </div>
-              </Button>
+              />
             </div>
           </div>
         </div>

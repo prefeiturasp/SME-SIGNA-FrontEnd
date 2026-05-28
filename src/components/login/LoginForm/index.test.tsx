@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import LoginForm from "./index";
 import { vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import userEvent from "@testing-library/user-event";
 
 // Mock do useRouter do Next.js (next/navigation)
 const pushMock = vi.fn();
@@ -47,15 +48,14 @@ describe("LoginForm", () => {
         });
         
         render(<LoginForm />, { wrapper });
-        
-        fireEvent.input(screen.getByPlaceholderText("Seu RF"), {
-            target: { value: "1234567" },
-        });
-        fireEvent.input(screen.getByPlaceholderText("Sua senha"), {
-            target: { value: "senha123" },
-        });
-        
-        fireEvent.click(screen.getByRole("button", { name: /acessar/i }));
+        const user = userEvent.setup();
+        const form = screen.getByRole("button", { name: /acessar/i }).closest("form");
+
+        expect(form).not.toBeNull();
+
+        await user.type(screen.getByPlaceholderText("Seu RF"), "1234567");
+        await user.type(screen.getByPlaceholderText("Sua senha"), "senha123");
+        fireEvent.submit(form!);
         
         await waitFor(() => {
             expect(screen.getByTestId("login-error")).toBeInTheDocument();
@@ -69,15 +69,14 @@ describe("LoginForm", () => {
         });
         
         render(<LoginForm />, { wrapper });
-        
-        fireEvent.input(screen.getByPlaceholderText("Seu RF"), {
-            target: { value: "1234567" },
-        });
-        fireEvent.input(screen.getByPlaceholderText("Sua senha"), {
-            target: { value: "senha123" },
-        });
-        
-        fireEvent.click(screen.getByRole("button", { name: /acessar/i }));
+        const user = userEvent.setup();
+        const form = screen.getByRole("button", { name: /acessar/i }).closest("form");
+
+        expect(form).not.toBeNull();
+
+        await user.type(screen.getByPlaceholderText("Seu RF"), "1234567");
+        await user.type(screen.getByPlaceholderText("Sua senha"), "senha123");
+        fireEvent.submit(form!);
         
         await waitFor(() => {
             expect(mutateAsyncMock).toHaveBeenCalledWith({

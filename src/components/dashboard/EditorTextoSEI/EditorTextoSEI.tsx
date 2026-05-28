@@ -104,7 +104,7 @@ const EditorSEI = forwardRef<EditorSEIHandle, EditorSEIProps>(
         }));
 
         return (
-            <div className="flex flex-col gap-4 mt-4">
+            <div className="flex flex-col gap-4">
                 {/* Título */}
                 <span className="text-sm font-semibold text-[#333] uppercase tracking-wide">
                     {titulo}

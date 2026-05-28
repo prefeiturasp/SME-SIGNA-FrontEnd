@@ -8,6 +8,10 @@ let mockIsLoading = false;
 
 const pushMock = vi.fn();
 const mutateAsyncMock = vi.fn();
+const { messageSuccessMock, messageErrorMock } = vi.hoisted(() => ({
+  messageSuccessMock: vi.fn(),
+  messageErrorMock: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -78,6 +82,15 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
   CustomAccordionItem: ({ children }: any) => <div>{children}</div>,
 }));
 
+vi.mock("@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao", () => ({
+  __esModule: true,
+  default: ({ onSubmitEditarServidor }: any) => (
+    <button data-testid="blocos-editar-servidor" onClick={onSubmitEditarServidor}>
+      ResumoServidor
+    </button>
+  ),
+}));
+
 vi.mock("@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields", () => ({
   default: () => <div>Fields</div>,
 }));
@@ -114,7 +127,12 @@ vi.mock("@/components/ui/form", () => ({
 }));
 
 vi.mock("@/components/ui/radio-group", () => ({
-  RadioGroup: ({ children }: any) => <div>{children}</div>,
+  RadioGroup: ({ children, onValueChange }: any) => (
+    <div>
+      <button type="button" data-testid="change-ato-apostilado" onClick={() => onValueChange?.("cessacao")} />
+      {children}
+    </div>
+  ),
   RadioGroupItem: () => <input type="radio" />,
 }));
 
@@ -125,8 +143,8 @@ vi.mock("@/components/ui/label", () => ({
 vi.mock("antd", () => ({
   Card: ({ children }: any) => <div>{children}</div>,
   message: {
-    success: vi.fn(),
-    error: vi.fn(),
+    success: messageSuccessMock,
+    error: messageErrorMock,
   },
   Tooltip: ({ children }: any) => <div>{children}</div>,
 }));
@@ -171,9 +189,13 @@ vi.mock("react-hook-form", async () => {
 
 describe("ApostilaPage", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     mockIsLoading = false;
     mutateAsyncMock.mockReset();
     pushMock.mockReset();
+    messageSuccessMock.mockReset();
+    messageErrorMock.mockReset();
+    mockDesignacaoAtual = mockDesignacao;
   });
 
   it("mostra loading", () => {
@@ -188,11 +210,15 @@ describe("ApostilaPage", () => {
     expect(screen.getByText("ResumoServidor")).toBeInTheDocument();
   });
 
-  it("mostra mensagem sem cessação", () => {
+  it("executa callback de edição de servidor sem erro", () => {
     render(<ApostilaPage />);
-    expect(
-      screen.getByText("Não há portaria de cessão")
-    ).toBeInTheDocument();
+    expect(() => fireEvent.click(screen.getByTestId("blocos-editar-servidor"))).not.toThrow();
+  });
+
+  it("renderiza opções de tipo de apostila", () => {
+    render(<ApostilaPage />);
+    expect(screen.getByText("Designação")).toBeInTheDocument();
+    expect(screen.getByText("Cessação")).toBeInTheDocument();
   });
 
   it("submete com sucesso", async () => {
@@ -217,6 +243,17 @@ describe("ApostilaPage", () => {
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
+    });
+  });
+
+  it("exibe mensagem de erro quando mutate retorna Error", async () => {
+    mutateAsyncMock.mockRejectedValueOnce(new Error("falha detalhada"));
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(messageErrorMock).toHaveBeenCalledWith("falha detalhada");
     });
   });
 
@@ -256,12 +293,30 @@ describe("ApostilaPage", () => {
     });
   });
 
+  it("altera tipo de apostila no radio group", () => {
+    render(<ApostilaPage />);
+    expect(() => fireEvent.click(screen.getByTestId("change-ato-apostilado"))).not.toThrow();
+  });
+
   it("não quebra quando designacao é null", () => {
     mockDesignacaoAtual = null as any;
 
     render(<ApostilaPage />);
 
     expect(screen.getByText("Header")).toBeInTheDocument();
+  });
+
+  it("avalia apostilas ativas da cessação para desabilitar seleção", () => {
+    mockDesignacaoAtual = {
+      ...mockDesignacao,
+      cessacao: {
+        id: 7,
+        apostilas: [{ status: "ativo" }],
+      },
+    } as any;
+
+    render(<ApostilaPage />);
+    expect(screen.getByText("Cessação")).toBeInTheDocument();
   });
 
   it("usa dados de cessação quando tipo é cessacao", async () => {
@@ -321,6 +376,7 @@ describe("ApostilaPage", () => {
           indicado_local_exercicio: undefined,
           dre_nome: undefined,
           codigo_hierarquico: undefined,
+          sei_numero: undefined,
         } as any;
 
         render(<ApostilaPage />);

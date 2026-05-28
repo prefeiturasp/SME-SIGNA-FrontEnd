@@ -9,7 +9,7 @@ const ResumoPortariaCessacao: React.FC<{
 }> = ({ className, defaultValues }) => {
   return (
     <div className={className}>
-      <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA] p-4">
+      <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA]">
         <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
           <InfoItem
             label="Nº Portaria de Cessação"
