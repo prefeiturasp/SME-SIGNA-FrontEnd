@@ -11,7 +11,7 @@
 // ============================================================================
 
 const API_EOL_CONFIG = {
-  BASE_URL: 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br',
+  BASE_URL: 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br',
   API_KEY_HEADER: 'x-api-eol-key',
   TIMEOUT: 30000,
 }

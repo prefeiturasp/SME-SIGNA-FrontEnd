@@ -1,0 +1,15 @@
+﻿
+node.exe : 
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+DevTools listening on ws://127.0.0.1:54794/devtools/browser/5e2f416b-b088-4aec-a70f-cac78bc8e6ae
+ WARNING  Currents plugin is not installed properly - missing required variables in cypress.env. Please refer to: https://github.com/currents-dev/cypress-cloud#setup-with-existing-plugins
+Can't run because no spec files were found.
+
+We searched for specs matching this glob pattern:
+
+  > C:\Users\marcus.rocha\Desktop\Projscriptaut\Signa\SME-SIGNA-FrontEnD\testes\ui\cypress\e2e\debug_sidebar.cy.js

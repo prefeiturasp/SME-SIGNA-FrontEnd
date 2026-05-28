@@ -56,7 +56,7 @@ When('eu faço uma requisição GET para {string}', (path) => {
 })
 
 When('eu tento acessar {string} sem token', (path) => {
-  const baseUrl = Cypress.env('API_EOL_BASE_URL') || 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseUrl = Cypress.env('API_EOL_BASE_URL') || 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   cy.request({
     method: 'GET',
     url: path.startsWith('http') ? path : `${baseUrl}${path}`,
