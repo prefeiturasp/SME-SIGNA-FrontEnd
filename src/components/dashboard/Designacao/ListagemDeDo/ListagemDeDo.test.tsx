@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TableProps } from "antd";
 import ListagemDeDo from "./ListagemDeDo";
-import { ListagemPortariasResponse} from "@/types/designacao";
+import { ListagemPortariasResponse } from "@/types/designacao";
 import {
   PORTARIAS_SEM_DATA_DE_PUBLICACAO,
   PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA,
@@ -33,16 +33,8 @@ vi.mock("@/assets/icons/SimpleCheck", () => ({
   default: () => <span data-testid="simple-check-icon" />,
 }));
 
-vi.mock("@ant-design/icons", () => ({
-  CheckOutlined: () => <span data-testid="check-outlined" />,
-}));
-
-vi.mock("@/assets/icons/Check", () => ({
-  default: () => <span data-testid="check-icon" />,
-}));
-
-vi.mock("@/assets/icons/CloseCheck", () => ({
-  default: () => <span data-testid="close-check-icon" />,
+vi.mock("@/assets/icons/DownloadFiles", () => ({
+  default: () => <span data-testid="download-files-icon" />,
 }));
 
 vi.mock("antd", () => ({
@@ -74,14 +66,50 @@ vi.mock("antd", () => ({
       </div>
     );
   },
-  Tag: ({ children }: { children: ReactNode }) => <span>{children}</span>,
+  Dropdown: ({
+    children,
+    menu,
+  }: {
+    children: ReactNode;
+    menu?: {
+      items?: Array<{
+        key: string;
+        onClick?: () => void;
+      }>;
+    };
+  }) => (
+    <div>
+      {children}
+      <button
+        type="button"
+        data-testid="dropdown-pdf"
+        onClick={() => menu?.items?.find((item) => item.key === "1")?.onClick?.()}
+      >
+        pdf
+      </button>
+      <button
+        type="button"
+        data-testid="dropdown-csv"
+        onClick={() => menu?.items?.find((item) => item.key === "2")?.onClick?.()}
+      >
+        csv
+      </button>
+      <button
+        type="button"
+        data-testid="dropdown-word"
+        onClick={() => menu?.items?.find((item) => item.key === "3")?.onClick?.()}
+      >
+        word
+      </button>
+    </div>
+  ),
 }));
 
 const rows: ListagemPortariasResponse[] = [
   {
     id: 1,
     portaria: "100",
-    doc: null,           // sem D.O — elegível para opção 1 e opção 2
+    doc: null,
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",
     cargo: "Diretor",
@@ -92,7 +120,7 @@ const rows: ListagemPortariasResponse[] = [
   {
     id: 2,
     portaria: "101",
-    doc: "2026-05-10",  // D.O preenchido com data específica — elegível só para opção 2
+    doc: "2026-05-10",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor B",
     cargo: "Coordenador",
@@ -105,7 +133,7 @@ const rows: ListagemPortariasResponse[] = [
 const rowWithCessacaoMatch: ListagemPortariasResponse = {
   id: 3,
   portaria: "102",
-  doc: "2026-05-10",   // D.O com data específica — elegível para opção 2
+  doc: "2026-05-10",
   tipo_de_ato: "DESIGNACAO_CESSACAO",
   nome: "Servidor C",
   cargo: "Coordenador",
@@ -136,14 +164,14 @@ describe("ListagemDeDo", () => {
   });
 
   it("habilita botão e chama callback com linhas filtradas para opção 1", () => {
-    const onClickButton = vi.fn();
+    const onClickAlterarDataDo = vi.fn();
 
     render(
       <ListagemDeDo
         value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
         data={rows}
         data_publicacao={new Date("2026-05-20")}
-        onClickButton={onClickButton}
+        onClickAlterarDataDo={onClickAlterarDataDo}
       />
     );
 
@@ -155,18 +183,18 @@ describe("ListagemDeDo", () => {
 
     fireEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(onClickButton).toHaveBeenCalledWith([rows[0]]);
+    expect(onClickAlterarDataDo).toHaveBeenCalledWith([rows[0]]);
   });
 
   it("filtra por data específica na opção 2", () => {
-    const onClickButton = vi.fn();
+    const onClickAlterarDataDo = vi.fn();
     render(
       <ListagemDeDo
         value={PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA}
         data={rows}
         data_publicacao={new Date("2026-05-20")}
         data_considerada_portaria={new Date(2026, 4, 10)}
-        onClickButton={onClickButton}
+        onClickAlterarDataDo={onClickAlterarDataDo}
       />
     );
 
@@ -174,7 +202,7 @@ describe("ListagemDeDo", () => {
     expect(screen.getAllByText("2")).toHaveLength(2);
 
     fireEvent.click(screen.getByTestId("botao-proximo"));
-    expect(onClickButton).toHaveBeenCalledWith(rows);
+    expect(onClickAlterarDataDo).toHaveBeenCalledWith(rows);
   });
 
   it("desabilita botão quando opção 2 está sem data considerada", () => {
@@ -216,18 +244,6 @@ describe("ListagemDeDo", () => {
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
   });
 
-  it("exibe o texto do labelButton customizado", () => {
-    render(
-      <ListagemDeDo
-        value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
-        data={rows}
-        labelButton="Salvar portarias"
-      />
-    );
-
-    expect(screen.getByText("Salvar portarias")).toBeInTheDocument();
-  });
-
   it("mantém botão desabilitado para value não mapeado mesmo com linhas selecionadas", () => {
     render(
       <ListagemDeDo
@@ -239,6 +255,22 @@ describe("ListagemDeDo", () => {
 
     fireEvent.click(screen.getByTestId("select-all-rows"));
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
+  });
+
+  it("render da coluna doc retorna '-' quando data inválida", () => {
+    render(
+      <ListagemDeDo
+        value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
+        data={rows}
+      />
+    );
+
+    const props = tableMock.mock.calls[0][0];
+    const col = props.columns?.find((c: { key?: string }) => c.key === "doc") as
+      | { render?: (text: string) => string }
+      | undefined;
+
+    expect(col?.render?.("abc")).toBe("-");
   });
 
   it("render da coluna data_designacao retorna '-' para string vazia", () => {
@@ -306,24 +338,24 @@ describe("ListagemDeDo", () => {
   });
 
   it("inclui linha cujo doc corresponde à data considerada na opção 2", () => {
-    const onClickButton = vi.fn();
+    const onClickAlterarDataDo = vi.fn();
     render(
       <ListagemDeDo
         value={PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA}
         data={[rowWithCessacaoMatch]}
         data_publicacao={new Date("2026-05-20")}
         data_considerada_portaria={new Date(2026, 4, 10)}
-        onClickButton={onClickButton}
+        onClickAlterarDataDo={onClickAlterarDataDo}
       />
     );
 
     fireEvent.click(screen.getByTestId("select-cessacao-match-row"));
     expect(screen.getByTestId("botao-proximo")).toBeEnabled();
     fireEvent.click(screen.getByTestId("botao-proximo"));
-    expect(onClickButton).toHaveBeenCalledWith([rowWithCessacaoMatch]);
+    expect(onClickAlterarDataDo).toHaveBeenCalledWith([rowWithCessacaoMatch]);
   });
 
-  it("chama o onClickButton padrão (sem prop) sem erros", () => {
+  it("chama o onClickAlterarDataDo padrão (sem prop) sem erros", () => {
     render(
       <ListagemDeDo
         value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
@@ -335,6 +367,48 @@ describe("ListagemDeDo", () => {
     fireEvent.click(screen.getByTestId("select-all-rows"));
     expect(screen.getByTestId("botao-proximo")).toBeEnabled();
     expect(() => fireEvent.click(screen.getByTestId("botao-proximo"))).not.toThrow();
+  });
+
+  it("esconde contador de atualizadas e habilita baixar lauda no modo não listagem", () => {
+    const onClickBaixarLauda = vi.fn();
+
+    render(
+      <ListagemDeDo
+        value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
+        data={rows}
+        isListagemDo={false}
+        onClickBaixarLauda={onClickBaixarLauda}
+      />
+    );
+
+    expect(screen.queryByText("Das portarias selecionadas, serão atualizadas:")).not.toBeInTheDocument();
+    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("select-all-rows"));
+    expect(screen.getByTestId("botao-proximo")).toBeEnabled();
+
+    fireEvent.click(screen.getByTestId("dropdown-pdf"));
+    fireEvent.click(screen.getByTestId("dropdown-csv"));
+    fireEvent.click(screen.getByTestId("dropdown-word"));
+
+    expect(onClickBaixarLauda).toHaveBeenNthCalledWith(1, rows, "PDF");
+    expect(onClickBaixarLauda).toHaveBeenNthCalledWith(2, rows, "CSV");
+    expect(onClickBaixarLauda).toHaveBeenNthCalledWith(3, rows, "WORD");
+  });
+
+  it("não quebra no modo não listagem sem callback de download", () => {
+    render(
+      <ListagemDeDo
+        value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
+        data={rows}
+        isListagemDo={false}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId("select-first-row"));
+    expect(screen.getByTestId("botao-proximo")).toBeEnabled();
+
+    expect(() => fireEvent.click(screen.getByTestId("dropdown-pdf"))).not.toThrow();
   });
 
   it("rowKey retorna o id do registro como string", () => {
