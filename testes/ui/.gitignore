@@ -74,6 +74,12 @@ cypress/cypress.config.js
 # Specs de debug temporárias (remover após uso)
 cypress/e2e/debug_sidebar.cy.js
 
+# Notas e documentação temporária de desenvolvimento
+CORRECAO_*.md
+IMPLEMENTACAO_*.md
+SECURITY_CHECKLIST.md
+PADRAO_PROJETO.md
+
 # Prompts do Copilot - uso local (não subir ao repositório)
 .github/prompts/
 
