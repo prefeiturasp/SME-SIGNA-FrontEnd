@@ -32,7 +32,7 @@ When('eu busco as escolas de tipo {string} da DRE com código {string}', (tipoEs
 
 When('eu busco as escolas de tipo {string} da DRE com código {string} sem token', (tipoEscola, codigoDRE) => {
   const path = `/api/DREs/${codigoDRE}/escolas/${tipoEscola}`
-  const baseURL = 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseURL = 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   cy.request({
     method: 'GET',
     url: `${baseURL}${path}`,

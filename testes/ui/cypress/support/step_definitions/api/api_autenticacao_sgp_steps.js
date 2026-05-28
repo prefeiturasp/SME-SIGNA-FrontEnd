@@ -39,7 +39,7 @@ When('eu busco o resumo SGP do login', () => {
 // Cenário negativo — sem API key
 When('eu tento acessar os dados SGP do login sem autenticação', () => {
   const login = getLogin()
-  const baseUrl = Cypress.env('API_EOL_BASE_URL') || 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseUrl = Cypress.env('API_EOL_BASE_URL') || 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   cy.request({
     method: 'GET',
     url: `${baseUrl}/api/AutenticacaoSgp/${login}/dados`,

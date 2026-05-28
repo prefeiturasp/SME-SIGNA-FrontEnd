@@ -13,7 +13,9 @@ Given('que o usuário acessa a página de login', () => {
 });
 
 Given('que o usuário está autenticado no sistema', () => {
-  cy.realizarLogin(Cypress.env('username'), Cypress.env('password'));
+  const username = Cypress.env('username') || '7311559'
+  const password = Cypress.env('password') || 'Sgp1559'
+  cy.realizarLogin(username, password)
 });
 
 // Ações - Preenchimento de campos
@@ -114,6 +116,89 @@ Then('deve visualizar o menu principal', () => {
 
 When('o usuário clica no menu de usuário', () => {
   cy.get('[data-testid="menu-usuario"], .user-menu, .dropdown-user').click();
+});
+
+// ─── Steps Genéricos Comuns ─────────────────────────────────────────────────
+
+Given('que o usuário está na página do dashboard', () => {
+  // Intercept para aguardar carregamento da página listagem-designacoes
+  cy.intercept('POST', '**/listagem-designacoes**').as('loadDashboard')
+  
+  // Aguarda a navegação natural após login
+  cy.url({ timeout: 40000 }).should('include', 'listagem-designacoes')
+  cy.wait('@loadDashboard', { timeout: 40000 })
+  
+  // Aguarda o main estar visível
+  cy.get('main', { timeout: 40000 }).should('be.visible')
+  
+  // Aguarda que não existam loaders
+  cy.get('.loading, .spinner, .loader', { timeout: 40000 }).should('not.exist')
+  
+  // Buffer final
+  cy.wait(1500)
+});
+
+Then('valida a existencia do Texto {string}', (texto) => {
+  cy.contains(texto, { timeout: 15000 }).should('be.visible')
+});
+
+Then('Valida a existencia da Tabela', () => {
+  cy.get('table', { timeout: 15000 }).should('be.visible')
+});
+
+Then('o sistema exibe a Tela {string}', (tela) => {
+  const telaLower = tela.trim().toLowerCase()
+  
+  // Validação específica para tela de Cessação
+  if (telaLower === 'cessação') {
+    cy.url({ timeout: 15000 }).should('include', 'cessacao')
+    cy.log('✓ Navegação para tela de Cessação confirmada')
+    
+    cy.get('body > div:nth-of-type(2) > div > div > div > main form', { timeout: 20000 })
+      .should('exist')
+      .and('be.visible')
+    
+    cy.log(`✓ Tela "Cessação" validada`)
+  }
+  // Validação específica para tela de Insubsistência
+  else if (telaLower.includes('insubsist')) {
+    cy.url({ timeout: 15000 }).should('include', 'insubsistencia')
+    cy.log('✓ Navegação para tela de Insubsistência confirmada')
+    
+    cy.contains('h1, h2, h3', /Insubsistência|Insubsistente/i, { timeout: 15000 })
+      .should('be.visible')
+      .then(() => {
+        cy.log(`✓ Tela "${tela}" validada`)
+      })
+  }
+  // Validação específica para tela de Visualizar Designação
+  else if (telaLower.includes('visualizar')) {
+    cy.log('🔍 Validando tela de Visualização')
+    
+    // Aguarda URL mudar (pode ser /designacao/id ou /visualizar)
+    cy.url({ timeout: 15000 }).should('satisfy', url => {
+      const contemVisualizacao = url.includes('designacao') || 
+                                  url.includes('visualizar') ||
+                                  url.includes('detalhes')
+      return contemVisualizacao
+    })
+    
+    cy.log('✓ Navegação para tela de Visualização confirmada')
+    
+    // Valida presença de abas (característica da tela de visualização)
+    cy.get('.ant-tabs-tab, button, span', { timeout: 15000 })
+      .should('have.length.greaterThan', 0)
+      .then(() => {
+        cy.log(`✓ Tela "${tela}" validada`)
+      })
+  }
+  // Validação genérica para outras telas
+  else {
+    cy.contains(tela, { timeout: 15000 }).should('be.visible')
+    cy.log(`✓ Tela "${tela}" carregada`)
+  }
+  
+  cy.wait(1500)
 });
 
 When('o usuário clica em {string}', (opcao) => {

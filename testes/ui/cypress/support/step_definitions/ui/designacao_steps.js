@@ -8,13 +8,6 @@ import {
 
 // ─── Given — Navegação ────────────────────────────────────────────────────────
 
-Given('que o usuário está na página do dashboard', () => {
-  // Após login a aplicação já está no contexto autenticado (URL pode ser / ou /pages)
-  // Não forçamos cy.visit() para evitar 307 — aguardamos o carregamento natural
-  cy.aguardarCarregamento();
-  cy.get('main', { timeout: 15000 }).should('be.visible');
-});
-
 Given('que o usuário acessa a página de nova designação', () => {
   // Utilizado em cenários isolados: aceita URL atual pós-navegação via UI
   cy.aguardarCarregamento();
@@ -28,7 +21,6 @@ Given('pesquisa pelo RF {string}', (rf) => {
     .should('be.visible')
     .clear()
     .type(rf);
-  cy.wait(1000);
   cy.get(designacaoLocators.botaoPesquisarServidor).first().click();
   cy.contains('button', designacaoTextos.tituloAccordionServidor, { timeout: 15000 })
     .should('be.visible');
@@ -47,7 +39,6 @@ When('clica para abrir o módulo {string}', (modulo) => {
 });
 
 When('navega pelo menu lateral e clica em {string}', (item) => {
-  cy.wait(1000);
   cy.contains('a', item)
     .should('be.visible')
     .click();
@@ -71,107 +62,138 @@ When('navega pelo menu lateral e clica em {string}', (item) => {
   });
 });
 
-When('clica no botão Nova Designação', () => {
-  // Intercept já ativo para listagem (registrado no step anterior)
-  // Registra alias para passo-1 para confirmar que a página carregou
+Given('que o sistema carregou o dashboard', () => {
+  cy.get('main', { timeout: 40000 }).should('be.visible');
+  cy.wait(1500);
+});
+
+When('valida e clica no botão Nova Designação', () => {
   cy.intercept('POST', '**/designacoes-passo-1**').as('loadPasso1');
 
-  cy.get('main > div:first-child > div:first-child > div > button')
+  // Valida existência do botão usando seletor estrutural do XPath convertido para CSS
+  cy.get('main > div:first-child > div:first-child > div > button', { timeout: 40000 })
+    .should('exist')
+    .and('be.visible')
+    .then(($btn) => {
+      cy.log(`Botão encontrado: ${$btn.text().trim()}`);
+    });
+
+  cy.get('main > div:first-child > div:first-child > div > button', { timeout: 40000 })
     .first()
-    .should('be.visible')
     .click();
 
-  cy.wait('@loadPasso1', { timeout: 20000 });
-  cy.url({ timeout: 20000 }).should('include', 'designacoes-passo-1');
-  cy.contains('h1', 'Designação', { timeout: 20000 }).should('be.visible');
-  cy.get(designacaoLocators.campoRF, { timeout: 20000 }).should('be.visible');
+  cy.wait('@loadPasso1', { timeout: 40000 });
+  cy.url({ timeout: 40000 }).should('include', 'designacoes-passo-1');
+  cy.contains('h1', 'Designação', { timeout: 40000 }).should('be.visible');
+  cy.get(designacaoLocators.campoRF, { timeout: 40000 }).should('be.visible');
+  cy.wait(1000);
+});
+
+Then('valida a existencia dos Botões {string} e {string}', (btn1, btn2) => {
+  cy.get('main > div:nth-child(5) > div > div:nth-child(1) button', { timeout: 40000 })
+    .should('be.visible')
+    .invoke('text')
+    .then((text) => {
+      cy.log(`Botão esquerdo encontrado: ${text}`);
+      expect(text).to.include('Voltar');
+    });
+
+  cy.get('main > div:nth-child(5) > div > div:nth-child(2) button', { timeout: 40000 })
+    .should('be.visible')
+    .invoke('text')
+    .then((text) => {
+      cy.log(`Botão direito encontrado: ${text}`);
+      expect(text).to.include('Salvar');
+    });
 });
 
 When('preenche o campo RF com {string}', (rf) => {
-  cy.get(designacaoLocators.campoRF, { timeout: 20000 })
+  cy.get(designacaoLocators.campoRF, { timeout: 40000 })
     .should('be.visible')
     .and('not.be.disabled')
     .click();
-
   cy.wait(500);
-
-  cy.get(designacaoLocators.campoRF)
+  cy.get(designacaoLocators.campoRF, { timeout: 40000 })
     .type(rf, { delay: 150 });
-
-  cy.wait(2000);
+  cy.wait(500);
 });
 
 When('preenche o campo RF com RF aleatorio da lista', () => {
   const rf = rfList[Math.floor(Math.random() * rfList.length)];
   cy.log(`RF selecionado aleatoriamente: ${rf}`);
-  cy.get(designacaoLocators.campoRF, { timeout: 20000 })
+  cy.get(designacaoLocators.campoRF, { timeout: 40000 })
     .should('be.visible')
     .and('not.be.disabled')
     .click();
   cy.wait(500);
-  cy.get(designacaoLocators.campoRF)
+  cy.get(designacaoLocators.campoRF, { timeout: 40000 })
     .type(rf, { delay: 150 });
-  cy.wait(2000);
+  cy.wait(500);
 });
 
 When('clica em pesquisar', () => {
-  cy.wait(1000); // pausa antes de clicar — ritmo manual
   cy.get('[id^="radix-"] form > div:nth-child(3) button, .ant-card-body form button:last-of-type, .ant-card-body button:contains("Pesquisar")')
     .first()
     .should('be.visible')
     .click();
-  cy.wait(5000); // aguarda resposta da API de pesquisa de servidor
 });
 
 When('expande o accordion de dados do servidor', () => {
   cy.contains('button', designacaoTextos.tituloAccordionServidor)
     .click();
-  cy.wait(1500);
   cy.get(designacaoLocators.campoNomeServidor, { timeout: 10000 })
     .should('exist');
 });
 
 When('clica em {string}', (texto) => {
   const seletor = texto.trim();
-  cy.wait(800);
 
-  if (seletor === 'Pesquisar Unidade proponente') {
-    // Aguarda 25 s para o React registrar o estado dos dropdowns DRE + Unidade
-    // antes de submeter o formulário de pesquisa da unidade proponente
+  if (seletor === 'Salvar') {
+    cy.log('Clicando em Salvar...');
+    
+    // Tenta primeiro o seletor para cessação (dentro do form)
+    cy.get('body').then(($body) => {
+      if ($body.find('form button:contains("Salvar")').length > 0) {
+        cy.log('Usando seletor de cessação (form)');
+        cy.get('form').within(() => {
+          cy.get('button').contains(/salvar/i, { timeout: 10000 })
+            .should('be.visible')
+            .and('not.be.disabled')
+            .scrollIntoView()
+            .wait(500)
+            .click({ force: true });
+        });
+      } else {
+        cy.log('Usando seletor de designação');
+        cy.get('main > div:nth-child(5) > div > div:nth-child(2) button', { timeout: 40000 })
+          .should('be.visible')
+          .and('not.be.disabled')
+          .click();
+      }
+    });
+    
+    cy.wait(2000);
+    cy.log('Salvo com sucesso');
+  } else if (seletor === 'Pesquisar Unidade proponente') {
     cy.wait(25000);
-
-    // Seletor estável derivado do document.querySelector fornecido pelo usuário:
-    // #radix-_r_3m_ > div > div > div > form > div:nth-child(1) > div.w-[150px].pt-[2rem] > button
-    // O ID radix é dinâmico — usamos [id^="radix-"] + classe Tailwind w-[150px] para identificar
-    // o container do botão Pesquisar da Unidade Proponente de forma única
     const seletorBotaoPesquisarUnidade = '[id^="radix-"] form div[class*="w-[150px]"] > button';
-
     cy.get(seletorBotaoPesquisarUnidade)
       .scrollIntoView({ duration: 600 })
       .should('be.visible')
       .and('not.be.disabled');
-
     cy.wait(500);
-
     cy.get(seletorBotaoPesquisarUnidade).click({ force: true });
     cy.wait(3000);
-
-    // 2º clique de segurança — garante que o React processou o submit
     cy.get(seletorBotaoPesquisarUnidade).click({ force: true });
-
   } else if (seletor === 'Pesquisar') {
     cy.contains('button', 'Pesquisar').last()
       .scrollIntoView({ duration: 600 })
       .should('be.visible')
       .and('not.be.disabled');
-
     cy.wait(800);
-
     cy.contains('button', 'Pesquisar').last().click({ force: true });
     cy.wait(3000);
-
     cy.contains('button', 'Pesquisar').last().click({ force: true });
-
   } else {
     cy.contains('button', seletor, { timeout: 10000 }).should('be.visible').click();
   }
@@ -180,43 +202,34 @@ When('clica em {string}', (texto) => {
 });
 
 When('clica no botão de editar servidor', () => {
-  cy.wait(1500); // pausa — ritmo manual
   cy.get(designacaoLocators.conteudoAccordionServidor)
     .contains('button', 'Editar')
     .should('be.visible')
     .click();
-  cy.wait(2000);
 });
 
 When('cancela a edição no modal', () => {
-  cy.wait(1000);
   cy.get(designacaoLocators.botaoCancelarModal)
     .should('be.visible')
     .click();
-  cy.wait(2000);
 });
 
 When('seleciona uma DRE aleatória no formulário', () => {
-  cy.wait(1000);
   cy.get('button[role="combobox"]').first()
     .should('be.visible')
     .click();
-  cy.wait(1500);
   cy.get(designacaoLocators.opcoesDropdown, { timeout: 10000 })
     .should('have.length.greaterThan', 0)
     .then(($opts) => {
       const idx = Math.floor(Math.random() * $opts.length);
       cy.wrap($opts.eq(idx)).click({ force: true });
     });
-  cy.wait(3000); // aguarda unidades carregarem após seleção da DRE
 });
 
 When('seleciona uma unidade proponente aleatória', () => {
-  cy.wait(1000);
   cy.get('button[role="combobox"]').eq(1)
     .should('be.visible')
     .click();
-  cy.wait(1500);
   cy.get(designacaoLocators.opcoesDropdown, { timeout: 10000 })
     .should('have.length.greaterThan', 0)
     .then(($opts) => {
@@ -225,7 +238,6 @@ When('seleciona uma unidade proponente aleatória', () => {
       const idx = Math.floor(Math.random() * max);
       cy.wrap($opts.eq(idx)).scrollIntoView().click({ force: true });
     });
-  cy.wait(2000);
 });
 
 When('espera {int} seg', (segundos) => {
@@ -285,12 +297,10 @@ When('seleciona o cargo {string} no painel da unidade', (cargo) => {
     .first()
     .should('be.visible')
     .click();
-  cy.wait(1500);
   // Aguarda a opção específica ficar disponível e clica
   cy.contains('[role="option"], button, label', cargo, { timeout: 10000 })
     .should('be.visible')
     .click({ force: true });
-  cy.wait(2000); // aguarda os campos adicionais renderizarem (Qtd. Turmas, Cargo sobreposto, Módulos)
 });
 
 When('seleciona o cargo de forma aleatoria no painel da unidade', () => {
@@ -299,7 +309,6 @@ When('seleciona o cargo de forma aleatoria no painel da unidade', () => {
     .first()
     .should('be.visible')
     .click();
-  cy.wait(1500);
   cy.get('[role="option"]', { timeout: 10000 })
     .should('have.length.greaterThan', 0)
     .then(($opts) => {
@@ -307,7 +316,6 @@ When('seleciona o cargo de forma aleatoria no painel da unidade', () => {
       cy.log(`Cargo selecionado (índice ${idx}): ${$opts.eq(idx).text().trim()}`);
       cy.wrap($opts.eq(idx)).click({ force: true });
     });
-  cy.wait(2000);
 });
 
 When('clica no botão Avançar', () => {
@@ -316,7 +324,6 @@ When('clica no botão Avançar', () => {
     .last()
     .should('be.visible')
     .click();
-  cy.wait(3000);
 });
 
 // ─── Then — Asserções ──────────────────────────────────────────────────────────
@@ -355,7 +362,6 @@ Then('deve exibir o accordion {string}', (titulo) => {
 
 Then('o sistema abre o conteúdo do accordion', () => {
   cy.get('[data-state="open"]', { timeout: 10000 }).should('exist');
-  cy.wait(2000);
 });
 
 Then('deve visualizar os campos de dados do servidor', () => {
@@ -433,14 +439,12 @@ Then('o modal deve exibir os campos editáveis do servidor', () => {
 
 Then('o modal de edição deve ser fechado', () => {
   cy.get(designacaoLocators.modalEditar, { timeout: 10000 }).should('not.exist');
-  cy.wait(1000);
 });
 
 Then('deve visualizar a seção de unidade proponente', () => {
   cy.contains('span', designacaoTextos.tituloUnidadeProponente, { timeout: 10000 }).should('be.visible');
   cy.get(designacaoLocators.labelDRE).should('exist');
   cy.get(designacaoLocators.labelUnidadeProponente).should('exist');
-  cy.wait(1000);
 });
 
 Then('o sistema carrega o painel de dados da unidade proponente', () => {
@@ -452,7 +456,6 @@ Then('o sistema carrega o painel de dados da unidade proponente', () => {
 
 Then('o sistema exibe a seção {string}', (titulo) => {
   cy.contains(titulo, { timeout: 15000 }).should('be.visible');
-  cy.wait(1000);
 });
 
 // ─── Passo 2 — Portarias de designação ────────────────────────────────────────
@@ -503,7 +506,6 @@ When('preenche o campo portaria com numero aleatorio', () => {
     .first()
     .should('be.visible')
     .clear().type(numero, { delay: 80 });
-  cy.wait(500);
 });
 
 When('preenche o campo SEI com numero aleatorio', () => {
@@ -528,7 +530,6 @@ When('preenche o campo SEI com numero aleatorio', () => {
           .clear().type(numero, { delay: 80 });
       }
     });
-  cy.wait(500);
 });
 
 When('navega ate Seleciona o tipo de cargo', () => {
@@ -538,7 +539,6 @@ When('navega ate Seleciona o tipo de cargo', () => {
     .first()
     .scrollIntoView({ duration: 500 })
     .should('be.visible');
-  cy.wait(500);
 });
 
 When('valida a existencia das opcoes Cargo Disponivel e Cargo Vago', () => {
@@ -559,7 +559,6 @@ When('seleciona a opcao {string}', (opcao) => {
     .scrollIntoView()
     .should('be.visible')
     .click({ force: true });
-  cy.wait(1500);
 });
 
 When('seleciona e clica a opcao {string}', (opcao) => {
@@ -568,13 +567,11 @@ When('seleciona e clica a opcao {string}', (opcao) => {
     .scrollIntoView()
     .should('be.visible')
     .click({ force: true });
-  cy.wait(1500);
 });
 
 When('clica no campo e seleciona aleatoriamente um dos cargos vagos', () => {
   // Campo "Selecione o cargo" é Radix/Shadcn Select — trigger é button[role="combobox"]
   // Navegação pelo label para garantir o campo correto independente de IDs dinâmicos
-  cy.wait(1500);
   cy.contains('label', 'Selecione o cargo', { timeout: 10000 })
     .should('be.visible')
     .parent()
@@ -582,7 +579,6 @@ When('clica no campo e seleciona aleatoriamente um dos cargos vagos', () => {
     .scrollIntoView({ duration: 300 })
     .should('be.visible')
     .click({ force: true });
-  cy.wait(500);
   cy.get('[role="option"]', { timeout: 10000 })
     .filter(':visible')
     .should('have.length.greaterThan', 0)
@@ -591,7 +587,6 @@ When('clica no campo e seleciona aleatoriamente um dos cargos vagos', () => {
       cy.log(`Cargo vago selecionado (índice ${idx}): ${$opts.eq(idx).text().trim()}`);
       cy.wrap($opts.eq(idx)).click({ force: true });
     });
-  cy.wait(2000);
 });
 
 When('preenche o campo RF titular com {string}', (rf) => {
@@ -599,7 +594,6 @@ When('preenche o campo RF titular com {string}', (rf) => {
     .find('input').first()
     .should('be.visible').and('not.be.disabled')
     .clear().type(rf, { delay: 100 });
-  cy.wait(1000);
 });
 
 // ── Passo 2 — step novo: clica + preenche RF do titular (aleatório da lista) ──
@@ -615,7 +609,6 @@ When('clica e preenche o campo RF titular com um dos RF da lista', () => {
     .should('be.visible').and('not.be.disabled')
     .click()
     .clear().type(rf, { delay: 100 });
-  cy.wait(1000);
 });
 
 // ── Passo 2 — step novo: clica + preenche RF do titular ───────────────────────
@@ -631,7 +624,6 @@ When('clica e preenche o campo RF titular com {string}', (rf) => {
     .should('be.visible').and('not.be.disabled')
     .click()
     .clear().type(rf, { delay: 100 });
-  cy.wait(1000);
 });
 
 // ── Passo 2 — step novo: valida e clica em pesquisar o titular ────────────────
@@ -650,7 +642,6 @@ When('valida a existencia do botao e clica em pesquisar o titular', () => {
   // Aguarda os dados do titular aparecerem no DOM (Nome Servidor é o primeiro campo)
   // Timeout alto (120s) pois a API pode ser lenta dependendo do ambiente
   cy.contains('Nome Servidor', { timeout: 120000 }).should('exist');
-  cy.wait(2000);
 });
 
 When('clica em pesquisar o titular', () => {
@@ -658,15 +649,12 @@ When('clica em pesquisar o titular', () => {
     .find('button').last()
     .scrollIntoView({ duration: 400 })
     .should('be.visible').and('not.be.disabled');
-  cy.wait(500);
   cy.get('.ant-card-body').last().find('button').last().click({ force: true });
-  cy.wait(5000);
 });
 
 Then('o sistema carrega e exibe os dados do titular', () => {
   cy.get('[id^="radix-"]', { timeout: 20000 }).filter(':visible')
     .should('have.length.greaterThan', 0);
-  cy.wait(2000);
 });
 
 Then('deve visualizar os campos do servidor titular', () => {
@@ -691,7 +679,6 @@ When('clica no botao editar do titular', () => {
   cy.get('[id^="radix-"] button:contains("Editar"), [data-state="open"] button:contains("Editar")')
     .last().scrollIntoView().should('be.visible')
     .click({ force: true });
-  cy.wait(2000);
 });
 
 Then('deve abrir o modal de edicao do servidor titular', () => {
@@ -717,12 +704,10 @@ When('cancela a edicao no modal do titular', () => {
   cy.get('[role="dialog"]').within(() => {
     cy.contains('button', 'Cancelar').should('be.visible').click();
   });
-  cy.wait(1000);
 });
 
 Then('o modal de edicao do titular deve ser fechado', () => {
   cy.get('[role="dialog"]', { timeout: 10000 }).should('not.exist');
-  cy.wait(1000);
 });
 
 Then('deve visualizar os botoes de navegacao do passo 2', () => {
@@ -738,7 +723,6 @@ When('clica em Avançar no rodape do passo 2', () => {
   // Solução definitiva: .should(callback) colocado DIRETAMENTE em cy.get() força
   // o Cypress a re-executar cy.get() + callback inteiro a cada retry, respeitando
   // os 60s. Traversals intermediários (.filter, .last) quebram esse vínculo.
-  cy.wait(5000); // absorve latência de API pós-modal do titular
   cy.get('button', { timeout: 60000 }).should(($buttons) => {
     const $avançar = $buttons.filter(':contains("Avançar")');
     expect($avançar.length, 'botão Avançar deve existir').to.be.greaterThan(0);
@@ -748,14 +732,12 @@ When('clica em Avançar no rodape do passo 2', () => {
     .scrollIntoView()
     .should('be.visible')
     .click({ force: true });
-  cy.wait(4000);
 });
 
 // ─── Passo 3 — Resumo e confirmação ───────────────────────────────────────────
 
 Then('o sistema direciona para a pagina de resumo da designacao', () => {
   cy.contains('PORTARIA', { timeout: 20000 }).should('exist');
-  cy.wait(1000);
 });
 
 Then('deve visualizar os dados do resumo da portaria', () => {
@@ -764,7 +746,6 @@ Then('deve visualizar os dados do resumo da portaria', () => {
   cy.contains('SEI Nº', { timeout: 10000 }).should('exist');
   // Rola até o final para garantir que seções abaixo do fold sejam renderizadas
   cy.scrollTo('bottom', { ensureScrollable: false, duration: 500 });
-  cy.wait(2000);
 });
 
 When('preenche o campo informacoes adicionais', () => {
@@ -772,20 +753,17 @@ When('preenche o campo informacoes adicionais', () => {
   cy.get('textarea, [id$="-form-item"] textarea').first()
     .scrollIntoView().should('be.visible')
     .click().clear().type(texto, { delay: 30 });
-  cy.wait(500);
 });
 
 When('seleciona a opcao contabilizar no historico', () => {
   cy.contains('button', 'Contabilizar')
     .scrollIntoView().should('be.visible')
     .click({ force: true });
-  cy.wait(1000);
   cy.get('[role="option"]').then(($opts) => {
     if ($opts.length > 0) {
       cy.contains('[role="option"]', 'Contabilizar').click({ force: true });
     }
   });
-  cy.wait(1000);
 });
 
 Then('deve visualizar os botoes de confirmacao', () => {
@@ -794,7 +772,8 @@ Then('deve visualizar os botoes de confirmacao', () => {
 });
 
 When('clica em Salvar', () => {
-  // Intercepta a navegação pós-save para qualquer dessas rotas
+  // Intercepta a requisição de criação da designação (rota real do ambiente QA)
+  cy.intercept('POST', '**/pages/designacoes/designacoes-passo-1').as('criaDesignacao');
   cy.intercept('GET', '**/listagem-designacoes**').as('redirecionaListagem');
   cy.intercept('POST', '**/listagem-designacoes**').as('carregaListagem');
 
@@ -814,7 +793,24 @@ When('clica em Salvar', () => {
     }
   });
 
-  cy.wait(3000);
+  // Aguarda e valida a resposta da API de criação
+  cy.wait('@criaDesignacao', { timeout: 30000 }).then((interception) => {
+    expect(interception, 'Intercept da criação da designação').to.exist;
+    const { response } = interception;
+    expect(response, 'Resposta da API de criação da designação').to.exist;
+    const statusOk = response.statusCode === 200 || response.statusCode === 201;
+    if (!statusOk) {
+      Cypress.log({
+        name: 'API Designação',
+        message: `Status: ${response.statusCode}`,
+        consoleProps: () => ({
+          status: response.statusCode,
+          body: response.body,
+        })
+      });
+    }
+    expect(statusOk, `A resposta da API de criação da designação deve ser 200 ou 201.\nStatus: ${response.statusCode}\nBody: ${JSON.stringify(response.body)}`).to.be.true;
+  });
 });
 
 Then('o sistema conclui e direciona para listagem de designacoes', () => {

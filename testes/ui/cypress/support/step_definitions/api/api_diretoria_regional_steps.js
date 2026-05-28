@@ -107,7 +107,7 @@ When('eu envio uma requisição POST para {string} com um array vazio', (path) =
 
 When('eu envio uma requisição POST para {string} sem token com os códigos:', (path, dataTable) => {
   const codigos = dataTable.rawTable.slice(1).map((row) => row[0])
-  const baseUrl = Cypress.env('API_EOL_BASE_URL') || 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseUrl = Cypress.env('API_EOL_BASE_URL') || 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   const url = path.startsWith('http') ? path : `${baseUrl}${path}`
   cy.request({
     method: 'POST',

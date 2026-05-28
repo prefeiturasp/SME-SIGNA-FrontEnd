@@ -39,7 +39,7 @@ When('eu busco as unidades da DRE com código {string}', (codigoDRE) => {
 })
 
 When('eu busco as unidades da DRE com código {string} sem token', (codigoDRE) => {
-  const baseURL = 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseURL = 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   const path = `/api/DREs/${codigoDRE}/unidades`
 
   cy.request({
@@ -89,7 +89,7 @@ When('eu busco as unidades com código de integração da DRE com código {strin
 })
 
 When('eu busco as unidades com código de integração da DRE com código {string} sem token', (codigoDRE) => {
-  const baseURL = 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseURL = 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   const path = `/api/DREs/${codigoDRE}/unidades/codigo-integracao`
 
   cy.request({

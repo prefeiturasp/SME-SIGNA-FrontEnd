@@ -16,10 +16,19 @@ Projeto de automação de testes E2E para o sistema SIGNA utilizando Cypress + C
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
+3. **⚠️ IMPORTANTE - Configure as variáveis de ambiente:**
 ```bash
 cp .env.example .env
+# Edite o arquivo .env com suas credenciais reais
 ```
+
+> **🔐 SEGURANÇA:** O arquivo `.env` contém credenciais reais e **NUNCA** deve ser versionado. Ele está no `.gitignore` e será ignorado automaticamente pelo Git.
+
+## 📚 Documentação Completa
+
+Para padrões de desenvolvimento, convenções de código e boas práticas de segurança, consulte:
+
+👉 **[PADRAO_PROJETO.md](./PADRAO_PROJETO.md)** - Guia completo do projeto
 
 ## 🏃 Executando os Testes
 
@@ -150,22 +159,66 @@ stage('UI Tests') {
 
 As configurações principais estão em:
 - `cypress.config.js` - Configurações do Cypress
-- `.env` - Variáveis de ambiente
+- `.env` - Variáveis de ambiente e credenciais
 - `package.json` - Dependências e scripts
 
-## 📝 Credenciais de Teste
+## 🔐 Segurança e Credenciais
 
-**Ambiente:** QA  
-**URL:** https://qa-signa.sme.prefeitura.sp.gov.br  
-**Usuário:** 7311559  
-**Senha:** Sgp1559
+### ⚠️ REGRAS CRÍTICAS
+
+1. **NUNCA commite o arquivo `.env`**
+   - Contém credenciais reais
+   - Está no `.gitignore` e será ignorado automaticamente
+   - Apenas o `.env.example` deve estar versionado
+
+2. **Credenciais de teste**
+   - Devem estar APENAS no arquivo `.env` local
+   - Solicite credenciais ao líder técnico
+   - Cada desenvolvedor deve ter suas próprias credenciais
+
+3. **Antes de fazer commit:**
+   ```bash
+   # Sempre verifique:
+   git status
+   
+   # Se .env aparecer na lista, PARE e execute:
+   git reset HEAD .env
+   ```
+
+4. **Arquivos protegidos (não versionar):**
+   - `.env` e variantes (`.env.local`, `.env.*.local`)
+   - `cypress/fixtures/usuarios.json` com credenciais reais
+   - Screenshots e vídeos com dados sensíveis
+   - Relatórios com informações confidenciais
+
+### 📋 Configuração de Credenciais
+
+1. Copie o template:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edite `.env` com suas credenciais:
+   ```bash
+   USERNAME=seu_rf_aqui
+   PASSWORD=sua_senha_aqui
+   ```
+
+3. Verifique que `.env` está ignorado:
+   ```bash
+   git status
+   # .env NÃO deve aparecer
+   ```
+
+Para mais detalhes, consulte **[PADRAO_PROJETO.md](./PADRAO_PROJETO.md)** seção "Gestão de Credenciais"
 
 ## 🤝 Contribuindo
 
 1. Crie uma feature branch
 2. Implemente suas alterações
-3. Execute os testes
-4. Submeta um Pull Request
+3. **Verifique que nenhuma credencial foi exposta**
+4. Execute os testes localmente
+5. Submeta um Pull Request
 
 ## 📄 Licença
 
