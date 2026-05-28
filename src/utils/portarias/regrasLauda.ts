@@ -1,4 +1,4 @@
-import { DesignacaoData } from "@/types/designacao";
+import { DesignacaoData, DesignacaoResponse } from "@/types/designacao";
 import { formatarRF, nameToCamelCase } from "./formatadores";
 
 function formatarData(data?: string | Date) {
@@ -49,6 +49,9 @@ export function montarTrechoSubstituicaoLauda(data: DesignacaoData): string {
     return `${base}, a partir de ${inicio}`;
 }
 
+
+
+
 export function montarTrechoFinal(data: DesignacaoData): string {
 
     // to-do: arrumar quando ids vierem do banco e textos
@@ -71,10 +74,55 @@ export function montarTrechoFinal(data: DesignacaoData): string {
     return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
 }
 
-export function montarAutoridade(data: DesignacaoData): string {
-    if (data?.impedimento_substituicao === "4") {
-        return "O Chefe de Gabinete";
+ 
+
+
+
+
+
+export function montarTrechoParaSubstituir(data: DesignacaoData): string {
+ 
+    const indicado = data?.servidorIndicado;
+    const inicio = formatarData(data?.a_partir_de);
+
+    // CARGO VAGO
+    if (data?.tipo_cargo === "vago") {        
+        return `para exercer o cargo de ${nameToCamelCase(indicado?.cargo_base ?? "____")} na ${indicado?.lotacao?? "____"}, a partir de ${inicio}`;
     }
 
-    return "O Secretário Municipal de Educação";
+    const titular = data?.dadosTitular;
+
+    if (!titular) return "";
+
+     const nomeTitular = (
+        titular?.nome_civil?.trim()
+            ? titular.nome_civil
+            : titular?.nome_servidor ?? "____"
+    ).toUpperCase();
+
+    const base = `para substituir o(a) Sr.(a) ${nomeTitular ?? "____"}, ${nameToCamelCase(titular?.cargo_base ?? "____")}, registro nº ${formatarRF(titular?.rf ?? "____")
+        }, Vínculo ${titular?.vinculo ?? "____"}`;
+ 
+    return `${base}, na ${indicado?.lotacao?? "____"}, a partir de ${inicio}`;
+}
+
+
+
+
+
+
+export function montarPeriodoInsubsistencia(data: DesignacaoResponse): string {
+
+    let periodo_insubsistencia = "";
+     
+    
+  
+    if(data?.data_fim){
+      periodo_insubsistencia = " no período de "+formatarData(data?.data_inicio ?? "")+" a "+formatarData(data?.data_fim ?? "");
+    } else {
+      periodo_insubsistencia = " a partir de "+formatarData(data?.data_inicio ?? "");
+    }
+ 
+
+    return periodo_insubsistencia;
 }

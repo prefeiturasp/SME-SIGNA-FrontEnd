@@ -22,5 +22,9 @@ export interface InsubsistenciaRead {
 // Formato retornado pela API quando aninhado numa cessação
 export interface InsubsistenciaCessacaoRead {
     id: number;
+    numero_portaria: string;
+    ano_vigente?: string;
+    sei_numero?: string;
+    doc?: string;
     observacoes: string;
 }

@@ -12,7 +12,7 @@ import { useDesignacaoContext } from "../DesignacaoContext";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 import { designacaoAction } from "@/actions/cadastro-designacao";
-import { TEMPLATE_BAIXAR_LAUDA, TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
+import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
 import EditorSEI, {
   gerarHtmlPortaria,
   normalizarQuebras,
@@ -30,10 +30,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { gerarDadosLauda } from "@/utils/portarias/gerarDadosLauda";
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
 
-function escapeHtml(s: string) {
+export function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
@@ -65,13 +64,13 @@ export default function DesignacoesPasso3() {
   useEffect(() => {
     if (!formDesignacaoData) return;
 
-    const dadosPuros = gerarDadosLauda({
+    const dadosPuros = gerarDadosPortaria({
       ...formDesignacaoData,
       designacao_data_final: formDesignacaoData.designacao_data_final ?? undefined,
       impedimento_substituicao: formDesignacaoData.impedimento_substituicao ?? undefined,
     });
 
-    const textoRaw = preencherTemplate(TEMPLATE_BAIXAR_LAUDA, dadosPuros);
+    const textoRaw = preencherTemplate(TEMPLATE_DESIGNACAO, dadosPuros);
     textoPlanoRef.current = normalizarQuebras(textoRaw.replaceAll(/<\/?strong>/g, ""));
   }, [formDesignacaoData]);
 
@@ -95,7 +94,7 @@ export default function DesignacoesPasso3() {
       if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
     }
 
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_BAIXAR_LAUDA, dadosEscapados));
+    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapados));
   }, [formDesignacaoData]);
 
   const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {

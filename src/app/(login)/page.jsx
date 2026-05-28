@@ -2,9 +2,13 @@
 
 import React from "react";
  
-import DesignacaoPasso3 from "@/app/pages/designacoes/designacoes-passo-3/page";
-import { DesignacaoProvider } from "@/app/pages/designacoes/DesignacaoContext";
+import BaixarLauda from "@/app/pages/baixar-lauda/page";
+import LoginForm from "@/components/login/LoginForm";
 
 export default function LoginTela() { 
-     return <DesignacaoProvider><DesignacaoPasso3 /></DesignacaoProvider> ;   
+     return <LoginForm />;   
 }
+
+// export default function LoginTela() { 
+//      return <BaixarLauda></BaixarLauda> ;   
+// }

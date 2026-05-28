@@ -231,6 +231,8 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 
     downloadCSV(exportData, exportColumns)
   }
+
+  console.log('data', data);
   return (
     <>
       <div className="flex flex-col gap-1 bg-white p-4 rounded-t-lg border border-[#DCDCDC]">
