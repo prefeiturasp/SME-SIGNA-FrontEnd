@@ -17,6 +17,8 @@ pipeline {
     environment {
         ALLURE_PATH = 'testes/ui/allure-results'
         WORKSPACE_DIR = "${env.WORKSPACE}"
+        CYPRESS_VERSION = '14.5.2'
+        CYPRESS_CLOUD_VERSION = '2.0.0-beta.1'
     }
 
     stages {
@@ -40,15 +42,13 @@ pipeline {
                                         --rm \
                                         -e TERM=xterm \
                                         -e CI=true \
-                                        -e NODE_OPTIONS=--max-old-space-size=4096 \
                                         -v "$WORKSPACE/testes/ui:/app" \
                                         -w /app \
                                         registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
-                                        sh -c "rm -rf allure-results && \
+                                        sh -c "rm -rf allure-results allure-report && \
                                             npm install && \
-                                            npm install cypress@13.17.0 cypress-cloud@beta \
-                                            @shelex/cypress-allure-plugin allure-mocha crypto-js@4.1.1 --save-dev && \
-                                            npx cypress install --force && \
+                                            npm install cypress@${CYPRESS_VERSION} cypress-cloud@${CYPRESS_CLOUD_VERSION} \
+                                            @shelex/cypress-allure-plugin@2.41.2 mocha-allure-reporter@1.4.0 crypto-js@4.1.1 --save-dev && \
                                             npx cypress-cloud run \
                                                     --parallel \
                                                     --browser chrome \
@@ -57,15 +57,17 @@ pipeline {
                                                     --key somekey \
                                                     --reporter mocha-allure-reporter \
                                                     --reporter-options reportDir=allure-results \
-                                                    --ci-build-id SME-SIGNA_JENKINS-BUILD-${BUILD_NUMBER} ; \
+                                                    --ci-build-id SME-SIGNA_JENKINS-BUILD-${BUILD_NUMBER}; \
+                                            TEST_EXIT=\$?; \
                                             chown 1001:1001 * -R || true ; \
-                                            chmod 777 * -R || true"
+                                            chmod 777 * -R || true ; \
+                                            exit \$TEST_EXIT"
                                 '''
                             }
                         }
                     }
                     echo "Testes Cypress finalizados."
-                    def logText = currentBuild.rawBuild.getLog(20).join('\n')
+                    def logText = currentBuild.rawBuild.getLog(200).join('\n')
                     def match = logText =~ /Recorded Run:\s*(https?:\/\/\S+)/
                     if (match) {
                         env.CYPRESS_RUN_URL = match[0][1]
@@ -123,10 +125,10 @@ pipeline {
                         docker run \
                             --rm \
                             -e CI=true \
-                            -v "$WORKSPACE:/app" \
+                            -v "$WORKSPACE/testes/ui:/app" \
                             -w /app \
                             registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
-                            sh -c "rm -rf package-lock.json node_modules/ || true && chown 1001:1001 * -R || true && chmod 777 * -R || true"
+                            sh -c "rm -rf node_modules/ || true && chown 1001:1001 * -R || true && chmod 777 * -R || true"
                     '''
                 }
             }
@@ -141,11 +143,15 @@ pipeline {
 
 
 def sendTelegram(message) {
+    def dashboardLine = env.CYPRESS_RUN_URL ?
+        "<b>Dashboard Link:</b> <a href='${env.CYPRESS_RUN_URL}'>Resultados no dashboard</a>\n" :
+        ""
+
     def messageTemplate = (
         "<b>Job Name:</b> <a href='${JOB_URL}'>${JOB_NAME}</a>\n\n" +
         "<b>Status:</b> ${message}\n" +
         "<b>Build Number:</b> ${BUILD_DISPLAY_NAME}\n" +
-        "<b>Dashboard Link:</b> <a href='${env.CYPRESS_RUN_URL}'>Resultados no dashboard</a>\n" +
+        dashboardLine +
         "<b>Log:</b> <a href='${env.BUILD_URL}console'>Ver console output</a>"
     )
     def encodedMessage = URLEncoder.encode(messageTemplate, "UTF-8")

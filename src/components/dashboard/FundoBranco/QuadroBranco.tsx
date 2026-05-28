@@ -9,7 +9,7 @@ interface FundoBrancoProps {
 
 const FundoBranco: React.FC<FundoBrancoProps> = ({ children, className, props }) => {
     return (
-        <div className={cn("bg-white rounded-[4px] shadow-[4px_4px_12px_0px_rgba(0,0,0,0.12)] p-[24px_32px] ", className)} {...props} >
+        <div className={cn("bg-white rounded-[4px] shadow-[4px_4px_12px_0px_rgba(0,0,0,0.12)] p-[24px] ", className)} {...props} >
             {children}
         </div>
     );

@@ -9,7 +9,7 @@ const MeusDados: React.FC = () => {
         <>
             <PageHeader title="Meus Dados" />
             <QuadroBranco>
-                <span className="text-[14px] text-[#42474a]">
+                <span className="text-[14px] text-[#313131]">
                     Esses são os seus dados cadastrados. Você pode alterá-los
                     clicando no botão editar.
                 </span>

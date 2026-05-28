@@ -22,9 +22,9 @@ export default function SignOutButton() {
             onClick={handleLogout}
             variant="ghost"
             className="flex h-[80px] flex-col items-center text-xs"
-            style={{ color: "#B22B2A" }}
+            style={{ color: "#929494" }}
         >
-            <Logout width={28} height={28} />
+            <Logout width={28} height={28} color="#660C0B" />
             Sair
         </Button>
     );

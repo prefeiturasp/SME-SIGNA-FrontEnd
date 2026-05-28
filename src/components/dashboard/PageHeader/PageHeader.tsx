@@ -50,7 +50,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                                 {index === 0 && (
                                     <BreadcrumbItem>
                                         <BreadcrumbLink href="/">
-                                            <HomeIcon width={16} height={16} fill="#B40C02" />
+                                            <HomeIcon width={16} height={16} fill="#660C0B" />
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                 )}
@@ -65,7 +65,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                                 </BreadcrumbItem>
                                 {index < breadcrumbs.length - 1 && (
                                     <BreadcrumbSeparator>
-                                        <ArrowCircleDark width={16} height={16} fill="#B40C02" />
+                                        <ArrowCircleDark width={16} height={16} fill="#660C0B" />
                                     </BreadcrumbSeparator>
                                 )}
                             </React.Fragment>

@@ -15,7 +15,7 @@ describe("FundoBranco", () => {
     expect(wrapper?.className).toContain("bg-white");
     expect(wrapper?.className).toContain("rounded-[4px]");
     expect(wrapper?.className).toContain("shadow-[4px_4px_12px_0px_rgba(0,0,0,0.12)]");
-    expect(wrapper?.className).toContain("p-[24px_32px]");
+    expect(wrapper?.className).toContain("p-[24px]");
     expect(wrapper?.className).toContain("extra-class");
   });
 });

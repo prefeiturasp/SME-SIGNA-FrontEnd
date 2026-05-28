@@ -7,7 +7,7 @@ interface AvisoProps {
 
 export default function Aviso({ children, icon }: Readonly<AvisoProps>) {
     return (
-        <div className="flex items-start gap-2 p-4 rounded-md bg-[#F5F5F5] text-[#42474a]">
+        <div className="flex items-start gap-2 p-4 rounded-md bg-[#F5F5F5] text-[#313131]">
             {icon && <>{icon}</>}
             <span
                 className="text-[14px] font-normal"

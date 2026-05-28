@@ -36,7 +36,7 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                         {label}
                     </FormLabel>
                     <FormControl>
@@ -67,8 +67,9 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
                                     <Label htmlFor="doc-nao">Não</Label>
                                 </Field>
                             </div>
-                        </RadioGroup>
+                        </RadioGroup>                        
                     </FormControl>
+                    <FormMessage />
                 </FormItem>
             )}
         ></FormField>
@@ -84,7 +85,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
 
             render={({ field }) => (
                 <FormItem >
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                         {label}
                     </FormLabel>
                     <FormControl >
@@ -100,9 +101,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             disabled={disabled}
                         />
                     </FormControl>
-                    <div className="h-[10px]">
-                        <FormMessage />
-                    </div>                    
+                    <FormMessage />
                 </FormItem>
             )}
         />
@@ -119,7 +118,7 @@ export const DateField = ({ register, control, name, label, placeholder }: Props
             name={name}
             render={({ field }) => (
                 <FormItem className="flex flex-col">
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                         {label}
                     </FormLabel>
 
@@ -138,11 +137,11 @@ export const DateField = ({ register, control, name, label, placeholder }: Props
                                         format(field.value, "dd/MM/yyyy")
                                     ) : (
                                         placeholder ? (
-                                            <span>{placeholder}</span>  
+                                            <span>{placeholder}</span>
                                         ) : (
                                             <span>Selecione uma data</span>
                                         )
-                                        
+
                                     )}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
@@ -173,7 +172,7 @@ export const DateRangeField = ({ register, control, name, label, placeholder }: 
             name={name}
             render={({ field }) => (
                 <FormItem className="flex flex-col">
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                         {label}
                     </FormLabel>
 
@@ -182,7 +181,7 @@ export const DateRangeField = ({ register, control, name, label, placeholder }: 
                             <FormControl>
                                 <Button
                                     variant="customOutline"
-                                    size="xl"
+                                    size="lg"
                                     className={cn(
                                         "pl-3 text-left font-normal",
                                         !field.value?.from && "text-muted-foreground",

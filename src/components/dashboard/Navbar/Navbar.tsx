@@ -29,7 +29,7 @@ export function Navbar() {
                     className="p-2.5 rounded border border-gray-300  font-weight-[400]  h-[59px] text-sm text-muted-foreground leading-tight bg-[#f5f6f8]"
                     style={{
                         fontFamily: "Roboto, sans-serif",
-                        color: "#42474a",
+                        color: "#313131",
                     }}
                 >
                     {user && (

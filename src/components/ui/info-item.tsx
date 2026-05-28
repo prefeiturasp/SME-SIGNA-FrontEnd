@@ -20,7 +20,7 @@ export const InfoItem: React.FC<InfoItemProps> = ({
         {icon && <div>{icon}</div>}
       </div>
 
-      <p className="text-[14px] text-[#6F6C8F]">
+      <p className="text-[14px] text-[#9CA3B9]">
         {value ?? "-"}
       </p>
     </div>

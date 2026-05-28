@@ -107,10 +107,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
           </div>
 
-          <div className="required text-[#42474a] font-bold pt-4 pb-4">
-            Designação
-          </div>
-
+ 
           <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
             <div className="w-full">
               <DateField
@@ -146,7 +143,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="impedimento_substituicao"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                       Impedimento para substituição:
                     </FormLabel>
                     <FormControl>
@@ -185,7 +182,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
           </div>
 
           <div className="gap-4 lg:items-center">
-            <div className="w-full pt-4">
+            <div className="w-full pt-1">
               <CheckboxField
                 register={register}
                 control={control}
@@ -196,14 +193,14 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
 
             {watch("com_afastamento") === "sim" && (
-              <div className="w-full pt-4">
+              <div className="w-full pt-1">
                 <FormField
                   {...register("motivo_afastamento")}
                   control={control}
                   name="motivo_afastamento"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         Motivo do afastamento
                       </FormLabel>
                       <FormControl>
@@ -224,7 +221,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
               </div>
             )}
 
-            <div className="w-full pt-4">
+            <div className="w-full pt-1">
               <CheckboxField
                 register={register}
                 control={control}
@@ -235,14 +232,14 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
 
             {watch("com_pendencia") === "sim" && (
-              <div className="w-full pt-4">
+              <div className="w-full pt-1">
                 <FormField
                   {...register("motivo_pendencia")}
                   control={control}
                   name="motivo_pendencia"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="required text-[#42474a] font-bold">
+                      <FormLabel className="required text-[#313131] font-bold">
                         Descrição da pendência
                       </FormLabel>
                       <FormControl>
