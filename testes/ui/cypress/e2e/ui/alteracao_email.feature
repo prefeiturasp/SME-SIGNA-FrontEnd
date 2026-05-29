@@ -8,6 +8,7 @@ Funcionalidade: Alteração de e-mail
     E valida o texto "Meus Dados"
     E valida a existencia dos botões "Alterar e-mail" e "Alterar senha"
 
+   
   Cenário: Usuário acessa a alteração de e-mail via Meus Dados
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema

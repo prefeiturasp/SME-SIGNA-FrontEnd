@@ -5,8 +5,9 @@ import type { TableProps } from 'antd';
 import { Button } from '@/components/ui/button';
 import { ListagemPortariasResponse } from '@/types/designacao';
 import SimpleCheck from '@/assets/icons/SimpleCheck';
-import { format, isValid, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO, PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA } from '../MainDOForm/MainDOForm';
+import { formatDate } from '@/utils/formatDate';
 import DownloadFiles from '@/assets/icons/DownloadFiles';
 
 
@@ -38,14 +39,6 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
 }) => {
   const [selectedRows, setSelectedRows] = useState<ListagemPortariasResponse[]>([]);
   const isEmptyDate = (date?: string | null) => !date;
-  const formatDateCell = (date?: string | null) => {
-    if (!date) {
-      return "-";
-    }
-
-    const parsedDate = parseISO(date);
-    return isValid(parsedDate) ? format(parsedDate, "dd/MM/yyyy") : "-";
-  };
 
   let filtredRows: ListagemPortariasResponse[] = [];
 
@@ -80,9 +73,9 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
     { title: 'TIPO DE ATO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'NOME', dataIndex: 'nome', key: 'nome' },
     { title: 'CARGO', dataIndex: 'cargo', key: 'cargo' },
-    { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string | null) => formatDateCell(text) },
-    { title: 'DATA DA DESIGNAÇÃO', dataIndex: 'data_designacao', key: 'data_designacao', render: (text: string | null) => formatDateCell(text) },
-    { title: 'DATA DA CESSAÇÃO', dataIndex: 'data_cessacao', key: 'data_cessacao', render: (text: string | null) => formatDateCell(text) },
+    { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string | null) => formatDate(text) },
+    { title: 'DATA DA DESIGNAÇÃO', dataIndex: 'data_designacao', key: 'data_designacao', render: (text: string | null) => formatDate(text) },
+    { title: 'DATA DA CESSAÇÃO', dataIndex: 'data_cessacao', key: 'data_cessacao', render: (text: string | null) => formatDate(text) },
     { title: 'Nº SEI', dataIndex: 'numero_sei', key: 'numero_sei' }
   ];
   return (

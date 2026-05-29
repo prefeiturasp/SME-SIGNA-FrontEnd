@@ -106,6 +106,10 @@ Then('devo visualizar o botão de acessar', () => {
   cy.get(loginLocators.botaoEntrar).should('be.visible');
 });
 
+Then('devo visualizar que o botão de acessar está desabilitado', () => {
+  cy.get(loginLocators.botaoEntrar).should('be.visible').and('be.disabled');
+});
+
 Then('devo visualizar o link de recuperar senha', () => {
   cy.get(loginLocators.linkEsqueciSenha).should('be.visible');
 });

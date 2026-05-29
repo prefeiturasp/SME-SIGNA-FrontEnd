@@ -24,7 +24,7 @@ When('eu busco a DRE com código {string}', (codigoDRE) => {
 
 When('eu busco a DRE com código {string} sem token', (codigoDRE) => {
   const path = `/api/DREs/${codigoDRE}`
-  const baseURL = 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseURL = 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   cy.request({
     method: 'GET',
     url: `${baseURL}${path}`,
