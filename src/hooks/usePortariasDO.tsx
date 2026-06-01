@@ -13,6 +13,7 @@ export function usePortariasDO() {
   const [salvando, setSalvando] = useState(false); 
   const [tabelaKey, setTabelaKey] = useState(0);
   const [isPending, startTransition] = useTransition();
+  console.log('resultado', resultado);
 
   const filterForm = useForm<filterFormSchemaFiltroDOData>({
     resolver: zodResolver(filterFormSchemaFiltroDO),

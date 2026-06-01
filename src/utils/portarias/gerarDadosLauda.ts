@@ -33,13 +33,15 @@ export function gerarDadosLaudaDesignacao(data: DesignacaoData) {
         portaria: `${data?.portaria_designacao}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
+
         vinculo: data?.servidorIndicado?.vinculo,
         nome_indicado: nome_indicado?.toUpperCase(),
+
         cargo_base: nameToCamelCase(data?.servidorIndicado?.cargo_base ?? ""),
         lotacao_indicado: nameToCamelCaseUe(data?.servidorIndicado?.lotacao ?? ""),
         
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
-        ue: nameToCamelCaseUe(data?.ue_nome ?? ""),       
+        ue: nameToCamelCaseUe(data?.ue_nome ?? ""),
         eh: data?.codigo_hierarquico,
         trecho_substituicao: montarTrechoSubstituicaoLauda(data),
         trecho_final: montarTrechoFinal(data),
@@ -68,7 +70,7 @@ export function gerarDadosLaudaCessacao(data: any) {
 
     return {
         dre: data?.dre_nome,
-        portaria: `${data?.portaria_designacao}/${data?.ano}`,
+        portaria: `${data?.portaria_cessacao}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
         vinculo: data?.servidorIndicado?.vinculo,
@@ -80,10 +82,12 @@ export function gerarDadosLaudaCessacao(data: any) {
         portaria_designacao:"123",
         doc_designacao:"10/01/2026",
         sei_designacao:"123",
-        trecho_para_substituir:montarTrechoParaSubstituir(data),
+        
 
 
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
+        trecho_para_substituir:montarTrechoParaSubstituir(data),
+        
         ue: nameToCamelCaseUe(data?.ue_nome ?? ""),       
         
 

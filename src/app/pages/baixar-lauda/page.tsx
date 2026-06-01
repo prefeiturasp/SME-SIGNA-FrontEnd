@@ -19,6 +19,8 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { TEMPLATE_CESSACAO_BAIXAR_LAUDA, TEMPLATE_DESIGNACAO_BAIXAR_LAUDA, TEMPLATE_INSUBSISTENCIA_CESSACAO_BAIXAR_LAUDA, TEMPLATE_INSUBSISTENCIA_DESIGNACAO, TEMPLATE_INSUBSISTENCIA_DESIGNACAO_BAIXAR_LAUDA   } from "@/utils/portarias/templates";
 import { escapeHtml } from "../designacoes/designacoes-passo-3/page";
 import { Button } from "antd";
+import { useFetchCargos } from "@/hooks/useCargos";
+import { useFetchDREs } from "@/hooks/useUnidades";
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
 
 
@@ -368,8 +370,14 @@ export default function BaixarLauda() {
     salvando,
   } = usePortariasDO();
 
+  const { data: dreOptions = [] } = useFetchDREs();
+  console.log('resultado', resultado);
 
-
+  const { data: cargosData = [] } = useFetchCargos();
+  const cargos = cargosData.map(cargo => ({
+    id: cargo.codigoCargo,
+    label: cargo.nomeCargo,
+  }));
 
   const gerarDadosEscapados = (dadosPuros: Record<string, string>) => {
 
