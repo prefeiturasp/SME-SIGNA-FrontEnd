@@ -126,11 +126,11 @@ export interface PortariaDesignacao {
   titular_rf: string;
   titular_cargo_base: string;
   titular_vinculo: number,
-  impedimento_substituicao: number|null;
+  impedimento_substituicao: string|null;
   ue: string;
   codigo_hierarquico: string;
   data_inicio: string;
-  data_fim: string | null;
+  data_fim?: string | Date;
   cargo_vaga: number;
   unidade_proponente: string;
 }

@@ -11,52 +11,52 @@ function formatarData(data?: string | Date) {
 
 export function montarTrechoSubstituicaoLauda(data: ListagemPortariasResponse): string {
 
+    const inicio = formatarData(data?.designacao.data_inicio);
+    const fim = formatarData(data?.designacao.data_fim);
+
+    let base =""
+    
     // CARGO VAGO
     if (data?.designacao.tipo_vaga === "VAGO") {
-        const inicio = formatarData(data?.designacao.data_inicio);
-        return `cargo vago, previsto na Lei 14.660/2007, a partir de ${inicio}`;
+        base = `cargo vago, previsto na Lei 14.660/2007`;
+        if (data?.designacao.data_fim) {    
+            return `${base}, no período de ${inicio} a ${fim}`;
+        }
+        return `${base}, a partir de ${inicio}`;
     }
 
-    
+
 
     if (!data.designacao.titular_rf) return "";
 
-    const inicio = formatarData(data?.designacao.data_inicio);
-    const fim = formatarData(data?.designacao.data_fim);
+
     const nomeTitular = (
         data.designacao.titular_nome_civil?.trim()
             ? data.designacao.titular_nome_civil
             : data.designacao.titular_nome_servidor ?? "____"
     ).toUpperCase();
 
-    const base = `em substituição a ${nomeTitular ?? "____"}, Registro nº ${formatarRF(data.designacao.titular_rf ?? "____")
+    base = `em substituição a ${nomeTitular ?? "____"}, Registro nº ${formatarRF(data.designacao.titular_rf ?? "____")
         }, Vínculo ${data.designacao.titular_vinculo ?? "____"}, ${nameToCamelCase(data.designacao.titular_cargo_base ?? "____")}`;
 
 
-    // to-do: arrumar quando ids vierem do banco
-    // LICENÇA MÉDICA
-    console.log('data?.designacao.impedimento_substituicao',data?.designacao.impedimento_substituicao)
-    if (data?.designacao.impedimento_substituicao === 2) {
-        return `${base}, por licença médica, no período de ${inicio} a ${fim}`;
+
+    if (data?.designacao.impedimento_substituicao) {
+        return `${base}, ${data?.designacao.impedimento_substituicao.toLowerCase()}, no período de ${inicio}  a ${fim}`;
     }
 
-    // FÉRIAS
-    if (data?.designacao.impedimento_substituicao === 4) {
-        return `${base}, por férias, no período de ${inicio} a ${fim}`;
+    if (data?.designacao.data_fim) {
+        
+        return `${base}, no período de ${inicio} a ${fim}`;
     }
 
-    // CASO PADRÃO
     return `${base}, a partir de ${inicio}`;
 }
-
-
-
-
 export function montarTrechoFinal(data: DesignacaoData): string {
 
     // to-do: arrumar quando ids vierem do banco e textos
     // CARGO VAGO
-    
+
     if (data?.tipo_cargo === "vago") {
         return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
     }
@@ -75,21 +75,21 @@ export function montarTrechoFinal(data: DesignacaoData): string {
     return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
 }
 
- 
+
 
 
 export function montarTrechoUnidade(data: ListagemPortariasResponse): string {
 
-    
+
     if (data?.designacao?.indicado_lotacao?.replace(/\s+/g, '') === data?.designacao?.unidade_proponente?.replace(/\s+/g, '')) {
         return `na referida Unidade`;
     }
 
     // PADRÃO
-    return `no ${nameToCamelCaseUe(data?.designacao.unidade_proponente ?? "")}, da ${data.designacao.dre_nome?? "____"}`;
+    return `no ${nameToCamelCaseUe(data?.designacao.unidade_proponente ?? "")}, da ${data.designacao.dre_nome ?? "____"}`;
 }
 
- 
+
 
 
 
@@ -97,20 +97,20 @@ export function montarTrechoUnidade(data: ListagemPortariasResponse): string {
 
 
 export function montarTrechoParaSubstituir(data: DesignacaoData): string {
- 
+
     const indicado = data?.servidorIndicado;
     const inicio = formatarData(data?.a_partir_de);
 
     // CARGO VAGO
-    if (data?.tipo_cargo === "vago") {        
-        return `para exercer o cargo de ${nameToCamelCase(indicado?.cargo_base ?? "____")} na ${indicado?.lotacao?? "____"}, a partir de ${inicio}`;
+    if (data?.tipo_cargo === "vago") {
+        return `para exercer o cargo de ${nameToCamelCase(indicado?.cargo_base ?? "____")} na ${indicado?.lotacao ?? "____"}, a partir de ${inicio}`;
     }
 
     const titular = data?.dadosTitular;
 
     if (!titular) return "";
 
-     const nomeTitular = (
+    const nomeTitular = (
         titular?.nome_civil?.trim()
             ? titular.nome_civil
             : titular?.nome_servidor ?? "____"
@@ -118,8 +118,8 @@ export function montarTrechoParaSubstituir(data: DesignacaoData): string {
 
     const base = `para substituir o(a) Sr.(a) ${nomeTitular ?? "____"}, ${nameToCamelCase(titular?.cargo_base ?? "____")}, registro nº ${formatarRF(titular?.rf ?? "____")
         }, Vínculo ${titular?.vinculo ?? "____"}`;
- 
-    return `${base}, na ${indicado?.lotacao?? "____"}, a partir de ${inicio}`;
+
+    return `${base}, na ${indicado?.lotacao ?? "____"}, a partir de ${inicio}`;
 }
 
 
@@ -130,15 +130,15 @@ export function montarTrechoParaSubstituir(data: DesignacaoData): string {
 export function montarPeriodoInsubsistencia(data: DesignacaoResponse): string {
 
     let periodo_insubsistencia = "";
-     
-    
-  
-    if(data?.data_fim){
-      periodo_insubsistencia = " no período de "+formatarData(data?.data_inicio ?? "")+" a "+formatarData(data?.data_fim ?? "");
+
+
+
+    if (data?.data_fim) {
+        periodo_insubsistencia = " no período de " + formatarData(data?.data_inicio ?? "") + " a " + formatarData(data?.data_fim ?? "");
     } else {
-      periodo_insubsistencia = " a partir de "+formatarData(data?.data_inicio ?? "");
+        periodo_insubsistencia = " a partir de " + formatarData(data?.data_inicio ?? "");
     }
- 
+
 
     return periodo_insubsistencia;
 }

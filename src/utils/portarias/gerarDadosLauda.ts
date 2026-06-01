@@ -33,6 +33,7 @@ function getCargoIndicadoNew(data: ListagemPortariasResponse, cargo_vaga_display
 
 export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
     const cargo_indicado = getCargoIndicadoNew(data, cargo_vaga_display);
+    console.log('data',data)
 
     const nome_indicado =
         data?.designacao?.indicado_nome_civil?.trim()

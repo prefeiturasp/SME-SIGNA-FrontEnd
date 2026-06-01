@@ -360,6 +360,52 @@ const dadosDesignacao = {
   "tipo": "DESIGNACAO"
 }
 
+const dadosDesignacaoVagoComPeriodo = {
+  "id": 10,
+  "portaria": "444",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Designação",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-06-01",
+  "data_cessacao": "2026-06-06",
+  "numero_sei": "444",
+  "observacoes": null,
+  "designacao": {
+      "portaria": "444",
+      "ano_vigente": "2026",
+      "numero_sei": "444",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO SAO MIGUEL",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "VAGO",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "",
+      "titular_rf": "",
+      "titular_cargo_base": "",
+      "titular_vinculo": 0,
+      "impedimento_substituicao": null,
+ 
+      "ue": "014893",
+      "codigo_hierarquico": "163000000170000",
+      "data_inicio": "2026-06-01",
+      "data_fim": "2026-06-06",
+      "cargo_vaga": 3360,
+      "unidade_proponente": "EMEI - MARIA DAILCE MONTEIRO DA SILVA GOMES, PROFA."
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "DESIGNACAO"
+}
 const dadosDesignacaoComTitular ={
   "id": 9,
   "portaria": "222222",
@@ -438,7 +484,7 @@ const dadosDesignacaoComTitularFerias ={
       "titular_rf": "7914229",
       "titular_cargo_base": "COORDENADOR PEDAGOGICO",
       "titular_vinculo": 1,
-      "impedimento_substituicao": 4,
+      "impedimento_substituicao": "Por férias",
       "ue": "018279",
       "codigo_hierarquico": "162900000010000",
       "data_inicio": "2026-06-01",
@@ -451,7 +497,6 @@ const dadosDesignacaoComTitularFerias ={
   "tipo_apostila": null,
   "tipo": "DESIGNACAO"
 }
-
 export default function BaixarLauda() {
   const {
     handleClear,
@@ -557,11 +602,13 @@ export default function BaixarLauda() {
 
     // })
     const texto_desigancao=gerarTextoDesignacaoLauda(dadosDesignacao)
+    const texto_desigancao_vago_com_periodo=gerarTextoDesignacaoLauda(dadosDesignacaoVagoComPeriodo)
     const texto_desigancao_com_titular=gerarTextoDesignacaoLauda(dadosDesignacaoComTitular)
     const texto_desigancao_com_titular_ferias=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularFerias)
-    console.log('texto_desigancao',texto_desigancao)
+    console.log('texto_desiganca_cargo_vago',texto_desigancao)
+    console.log('texto_desiganca_cargo_vago_com_periodo',texto_desigancao_vago_com_periodo)
     console.log('texto_desigancao_com_titular',texto_desigancao_com_titular)
-    console.log('texto_desigancao_com_titular_ferias',texto_desigancao_com_titular_ferias)
+    console.log('texto_desigancao_com_titular_e_periodo_e_ferias',texto_desigancao_com_titular_ferias)
 
     // const texto_cessacao=gerarTextoCessacaoLauda(dadosCessacao)
     // // console.log('texto_cessacao',texto_cessacao)
