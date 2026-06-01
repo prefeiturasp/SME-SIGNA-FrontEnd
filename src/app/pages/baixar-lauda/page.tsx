@@ -11,6 +11,7 @@ import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/Listage
 import {
   DesignacaoResponse,
   ListagemPortariasResponse,
+  TipoAto
 } from "@/types/designacao";
 import {  gerarDadosInsubsistenciaCessacao, gerarDadosInsubsistenciaDesignacao, gerarDadosLaudaCessacao, gerarDadosLaudaDesignacao } from "@/utils/portarias/gerarDadosLauda";
 import { useMemo } from "react";
@@ -314,49 +315,50 @@ const dadosCessacao = {
 
 
 const dadosDesignacao = {
-  "portaria_designacao": "2604",
-
+  "id": 1,
+  "portaria": "1111111111",
+  "doc": null,
   "ano": "2026",
+  "tipo_de_ato": "Designação",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-05-26",
+  "data_cessacao": null,
   "numero_sei": "1111.1111/1111111-1",
-  "sei": "728.817.4",      
-
-  "servidorIndicado": {
-    "vinculo": 1,
-    "nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
-    "nome_civil": "",
-    "rf": "7311559",      
-    "cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
-    "lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
-    "cargo_sobreposto_funcao_atividade": "SECRETARIO DE ESCOLA",
-    "local_de_exercicio": "EMEF         - JOSE BORGES ANDRADE",
-    "laudo_medico": "Indisponível",
-    "local_de_servico": "Indisponível"
+  "observacoes": null,
+  "designacao": {
+      "portaria": "1111111111",
+      "ano_vigente": "2026",
+      "numero_sei": "1111.1111/1111111-1",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "VAGO",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "",
+      "titular_rf": "",
+      "titular_cargo_base": "",
+      "titular_vinculo": 0,
+      "impedimento_substituicao": null,
+      "ue": "000191",
+      "codigo_hierarquico": "162100000550000",
+      "data_inicio": "2026-05-26",
+      "data_fim": null,
+      "cargo_vaga":3360,
+      "unidade_proponente":"EMEF         - JOSE BORGES ANDRADE",
   },
-  "dre": "108100",
-  "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
-  "ue": "000191",
-  "ue_nome": "EMEF - ALIPIO CORREA NETO, PROF.",
-  "funcionarios_da_unidade": "3085",
-  "quantidade_turmas": "-",
-  "codigo_hierarquico": "162100000550000",
-  "cargo_sobreposto": "",
-  "modulos": 1,
-  "a_partir_de": "2026-05-26",
-  "designacao_data_final": "2026-10-27",
-  "com_afastamento": false,
-  "motivo_afastamento": "",
-  "com_pendencia": false,
-  "motivo_pendencia": "",
-  "tipo_cargo": "vago",
-  "rf_titular": "",
-  "cargo_vago_selecionado": {
-    "id": 3360,
-    "label": "DIRETOR DE ESCOLA"
-  },
-  "dadosTitular": null,
-  "informacoes_adicionais": "",
-  "detalhe_para_quadro_de_historico_por_ano": true
-};
+  "cessacao": null,
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "DESIGNACAO"
+}
 
 
 export default function BaixarLauda() {
@@ -371,7 +373,7 @@ export default function BaixarLauda() {
   } = usePortariasDO();
 
   const { data: dreOptions = [] } = useFetchDREs();
-  console.log('resultado', resultado);
+  // console.log('resultado', resultado);
 
   const { data: cargosData = [] } = useFetchCargos();
   const cargos = cargosData.map(cargo => ({
@@ -394,12 +396,15 @@ export default function BaixarLauda() {
     return dadosEscapados;
   };
 
-  const gerarTextoDesignacaoLauda = (dadosDesignacao: any) => {
-    const dadosPuros = gerarDadosLaudaDesignacao({
-      ...dadosDesignacao,
-      designacao_data_final: dadosDesignacao.designacao_data_final ?? undefined,
-      impedimento_substituicao: dadosDesignacao.impedimento_substituicao ?? undefined,
-    });
+  const gerarTextoDesignacaoLauda = (dadosDesignacao: ListagemPortariasResponse) => {
+
+    const cargo_vaga_display=cargos.filter((cargo)=>cargo.id===dadosDesignacao.designacao.cargo_vaga)[0]?.label ??""
+    
+    console.log("cargos",cargo_vaga_display)
+    const dadosPuros = gerarDadosLaudaDesignacao(
+    dadosDesignacao,
+    cargo_vaga_display
+  );
 
     const dadosEscapados = gerarDadosEscapados(dadosPuros);
 
@@ -452,19 +457,27 @@ export default function BaixarLauda() {
  
   const handleBaixarLauda = async (selectedRows: ListagemPortariasResponse[], tipoArquivo: string) => {
     console.log('selectedRows', selectedRows, tipoArquivo);
+
+    // selectedRows.map((ato)=>{
+    //   if(ato.tipo==="DESIGNACAO"){
+    //     const texto_desigancao=gerarTextoDesignacaoLauda(ato)
+    //     console.log('texto_desigancao',texto_desigancao)
+    //   }
+
+    // })
     const texto_desigancao=gerarTextoDesignacaoLauda(dadosDesignacao)
-    // console.log('texto_desigancao',texto_desigancao)
+    console.log('texto_desigancao',texto_desigancao)
 
-    const texto_cessacao=gerarTextoCessacaoLauda(dadosCessacao)
-    // console.log('texto_cessacao',texto_cessacao)
+    // const texto_cessacao=gerarTextoCessacaoLauda(dadosCessacao)
+    // // console.log('texto_cessacao',texto_cessacao)
 
-    // TODO: ATUALIZAR AS INTERFACES DE CESSACAO E DESIGNAÇÃO
+    // // TODO: ATUALIZAR AS INTERFACES DE CESSACAO E DESIGNAÇÃO
 
-    const texto_insubsistencia=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacao)
-    // console.log('texto_insubsistencia',texto_insubsistencia)
+    // const texto_insubsistencia=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacao)
+    // // console.log('texto_insubsistencia',texto_insubsistencia)
 
-    const texto_insubsistencia_cessacao=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacao)
-    console.log('texto_insubsistencia_cessacao',texto_insubsistencia_cessacao)
+    // const texto_insubsistencia_cessacao=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacao)
+    // console.log('texto_insubsistencia_cessacao',texto_insubsistencia_cessacao)
          
     
   };

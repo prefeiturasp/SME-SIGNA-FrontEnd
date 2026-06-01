@@ -1,4 +1,4 @@
-import { DesignacaoData, DesignacaoResponse } from "@/types/designacao";
+import { DesignacaoData, DesignacaoResponse, ListagemPortariasResponse } from "@/types/designacao";
 
 import { nameToCamelCase, formatarRF, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
 import { montarTrechoSubstituicaoLauda,     montarTrechoFinal,
@@ -20,36 +20,46 @@ function getCargoIndicado(data: DesignacaoData): string | undefined {
     return cargo?.label;
 }
 
-export function gerarDadosLaudaDesignacao(data: DesignacaoData) {
-    const cargo_indicado = getCargoIndicado(data);
+function getCargoIndicadoNew(data: ListagemPortariasResponse, cargo_vaga_display:string): string | undefined {
+    
+
+    if (data?.designacao.tipo_vaga !== "VAGO") {
+        return data?.designacao.titular_cargo_base;
+    }   
+
+    return cargo_vaga_display;
+}
+
+export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
+    const cargo_indicado = getCargoIndicadoNew(data, cargo_vaga_display);
 
     const nome_indicado =
-        data?.servidorIndicado?.nome_civil?.trim()
-            ? data.servidorIndicado.nome_civil
-            : data?.servidorIndicado?.nome_servidor;
+        data?.designacao?.indicado_nome_civil?.trim()
+            ? data.designacao.indicado_nome_civil
+            : data?.designacao?.indicado_nome_servidor;
 
     return {
-        dre: data?.dre_nome,
-        portaria: `${data?.portaria_designacao}/${data?.ano}`,
+        dre: data.designacao.dre_nome,
+        portaria: `${data?.portaria}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
 
-        vinculo: data?.servidorIndicado?.vinculo,
+        vinculo: data?.designacao?.indicado_vinculo,
         nome_indicado: nome_indicado?.toUpperCase(),
 
-        cargo_base: nameToCamelCase(data?.servidorIndicado?.cargo_base ?? ""),
-        lotacao_indicado: nameToCamelCaseUe(data?.servidorIndicado?.lotacao ?? ""),
+        cargo_base: nameToCamelCase(data?.designacao.indicado_cargo_base ?? ""),
+        lotacao_indicado: nameToCamelCaseUe(data?.designacao?.indicado_lotacao ?? ""),
         
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
-        ue: nameToCamelCaseUe(data?.ue_nome ?? ""),
-        eh: data?.codigo_hierarquico,
+        ue: nameToCamelCaseUe(data?.designacao.unidade_proponente ?? ""),
+        eh: data?.designacao.codigo_hierarquico,
         trecho_substituicao: montarTrechoSubstituicaoLauda(data),
         trecho_final: montarTrechoFinal(data),
 
 
         
         
-        rf: formatarRF(data?.servidorIndicado?.rf ?? ""),
+        rf: formatarRF(data?.designacao.indicado_rf ?? ""),
         
         
         

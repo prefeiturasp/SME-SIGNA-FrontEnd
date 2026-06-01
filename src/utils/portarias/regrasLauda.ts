@@ -1,4 +1,4 @@
-import { DesignacaoData, DesignacaoResponse } from "@/types/designacao";
+import { DesignacaoData, DesignacaoResponse, ListagemPortariasResponse } from "@/types/designacao";
 import { formatarRF, nameToCamelCase } from "./formatadores";
 
 function formatarData(data?: string | Date) {
@@ -9,39 +9,39 @@ function formatarData(data?: string | Date) {
     return date.toLocaleDateString("pt-BR");
 }
 
-export function montarTrechoSubstituicaoLauda(data: DesignacaoData): string {
+export function montarTrechoSubstituicaoLauda(data: ListagemPortariasResponse): string {
 
     // CARGO VAGO
-    if (data?.tipo_cargo === "vago") {
-        const inicio = formatarData(data?.a_partir_de);
+    if (data?.designacao.tipo_vaga === "VAGO") {
+        const inicio = formatarData(data?.designacao.data_inicio);
         return `cargo vago, previsto na Lei 14.660/2007, a partir de ${inicio}`;
     }
 
-    const titular = data?.dadosTitular;
+    
 
-    if (!titular) return "";
+    if (!data.designacao.titular_rf) return "";
 
-    const inicio = formatarData(data?.a_partir_de);
-    const fim = formatarData(data?.designacao_data_final);
+    const inicio = formatarData(data?.designacao.data_inicio);
+    const fim = formatarData(data?.designacao.data_fim);
     const nomeTitular = (
-        titular?.nome_civil?.trim()
-            ? titular.nome_civil
-            : titular?.nome_servidor ?? "____"
+        data.designacao.titular_nome_civil?.trim()
+            ? data.designacao.titular_nome_civil
+            : data.designacao.titular_nome_servidor ?? "____"
     ).toUpperCase();
 
-    const base = `em substituição a ${nomeTitular ?? "____"}, Registro nº ${formatarRF(titular?.rf ?? "____")
-        }, Vínculo ${titular?.vinculo ?? "____"}, ${nameToCamelCase(titular?.cargo_base ?? "____")}, ${titular?.tipo_vinculo ?? "efetivo"
+    const base = `em substituição a ${nomeTitular ?? "____"}, Registro nº ${formatarRF(data.designacao.titular_rf ?? "____")
+        }, Vínculo ${data.designacao.titular_vinculo ?? "____"}, ${nameToCamelCase(data.designacao.titular_cargo_base ?? "____")}
         }`;
 
 
     // to-do: arrumar quando ids vierem do banco
     // LICENÇA MÉDICA
-    if (data?.impedimento_substituicao === "2") {
+    if (data?.designacao.impedimento_substituicao === "2") {
         return `${base}, por licença médica, no período de ${inicio} a ${fim}`;
     }
 
     // FÉRIAS
-    if (data?.impedimento_substituicao === "4") {
+    if (data?.designacao.impedimento_substituicao === "4") {
         return `${base}, por férias, no período de ${inicio} a ${fim}`;
     }
 

@@ -129,13 +129,20 @@ export interface PortariaDesignacao {
   impedimento_substituicao: string|null;
   ue: string;
   codigo_hierarquico: string;
-  data_inicio: string | null;
+  data_inicio: string;
   data_fim: string | null;
+  cargo_vaga: number;
+  unidade_proponente: string;
 }
+
+ 
+export type TipoAto = "DESIGNACAO"|"CESSACAO"|"APOSTILA"|"INSUBSISTENCIA";
+ 
 export interface ListagemPortariasResponse {
   id: number;
   portaria: string;
   tipo_de_ato: string;
+  ano: string;
   nome: string;
   cargo: string;
   doc: string;
@@ -143,7 +150,7 @@ export interface ListagemPortariasResponse {
   data_cessacao: string | null;
   numero_sei: string;
   observacoes: string;
-  tipo: string;
+  tipo:TipoAto;
   tipo_apostila: string | null;
   tipo_insubsistencia: string | null;
   designacao: PortariaDesignacao;

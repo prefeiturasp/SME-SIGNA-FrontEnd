@@ -56,14 +56,14 @@ APOSTILA FEITA NA PORTARIA, Nº {{portaria_designacao}}/{{ano}}, DA S.M.E., D.O.
 
 export const TEMPLATE_DESIGNACAO_BAIXAR_LAUDA = `DESIGNANDO
 {{dre}}
-Port. {{portaria}} - SEI nº {{sei}} - 728.817.4, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}},
-para exercer cargo de {{cargo_indicado}}, no {{ue}},  EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`
+Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}},
+para exercer cargo de {{cargo_indicado}}, no {{ue}}, da {{dre}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`
 
 
  
 export const TEMPLATE_CESSACAO_BAIXAR_LAUDA = `FAZENDO CESSAR
 {{dre}}
-Port. {{portaria}} - SEI nº {{sei}} - 728.817.4, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) foi designado(a), {{trecho_para_substituir}}, `
+Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) foi designado(a), {{trecho_para_substituir}}, `
 
 
  
