@@ -57,7 +57,7 @@ APOSTILA FEITA NA PORTARIA, Nº {{portaria_designacao}}/{{ano}}, DA S.M.E., D.O.
 export const TEMPLATE_DESIGNACAO_BAIXAR_LAUDA = `DESIGNANDO
 {{dre}}
 Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}},
-para exercer cargo de {{cargo_indicado}}, no {{ue}}, da {{dre}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`
+para exercer cargo de {{cargo_indicado}}, {{trecho_unidade}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`
 
 
  

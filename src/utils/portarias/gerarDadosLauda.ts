@@ -4,7 +4,8 @@ import { nameToCamelCase, formatarRF, nameToCamelCaseUe } from "@/utils/portaria
 import { montarTrechoSubstituicaoLauda,     montarTrechoFinal,
 
     montarTrechoParaSubstituir,
-    montarPeriodoInsubsistencia,} from "./regrasLauda";
+    montarPeriodoInsubsistencia,
+    montarTrechoUnidade,} from "./regrasLauda";
 
 function getCargoIndicado(data: DesignacaoData): string | undefined {
     const cargo = data?.cargo_vago_selecionado;
@@ -56,7 +57,7 @@ export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_
         trecho_substituicao: montarTrechoSubstituicaoLauda(data),
         trecho_final: montarTrechoFinal(data),
 
-
+        trecho_unidade:montarTrechoUnidade(data),
         
         
         rf: formatarRF(data?.designacao.indicado_rf ?? ""),

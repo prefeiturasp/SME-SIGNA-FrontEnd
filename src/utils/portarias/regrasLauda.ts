@@ -1,5 +1,5 @@
 import { DesignacaoData, DesignacaoResponse, ListagemPortariasResponse } from "@/types/designacao";
-import { formatarRF, nameToCamelCase } from "./formatadores";
+import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "./formatadores";
 
 function formatarData(data?: string | Date) {
     if (!data) return "____";
@@ -30,18 +30,18 @@ export function montarTrechoSubstituicaoLauda(data: ListagemPortariasResponse): 
     ).toUpperCase();
 
     const base = `em substituição a ${nomeTitular ?? "____"}, Registro nº ${formatarRF(data.designacao.titular_rf ?? "____")
-        }, Vínculo ${data.designacao.titular_vinculo ?? "____"}, ${nameToCamelCase(data.designacao.titular_cargo_base ?? "____")}
-        }`;
+        }, Vínculo ${data.designacao.titular_vinculo ?? "____"}, ${nameToCamelCase(data.designacao.titular_cargo_base ?? "____")}`;
 
 
     // to-do: arrumar quando ids vierem do banco
     // LICENÇA MÉDICA
-    if (data?.designacao.impedimento_substituicao === "2") {
+    console.log('data?.designacao.impedimento_substituicao',data?.designacao.impedimento_substituicao)
+    if (data?.designacao.impedimento_substituicao === 2) {
         return `${base}, por licença médica, no período de ${inicio} a ${fim}`;
     }
 
     // FÉRIAS
-    if (data?.designacao.impedimento_substituicao === "4") {
+    if (data?.designacao.impedimento_substituicao === 4) {
         return `${base}, por férias, no período de ${inicio} a ${fim}`;
     }
 
@@ -56,6 +56,7 @@ export function montarTrechoFinal(data: DesignacaoData): string {
 
     // to-do: arrumar quando ids vierem do banco e textos
     // CARGO VAGO
+    
     if (data?.tipo_cargo === "vago") {
         return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
     }
@@ -75,6 +76,21 @@ export function montarTrechoFinal(data: DesignacaoData): string {
 }
 
  
+
+
+export function montarTrechoUnidade(data: ListagemPortariasResponse): string {
+
+    
+    if (data?.designacao?.indicado_lotacao?.replace(/\s+/g, '') === data?.designacao?.unidade_proponente?.replace(/\s+/g, '')) {
+        return `na referida Unidade`;
+    }
+
+    // PADRÃO
+    return `no ${nameToCamelCaseUe(data?.designacao.unidade_proponente ?? "")}, da ${data.designacao.dre_nome?? "____"}`;
+}
+
+ 
+
 
 
 

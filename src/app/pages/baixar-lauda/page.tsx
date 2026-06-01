@@ -315,23 +315,23 @@ const dadosCessacao = {
 
 
 const dadosDesignacao = {
-  "id": 1,
-  "portaria": "1111111111",
+  "id": 10,
+  "portaria": "444",
   "doc": null,
   "ano": "2026",
   "tipo_de_ato": "Designação",
   "nome": "ADALBERTO PAVLIDIS DA SILVA",
   "cargo": "SECRETARIO DE ESCOLA",
-  "data_designacao": "2026-05-26",
+  "data_designacao": "2026-06-01",
   "data_cessacao": null,
-  "numero_sei": "1111.1111/1111111-1",
+  "numero_sei": "444",
   "observacoes": null,
   "designacao": {
-      "portaria": "1111111111",
+      "portaria": "444",
       "ano_vigente": "2026",
-      "numero_sei": "1111.1111/1111111-1",
+      "numero_sei": "444",
       "doc": null,
-      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO SAO MIGUEL",
       "indicado_rf": "7311559",
       "indicado_vinculo": 1,
       "indicado_nome_civil": "",
@@ -347,12 +347,12 @@ const dadosDesignacao = {
       "titular_cargo_base": "",
       "titular_vinculo": 0,
       "impedimento_substituicao": null,
-      "ue": "000191",
-      "codigo_hierarquico": "162100000550000",
-      "data_inicio": "2026-05-26",
+      "ue": "400105",
+      "codigo_hierarquico": "163300000720000",
+      "data_inicio": "2026-06-01",
       "data_fim": null,
-      "cargo_vaga":3360,
-      "unidade_proponente":"EMEF         - JOSE BORGES ANDRADE",
+      "cargo_vaga": 3360,
+      "unidade_proponente": "CEI DIRET - MARIA APARECIDA DOS SANTOS"
   },
   "cessacao": null,
   "tipo_insubsistencia": null,
@@ -360,6 +360,97 @@ const dadosDesignacao = {
   "tipo": "DESIGNACAO"
 }
 
+const dadosDesignacaoComTitular ={
+  "id": 9,
+  "portaria": "222222",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Designação",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-06-01",
+  "data_cessacao": null,
+  "numero_sei": "2222.2222/2222222-2",
+  "observacoes": null,
+  "designacao": {
+      "portaria": "222222",
+      "ano_vigente": "2026",
+      "numero_sei": "2222.2222/2222222-2",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO PIRITUBA/JARAGUA",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "DISPONIVEL",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "titular_rf": "7914229",
+      "titular_cargo_base": "COORDENADOR PEDAGOGICO",
+      "titular_vinculo": 1,
+      "impedimento_substituicao": null,
+      "ue": "014893",
+      "codigo_hierarquico": "163000000170000",
+      "data_inicio": "2026-06-01",
+      "data_fim": null,
+      "cargo_vaga": 3360,
+      "unidade_proponente": "EMEI - MARIA DAILCE MONTEIRO DA SILVA GOMES, PROFA."
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "DESIGNACAO"
+}
+
+const dadosDesignacaoComTitularFerias ={
+  "id": 11,
+  "portaria": "77",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Designação",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-06-01",
+  "data_cessacao": "2026-06-06",
+  "numero_sei": "7",
+  "observacoes": null,
+  "designacao": {
+      "portaria": "77",
+      "ano_vigente": "2026",
+      "numero_sei": "7",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO PENHA",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "DISPONIVEL",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "titular_rf": "7914229",
+      "titular_cargo_base": "COORDENADOR PEDAGOGICO",
+      "titular_vinculo": 1,
+      "impedimento_substituicao": 4,
+      "ue": "018279",
+      "codigo_hierarquico": "162900000010000",
+      "data_inicio": "2026-06-01",
+      "data_fim": "2026-06-06",
+      "cargo_vaga": 3360,
+      "unidade_proponente": "EMEI - CEZAR ROGERIO OLIVEIRA PERAMEZZA, PROF."
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "DESIGNACAO"
+}
 
 export default function BaixarLauda() {
   const {
@@ -466,7 +557,11 @@ export default function BaixarLauda() {
 
     // })
     const texto_desigancao=gerarTextoDesignacaoLauda(dadosDesignacao)
+    const texto_desigancao_com_titular=gerarTextoDesignacaoLauda(dadosDesignacaoComTitular)
+    const texto_desigancao_com_titular_ferias=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularFerias)
     console.log('texto_desigancao',texto_desigancao)
+    console.log('texto_desigancao_com_titular',texto_desigancao_com_titular)
+    console.log('texto_desigancao_com_titular_ferias',texto_desigancao_com_titular_ferias)
 
     // const texto_cessacao=gerarTextoCessacaoLauda(dadosCessacao)
     // // console.log('texto_cessacao',texto_cessacao)
