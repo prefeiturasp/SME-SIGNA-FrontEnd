@@ -96,6 +96,42 @@ export interface PortariasDOBody {
   data_publicacao: string;
 }
 
+export interface PortariaCessacao {
+    "portaria": string;
+    "ano_vigente": string;
+    "numero_sei": string;
+    "doc": string|null;
+    "remocao": boolean;
+    "a_pedido": boolean;
+    "aposentadoria": boolean;
+    "data_cessacao": string | null;
+}
+export interface PortariaDesignacao {
+  "portaria": string;
+  "ano_vigente": string;
+  "numero_sei": string;
+  "doc": string|null;
+  "dre_nome": string;
+  "indicado_rf": string;
+  "indicado_vinculo": number,
+  "indicado_nome_civil": string;
+  "indicado_nome_servidor": string;
+  "indicado_lotacao": string;
+  "indicado_cargo_base": string;
+  "indicado_cargo_sobreposto": string;
+  "indicado_local_exercicio": string;
+  "tipo_vaga": string;
+  "titular_nome_civil": string;
+  "titular_nome_servidor": string;
+  "titular_rf": string;
+  "titular_cargo_base": string;
+  "titular_vinculo": number,
+  "impedimento_substituicao": string|null;
+  "ue": string;
+  "codigo_hierarquico": string;
+  "data_inicio": string | null;
+  "data_fim": string | null;
+}
 export interface ListagemPortariasResponse {
   id: number;
   portaria: string;
@@ -106,6 +142,12 @@ export interface ListagemPortariasResponse {
   data_designacao: string | null;
   data_cessacao: string | null;
   numero_sei: string;
+  observacoes: string;
+  tipo: string;
+  tipo_apostila: string | null;
+  tipo_insubsistencia: string | null;
+  designacao: PortariaDesignacao;
+  cessacao: PortariaCessacao;
 }
 
 export interface PortariasDOFiltros {
