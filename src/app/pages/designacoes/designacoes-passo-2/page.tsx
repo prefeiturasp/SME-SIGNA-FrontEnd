@@ -85,7 +85,7 @@ export default function DesignacoesPasso2() {
       form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
       form.setValue("designacao_data_final", designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null);
       form.setValue("ano", designacao.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
-      form.setValue("doc", designacao.doc);
+      form.setValue("doc", designacao?.doc ?? "",);
       form.setValue("impedimento_substituicao", designacao.impedimento_substituicao);
       form.setValue("carater_especial", designacao.carater_excepcional ? "sim" : "nao");
       form.setValue("com_afastamento", designacao.com_afastamento ? "sim" : "nao");
