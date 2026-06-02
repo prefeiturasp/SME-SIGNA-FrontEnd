@@ -48,12 +48,11 @@ pipeline {
                                         sh -c "rm -rf allure-results allure-report && \
                                             npm install && \
                                             npm install cypress@\"$CYPRESS_VERSION\" \
-                                            @shelex/cypress-allure-plugin@2.41.2 mocha-allure-reporter@1.4.0 crypto-js@4.1.1 --save-dev && \
-                                            npx cypress run \
+                                            @shelex/cypress-allure-plugin@2.41.2 crypto-js@4.1.1 cypress-cloud --save-dev && \
+                                            npx cypress-cloud run \
                                                 --browser chrome \
                                                 --headless \
-                                                --reporter mocha-allure-reporter \
-                                                --reporter-options reportDir=allure-results; \
+                                                --env allure=true; \
                                             TEST_EXIT=\$?; \
                                             chown 1001:1001 * -R || true ; \
                                             chmod 777 * -R || true ; \

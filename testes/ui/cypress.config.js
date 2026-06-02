@@ -3,15 +3,6 @@ const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
 const preprocessor = require("@badeball/cypress-cucumber-preprocessor");
 const createEsbuildPlugin = require("@badeball/cypress-cucumber-preprocessor/esbuild");
 const allureWriter = require("@shelex/cypress-allure-plugin/writer");
-let cloudPlugin;
-try {
-  cloudPlugin = require("cypress-cloud/plugin").cloudPlugin;
-} catch (e) {
-  console.warn(
-    '\u001b[33m⚠ AVISO: cypress-cloud/plugin não está instalado. Testes continuarão sem o plugin.\u001b[0m'
-  );
-  cloudPlugin = null;
-}
 const dotenv = require("dotenv");
 const path = require("path");
 
@@ -145,14 +136,6 @@ module.exports = defineConfig({
         return launchOptions;
       });
 
-      // =========================
-      // 5️⃣ CYPRESS CLOUD PLUGIN
-      // =========================
-      if (cloudPlugin) {
-        const enhancedConfig = await cloudPlugin(on, config);
-        return enhancedConfig;
-      }
-      
       return config;
     },
   },
