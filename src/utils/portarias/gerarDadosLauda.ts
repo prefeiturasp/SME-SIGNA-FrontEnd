@@ -1,11 +1,13 @@
 import { DesignacaoData, DesignacaoResponse, ListagemPortariasResponse } from "@/types/designacao";
 
 import { nameToCamelCase, formatarRF, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
-import { montarTrechoSubstituicaoLauda,     montarTrechoFinal,
+import { montarTrechoSubstituicaoLaudaDesignacao,     montarTrechoFinal,
 
     montarTrechoParaSubstituir,
     montarPeriodoInsubsistencia,
-    montarTrechoUnidade,} from "./regrasLauda";
+    montarTrechoUnidade,
+    montarTrechoSubstituicaoLaudaCessacao,} from "./regrasLauda";
+import { formatarData } from "@/lib/utils";
 
 function getCargoIndicado(data: DesignacaoData): string | undefined {
     const cargo = data?.cargo_vago_selecionado;
@@ -33,7 +35,6 @@ function getCargoIndicadoNew(data: ListagemPortariasResponse, cargo_vaga_display
 
 export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
     const cargo_indicado = getCargoIndicadoNew(data, cargo_vaga_display);
-    console.log('data',data)
 
     const nome_indicado =
         data?.designacao?.indicado_nome_civil?.trim()
@@ -55,7 +56,7 @@ export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
         ue: nameToCamelCaseUe(data?.designacao.unidade_proponente ?? ""),
         eh: data?.designacao.codigo_hierarquico,
-        trecho_substituicao: montarTrechoSubstituicaoLauda(data),
+        trecho_substituicao: montarTrechoSubstituicaoLaudaDesignacao(data),
         trecho_final: montarTrechoFinal(data),
 
         trecho_unidade:montarTrechoUnidade(data),
@@ -72,40 +73,41 @@ export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_
     };
 }
 
-export function gerarDadosLaudaCessacao(data: any) {
-    const cargo_indicado = getCargoIndicado(data);
+export function gerarDadosLaudaCessacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
+    const cargo_indicado = getCargoIndicadoNew(data, cargo_vaga_display);
 
     const nome_indicado =
-        data?.servidorIndicado?.nome_civil?.trim()
-            ? data.servidorIndicado.nome_civil
-            : data?.servidorIndicado?.nome_servidor;
+    data?.designacao?.indicado_nome_civil?.trim()
+        ? data.designacao.indicado_nome_civil
+        : data?.designacao?.indicado_nome_servidor;
 
     return {
-        dre: data?.dre_nome,
-        portaria: `${data?.portaria_cessacao}/${data?.ano}`,
+        dre: data.designacao.dre_nome,
+        portaria: `${data?.portaria}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
-        vinculo: data?.servidorIndicado?.vinculo,
+        vinculo: data?.designacao?.indicado_vinculo,
         nome_indicado: nome_indicado?.toUpperCase(),
-        cargo_base: nameToCamelCase(data?.servidorIndicado?.cargo_base ?? ""),        
-        tipo_cessacao: data?.a_pedido === "sim" ? "a pedido" : "de ofício",
+        cargo_base: nameToCamelCase(data?.designacao?.indicado_cargo_base ?? ""),        
+        tipo_cessacao: data?.cessacao?.a_pedido  ? "a pedido" : "de ofício",
 
 
-        portaria_designacao:"123",
-        doc_designacao:"10/01/2026",
-        sei_designacao:"123",
+        portaria_designacao:data?.designacao?.portaria,
+        doc_designacao:formatarData(data?.designacao?.doc ?? ""),
+        sei_designacao:data?.designacao?.numero_sei,
         
 
 
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
-        trecho_para_substituir:montarTrechoParaSubstituir(data),
+        trecho_para_substituir:montarTrechoSubstituicaoLaudaCessacao(data),
         
-        ue: nameToCamelCaseUe(data?.ue_nome ?? ""),       
+        ue: nameToCamelCaseUe(data?.designacao?.unidade_proponente ?? ""),       
         
 
      
         
-        
+        rf: formatarRF(data?.designacao.indicado_rf ?? ""),
+
         
         
         

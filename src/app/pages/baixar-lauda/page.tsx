@@ -254,64 +254,60 @@ const dadosNovosCessacao:DesignacaoResponse = {
  
 }
 
-const dadosCessacao = {
-  "portaria_designacao": "2604",
-
+const dadosCessacaoComTitularSemPeriodo={
+  "id": 13,
+  "portaria": "2323",
+  "doc": null,
   "ano": "2026",
-  "numero_sei": "1111.1111/1111111-1",
-  "sei": "728.817.4",      
-
-  "servidorIndicado": {
-    "vinculo": 1,
-    "nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
-    "nome_civil": "",
-    "rf": "7311559",      
-    "cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
-    "lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
-    "cargo_sobreposto_funcao_atividade": "SECRETARIO DE ESCOLA",
-    "local_de_exercicio": "EMEF         - JOSE BORGES ANDRADE",
-    "laudo_medico": "Indisponível",
-    "local_de_servico": "Indisponível"
+  "tipo_de_ato": "Cessação",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-06-01",
+  "data_cessacao": "2026-06-02",
+  "numero_sei": "2323.",
+  "observacoes": null,
+  "designacao": {
+      "portaria": "222222",
+      "ano_vigente": "2026",
+      "numero_sei": "2222.2222/2222222-2",
+      "doc": "2026-06-03",
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO PIRITUBA/JARAGUA",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "DISPONIVEL",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "titular_rf": "7914229",
+      "titular_cargo_base": "COORDENADOR PEDAGOGICO",
+      "titular_vinculo": 1,
+      "impedimento_substituicao": null,
+      "ue": "014893",
+      "codigo_hierarquico": "163000000170000",
+      "data_inicio": "2026-06-01",
+      "data_fim": null,
+      "cargo_vaga": 3360,
+      "unidade_proponente": "EMEI - MARIA DAILCE MONTEIRO DA SILVA GOMES, PROFA."
   },
-  "dre": "108100",
-  "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
-  "ue": "000191",
-  "ue_nome": "EMEF - ALIPIO CORREA NETO, PROF.",
-  "funcionarios_da_unidade": "3085",
-  "quantidade_turmas": "-",
-  "codigo_hierarquico": "162100000550000",
-  "cargo_sobreposto": "",
-  "modulos": 1,
-  "a_partir_de": "2026-05-26",
-  "designacao_data_final": "2026-10-27",
-  "com_afastamento": false,
-  "motivo_afastamento": "",
-  "com_pendencia": false,
-  "motivo_pendencia": "",
-  // "tipo_cargo": "vago"
-   "tipo_cargo": "disponivel",
-  "rf_titular": "",
-  "cargo_vago_selecionado": {
-    "id": 3360,
-    "label": "DIRETOR DE ESCOLA"
+  "cessacao": {
+      "portaria": "2323",
+      "ano_vigente": "2026",
+      "numero_sei": "2323.",
+      "doc": null,
+      "remocao": false,
+      "a_pedido": false,
+      "aposentadoria": false,
+      "data_cessacao": "2026-06-02"
   },
-  "dadosTitular": {
-    "vinculo": 1,
-    "nome_servidor": "ALICE",
-    "nome_civil": "",
-    "rf": "111111",      
-    "cargo_base": "AUXILIAR TECNICO DE EDUCACAO",     
-  },
-  "informacoes_adicionais": "",
-  "detalhe_para_quadro_de_historico_por_ano": true,
-
-
-
- 
-
-
-  "a_pedido":"nao"
-};
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "CESSACAO"
+}
 
 
 const dadosDesignacao = {
@@ -497,6 +493,10 @@ const dadosDesignacaoComTitularFerias ={
   "tipo_apostila": null,
   "tipo": "DESIGNACAO"
 }
+
+
+
+
 export default function BaixarLauda() {
   const {
     handleClear,
@@ -532,9 +532,18 @@ export default function BaixarLauda() {
     return dadosEscapados;
   };
 
-  const gerarTextoDesignacaoLauda = (dadosDesignacao: ListagemPortariasResponse) => {
 
-    const cargo_vaga_display=cargos.filter((cargo)=>cargo.id===dadosDesignacao.designacao.cargo_vaga)[0]?.label ??""
+  const getCargoVagaDisplay = (dadosDesignacao: ListagemPortariasResponse) => {
+
+    if(dadosDesignacao.designacao.tipo_vaga!=="VAGO"){
+      return "";
+    }
+    return cargos.filter((cargo)=>cargo.id===dadosDesignacao.designacao.cargo_vaga)[0]?.label ??""    
+  }
+  const gerarTextoDesignacaoLauda = (dadosDesignacao: ListagemPortariasResponse) => {
+    
+
+    const cargo_vaga_display=getCargoVagaDisplay(dadosDesignacao)
     
     console.log("cargos",cargo_vaga_display)
     const dadosPuros = gerarDadosLaudaDesignacao(
@@ -549,12 +558,10 @@ export default function BaixarLauda() {
   };
 
 
-  const gerarTextoCessacaoLauda = (dadosDesignacao: any) => {
-    const dadosPuros = gerarDadosLaudaCessacao({
-      ...dadosDesignacao,
-      designacao_data_final: dadosDesignacao.designacao_data_final ?? undefined,
-      impedimento_substituicao: dadosDesignacao.impedimento_substituicao ?? undefined,
-    });
+  const gerarTextoCessacaoLauda = (dadosDesignacao: ListagemPortariasResponse) => {
+    const cargo_vaga_display=getCargoVagaDisplay(dadosDesignacao)
+
+    const dadosPuros = gerarDadosLaudaCessacao(dadosDesignacao,cargo_vaga_display);
 
     const dadosEscapados = gerarDadosEscapados(dadosPuros);
 
@@ -605,13 +612,13 @@ export default function BaixarLauda() {
     const texto_desigancao_vago_com_periodo=gerarTextoDesignacaoLauda(dadosDesignacaoVagoComPeriodo)
     const texto_desigancao_com_titular=gerarTextoDesignacaoLauda(dadosDesignacaoComTitular)
     const texto_desigancao_com_titular_ferias=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularFerias)
-    console.log('texto_desiganca_cargo_vago',texto_desigancao)
-    console.log('texto_desiganca_cargo_vago_com_periodo',texto_desigancao_vago_com_periodo)
-    console.log('texto_desigancao_com_titular',texto_desigancao_com_titular)
-    console.log('texto_desigancao_com_titular_e_periodo_e_ferias',texto_desigancao_com_titular_ferias)
+    // console.log('texto_desiganca_cargo_vago',texto_desigancao)
+    // console.log('texto_desiganca_cargo_vago_com_periodo',texto_desigancao_vago_com_periodo)
+    // console.log('texto_desigancao_com_titular',texto_desigancao_com_titular)
+    // console.log('texto_desigancao_com_titular_e_periodo_e_ferias',texto_desigancao_com_titular_ferias)
 
-    // const texto_cessacao=gerarTextoCessacaoLauda(dadosCessacao)
-    // // console.log('texto_cessacao',texto_cessacao)
+    const texto_cessacao_com_titular_sem_periodo=gerarTextoCessacaoLauda(dadosCessacaoComTitularSemPeriodo)
+    console.log('texto_cessacao_com_titular_sem_periodo',texto_cessacao_com_titular_sem_periodo)
 
     // // TODO: ATUALIZAR AS INTERFACES DE CESSACAO E DESIGNAÇÃO
 
