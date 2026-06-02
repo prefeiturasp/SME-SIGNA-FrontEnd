@@ -51,7 +51,6 @@ pipeline {
                                             @shelex/cypress-allure-plugin@2.41.2 crypto-js@4.1.1 --save-dev && \
                                             npx cypress-cloud run \
                                                 --browser chrome \
-                                                --headless \
                                                 --record \
                                                 --key somekey \
                                                 --ci-build-id SME-SIGNA_JENKINS-BUILD-${BUILD_NUMBER}; \
