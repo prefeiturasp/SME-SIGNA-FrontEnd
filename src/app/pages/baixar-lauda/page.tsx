@@ -254,6 +254,61 @@ const dadosNovosCessacao:DesignacaoResponse = {
  
 }
 
+const dadosCessacaoSemTitularComPeriodo = {
+  "id": 14,
+  "portaria": "4545",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Cessação",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-06-01",
+  "data_cessacao": "2026-06-02",
+  "numero_sei": "4545.",
+  "observacoes": null,
+  "designacao": {
+      "portaria": "444",
+      "ano_vigente": "2026",
+      "numero_sei": "444",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO SAO MIGUEL",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "VAGO",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "",
+      "titular_rf": "",
+      "titular_cargo_base": "",
+      "titular_vinculo": 0,
+      "impedimento_substituicao": null,
+      "ue": "400105",
+      "codigo_hierarquico": "163300000720000",
+      "data_inicio": "2026-06-01",
+      "data_fim": null,
+      "cargo_vaga": 3360,
+      "unidade_proponente": "CEI DIRET - MARIA APARECIDA DOS SANTOS"
+  },
+  "cessacao": {
+      "portaria": "4545",
+      "ano_vigente": "2026",
+      "numero_sei": "4545.",
+      "doc": null,
+      "remocao": false,
+      "a_pedido": true,
+      "aposentadoria": false,
+      "data_cessacao": "2026-06-02"
+  },
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "CESSACAO"
+}
+
 const dadosCessacaoComTitularSemPeriodo={
   "id": 13,
   "portaria": "2323",
@@ -310,7 +365,7 @@ const dadosCessacaoComTitularSemPeriodo={
 }
 
 
-const dadosDesignacao = {
+const dadosDesignacaoVagoSemPeriodo = {
   "id": 10,
   "portaria": "444",
   "doc": null,
@@ -608,7 +663,7 @@ export default function BaixarLauda() {
     //   }
 
     // })
-    const texto_desigancao=gerarTextoDesignacaoLauda(dadosDesignacao)
+    const texto_desigancao=gerarTextoDesignacaoLauda(dadosDesignacaoVagoSemPeriodo)
     const texto_desigancao_vago_com_periodo=gerarTextoDesignacaoLauda(dadosDesignacaoVagoComPeriodo)
     const texto_desigancao_com_titular=gerarTextoDesignacaoLauda(dadosDesignacaoComTitular)
     const texto_desigancao_com_titular_ferias=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularFerias)
@@ -619,6 +674,9 @@ export default function BaixarLauda() {
 
     const texto_cessacao_com_titular_sem_periodo=gerarTextoCessacaoLauda(dadosCessacaoComTitularSemPeriodo)
     console.log('texto_cessacao_com_titular_sem_periodo',texto_cessacao_com_titular_sem_periodo)
+
+    const texto_cessacao_sem_titular_com_periodo=gerarTextoCessacaoLauda(dadosCessacaoSemTitularComPeriodo)
+    console.log('texto_cessacao_sem_titular_com_periodo',texto_cessacao_sem_titular_com_periodo)
 
     // // TODO: ATUALIZAR AS INTERFACES DE CESSACAO E DESIGNAÇÃO
 

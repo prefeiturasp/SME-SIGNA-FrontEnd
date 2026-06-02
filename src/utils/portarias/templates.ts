@@ -63,7 +63,7 @@ para exercer cargo de {{cargo_indicado}}, {{trecho_unidade}}, EH: {{eh}}, {{trec
  
 export const TEMPLATE_CESSACAO_BAIXAR_LAUDA = `FAZENDO CESSAR
 {{dre}}
-Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) foi designado(a), {{trecho_para_substituir}}, `
+Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) foi designado(a) {{trecho_para_substituir}}, `
 
 
  

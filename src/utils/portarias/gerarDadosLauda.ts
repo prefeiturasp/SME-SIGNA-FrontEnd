@@ -86,6 +86,7 @@ export function gerarDadosLaudaCessacao(data: ListagemPortariasResponse,cargo_va
         portaria: `${data?.portaria}/${data?.ano}`,
         ano: data?.ano,
         sei: data?.numero_sei,
+        doc: data?.doc ? formatarData(data.doc): "____" ,
         vinculo: data?.designacao?.indicado_vinculo,
         nome_indicado: nome_indicado?.toUpperCase(),
         cargo_base: nameToCamelCase(data?.designacao?.indicado_cargo_base ?? ""),        
@@ -93,13 +94,13 @@ export function gerarDadosLaudaCessacao(data: ListagemPortariasResponse,cargo_va
 
 
         portaria_designacao:data?.designacao?.portaria,
-        doc_designacao:formatarData(data?.designacao?.doc ?? ""),
+        doc_designacao:data?.designacao?.doc ? formatarData(data.designacao.doc): "____" ,
         sei_designacao:data?.designacao?.numero_sei,
         
 
 
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
-        trecho_para_substituir:montarTrechoSubstituicaoLaudaCessacao(data),
+        trecho_para_substituir:montarTrechoSubstituicaoLaudaCessacao(data, cargo_vaga_display),
         
         ue: nameToCamelCaseUe(data?.designacao?.unidade_proponente ?? ""),       
         

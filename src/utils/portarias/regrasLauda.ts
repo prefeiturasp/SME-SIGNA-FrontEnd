@@ -9,23 +9,18 @@ function formatarData(data?: string | Date) {
     return date.toLocaleDateString("pt-BR");
 }
 
-export function montarTrechoSubstituicaoLaudaCessacao(data: ListagemPortariasResponse): string {
+export function montarTrechoSubstituicaoLaudaCessacao(data: ListagemPortariasResponse, cargo_vaga_display:string): string {
 
     const inicio = formatarData(data?.designacao.data_inicio);
-    const fim = formatarData(data?.designacao.data_fim);
 
     let base =""
     
     // CARGO VAGO
     if (data?.designacao.tipo_vaga === "VAGO") {
-        base = `cargo vago, previsto na Lei 14.660/2007`;
-        if (data?.designacao.data_fim) {    
-            return `${base}, no período de ${inicio} a ${fim}`;
-        }
+        // para exercer o cargo de Coordenador Pedagógico, na EMEF Pracinhas da FEB, a partir de 03/03/2026.
+        base = `para exercer o cargo de ${nameToCamelCase(cargo_vaga_display ?? "____")}, na ${nameToCamelCaseUe(data?.designacao?.unidade_proponente ?? "____")}`;
         return `${base}, a partir de ${inicio}`;
     }
-
-
 
     if (!data.designacao.titular_rf) return "";
 
@@ -39,16 +34,6 @@ export function montarTrechoSubstituicaoLaudaCessacao(data: ListagemPortariasRes
     base = `para substituir o (a) Sr.(a) ${nomeTitular ?? "____"}, ${nameToCamelCase(data.designacao.titular_cargo_base ?? "____")}, registro nº ${formatarRF(data.designacao.titular_rf ?? "____")
         }, vínculo ${data.designacao.titular_vinculo ?? "____"}, na ${nameToCamelCaseUe(data.designacao.unidade_proponente ?? "____")}`;
 
-
-
-    if (data?.designacao.impedimento_substituicao) {
-        return `${base}, ${data?.designacao.impedimento_substituicao.toLowerCase()}, no período de ${inicio}  a ${fim}`;
-    }
-
-    if (data?.designacao.data_fim) {
-        
-        return `${base}, no período de ${inicio} a ${fim}`;
-    }
 
     return `${base}, a partir de ${inicio}`;
 }
