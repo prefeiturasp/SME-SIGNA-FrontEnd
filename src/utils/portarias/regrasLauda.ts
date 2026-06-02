@@ -12,6 +12,7 @@ function formatarData(data?: string | Date) {
 export function montarTrechoSubstituicaoLaudaCessacao(data: ListagemPortariasResponse, cargo_vaga_display:string): string {
 
     const inicio = formatarData(data?.designacao.data_inicio);
+    const fim = formatarData(data?.designacao.data_fim);
 
     let base =""
     
@@ -35,8 +36,60 @@ export function montarTrechoSubstituicaoLaudaCessacao(data: ListagemPortariasRes
         }, vínculo ${data.designacao.titular_vinculo ?? "____"}, na ${nameToCamelCaseUe(data.designacao.unidade_proponente ?? "____")}`;
 
 
+    if (data?.designacao.impedimento_substituicao) {
+        return `${base}, ${data?.designacao.impedimento_substituicao.toLowerCase()}, no período de ${inicio}  a ${fim}`;
+    }
     return `${base}, a partir de ${inicio}`;
 }
+
+
+
+
+
+export function montarTrechoSubstituicaoLaudaInsubsistencia(data: ListagemPortariasResponse, cargo_vaga_display:string): string {
+
+    const inicio = formatarData(data?.designacao.data_inicio);
+    const fim = formatarData(data?.designacao.data_fim);
+
+    let base =""
+    
+    // CARGO VAGO
+    if (data?.designacao.tipo_vaga === "VAGO") {        
+        base = `para exercer o cargo de ${nameToCamelCase(cargo_vaga_display ?? "____")}, na ${nameToCamelCaseUe(data?.designacao?.unidade_proponente ?? "____")}`;
+        return `${base}, a partir de ${inicio}`;
+    }
+
+    if (!data.designacao.titular_rf) return "";
+
+
+    const nomeTitular = (
+        data.designacao.titular_nome_civil?.trim()
+            ? data.designacao.titular_nome_civil
+            : data.designacao.titular_nome_servidor ?? "____"
+    ).toUpperCase();
+
+    base = `para substituir o (a) Sr.(a) ${nomeTitular ?? "____"}, registro nº ${formatarRF(data.designacao.titular_rf ?? "____")}, vínculo ${data.designacao.titular_vinculo ?? "____"}, ${nameToCamelCase(data.designacao.titular_cargo_base ?? "____")}`;
+
+
+    if (data?.designacao.impedimento_substituicao) {
+        return `${base}, ${data?.designacao.impedimento_substituicao.toLowerCase()}, no período de ${inicio} a ${fim}, na ${nameToCamelCaseUe(data.designacao.unidade_proponente ?? "____")}`;
+    }
+    return `${base}, na ${nameToCamelCaseUe(data.designacao.unidade_proponente ?? "____")}, a partir de ${inicio}`;
+}
+
+
+export function montarTrechoSubstituicaoLaudaInsubsistenciaCessacao(data: ListagemPortariasResponse, cargo_vaga_display:string): string {
+
+    const inicio = formatarData(data?.designacao.data_inicio);
+ 
+    
+    const nome_do_cargo =
+     data?.designacao.tipo_vaga === "VAGO" ? nameToCamelCase(cargo_vaga_display ?? "____") : nameToCamelCase(data.designacao.titular_cargo_base ?? "____");
+    
+    return `para exercer o cargo de ${nome_do_cargo}, na ${nameToCamelCaseUe(data?.designacao?.unidade_proponente ?? "____")}, a partir de ${inicio}`;
+    
+}
+
 
 export function montarTrechoSubstituicaoLaudaDesignacao(data: ListagemPortariasResponse): string {
 
@@ -81,22 +134,24 @@ export function montarTrechoSubstituicaoLaudaDesignacao(data: ListagemPortariasR
 
     return `${base}, a partir de ${inicio}`;
 }
-export function montarTrechoFinal(data: DesignacaoData): string {
+ 
+
+export function montarTrechoFinal(data: ListagemPortariasResponse): string {
 
     // to-do: arrumar quando ids vierem do banco e textos
     // CARGO VAGO
 
-    if (data?.tipo_cargo === "vago") {
+    if (data?.designacao.tipo_vaga === "VAGO" ) {
         return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
     }
 
     // LICENÇA MÉDICA
-    if (data?.impedimento_substituicao === "2") {
+    if (data?.designacao.impedimento_substituicao_id === 2) {
         return `portando diploma de Pedagogia e com no mínimo 6 anos de experiência no Magistério, sendo 3 anos em cargos / funções de gestão educacional previstos na Lei 14.660/2007.`;
     }
 
     // FÉRIAS
-    if (data?.impedimento_substituicao === "4") {
+    if (data?.designacao.impedimento_substituicao_id === 4) {
         return `dentre integrantes da carreira de Auxiliar Técnico de Educação.`;
     }
 
@@ -126,29 +181,29 @@ export function montarTrechoUnidade(data: ListagemPortariasResponse): string {
 
 
 export function montarTrechoParaSubstituir(data: DesignacaoData): string {
+    return "";
+    // const indicado = data?.servidorIndicado;
+    // const inicio = formatarData(data?.a_partir_de);
 
-    const indicado = data?.servidorIndicado;
-    const inicio = formatarData(data?.a_partir_de);
+    // // CARGO VAGO
+    // if (data?.tipo_cargo === "vago") {
+    //     return `para exercer o cargo de ${nameToCamelCase(indicado?.cargo_base ?? "____")} na ${indicado?.lotacao ?? "____"}, a partir de ${inicio}`;
+    // }
 
-    // CARGO VAGO
-    if (data?.tipo_cargo === "vago") {
-        return `para exercer o cargo de ${nameToCamelCase(indicado?.cargo_base ?? "____")} na ${indicado?.lotacao ?? "____"}, a partir de ${inicio}`;
-    }
+    // const titular = data?.dadosTitular;
 
-    const titular = data?.dadosTitular;
+    // if (!titular) return "";
 
-    if (!titular) return "";
+    // const nomeTitular = (
+    //     titular?.nome_civil?.trim()
+    //         ? titular.nome_civil
+    //         : titular?.nome_servidor ?? "____"
+    // ).toUpperCase();
 
-    const nomeTitular = (
-        titular?.nome_civil?.trim()
-            ? titular.nome_civil
-            : titular?.nome_servidor ?? "____"
-    ).toUpperCase();
+    // const base = `para substituir o(a) Sr.(a) ${nomeTitular ?? "____"}, ${nameToCamelCase(titular?.cargo_base ?? "____")}, registro nº ${formatarRF(titular?.rf ?? "____")
+    //     }, Vínculo ${titular?.vinculo ?? "____"}`;
 
-    const base = `para substituir o(a) Sr.(a) ${nomeTitular ?? "____"}, ${nameToCamelCase(titular?.cargo_base ?? "____")}, registro nº ${formatarRF(titular?.rf ?? "____")
-        }, Vínculo ${titular?.vinculo ?? "____"}`;
-
-    return `${base}, na ${indicado?.lotacao ?? "____"}, a partir de ${inicio}`;
+    // return `${base}, na ${indicado?.lotacao ?? "____"}, a partir de ${inicio}`;
 }
 
 
@@ -156,18 +211,4 @@ export function montarTrechoParaSubstituir(data: DesignacaoData): string {
 
 
 
-export function montarPeriodoInsubsistencia(data: DesignacaoResponse): string {
-
-    let periodo_insubsistencia = "";
-
-
-
-    if (data?.data_fim) {
-        periodo_insubsistencia = " no período de " + formatarData(data?.data_inicio ?? "") + " a " + formatarData(data?.data_fim ?? "");
-    } else {
-        periodo_insubsistencia = " a partir de " + formatarData(data?.data_inicio ?? "");
-    }
-
-
-    return periodo_insubsistencia;
-}
+ 

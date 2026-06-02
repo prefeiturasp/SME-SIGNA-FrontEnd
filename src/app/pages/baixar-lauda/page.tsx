@@ -13,7 +13,7 @@ import {
   ListagemPortariasResponse,
   TipoAto
 } from "@/types/designacao";
-import {  gerarDadosInsubsistenciaCessacao, gerarDadosInsubsistenciaDesignacao, gerarDadosLaudaCessacao, gerarDadosLaudaDesignacao } from "@/utils/portarias/gerarDadosLauda";
+import {   gerarDadosInsubsistenciaCessacao, gerarDadosInsubsistenciaDesignacao, gerarDadosLaudaCessacao, gerarDadosLaudaDesignacao } from "@/utils/portarias/gerarDadosLauda";
 import { useMemo } from "react";
 import { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
@@ -536,6 +536,7 @@ const dadosDesignacaoComTitularFerias ={
       "titular_cargo_base": "COORDENADOR PEDAGOGICO",
       "titular_vinculo": 1,
       "impedimento_substituicao": "Por férias",
+      "impedimento_substituicao_id": 4,
       "ue": "018279",
       "codigo_hierarquico": "162900000010000",
       "data_inicio": "2026-06-01",
@@ -551,7 +552,243 @@ const dadosDesignacaoComTitularFerias ={
 
 
 
+const dadosDesignacaoComTitularLicencaMedica ={
+  "id": 12,
+  "portaria": "88",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Designação",
+  "nome": "VANESSA GUSTAVO DA SILVA",
+  "cargo": "DIRETOR DE ESCOLA",
+  "data_designacao": "2026-06-01",
+  "data_cessacao": "2026-06-20",
+  "numero_sei": "8",
+  "observacoes": null,
+  "designacao": {
+      "portaria": "88",
+      "ano_vigente": "2026",
+      "numero_sei": "8",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO PENHA",
+      "indicado_rf": "7914229",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "indicado_lotacao": "EMEF         - LIA - MARIA DOS REIS DE JESUS SOUZA SILVA, PROFA.",
+      "indicado_cargo_base": "COORDENADOR PEDAGOGICO",
+      "indicado_cargo_sobreposto": "DIRETOR DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - ULYSSES DA SYLVEIRA GUIMARAES",
+      "tipo_vaga": "DISPONIVEL",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "titular_rf": "7311559",
+      "titular_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "titular_vinculo": 1,
+      "impedimento_substituicao": "Por licença médica",
+      "impedimento_substituicao_id": 2,
+      "ue": "018279",
+      "codigo_hierarquico": "162900000010000",
+      "data_inicio": "2026-06-01",
+      "data_fim": "2026-06-20",
+      "cargo_vaga": 3182,
+      "unidade_proponente": "EMEI - CEZAR ROGERIO OLIVEIRA PERAMEZZA, PROF."
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": null,
+  "tipo_apostila": null,
+  "tipo": "DESIGNACAO"
+}
 
+
+const dadosInsubsistenciaVagoSemPeriodo ={
+
+  "id": 22,
+  "portaria": "58",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Insubsistência",
+  "nome": "ADALBERTO PAVLIDIS DA SILVA",
+  "cargo": "SECRETARIO DE ESCOLA",
+  "data_designacao": "2026-06-02",
+  "data_cessacao": null,
+  "numero_sei": "57",
+  "observacoes": "58",
+  "designacao": {
+      "portaria": "56",
+      "ano_vigente": "2026",
+      "numero_sei": "56",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO SAO MATEUS",
+      "indicado_rf": "7311559",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "indicado_lotacao": "CEI DIRET    - MARIA APARECIDA DOS SANTOS",
+      "indicado_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "indicado_cargo_sobreposto": "SECRETARIO DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - JOSE BORGES ANDRADE",
+      "tipo_vaga": "VAGO",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "",
+      "titular_rf": "",
+      "titular_cargo_base": "",
+      "titular_vinculo": 0,
+      "impedimento_substituicao": null,
+      "impedimento_substituicao_id": null,
+      "ue": "018350",
+      "codigo_hierarquico": "163200000680000",
+      "data_inicio": "2026-06-02",
+      "data_fim": null,
+      "cargo_vaga": 3379,
+      "unidade_proponente": "EMEI - ANTONIO CARLOS BRASILEIRO DE ALMEIDA JOBIM - TOM JOBIM"
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": "DESIGNACAO",
+  "tipo_apostila": null,
+  "tipo": "INSUBSISTENCIA"
+}
+const dadosInsubsistenciaVagoComPeriodo ={
+  "id": 20,
+  "portaria": "33",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Insubsistência",
+  "nome": "VANESSA GUSTAVO DA SILVA",
+  "cargo": "DIRETOR DE ESCOLA",
+  "data_designacao": "2026-06-02",
+  "data_cessacao": null,
+  "numero_sei": "33",
+  "observacoes": "vago com periodo",
+  "designacao": {
+      "portaria": "3232",
+      "ano_vigente": "2026",
+      "numero_sei": "3232.",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO SAO MIGUEL",
+      "indicado_rf": "7914229",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "indicado_lotacao": "EMEF         - LIA - MARIA DOS REIS DE JESUS SOUZA SILVA, PROFA.",
+      "indicado_cargo_base": "COORDENADOR PEDAGOGICO",
+      "indicado_cargo_sobreposto": "DIRETOR DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - ULYSSES DA SYLVEIRA GUIMARAES",
+      "tipo_vaga": "VAGO",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "",
+      "titular_rf": "",
+      "titular_cargo_base": "",
+      "titular_vinculo": 0,
+      "impedimento_substituicao": "Por Evento/Reunião",
+      "impedimento_substituicao_id": 16,
+      "ue": "013692",
+      "codigo_hierarquico": "163300000820000",
+      "data_inicio": "2026-06-02",
+      "data_fim": "2026-06-18",
+      "cargo_vaga": 3182,
+      "unidade_proponente": "EMEI - DORACIL DINA BENICIO, PROFA."
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": "DESIGNACAO",
+  "tipo_apostila": null,
+  "tipo": "INSUBSISTENCIA"
+}
+
+
+const dadosInsubsistenciaDesignacaoComTitularSemPeriodo ={
+  "id": 18,
+  "portaria": "2121",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Insubsistência",
+  "nome": "VANESSA GUSTAVO DA SILVA",
+  "cargo": "DIRETOR DE ESCOLA",
+  "data_designacao": "2026-06-02",
+  "data_cessacao": null,
+  "numero_sei": "2121.",
+  "observacoes": "com titular e sem periodo",
+  "designacao": {
+      "portaria": "1212",
+      "ano_vigente": "2026",
+      "numero_sei": "1212.",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO SANTO AMARO",
+      "indicado_rf": "7914229",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "indicado_lotacao": "EMEF         - LIA - MARIA DOS REIS DE JESUS SOUZA SILVA, PROFA.",
+      "indicado_cargo_base": "COORDENADOR PEDAGOGICO",
+      "indicado_cargo_sobreposto": "DIRETOR DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - ULYSSES DA SYLVEIRA GUIMARAES",
+      "tipo_vaga": "DISPONIVEL",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "titular_rf": "7311559",
+      "titular_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "titular_vinculo": 1,
+      "impedimento_substituicao": null,
+      "impedimento_substituicao_id": null,
+      "ue": "014117",
+      "codigo_hierarquico": "163100000270000",
+      "data_inicio": "2026-06-02",
+      "data_fim": null,
+      "cargo_vaga": 3182,
+      "unidade_proponente": "EMEI - AYRTON SENNA DA SILVA"
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": "DESIGNACAO",
+  "tipo_apostila": null,
+  "tipo": "INSUBSISTENCIA"
+}
+
+const dadosInsubsistenciaDesignacaoComTitularComPeriodo =
+{
+  "id": 16,
+  "portaria": "9292",
+  "doc": null,
+  "ano": "2026",
+  "tipo_de_ato": "Insubsistência",
+  "nome": "VANESSA GUSTAVO DA SILVA",
+  "cargo": "DIRETOR DE ESCOLA",
+  "data_designacao": "2026-06-02",
+  "data_cessacao": null,
+  "numero_sei": "92",
+  "observacoes": "92",
+  "designacao": {
+      "portaria": "9191",
+      "ano_vigente": "2026",
+      "numero_sei": "91",
+      "doc": null,
+      "dre_nome": "DIRETORIA REGIONAL DE EDUCACAO PIRITUBA/JARAGUA",
+      "indicado_rf": "7914229",
+      "indicado_vinculo": 1,
+      "indicado_nome_civil": "",
+      "indicado_nome_servidor": "VANESSA GUSTAVO DA SILVA",
+      "indicado_lotacao": "EMEF         - LIA - MARIA DOS REIS DE JESUS SOUZA SILVA, PROFA.",
+      "indicado_cargo_base": "COORDENADOR PEDAGOGICO",
+      "indicado_cargo_sobreposto": "DIRETOR DE ESCOLA",
+      "indicado_local_exercicio": "EMEF         - ULYSSES DA SYLVEIRA GUIMARAES",
+      "tipo_vaga": "DISPONIVEL",
+      "titular_nome_civil": "",
+      "titular_nome_servidor": "ADALBERTO PAVLIDIS DA SILVA",
+      "titular_rf": "7311559",
+      "titular_cargo_base": "AUXILIAR TECNICO DE EDUCACAO",
+      "titular_vinculo": 1,
+      "impedimento_substituicao": "Por licença médica",
+      "impedimento_substituicao_id": 2,
+      "ue": "010171",
+      "codigo_hierarquico": "163000000020000",
+      "data_inicio": "2026-06-02",
+      "data_fim": "2026-06-12",
+      "cargo_vaga": 3182,
+      "unidade_proponente": "EMEF - ALDO RIBEIRO LUZ, PROF."
+  },
+  "cessacao": null,
+  "tipo_insubsistencia": "DESIGNACAO",
+  "tipo_apostila": null,
+  "tipo": "INSUBSISTENCIA"
+}
 export default function BaixarLauda() {
   const {
     handleClear,
@@ -625,10 +862,9 @@ export default function BaixarLauda() {
   };
 
 
-  const gerarTextoInsubsistenciaDesignacaoLauda = (dadosDesignacao: DesignacaoResponse) => {
-    const dadosPuros = gerarDadosInsubsistenciaDesignacao({
-      ...dadosDesignacao      
-    });
+  const gerarTextoInsubsistenciaDesignacaoLauda = (dadosDesignacao: ListagemPortariasResponse) => {
+    const cargo_vaga_display=getCargoVagaDisplay(dadosDesignacao)
+    const dadosPuros = gerarDadosInsubsistenciaDesignacao(dadosDesignacao,cargo_vaga_display);
 
     const dadosEscapados = gerarDadosEscapados(dadosPuros);
 
@@ -638,10 +874,9 @@ export default function BaixarLauda() {
 
 
 
-  const gerarTextoInsubsistenciaCessacaoLauda = (dadosCessacao: DesignacaoResponse) => {
-    const dadosPuros = gerarDadosInsubsistenciaCessacao({
-      ...dadosCessacao      
-    });
+  const gerarTextoInsubsistenciaCessacaoLauda = (dadosCessacao: ListagemPortariasResponse) => {
+    const cargo_vaga_display=getCargoVagaDisplay(dadosCessacao)
+    const dadosPuros = gerarDadosInsubsistenciaCessacao(dadosCessacao,cargo_vaga_display);
 
     const dadosEscapados = gerarDadosEscapados(dadosPuros);
 
@@ -658,27 +893,56 @@ export default function BaixarLauda() {
 
     // selectedRows.map((ato)=>{
     //   if(ato.tipo==="DESIGNACAO"){
-    //     const texto_desigancao=gerarTextoDesignacaoLauda(ato)
-    //     console.log('texto_desigancao',texto_desigancao)
+    //     const texto_designacao=gerarTextoDesignacaoLauda(ato)
+    //     console.log('texto_designacao',texto_designacao)
     //   }
 
     // })
-    const texto_desigancao=gerarTextoDesignacaoLauda(dadosDesignacaoVagoSemPeriodo)
-    const texto_desigancao_vago_com_periodo=gerarTextoDesignacaoLauda(dadosDesignacaoVagoComPeriodo)
-    const texto_desigancao_com_titular=gerarTextoDesignacaoLauda(dadosDesignacaoComTitular)
-    const texto_desigancao_com_titular_ferias=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularFerias)
-    // console.log('texto_desiganca_cargo_vago',texto_desigancao)
-    // console.log('texto_desiganca_cargo_vago_com_periodo',texto_desigancao_vago_com_periodo)
-    // console.log('texto_desigancao_com_titular',texto_desigancao_com_titular)
-    // console.log('texto_desigancao_com_titular_e_periodo_e_ferias',texto_desigancao_com_titular_ferias)
+    const texto_designacao=gerarTextoDesignacaoLauda(dadosDesignacaoVagoSemPeriodo)
+    const texto_designacao_vago_com_periodo=gerarTextoDesignacaoLauda(dadosDesignacaoVagoComPeriodo)
+    const texto_designacao_com_titular=gerarTextoDesignacaoLauda(dadosDesignacaoComTitular)
+    const texto_designacao_com_titular_ferias=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularFerias)
+    const texto_designacao_com_titular_licenca_medica=gerarTextoDesignacaoLauda(dadosDesignacaoComTitularLicencaMedica)
+    
+    console.log('texto_desiganca_cargo_vago',texto_designacao)
+    console.log('texto_desiganca_cargo_vago_com_periodo',texto_designacao_vago_com_periodo)
+    console.log('texto_designacao_com_titular',texto_designacao_com_titular)
+    console.log('texto_designacao_com_titular_e_periodo_e_ferias',texto_designacao_com_titular_ferias)
+    console.log('texto_designacao_com_titular_licenca_medica',texto_designacao_com_titular_licenca_medica)
+
+
 
     const texto_cessacao_com_titular_sem_periodo=gerarTextoCessacaoLauda(dadosCessacaoComTitularSemPeriodo)
-    console.log('texto_cessacao_com_titular_sem_periodo',texto_cessacao_com_titular_sem_periodo)
+    // console.log('texto_cessacao_com_titular_sem_periodo',texto_cessacao_com_titular_sem_periodo)
 
     const texto_cessacao_sem_titular_com_periodo=gerarTextoCessacaoLauda(dadosCessacaoSemTitularComPeriodo)
-    console.log('texto_cessacao_sem_titular_com_periodo',texto_cessacao_sem_titular_com_periodo)
+    // console.log('texto_cessacao_sem_titular_com_periodo',texto_cessacao_sem_titular_com_periodo)
 
-    // // TODO: ATUALIZAR AS INTERFACES DE CESSACAO E DESIGNAÇÃO
+
+
+    const texto_insubsistencia_designacao_com_titular_licenca_medica_com_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacaoComTitularComPeriodo)
+    console.log('texto_insubsistencia_designacao_com_titular_licenca_medica_com_periodo',texto_insubsistencia_designacao_com_titular_licenca_medica_com_periodo)
+
+
+    const texto_insubsistencia_designacao_com_titular_sem_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacaoComTitularSemPeriodo)    
+    
+    console.log('texto_insubsistencia_designacao_com_titular_sem_periodo',texto_insubsistencia_designacao_com_titular_sem_periodo)
+
+    const texto_insubsistencia_designacao_vago_com_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaVagoComPeriodo)
+    console.log('texto_insubsistencia_designacao_vago_com_periodo',texto_insubsistencia_designacao_vago_com_periodo)
+    
+
+    const texto_insubsistencia_designacao_vago_sem_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaVagoSemPeriodo)
+    console.log('texto_insubsistencia_designacao_vago_sem_periodo',texto_insubsistencia_designacao_vago_sem_periodo)
+
+
+
+
+
+    // const texto_insubsistencia_cessacao_com_titular_licenca_medica_com_periodo=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoComTitularComPeriodo)
+    // console.log('texto_insubsistencia_cessacao_com_titular_licenca_medica_com_periodo',texto_insubsistencia_cessacao_com_titular_licenca_medica_com_periodo)
+
+    
 
     // const texto_insubsistencia=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacao)
     // // console.log('texto_insubsistencia',texto_insubsistencia)

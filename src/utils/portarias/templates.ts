@@ -63,25 +63,24 @@ para exercer cargo de {{cargo_indicado}}, {{trecho_unidade}}, EH: {{eh}}, {{trec
  
 export const TEMPLATE_CESSACAO_BAIXAR_LAUDA = `FAZENDO CESSAR
 {{dre}}
-Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) foi designado(a) {{trecho_para_substituir}}, `
+Port. {{portaria}} - SEI nº {{sei}} - {{rf}}, vínculo {{vinculo}} {{nome_indicado}}, {{cargo_base}}, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) foi designado(a) {{trecho_para_substituir}}`
 
 
  
 export const TEMPLATE_INSUBSISTENCIA_DESIGNACAO_BAIXAR_LAUDA = `
 TORNANDO INSUBSISTENTE
 {{dre}}
-Port.{{portaria}}/{{ano}} - FALTA ESSE (779.776.1), vínculo {{vinculo}} - {{nome_indicado}}, {{cargo_base}} - FALTA ESSA (Categoria 3), os efeitos da portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, pela qual o(a) servidor(a) foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}},{{periodo}}, em face do Despacho publicado no DOC de {{doc}}.
+Port.{{portaria}}/{{ano}} - {{rf}}, vínculo {{vinculo}} - {{nome_indicado}}, {{cargo_base}} - FALTA ESSA (Categoria 3), os efeitos da portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, pela qual o(a) servidor(a) foi designado(a) {{trecho_substituicao}}, em face do Despacho publicado no DOC de {{doc}}.
 `;
 
 
 export const TEMPLATE_INSUBSISTENCIA_CESSACAO_BAIXAR_LAUDA = `
 TORNANDO INSUBSISTENTE
 {{dre}}
-Port.{{portaria_insubsistencia}}/{{ano_insubsistencia}} - FALTA ESSE (779.776.1), vínculo {{vinculo}} - {{nome_indicado}}, {{cargo_base}} - FALTA ESSA (Categoria 3),
+Port.{{portaria_insubsistencia}}/{{ano_insubsistencia}} - {{rf}}, vínculo {{vinculo}} - {{nome_indicado}}, {{cargo_base}} - FALTA ESSA (Categoria 3),
 
 os efeitos da portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {{doc_cessacao}}, que cessou os efeitos da Port.nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}},
-, de S.M.E, D.O.C. de {{doc_designacao}}, 
-pela qual o(a) servidor(a) foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}},{{periodo}}, em face do Despacho publicado no DOC de {{doc_insubsistencia}}.
+pela qual o(a) servidor(a) foi designado(a) {{trecho_substituicao}}, em face do Despacho publicado no DOC de {{doc_insubsistencia}}.
 
 
 PORTARIA Nº {{portaria}}/{{ano}} 

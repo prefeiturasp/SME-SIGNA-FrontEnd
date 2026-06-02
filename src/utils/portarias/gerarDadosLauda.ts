@@ -5,8 +5,10 @@ import { montarTrechoSubstituicaoLaudaDesignacao,     montarTrechoFinal,
 
     montarTrechoParaSubstituir,
     montarPeriodoInsubsistencia,
-    montarTrechoUnidade,
-    montarTrechoSubstituicaoLaudaCessacao,} from "./regrasLauda";
+    montarTrechoUnidade,    
+    montarTrechoSubstituicaoLaudaInsubsistencia,
+    montarTrechoSubstituicaoLaudaCessacao,
+    montarTrechoSubstituicaoLaudaInsubsistenciaCessacao,} from "./regrasLauda";
 import { formatarData } from "@/lib/utils";
 
 function getCargoIndicado(data: DesignacaoData): string | undefined {
@@ -73,6 +75,12 @@ export function gerarDadosLaudaDesignacao(data: ListagemPortariasResponse,cargo_
     };
 }
 
+
+
+
+
+
+
 export function gerarDadosLaudaCessacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
     const cargo_indicado = getCargoIndicadoNew(data, cargo_vaga_display);
 
@@ -118,85 +126,51 @@ export function gerarDadosLaudaCessacao(data: ListagemPortariasResponse,cargo_va
 }
 
 
-
-export function gerarDadosInsubsistenciaDesignacao(data: DesignacaoResponse) {
-    // const cargo_indicado = getCargoIndicado(data);
-
-    const nome_indicado =
-        data?.indicado_nome_civil?.trim()
-            ? data.indicado_nome_civil
-            : data?.indicado_nome_servidor;
-
-    return {
-        doc: data.insubsistencia?.doc ?? "-",
-        portaria: data.insubsistencia?.numero_portaria ?? "-",
-        ano: data.insubsistencia?.ano_vigente ?? "-",
-        sei: data.insubsistencia?.sei_numero ?? "-",
-
-        
-        dre: data.dre_nome ?? "-",    
-        portaria_designacao: data.numero_portaria ?? "-",        
-        doc_designacao: data.doc ?? "-",
-        sei_designacao: data.sei_numero ?? "-",
+export function gerarDadosInsubsistenciaDesignacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
     
 
-        portaria_cessacao: data.cessacao?.numero_portaria ?? "-",
+    const nome_indicado =
+        data?.designacao?.indicado_nome_civil?.trim()
+            ? data.designacao.indicado_nome_civil
+            : data?.designacao?.indicado_nome_servidor;
+
+
+    return {
+        doc: data.doc,
+        portaria: data.portaria,
+        ano: data.ano,
+        sei: data.numero_sei,
+
+        
+        dre: data.designacao.dre_nome,
+        portaria_designacao: data.designacao.portaria,        
+        doc_designacao: data.designacao.doc,
+        sei_designacao: data.designacao.numero_sei,
+    
+
+        portaria_cessacao: data.portaria,
         doc_cessacao: data.cessacao?.doc ?? "-",
-        sei_cessacao: data.cessacao?.sei_numero ?? "-",
+        sei_cessacao: data.cessacao?.numero_sei ?? "-",
         
 
         nome_indicado: nome_indicado,
-        rf: formatarRF(data?.indicado_rf ?? "-"),
-        vinculo: data?.indicado_vinculo.toString() ?? "-",
-        cargo_base: nameToCamelCase(data?.indicado_cargo_base ?? "-"),
-        cargo: nameToCamelCase(data?.indicado_cargo_sobreposto ?? "-"),
-        ue: nameToCamelCaseUe(data?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-        periodo: montarPeriodoInsubsistencia(data)
+        rf: formatarRF(data?.designacao.indicado_rf ?? "-"),
+        vinculo: data?.designacao.indicado_vinculo.toString() ?? "-",
+        cargo_base: nameToCamelCase(data?.designacao.indicado_cargo_base ?? "-"),
+        cargo: nameToCamelCase(data?.designacao.indicado_cargo_sobreposto ?? "-"),
+        ue: nameToCamelCaseUe(data?.designacao.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
+        trecho_substituicao: montarTrechoSubstituicaoLaudaInsubsistencia(data, cargo_vaga_display),        
                    
         
     };
 }
 
-
-
-export function gerarDadosInsubsistenciaCessacao(data: DesignacaoResponse) {
-    // const cargo_indicado = getCargoIndicado(data);
-
-    const nome_indicado =
-        data?.indicado_nome_civil?.trim()
-            ? data.indicado_nome_civil
-            : data?.indicado_nome_servidor;
-
+ 
+export function gerarDadosInsubsistenciaCessacao(data: ListagemPortariasResponse,cargo_vaga_display:string) {
+       
     return {
-        ano_cessacao: data.cessacao?.ano_vigente ?? "-",
-
-        portaria_cessacao: data.cessacao?.numero_portaria ?? "-",
-        doc_cessacao: data.cessacao?.doc ?? "-",
-        sei_cessacao: data.cessacao?.sei_numero ?? "-",
-
-        doc_insubsistencia: data.cessacao?.insubsistencia?.doc ?? "-",
-        portaria_insubsistencia: data.cessacao?.insubsistencia?.numero_portaria ?? "-",
-        ano_insubsistencia: data.cessacao?.insubsistencia?.ano_vigente ?? "-",
-        sei_insubsistencia: data.cessacao?.insubsistencia?.sei_numero ?? "-",
-
-        
-        dre: data.dre_nome ?? "-",    
-        portaria_designacao: data.numero_portaria ?? "-",        
-        doc_designacao: data.doc ?? "-",
-        sei_designacao: data.sei_numero ?? "-",
-    
-
-  
-        
-
-        nome_indicado: nome_indicado,
-        rf: formatarRF(data?.indicado_rf ?? "-"),
-        vinculo: data?.indicado_vinculo.toString() ?? "-",
-        cargo_base: nameToCamelCase(data?.indicado_cargo_base ?? "-"),
-        cargo: nameToCamelCase(data?.indicado_cargo_sobreposto ?? "-"),
-        ue: nameToCamelCaseUe(data?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-        periodo: montarPeriodoInsubsistencia(data)
-                   
+        ...gerarDadosInsubsistenciaDesignacao(data, cargo_vaga_display),
+        trecho_substituicao: montarTrechoSubstituicaoLaudaInsubsistenciaCessacao(data, cargo_vaga_display),                           
         
     };
 }

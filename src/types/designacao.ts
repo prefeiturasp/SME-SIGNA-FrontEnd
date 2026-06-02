@@ -127,6 +127,7 @@ export interface PortariaDesignacao {
   titular_cargo_base: string;
   titular_vinculo: number,
   impedimento_substituicao: string|null;
+  impedimento_substituicao_id: number|null;
   ue: string;
   codigo_hierarquico: string;
   data_inicio: string;
