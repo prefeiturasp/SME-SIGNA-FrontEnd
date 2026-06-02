@@ -47,21 +47,28 @@ pipeline {
                                         registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
                                         sh -c "rm -rf allure-results allure-report && \
                                             npm install && \
-                                            npm install cypress@\"$CYPRESS_VERSION\" \
-                                            @shelex/cypress-allure-plugin@2.41.2 crypto-js@4.1.1 cypress-cloud --save-dev && \
+                                            npm install cypress@14.5.2 cypress-cloud@beta \
+                                            @shelex/cypress-allure-plugin@2.41.2 crypto-js@4.1.1 --save-dev && \
                                             npx cypress-cloud run \
                                                 --browser chrome \
                                                 --headless \
-                                                --env allure=true; \
+                                                --record \
+                                                --key somekey \
+                                                --ci-build-id SME-SIGNA_JENKINS-BUILD-${BUILD_NUMBER}; \
                                             TEST_EXIT=\$?; \
-                                            chown 1001:1001 * -R || true ; \
-                                            chmod 777 * -R || true ; \
+                                            chown 1001:1001 * -R || true; \
+                                            chmod 777 * -R || true; \
                                             exit \$TEST_EXIT"
                                 '''
                             }
                         }
                     }
                     echo "Testes Cypress finalizados."
+                    def logText = currentBuild.rawBuild.getLog(50).join('\n')
+                    def match = logText =~ /Recorded Run:\s*(https?:\/\/\S+)/
+                    if (match) {
+                        env.CYPRESS_RUN_URL = match[0][1]
+                    }
                 }
             }
         }
@@ -93,14 +100,12 @@ pipeline {
     post {
         always {
             script {
-                // 1o — Allure plugin (deve rodar ANTES do Docker cleanup)
                 if (fileExists("${ALLURE_PATH}") && sh(script: "ls -A ${ALLURE_PATH} | wc -l", returnStdout: true).trim() != "0") {
                     allure includeProperties: false, jdk: '', results: [[path: "${ALLURE_PATH}"]]
                 } else {
                     echo "Resultados do Allure nao encontrados ou vazios, plugin nao sera acionado."
                 }
 
-                // 2o — Arquivar zip de resultados
                 def zipExists = sh(script: "ls testes/ui/allure-results-*.zip 2>/dev/null || true", returnStdout: true).trim()
                 if (zipExists) {
                     archiveArtifacts artifacts: 'testes/ui/allure-results-*.zip', fingerprint: true
@@ -108,7 +113,6 @@ pipeline {
                     echo "Nenhum .zip de Allure encontrado para arquivamento."
                 }
 
-                // 3o — Docker cleanup (por ultimo, apos Allure ter lido os resultados)
                 withDockerRegistry(credentialsId: 'jenkins_registry', url: 'https://registry.sme.prefeitura.sp.gov.br/repository/sme-registry/') {
                     sh '''
                         docker pull registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2
@@ -124,19 +128,24 @@ pipeline {
             }
         }
 
-        success  { sendTelegram("<b>SUCESSO! ✅</b>")    }
-        unstable { sendTelegram("<b>INSTAVEL ⚠️</b>")  }
-        failure  { sendTelegram("<b>FALHA ❌</b>")      }
-        aborted  { sendTelegram("<b>CANCELADO 🚫</b>") }
+        success  { sendTelegram("<b>SUCESSO! \u2705</b>") }
+        unstable { sendTelegram("<b>INSTAVEL \u26a0\ufe0f</b>") }
+        failure  { sendTelegram("<b>FALHA \u274c</b>") }
+        aborted  { sendTelegram("<b>CANCELADO \ud83d\udeab</b>") }
     }
 }
 
 
 def sendTelegram(message) {
+    def dashboardLink = env.CYPRESS_RUN_URL
+        ? "<b>Dashboard:</b> <a href='${env.CYPRESS_RUN_URL}'>Ver resultados no Sorry Cypress</a>\n"
+        : ""
+
     def messageTemplate = (
         "<b>Job Name:</b> <a href='${JOB_URL}'>${JOB_NAME}</a>\n\n" +
         "<b>Status:</b> ${message}\n" +
         "<b>Build Number:</b> ${BUILD_DISPLAY_NAME}\n" +
+        dashboardLink +
         "<b>Log:</b> <a href='${env.BUILD_URL}console'>Ver console output</a>"
     )
     def encodedMessage = URLEncoder.encode(messageTemplate, "UTF-8")

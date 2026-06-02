@@ -15,7 +15,6 @@
     "cy:run": "cypress run",
     "cy:run:chrome": "cypress run --browser chrome",
     "cy:run:firefox": "cypress run --browser firefox",
-    "test:allure": "cypress run --env allure=true",
     "allure:report": "npx allure generate allure-results --clean -o allure-report",
     "allure:open": "npx allure open allure-report"
   },
@@ -58,7 +57,6 @@
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^24.0.1",
-    "cypress-cloud": "^1.13.1",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
     "@shelex/cypress-allure-plugin": "^2.41.2",
     "@testing-library/dom": "^10.4.1",
@@ -83,7 +81,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
     "jsdom": "^27.2.0",
-    "mocha-allure-reporter": "^1.4.0",
     "multiple-cucumber-html-reporter": "^3.9.3",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",

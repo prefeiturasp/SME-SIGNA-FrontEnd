@@ -1,8 +1,9 @@
 const { defineConfig } = require("cypress");
+const { cloudPlugin } = require("cypress-cloud/plugin");
+const allureWriter = require("@shelex/cypress-allure-plugin/writer");
 const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
 const preprocessor = require("@badeball/cypress-cucumber-preprocessor");
 const createEsbuildPlugin = require("@badeball/cypress-cucumber-preprocessor/esbuild");
-const allureWriter = require("@shelex/cypress-allure-plugin/writer");
 const dotenv = require("dotenv");
 const path = require("path");
 
@@ -11,6 +12,21 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 module.exports = defineConfig({
   e2e: {
     baseUrl: "https://qa-signa.sme.prefeitura.sp.gov.br",
+
+    env: {
+      allure: true,
+      baseUrl: process.env.BASE_URL || "https://qa-signa.sme.prefeitura.sp.gov.br",
+      loginUrl: process.env.LOGIN_URL || "https://qa-signa.sme.prefeitura.sp.gov.br/login",
+      username: process.env.SIGNA_USERNAME || process.env.USERNAME || "",
+      password: process.env.SIGNA_PASSWORD || process.env.PASSWORD || "",
+      newPasswordTest: process.env.SIGNA_NEW_PASSWORD_TEST || "",
+      CI: process.env.CI || false,
+      API_EOL_BASE_URL: process.env.API_EOL_BASE_URL || "https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br",
+      API_EOL_KEY: process.env.API_EOL_KEY,
+      API_RF_LOGIN: process.env.API_RF_LOGIN,
+      API_PASSWORD: process.env.API_PASSWORD,
+      API_EMAIL: process.env.API_EMAIL,
+    },
 
     specPattern: process.env.CI
       ? ["cypress/e2e/**/*.feature", "!cypress/e2e/ui/*.feature"]
@@ -22,13 +38,7 @@ module.exports = defineConfig({
     screenshotsFolder: "cypress/screenshots",
     videosFolder: "cypress/videos",
 
-    // Grava vídeo apenas para features da pasta ui, nunca grava no Jenkins (CI)
-    video: process.env.CI
-      ? false
-      : process.env.npm_config_spec &&
-        process.env.npm_config_spec.startsWith("cypress/e2e/ui/")
-      ? true
-      : false,
+    video: false,
     videoCompression: false,
     screenshotOnRunFailure: true,
 
@@ -36,8 +46,7 @@ module.exports = defineConfig({
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
     requestTimeout: 10000,
-    responseTimeout: 120000, // 2 minutos
-    testRunTimeout: 120000, // 2 minutos
+    responseTimeout: 120000,
 
     viewportWidth: 1920,
     viewportHeight: 1080,
@@ -51,37 +60,9 @@ module.exports = defineConfig({
       openMode: 0,
     },
 
-    env: {
-      baseUrl:
-        process.env.BASE_URL || "https://qa-signa.sme.prefeitura.sp.gov.br",
-      loginUrl:
-        process.env.LOGIN_URL ||
-        "https://qa-signa.sme.prefeitura.sp.gov.br/login",
-      username: process.env.SIGNA_USERNAME || process.env.USERNAME || "",
-      password: process.env.SIGNA_PASSWORD || process.env.PASSWORD || "",
-      newPasswordTest: process.env.SIGNA_NEW_PASSWORD_TEST || "",
-
-      // Detectar contexto de execução (CI=true na esteira Jenkins)
-      CI: process.env.CI || false,
-
-      // API EOL — SME Integração
-      // CI: credenciais vêm do secret cypress_env_signa (Jenkins)
-      // Local: credenciais carregadas do arquivo .env via dotenv
-      API_EOL_BASE_URL:
-        process.env.API_EOL_BASE_URL ||
-        "https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br",
-      API_EOL_KEY: process.env.API_EOL_KEY,
-      API_RF_LOGIN: process.env.API_RF_LOGIN,
-      API_PASSWORD: process.env.API_PASSWORD,
-      API_EMAIL: process.env.API_EMAIL,
-    },
-
     async setupNodeEvents(on, config) {
       allureWriter(on, config);
 
-      // =========================
-      // 1️⃣ CUCUMBER
-      // =========================
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
 
       on(
@@ -91,9 +72,6 @@ module.exports = defineConfig({
         })
       );
 
-      // =========================
-      // 3️⃣ TASKS
-      // =========================
       on("task", {
         log(message) {
           console.log(message);
@@ -103,12 +81,9 @@ module.exports = defineConfig({
           console.table(message);
           return null;
         },
-        // Leitura segura de arquivo — nunca falha se o arquivo não existe
-        // Obrigatório para testes de API (token.json, etc.)
         lerArquivoSeguro(caminho) {
           try {
             const fs = require("fs");
-            const path = require("path");
             const caminhoAbsoluto = path.isAbsolute(caminho)
               ? caminho
               : path.join(process.cwd(), caminho);
@@ -122,9 +97,6 @@ module.exports = defineConfig({
         },
       });
 
-      // =========================
-      // 4️⃣ FIREFOX
-      // =========================
       on("before:browser:launch", (browser, launchOptions) => {
         if (browser.family === "firefox") {
           launchOptions.preferences["layers.acceleration.disabled"] = true;
@@ -135,6 +107,8 @@ module.exports = defineConfig({
         }
         return launchOptions;
       });
+
+      config = await cloudPlugin(on, config);
 
       return config;
     },
