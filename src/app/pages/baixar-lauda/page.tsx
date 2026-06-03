@@ -1149,36 +1149,36 @@ export default function BaixarLauda() {
     const texto_cessacao_com_titular_com_periodo=gerarTextoCessacaoLauda(dadosCessacaoComTitularComPeriodo)
     console.log('texto_cessacao_com_titular_com_periodo',texto_cessacao_com_titular_com_periodo)
 
-    // //INSUBSISTENCIA CESSAÇÃO
+    //INSUBSISTENCIA CESSAÇÃO
 
-    // const texto_insubsistencia_designacao_com_titular_com_periodo_licenca_medica=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacaoComTitularComPeriodo)
-    // console.log('texto_insubsistencia_designacao_com_titular_com_periodo_licenca_medica',texto_insubsistencia_designacao_com_titular_com_periodo_licenca_medica)
+    const texto_insubsistencia_designacao_com_titular_com_periodo_licenca_medica=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacaoComTitularComPeriodo)
+    console.log('texto_insubsistencia_designacao_com_titular_com_periodo_licenca_medica',texto_insubsistencia_designacao_com_titular_com_periodo_licenca_medica)
 
 
-    // const texto_insubsistencia_designacao_com_titular_sem_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacaoComTitularSemPeriodo)    
+    const texto_insubsistencia_designacao_com_titular_sem_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaDesignacaoComTitularSemPeriodo)    
     
-    // console.log('texto_insubsistencia_designacao_com_titular_sem_periodo',texto_insubsistencia_designacao_com_titular_sem_periodo)
+    console.log('texto_insubsistencia_designacao_com_titular_sem_periodo',texto_insubsistencia_designacao_com_titular_sem_periodo)
 
-    // const texto_insubsistencia_designacao_vago_com_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaVagoComPeriodo)
-    // console.log('texto_insubsistencia_designacao_vago_com_periodo',texto_insubsistencia_designacao_vago_com_periodo)
+    const texto_insubsistencia_designacao_vago_com_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaVagoComPeriodo)
+    console.log('texto_insubsistencia_designacao_vago_com_periodo',texto_insubsistencia_designacao_vago_com_periodo)
     
 
-    // const texto_insubsistencia_designacao_vago_sem_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaVagoSemPeriodo)
-    // console.log('texto_insubsistencia_designacao_vago_sem_periodo',texto_insubsistencia_designacao_vago_sem_periodo)
+    const texto_insubsistencia_designacao_vago_sem_periodo=gerarTextoInsubsistenciaDesignacaoLauda(dadosInsubsistenciaVagoSemPeriodo)
+    console.log('texto_insubsistencia_designacao_vago_sem_periodo',texto_insubsistencia_designacao_vago_sem_periodo)
 
 
 
-    // //INSUBSISTENCIA DESIGNAÇÃO
+    //INSUBSISTENCIA DESIGNAÇÃO
 
-    // const texto_insubsistencia_cessacao_com_titular_com_periodo_licenca_medica=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoComTitularComPeriodo)
-    // console.log('texto_insubsistencia_cessacao_com_titular_com_periodo_licenca_medica',texto_insubsistencia_cessacao_com_titular_com_periodo_licenca_medica)
+    const texto_insubsistencia_cessacao_com_titular_com_periodo_licenca_medica=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoComTitularComPeriodo)
+    console.log('texto_insubsistencia_cessacao_com_titular_com_periodo_licenca_medica',texto_insubsistencia_cessacao_com_titular_com_periodo_licenca_medica)
 
-    // const texto_insubsistencia_cessacao_com_titular_sem_periodo=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoComTitularSemPeriodo)
-    // console.log('texto_insubsistencia_cessacao_com_titular_sem_periodo',texto_insubsistencia_cessacao_com_titular_sem_periodo)
+    const texto_insubsistencia_cessacao_com_titular_sem_periodo=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoComTitularSemPeriodo)
+    console.log('texto_insubsistencia_cessacao_com_titular_sem_periodo',texto_insubsistencia_cessacao_com_titular_sem_periodo)
 
     
-    // const texto_insubsistencia_cessacao_cargo_vago_sem_periodo=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoCargoVagoSemPeriodo)
-    // console.log('texto_insubsistencia_cessacao_cargo_vago_sem_periodo',texto_insubsistencia_cessacao_cargo_vago_sem_periodo)
+    const texto_insubsistencia_cessacao_cargo_vago_sem_periodo=gerarTextoInsubsistenciaCessacaoLauda(dadosInsubsistenciaCessacaoCargoVagoSemPeriodo)
+    console.log('texto_insubsistencia_cessacao_cargo_vago_sem_periodo',texto_insubsistencia_cessacao_cargo_vago_sem_periodo)
 
 
 
