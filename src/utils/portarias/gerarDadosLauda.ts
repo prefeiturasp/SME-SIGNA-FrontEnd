@@ -3,8 +3,6 @@ import { DesignacaoData, DesignacaoResponse, ListagemPortariasResponse } from "@
 import { nameToCamelCase, formatarRF, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
 import { montarTrechoSubstituicaoLaudaDesignacao,     montarTrechoFinal,
 
-    montarTrechoParaSubstituir,
-    montarPeriodoInsubsistencia,
     montarTrechoUnidade,    
     montarTrechoSubstituicaoLaudaInsubsistencia,
     montarTrechoSubstituicaoLaudaCessacao,
@@ -148,7 +146,7 @@ export function gerarDadosInsubsistenciaDesignacao(data: ListagemPortariasRespon
         sei_designacao: data.designacao.numero_sei,
     
 
-        portaria_cessacao: data.portaria,
+        portaria_cessacao: data.cessacao?.portaria,
         doc_cessacao: data.cessacao?.doc ?? "-",
         sei_cessacao: data.cessacao?.numero_sei ?? "-",
         

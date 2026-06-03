@@ -77,21 +77,5 @@ Port.{{portaria}}/{{ano}} - {{rf}}, vínculo {{vinculo}} - {{nome_indicado}}, {{
 export const TEMPLATE_INSUBSISTENCIA_CESSACAO_BAIXAR_LAUDA = `
 TORNANDO INSUBSISTENTE
 {{dre}}
-Port.{{portaria_insubsistencia}}/{{ano_insubsistencia}} - {{rf}}, vínculo {{vinculo}} - {{nome_indicado}}, {{cargo_base}} - FALTA ESSA (Categoria 3),
-
-os efeitos da portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {{doc_cessacao}}, que cessou os efeitos da Port.nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}},
-pela qual o(a) servidor(a) foi designado(a) {{trecho_substituicao}}, em face do Despacho publicado no DOC de {{doc_insubsistencia}}.
-
-
-PORTARIA Nº {{portaria}}/{{ano}} 
-SEI nº {{sei}}
-{{dre}}
-O Secretário Municipal de Educação, usando das atribuições que lhe são conferidas,
-
-R E S O L V E:
-
-TORNAR INSUBSISTENTE a portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {{doc_cessacao}}, SEI nº {{sei_cessacao}}, que cessou os efeitos da Port. nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}}, {{periodo}}.
-
-
-
+Port.{{portaria}}/{{ano}} - {{rf}}, vínculo {{vinculo}} - {{nome_indicado}}, {{cargo_base}} - FALTA ESSA (Categoria 3), os efeitos da portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {{doc_cessacao}}, que cessou os efeitos da Port.nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, pela qual o(a) servidor(a) foi designado(a) {{trecho_substituicao}}, em face do Despacho publicado no DOC de {{doc_insubsistencia}}.
 `;
