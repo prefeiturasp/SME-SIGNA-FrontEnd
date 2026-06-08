@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
 import { Toaster } from "sonner";
-
+import { ConfigProvider } from "antd";
+import ptBR from "antd/locale/pt_BR";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,7 +31,20 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <ReactQueryProvider>
-          {children}
+          <ConfigProvider
+            locale={ptBR}
+            theme={{
+              token: {
+                colorBorder: "#dadada",
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeightStrong: 500,
+                controlHeightLG: 40,
+              },
+            }}
+          >
+            {children}
+          </ConfigProvider>
         </ReactQueryProvider>
         <Toaster position="top-right" closeButton />
       </body>

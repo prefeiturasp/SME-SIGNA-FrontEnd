@@ -36,7 +36,6 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
  
         return { success: true, data };
     } catch (err) {
-        console.log("err", err);
         const error = err as AxiosError<{ detail?: string }>;
         let message = "Erro ao buscar as Servidor";
 

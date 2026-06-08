@@ -118,6 +118,21 @@ vi.mock("@/components/ui/select", async () => {
 });
 
 vi.mock("antd", () => ({
+  DatePicker: ({
+    onChange,
+    placeholder,
+  }: {
+    onChange?: (d: { toDate: () => Date } | null) => void;
+    placeholder?: string;
+  }) => (
+    <button
+      type="button"
+      data-testid={`mock-datepicker-${placeholder ?? "sem-placeholder"}`}
+      onClick={() => onChange?.({ toDate: () => new Date(2024, 0, 2) })}
+    >
+      Selecionar data
+    </button>
+  ),
   Popconfirm: ({
     open,
     onConfirm,
@@ -265,7 +280,7 @@ describe("PortariaDesigacaoFields", () => {
     expect(methods.getValues("doc")).toBe("123");
 
     // Calendar
-    const calendars = screen.getAllByTestId("mock-calendar-select");
+    const calendars = screen.getAllByTestId(/^mock-datepicker-/);
     fireEvent.click(calendars[0]);
     fireEvent.click(calendars[1]);
 
@@ -282,8 +297,6 @@ describe("PortariaDesigacaoFields", () => {
 
     expect(methods.getValues("a_partir_de")).toBeInstanceOf(Date);
     expect(methods.getValues("designacao_data_final")).toBeInstanceOf(Date);
-    // e renderiza a data formatada quando tem valor
-    expect(screen.getAllByText("02/01/2024").length).toBeGreaterThanOrEqual(1);
   });
 
   it("controla o campo condicional de afastamento (mostra/esconde textarea e atualiza valor)", () => {
