@@ -36,7 +36,7 @@ interface Props {
 }
 
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
-  const { register, control, watch } = useFormContext();
+  const { register, control, watch, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
 
   const impedimentos =
@@ -47,7 +47,14 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
 
 
   const dataFinal = watch("designacao_data_final");
+  
   const isImpedimentoDisabled = !dataFinal;
+  
+  useEffect(() => {
+    if(isImpedimentoDisabled){
+      setValue("impedimento_substituicao", null);
+    }
+  }, [isImpedimentoDisabled, setValue]);
 
   useEffect(() => {
     mutate();
@@ -115,6 +122,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 control={control}
                 name="a_partir_de"
                 label="A partir de"
+                allowClear={false}
               />
             </div>
 
@@ -124,6 +132,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 control={control}
                 name="designacao_data_final"
                 label="Até"
+                allowClear={true}
               />
             </div>
 

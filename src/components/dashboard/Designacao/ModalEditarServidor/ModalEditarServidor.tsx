@@ -112,7 +112,7 @@ export default function ModalEditarServidor({
                                         control={controlFieldValues}
                                         name="nome_servidor"
                                         label="Nome servidor"
-                                        placeholder="Nome servidor"
+                                        placeholder="Digite o nome do servidor"
                                         data-testid="input-nome-servidor"
                                     />
                                 </div>
@@ -122,7 +122,7 @@ export default function ModalEditarServidor({
                                         control={controlFieldValues}
                                         name="nome_civil"
                                         label="Nome Social"
-                                        placeholder="Nome Social"
+                                        placeholder="Digite o nome social"
                                         data-testid="input-nome-civil"
                                     />
                                 </div>
