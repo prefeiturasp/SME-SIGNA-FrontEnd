@@ -2,6 +2,7 @@
 import { InputField } from '@/components/ui/FieldsForm';
 import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SelectAnoField } from '@/components/ui/SelectAnoField';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
@@ -31,7 +32,8 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
   }]
 
   const anoAtual = new Date().getFullYear();
-  const anos = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }))
+  const opcoesAno = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }));
+
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
@@ -79,30 +81,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
 
       <div className="w-full flex gap-4">
         <div className="w-[50%]">
-          <FormField
-            control={control}
-            name="ano"           
-            render={({ field }) => (
-              <FormItem >
-                <FormLabel className="text-[#313131] font-bold">Ano</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-                    <SelectTrigger data-testid="select-ano">
-                      <SelectValue placeholder="Selecione um ano" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {anos.map((ano) => (
-                        <SelectItem key={ano.codigo} value={ano.codigo}>
-                          {ano.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <SelectAnoField name="ano" label="Ano" opcoes={opcoesAno} />
         </div>
         <div className="w-[50%]">
           <FormField
