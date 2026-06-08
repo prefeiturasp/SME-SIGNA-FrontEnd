@@ -4,7 +4,12 @@ import { formatarRF, nameToCamelCase } from "./formatadores";
 function formatarData(data?: string | Date) {
     if (!data) return "____";
 
-    const date = typeof data === "string" ? new Date(data) : data;
+    let date: Date;
+    if (typeof data === "string") {
+        date = data.length === 10 ? new Date(data + "T00:00:00") : new Date(data);
+    } else {
+        date = data;
+    }
 
     return date.toLocaleDateString("pt-BR");
 }

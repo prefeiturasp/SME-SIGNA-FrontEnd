@@ -85,7 +85,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
 
             <div className="w-full">
-               <SelectAnoField name="cessacao.ano" label="Ano Vigente" />
+               <SelectAnoField name="ano" label="Ano Vigente" />
             </div>
 
             <div className="w-full">
