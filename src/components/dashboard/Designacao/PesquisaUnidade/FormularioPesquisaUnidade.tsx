@@ -36,7 +36,7 @@ import DetalhamentoTurmasModal from "@/components/detalhamentoTurmas/detalhament
 import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
 import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
 import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
-import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
+import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 import { CargoAPI, CargoSelect } from "@/types/designacao";
 import SearchButton from "../../SearchButton/SearchButton";
 

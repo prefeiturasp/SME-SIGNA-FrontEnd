@@ -53,37 +53,29 @@ describe("DesignacoesLayout", () => {
 
   it("permite que children acessem o contexto", () => {
     function ChildComponent() {
-      const { formDesignacaoData, setFormDesignacaoData } =
-        useDesignacaoContext();
+      const ctx = useDesignacaoContext();
 
       return (
         <div>
           <div data-testid="context-data">
-            {formDesignacaoData ? "Has Data" : "No Data"}
+            {ctx.formDesignacaoData ? "Has Data" : "No Data"}
           </div>
           <button
             onClick={() =>
-              setFormDesignacaoData({
+              ctx.setFormDesignacaoData({
                 dre: "test-dre",
                 ue: "test-ue",
                 codigo_hierarquico: "123",
                 funcionarios_da_unidade: "func",
                 quantidade_turmas: "10",
                 cargo_sobreposto: "cargo",
-                modulos: "2", 
+                modulos: 2,
                 servidorIndicado: {
-                  nome: "test-nome",
+                  nome_servidor: "test-nome",
                   rf: "123",
-                  esta_afastado: false,
-                  vinculo_cargo_sobreposto: "Ativo",
-                  lotacao_cargo_sobreposto: "Unidade X",
+                  vinculo: 1,
                   cargo_base: "Professor",
-                  funcao_atividade: "Docente",
-                  cargo_sobreposto: "Nenhum",
-                  cursos_titulos: "Licenciatura",
-                  dre: "DRE Teste",
-                  codigo_hierarquico: "COD-1",
-                  
+                  lotacao: "Unidade X",
                 },
               })
             }
