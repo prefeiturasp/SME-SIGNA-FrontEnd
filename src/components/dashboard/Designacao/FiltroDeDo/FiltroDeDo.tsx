@@ -30,7 +30,8 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
     nome: 'Cargos (Designação / Cessação)',
   }]
 
-  const anos =  [{codigo: new Date().getFullYear().toString(), nome: new Date().getFullYear().toString()}]
+  const anoAtual = new Date().getFullYear();
+  const anos = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }))
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
@@ -85,7 +86,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
               <FormItem >
                 <FormLabel className="text-[#313131] font-bold">Ano</FormLabel>
                 <FormControl>
-                  <Select  disabled={true} value={field.value} onValueChange={(value) => field.onChange(value)}>
+                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                     <SelectTrigger data-testid="select-ano">
                       <SelectValue placeholder="Selecione um ano" />
                     </SelectTrigger>

@@ -76,6 +76,12 @@ export default function DesignacoesPasso2() {
   useEffect(() => {
     if (designacao && !hasPopulatedFromApi.current) {
       hasPopulatedFromApi.current = true;
+
+      if (rf && formDesignacaoData?.portaria_designacao) {
+        setIsPopulateScreen(false);
+        return;
+      }
+
       setIsPopulateScreen(true);
 
       form.setValue("tipo_cargo", designacao.tipo_vaga.toLowerCase() as "vago" | "disponivel");
@@ -136,8 +142,9 @@ export default function DesignacoesPasso2() {
         modulos: formDesignacaoData?.modulos ?? 1,
         portaria_designacao: designacao.numero_portaria,
         numero_sei: designacao.sei_numero,
-        a_partir_de: designacao.data_inicio,
-        designacao_data_final: designacao.data_fim,
+        ano: designacao.ano_vigente,
+        a_partir_de: designacao.data_inicio ? new Date(designacao.data_inicio.replace(/-/g, '/')) : new Date(),
+        designacao_data_final: designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null,
         com_afastamento: designacao.com_afastamento,
         motivo_afastamento: designacao.motivo_afastamento,
         com_pendencia: designacao.possui_pendencia,
