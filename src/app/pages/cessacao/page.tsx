@@ -31,6 +31,7 @@ import Designacao from "@/assets/icons/Designacao";
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
+import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 
 export default function CessacaoPage() {
   const searchParams = useSearchParams();
@@ -159,6 +160,7 @@ export default function CessacaoPage() {
     ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
     data_inicio:
       values.cessacao.data_inicio?.toLocaleDateString("pt-BR"),
+    trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
   });
 
   const handleGerarPortaria = () => {

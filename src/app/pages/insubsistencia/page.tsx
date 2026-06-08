@@ -31,6 +31,7 @@ import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTexto
 import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
 import {  TEMPLATE_INSUBSISTENCIA_CESSACAO, TEMPLATE_INSUBSISTENCIA_DESIGNACAO } from "@/utils/portarias/templates";
 import { formatarData } from "@/lib/utils";
+import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 
 
 
@@ -142,7 +143,8 @@ export default function InsubsistenciaPage() {
     cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
     cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
     ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-    periodo: periodo_insubsistencia
+    periodo: periodo_insubsistencia,
+    trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
   });
 
   const handleGerarPortaria = () => {
