@@ -43,7 +43,6 @@ export default function DesignacoesPasso3() {
   const id = searchParams.get("id");
   const rf = searchParams.get("rf");
   const { formDesignacaoData, clearFormDesignacaoData, setFormDesignacaoData } = useDesignacaoContext();
-  console.log("formDesignacaoData passo 3", formDesignacaoData)
   const editorSEIRef = useRef<EditorSEIHandle>(null);
   const textoPlanoRef = useRef<string>("");
 
