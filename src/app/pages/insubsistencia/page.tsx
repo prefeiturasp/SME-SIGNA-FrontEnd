@@ -46,7 +46,6 @@ export default function InsubsistenciaPage() {
 
   const { data: designacao, isLoading } =
     useFetchDesignacoesById(Number(id));
-    console.log('designacao', designacao);
 
   const form = useForm<formSchemaInsubsistenciaData>({
     resolver: zodResolver(formSchemaInsubsistencia),
