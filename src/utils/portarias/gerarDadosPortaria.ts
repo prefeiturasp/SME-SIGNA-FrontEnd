@@ -54,8 +54,6 @@ export function montarTrechoUnidade(indicado_lotacao:string, unidade_proponente:
     if (indicado_lotacao?.replace(/\s+/g, '') === unidade_proponente?.replace(/\s+/g, '')) {
         return `na referida Unidade`;
     }
-    console.log("indicado_lotacao", indicado_lotacao);
-    console.log("unidade_proponente", unidade_proponente);
      // PADRÃO
     return `na ${nameToCamelCaseUe(unidade_proponente ?? "")}, da ${dre_nome ?? "____"}`;
 }
