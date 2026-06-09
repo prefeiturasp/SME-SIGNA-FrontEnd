@@ -49,6 +49,7 @@ describe("gerarDadosPortaria", () => {
             ue: "Escola Teste",
             eh: "123456",
             trecho_substituicao: "Trecho Substituição",
+            trecho_unidade: "na referida Unidade",
             trecho_final: "Trecho Final",
         });
     });
