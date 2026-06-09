@@ -22,9 +22,11 @@ TORNAR INSUBSISTENTE a portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {
 
 
 
-export const TEMPLATE_CESSACAO = `EXPEDE:
-PORTARIA Nº {{portaria}}/{{ano}} SEI nº {{sei}}
+export const TEMPLATE_CESSACAO = `PORTARIA Nº {{portaria}}/{{ano}} 
+SEI Nº {{sei}}
+
 {{dre}}
+
 O Secretário Municipal de Educação, usando das atribuições que lhe são conferidas,
 
 R E S O L V E:

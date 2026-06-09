@@ -17,6 +17,7 @@ import EditorSEI, {
   gerarHtmlPortaria,
   normalizarQuebras,
   EditorSEIHandle,
+  adicionarNegrito,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { FormField, FormLabel, FormControl, FormItem, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,12 +90,10 @@ export default function DesignacoesPasso3() {
       dadosEscapados[k] = escapeHtml(String(v));
     }
 
-    for (const campo of CAMPOS_NEGRITO) {
-      const val = dadosEscapados[campo];
-      if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
-    }
+  
+    const dadosEscapadosNegrito = adicionarNegrito(dadosEscapados, CAMPOS_NEGRITO);
 
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapados));
+    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapadosNegrito));
   }, [formDesignacaoData]);
 
   const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {

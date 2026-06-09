@@ -28,7 +28,7 @@ import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
 import Designacao from "@/assets/icons/Designacao";
 
-import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import EditorSEI, { adicionarNegrito, gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
@@ -169,13 +169,10 @@ export default function CessacaoPage() {
 
     let texto = TEMPLATE_CESSACAO;
 
-    Object.entries(dados).forEach(([key, value]) => {
-      let val = String(value ?? "");
+    const dadosNegrito = adicionarNegrito(dados, ["nome_indicado","sei","portaria","ano"]);
 
-      if (["nome_indicado"].includes(key)) {
-        val = `<strong>${val}</strong>`;
-      }
-
+    Object.entries(dadosNegrito).forEach(([key, value]) => {
+      const val = String(value ?? "");
       texto = texto.replaceAll(`{{${key}}}`, val);
     });
 
