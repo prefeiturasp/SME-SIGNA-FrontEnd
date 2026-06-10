@@ -49,8 +49,6 @@ export function gerarDadosPortaria(data: DesignacaoData) {
 }
 
 export function montarTrechoUnidade(indicado_lotacao:string, unidade_proponente:string,dre_nome:string): string {
-
-
     if (indicado_lotacao?.replace(/\s+/g, '') === unidade_proponente?.replace(/\s+/g, '')) {
         return `na referida Unidade`;
     }
