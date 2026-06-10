@@ -54,6 +54,7 @@ export interface DesignacaoData {
   motivo_cancelamento?: string;
 
   impedimento_substituicao?: string;
+  impedimento_label?: string;
 
   servidorIndicado?: Servidor;
   dadosTitular?: Titular | null;

@@ -61,6 +61,7 @@ export default function DesignacoesPasso2() {
       ano: formDesignacaoData?.ano ?? new Date().getFullYear().toString(),
       doc: formDesignacaoData?.doc ?? "",
       impedimento_substituicao: formDesignacaoData?.impedimento_substituicao ?? null,
+      impedimento_label: formDesignacaoData?.impedimento_label ?? "",
       carater_especial: formDesignacaoData?.carater_especial ?? "nao",
       com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
       motivo_afastamento: formDesignacaoData?.motivo_afastamento ?? "",
@@ -90,6 +91,7 @@ export default function DesignacoesPasso2() {
     form.setValue("com_pendencia", d.possui_pendencia ? "sim" : "nao");
     form.setValue("motivo_pendencia", d.pendencias);
     form.setValue("rf_titular", d.titular_rf, { shouldValidate: true, shouldTouch: true });
+    form.setValue("impedimento_label", d.impedimento_substituicao !== null ? d.impedimento_display : "");
     setDadosTitular({
       rf: d.titular_rf,
       nome_servidor: d.titular_nome_servidor,
@@ -143,6 +145,8 @@ export default function DesignacoesPasso2() {
       tipo_cargo: d.tipo_vaga.toLowerCase(),
       rf_titular: d.titular_rf,
       cargo_vago_selecionado: { id: d.cargo_vaga, label: d.cargo_vaga_display },
+      impedimento_substituicao: d.impedimento_substituicao,
+      impedimento_label: d.impedimento_substituicao !== null ? d.impedimento_display : "",
       dadosTitular: null,
       informacoes_adicionais: d.informacoes_adicionais ?? "",
       detalhe_para_quadro_de_historico_por_ano: d.detalhe_para_quadro_de_historico_por_ano ?? true,
