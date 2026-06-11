@@ -39,7 +39,7 @@ export default function ModalResumoServidor({
     const notification = useAppNotification();
 
 
-    function onClickCopiarRF(defaultValues: Servidor) {
+    async function onClickCopiarRF(defaultValues: Servidor) {
 
 
  
@@ -56,6 +56,9 @@ export default function ModalResumoServidor({
                 tipo_cargo: "disponivel",
             }
         });
+        
+        await navigator.clipboard.writeText(defaultValues.rf);
+
 
         notification.success(
             "RF copiado!"
