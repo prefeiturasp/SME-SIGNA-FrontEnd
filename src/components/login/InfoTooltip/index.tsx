@@ -35,8 +35,8 @@ function InfoTooltipInner({
             aria-label="Ajuda"
             className={cn(
                 "inline-flex items-center justify-center rounded-full",
-                "w-[13px] h-[13px] bg-[#42474A] text-white shadow-sm",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#42474A]/50 focus-visible:ring-offset-2"
+                "w-[13px] h-[13px] bg-[#313131] text-white shadow-sm",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#313131]/50 focus-visible:ring-offset-2"
             )}
         >
             <span className="text-[10px] leading-none font-bold">?</span>
@@ -51,7 +51,7 @@ function InfoTooltipInner({
                 align={align}
                 sideOffset={8}
                 className={cn(
-                    "bg-[#42474A] text-[#fff] border border-[#42474A] shadow-lg ml-1",
+                    "bg-[#313131] text-[#fff] border border-[#313131] shadow-lg ml-1",
                     "rounded-md px-3 py-2 text-center",
                     "text-[12px] leading-[1.2] font-normal",
                     "max-w-[246px]",
@@ -67,7 +67,7 @@ function InfoTooltipInner({
                 {side === "top" && (
                     <span
                         className={cn(
-                            "absolute -bottom-[6px] left-0 w-[16px] h-[12px] bg-[#42474A] ml-1",
+                            "absolute -bottom-[6px] left-0 w-[16px] h-[12px] bg-[#313131] ml-1",
                             "[clip-path:polygon(0_0,100%_0,0_100%)]"
                         )}
                     />

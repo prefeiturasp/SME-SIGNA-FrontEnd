@@ -22,7 +22,7 @@ export default function BotoesDeNavegacao({
 
   return (
     <div className="flex items-center justify-between">
-      <div className="w-[200px] pt-[2rem] ">
+      <div className="w-[100px] pt-[2rem] ">
         {showAnterior && (
           <Button
           type="button"
@@ -39,7 +39,7 @@ export default function BotoesDeNavegacao({
       </div>
 
 
-      <div className="w-[200px] pt-[2rem] ">
+      <div className="w-[120px] pt-[2rem] ">
         <Button
           type="submit"
           size="lg"

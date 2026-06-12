@@ -35,7 +35,7 @@ When('eu busco supervisores da DRE com código {string}', (codigoDRE) => {
 
 When('eu busco supervisores da DRE com código {string} sem token', (codigoDRE) => {
   const path = `/api/DREs/${codigoDRE}/supervisores`
-  const baseURL = 'https://hom-smeintegracaoapi.sme.prefeitura.sp.gov.br'
+  const baseURL = 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br'
   
   cy.request({
     method: 'GET',

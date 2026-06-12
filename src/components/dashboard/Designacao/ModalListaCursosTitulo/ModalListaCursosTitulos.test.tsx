@@ -99,7 +99,9 @@ describe("ModalListaCursosTitulos", () => {
   it("renderiza estado de loading quando isLoading=true", () => {
     render(<ModalListaCursosTitulos {...makeProps({ isLoading: true })} />);
 
-    const spinner = document.querySelector(".ant-spin-nested-loading");
+    const spinner = document.querySelector(
+      '.ant-spin-spinning[aria-busy="true"]'
+    );
     expect(spinner).toBeInTheDocument();
   });
 

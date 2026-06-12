@@ -1,5 +1,6 @@
 "use client";
-import { useState, useTransition, useEffect } from "react";
+import { useState } from "react";
+import { format } from "date-fns";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
@@ -7,30 +8,36 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ListagemPortariasResponse,
-  PortariasDOFiltros,
 } from "@/types/designacao";
-import {
-  fetchPortariasDO,
-} from "@/actions/designacao";
+ 
 
 import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo";
-import filterFormSchemaFiltroDO, { filterFormSchemaFiltroDOData } from "./filterFormSchemaFiltroDO";
 import mainDOFormSchema, { mainDOFormSchemaData } from "./mainDOFormSchema";
 import MainDOForm, { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
-import { useRouter } from "next/navigation";
 import { message, Modal, Result } from "antd";
 import { useSalvarPortariasDo } from "@/hooks/useSalvarPortariasDO";
+import { usePortariasDO } from "@/hooks/usePortariasDO";
 
 export default function AlterarDataDo() {
-  const [resultado, setResultado] = useState<ListagemPortariasResponse[]>([]);
-  const [salvando, setSalvando] = useState(true);
+
+  const {
+    resultado,
+    filterForm,
+    onSubmitFilterForm,
+    handleClear,
+    buscar,
+    isPending,
+    salvando,
+    setSalvando,
+    tabelaKey,
+    setTabelaKey,
+  } = usePortariasDO();
+
   const [modalSucesso, setModalSucesso] = useState(false);
   const [modalErro, setModalErro] = useState(false);
-  const router = useRouter();
 
   const salvarPortariasDo = useSalvarPortariasDo();
 
-  const [isPending, startTransition] = useTransition();
   const mainDOForm = useForm<mainDOFormSchemaData>({
     resolver: zodResolver(mainDOFormSchema),
     defaultValues: {
@@ -45,109 +52,36 @@ export default function AlterarDataDo() {
   const data_publicacao = mainDOForm.watch("data_publicacao");
 
   const portarias_selecionadas = mainDOForm.watch("portarias_selecionadas");
-  const filterForm = useForm<filterFormSchemaFiltroDOData>({
-    resolver: zodResolver(filterFormSchemaFiltroDO),
-    defaultValues: {
-      numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
-      ano: new Date().getFullYear().toString(),
-      tipo: "",
-    },
-    mode: "onChange",
-  });
+ 
+ 
 
-
-  const portariaInicial = filterForm.watch("portaria_inicial");
-  const portariaFinal = filterForm.watch("portaria_final");
-
-  useEffect(() => {
-    filterForm.trigger(["portaria_inicial", "portaria_final"]);
-  }, [portariaInicial, portariaFinal, filterForm]);
-
-  const generateDesignacaoFiltros = (
-    values: filterFormSchemaFiltroDOData
-  ) => {
-
-    return {
-      numero_sei: values.numero_sei,
-      portaria_inicial: values.portaria_inicial,
-      portaria_final: values.portaria_final,
-      ano: values.ano,
-      tipo: values.tipo,
-    };
-  };
-
-
-
-
-  const buscarPortarias = async (
-    values: PortariasDOFiltros,
-  ) => {
-    const filtros = {
-      ...generateDesignacaoFiltros(values),
-    };
-     return fetchPortariasDO(filtros);
-  };
-  const buscar = (values: PortariasDOFiltros) => {
-    startTransition(async () => {
-      const response = await buscarPortarias(values);
-      if (response.success) {
-        setResultado(response.data);
-      } else {
-        console.error(response.error);
-      }
-    });
-  };
-
-  useEffect(() => {
-    buscar(filterForm.getValues());
-  }, []);
-
-  const onSubmitFilterForm = (values: filterFormSchemaFiltroDOData) => {
-    console.log('onSubmitFilterForm', values);
-    buscar(values);
-  };
+ 
 
   const onSubmitMainDOForm = (values: mainDOFormSchemaData) => {
     console.log('onSubmitMainDOForm', values);
   };
 
- 
 
-  const handleClear = () => {
-    filterForm.reset({
-      numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
-      ano: new Date().getFullYear().toString(),
-      tipo: "",
-    });
 
-    buscar(
-      {
-        numero_sei: "",
-        portaria_inicial: "",
-        portaria_final: "",
-        ano: new Date().getFullYear().toString(),
-        tipo: "",
-      },
-
-    );
-  };
+  
   const handleAlterarDataDo = async (selectedRows: ListagemPortariasResponse[]) => {
- 
+
     try {
       setSalvando(true);
       message.loading({ content: "Salvando portaria...", duration: 0 });
       await salvarPortariasDo.mutateAsync({
         values: selectedRows,
-        data_publicacao: data_publicacao.toISOString() 
+        data_publicacao: format(data_publicacao, "yyyy-MM-dd")
       });
       message.destroy();
       setModalSucesso(true);
       setSalvando(false);
-      setTimeout(() => router.push("/pages/listagem-designacoes"), 2200);
+      setTimeout(() => {
+        setModalSucesso(false);
+        mainDOForm.reset();
+        setTabelaKey((k) => k + 1);
+        buscar(filterForm.getValues());
+      }, 2000);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
       message.destroy();
@@ -183,17 +117,18 @@ export default function AlterarDataDo() {
 
 
         <ListagemDeDo
+          key={tabelaKey}
           isDisabled={salvando}
           data_considerada_portaria={data_considerada_portaria}
           data_publicacao={data_publicacao}
           value={portarias_selecionadas}
           data={resultado ?? []}
           isLoading={isPending}
-          onClickButton={handleAlterarDataDo}
-          labelButton="Alterar data"
+          onClickAlterarDataDo={handleAlterarDataDo}
+          isListagemDo
         />
       </FundoBranco>
-      
+
 
       <Modal open={modalSucesso} footer={null} closable={false} centered>
         <Result

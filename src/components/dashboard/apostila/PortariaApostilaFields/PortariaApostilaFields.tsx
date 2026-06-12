@@ -68,7 +68,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
                 name={item.name}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="required text-[#42474a] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold">
                       {item.label}
                     </FormLabel>
                     <FormControl>

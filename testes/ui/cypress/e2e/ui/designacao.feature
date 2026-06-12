@@ -9,11 +9,10 @@ Funcionalidade: Designação de Servidores
   Contexto:
     Dado que o usuário está autenticado no sistema
 
-  @skip @designacao-fluxo-completo @critico
+  @designacao-fluxo-completo @critico
   Cenário: Nova designação de servidor Cargo Disponivel
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o texto "Designação"
     E deve visualizar o formulário da designação
@@ -69,12 +68,13 @@ Funcionalidade: Designação de Servidores
     # designação é confirmada e a página de resumo mostra apenas a portaria.
     Então o sistema direciona para a pagina de resumo da designacao
     E deve visualizar os dados do resumo da portaria
+    E valida a existencia dos Botões "Voltar" e "Salvar"
+    Quando clica em "Salvar"
 
-  @skip @designacao-fluxo-completo @critico @cargo-vago
+  @designacao-fluxo-completo @critico @cargo-vago
   Cenário: Nova designação de servidor com cargo vago
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o texto "Designação"
     E deve visualizar o formulário da designação
@@ -125,6 +125,8 @@ Funcionalidade: Designação de Servidores
     # é confirmada automaticamente e a página de resumo mostra apenas a portaria.
     Então o sistema direciona para a pagina de resumo da designacao
     E deve visualizar os dados do resumo da portaria
+    E valida a existencia dos Botões "Voltar" e "Salvar"
+    Quando clica em "Salvar"
 
   # ══════════════════════════════════════════════════════════════════════════════
   # CENÁRIOS DE EXCEÇÃO
@@ -132,9 +134,8 @@ Funcionalidade: Designação de Servidores
 
   @excecao @rf-invalido
   Cenário: Pesquisa de servidor com RF inexistente no sistema
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
     Quando preenche o campo RF com "0000000"
@@ -143,9 +144,8 @@ Funcionalidade: Designação de Servidores
 
   @excecao @passo2-sem-portaria
   Cenário: Tentativa de avançar o Passo 2 sem preencher a portaria obrigatória
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
     Quando preenche o campo RF com RF aleatorio da lista
@@ -167,9 +167,8 @@ Funcionalidade: Designação de Servidores
 
   @excecao @rf-titular-invalido
   Cenário: Pesquisa de titular com RF inválido no Passo 2
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
     Quando preenche o campo RF com RF aleatorio da lista
@@ -198,9 +197,8 @@ Funcionalidade: Designação de Servidores
 
   @excecao @rf-vazio
   Cenário: Tentativa de pesquisa sem preencher o campo RF
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
     Quando tenta pesquisar sem preencher o campo RF
@@ -208,9 +206,8 @@ Funcionalidade: Designação de Servidores
 
   @excecao @cargo-vago-sem-selecao
   Cenário: Tentativa de avançar com Cargo Vago sem selecionar o cargo específico
-    Dado que o usuário está na página do dashboard
-    Quando navega pelo menu lateral e clica em "Designações"
-    Quando clica no botão Nova Designação
+    Dado que o sistema carregou o dashboard
+    Quando valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
     Quando preenche o campo RF com RF aleatorio da lista

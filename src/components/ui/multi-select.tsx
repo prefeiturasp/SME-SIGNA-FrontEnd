@@ -76,14 +76,14 @@ export function MultiSelect({
                 >
                     <div className="flex flex-wrap gap-1 w-full pointer-events-none">
                         {value.length === 0 ? (
-                            <span className="text-muted-foreground text-[14px] text-[#42474A] font-[400]">
+                            <span className="text-muted-foreground text-[14px] text-[#313131] font-[400]">
                                 {placeholder}
                             </span>
                         ) : (
                             selectedOptions.map((opt) => (
                                 <span
                                     key={opt.value}
-                                    className="inline-flex items-center gap-1 bg-[#FFFFFF] border border-[#DADADA] text-[#42474A] rounded px-2 py-1 text-xs"
+                                    className="inline-flex items-center gap-1 bg-[#FFFFFF] border border-[#DADADA] text-[#313131] rounded px-2 py-1 text-xs"
                                 >
                                     {opt.label}
                                     <input

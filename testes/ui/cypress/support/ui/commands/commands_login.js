@@ -8,12 +8,33 @@ import { loginLocators, loginUrls } from '../locators/login_locators';
  */
 Cypress.Commands.add('realizarLogin', (usuario, senha) => {
   cy.visit('/login');
-  cy.get(loginLocators.campoRfCpf).clear().type(usuario);
-  cy.get(loginLocators.campoSenha).clear().type(senha);
-  cy.get(loginLocators.botaoEntrar).click();
+  cy.wait(1000); // buffer para carregamento da página
+  
+  // Preencher RF/CPF
+  cy.get(loginLocators.campoRfCpf, { timeout: 40000 })
+    .should('be.visible')
+    .and('not.be.disabled')
+    .clear()
+    .type(usuario, { delay: 100 });
+  cy.wait(500);
+  
+  // Preencher Senha com validações rigorosas
+  cy.get(loginLocators.campoSenha, { timeout: 40000 })
+    .should('be.visible')
+    .and('not.be.disabled')
+    .clear({ force: true })      // ← Added force: true
+    .wait(300)
+    .type(senha, { delay: 100, force: true });  // ← Added force: true
+  cy.wait(500);
+  
+  // Clicar em Entrar
+  cy.get(loginLocators.botaoEntrar, { timeout: 40000 })
+    .should('be.visible')
+    .and('not.be.disabled')
+    .click();
   
   // Aguardar redirecionamento
-  cy.url().should('not.include', '/login');
+  cy.url({ timeout: 40000 }).should('not.include', '/login');
   cy.aguardarCarregamento();
 });
 

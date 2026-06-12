@@ -39,12 +39,13 @@ import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 export default function DesignacoesPasso2() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const rf = searchParams.get("rf");
 
 
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
   );
-  const { formDesignacaoData, setFormDesignacaoData } =
+  const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
   const hasPopulatedFromApi = useRef(false);
@@ -84,7 +85,7 @@ export default function DesignacoesPasso2() {
       form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
       form.setValue("designacao_data_final", designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null);
       form.setValue("ano", designacao.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
-      form.setValue("doc", designacao.doc);
+      form.setValue("doc", designacao?.doc ?? "",);
       form.setValue("impedimento_substituicao", designacao.impedimento_substituicao);
       form.setValue("carater_especial", designacao.carater_excepcional ? "sim" : "nao");
       form.setValue("com_afastamento", designacao.com_afastamento ? "sim" : "nao");
@@ -110,7 +111,9 @@ export default function DesignacoesPasso2() {
 
       setFormDesignacaoData({
         // Preserva servidorIndicado do context (pode ter sido editado no Passo 1)
-        servidorIndicado: designacao.indicado_nome_servidor ? {
+        servidorIndicado: formDesignacaoData?.servidorIndicado?.nome_servidor ?
+        formDesignacaoData?.servidorIndicado :
+        {
           nome_servidor: designacao.indicado_nome_servidor,
           nome_civil: designacao.indicado_nome_civil,
           rf: designacao.indicado_rf,
@@ -121,7 +124,7 @@ export default function DesignacoesPasso2() {
           local_de_exercicio: designacao.indicado_local_exercicio,
           laudo_medico: "Indisponível",
           local_de_servico: designacao.indicado_local_servico,
-        }:formDesignacaoData?.servidorIndicado,
+        },
         dre: designacao?.dre ?? '-',
         dre_nome: formDesignacaoData?.dre_nome ?? designacao.dre_nome,
         ue: designacao?.ue ?? '-',
@@ -215,10 +218,9 @@ export default function DesignacoesPasso2() {
       });
     }
 
-
-    if (id) {
+     if (id) {
       router.push(
-        `/pages/designacoes/designacoes-passo-3?id=${id}`
+        `/pages/designacoes/designacoes-passo-3?id=${id}&rf=${formDesignacaoData?.servidorIndicado?.rf}`
       );
     } else {
       router.push("/pages/designacoes/designacoes-passo-3");
@@ -244,6 +246,13 @@ export default function DesignacoesPasso2() {
       },
     });
   }
+
+  useEffect(() => {
+    if (!rf && id) {
+      clearFormDesignacaoData();
+    }
+  }, []);
+  
   return (
     <>
       <PageHeader
@@ -252,8 +261,8 @@ export default function DesignacoesPasso2() {
           { title: "Início", href: "/" }, 
           { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
           { title: "Designação" }, ]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
-        showBackButton={false}
+          icon={<Designacao width={24} height={24} color="#660C0B" />}
+          showBackButton={false}
       />
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmitDesignacao)}>
@@ -261,8 +270,7 @@ export default function DesignacoesPasso2() {
             <StepperDesignacao current={1} />
           </FundoBranco>
           <Card
-
-            title={
+             title={
               <div className="flex justify-between items-center">
                 <span className="text-[#333]">Designação</span>
                 <Button
@@ -286,6 +294,7 @@ export default function DesignacoesPasso2() {
             }
             className="mt-4 m-0"
           >
+            <div className="card-designacao">
             {formDesignacaoData?.servidorIndicado && (
               <Accordion
                 type="multiple"
@@ -342,7 +351,9 @@ export default function DesignacoesPasso2() {
               setDadosTitular={setDadosTitular}
               setErrorBusca={setErrorBusca}
             />
+            </div>
           </Card>
+
           <div className="w-full flex flex-col mt-6">
             <BotoesDeNavegacao
               disableAnterior={false}

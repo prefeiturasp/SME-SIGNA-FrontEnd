@@ -25,12 +25,12 @@ Funcionalidade: Autenticação no Sistema SIGNA
   @validacao-campo @obrigatoriedade
   Cenário: Validação de campo senha obrigatório
     Quando eu insiro apenas o RF sem senha
-    E clico no botão de acessar
-    Então devo visualizar validação de senha obrigatória
+    Então devo visualizar que o botão de acessar está desabilitado
+    E devo visualizar validação de senha obrigatória
 
   @validacao-campo @obrigatoriedade
   Cenário: Validação de campo RF obrigatório
     Quando eu insiro apenas a senha sem RF
-    E clico no botão de acessar
-    Então devo visualizar validação de RF obrigatório 
+    Então devo visualizar que o botão de acessar está desabilitado
+    E devo visualizar validação de RF obrigatório 
 

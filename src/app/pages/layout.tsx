@@ -24,7 +24,7 @@ export default function DashboardLayout({
                                     {children}
                                 </main>
 
-                                <footer className="h-[60px] p-4 text-sm text-[#42474a]">
+                                <footer className="h-[60px] p-4 text-sm text-[#313131]">
                                     Sistema homologado para navegadores: Google
                                     Chrome e Firefox
                                 </footer>

@@ -196,7 +196,7 @@ export default function ApostilaPage() {
                       name="apostila.ato_apostilado"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel className="font-bold text-[#42474a] text-lg">
+                          <FormLabel className="font-bold text-[#313131] text-lg">
                             Selecione o tipo de Apostila:
                           </FormLabel>
                           <FormControl>

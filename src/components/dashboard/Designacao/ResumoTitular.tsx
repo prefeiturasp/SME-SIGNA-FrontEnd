@@ -18,7 +18,7 @@ const ResumoTitular: React.FC<{
     onSubmitEditarServidor(data);
   }
   return (
-    <div className="w-full bg-[#FAFAFA] p-4 flex flex-col gap-6">
+    <div className="w-full bg-[#FAFAFA] flex flex-col gap-6">
       <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
         <InfoItem label="Nome Servidor" value={data.nome_servidor} />
         <InfoItem label="Nome Social" value={data.nome_civil} />

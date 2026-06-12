@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { meusDadosPack } from '../../ui/locators/meusDados_locators';
 
 Given('que o usuário realizou o login com sucesso', () => {
   cy.visit('/');
@@ -24,40 +25,82 @@ Given('o usuário está na página principal do sistema', () => {
 });
 
 When('o usuário clica no botão {string}', (btnText) => {
-  const textoNormalizado = btnText.toLowerCase().trim();
-  
+  const textoNormalizado = btnText.toLowerCase().trim()
+
   if (textoNormalizado.includes('meus dados')) {
-    cy.contains('button, a, span, li, div', 'Meus dados', { timeout: 10000, matchCase: false }).first().click({ force: true });
-  } else if (textoNormalizado.includes('inicio')) {
-    cy.get('ul > li > a').contains('Inicio', { matchCase: false }).click({ force: true });
+    cy.wait(1000)
+    // Ant Design Menu: clica no item pai (expande acordeão se estiver fechado)
+    cy.contains('span', /meus dados/i, { timeout: 10000 }).first().click({ force: true })
+    cy.wait(800)
+    // Após expandir, clica no sub-item filho (.last() = link de navegação)
+    cy.get('body').then($body => {
+      const spans = Cypress.$($body).find('span').filter((i, el) =>
+        /meus dados/i.test(el.textContent.trim())
+      )
+      cy.log('Spans com "Meus dados" encontrados: ' + spans.length)
+      if (spans.length > 1) {
+        // Acordeão expandido — usa cy.get().filter().last() para pegar o sub-item filho
+        // cy.contains() retorna elemento único, .last() seria no-op — por isso usa get+filter
+        cy.get('span')
+          .filter((i, el) => /meus dados/i.test(el.textContent.trim()))
+          .last()
+          .click({ force: true })
+      }
+      // Se só 1, o clique anterior já navegou (estrutura sem sub-item)
+    })
+    cy.wait(2000)
+    cy.url().then(url => cy.log('URL após Meus Dados: ' + url))
+  } else if (textoNormalizado.includes('alterar e-mail') || textoNormalizado.includes('alterar email')) {
+    meusDadosPack.botoes.alterarEmail()
+      .should('be.visible')
+      .click({ force: true })
+    cy.wait(1000)
+  } else if (textoNormalizado.includes('alterar senha')) {
+    meusDadosPack.botoes.alterarSenha()
+      .should('be.visible')
+      .click({ force: true })
+    cy.wait(1000)
   } else {
-    cy.contains(btnText, { timeout: 10000 }).click({ force: true });
+    meusDadosPack.botoes.qualquer(btnText)
+      .filter(':visible')
+      .first()
+      .click({ force: true })
   }
-  
-  cy.wait(2000);
+
+  cy.wait(1000)
 });
 
 When('valida o texto {string}', (texto) => {
-  cy.contains(texto, { timeout: 10000 }).should('exist');
-  cy.wait(300);
+  if (texto.toLowerCase().includes('meus dados')) {
+    cy.wait(500)
+    meusDadosPack.textos.tituloMeusDados().should('exist')
+  } else {
+    meusDadosPack.textos.qualquerTexto(texto).should('exist')
+  }
+  cy.wait(300)
 });
 
 When('valida a existencia dos botões {string} e {string}', (botao1, botao2) => {
-  const botaoNormalizado1 = botao1.toLowerCase();
-  const botaoNormalizado2 = botao2.toLowerCase();
-  
-  if (botaoNormalizado1.includes('cancelar') || botaoNormalizado1.includes('salvar') || 
-      botaoNormalizado2.includes('cancelar') || botaoNormalizado2.includes('salvar')) {
+  cy.wait(500)
+
+  const emDialog = ['cancelar', 'salvar'].some(k =>
+    botao1.toLowerCase().includes(k) || botao2.toLowerCase().includes(k)
+  )
+
+  if (emDialog) {
     cy.get('[role="dialog"], [id^="radix"]', { timeout: 10000 }).first().within(() => {
-      cy.contains('button', botao1, { timeout: 5000, matchCase: false }).should('exist');
-      cy.contains('button', botao2, { timeout: 5000, matchCase: false }).should('exist');
-    });
+      cy.contains('button', botao1, { timeout: 5000, matchCase: false }).should('exist')
+      cy.contains('button', botao2, { timeout: 5000, matchCase: false }).should('exist')
+    })
   } else {
-    cy.contains('button, a', botao1, { timeout: 10000, matchCase: false }).should('exist');
-    cy.contains('button, a', botao2, { timeout: 10000, matchCase: false }).should('exist');
+    // Constrói regex flexível que aceita variações com hífen/espaço (ex: "e-mail" ou "email")
+    const regex1 = new RegExp(botao1.replace(/[-\s]/g, '.{0,2}'), 'i')
+    const regex2 = new RegExp(botao2.replace(/[-\s]/g, '.{0,2}'), 'i')
+    meusDadosPack.botoes.qualquer(regex1).should('be.visible')
+    meusDadosPack.botoes.qualquer(regex2).should('be.visible')
   }
-  
-  cy.wait(300);
+
+  cy.wait(300)
 });
 
 When('valida a existencia do titulo {string}', (titulo) => {
@@ -79,10 +122,32 @@ When('clica no botão {string}', (btnText) => {
   const textoNormalizado = btnText.toLowerCase().trim();
   
   if (textoNormalizado.includes('alterar senha')) {
-    cy.get('button').filter((index, element) => {
-      const texto = Cypress.$(element).text().toLowerCase();
-      return texto.includes('alterar senha') || (texto.includes('alterar') && texto.includes('senha'));
-    }).first().click({ force: true });
+    cy.get('body').then($body => {
+      // Tentar encontrar botão "Alterar senha"
+      if ($body.find('button:contains("Alterar senha")').length > 0) {
+        cy.contains('button', /alterar senha/i, { matchCase: false }).first().click({ force: true });
+      } else {
+        // Buscar por padrão mais flexível
+        cy.get('button, a').filter((index, element) => {
+          const texto = Cypress.$(element).text().toLowerCase();
+          return texto.includes('alterar') && texto.includes('senha');
+        }).first().click({ force: true });
+      }
+    });
+    cy.wait(1000);
+  } else if (textoNormalizado.includes('alterar e-mail') || textoNormalizado.includes('alterar email')) {
+    cy.get('body').then($body => {
+      // Tentar encontrar botão "Alterar e-mail"
+      if ($body.find('button:contains("Alterar e-mail"), button:contains("Alterar email"), a:contains("Alterar e-mail")').length > 0) {
+        cy.contains('button, a', /alterar.{0,2}e-?mail/i, { matchCase: false }).first().click({ force: true });
+      } else {
+        // Buscar por padrão mais flexível
+        cy.get('button, a').filter((index, element) => {
+          const texto = Cypress.$(element).text().toLowerCase().replace(/\s+/g, '');
+          return texto.includes('alterar') && (texto.includes('email') || texto.includes('e-mail'));
+        }).first().click({ force: true });
+      }
+    });
     cy.wait(1000);
   } else if (textoNormalizado.includes('cancelar')) {
     cy.get('[role="dialog"], [class*="modal"]').within(() => {

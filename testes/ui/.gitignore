@@ -1,3 +1,4 @@
+videos/
 # Dependências
 node_modules/
 package-lock.json
@@ -58,6 +59,26 @@ cypress/plugins/
 
 # Postman - coleções locais (não subir ao repositório)
 postman/
+
+# Outputs de debug e testes locais
+debug_output*.txt
+test_output*.txt
+
+# Scripts utilitários locais (não subir ao repositório)
+limpar_emojis.ps1
+
+# Estrutura cypress duplicada (criada acidentalmente)
+cypress/cypress/
+cypress/cypress.config.js
+
+# Specs de debug temporárias (remover após uso)
+cypress/e2e/debug_sidebar.cy.js
+
+# Notas e documentação temporária de desenvolvimento
+CORRECAO_*.md
+IMPLEMENTACAO_*.md
+SECURITY_CHECKLIST.md
+PADRAO_PROJETO.md
 
 # Prompts do Copilot - uso local (não subir ao repositório)
 .github/prompts/

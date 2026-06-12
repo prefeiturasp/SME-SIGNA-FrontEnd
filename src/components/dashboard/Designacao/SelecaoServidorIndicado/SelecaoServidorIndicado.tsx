@@ -85,7 +85,7 @@ export default function SelecaoServidorIndicado({
             name="tipo_cargo"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel className="font-bold text-[#42474a] text-lg">
+                <FormLabel className="font-bold   text-[#313131]  text-lg">
                   Selecione o tipo de cargo:
                 </FormLabel>
                 <FormControl>
@@ -102,13 +102,13 @@ export default function SelecaoServidorIndicado({
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="disponivel" id="disponivel" />
-                      <Label htmlFor="disponivel" className="font-normal cursor-pointer">
+                      <Label htmlFor="disponivel" className="font-bold cursor-pointer">
                         Cargo Disponível
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="vago" id="vago" />
-                      <Label htmlFor="vago" className="font-normal cursor-pointer">
+                      <Label htmlFor="vago" className="font-bold cursor-pointer">
                         Cargo Vago
                       </Label>
                     </div>
@@ -120,14 +120,14 @@ export default function SelecaoServidorIndicado({
 
           <div className="w-full">
             {tipoCargo === "vago" ? (
-              <div className="w-full md:w-[60%] animate-in fade-in duration-300">
+              <div className="w-full  animate-in fade-in duration-300">
                 <FormField
                   control={form.control}
                   name="cargo_vago_selecionado"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-bold text-[#42474a]">
-                        Selecione o cargo
+                      <FormLabel className="font-bold text-[#313131]">
+                        Cargo
                       </FormLabel>
 
                       <Select
@@ -140,7 +140,7 @@ export default function SelecaoServidorIndicado({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecione o cargo..." />
+                            <SelectValue placeholder="Cargo..." />
                           </SelectTrigger>
                         </FormControl>
 
