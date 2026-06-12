@@ -19,6 +19,7 @@ import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPor
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
+import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado";
 import Designacao from "@/assets/icons/Designacao";
 import ResumoPortariaCessacao from "@/components/dashboard/Designacao/ResumoPortariaCessacao";
 import PortariaInsubsistenciaFields from "@/components/dashboard/Insubsistencia/PortariaInsubsistenciaFields/PortariaInsubsistenciaFields";
@@ -84,22 +85,10 @@ export default function InsubsistenciaPage() {
     return designacao.cessacao;
   }, [designacao]);
 
-  const dadosIndicado: Servidor | null = useMemo(() => {
-    if (!designacao) return null;
-
-    return {
-      rf: designacao.indicado_rf,
-      nome_servidor: designacao.indicado_nome_servidor,
-      nome_civil: designacao.indicado_nome_civil,
-      vinculo: designacao.indicado_vinculo,
-      cargo_base: designacao.indicado_cargo_base,
-      lotacao: designacao.indicado_lotacao,
-      cargo_sobreposto_funcao_atividade:
-        designacao.indicado_cargo_sobreposto,
-      local_de_exercicio: designacao.indicado_local_exercicio,
-      local_de_servico: designacao.indicado_local_servico,
-    } as Servidor;
-  }, [designacao]);
+  const dadosIndicado: Servidor | null = useMemo(
+    () => getDadosIndicado(designacao),
+    [designacao]
+  );
   const desabilita_radio =
     !!designacao?.cessacao?.insubsistencia || !dadosPortariaCessacao;
 
@@ -139,7 +128,11 @@ export default function InsubsistenciaPage() {
     nome_indicado: designacao?.indicado_nome_servidor ?? "-",
     rf: formatarRF(designacao?.indicado_rf ?? "-"),
     vinculo: designacao?.indicado_vinculo ?? "-",
-    cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+    cargo_base: (() => {
+      const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
+      const cat = designacao?.indicado_categoria;
+      return cat ? `${base} - Categoria ${cat}` : base;
+    })(),
     cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
     ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
     periodo: periodo_insubsistencia,

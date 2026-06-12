@@ -37,7 +37,11 @@ export function gerarDadosPortaria(data: DesignacaoData) {
         nome_indicado: nome_indicado?.toUpperCase(),
         rf: formatarRF(data?.servidorIndicado?.rf ?? ""),
         vinculo: data?.servidorIndicado?.vinculo,
-        cargo_base: nameToCamelCase(data?.servidorIndicado?.cargo_base ?? ""),
+        cargo_base: (() => {
+            const base = nameToCamelCase(data?.servidorIndicado?.cargo_base ?? "");
+            const cat = data?.servidorIndicado?.categoria;
+            return cat ? `${base} - Categoria ${cat}` : base;
+        })(),
         lotacao_indicado: nameToCamelCaseUe(data?.servidorIndicado?.lotacao ?? ""),
         cargo_indicado: nameToCamelCase(cargo_indicado ?? ""),
         ue: nameToCamelCaseUe(data?.ue_nome ?? ""),

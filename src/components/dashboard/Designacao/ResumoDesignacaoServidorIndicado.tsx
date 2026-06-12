@@ -92,6 +92,11 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                 />
                 <InfoItem label="Cargo base" value={defaultValues.cargo_base ?? '-'} />
 
+                <InfoItem
+                  label="Categoria"
+                  value={defaultValues.categoria ?? '-'}
+                />
+
                 {showLotacao && (
 
                   <InfoItem

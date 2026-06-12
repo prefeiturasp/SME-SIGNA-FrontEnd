@@ -55,6 +55,7 @@ export function mapearPayloadDesignacao(form: any) {
         indicado_codigo_cargo_sobreposto: servidorIndicado.cd_cargo_sobreposto_funcao_atividade,
         indicado_local_exercicio: servidorIndicado.local_de_exercicio,
         indicado_local_servico: servidorIndicado.local_de_servico,
+        indicado_categoria: servidorIndicado.categoria ?? "",
 
         ...(titular && {
             titular_nome_civil: titular.nome_civil,

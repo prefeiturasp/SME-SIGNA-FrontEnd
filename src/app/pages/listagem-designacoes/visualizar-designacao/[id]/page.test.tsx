@@ -420,4 +420,65 @@ describe("VisualizarDesignacao page", () => {
       }),
     );
   });
+
+  it("passa impedimento_label como impedimento_display quando há impedimento", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: {
+        ...designacaoMock,
+        impedimento_substituicao: "2",
+        impedimento_display: "Licença Médica",
+      },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        impedimento_label: "Licença Médica",
+      }),
+    );
+  });
+
+  it("passa impedimento_label como undefined quando não há impedimento", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: {
+        ...designacaoMock,
+        impedimento_substituicao: null,
+        impedimento_display: "",
+      },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        impedimento_label: undefined,
+      }),
+    );
+  });
+
+  it("passa indicado_categoria no mapeamento do servidor indicado", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: {
+        ...designacaoMock,
+        indicado_categoria: "3",
+      },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        servidorIndicado: expect.objectContaining({
+          categoria: "3",
+        }),
+      }),
+    );
+  });
 });

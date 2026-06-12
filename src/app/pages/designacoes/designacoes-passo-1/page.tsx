@@ -62,9 +62,9 @@ export default function DesignacoesPasso1() {
         ...servidorIndicado,
         nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
-      },  
-    }))      
-
+        categoria: data.categoria ?? "",
+      },
+    }));
   }
 
   const onProximo = () => {
