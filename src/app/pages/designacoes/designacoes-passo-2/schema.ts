@@ -9,6 +9,7 @@ const formSchemaDesignacaoPasso2 = z
     ano: z.string().min(1, "Selecione o ano"),
     doc: z.string().optional(),
     impedimento_substituicao: z.string().optional().nullable(),
+    impedimento_label: z.string().optional(),
     carater_especial: z.string().min(1, "selecione se possui carater especial "),
     com_afastamento: z.string().min(1, "selecione se possui afastamento"),
     motivo_afastamento: z.string(),

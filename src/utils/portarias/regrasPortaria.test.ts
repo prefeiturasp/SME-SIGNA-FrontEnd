@@ -111,6 +111,29 @@ describe("montarTrechoSubstituicao", () => {
         expect(resultado).toContain("férias");
     });
 
+    it("retorna texto com impedimento e período para substituição com impedimento legal", () => {
+        const data: any = {
+            impedimento_substituicao: "2",
+            impedimento_label: "Licença Médica",
+            a_partir_de: "2026-03-25",
+            designacao_data_final: "2026-04-13",
+            dadosTitular: {
+                nome_civil: "Clarice Botelho Cunha de Carvalho",
+                rf: "6105611",
+                vinculo: 4,
+                cargo_base: "Coordenador Pedagógico",
+                tipo_vinculo: "efetivo"
+            }
+        };
+
+        const resultado = montarTrechoSubstituicao(data);
+
+        expect(resultado).toContain("por licença médica");
+        expect(resultado).toContain("no período de");
+        expect(resultado).toContain("25/03/2026");
+        expect(resultado).toContain("13/04/2026");
+    });
+
 });
 
 describe("montarTrechoFinal", () => {
@@ -145,6 +168,33 @@ describe("montarTrechoFinal", () => {
         const data: any = {
             tipo_cargo: "titular",
             impedimento_substituicao: "1"
+        };
+
+        const resultado = montarTrechoFinal(data);
+
+        expect(resultado).toBe(
+            "portando diploma de Pedagogia e experiência de 3 anos no Magistério."
+        );
+    });
+
+    it("retorna texto padrão para substituição com impedimento legal e período definido", () => {
+        const data: any = {
+            impedimento_substituicao: "2",
+            designacao_data_final: "2026-04-13"
+        };
+
+        const resultado = montarTrechoFinal(data);
+
+        expect(resultado).toBe(
+            "portando diploma de Pedagogia e experiência de 3 anos no Magistério."
+        );
+    });
+
+    it("retorna texto padrão para qualquer impedimento com período definido", () => {
+        const data: any = {
+            impedimento_substituicao: "5",
+            impedimento_label: "Licença Prêmio",
+            designacao_data_final: "2026-06-30"
         };
 
         const resultado = montarTrechoFinal(data);

@@ -78,7 +78,7 @@ export function mapearPayloadDesignacao(form: any) {
         data_fim: formatarData(form.designacao_data_final),
 
         carater_excepcional: form.carater_especial === "sim",
-        impedimento_substituicao: form.impedimento_substituicao,
+        impedimento_substituicao: form.impedimento_substituicao != null ? Number(form.impedimento_substituicao) : null,
         com_afastamento: form.com_afastamento === "sim",
         motivo_afastamento: form.motivo_afastamento ?? null,
         possui_pendencia: form.com_pendencia === "sim",
