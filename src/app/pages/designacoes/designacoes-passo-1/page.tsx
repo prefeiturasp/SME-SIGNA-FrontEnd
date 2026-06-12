@@ -41,12 +41,12 @@ export default function DesignacoesPasso1() {
     const response = await mutateAsync(values);
 
     if (response.success) {
-      setFormDesignacaoData({
-        ...formDesignacaoData,
+      setFormDesignacaoData((prevState)=>({
+        ...(prevState??{}),
         servidorIndicado: {
           ...response.data,
         },     
-      })                    
+      }))                    
 
       setError(null);
     } else {
@@ -82,7 +82,7 @@ export default function DesignacoesPasso1() {
       servidorIndicado: prevState?.servidorIndicado,
       rf_titular: prevState?.rf_titular,
       dadosTitular: prevState?.dadosTitular,
-      tipo_cargo: prevState.tipo_cargo,
+      tipo_cargo: prevState?.tipo_cargo,
     }
     });  
 

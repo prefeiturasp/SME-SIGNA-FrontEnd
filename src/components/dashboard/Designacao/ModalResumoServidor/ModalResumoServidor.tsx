@@ -40,15 +40,8 @@ export default function ModalResumoServidor({
 
 
     async function onClickCopiarRF(defaultValues: Servidor) {
-
-
- 
-
          
-       
-          
-          
-        setFormDesignacaoData((prevState: FormDesignacaoEServidorIndicado) => {
+        setFormDesignacaoData((prevState) => {
             return {
                 ...(prevState ?? {}),
                 rf_titular: defaultValues.rf,

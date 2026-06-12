@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import { DesignacaoUnidadeResponse, Servidor } from "@/types/designacao-unidade";
 import { formSchemaDesignacaoPasso2Data } from "@/app/pages/designacoes/designacoes-passo-2/schema";
@@ -19,9 +27,9 @@ export type FormDesignacaoEServidorIndicado =
 
 type DesignacaoContextValue = {
   formDesignacaoData: FormDesignacaoEServidorIndicado | null;
-  setFormDesignacaoData: (
-    data: FormDesignacaoEServidorIndicado
-  ) => void;
+  setFormDesignacaoData: Dispatch<
+    SetStateAction<FormDesignacaoEServidorIndicado | null>
+  >;
   clearFormDesignacaoData: () => void;
 };
 
