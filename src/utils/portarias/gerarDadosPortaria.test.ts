@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { gerarDadosPortaria } from "./gerarDadosPortaria";
+import { gerarDadosPortaria, montarTrechoUnidade } from "./gerarDadosPortaria";
 import * as regrasPortaria from "./regrasPortaria";
 
 vi.mock("./regrasPortaria", () => ({
@@ -123,6 +123,61 @@ describe("gerarDadosPortaria", () => {
         expect(resultado.cargo_indicado).toBe("Coordenador");
     });
 
+    it("inclui categoria no cargo_base quando servidorIndicado tem categoria", () => {
+        vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
+        vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
+
+        const data: any = {
+            tipo_cargo: "disponivel",
+            portaria_designacao: "100",
+            ano: "2026",
+            numero_sei: "000100",
+            dre_nome: "DRE Leste",
+            ue_nome: "EMEF Teste",
+            codigo_hierarquico: "111",
+            servidorIndicado: {
+                nome_civil: "Carlos Lima",
+                rf: "111222",
+                vinculo: 1,
+                cargo_base: "Professor de Educação Infantil",
+                categoria: "3",
+                lotacao: "EMEF Teste",
+            },
+        };
+
+        const resultado = gerarDadosPortaria(data);
+
+        expect(resultado.cargo_base).toBe("Professor de Educação Infantil - Categoria 3");
+    });
+
+    it("não inclui categoria no cargo_base quando servidorIndicado não tem categoria", () => {
+        vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
+        vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
+
+        const data: any = {
+            tipo_cargo: "disponivel",
+            portaria_designacao: "101",
+            ano: "2026",
+            numero_sei: "000101",
+            dre_nome: "DRE Leste",
+            ue_nome: "EMEF Teste",
+            codigo_hierarquico: "111",
+            servidorIndicado: {
+                nome_civil: "Carlos Lima",
+                rf: "111222",
+                vinculo: 1,
+                cargo_base: "Professor de Educação Infantil",
+                lotacao: "EMEF Teste",
+            },
+        };
+
+        const resultado = gerarDadosPortaria(data);
+
+        expect(resultado.cargo_base).toBe("Professor de Educação Infantil");
+    });
+
     it("usa cargo_vago_selecionado.label quando for um objeto", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
@@ -149,5 +204,22 @@ describe("gerarDadosPortaria", () => {
         const resultado = gerarDadosPortaria(data);
 
         expect(resultado.cargo_indicado).toBe("Vice-diretor");
+    });
+});
+
+describe("montarTrechoUnidade", () => {
+    it("retorna 'na referida Unidade' quando lotação é igual à unidade proponente", () => {
+        const resultado = montarTrechoUnidade("EMEF Teste", "EMEF Teste", "DRE Centro");
+        expect(resultado).toBe("na referida Unidade");
+    });
+
+    it("retorna 'na referida Unidade' ignorando espaços extras", () => {
+        const resultado = montarTrechoUnidade("EMEF  Teste ", " EMEF  Teste", "DRE Centro");
+        expect(resultado).toBe("na referida Unidade");
+    });
+
+    it("retorna o nome da unidade e DRE quando lotação é diferente da unidade proponente", () => {
+        const resultado = montarTrechoUnidade("EMEF Origem", "CEU EMEF Destino", "DRE Leste");
+        expect(resultado).toBe("na CEU EMEF Destino, da DRE Leste");
     });
 });
