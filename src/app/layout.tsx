@@ -34,12 +34,22 @@ export default function RootLayout({
           <ConfigProvider
             locale={ptBR}
             theme={{
+              components: {
+                Notification: {
+                  colorSuccessBg: "#333638",  
+                  colorInfoBg: "#333638",  
+                  colorErrorBg: "#333638",  
+                  colorWarningBg: "#333638",
+                  colorText: "#FFFFFF",
+                  colorTextHeading: "#FFFFFF",
+                },
+              },
               token: {
                 colorBorder: "#dadada",
                 borderRadius: 8,
                 fontSize: 14,
                 fontWeightStrong: 500,
-                controlHeightLG: 40,
+                controlHeightLG: 40,                
               },
             }}
           >
