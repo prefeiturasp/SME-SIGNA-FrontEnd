@@ -53,8 +53,6 @@ export async function cessacaoAction(
   } catch (err) {
     const error = err as AxiosError<CessacaoErrorResponse>;
 
-    console.log("Status:", error.response?.status);
-    console.log("Response data:", JSON.stringify(error.response?.data, null, 2));
 
     return { success: false, error: extractErrorMessage(error), field: error.response?.data?.field };
   }

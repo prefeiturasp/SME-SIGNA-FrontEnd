@@ -57,6 +57,7 @@ export default function VisualizarDesignacao() {
       impedimento_substituicao: designacao.impedimento_substituicao === null
         ? undefined
         : String(designacao.impedimento_substituicao),
+      impedimento_label: designacao.impedimento_substituicao !== null ? designacao.impedimento_display : undefined,
       motivo_substituicao: designacao.motivo_afastamento,
       tipo_cargo: designacao.tipo_vaga === "VAGO" ? "vago" : "substituicao",
       ue_nome: designacao.unidade_proponente,
@@ -68,6 +69,7 @@ export default function VisualizarDesignacao() {
         vinculo: designacao.indicado_vinculo,
         cargo_base: designacao.indicado_cargo_base,
         lotacao: designacao.indicado_lotacao,
+        categoria: designacao.indicado_categoria ?? undefined,
       },
       dadosTitular: designacao.titular_rf
         ? {
@@ -191,6 +193,7 @@ export default function VisualizarDesignacao() {
                     local_de_exercicio: designacao.indicado_local_exercicio,
                     cd_cargo_base: designacao.indicado_codigo_cargo_base ?? 0,
                     cd_cargo_sobreposto_funcao_atividade: designacao.indicado_codigo_cargo_sobreposto ?? 0,
+                    categoria: designacao.indicado_categoria ?? "",
                   }}
                   showCursosTitulos={true}
                   showEditar={false}

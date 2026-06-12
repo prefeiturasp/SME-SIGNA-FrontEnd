@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const formSchemaEditarServidor = z.object({
   nome_servidor: z.string().min(1, "Digite o nome do servidor"),
-  nome_civil: z.string().min(1, "Digite o Nome Social do servidor"),
+  nome_civil: z.string().optional(),
   rf: z.string().optional(),
   
   funcao: z.string().nullable().optional(),
@@ -18,6 +18,8 @@ const formSchemaEditarServidor = z.object({
   lotacao: z.string().optional(),
   
   local_de_exercicio: z.string().optional(),
+
+  categoria: z.string().optional(),
 
   // Esses campos não são editáveis neste modal (estão disabled) e podem vir vazios.
   cursos_titulos: z.string().optional(),

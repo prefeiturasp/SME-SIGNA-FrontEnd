@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Control, type FieldValues, type UseFormRegister } from "react-hook-form";
 import formSchemaEditarServidor, { FormEditarServidorData } from "./schema";
 import { Form } from "@/components/ui/form";
- 
+
 type ModalEditarServidorProps = {
     isLoading: boolean;
     open: boolean;
@@ -41,7 +41,7 @@ export default function ModalEditarServidor({
     function handleOpenChange(v: boolean) {
         onOpenChange(v);
     }
- 
+
     const form = useForm<FormEditarServidorData>({
         resolver: zodResolver(formSchemaEditarServidor),
         defaultValues: {
@@ -49,25 +49,21 @@ export default function ModalEditarServidor({
             nome_civil: defaultValues.nome_civil ?? defaultValues.nome_servidor,
             rf: defaultValues.rf,
             vinculo: defaultValues.vinculo,
-            
             cargo_base: defaultValues.cargo_base,
+            categoria: defaultValues.categoria ?? "",
             lotacao: defaultValues.lotacao,
             cursos_titulos: defaultValues.cursos_titulos,
             laudo_medico: defaultValues.laudo_medico,
             local_de_servico: defaultValues.local_de_servico,
-
             cargo_sobreposto_funcao_atividade: defaultValues.cargo_sobreposto_funcao_atividade,
             local_de_exercicio: defaultValues.local_de_exercicio,
-
-
-
         },
         mode: "onChange",
     });
     const { register, control } = form;
     const registerFieldValues = register as unknown as UseFormRegister<FieldValues>;
     const controlFieldValues = control as unknown as Control<FieldValues>;
- 
+
     const handleSubmitEditar = (data: FormEditarServidorData) => {
         handleSubmitEditarServidor(data);
         onOpenChange(false);
@@ -95,16 +91,11 @@ export default function ModalEditarServidor({
 
                     <Separator className="mt-2" />
 
-
-
                     <div className="h-[550px] overflow-y-auto pt-4">
 
                         <Card
-
                             className={`m-0 border-l-4 bg-[#F9F9F9] border-l-[#EBB466]`}
                         >
-
-
                             <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-3 ">
                                 <div className="w-full">
                                     <InputField
@@ -112,7 +103,7 @@ export default function ModalEditarServidor({
                                         control={controlFieldValues}
                                         name="nome_servidor"
                                         label="Nome servidor"
-                                        placeholder="Nome servidor"
+                                        placeholder="Digite o nome do servidor"
                                         data-testid="input-nome-servidor"
                                     />
                                 </div>
@@ -122,7 +113,7 @@ export default function ModalEditarServidor({
                                         control={controlFieldValues}
                                         name="nome_civil"
                                         label="Nome Social"
-                                        placeholder="Nome Social"
+                                        placeholder="Digite o nome social"
                                         data-testid="input-nome-civil"
                                     />
                                 </div>
@@ -139,7 +130,6 @@ export default function ModalEditarServidor({
                                     />
                                 </div>
                             </div>
-
 
                             <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-2 ">
 
@@ -171,6 +161,17 @@ export default function ModalEditarServidor({
                                     <InputField
                                         register={registerFieldValues}
                                         control={controlFieldValues}
+                                        name="categoria"
+                                        label="Categoria"
+                                        placeholder="Digite a categoria"
+                                        data-testid="input-categoria"
+                                    />
+                                </div>
+
+                                <div className="w-full">
+                                    <InputField
+                                        register={registerFieldValues}
+                                        control={controlFieldValues}
                                         name="lotacao"
                                         label="Lotação"
                                         placeholder="Lotação cargo sobreposto"
@@ -178,11 +179,6 @@ export default function ModalEditarServidor({
                                         disabled
                                     />
                                 </div>
-
-
-
-
-
 
                                 <div className="w-full">
                                     <InputField
@@ -196,14 +192,6 @@ export default function ModalEditarServidor({
                                     />
                                 </div>
 
-
-
-
-
-
-
-
-
                                 <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
@@ -216,7 +204,6 @@ export default function ModalEditarServidor({
                                     />
                                 </div>
 
-
                                 <div className="w-full">
                                     <InputField
                                         register={registerFieldValues}
@@ -228,26 +215,26 @@ export default function ModalEditarServidor({
                                         disabled
                                     />
                                 </div>
+
                                 {showLocalDeServico && (
                                     <div className="w-full">
-                                    <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
-                                        name="local_de_servico"
-                                        label="Local de serviço"
-                                        placeholder="Local de serviço"
-                                        data-testid="input-local-de-servico"
-                                        disabled
-                                    />
-                                </div>
+                                        <InputField
+                                            register={registerFieldValues}
+                                            control={controlFieldValues}
+                                            name="local_de_servico"
+                                            label="Local de serviço"
+                                            placeholder="Local de serviço"
+                                            data-testid="input-local-de-servico"
+                                            disabled
+                                        />
+                                    </div>
                                 )}
-                                
+
                             </div>
 
                         </Card>
                     </div>
                     <Separator className="mt-4 mb-4" />
-
 
                     <div className="flex justify-end gap-10">
 

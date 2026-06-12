@@ -23,7 +23,7 @@ import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "../Design
 import Designacao from "@/assets/icons/Designacao";
 import Historico from "@/assets/icons/Historico";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
-import { BuscaDesignacaoRequest } from "@/types/designacao";
+import { BuscaDesignacaoRequest, DesignacaoResponse } from "@/types/designacao";
 
 // Schema
 import formSchemaDesignacaoPasso2, {
@@ -49,6 +49,7 @@ export default function DesignacoesPasso2() {
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
   const hasPopulatedFromApi = useRef(false);
+  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(formDesignacaoData?.dadosTitular ?? null);
 
   const form = useForm<formSchemaDesignacaoPasso2Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso2),
@@ -60,6 +61,7 @@ export default function DesignacoesPasso2() {
       ano: formDesignacaoData?.ano ?? new Date().getFullYear().toString(),
       doc: formDesignacaoData?.doc ?? "",
       impedimento_substituicao: formDesignacaoData?.impedimento_substituicao ?? null,
+      impedimento_label: formDesignacaoData?.impedimento_label ?? "",
       carater_especial: formDesignacaoData?.carater_especial ?? "nao",
       com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
       motivo_afastamento: formDesignacaoData?.motivo_afastamento ?? "",
@@ -73,83 +75,99 @@ export default function DesignacoesPasso2() {
 
   });
 
+  const popularCamposFormulario = (d: DesignacaoResponse) => {
+    form.setValue("tipo_cargo", d.tipo_vaga.toLowerCase() as "vago" | "disponivel");
+    form.setValue("cargo_vago_selecionado", { id: d.cargo_vaga, label: d.cargo_vaga_display });
+    form.setValue("portaria_designacao", d.numero_portaria);
+    form.setValue("numero_sei", d.sei_numero);
+    form.setValue("a_partir_de", new Date(d.data_inicio.replace(/-/g, '/')));
+    form.setValue("designacao_data_final", d.data_fim ? new Date(d.data_fim.replace(/-/g, '/')) : null);
+    form.setValue("ano", d.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+    form.setValue("doc", d.doc ?? "");
+    form.setValue("impedimento_substituicao", d.impedimento_substituicao);
+    form.setValue("carater_especial", d.carater_excepcional ? "sim" : "nao");
+    form.setValue("com_afastamento", d.com_afastamento ? "sim" : "nao");
+    form.setValue("motivo_afastamento", d.motivo_afastamento);
+    form.setValue("com_pendencia", d.possui_pendencia ? "sim" : "nao");
+    form.setValue("motivo_pendencia", d.pendencias);
+    form.setValue("rf_titular", d.titular_rf, { shouldValidate: true, shouldTouch: true });
+    form.setValue("impedimento_label", d.impedimento_substituicao !== null ? d.impedimento_display : "");
+    setDadosTitular({
+      rf: d.titular_rf,
+      nome_servidor: d.titular_nome_servidor,
+      nome_civil: d.titular_nome_civil,
+      vinculo: d.titular_vinculo,
+      lotacao: d.titular_lotacao,
+      cargo_base: d.titular_cargo_base,
+      cd_cargo_base: d.titular_codigo_cargo_base,
+      cd_cargo_sobreposto_funcao_atividade: d.titular_codigo_cargo_sobreposto,
+      cargo_sobreposto_funcao_atividade: d.titular_cargo_sobreposto,
+      cursos_titulos: '-', codigo_hierarquia: '-', lotacao_cargo_base: '-', laudo_medico: '-',
+      local_de_servico: d.titular_local_servico,
+      local_de_exercicio: d.titular_local_exercicio,
+    });
+  };
+
+  const popularDadosContexto = (d: DesignacaoResponse) => {
+    setFormDesignacaoData({
+      servidorIndicado: formDesignacaoData?.servidorIndicado?.nome_servidor
+        ? formDesignacaoData?.servidorIndicado
+        : {
+          nome_servidor: d.indicado_nome_servidor,
+          nome_civil: d.indicado_nome_civil,
+          rf: d.indicado_rf,
+          vinculo: d.indicado_vinculo,
+          cargo_base: d.indicado_cargo_base,
+          lotacao: d.indicado_lotacao,
+          cargo_sobreposto_funcao_atividade: d.indicado_cargo_sobreposto,
+          local_de_exercicio: d.indicado_local_exercicio,
+          laudo_medico: "Indisponível",
+          local_de_servico: d.indicado_local_servico,
+          categoria: d.indicado_categoria ?? "",
+        },
+      dre: d.dre ?? '-',
+      dre_nome: formDesignacaoData?.dre_nome ?? d.dre_nome,
+      ue: d.ue ?? '-',
+      ue_nome: formDesignacaoData?.ue_nome ?? d.unidade_proponente,
+      funcionarios_da_unidade: d.funcionarios_da_unidade ?? "-",
+      quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
+      codigo_hierarquico: formDesignacaoData?.codigo_hierarquico ?? d.codigo_hierarquico,
+      cargo_sobreposto: formDesignacaoData?.cargo_sobreposto ?? d.titular_cargo_sobreposto,
+      modulos: formDesignacaoData?.modulos ?? 1,
+      portaria_designacao: d.numero_portaria,
+      numero_sei: d.sei_numero,
+      ano: d.ano_vigente,
+      a_partir_de: d.data_inicio ? new Date(d.data_inicio.replace(/-/g, '/')) : new Date(),
+      designacao_data_final: d.data_fim ? new Date(d.data_fim.replace(/-/g, '/')) : null,
+      com_afastamento: d.com_afastamento,
+      motivo_afastamento: d.motivo_afastamento,
+      com_pendencia: d.possui_pendencia,
+      motivo_pendencia: d.pendencias,
+      tipo_cargo: d.tipo_vaga.toLowerCase(),
+      rf_titular: d.titular_rf,
+      cargo_vago_selecionado: { id: d.cargo_vaga, label: d.cargo_vaga_display },
+      impedimento_substituicao: d.impedimento_substituicao,
+      impedimento_label: d.impedimento_substituicao !== null ? d.impedimento_display : "",
+      dadosTitular: null,
+      informacoes_adicionais: d.informacoes_adicionais ?? "",
+      detalhe_para_quadro_de_historico_por_ano: d.detalhe_para_quadro_de_historico_por_ano ?? true,
+    } as unknown as FormDesignacaoEServidorIndicado);
+  };
+
   useEffect(() => {
     if (designacao && !hasPopulatedFromApi.current) {
       hasPopulatedFromApi.current = true;
+
+      // Ao navegar de volta do passo-3, rf está na URL e o contexto já tem os
+      // dados editados pelo usuário. Evita sobrescrever com os dados originais da API.
+      if (rf && formDesignacaoData?.portaria_designacao) {
+        setIsPopulateScreen(false);
+        return;
+      }
+
       setIsPopulateScreen(true);
-
-      form.setValue("tipo_cargo", designacao.tipo_vaga.toLowerCase() as "vago" | "disponivel");
-      form.setValue("cargo_vago_selecionado", { id: designacao.cargo_vaga, label: designacao.cargo_vaga_display });
-      form.setValue("portaria_designacao", designacao.numero_portaria);
-      form.setValue("numero_sei", designacao.sei_numero);
-      form.setValue("a_partir_de", new Date(designacao.data_inicio.replace(/-/g, '/')));
-      form.setValue("designacao_data_final", designacao.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null);
-      form.setValue("ano", designacao.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
-      form.setValue("doc", designacao?.doc ?? "",);
-      form.setValue("impedimento_substituicao", designacao.impedimento_substituicao);
-      form.setValue("carater_especial", designacao.carater_excepcional ? "sim" : "nao");
-      form.setValue("com_afastamento", designacao.com_afastamento ? "sim" : "nao");
-      form.setValue("motivo_afastamento", designacao.motivo_afastamento);
-      form.setValue("com_pendencia", designacao.possui_pendencia ? "sim" : "nao");
-      form.setValue("motivo_pendencia", designacao.pendencias);
-      form.setValue("rf_titular", designacao.titular_rf, { shouldValidate: true, shouldTouch: true });
-
-      setDadosTitular({
-        rf: designacao.titular_rf,
-        nome_servidor: designacao.titular_nome_servidor,
-        nome_civil: designacao.titular_nome_civil,
-        vinculo: designacao.titular_vinculo,
-        lotacao: designacao.titular_lotacao,
-        cargo_base: designacao.titular_cargo_base,
-        cd_cargo_base: designacao.titular_codigo_cargo_base,
-        cd_cargo_sobreposto_funcao_atividade: designacao.titular_codigo_cargo_sobreposto,
-        cargo_sobreposto_funcao_atividade: designacao.titular_cargo_sobreposto,
-        cursos_titulos: '-', codigo_hierarquia: '-', lotacao_cargo_base: '-', laudo_medico: '-',
-        local_de_servico: designacao.titular_local_servico,
-        local_de_exercicio: designacao.titular_local_exercicio,
-      });
-
-      setFormDesignacaoData({
-        // Preserva servidorIndicado do context (pode ter sido editado no Passo 1)
-        servidorIndicado: formDesignacaoData?.servidorIndicado?.nome_servidor ?
-        formDesignacaoData?.servidorIndicado :
-        {
-          nome_servidor: designacao.indicado_nome_servidor,
-          nome_civil: designacao.indicado_nome_civil,
-          rf: designacao.indicado_rf,
-          vinculo: designacao.indicado_vinculo,
-          cargo_base: designacao.indicado_cargo_base,
-          lotacao: designacao.indicado_lotacao,
-          cargo_sobreposto_funcao_atividade: designacao.indicado_cargo_sobreposto,
-          local_de_exercicio: designacao.indicado_local_exercicio,
-          laudo_medico: "Indisponível",
-          local_de_servico: designacao.indicado_local_servico,
-        },
-        dre: designacao?.dre ?? '-',
-        dre_nome: formDesignacaoData?.dre_nome ?? designacao.dre_nome,
-        ue: designacao?.ue ?? '-',
-        ue_nome: formDesignacaoData?.ue_nome ?? designacao.unidade_proponente,
-        funcionarios_da_unidade: designacao.funcionarios_da_unidade ?? "-",
-        quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
-        codigo_hierarquico: formDesignacaoData?.codigo_hierarquico ?? designacao.codigo_hierarquico,
-        cargo_sobreposto: formDesignacaoData?.cargo_sobreposto ?? designacao.titular_cargo_sobreposto,
-        modulos: formDesignacaoData?.modulos ?? 1,
-        portaria_designacao: designacao.numero_portaria,
-        numero_sei: designacao.sei_numero,
-        a_partir_de: designacao.data_inicio,
-        designacao_data_final: designacao.data_fim,
-        com_afastamento: designacao.com_afastamento,
-        motivo_afastamento: designacao.motivo_afastamento,
-        com_pendencia: designacao.possui_pendencia,
-        motivo_pendencia: designacao.pendencias,
-        tipo_cargo: designacao.tipo_vaga.toLowerCase(),
-        rf_titular: designacao.titular_rf,
-        cargo_vago_selecionado: { id: designacao.cargo_vaga, label: designacao.cargo_vaga_display },
-        dadosTitular: null,
-        informacoes_adicionais: designacao?.informacoes_adicionais ?? "",
-        detalhe_para_quadro_de_historico_por_ano: designacao?.detalhe_para_quadro_de_historico_por_ano ?? true,
-      } as unknown as FormDesignacaoEServidorIndicado);
-
+      popularCamposFormulario(designacao);
+      popularDadosContexto(designacao);
       form.clearErrors();
       setIsPopulateScreen(false);
     }
@@ -157,7 +175,6 @@ export default function DesignacoesPasso2() {
 
   const { mutateAsync } = useServidorDesignacao();
   const router = useRouter();
-  const [dadosTitular, setDadosTitular] = useState<Servidor | null>(formDesignacaoData?.dadosTitular ?? null);
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
   const tipoCargo = form.watch("tipo_cargo");
@@ -243,6 +260,7 @@ export default function DesignacoesPasso2() {
         ...formDesignacaoData!.servidorIndicado!,
         nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
+        categoria: data.categoria ?? "",
       },
     });
   }

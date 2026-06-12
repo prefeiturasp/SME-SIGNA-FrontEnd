@@ -12,6 +12,7 @@ export interface Servidor {
   vinculo?: number;
   cargo_base?: string;
   lotacao?: string;
+  categoria?: string;
 }
 
 export interface Titular {
@@ -54,6 +55,7 @@ export interface DesignacaoData {
   motivo_cancelamento?: string;
 
   impedimento_substituicao?: string;
+  impedimento_label?: string;
 
   servidorIndicado?: Servidor;
   dadosTitular?: Titular | null;
@@ -183,6 +185,7 @@ export interface DesignacaoResponse {
   indicado_codigo_cargo_sobreposto: number;
   indicado_local_exercicio: string;
   indicado_local_servico: string;
+  indicado_categoria: string;
   titular_nome_civil: string;
   titular_nome_servidor: string;
   titular_rf: string;
