@@ -64,7 +64,7 @@ export default function DesignacoesPasso1() {
         nome_civil: data.nome_civil,
         categoria: data.categoria ?? "",
       },
-    });
+    }));
   }
 
   const onProximo = () => {
