@@ -41,12 +41,12 @@ export default function DesignacoesPasso1() {
     const response = await mutateAsync(values);
 
     if (response.success) {
-      setFormDesignacaoData({
-        ...formDesignacaoData,
+      setFormDesignacaoData((prevState)=>({
+        ...(prevState??{}),
         servidorIndicado: {
           ...response.data,
-        },
-      });
+        },     
+      }))                    
 
       setError(null);
     } else {
@@ -56,8 +56,8 @@ export default function DesignacoesPasso1() {
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
     const servidorIndicado = formDesignacaoData!.servidorIndicado!;
-    setFormDesignacaoData({
-      ...formDesignacaoData,
+    setFormDesignacaoData((prevState)=>({
+      ...(prevState??{}),
       servidorIndicado: {
         ...servidorIndicado,
         nome_servidor: data.nome_servidor,
@@ -72,11 +72,19 @@ export default function DesignacoesPasso1() {
 
     if (!valoresFormulario || !formDesignacaoData?.servidorIndicado) return;
 
-    setFormDesignacaoData({
-      ...formDesignacaoData,
+
+ 
+
+    setFormDesignacaoData((prevState)=>{
+      return {
+      ...(prevState??{}),
       ...valoresFormulario,
-      servidorIndicado: formDesignacaoData.servidorIndicado,
-    });
+      servidorIndicado: prevState?.servidorIndicado,
+      rf_titular: prevState?.rf_titular,
+      dadosTitular: prevState?.dadosTitular,
+      tipo_cargo: prevState?.tipo_cargo,
+    }
+    });  
 
     if (id) {
       router.push(`/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`);
@@ -127,7 +135,10 @@ export default function DesignacoesPasso1() {
             if (!values.includes("unidade-proponente")) {
               const vals = formularioPesquisaUnidadeRef.current?.getValues();
               if (vals) {
-                setFormDesignacaoData({ ...formDesignacaoData, ...vals });
+                setFormDesignacaoData((prevState)=>({
+                  ...(prevState??{}),
+                  ...vals,            
+                }))                    
               }
             }
           }}
