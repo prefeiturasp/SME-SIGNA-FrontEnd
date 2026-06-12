@@ -23,7 +23,17 @@ vi.mock("@/hooks/useCursosETitulos", () => ({
 }));
 
 vi.mock("./ModalListaCursosTitulo/ModalListaCursosTitulos", () => ({
-  default: ({ open, onOpenChange, data, isLoading }: any) => (
+  default: ({
+    open,
+    onOpenChange,
+    data,
+    isLoading,
+  }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    data: IConcursoType[];
+    isLoading: boolean;
+  }) => (
     <div data-testid="modal-lista-cursos-titulos">
       {open && (
         <>
@@ -42,7 +52,13 @@ const mockSubmitData = {
 };
 
 vi.mock("./ModalEditarServidor/ModalEditarServidor", () => ({
-  default: ({ open, handleSubmitEditarServidor }: any) => (
+  default: ({
+    open,
+    handleSubmitEditarServidor,
+  }: {
+    open: boolean;
+    handleSubmitEditarServidor: (data: typeof mockSubmitData) => void;
+  }) => (
     <div data-testid="modal-editar-servidor">
       {open && (
         <>
@@ -277,5 +293,75 @@ describe("ResumoDesignacao", () => {
     expect(
       screen.getByText("Cursos/Títulos de exemplo")
     ).toBeInTheDocument();
+  });
+
+  it("renderiza local de serviço e botão copiar RF", async () => {
+    const user = userEvent.setup();
+    const onClickCopiarRF = vi.fn();
+
+    renderResumo({
+      showLocalDeServico: true,
+      showCopiar: true,
+      onClickCopiarRF,
+    });
+
+    expect(screen.getByText("Local de serviço")).toBeInTheDocument();
+    expect(screen.getByText(mockData.local_de_servico)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /copiar rf/i }));
+
+    expect(onClickCopiarRF).toHaveBeenCalledWith(mockData);
+  });
+
+  it("não renderiza ações opcionais por padrão", () => {
+    renderResumo({
+      showCursosTitulos: false,
+      showEditar: false,
+      showCopiar: false,
+      showLocalDeServico: false,
+    });
+
+    expect(
+      screen.queryByTestId("btn-visualizar-cursos-titulos")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /editar/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /copiar rf/i })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Local de serviço")).not.toBeInTheDocument();
+  });
+
+  it("aplica fallback '-' para campos opcionais sem valor", () => {
+    renderResumo({
+      showLotacao: true,
+      showLocalDeServico: true,
+      defaultValues: {
+        ...mockData,
+        vinculo: undefined,
+        cargo_base: undefined,
+        lotacao: undefined,
+        cargo_sobreposto_funcao_atividade: undefined,
+        local_de_exercicio: undefined,
+        laudo_medico: undefined,
+        local_de_servico: undefined,
+      } as unknown as Servidor,
+    });
+
+    expect(screen.getAllByText("-").length).toBeGreaterThanOrEqual(7);
+  });
+
+  it("usa callback padrão de copiar RF quando não informado", async () => {
+    const user = userEvent.setup();
+    renderResumo({
+      showCopiar: true,
+      showCursosTitulos: false,
+      showEditar: false,
+    });
+
+    await user.click(screen.getByRole("button", { name: /copiar rf/i }));
+
+    expect(screen.getByRole("button", { name: /copiar rf/i })).toBeInTheDocument();
   });
 });
