@@ -19,7 +19,11 @@ const formSchemaEditarServidor = z.object({
   
   local_de_exercicio: z.string().optional(),
 
-  categoria: z.string().optional(),
+  categoria: z
+    .string()
+    .max(2, "Máximo 2 dígitos")
+    .regex(/^\d*$/, "Apenas números são permitidos")
+    .optional(),
 
   // Esses campos não são editáveis neste modal (estão disabled) e podem vir vazios.
   cursos_titulos: z.string().optional(),
