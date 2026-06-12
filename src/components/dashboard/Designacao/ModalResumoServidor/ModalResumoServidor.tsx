@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { Servidor } from "@/types/designacao-unidade";
 import ResumoDesignacaoServidorIndicado from "../ResumoDesignacaoServidorIndicado";
-import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
+import {  useDesignacaoContext } from "@/app/pages/designacoes/DesignacaoContext";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 type ModalResumoServidorProps = {
