@@ -165,6 +165,7 @@ export default function ModalEditarServidor({
                                         label="Categoria"
                                         placeholder="Digite a categoria"
                                         data-testid="input-categoria"
+                                        maxLength={2}
                                     />
                                 </div>
 

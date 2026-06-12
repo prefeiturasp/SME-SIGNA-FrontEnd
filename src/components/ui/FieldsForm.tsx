@@ -77,7 +77,7 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string }) => {
+export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number }) => {
     return (
         <FormField
             {...register(name)}
@@ -100,6 +100,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             }}
                             data-testid={dataTestId}
                             disabled={disabled}
+                            maxLength={maxLength}
                         />
                     </FormControl>
                     <FormMessage />
