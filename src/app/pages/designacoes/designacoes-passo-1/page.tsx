@@ -41,12 +41,12 @@ export default function DesignacoesPasso1() {
     const response = await mutateAsync(values);
 
     if (response.success) {
-      setFormDesignacaoData((prevState)=>({
-        ...(prevState??{}),
+      setFormDesignacaoData({
+        ...formDesignacaoData,
         servidorIndicado: {
           ...response.data,
         },     
-      }))                    
+      })                    
 
       setError(null);
     } else {
