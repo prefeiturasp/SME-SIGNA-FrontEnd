@@ -123,6 +123,7 @@ export default function DesignacoesPasso2() {
           local_de_exercicio: d.indicado_local_exercicio,
           laudo_medico: "Indisponível",
           local_de_servico: d.indicado_local_servico,
+          categoria: d.indicado_categoria ?? "",
         },
       dre: d.dre ?? '-',
       dre_nome: formDesignacaoData?.dre_nome ?? d.dre_nome,
@@ -259,6 +260,7 @@ export default function DesignacoesPasso2() {
         ...formDesignacaoData!.servidorIndicado!,
         nome_servidor: data.nome_servidor,
         nome_civil: data.nome_civil,
+        categoria: data.categoria ?? "",
       },
     });
   }

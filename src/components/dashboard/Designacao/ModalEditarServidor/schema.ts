@@ -19,6 +19,8 @@ const formSchemaEditarServidor = z.object({
   
   local_de_exercicio: z.string().optional(),
 
+  categoria: z.string().optional(),
+
   // Esses campos não são editáveis neste modal (estão disabled) e podem vir vazios.
   cursos_titulos: z.string().optional(),
   laudo_medico: z.string().optional(),

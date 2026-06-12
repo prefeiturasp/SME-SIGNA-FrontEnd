@@ -192,6 +192,7 @@ export default function VisualizarDesignacao() {
                     local_de_exercicio: designacao.indicado_local_exercicio,
                     cd_cargo_base: designacao.indicado_codigo_cargo_base ?? 0,
                     cd_cargo_sobreposto_funcao_atividade: designacao.indicado_codigo_cargo_sobreposto ?? 0,
+                    categoria: designacao.indicado_categoria ?? "",
                   }}
                   showCursosTitulos={true}
                   showEditar={false}

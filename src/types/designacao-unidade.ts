@@ -18,6 +18,7 @@ export type Servidor = {
   laudo_medico: string;
   local_de_servico: string;
   local_de_exercicio: string;
+  categoria?: string;
 }
 
 

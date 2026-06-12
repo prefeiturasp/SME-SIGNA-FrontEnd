@@ -119,6 +119,7 @@ export default function CessacaoPage() {
         designacao.indicado_cargo_sobreposto,
       local_de_exercicio: designacao.indicado_local_exercicio,
       local_de_servico: designacao.indicado_local_servico,
+      categoria: designacao.indicado_categoria ?? "",
     } as Servidor;
   }, [designacao]);
 
@@ -155,7 +156,11 @@ export default function CessacaoPage() {
     nome_indicado: designacao?.indicado_nome_servidor ?? "-",
     rf: formatarRF(designacao?.indicado_rf ?? "-"),
     vinculo: designacao?.indicado_vinculo ?? "-",
-    cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+    cargo_base: (() => {
+      const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
+      const cat = designacao?.indicado_categoria;
+      return cat ? `${base} - Categoria ${cat}` : base;
+    })(),
     cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
     ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
     data_inicio:

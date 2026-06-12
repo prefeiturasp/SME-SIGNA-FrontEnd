@@ -184,6 +184,7 @@ export interface DesignacaoResponse {
   indicado_codigo_cargo_sobreposto: number;
   indicado_local_exercicio: string;
   indicado_local_servico: string;
+  indicado_categoria: string;
   titular_nome_civil: string;
   titular_nome_servidor: string;
   titular_rf: string;
