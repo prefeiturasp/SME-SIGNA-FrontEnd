@@ -69,6 +69,7 @@ export default function VisualizarDesignacao() {
         vinculo: designacao.indicado_vinculo,
         cargo_base: designacao.indicado_cargo_base,
         lotacao: designacao.indicado_lotacao,
+        categoria: designacao.indicado_categoria ?? undefined,
       },
       dadosTitular: designacao.titular_rf
         ? {

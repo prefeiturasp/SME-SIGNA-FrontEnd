@@ -12,6 +12,7 @@ export interface Servidor {
   vinculo?: number;
   cargo_base?: string;
   lotacao?: string;
+  categoria?: string;
 }
 
 export interface Titular {
