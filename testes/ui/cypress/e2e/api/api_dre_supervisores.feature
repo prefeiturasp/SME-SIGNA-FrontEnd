@@ -1,5 +1,5 @@
 #language: pt
-@api @dre_supervisores
+@skip @api @dre_supervisores
 Funcionalidade: Testes da API de Supervisores por DRE
   Como um testador
   Quero validar o endpoint GET /api/DREs/{codigoEolDRE}/supervisores

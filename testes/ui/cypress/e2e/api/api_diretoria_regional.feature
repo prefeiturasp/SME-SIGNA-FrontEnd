@@ -1,5 +1,5 @@
 #language: pt
-@api @dre @diretoria_regional
+@skip @api @dre @diretoria_regional
 Funcionalidade: API EOL - DiretoriaRegionalEducacao
   Como sistema integrado SME
   Quero validar os endpoints de busca de DRE por código

@@ -1,4 +1,3 @@
-videos/
 # Dependências
 node_modules/
 package-lock.json
@@ -92,6 +91,13 @@ PADRAO_PROJETO.md
 .env.*.local
 cypress.env.json
 cypress/fixtures/usuarios.json
+
+# Configuração de CI/Cloud (contém IP interno e chave de gravação)
+currents.config.js
+
+# Next.js - build e cache
+.next/
+out/
 
 .DS_Store
 .AppleDouble

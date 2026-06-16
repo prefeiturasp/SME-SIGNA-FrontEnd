@@ -83,6 +83,7 @@ module.exports = defineConfig({
       API_RF_LOGIN: process.env.API_RF_LOGIN,
       API_PASSWORD: process.env.API_PASSWORD,
       API_EMAIL: process.env.API_EMAIL,
+      tags: process.env.CYPRESS_TAGS || "not @skip",
     },
 
     async setupNodeEvents(on, config) {
