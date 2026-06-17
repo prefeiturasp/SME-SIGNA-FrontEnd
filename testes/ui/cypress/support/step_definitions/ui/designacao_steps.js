@@ -6,6 +6,53 @@ import {
   designacaoUrls,
 } from '../../ui/locators/designacao_locators';
 
+const xpathToCssSelector = (locator) => {
+  const trimmed = locator.trim();
+
+  if (trimmed.startsWith('//')) {
+    const idMatch = trimmed.match(/^\/\/\*\[@id=["']([^"']+)["']\](?:\/(.+))?$/);
+    if (idMatch) {
+      const id = idMatch[1];
+      const remainder = idMatch[2];
+      const selectors = [`#${CSS.escape(id)}`];
+      if (remainder) {
+        const parts = remainder.split('/').filter(Boolean);
+        parts.forEach((part) => {
+          const match = part.match(/^([a-zA-Z0-9_-]+)(?:\[(\d+)\])?$/);
+          if (!match) {
+            throw new Error(`Unsupported XPath segment in remainder: ${part}`);
+          }
+          const tag = match[1].toLowerCase();
+          const index = match[2];
+          selectors.push(index ? `${tag}:nth-child(${index})` : tag);
+        });
+      }
+      return selectors.join(' > ');
+    }
+  }
+
+  if (trimmed.startsWith('/')) {
+    const parts = trimmed.replace(/^\/+/, '').split('/');
+    const selectors = parts.map((part) => {
+      const match = part.match(/^([a-zA-Z0-9_-]+)(?:\[(\d+)\])?$/);
+      if (!match) {
+        throw new Error(`Unsupported XPath segment: ${part}`);
+      }
+      const tag = match[1].toLowerCase();
+      const index = match[2];
+      return index ? `${tag}:nth-child(${index})` : tag;
+    });
+    return selectors.join(' > ');
+  }
+
+  const idMatch = locator.match(/@id=["']([^"']+)["']/);
+  if (idMatch) {
+    return `#${idMatch[1]}`;
+  }
+
+  return locator;
+};
+
 // ─── Given — Navegação ────────────────────────────────────────────────────────
 
 Given('que o usuário acessa a página de nova designação', () => {
@@ -90,21 +137,17 @@ When('valida e clica no botão Nova Designação', () => {
 });
 
 Then('valida a existencia dos Botões {string} e {string}', (btn1, btn2) => {
-  cy.get('main > div:nth-child(5) > div > div:nth-child(1) button', { timeout: 40000 })
+  cy.contains('button', btn1, { timeout: 40000 })
+    .scrollIntoView()
     .should('be.visible')
     .invoke('text')
-    .then((text) => {
-      cy.log(`Botão esquerdo encontrado: ${text}`);
-      expect(text).to.include('Voltar');
-    });
+    .then((text) => cy.log(`Botão "${btn1}" encontrado: ${text.trim()}`));
 
-  cy.get('main > div:nth-child(5) > div > div:nth-child(2) button', { timeout: 40000 })
+  cy.contains('button', btn2, { timeout: 40000 })
+    .scrollIntoView()
     .should('be.visible')
     .invoke('text')
-    .then((text) => {
-      cy.log(`Botão direito encontrado: ${text}`);
-      expect(text).to.include('Salvar');
-    });
+    .then((text) => cy.log(`Botão "${btn2}" encontrado: ${text.trim()}`));
 });
 
 When('preenche o campo RF com {string}', (rf) => {
@@ -132,8 +175,11 @@ When('preenche o campo RF com RF aleatorio da lista', () => {
 });
 
 When('clica em pesquisar', () => {
-  cy.get('[id^="radix-"] form > div:nth-child(3) button, .ant-card-body form button:last-of-type, .ant-card-body button:contains("Pesquisar")')
+  // Usa texto para localizar o botão Pesquisar — robusto a mudanças de estrutura
+  // O primeiro .ant-card-body tem o botão de pesquisar RF do servidor
+  cy.get('.ant-card-body', { timeout: 10000 })
     .first()
+    .contains('button', 'Pesquisar')
     .should('be.visible')
     .click();
 });
@@ -165,10 +211,12 @@ When('clica em {string}', (texto) => {
         });
       } else {
         cy.log('Usando seletor de designação');
-        cy.get('main > div:nth-child(5) > div > div:nth-child(2) button', { timeout: 40000 })
+        cy.contains('button', 'Salvar', { timeout: 40000 })
+          .last()
+          .scrollIntoView({ duration: 400 })
           .should('be.visible')
           .and('not.be.disabled')
-          .click();
+          .click({ force: true });
       }
     });
     
@@ -176,7 +224,9 @@ When('clica em {string}', (texto) => {
     cy.log('Salvo com sucesso');
   } else if (seletor === 'Pesquisar Unidade proponente') {
     cy.wait(25000);
-    const seletorBotaoPesquisarUnidade = '[id^="radix-"] form div[class*="w-[150px]"] > button';
+    // XPath: /html/body/div[2]/div/div/div/main/div[3]/div[2]/div/div/div[3]/div/div/div/div/form/div/div[3]/div/button
+    // CSS equivalente estável (descendant no button para ignorar wrappers extras):
+    const seletorBotaoPesquisarUnidade = '[id^="radix-"] form > div > div:nth-child(3) button';
     cy.get(seletorBotaoPesquisarUnidade)
       .scrollIntoView({ duration: 600 })
       .should('be.visible')
@@ -246,17 +296,20 @@ When('espera {int} seg', (segundos) => {
 
 When('valida a existencia do botão e clica em {string}', (texto) => {
   if (texto === 'Pesquisar Unidade proponente') {
-    // XPath de referência (ID dinâmico): //*[@id="radix-_r_3g_"]/div/div/div/form/div/div[3]/button/p
-    // CSS estável equivalente: [id^="radix-"] form > div > div:nth-child(3) > button
-    const seletor = '[id^="radix-"] form > div > div:nth-child(3) > button';
+    // Seletor estável: usa a classe Tailwind w-[150px] do container do botão Pesquisar
+    // da seção Unidade Proponente — mais robusto que seletor posicional nth-child
+    // Referência: #radix-_r_3m_ > div > div > div > form > div:nth-child(1) > div.w-[150px].pt-[2rem] > button
+    // XPath: /html/body/div[2]/div/div/div/main/div[3]/div[2]/div/div/div[3]/div/div/div/div/form/div/div[3]/div/button
+    // CSS equivalente estável (descendant no button para ignorar wrappers extras):
+    const seletorFinal = '[id^="radix-"] form > div > div:nth-child(3) button';
 
-    cy.get(seletor, { timeout: 15000 })
+    cy.get(seletorFinal, { timeout: 15000 })
       .scrollIntoView({ duration: 500 })
       .should('exist')
       .and('be.visible')
       .and('not.be.disabled');
 
-    cy.get(seletor).click({ force: true });
+    cy.get(seletorFinal).click({ force: true });
 
     // Aguarda o painel de resultado aparecer
     cy.contains('Funcionários da unidade', { timeout: 60000 }).should('exist');
@@ -319,10 +372,12 @@ When('seleciona o cargo de forma aleatoria no painel da unidade', () => {
 });
 
 When('clica no botão Avançar', () => {
-  // Botão Avançar na barra inferior da página
-  cy.get('main > div:nth-child(4) > div > div:nth-child(2) > button, button:contains("Avançar")')
+  // Usa texto para localizar — robusto a mudanças de estrutura HTML
+  cy.contains('button', 'Avançar', { timeout: 15000 })
     .last()
+    .scrollIntoView()
     .should('be.visible')
+    .and('not.be.disabled')
     .click();
 });
 
@@ -498,14 +553,25 @@ Then('deve visualizar os campos da portaria', () => {
 
 When('preenche o campo portaria com numero aleatorio', () => {
   const numero = numerosPortaria[Math.floor(Math.random() * numerosPortaria.length)];
-  // XPath de referência: .../form/div[2]/div[2]/div[1]/.../div[1]/div[1]/div/input
-  // Primeiro input de texto habilitado na seção da portaria (div[1] do segundo card)
-  cy.get('main form > div:nth-child(2) > div:nth-child(2) > div:nth-child(1)', { timeout: 10000 })
-    .find('input')
-    .not('[type="radio"]').not('[type="checkbox"]').not('[type="hidden"]').not(':disabled')
-    .first()
-    .should('be.visible')
-    .clear().type(numero, { delay: 80 });
+  // Navega pelo label 'Portaria da designação' — robusto a mudanças de estrutura HTML
+  cy.contains('label', 'Portaria da designação', { timeout: 10000 })
+    .invoke('attr', 'for')
+    .then((inputId) => {
+      if (inputId) {
+        cy.get(`#${CSS.escape(inputId)}`)
+          .should('be.visible').and('not.be.disabled')
+          .clear().type(numero, { delay: 80 });
+      } else {
+        // Fallback: primeiro input habilitado após o label da portaria
+        cy.contains('label', 'Portaria da designação')
+          .closest('div')
+          .find('input')
+          .not('[type="radio"]').not('[type="checkbox"]').not('[type="hidden"]').not(':disabled')
+          .first()
+          .should('be.visible')
+          .clear().type(numero, { delay: 80 });
+      }
+    });
 });
 
 When('preenche o campo SEI com numero aleatorio', () => {
@@ -521,11 +587,12 @@ When('preenche o campo SEI com numero aleatorio', () => {
           .should('be.visible').and('not.be.disabled')
           .clear().type(numero, { delay: 80 });
       } else {
-        // Fallback: segundo input habilitado na seção portaria
-        cy.get('main form > div:nth-child(2) > div:nth-child(2) > div:nth-child(1)')
+        // Fallback: navega pelo DOM relativo ao label 'Nº SEI'
+        cy.contains('label', 'Nº SEI')
+          .closest('div')
           .find('input')
           .not('[type="radio"]').not('[type="checkbox"]').not('[type="hidden"]').not(':disabled')
-          .eq(1)
+          .first()
           .should('be.visible')
           .clear().type(numero, { delay: 80 });
       }
@@ -533,12 +600,10 @@ When('preenche o campo SEI com numero aleatorio', () => {
 });
 
 When('navega ate Seleciona o tipo de cargo', () => {
-  // CSS derivado do querySelector fornecido:
-  // .ant-card-body > div.p-4.pt-4.border-t.mt-4 > div > div.space-y-3 > label
-  cy.get('.ant-card-body > div.p-4.pt-4.border-t > div > div.space-y-3 > label', { timeout: 10000 })
-    .first()
+  // Navega pelo texto da seção — robusto a qualquer mudança de estrutura HTML
+  cy.contains('Selecione o tipo de cargo:', { timeout: 10000 })
     .scrollIntoView({ duration: 500 })
-    .should('be.visible');
+    .should('exist');
 });
 
 When('valida a existencia das opcoes Cargo Disponivel e Cargo Vago', () => {
@@ -562,24 +627,165 @@ When('seleciona a opcao {string}', (opcao) => {
 });
 
 When('seleciona e clica a opcao {string}', (opcao) => {
-  // ex: document.querySelector("#_r_sm_-form-item > div:nth-child(2) > label") para "Cargo Vago"
   cy.contains('label', opcao, { timeout: 10000 })
     .scrollIntoView()
     .should('be.visible')
-    .click({ force: true });
+    .then(($label) => {
+      const forId = $label.attr('for');
+      if (forId) {
+        cy.get(`#${forId}`).then(($target) => {
+          if ($target.is('input[type="radio"], input[type="checkbox"]')) {
+            cy.wrap($target).check({ force: true });
+          } else {
+            // Elemento não é input nativo, então clica
+            cy.wrap($target).click({ force: true });
+          }
+        });
+      } else {
+        // Procura por input radio dentro da div
+        const $radio = $label
+          .closest('div')
+          .find('input[type="radio"]')
+          .first();
+
+        if ($radio.length) {
+          cy.wrap($radio).check({ force: true });
+        } else {
+          // Procura por button[role="radio"] (Radix UI)
+          const $buttonRole = $label
+            .closest('div')
+            .find('button[role="radio"]')
+            .first();
+
+          if ($buttonRole.length) {
+            cy.wrap($buttonRole).click({ force: true });
+          } else {
+            // Fallback: clica no label
+            cy.wrap($label).click({ force: true });
+          }
+        }
+      }
+    });
+
+  // Após selecionar "Cargo Vago" o sistema carrega a lista de cargos via API —
+  // aguarda o botão combobox de cargo aparecer (o botão POSSUI o id$="-form-item").
+  if (opcao === 'Cargo Vago') {
+    cy.get(designacaoLocators.campoCargoVago, { timeout: 20000 })
+      .filter('button')
+      .filter(':visible')
+      .should('have.length.greaterThan', 0);
+  }
 });
 
-When('clica no campo e seleciona aleatoriamente um dos cargos vagos', () => {
-  // Campo "Selecione o cargo" é Radix/Shadcn Select — trigger é button[role="combobox"]
-  // Navegação pelo label para garantir o campo correto independente de IDs dinâmicos
-  cy.contains('label', 'Selecione o cargo', { timeout: 10000 })
-    .should('be.visible')
-    .parent()
-    .find('button[role="combobox"]', { timeout: 10000 })
+// Steps genéricos com seletor (mantidos para compatibilidade)
+When(/^valida a existencia do Texto "([^"]+)"\s*-\s*(.+)$/, (texto, locator) => {
+  const selector = xpathToCssSelector(locator.trim());
+  cy.get(selector, { timeout: 10000 })
+    .should('exist')
+    .contains(texto, { timeout: 10000 });
+});
+
+When('valida a existencia do campo Cargo Vago', () => {
+  // ⚠️ DEPRECATED: Use 'valida a existencia do campo {string}' instead
+  cy.log('⚠️ Step obsoleto. Use: valida a existencia do campo "Cargo"');
+  cy.get(designacaoLocators.campoCargoVago, { timeout: 10000 }).should('exist');
+});
+
+When('valida a existencia do botao de selecao de cargo vago', () => {
+  cy.get(designacaoLocators.botaoDropdownCargoVago, { timeout: 15000 })
+    .scrollIntoView()
+    .should('exist')
+    .and('be.visible');
+});
+
+When('clica no campo Cargo Vago e seleciona aleatoriamente', () => {
+  // ⚠️ DEPRECATED: Use 'clica no campo "Cargo" e seleciona a primeira opcao disponivel' instead
+  cy.log('⚠️ Step obsoleto. Use novo step: clica no campo "Cargo" e seleciona a primeira opcao disponivel');
+  cy.get('body')
+    .find(designacaoLocators.opcoesCargoVago, { timeout: 20000 })
+    .filter(':visible')
+    .should('have.length.greaterThan', 0)
+    .then(($opts) => {
+      const idx = Math.floor(Math.random() * $opts.length);
+      cy.log(`Cargo vago selecionado (índice ${idx}): ${$opts.eq(idx).text().trim()}`);
+      cy.wrap($opts.eq(idx)).click({ force: true });
+    });
+});
+
+When(/^valida a existencia do campo\s*-\s*(.+)$/, (locator) => {
+  const selector = xpathToCssSelector(locator.trim());
+  cy.log(`Seletor convertido: ${selector}`);
+  cy.get(selector, { timeout: 10000 })
+    .should('exist')
+    .and('be.visible');
+});
+
+When(/^clica no campo "([^"]+)" e seleciona a primeira opcao disponivel/, (nomeDoProto) => {
+  cy.log(`🔍 Procurando campo: "${nomeDoProto}"`);
+
+  // O botão do combobox Cargo Vago tem o próprio ID terminando em "-form-item"
+  // (não é descendente de outro form-item) — filtramos por 'button' dentro do conjunto
+  cy.get(`${designacaoLocators.campoCargoVago}`, { timeout: 15000 })
+    .filter('button')
+    .filter(':visible')
+    .last()
     .scrollIntoView({ duration: 300 })
     .should('be.visible')
     .click({ force: true });
-  cy.get('[role="option"]', { timeout: 10000 })
+
+  // Aguarda as opções individuais aparecerem — usa apenas [role="option"] para evitar
+  // capturar o container viewport do Radix Select ([role="listbox"] > * retorna o <div>
+  // pai cujo texto concatena todas as opções, impedindo a seleção real).
+  cy.log('⏳ Aguardando opções aparecerem...');
+  cy.get('[role="option"]', { timeout: 15000 })
+    .filter(':visible')
+    .should('have.length.greaterThan', 0)
+    .then(($opts) => {
+      cy.log(`✅ ${$opts.length} opções encontradas`);
+      cy.wrap($opts.first())
+        .scrollIntoView({ duration: 300 })
+        .should('be.visible')
+        .click({ force: true });
+      cy.log(`✅ Primeira opção clicada: "${$opts.first().text().trim()}"`);
+    });
+});
+
+When(/^clica no campo e seleciona aleatoriamente uma das opções disponiveis\s*-\s*(.+)$/, (locator) => {
+  const selector = xpathToCssSelector(locator.trim());
+
+  cy.get(selector, { timeout: 10000 })
+    .should('exist')
+    .scrollIntoView({ duration: 300 })
+    .then(($field) => {
+      const triggerSelector = [
+        'button[role="combobox"]',
+        '[role="combobox"]',
+        '[aria-haspopup="listbox"]',
+        '[aria-expanded] input',
+        'input',
+        'button',
+        '.ant-select-selector',
+        '.ant-select-selection',
+        '.ant-select',
+        '[data-testid*="select"]',
+        'div[role="button"]',
+      ].join(',');
+
+      const $trigger = $field.is(triggerSelector)
+        ? $field
+        : $field.find(triggerSelector).filter(':visible').first();
+
+      if ($trigger.length) {
+        cy.wrap($trigger)
+          .should('be.visible')
+          .click({ force: true });
+      } else {
+        cy.wrap($field).click({ force: true });
+      }
+    });
+
+  cy.get('body')
+    .find('[role="option"], div[role="option"], li[role="option"], [data-testid*="option"], ul[role="listbox"] li, .ant-select-item, .ant-select-item-option, [class*="select-item"]', { timeout: 10000 })
     .filter(':visible')
     .should('have.length.greaterThan', 0)
     .then(($opts) => {
@@ -600,56 +806,61 @@ When('preenche o campo RF titular com {string}', (rf) => {
 When('clica e preenche o campo RF titular com um dos RF da lista', () => {
   const rf = rfList[Math.floor(Math.random() * rfList.length)];
   cy.log(`RF titular selecionado aleatoriamente: ${rf}`);
-  const titularSection = 'main form > div:nth-child(2) > div:nth-child(2) > div:nth-child(2)';
-  cy.get(titularSection, { timeout: 10000 })
+  // O campo RF Titular é identificado pelo label 'RF Titular'
+  // (não está dentro de .ant-card — é seção independente após selecionar Cargo Disponível)
+  cy.contains('label', 'RF Titular', { timeout: 10000 })
+    .closest('div')
     .find('input')
     .not('[type="radio"]').not('[type="checkbox"]').not('[type="hidden"]')
     .filter(':visible')
     .first()
     .should('be.visible').and('not.be.disabled')
-    .click()
-    .clear().type(rf, { delay: 100 });
+    .click().clear().type(rf, { delay: 100 });
 });
 
 // ── Passo 2 — step novo: clica + preenche RF do titular ───────────────────────
 When('clica e preenche o campo RF titular com {string}', (rf) => {
-  // XPath de referência: //*[@id="_r_o8_-form-item"] — ID dinâmico Radix
-  // A seção do titular é div:nth-child(2) do segundo bloco de cards
-  const titularSection = 'main form > div:nth-child(2) > div:nth-child(2) > div:nth-child(2)';
-  cy.get(titularSection, { timeout: 10000 })
+  // O campo RF Titular é identificado pelo label 'RF Titular'
+  cy.contains('label', 'RF Titular', { timeout: 10000 })
+    .closest('div')
     .find('input')
     .not('[type="radio"]').not('[type="checkbox"]').not('[type="hidden"]')
     .filter(':visible')
     .first()
     .should('be.visible').and('not.be.disabled')
-    .click()
-    .clear().type(rf, { delay: 100 });
+    .click().clear().type(rf, { delay: 100 });
 });
 
 // ── Passo 2 — step novo: valida e clica em pesquisar o titular ────────────────
 When('valida a existencia do botao e clica em pesquisar o titular', () => {
-  // XPath: .../form/div[2]/div[2]/div[2]/div/div[2]/.../div[2]/button
-  // Escopo na seção titular (div:nth-child(2)) — botão de pesquisar dentro dela
-  const titularSection = 'main form > div:nth-child(2) > div:nth-child(2) > div:nth-child(2)';
-  cy.get(`${titularSection} > div > div:nth-child(2) button`, { timeout: 15000 })
+  // Sobe pelo DOM até o primeiro div que contém um botão (ancestor comum do label e do botão Pesquisar)
+  cy.contains('label', 'RF Titular', { timeout: 10000 })
+    .closest('div:has(button)')
+    .find('button')
     .filter(':visible')
-    .last()
+    .filter((i, el) => el.textContent.trim().toLowerCase().includes('pesquisar'))
+    .first()
     .scrollIntoView({ duration: 400 })
     .should('be.visible')
     .and('not.be.disabled')
     .click({ force: true });
 
-  // Aguarda os dados do titular aparecerem no DOM (Nome Servidor é o primeiro campo)
+  // Aguarda os dados do titular aparecerem no DOM
   // Timeout alto (120s) pois a API pode ser lenta dependendo do ambiente
   cy.contains('Nome Servidor', { timeout: 120000 }).should('exist');
 });
 
 When('clica em pesquisar o titular', () => {
-  cy.get('.ant-card-body').last()
-    .find('button').last()
+  // Sobe pelo DOM até o primeiro div que contém um botão (ancestor comum do label e do botão Pesquisar)
+  cy.contains('label', 'RF Titular', { timeout: 10000 })
+    .closest('div:has(button)')
+    .find('button')
+    .filter(':visible')
+    .filter((i, el) => el.textContent.trim().toLowerCase().includes('pesquisar'))
+    .first()
     .scrollIntoView({ duration: 400 })
-    .should('be.visible').and('not.be.disabled');
-  cy.get('.ant-card-body').last().find('button').last().click({ force: true });
+    .should('be.visible').and('not.be.disabled')
+    .click({ force: true });
 });
 
 Then('o sistema carrega e exibe os dados do titular', () => {
@@ -777,7 +988,7 @@ When('clica em Salvar', () => {
   cy.intercept('GET', '**/listagem-designacoes**').as('redirecionaListagem');
   cy.intercept('POST', '**/listagem-designacoes**').as('carregaListagem');
 
-  cy.get('main > div:nth-child(5) > div > div:nth-child(2) > button, button:contains("Salvar")')
+  cy.contains('button', 'Salvar', { timeout: 40000 })
     .last()
     .scrollIntoView({ duration: 400 })
     .should('be.visible')
@@ -861,12 +1072,15 @@ Then('o sistema impede o avanco do passo 2', () => {
 
 Then('o sistema exibe mensagem de titular não encontrado', () => {
   cy.wait(5000);
-  // "Nome Servidor" existe no DOM desde o accordion do servidor principal (passo 1).
-  // É necessário escopar a verificação à seção do titular para não ter falso positivo.
-  const titularSection = 'main form > div:nth-child(2) > div:nth-child(2) > div:nth-child(2)';
-  cy.get(titularSection).within(() => {
-    cy.contains('Nome Servidor', { timeout: 3000 }).should('not.exist');
-  });
+  // Escopa ao último .ant-card que tenha tido um input (seção do titular)
+  // Verifica na seção do RF Titular (próxima ao label 'RF Titular')
+  // que não apareceram dados do titular após pesquisa com RF inválido
+  cy.contains('label', 'RF Titular', { timeout: 5000 })
+    .closest('div')
+    .parent()
+    .within(() => {
+      cy.contains('Nome Servidor', { timeout: 3000 }).should('not.exist');
+    });
   cy.log('Comportamento correto: dados do titular não carregados para RF inválido');
 });
 
@@ -876,8 +1090,9 @@ When('tenta pesquisar sem preencher o campo RF', () => {
     .should('be.visible')
     .clear();
   cy.wait(500);
-  cy.get('[id^="radix-"] form > div:nth-child(3) button, .ant-card-body form button:last-of-type, .ant-card-body button:contains("Pesquisar")', { timeout: 10000 })
+  cy.get('.ant-card-body', { timeout: 10000 })
     .first()
+    .contains('button', 'Pesquisar')
     .should('be.visible')
     .click({ force: true });
   cy.wait(5000);

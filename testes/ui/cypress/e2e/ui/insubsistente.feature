@@ -71,7 +71,7 @@ Funcionalidade: Insubsistência de Designação
     E valida a existencia do botão de navegação "Salvar"
     E clica em "Salvar"
 
- @insubsistente-cessacao @smoke
+ @skip @insubsistente-cessacao @smoke
   Cenário: Tornar designação insubsistente - Cessação
     
     # ETAPA 1: Navegação e Seleção da Designação

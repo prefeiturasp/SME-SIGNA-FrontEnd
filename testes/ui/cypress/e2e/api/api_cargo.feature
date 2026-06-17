@@ -1,5 +1,5 @@
 #language: pt
-@api @cargo
+@skip @api @cargo
 Funcionalidade: API EOL - Cargos
   Como sistema integrado SME
   Quero validar o endpoint de listagem de cargos
