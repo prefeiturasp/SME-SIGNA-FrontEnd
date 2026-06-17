@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import React  from "react";
 import { InfoItem } from "@/components/ui/info-item";
 import { PortariaDesignacao } from "@/types/portaria-designacao";
+import { formatDate } from "@/utils/formatDate";
  
 const ResumoPortariaDesigacao: React.FC<{
    className?: string;
@@ -44,12 +45,12 @@ const ResumoPortariaDesigacao: React.FC<{
 
                 <InfoItem
                   label="D.O"
-                  value={defaultValues.doc || "-"}
+                  value={formatDate(defaultValues.doc)}
                 />
                 {showExtraFields && (
                   <>
-                    <InfoItem label="A partir de" value={defaultValues.data_inicio ?? '-'} />
-                    <InfoItem label="Até" value={defaultValues.data_fim ?? '-'} />
+                    <InfoItem label="A partir de" value={formatDate(defaultValues.data_inicio)} />
+                    <InfoItem label="Até" value={formatDate(defaultValues.data_fim)} />
                     <InfoItem label="Caráter Excepcional" value={defaultValues.carater_excepcional? 'Sim':'Não'} />
                     <InfoItem label="Impedimento para substituição:" value={defaultValues.impedimento_substituicao ?? '-'} />
                     <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento ?? '-'} />

@@ -26,11 +26,13 @@ import formSchemaCessacao, {
 import { useSearchParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
+import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado";
 import Designacao from "@/assets/icons/Designacao";
 
-import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import EditorSEI, { adicionarNegrito, gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
+import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 
 export default function CessacaoPage() {
   const searchParams = useSearchParams();
@@ -104,22 +106,10 @@ export default function CessacaoPage() {
     };
   }, [designacao]);
 
-  const dadosIndicado: Servidor | null = useMemo(() => {
-    if (!designacao) return null;
-
-    return {
-      rf: designacao.indicado_rf,
-      nome_servidor: designacao.indicado_nome_servidor,
-      nome_civil: designacao.indicado_nome_civil,
-      vinculo: designacao.indicado_vinculo,
-      cargo_base: designacao.indicado_cargo_base,
-      lotacao: designacao.indicado_lotacao,
-      cargo_sobreposto_funcao_atividade:
-        designacao.indicado_cargo_sobreposto,
-      local_de_exercicio: designacao.indicado_local_exercicio,
-      local_de_servico: designacao.indicado_local_servico,
-    } as Servidor;
-  }, [designacao]);
+  const dadosIndicado: Servidor | null = useMemo(
+    () => getDadosIndicado(designacao),
+    [designacao]
+  );
 
   useEffect(() => {
     if (!designacao) return;
@@ -154,11 +144,16 @@ export default function CessacaoPage() {
     nome_indicado: designacao?.indicado_nome_servidor ?? "-",
     rf: formatarRF(designacao?.indicado_rf ?? "-"),
     vinculo: designacao?.indicado_vinculo ?? "-",
-    cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+    cargo_base: (() => {
+      const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
+      const cat = designacao?.indicado_categoria;
+      return cat ? `${base} - Categoria ${cat}` : base;
+    })(),
     cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
     ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
     data_inicio:
       values.cessacao.data_inicio?.toLocaleDateString("pt-BR"),
+    trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
   });
 
   const handleGerarPortaria = () => {
@@ -167,13 +162,10 @@ export default function CessacaoPage() {
 
     let texto = TEMPLATE_CESSACAO;
 
-    Object.entries(dados).forEach(([key, value]) => {
-      let val = String(value ?? "");
+    const dadosNegrito = adicionarNegrito(dados, ["nome_indicado","sei","portaria","ano"]);
 
-      if (["nome_indicado"].includes(key)) {
-        val = `<strong>${val}</strong>`;
-      }
-
+    Object.entries(dadosNegrito).forEach(([key, value]) => {
+      const val = String(value ?? "");
       texto = texto.replaceAll(`{{${key}}}`, val);
     });
 

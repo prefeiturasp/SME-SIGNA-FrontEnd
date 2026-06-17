@@ -31,8 +31,7 @@ const fetchWithClient = async <T>(
     return { success: false, error: "Usuário não autenticado" };
   }
 
-    const params = sanitizeParams(filtros);
-  console.log('params33', params);
+  const params = sanitizeParams(filtros);
   try {
     const { data } = await apiClient.get<T>(url, { params });
     return { success: true, data };

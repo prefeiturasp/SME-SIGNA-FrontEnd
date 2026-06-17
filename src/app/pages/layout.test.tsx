@@ -22,6 +22,12 @@ vi.mock("@/components/providers/AuthGuard", () => ({
     ),
 }));
 
+vi.mock("@/components/providers/NotificationProvider", () => ({
+    NotificationProvider: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="notification-provider">{children}</div>
+    ),
+}));
+
 vi.mock("@/components/dashboard/Sidebar/app-new-sidebar", () => ({
     AppNewSidebar: () => <div data-testid="app-new-sidebar">Sidebar</div>,
 }));
@@ -55,6 +61,7 @@ describe("DashboardLayout (layout.tsx)", () => {
         expect(screen.getByTestId("layout")).toHaveAttribute("data-min-height", "100vh");
         expect(screen.getByTestId("sidebar-provider")).toBeInTheDocument();
         expect(screen.getByTestId("app-new-sidebar")).toBeInTheDocument();
+        expect(screen.getByTestId("notification-provider")).toBeInTheDocument();
         expect(screen.getByTestId("auth-guard")).toBeInTheDocument();
         expect(screen.getByTestId("navbar")).toBeInTheDocument();
         expect(screen.getByTestId("child")).toBeInTheDocument();

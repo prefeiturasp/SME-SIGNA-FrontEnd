@@ -6,7 +6,7 @@ O Secretário Municipal de Educação, no uso de suas atribuições legais,
 
 R E S O L V E:
 
-TORNAR INSUBSISTENTE a portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}}, {{periodo}}.
+TORNAR INSUBSISTENTE a portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, {{trecho_unidade}}, {{periodo}}.
 `;
 
 export const TEMPLATE_INSUBSISTENCIA_CESSACAO = `
@@ -17,19 +17,21 @@ O Secretário Municipal de Educação, usando das atribuições que lhe são con
 
 R E S O L V E:
 
-TORNAR INSUBSISTENTE a portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {{doc_cessacao}}, SEI nº {{sei_cessacao}}, que cessou os efeitos da Port. nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}}, {{periodo}}.
+TORNAR INSUBSISTENTE a portaria nº {{portaria_cessacao}}, de S.M.E, D.O.C. de {{doc_cessacao}}, SEI nº {{sei_cessacao}}, que cessou os efeitos da Port. nº {{portaria_designacao}}, de S.M.E., D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) servidor(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, {{trecho_unidade}}, {{periodo}}.
 `;
 
 
 
-export const TEMPLATE_CESSACAO = `EXPEDE:
-PORTARIA Nº {{portaria}}/{{ano}} SEI nº {{sei}}
+export const TEMPLATE_CESSACAO = `PORTARIA Nº {{portaria}}/{{ano}} 
+SEI Nº {{sei}}
+
 {{dre}}
+
 O Secretário Municipal de Educação, usando das atribuições que lhe são conferidas,
 
 R E S O L V E:
 
-FAZER CESSAR, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) Sr.(a). {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, no {{ue}}, a partir de {{data_inicio}}.
+FAZER CESSAR, {{tipo_cessacao}}, os efeitos da portaria nº {{portaria_designacao}}, de S.M.E, D.O.C. de {{doc_designacao}}, SEI nº {{sei_designacao}}, pela qual o(a) Sr.(a). {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, foi designado(a) para exercer o cargo de {{cargo}}, {{trecho_unidade}}, a partir de {{data_inicio}}.
 `;
 
 export const TEMPLATE_DESIGNACAO = `PORTARIA Nº {{portaria}}
@@ -41,7 +43,7 @@ SEI Nº {{sei}}
 
 EXPEDE:
 
-A presente portaria, designando o(a) Sr.(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}}, para exercer cargo de {{cargo_indicado}}, no {{ue}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`;
+A presente portaria, designando o(a) Sr.(a) {{nome_indicado}}, RF {{rf}}, vínculo {{vinculo}}, {{cargo_base}}, efetivo, lotado(a) na {{lotacao_indicado}}, para exercer cargo de {{cargo_indicado}}, {{trecho_unidade}}, EH: {{eh}}, {{trecho_substituicao}}, {{trecho_final}}`;
 
 export const TEMPLATE_APOSTILA = `SEI nº {{sei}}
 

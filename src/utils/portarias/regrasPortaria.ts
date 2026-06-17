@@ -4,7 +4,12 @@ import { formatarRF, nameToCamelCase } from "./formatadores";
 function formatarData(data?: string | Date) {
     if (!data) return "____";
 
-    const date = typeof data === "string" ? new Date(data) : data;
+    let date: Date;
+    if (typeof data === "string") {
+        date = data.length === 10 ? new Date(data + "T00:00:00") : new Date(data);
+    } else {
+        date = data;
+    }
 
     return date.toLocaleDateString("pt-BR");
 }
@@ -45,6 +50,12 @@ export function montarTrechoSubstituicao(data: DesignacaoData): string {
         return `${base}, por férias, no período de ${inicio} a ${fim}`;
     }
 
+    // QUALQUER OUTRO IMPEDIMENTO COM PERÍODO DEFINIDO
+    if (data?.impedimento_substituicao && data?.designacao_data_final) {
+        const motivo = data?.impedimento_label ? `, ${String(data.impedimento_label).toLowerCase()},` : "";
+        return `${base}${motivo} no período de ${inicio} a ${fim}`;
+    }
+
     // CASO PADRÃO
     return `${base}, a partir de ${inicio}`;
 }
@@ -57,14 +68,19 @@ export function montarTrechoFinal(data: DesignacaoData): string {
         return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
     }
 
-    // LICENÇA MÉDICA
-    if (data?.impedimento_substituicao === "2") {
-        return `portando diploma de Pedagogia e com no mínimo 6 anos de experiência no Magistério, sendo 3 anos em cargos / funções de gestão educacional previstos na Lei 14.660/2007.`;
-    }
-
     // FÉRIAS
     if (data?.impedimento_substituicao === "4") {
         return `dentre integrantes da carreira de Auxiliar Técnico de Educação.`;
+    }
+
+    // SUBSTITUIÇÃO COM IMPEDIMENTO LEGAL (período definido + impedimento)
+    if (data?.impedimento_substituicao && data?.designacao_data_final) {
+        return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
+    }
+
+    // LICENÇA MÉDICA (sem data_final — fallback)
+    if (data?.impedimento_substituicao === "2") {
+        return `portando diploma de Pedagogia e com no mínimo 6 anos de experiência no Magistério, sendo 3 anos em cargos / funções de gestão educacional previstos na Lei 14.660/2007.`;
     }
 
     // PADRÃO

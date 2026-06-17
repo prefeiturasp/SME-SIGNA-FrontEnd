@@ -36,7 +36,7 @@ interface Props {
 }
 
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
-  const { register, control, watch } = useFormContext();
+  const { register, control, watch, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
 
   const impedimentos =
@@ -47,7 +47,14 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
 
 
   const dataFinal = watch("designacao_data_final");
+  
   const isImpedimentoDisabled = !dataFinal;
+  
+  useEffect(() => {
+    if(isImpedimentoDisabled){
+      setValue("impedimento_substituicao", null);
+    }
+  }, [isImpedimentoDisabled, setValue]);
 
   useEffect(() => {
     mutate();
@@ -78,7 +85,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
 
             <div className="w-full">
-               <SelectAnoField name="cessacao.ano" label="Ano Vigente" />
+               <SelectAnoField name="ano" label="Ano Vigente" />
             </div>
 
             <div className="w-full">
@@ -115,6 +122,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 control={control}
                 name="a_partir_de"
                 label="A partir de"
+                allowClear={false}
               />
             </div>
 
@@ -124,6 +132,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 control={control}
                 name="designacao_data_final"
                 label="Até"
+                allowClear={true}
               />
             </div>
 
@@ -148,8 +157,12 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                     </FormLabel>
                     <FormControl>
                       <Select
-                        value={field.value}
-                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value ?? undefined}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const selecionado = impedimentos.find(i => i.codigo === value);
+                          setValue("impedimento_label", selecionado?.nome ?? "");
+                        }}
                         disabled={isImpedimentoDisabled || isPending}
                       >
                         <SelectTrigger data-testid="select-impedimento-substituicao">
@@ -157,7 +170,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                             placeholder={
                               isImpedimentoDisabled
                                 ? "Preencha a data 'Até' primeiro"
-                                : "Selecione uma opção"
+                                : "Selecione o impedimento"
                             }
                           />
                         </SelectTrigger>
