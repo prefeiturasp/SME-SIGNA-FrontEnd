@@ -53,7 +53,7 @@ describe("cargos-banco-de-dados actions", () => {
             const result = await getCargosBaseBancoDeDados();
 
             expect(axios.get).toHaveBeenCalledWith(
-                "https://api.exemplo.com/designacao/designacoes/cargos-base-pareados",
+                "https://api.exemplo.com/designacao/v2/designacoes/cargos-base-pareados/",
                 {
                     headers: {
                         Authorization: "Bearer token-123",
@@ -71,7 +71,7 @@ describe("cargos-banco-de-dados actions", () => {
             const result = await getCargosBaseBancoDeDados();
 
             expect(axios.get).toHaveBeenCalledWith(
-                "https://api.exemplo.com/designacao/designacoes/cargos-base-pareados",
+                "https://api.exemplo.com/designacao/v2/designacoes/cargos-base-pareados/",
                 {
                     headers: {
                         Authorization: "Bearer undefined",
@@ -100,7 +100,7 @@ describe("cargos-banco-de-dados actions", () => {
             const result = await getCargosSobrepostosBancoDeDados();
 
             expect(axios.get).toHaveBeenCalledWith(
-                "https://api.exemplo.com/designacao/designacoes/cargos-sobrepostos-pareados",
+                "https://api.exemplo.com/designacao/v2/designacoes/cargos-sobrepostos-pareados/",
                 {
                     headers: {
                         Authorization: "Bearer token-123",
@@ -118,7 +118,7 @@ describe("cargos-banco-de-dados actions", () => {
             const result = await getCargosSobrepostosBancoDeDados();
 
             expect(axios.get).toHaveBeenCalledWith(
-                "https://api.exemplo.com/designacao/designacoes/cargos-sobrepostos-pareados",
+                "https://api.exemplo.com/designacao/v2/designacoes/cargos-sobrepostos-pareados/",
                 {
                     headers: {
                         Authorization: "Bearer undefined",

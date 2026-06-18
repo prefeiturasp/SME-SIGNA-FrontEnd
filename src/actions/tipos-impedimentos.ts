@@ -18,7 +18,7 @@ export const getImpedimentosAction = async (): Promise<
 
   try {
     const { data } = await axios.get<Impedimento[]>(
-      `${API_URL}/designacao/designacoes/impedimentos/`,
+      `${API_URL}/designacao/v2/designacoes/impedimentos/`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
