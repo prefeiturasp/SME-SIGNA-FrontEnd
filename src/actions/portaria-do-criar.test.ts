@@ -22,7 +22,7 @@ describe("PortariaDOAction", () => {
     const response = await PortariaDOAction(payload);
 
     expect(postWithAuth).toHaveBeenCalledWith(
-      "/designacao/portarias/atualizar-data-publicacao/",
+      "/designacao/v2/portarias/atualizar-data-publicacao/",
       payload,
       "Erro ao salvar portaria D.O"
     );

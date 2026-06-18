@@ -12,7 +12,7 @@ export async function getDesignacaoUnidadeAction(codigo_ue:string): Promise<Desi
     const authToken = cookieStore.get("auth_token")?.value;
   
     try {
-        const { data } = await axios.get<DesignacaoUnidadeResponse>(`${API_URL}/designacao/unidade`, {
+        const { data } = await axios.get<DesignacaoUnidadeResponse>(`${API_URL}/designacao/v2/unidade/`, {
             params: { codigo_ue },
             headers: {
               Authorization: `Bearer ${authToken}`,

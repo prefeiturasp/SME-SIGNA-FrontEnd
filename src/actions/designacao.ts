@@ -64,7 +64,7 @@ export const fetchPortariasDO = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemPortariasResponse[]>(
-    "/designacao/portarias/",
+    "/designacao/v2/portarias/",
     filtros,
     "Erro ao buscar as dados para alterar a data do D.O"
   );
