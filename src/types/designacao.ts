@@ -98,6 +98,23 @@ export interface PortariasDOBody {
   data_publicacao: string;
 }
 
+export interface AtosAdministrativosPaginada {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ListagemAtosAdministrativosResponse[];
+}
+export interface ListagemAtosAdministrativosResponse {
+  id: number;
+  portaria: string;
+  tipo_de_ato: string;
+  nome: string;
+  cargo: string;
+  doc: string;
+  data_designacao: string | null;
+  data_cessacao: string | null;
+  numero_sei: string;
+}
 export interface ListagemPortariasResponse {
   id: number;
   portaria: string;
@@ -117,6 +134,18 @@ export interface PortariasDOFiltros {
   ano?: string;
   tipo?: string;
 }
+
+export interface AtosAdministrativosFiltros {
+  numero_sei?: string;
+  portaria_inicial?: string;
+  portaria_final?: string;
+  ano?: string;
+  tipo?: string;
+  page?: number;
+}
+
+
+
 
 export interface DesignacaoFiltros {
   rf?: string;

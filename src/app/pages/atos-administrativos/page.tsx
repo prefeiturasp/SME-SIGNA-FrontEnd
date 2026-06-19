@@ -5,25 +5,20 @@ import { usePortariasDO } from "../../../hooks/usePortariasDO";
 import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
-import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
 import { FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-
-import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo";
-import {
-  ListagemPortariasResponse,
-} from "@/types/designacao";
 import Designacao from "@/assets/icons/Designacao";
 import { Dropdown } from "antd";
-import DownloadFiles from "@/assets/icons/DownloadFiles";
 import Cancelar from "@/assets/icons/Cancelar";
-import DocumentoAlerta from "@/assets/icons/DocumentoAlerta";
 import DocumentoErro from "@/assets/icons/DocumentoErro";
 import Editar from "@/assets/icons/Editar";
 import Delete from "@/assets/icons/Delete";
 import Plus from "@/assets/icons/Plus";
+import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
+import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
+import { useState } from "react";
 
-export default function BaixarLauda() {
+export default function AtosAdministrativos() {
   const {
     handleClear,
     isPending,
@@ -32,13 +27,9 @@ export default function BaixarLauda() {
     filterForm,
     onSubmitFilterForm,
     salvando,
-  } = usePortariasDO();
-
-
-
-  const handleBaixarLauda = async (selectedRows: ListagemPortariasResponse[], tipoArquivo: string) => {
-    console.log('selectedRows', selectedRows, tipoArquivo);
-  };
+    onPageChange,
+    page
+  } = useAtosAdministrativos();
 
 
 
@@ -119,16 +110,13 @@ export default function BaixarLauda() {
 
       <FBranco className="mb-4">
 
-        <ListagemDeDo
-          isListagemDo={false}
-          onClickBaixarLauda={handleBaixarLauda}
+        <ListagemDeAtosAdministrativos
           isLoading={isPending}
-          data={resultado ?? []}              
-          value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}          
-          data_considerada_portaria={new Date()}          
-          isDisabled={salvando}
-          data_publicacao={new Date()}
+          data={resultado?.results ?? []}                       
           key={tabelaKey}
+          total={resultado?.count ?? 0}
+          page={page}
+          onPageChange={onPageChange}
         />
         
       </FBranco>

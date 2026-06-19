@@ -6,6 +6,8 @@ import {
   DesignacaoPaginada,
   ListagemPortariasResponse,
   ListagemDesignacoesResponse,
+  AtosAdministrativosPaginada,
+  AtosAdministrativosFiltros,
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 import { handleApiError } from "@/lib/api-error";
@@ -70,6 +72,19 @@ export const fetchPortariasDO = async (
   );
 };
 
+
+export const fetchAtosAdministrativos = async (
+  filtros: AtosAdministrativosFiltros
+): Promise<
+  | { success: true; data: AtosAdministrativosPaginada }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<AtosAdministrativosPaginada>(
+    "/designacao/atos-administrativos/",
+    filtros,
+    "Erro ao buscar os atos administrativos"
+  );
+};
 
 
 export const fetchDesignacoesSemPaginacaoAction = async (
