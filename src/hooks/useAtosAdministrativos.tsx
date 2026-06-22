@@ -73,19 +73,19 @@ export function useAtosAdministrativos() {
 
   const handleClear = () => {
     filterForm.reset({
-      numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
       ano: new Date().getFullYear().toString(),
       tipo: "",
+      portaria_final: "",
+      portaria_inicial: "",
+      numero_sei: "",
     });
 
     buscar(
       {
-        numero_sei: "",
-        portaria_inicial: "",
-        portaria_final: "",
         ano: new Date().getFullYear().toString(),
+        portaria_final: "",
+        portaria_inicial: "",
+        numero_sei: "",
         tipo: "",
       },
 
