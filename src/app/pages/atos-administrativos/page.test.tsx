@@ -58,7 +58,7 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/Listage
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo", () => ({
+vi.mock("@/components/dashboard/Designacao/FiltroDeATosAdministrativos/FiltroDeATosAdministrativos.tsx", () => ({
   default: ({ onClear }: { onClear: () => void }) => {
     filtroSpy({ onClear });
     return <button onClick={onClear}>limpar filtro</button>;
