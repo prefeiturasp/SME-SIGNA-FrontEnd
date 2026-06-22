@@ -9,7 +9,6 @@ import DocumentoErro from "@/assets/icons/DocumentoErro";
 import Editar from "@/assets/icons/Editar";
 import Delete from "@/assets/icons/Delete";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import QBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { Button } from "@/components/ui/button";
 import Designacao from "@/assets/icons/Designacao";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
@@ -106,8 +105,8 @@ export default function AtosAdministrativos() {
           </form>
         </FormProvider>
       </FundoBranco>
-      
-      <QBranco className="mb-4">
+
+      <FundoBranco className="mb-4">
         <ListagemDeAtosAdministrativos
           onPageChange={onPageChange}
           key={tabelaKey}
@@ -117,7 +116,7 @@ export default function AtosAdministrativos() {
           isLoading={isPending}
         />
 
-      </ QBranco>
+      </ FundoBranco>
     </>
   );
 }
