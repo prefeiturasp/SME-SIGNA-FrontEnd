@@ -1,17 +1,17 @@
 "use client";
 
-
-import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import FBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
-import { Button } from "@/components/ui/button";
-import Designacao from "@/assets/icons/Designacao";
 import { Dropdown } from "antd";
+
+import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
+import Plus from "@/assets/icons/Plus";
 import Cancelar from "@/assets/icons/Cancelar";
 import DocumentoErro from "@/assets/icons/DocumentoErro";
 import Editar from "@/assets/icons/Editar";
 import Delete from "@/assets/icons/Delete";
-import Plus from "@/assets/icons/Plus";
-import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
+import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
+import QBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
+import { Button } from "@/components/ui/button";
+import Designacao from "@/assets/icons/Designacao";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 
 export default function AtosAdministrativos() {
@@ -34,10 +34,18 @@ export default function AtosAdministrativos() {
         }
         breadcrumbs={[
           { title: "Início", href: "/" },
-        ]}        
+        ]}
         createButton={
-          <Dropdown  menu={{
+          <Dropdown menu={{
             items: [
+              {
+                key: '4',
+                label: 'Nova apostila',
+                icon: <Editar width={20} height={20} color="#9CA3B9" />,
+                onClick: () => {
+                  console.log("Nova apostila");
+                },
+              },
               {
                 key: '1',
                 label: 'Nova designação',
@@ -46,14 +54,7 @@ export default function AtosAdministrativos() {
                   console.log("Nova designação");
                 },
               },
-              {
-                key: '2',
-                label: 'Nova cessação',
-                icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Nova cessação");  
-                },
-              },
+              
               {
                 key: '3',
                 label: 'Tornar insubsistente',
@@ -63,13 +64,13 @@ export default function AtosAdministrativos() {
                 },
               },
               {
-                key: '4',
-                label: 'Nova apostila',
-                 icon: <Editar width={20} height={20} color="#9CA3B9" />,
+                key: '2',
+                label: 'Nova cessação',
+                icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("Nova apostila");  
+                  console.log("Nova cessação");
                 },
-              },
+              },              
               {
                 key: '5',
                 label: 'Anular apostila',
@@ -81,29 +82,29 @@ export default function AtosAdministrativos() {
             ]
           }} placement="top">
             <Button
-             size="sm"
-             className="w-full flex items-center justify-center gap-2"
-             variant="destructive"
-             data-testid="botao-proximo"
+              size="sm"
+              className="w-full flex items-center justify-center gap-2"
+              variant="destructive"
+              data-testid="botao-proximo"
             >Novo ato
-            <Plus  />
+              <Plus />
             </Button>
-          </Dropdown> 
+          </Dropdown>
         }
       />
 
 
-      <FBranco className="mb-4">
+      <QBranco className="mb-4">
         <ListagemDeAtosAdministrativos
-          isLoading={isPending}
-          data={resultado?.results ?? []}                       
+          onPageChange={onPageChange}
           key={tabelaKey}
+          data={resultado?.results ?? []}
           total={resultado?.count ?? 0}
           page={page}
-          onPageChange={onPageChange}
+          isLoading={isPending}
         />
-        
-      </FBranco>
+
+      </ QBranco>
     </>
   );
 }
