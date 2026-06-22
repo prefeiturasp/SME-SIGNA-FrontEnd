@@ -102,7 +102,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
-    { title: 'TIPO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
+    { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
     { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
