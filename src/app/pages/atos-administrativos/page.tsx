@@ -1,7 +1,6 @@
 "use client";
 
 
-import { usePortariasDO } from "../../../hooks/usePortariasDO";
 import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
@@ -16,7 +15,6 @@ import Delete from "@/assets/icons/Delete";
 import Plus from "@/assets/icons/Plus";
 import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
-import { useState } from "react";
 
 export default function AtosAdministrativos() {
   const {

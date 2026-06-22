@@ -63,12 +63,22 @@ export interface DesignacaoData {
 
 export type StatusDesignacaoV2 = 'ativo' | 'cessada' | 'insubsistente';
 
+export enum StatusAtosAdministrativos {
+  NAO_PUBLICADO = 'NAO_PUBLICADO',
+  PUBLICADO = 'PUBLICADO',
+}
+
 export enum StatusDesignacao {
   PENDENTE = 0,
   AGUARD_PUBLICACAO = 1,
   PUBLICADO_COM_PENDENCIA = 2,
   PUBLICADO = 3,
 }
+
+export enum StatusPublicacao {
+  NAO_PUBLICADO = 0,
+  PUBLICADO = 1,
+ }
 
 export interface ListagemDesignacoesResponse {
   id: number;
@@ -106,14 +116,15 @@ export interface AtosAdministrativosPaginada {
 }
 export interface ListagemAtosAdministrativosResponse {
   id: number;
-  portaria: string;
-  tipo_de_ato: string;
+  ano_vigente: string;
+  criado_em: string;
   nome: string;
-  cargo: string;
-  doc: string;
-  data_designacao: string | null;
-  data_cessacao: string | null;
   numero_sei: string;
+  observacoes: string | null;
+  portaria: string;
+  status_publicacao: string;
+  tipo: string;
+  tipo_de_ato: string;
 }
 export interface ListagemPortariasResponse {
   id: number;

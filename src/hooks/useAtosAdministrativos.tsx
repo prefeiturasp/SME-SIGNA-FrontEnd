@@ -13,7 +13,7 @@ export function useAtosAdministrativos() {
   const [salvando, setSalvando] = useState(false); 
   const [tabelaKey, setTabelaKey] = useState(0);
   const [isPending, startTransition] = useTransition();
-
+  console.log("resultado", resultado);
   const [page, setPage] = useState(1);
 
 

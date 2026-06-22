@@ -1,24 +1,40 @@
 'use client'
-import React, { useState } from 'react';
-import { Dropdown, Pagination, Table } from 'antd';
+import { Pagination, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
-import { Button } from '@/components/ui/button';
-import { ListagemPortariasResponse } from '@/types/designacao';
-import SimpleCheck from '@/assets/icons/SimpleCheck';
-import { format } from 'date-fns';
-import { PORTARIAS_SEM_DATA_DE_PUBLICACAO, PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA } from '../MainDOForm/MainDOForm';
-import { formatDate } from '@/utils/formatDate';
-import DownloadFiles from '@/assets/icons/DownloadFiles';
+import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
+import { formatarDataHora } from '@/lib/utils';
+import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
+
+const NameColorStatusAtosAdministrativos = {
+  [StatusAtosAdministrativos.NAO_PUBLICADO]: { color: '#B22B2A', name: 'Não publicado' },
+  [StatusAtosAdministrativos.PUBLICADO]: { color: '#10A957', name: 'Publicado' },
+};
+
+const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefined, key: string) => {
+  const config = status === undefined ? undefined : NameColorStatusAtosAdministrativos[status];
+
+  if (!config) {
+    return (
+      <Tag className='rounded-full' key={key} color='#9E9E9E' >
+        INDISPONÍVEL
+      </Tag>
+    );
+  }
+
+  return (
+    <Tag className='rounded-full' color={config.color} key={key} >
+      {config.name}
+    </Tag>
+  );
+};
 
 
 
-
-
-interface ListagemDeAtosAdministrativosProps {  
-  data: ListagemPortariasResponse[];
-  isLoading?: boolean;  
-  total?: number;
-  page?: number;
+interface ListagemDeAtosAdministrativosProps {
+  data: ListagemAtosAdministrativosResponse[];
+  isLoading?: boolean;
+  total: number;
+  page: number;
   onPageChange?: (page: number) => void;
 }
 
@@ -30,17 +46,21 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   onPageChange,
 }) => {
 
-
-  const columns: TableProps<ListagemPortariasResponse>['columns'] = [
-    { title: 'PORTARIA', dataIndex: 'portaria', key: 'portaria' },
-    { title: 'TIPO DE ATO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
-    { title: 'NOME', dataIndex: 'nome', key: 'nome' },
-    { title: 'CARGO', dataIndex: 'cargo', key: 'cargo' },
-    { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string | null) => formatDate(text) },
-    { title: 'DATA DA DESIGNAÇÃO', dataIndex: 'data_designacao', key: 'data_designacao', render: (text: string | null) => formatDate(text) },
-    { title: 'DATA DA CESSAÇÃO', dataIndex: 'data_cessacao', key: 'data_cessacao', render: (text: string | null) => formatDate(text) },
-    { title: 'Nº SEI', dataIndex: 'numero_sei', key: 'numero_sei' }
+  const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
+    { title: 'TIPO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
+    { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
+    { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
+    { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
+    { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
+    { title: 'Responsável', dataIndex: 'responsavel', key: 'responsavel', render: () => <span >-</span> },
+    {
+      title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) =>
+        TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status'),
+    }
   ];
+
+
+
   return (
     <div className="flex flex-col gap-1 bg-white  ">
       <div className="py-8">
@@ -51,37 +71,31 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       </div>
 
       <div className="w-full pb-2">
-        <Table<ListagemPortariasResponse>
+        <Table<ListagemAtosAdministrativosResponse>
           className="tabela-principal w-full"
           scroll={{ x: '100%' }}
           loading={isLoading}
           columns={columns}
           dataSource={data}
           rowKey={(record) => record.id.toString()}
-          pagination={{
-            current: 1,
-            pageSize: 10,
-            total: data.length,
-            showSizeChanger: false,                        
-          }}
+          pagination={false}
         />
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
 
-<div className="flex items-center justify-center gap-16 py-3">
-            <span className="text-sm text-[#555]">
-              Total: <strong>{total}</strong>
-            </span>
 
-            <Pagination
-              current={page}
-              pageSize={10}
-              total={total}
-              showSizeChanger={false}
-              onChange={onPageChange}
-            />
-          </div>
+          <MostrarRegistros page={page} total={total} />
 
- 
-      
+          <Pagination
+            current={page}
+            pageSize={10}
+            total={total}
+            showSizeChanger={false}
+            onChange={onPageChange}
+            itemRender={itemRender}
+          />
+
+        </div>
+
       </div>
     </div>
   );
