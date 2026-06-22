@@ -1,9 +1,17 @@
 'use client'
-import { Pagination, Table, Tag } from 'antd';
+import { Dropdown, Pagination, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
 import { formatarDataHora } from '@/lib/utils';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
+import { MenuProps } from 'antd/lib/menu';
+import { MoreOutlined, } from '@ant-design/icons';
+
+import Editar from '@/assets/icons/Editar';
+import Apostilar from '@/assets/icons/Apostilar';
+import Cancelar from '@/assets/icons/Cancelar';
+import DocumentoErro from '@/assets/icons/DocumentoErro';
+import Delete from '@/assets/icons/Delete';
 
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]: { color: '#B22B2A', name: 'Não publicado' },
@@ -46,6 +54,53 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   onPageChange,
 }) => {
 
+
+  const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
+
+    {
+      key: '1',
+      label: 'Editar',
+      icon: <Editar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+    {
+      key: '2',
+      label: 'Apostilar',
+      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+    {
+      key: '3',
+      label: 'Cessar',
+      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+    {
+      key: '4',
+      label: 'Tornar insubsistente',
+      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+    
+    {
+      key: '5',
+      label: 'Excluir',
+      icon: <Delete width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+  ];
+
+  
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
     { title: 'TIPO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
@@ -56,14 +111,35 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     {
       title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) =>
         TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status'),
-    }
+    },
+    {
+      title: '',
+      key: 'action',
+      width: 50,
+      render: (_, record) => (
+        <div>
+          <Dropdown
+            menu={{
+              items: getItems(record),
+            }}
+            trigger={['click']}
+          >
+            <div>
+              <MoreOutlined color='#000000'/>
+            </div>
+          </Dropdown>
+        </div>
+      ),
+    },
   ];
+
+ 
 
 
 
   return (
     <div className="flex flex-col gap-1 bg-white  ">
-      <div className="py-8">
+      <div className="pb-8">
 
         <p className="text-[20px] font-bold pt-1 pb-1">Lista de atos administrativos</p>
         <p className="text-[14px] font-normal pt-1 ">Aqui você encontra todos os atos administrativos realizados no sistema. Clique sobre ele para consultar mais detalhes e realize alterações ou novos registros vinculados a um ato já existente.</p>

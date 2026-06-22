@@ -1,10 +1,8 @@
 "use client";
 
 
-import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
-import { FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import Designacao from "@/assets/icons/Designacao";
 import { Dropdown } from "antd";
@@ -18,13 +16,9 @@ import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 
 export default function AtosAdministrativos() {
   const {
-    handleClear,
     isPending,
     tabelaKey,
     resultado,
-    filterForm,
-    onSubmitFilterForm,
-    salvando,
     onPageChange,
     page
   } = useAtosAdministrativos();
@@ -49,7 +43,7 @@ export default function AtosAdministrativos() {
                 label: 'Nova designação',
                 icon: <Designacao width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("clicar");
+                  console.log("Nova designação");
                 },
               },
               {
@@ -57,7 +51,7 @@ export default function AtosAdministrativos() {
                 label: 'Nova cessação',
                 icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("clicar");
+                  console.log("Nova cessação");  
                 },
               },
               {
@@ -65,7 +59,7 @@ export default function AtosAdministrativos() {
                 label: 'Tornar insubsistente',
                 icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("clicar");
+                  console.log("Tornar insubsistente");
                 },
               },
               {
@@ -73,7 +67,7 @@ export default function AtosAdministrativos() {
                 label: 'Nova apostila',
                  icon: <Editar width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("clicar");
+                  console.log("Nova apostila");  
                 },
               },
               {
@@ -81,7 +75,7 @@ export default function AtosAdministrativos() {
                 label: 'Anular apostila',
                 icon: <Delete width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("clicar");
+                  console.log("Anular apostila");
                 },
               },
             ]
@@ -98,16 +92,8 @@ export default function AtosAdministrativos() {
         }
       />
 
-      <FBranco className="mb-4">
-        <FormProvider {...filterForm}>
-          <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-            <FiltroDeDo onClear={handleClear} />
-          </form>
-        </FormProvider>
-      </FBranco>
 
       <FBranco className="mb-4">
-
         <ListagemDeAtosAdministrativos
           isLoading={isPending}
           data={resultado?.results ?? []}                       
