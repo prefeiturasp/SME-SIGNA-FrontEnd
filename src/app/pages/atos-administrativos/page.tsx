@@ -13,6 +13,9 @@ import QBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { Button } from "@/components/ui/button";
 import Designacao from "@/assets/icons/Designacao";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
+import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
+import { FormProvider } from "react-hook-form";
+import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
 
 export default function AtosAdministrativos() {
   const {
@@ -20,7 +23,10 @@ export default function AtosAdministrativos() {
     tabelaKey,
     resultado,
     onPageChange,
-    page
+    page,
+    filterForm,
+    onSubmitFilterForm,
+    handleClear,
   } = useAtosAdministrativos();
 
 
@@ -54,7 +60,7 @@ export default function AtosAdministrativos() {
                   console.log("Nova designação");
                 },
               },
-              
+
               {
                 key: '3',
                 label: 'Tornar insubsistente',
@@ -70,7 +76,7 @@ export default function AtosAdministrativos() {
                 onClick: () => {
                   console.log("Nova cessação");
                 },
-              },              
+              },
               {
                 key: '5',
                 label: 'Anular apostila',
@@ -93,7 +99,14 @@ export default function AtosAdministrativos() {
         }
       />
 
-
+      <FundoBranco className="mb-4">
+        <FormProvider {...filterForm}>
+          <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
+            <FiltroDeDo onClear={handleClear} />
+          </form>
+        </FormProvider>
+      </FundoBranco>
+      
       <QBranco className="mb-4">
         <ListagemDeAtosAdministrativos
           onPageChange={onPageChange}
