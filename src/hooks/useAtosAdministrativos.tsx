@@ -72,24 +72,16 @@ export function useAtosAdministrativos() {
    
 
   const handleClear = () => {
-    filterForm.reset({
+    const values = {
       ano: new Date().getFullYear().toString(),
       tipo: "",
       portaria_final: "",
       portaria_inicial: "",
       numero_sei: "",
-    });
+    };
+    filterForm.reset(values);
 
-    buscar(
-      {
-        ano: new Date().getFullYear().toString(),
-        portaria_final: "",
-        portaria_inicial: "",
-        numero_sei: "",
-        tipo: "",
-      },
-
-    );
+    buscar(values);
   };
 
 
