@@ -86,30 +86,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
 
       <div className="w-full flex gap-4">
       <div className="w-[50%]">
-          <FormField
-            control={control}
-            name="tipo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#313131] font-bold">Listar para</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-                    <SelectTrigger data-testid="select-listar-para">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {listarParaOpcoes.map((item) => (
-                        <SelectItem key={item.codigo} value={item.codigo}>
-                          {item.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+         
         </div>
         <div className="w-[50%]">
           <SelectAnoField name="ano" label="Ano" opcoes={opcoesAno} />
