@@ -1,7 +1,6 @@
 
 import { InputField } from '@/components/ui/FieldsForm';
 import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SelectAnoField } from '@/components/ui/SelectAnoField';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -89,22 +88,11 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
           <FormField
             control={control}
             name="tipo"
-            render={({ field }) => (
+            render={({ }) => (
               <FormItem>
                 <FormLabel className="text-[#313131] font-bold">Listar para</FormLabel>
                 <FormControl>
-                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-                    <SelectTrigger data-testid="select-listar-para">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {listarParaOpcoes.map((item) => (
-                        <SelectItem key={item.codigo} value={item.codigo}>
-                          {item.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+   
                 </FormControl>
                 <FormMessage />
               </FormItem>
