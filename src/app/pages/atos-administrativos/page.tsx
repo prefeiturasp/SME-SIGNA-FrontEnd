@@ -14,7 +14,7 @@ import Designacao from "@/assets/icons/Designacao";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
+import FiltroDeATosAdministrativos from "@/components/dashboard/Designacao/FiltroDeATosAdministrativos/FiltroDeATosAdministrativos";
 
 export default function AtosAdministrativos() {
   const {
@@ -101,7 +101,7 @@ export default function AtosAdministrativos() {
       <FundoBranco className="mb-4">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-            <FiltroDeDo onClear={handleClear} />
+            <FiltroDeATosAdministrativos onClear={handleClear} />
           </form>
         </FormProvider>
       </FundoBranco>

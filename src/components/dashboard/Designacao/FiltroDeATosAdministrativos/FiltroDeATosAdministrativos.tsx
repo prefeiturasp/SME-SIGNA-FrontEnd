@@ -29,7 +29,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
   const listarParaOpcoes = [{
     codigo: 'DESIGNACAO_CESSACAO',
     nome: 'Cargos (Designação / Cessação)',
-  }]
+  }]  
 
   const anoAtual = new Date().getFullYear();
   const opcoesAno = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }));
