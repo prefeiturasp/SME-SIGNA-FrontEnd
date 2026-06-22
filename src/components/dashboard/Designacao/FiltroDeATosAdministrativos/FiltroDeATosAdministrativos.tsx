@@ -17,22 +17,24 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
 
 
   const watchedValues = watch([
+    "ano",
+    "tipo",
+    "portaria_final",
     "numero_sei",
     "portaria_inicial",
-    "portaria_final",
-    "ano",
-    "tipo"
+    
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
+
+
+  const anoAtual = new Date().getFullYear();
+  const opcoesAno = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }));
 
   const listarParaOpcoes = [{
     codigo: 'DESIGNACAO_CESSACAO',
     nome: 'Cargos (Designação / Cessação)',
   }]  
-
-  const anoAtual = new Date().getFullYear();
-  const opcoesAno = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }));
 
   return (
     <>
@@ -42,19 +44,8 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
 
       <div className="w-full flex gap-4">
         <div className="w-[33%]">
-          <InputField
-            register={register}
-            control={control}
-            name="numero_sei"
-            label="Nº SEI da lauda definitiva"
-            placeholder="0000.0000/0000000-0"
-            mask="9999.9999/9999999-9"
-            data-testid="input-numero_sei"
-            type="string"
-          />
-        </div>
-        <div className="w-[34%]">
-          <InputField
+          
+        <InputField
             register={register}
             control={control}
             name="portaria_inicial"
@@ -64,8 +55,8 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
             type="text"
           />
         </div>
-        <div className="w-[33%]">
-          <InputField
+        <div className="w-[34%]">
+        <InputField
             register={register}
             control={control}
             name="portaria_final"
@@ -75,15 +66,26 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
             type="text"
           />
         </div>
+        <div className="w-[33%]">
+          
+        <InputField
+            register={register}
+            control={control}
+            name="numero_sei"
+            label="Nº SEI da lauda definitiva"
+            placeholder="0000.0000/0000000-0"
+            mask="9999.9999/9999999-9"
+            data-testid="input-numero_sei"
+            type="string"
+          />
+          
+        </div>
       </div>
 
 
 
       <div className="w-full flex gap-4">
-        <div className="w-[50%]">
-          <SelectAnoField name="ano" label="Ano" opcoes={opcoesAno} />
-        </div>
-        <div className="w-[50%]">
+      <div className="w-[50%]">
           <FormField
             control={control}
             name="tipo"
@@ -109,6 +111,10 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
             )}
           />
         </div>
+        <div className="w-[50%]">
+          <SelectAnoField name="ano" label="Ano" opcoes={opcoesAno} />
+        </div>
+     
 
       </div>
 
