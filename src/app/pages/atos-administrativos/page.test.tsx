@@ -6,12 +6,23 @@ import AtosAdministrativos from "./page";
 const listagemSpy = vi.fn();
 const pageHeaderSpy = vi.fn();
 const hookSpy = vi.fn();
+const filtroSpy = vi.fn();
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
 const onPageChangeMock = vi.fn();
+const onSubmitFilterFormMock = vi.fn();
+const handleClearMock = vi.fn();
+const handleSubmitMock = vi.fn((callback: (...args: any[]) => unknown) => (event?: Event) => {
+  callback();
+  event?.preventDefault();
+});
 
 vi.mock("@/hooks/useAtosAdministrativos", () => ({
   useAtosAdministrativos: () => hookSpy(),
+}));
+
+vi.mock("react-hook-form", () => ({
+  FormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -44,6 +55,13 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/Listage
         <button onClick={() => props.onPageChange?.(9)}>mudar pagina</button>
       </div>
     );
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo", () => ({
+  default: ({ onClear }: { onClear: () => void }) => {
+    filtroSpy({ onClear });
+    return <button onClick={onClear}>limpar filtro</button>;
   },
 }));
 
@@ -92,6 +110,11 @@ describe("Página de atos administrativos", () => {
       resultado: undefined,
       onPageChange: onPageChangeMock,
       page: 1,
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
     });
   });
 
@@ -101,7 +124,7 @@ describe("Página de atos administrativos", () => {
     expect(screen.getByTestId("page-header-title")).toHaveTextContent("Atos administrativos");
     expect(screen.getByTestId("botao-proximo")).toHaveTextContent("Novo ato");
     expect(screen.getByTestId("icon-plus")).toBeInTheDocument();
-    expect(screen.getByTestId("quadro-branco")).toBeInTheDocument();
+    expect(screen.getAllByTestId("quadro-branco")).toHaveLength(2);
 
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("0");
     expect(screen.getByTestId("list-total")).toHaveTextContent("0");
@@ -124,6 +147,11 @@ describe("Página de atos administrativos", () => {
       },
       onPageChange: onPageChangeMock,
       page: 4,
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
     });
 
     render(<AtosAdministrativos />);
