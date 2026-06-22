@@ -75,7 +75,6 @@ describe("useAtosAdministrativos", () => {
       });
     });
 
-    expect(triggerMock).toHaveBeenCalledWith(["portaria_inicial", "portaria_final"]);
     await waitFor(() => {
       expect(result.current.resultado).toEqual({
         count: 1,

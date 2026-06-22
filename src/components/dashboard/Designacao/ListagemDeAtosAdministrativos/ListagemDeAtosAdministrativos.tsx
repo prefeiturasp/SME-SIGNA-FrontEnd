@@ -1,11 +1,11 @@
 'use client'
-import { Dropdown, Pagination, Table, Tag } from 'antd';
-import type { TableProps } from 'antd';
+import { MenuProps } from 'antd/lib/menu';
+import { MoreOutlined } from '@ant-design/icons';
 import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
 import { formatarDataHora } from '@/lib/utils';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { MenuProps } from 'antd/lib/menu';
-import { MoreOutlined, } from '@ant-design/icons';
+import { Dropdown, Pagination, Table, Tag } from 'antd';
+import type { TableProps } from 'antd';
 
 import Editar from '@/assets/icons/Editar';
 import Apostilar from '@/assets/icons/Apostilar';
@@ -14,8 +14,15 @@ import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
 
 const NameColorStatusAtosAdministrativos = {
-  [StatusAtosAdministrativos.NAO_PUBLICADO]: { color: '#B22B2A', name: 'Não publicado' },
-  [StatusAtosAdministrativos.PUBLICADO]: { color: '#10A957', name: 'Publicado' },
+  [StatusAtosAdministrativos.NAO_PUBLICADO]:
+  {
+    color: '#B22B2A',
+    name: 'Não publicado'
+  },
+  [StatusAtosAdministrativos.PUBLICADO]: {
+    color: '#10A957',
+    name: 'Publicado'
+  },
 };
 
 const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefined, key: string) => {
@@ -23,14 +30,20 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
 
   if (!config) {
     return (
-      <Tag className='rounded-full' key={key} color='#9E9E9E' >
+      <Tag
+        className='rounded-full'
+        key={key}
+        color='#9E9E9E' >
         INDISPONÍVEL
       </Tag>
     );
   }
 
   return (
-    <Tag className='rounded-full' color={config.color} key={key} >
+    <Tag
+      className='rounded-full'
+      color={config.color}
+      key={key} >
       {config.name}
     </Tag>
   );
@@ -47,10 +60,10 @@ interface ListagemDeAtosAdministrativosProps {
 }
 
 const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps> = ({
-  data,
-  isLoading = false,
   total,
   page,
+  data,
+  isLoading = false,
   onPageChange,
 }) => {
 
@@ -89,7 +102,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         console.log("clicar");
       },
     },
-    
+
     {
       key: '5',
       label: 'Excluir',
@@ -100,7 +113,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ];
 
-  
+
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
     { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
@@ -125,7 +138,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
             trigger={['click']}
           >
             <div>
-              <MoreOutlined color='#000000'/>
+              <MoreOutlined color='#000000' />
             </div>
           </Dropdown>
         </div>
@@ -133,7 +146,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ];
 
- 
+
 
 
 

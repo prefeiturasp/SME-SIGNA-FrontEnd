@@ -25,7 +25,7 @@ export const itemRender: PaginationProps['itemRender'] = (_, type, originalEleme
 
 export const MostrarRegistros = ({page, total}: {page: number, total: number}) => {
   const de = (page - 1) * 10 + 1;
-  const ate = total > page * 10 ? page * 10 : total;
+  const ate = Math.min(total, page * 10);
   return (
     <span className="text-sm text-[#555]">
       <strong> Mostrando {de}-{ate} de {total} registro(s)</strong>

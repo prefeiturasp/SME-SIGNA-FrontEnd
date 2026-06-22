@@ -16,9 +16,7 @@ export function useAtosAdministrativos() {
   const [page, setPage] = useState(1);
 
 
-  const onPageChange = (newPage: number) => {
-    buscar(filterForm.getValues(), newPage);
-  };
+
   const filterForm = useForm<filterFormSchemaFiltroDOData>({
     resolver: zodResolver(filterFormSchemaFiltroDO),
     defaultValues: {
@@ -32,13 +30,10 @@ export function useAtosAdministrativos() {
   });
 
 
-  const portariaInicial = filterForm.watch("portaria_inicial");
-  const portariaFinal = filterForm.watch("portaria_final");
-
-  useEffect(() => {
-    filterForm.trigger(["portaria_inicial", "portaria_final"]);
-  }, [portariaInicial, portariaFinal, filterForm]);
-
+  const onPageChange = (newPage: number) => {
+    buscar(filterForm.getValues(), newPage);
+  };
+  
   const generateDesignacaoFiltros = (
     values: filterFormSchemaFiltroDOData
   ) => {
@@ -98,15 +93,19 @@ export function useAtosAdministrativos() {
   };
 
 
-  useEffect(() => {
-    buscar(filterForm.getValues());
-  }, []);
-
   const onSubmitFilterForm = (values: filterFormSchemaFiltroDOData) => {
     buscar(values, 1);
   };
 
+  useEffect(() => {
+    buscar(filterForm.getValues());
+  }, []);
+
+
   return {
+    handleClear,
+    onPageChange,
+    page,
     resultado,
     salvando,
     setSalvando,
@@ -117,8 +116,6 @@ export function useAtosAdministrativos() {
     buscar,
     buscarAtosAdministrativos,
     onSubmitFilterForm,
-    handleClear,
-    onPageChange,
-    page,
+
   };
 }
