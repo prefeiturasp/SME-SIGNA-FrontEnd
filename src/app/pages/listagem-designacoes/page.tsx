@@ -5,7 +5,6 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Button } from "@/components/ui/button";
 import Designacao from "@/assets/icons/Designacao";
-import FiltroDeDesignacoes from "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,6 +23,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 import { toast } from "@/components/ui/headless-toast";
+import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
 
 export default function DesignacoesPasso1() {
   const [resultado, setResultado] = useState<DesignacaoPaginada | null>(null);
@@ -225,7 +225,7 @@ export default function DesignacoesPasso1() {
       <FundoBranco className="mb-4">
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FiltroDeDesignacoes onClear={handleClear} />
+            <FiltroDeDo onClear={handleClear} />
           </form>
         </FormProvider>
       </FundoBranco>
