@@ -1,9 +1,9 @@
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AtosAdministrativosPaginada, ListagemPortariasResponse, PortariasDOFiltros } from "@/types/designacao";
+import { AtosAdministrativosFiltros, AtosAdministrativosPaginada } from "@/types/designacao";
 import filterFormSchemaFiltroDO, { filterFormSchemaFiltroDOData } from "../components/dashboard/Designacao/FiltroDeDo/filterFormSchemaFiltroDO";
-import { fetchAtosAdministrativos, fetchPortariasDO } from "@/actions/designacao";
+import { fetchAtosAdministrativos } from "@/actions/designacao";
 
 
 
@@ -13,7 +13,6 @@ export function useAtosAdministrativos() {
   const [salvando, setSalvando] = useState(false); 
   const [tabelaKey, setTabelaKey] = useState(0);
   const [isPending, startTransition] = useTransition();
-  console.log("resultado", resultado);
   const [page, setPage] = useState(1);
 
 
@@ -53,8 +52,8 @@ export function useAtosAdministrativos() {
     };
   };
 
-  const buscarPortarias = async (
-    values: PortariasDOFiltros,
+  const buscarAtosAdministrativos = async (
+    values: AtosAdministrativosFiltros,
     page?: number,
   ) => {
     const filtros = {
@@ -63,12 +62,12 @@ export function useAtosAdministrativos() {
      return fetchAtosAdministrativos({ ...filtros, page: page ?? 1 });
   };
 
-  const buscar = (values: PortariasDOFiltros, page = 1) => {
+  const buscar = (values: AtosAdministrativosFiltros, page = 1) => {
     startTransition(async () => {
-      const response = await buscarPortarias(values, page);
-      if (response.success) {
-        setResultado(response.data);
+      const response = await buscarAtosAdministrativos(values, page);
+      if (response.success) {        
         setPage(page);
+        setResultado(response.data);
       } else {
         console.error(response.error);
       }
@@ -116,7 +115,7 @@ export function useAtosAdministrativos() {
     isPending,
     filterForm,
     buscar,
-    buscarPortarias,
+    buscarAtosAdministrativos,
     onSubmitFilterForm,
     handleClear,
     onPageChange,

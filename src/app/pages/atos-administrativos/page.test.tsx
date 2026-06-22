@@ -1,238 +1,157 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import AlterarDataDoPage from "./page";
-import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
+import AtosAdministrativos from "./page";
 
-const pushMock = vi.fn();
-const fetchPortariasDOMock = vi.fn();
-const mutateAsyncMock = vi.fn();
-const messageLoadingMock = vi.fn();
-const messageDestroyMock = vi.fn();
-const filterResetMock = vi.fn();
-const filterTriggerMock = vi.fn().mockResolvedValue(true);
+const listagemSpy = vi.fn();
+const pageHeaderSpy = vi.fn();
+const hookSpy = vi.fn();
+const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
-const selectedRowsMock = [
-  {
-    id: 1,
-    portaria: "100",
-    doc: "DOC",
-    tipo_de_ato: "DESIGNACAO_CESSACAO",
-    nome: "Servidor A",
-    cargo: "Diretor",
-    data_designacao: "",
-    data_cessacao: "",
-    numero_sei: "SEI-1",  
-  },
-];
+const onPageChangeMock = vi.fn();
 
-let filterValues = {
-  numero_sei: "",
-  portaria_inicial: "",
-  portaria_final: "",
-  ano: "2026",
-  tipo: "",
-};
-
-let mainValues = {
-  portarias_selecionadas: PORTARIAS_SEM_DATA_DE_PUBLICACAO,
-  data_considerada_portaria: undefined as Date | undefined,
-  data_publicacao: new Date("2026-05-20T00:00:00.000Z"),
-};
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
-}));
-
-vi.mock("@/actions/designacao", () => ({
-  fetchPortariasDO: (...args: unknown[]) => fetchPortariasDOMock(...args),
-}));
-
-vi.mock("@/hooks/useSalvarPortariasDO", () => ({
-  useSalvarPortariasDo: () => ({
-    mutateAsync: (...args: unknown[]) => mutateAsyncMock(...args),
-  }),
-}));
-
-vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: () => () => ({}),
-}));
-
-vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
-
-  return {
-    ...actual,
-    useForm: (options?: { defaultValues?: Record<string, unknown> }) => {
-      const isMainForm = Boolean(options?.defaultValues?.portarias_selecionadas);
-
-      if (isMainForm) {
-        return {
-          handleSubmit: (fn: (values: typeof mainValues) => void) => (e?: Event) => {
-            e?.preventDefault?.();
-            fn(mainValues);
-          },
-          control: {},
-          watch: (field: keyof typeof mainValues) => mainValues[field],
-          getValues: () => mainValues,
-          reset: vi.fn(),
-          trigger: vi.fn().mockResolvedValue(true),
-          formState: { errors: {} },
-        };
-      }
-
-      return {
-        handleSubmit: (fn: (values: typeof filterValues) => void) => (e?: Event) => {
-          e?.preventDefault?.();
-          fn(filterValues);
-        },
-        control: {},
-        watch: (field: keyof typeof filterValues) => filterValues[field],
-        getValues: () => filterValues,
-        reset: filterResetMock,
-        trigger: filterTriggerMock,
-        formState: { errors: {} },
-      };
-    },
-    FormProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  };
-});
-
-vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+vi.mock("@/hooks/useAtosAdministrativos", () => ({
+  useAtosAdministrativos: () => hookSpy(),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
+  default: (props: any) => {
+    pageHeaderSpy(props);
+    return (
+      <header>
+        <span data-testid="page-header-title">{props.title}</span>
+        {props.createButton}
+      </header>
+    );
+  },
 }));
 
-vi.mock("@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo", () => ({
-  __esModule: true,
-  default: ({ onClear }: { onClear?: () => void }) => (
-    <div>
-      <button type="button" data-testid="clear-filters" onClick={onClear}>
-        Limpar
-      </button>
-      <button data-testid="submit-filters" type="submit">
-        Pesquisar
-      </button>
-    </div>
+vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
+  default: ({ children }: { children: React.ReactNode }) => (
+    <section data-testid="quadro-branco">{children}</section>
   ),
 }));
 
-vi.mock("@/components/dashboard/Designacao/MainDOForm/MainDOForm", () => ({
-  __esModule: true,
-  PORTARIAS_SEM_DATA_DE_PUBLICACAO: 1,
-  default: () => <div data-testid="main-do-form">Main DO Form</div>,
-}));
-
-vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
-  __esModule: true,
-  default: ({
-    onClickBaixarLauda,
-    isDisabled,
-  }: {
-    onClickBaixarLauda?: (rows: typeof selectedRowsMock, tipoArquivo: string) => void;
-    isDisabled?: boolean;
-  }) => (
-    <div>
-      <span data-testid="is-disabled-listagem">{String(isDisabled)}</span>
-      <button data-testid="submit-main-action" onClick={() => onClickBaixarLauda?.(selectedRowsMock, "PDF")}>
-        Alterar data
-      </button>
-    </div>
-  ),
+vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos", () => ({
+  default: (props: any) => {
+    listagemSpy(props);
+    return (
+      <div>
+        <span data-testid="list-data-length">{props.data.length}</span>
+        <span data-testid="list-total">{props.total}</span>
+        <span data-testid="list-page">{props.page}</span>
+        <span data-testid="list-loading">{String(props.isLoading)}</span>
+        <button onClick={() => props.onPageChange?.(9)}>mudar pagina</button>
+      </div>
+    );
+  },
 }));
 
 vi.mock("antd", () => ({
-  message: {
-    loading: (...args: unknown[]) => messageLoadingMock(...args),
-    destroy: (...args: unknown[]) => messageDestroyMock(...args),
-  },
-  Modal: ({
-    open,
+  Dropdown: ({
     children,
+    menu,
   }: {
-    open: boolean;
     children: React.ReactNode;
-  }) => (open ? <div>{children}</div> : null),
-  Result: ({
-    title,
-    subTitle,
-    extra,
-  }: {
-    title: string;
-    subTitle?: string;
-    extra?: React.ReactNode;
+    menu?: { items?: Array<{ key: string; label?: React.ReactNode; onClick?: () => void }> };
   }) => (
     <div>
-      <p>{title}</p>
-      {subTitle ? <p>{subTitle}</p> : null}
-      {extra}
+      {children}
+      {menu?.items?.map((item) => (
+        <button key={item.key} data-testid={`menu-item-${item.key}`} onClick={item.onClick}>
+          {item.label}
+        </button>
+      ))}
     </div>
   ),
 }));
 
-describe("AlterarDataDo page", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.clearAllTimers();
-  });
+vi.mock("@/components/ui/button", () => ({
+  Button: ({
+    children,
+    ...rest
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => <button {...rest}>{children}</button>,
+}));
 
+vi.mock("@/assets/icons/Designacao", () => ({ default: () => <span data-testid="icon-designacao" /> }));
+vi.mock("@/assets/icons/Cancelar", () => ({ default: () => <span data-testid="icon-cancelar" /> }));
+vi.mock("@/assets/icons/DocumentoErro", () => ({ default: () => <span data-testid="icon-documento-erro" /> }));
+vi.mock("@/assets/icons/Editar", () => ({ default: () => <span data-testid="icon-editar" /> }));
+vi.mock("@/assets/icons/Delete", () => ({ default: () => <span data-testid="icon-delete" /> }));
+vi.mock("@/assets/icons/Plus", () => ({ default: () => <span data-testid="icon-plus" /> }));
+
+describe("Página de atos administrativos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    filterValues = {
-      numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
-      ano: "2026",
-      tipo: "",
-    };
-
-    mainValues = {
-      portarias_selecionadas: PORTARIAS_SEM_DATA_DE_PUBLICACAO,
-      data_considerada_portaria: undefined,
-      data_publicacao: new Date("2026-05-20T00:00:00.000Z"),
-    };
-
-    fetchPortariasDOMock.mockResolvedValue({
-      success: true,
-      data: selectedRowsMock,
+    hookSpy.mockReturnValue({
+      isPending: false,
+      tabelaKey: 0,
+      resultado: undefined,
+      onPageChange: onPageChangeMock,
+      page: 1,
     });
   });
 
-  it("busca portarias na carga inicial com filtros padrão", async () => {
-    render(<AlterarDataDoPage />);
+  it("renderiza com fallback quando resultado não existe", () => {
+    render(<AtosAdministrativos />);
 
-    await waitFor(() => {
-      expect(fetchPortariasDOMock).toHaveBeenCalledWith({
-        numero_sei: "",
-        portaria_inicial: "",
-        portaria_final: "",
-        ano: "2026",
-        tipo: "",
-      });
-    });
+    expect(screen.getByTestId("page-header-title")).toHaveTextContent("Atos administrativos");
+    expect(screen.getByTestId("botao-proximo")).toHaveTextContent("Novo ato");
+    expect(screen.getByTestId("icon-plus")).toBeInTheDocument();
+    expect(screen.getByTestId("quadro-branco")).toBeInTheDocument();
 
-    expect(screen.getByRole("heading", { name: "Baixar lauda" })).toBeInTheDocument();
+    expect(screen.getByTestId("list-data-length")).toHaveTextContent("0");
+    expect(screen.getByTestId("list-total")).toHaveTextContent("0");
+    expect(screen.getByTestId("list-page")).toHaveTextContent("1");
+    expect(screen.getByTestId("list-loading")).toHaveTextContent("false");
+
+    expect(pageHeaderSpy).toHaveBeenCalledTimes(1);
+    const props = pageHeaderSpy.mock.calls[0][0];
+    expect(props.showBackButton).toBe(false);
+    expect(props.breadcrumbs).toEqual([{ title: "Início", href: "/" }]);
   });
 
-  it("limpa filtros e busca novamente ao executar onClear", async () => {
-    filterValues.numero_sei = "1111.1111/1111111-1";
-    render(<AlterarDataDoPage />);
-
-    fireEvent.click(screen.getByTestId("clear-filters"));
-
-    expect(filterResetMock).toHaveBeenCalled();
-    await waitFor(() => {
-      expect(fetchPortariasDOMock).toHaveBeenCalledTimes(2);
+  it("passa dados do hook para a listagem e mantém callback de paginação", () => {
+    hookSpy.mockReturnValue({
+      isPending: true,
+      tabelaKey: 7,
+      resultado: {
+        count: 2,
+        results: [{ id: 1 }, { id: 2 }],
+      },
+      onPageChange: onPageChangeMock,
+      page: 4,
     });
+
+    render(<AtosAdministrativos />);
+
+    expect(screen.getByTestId("list-data-length")).toHaveTextContent("2");
+    expect(screen.getByTestId("list-total")).toHaveTextContent("2");
+    expect(screen.getByTestId("list-page")).toHaveTextContent("4");
+    expect(screen.getByTestId("list-loading")).toHaveTextContent("true");
+
+    fireEvent.click(screen.getByText("mudar pagina"));
+    expect(onPageChangeMock).toHaveBeenCalledWith(9);
+
+    expect(listagemSpy).toHaveBeenCalledTimes(1);
   });
 
-   
+  it("executa ações dos itens do menu de novo ato", () => {
+    render(<AtosAdministrativos />);
 
-  
+    fireEvent.click(screen.getByTestId("menu-item-1"));
+    fireEvent.click(screen.getByTestId("menu-item-2"));
+    fireEvent.click(screen.getByTestId("menu-item-3"));
+    fireEvent.click(screen.getByTestId("menu-item-4"));
+    fireEvent.click(screen.getByTestId("menu-item-5"));
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("Nova designação");
+    expect(consoleLogSpy).toHaveBeenCalledWith("Nova cessação");
+    expect(consoleLogSpy).toHaveBeenCalledWith("Tornar insubsistente");
+    expect(consoleLogSpy).toHaveBeenCalledWith("Nova apostila");
+    expect(consoleLogSpy).toHaveBeenCalledWith("Anular apostila");
+  });
 });

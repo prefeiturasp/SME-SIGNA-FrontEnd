@@ -55,7 +55,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 }) => {
 
 
-  const getItems = (record: ListagemDesignacoesResponse): MenuProps['items'] => [
+  const getItems = (): MenuProps['items'] => [
 
     {
       key: '1',
@@ -116,11 +116,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       title: '',
       key: 'action',
       width: 50,
-      render: (_, record) => (
+      render: () => (
         <div>
           <Dropdown
             menu={{
-              items: getItems(record),
+              items: getItems(),
             }}
             trigger={['click']}
           >
