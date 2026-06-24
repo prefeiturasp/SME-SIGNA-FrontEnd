@@ -2,8 +2,8 @@ import { z } from "zod";
  
 export const filterFormSchemaFiltroAtosAdministrativos = z
   .object({
-      numero_sei: z.string().optional(),
-     tipo: z.string().optional(),
+    numero_sei: z.string().optional(),
+    tipo: z.string().optional(),
     portaria: z.string().optional(),
     nome_titular_e_indicado: z.string().optional(),
     status_publicacao: z.string().optional(), 
@@ -16,6 +16,7 @@ export const filterFormSchemaFiltroAtosAdministrativos = z
       })
       .nullable()
       .optional(),
+    rf: z.string().optional(),
    });
    
 export type filterFormSchemaFiltroAtosAdministrativosData = z.infer<typeof filterFormSchemaFiltroAtosAdministrativos>;

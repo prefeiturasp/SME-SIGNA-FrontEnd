@@ -16,7 +16,6 @@ export function useAtosAdministrativos() {
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
 
-  // console.log("resultado", resultado);
   const defaultValues = {
     tipo: "",
     portaria: "",
@@ -26,6 +25,7 @@ export function useAtosAdministrativos() {
     periodo: undefined,
     periodo_after: "",
     periodo_before: "",
+    rf: "",
   };
   const filterForm = useForm<filterFormSchemaFiltroAtosAdministrativosData>({
     resolver: zodResolver(filterFormSchemaFiltroAtosAdministrativos),
