@@ -52,16 +52,16 @@ export default function AtosAdministrativos() {
                 },
               },
               {
-                key: '3',
-                label: 'Nova cessação',
                 icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+                label: 'Nova cessação',
                 onClick: () => {
-                  console.log("Nova cessação");
+                  console.log("cessação new");
                 },
+                key: '3',                                             
               },
-              {
-                key: '4',
+              {                
                 label: 'Tornar insubsistente',
+                key: '4',
                 icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
                   console.log("Tornar insubsistente");
