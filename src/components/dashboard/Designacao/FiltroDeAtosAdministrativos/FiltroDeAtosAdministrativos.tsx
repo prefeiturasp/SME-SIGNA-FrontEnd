@@ -34,13 +34,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
     "periodo",
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
-
-
-
-  const periodo = watchedValues[5];
-  // console.log("periodo", periodo);
-
-
+  
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>

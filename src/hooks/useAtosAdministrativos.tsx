@@ -24,6 +24,8 @@ export function useAtosAdministrativos() {
     nome_titular_e_indicado: "",
     status_publicacao: "",
     periodo: undefined,
+    periodo_after: "",
+    periodo_before: "",
   };
   const filterForm = useForm<filterFormSchemaFiltroAtosAdministrativosData>({
     resolver: zodResolver(filterFormSchemaFiltroAtosAdministrativos),
