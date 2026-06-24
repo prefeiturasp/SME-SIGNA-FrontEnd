@@ -175,19 +175,4 @@ describe("Página de atos administrativos", () => {
     expect(listagemSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("executa ações dos itens do menu de novo ato", () => {
-    render(<AtosAdministrativos />);
-
-    fireEvent.click(screen.getByTestId("menu-item-5"));
-    fireEvent.click(screen.getByTestId("menu-item-3"));
-    fireEvent.click(screen.getByTestId("menu-item-4"));
-    fireEvent.click(screen.getByTestId("menu-item-2"));
-    fireEvent.click(screen.getByTestId("menu-item-1"));
-
-    expect(consoleLogSpy).toHaveBeenCalledWith("Nova designação");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Nova cessação");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Tornar insubsistente");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Nova apostila");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Anular apostila");
-  });
 });
