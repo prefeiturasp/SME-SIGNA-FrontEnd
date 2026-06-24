@@ -25,6 +25,12 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
     { codigo: 'APOSTILA_CESSACAO', nome: 'Apostila de Cessação' },
   ]
 
+
+  const StatusPublicacaoOpcoes = [
+    { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: 'Aguardando publicação' },
+    { codigo: StatusAtosAdministrativos.PUBLICADO, nome: 'Publicado' },
+  ]
+
   const watchedValues = watch([
     "tipo",
     "portaria",
@@ -149,9 +155,9 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(StatusAtosAdministrativos).map((item: StatusAtosAdministrativos) => (
-                        <SelectItem key={item} value={item.toString()}>
-                          {item.toString().replace('_', ' ')}
+                      {StatusPublicacaoOpcoes.map((item) => (
+                        <SelectItem key={item.codigo} value={item.codigo}>
+                          {item.nome}
                         </SelectItem>
                       ))}
                     </SelectContent>

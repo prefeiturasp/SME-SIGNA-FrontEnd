@@ -3,21 +3,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAtosAdministrativos } from "./useAtosAdministrativos";
 
 const fetchAtosAdministrativosMock = vi.fn();
-const triggerMock = vi.fn().mockResolvedValue(true);
+const useFormMock = vi.fn();
 const resetMock = vi.fn();
 
 let formValues = {
+  tipo: "DESIGNACAO",
+  portaria: "",
   numero_sei: "",
-  portaria_inicial: "",
-  portaria_final: "",
-  ano: "2026",
-  tipo: "",
+  nome_titular_e_indicado: "",
+  status_publicacao: "",
+  periodo: undefined as { from?: Date; to?: Date } | undefined,
+  periodo_after: "",
+  periodo_before: "",
+  rf: "",
 };
 
 vi.mock("@/actions/designacao", () => ({
   fetchAtosAdministrativos: (...args: unknown[]) => fetchAtosAdministrativosMock(...args),
 }));
-
 
 vi.mock("@hookform/resolvers/zod", () => ({
   zodResolver: () => () => ({}),
@@ -28,82 +31,78 @@ vi.mock("react-hook-form", async () => {
 
   return {
     ...actual,
-    useForm: () => ({
-      watch: (field: keyof typeof formValues) => formValues[field],
-      trigger: triggerMock,
-      getValues: () => formValues,
-      reset: resetMock,
-    }),
+    useForm: (...args: unknown[]) => useFormMock(...args),
   };
 });
 
 describe("useAtosAdministrativos", () => {
-  const currentYear = new Date().getFullYear().toString();
-
   beforeEach(() => {
     vi.clearAllMocks();
+
     formValues = {
+      tipo: "DESIGNACAO",
+      portaria: "",
       numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
-      ano: currentYear,
-      tipo: "",
+      nome_titular_e_indicado: "",
+      status_publicacao: "",
+      periodo: undefined,
+      periodo_after: "",
+      periodo_before: "",
+      rf: "",
     };
+
+    useFormMock.mockReturnValue({
+      getValues: () => formValues,
+      reset: resetMock,
+    });
   });
 
-  it("busca na carga inicial e atualiza resultado quando sucesso", async () => {
+  it("executa busca inicial, aplica filtros mapeados e atualiza resultado/pagina", async () => {
     fetchAtosAdministrativosMock.mockResolvedValueOnce({
       success: true,
-      data: {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [{ id: 1 }],
-      },
+      data: { count: 1, next: null, previous: null, results: [{ id: 10 }] },
     });
 
     const { result } = renderHook(() => useAtosAdministrativos());
 
     await waitFor(() => {
       expect(fetchAtosAdministrativosMock).toHaveBeenCalledWith({
+        tipo: "DESIGNACAO",
+        portaria: "",
         numero_sei: "",
-        portaria_inicial: "",
-        portaria_final: "",
-        ano: currentYear,
-        tipo: "",
+        nome_titular_e_indicado: "",
+        status_publicacao: "",
+        periodo_after: undefined,
+        periodo_before: undefined,
+        rf: "",
         page: 1,
       });
     });
 
     await waitFor(() => {
+      expect(result.current.page).toBe(1);
       expect(result.current.resultado).toEqual({
         count: 1,
         next: null,
         previous: null,
-        results: [{ id: 1 }],
+        results: [{ id: 10 }],
       });
     });
-    expect(result.current.page).toBe(1);
+
+    expect(useFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: "onChange",
+        defaultValues: expect.objectContaining({ tipo: "DESIGNACAO" }),
+      })
+    );
     expect(result.current.salvando).toBe(false);
     expect(result.current.tabelaKey).toBe(0);
   });
 
-  it("faz log de erro quando busca falha", async () => {
+  it("formata periodo no submit, troca pagina no onPageChange e processa erro", async () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    fetchAtosAdministrativosMock.mockResolvedValueOnce({
-      success: false,
-      error: "falhou",
-    });
+    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { results: [] } });
 
-    renderHook(() => useAtosAdministrativos());
-
-    await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith("falhou");
-    });
-  });
-
-  it("onSubmitFilterForm dispara nova busca com filtros e página 1", async () => {
-    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { count: 0, next: null, previous: null, results: [] } });
     const { result } = renderHook(() => useAtosAdministrativos());
 
     await waitFor(() => {
@@ -112,41 +111,39 @@ describe("useAtosAdministrativos", () => {
 
     await act(async () => {
       result.current.onSubmitFilterForm({
-        numero_sei: "123",
-        portaria_inicial: "10",
-        portaria_final: "20",
-        ano: "2025",
-        tipo: "DESIGNACAO",
+        tipo: "CESSACAO",
+        portaria: "100/2026",
+        numero_sei: "1234.5678/9012345-6",
+        nome_titular_e_indicado: "Servidor A",
+        status_publicacao: "PUBLICADO",
+        periodo_after: "",
+        periodo_before: "",
+        rf: "123456",
+        periodo: {
+          from: new Date("2026-01-10T12:00:00.000Z"),
+          to: new Date("2026-02-20T12:00:00.000Z"),
+        },
       });
     });
 
     await waitFor(() => {
       expect(fetchAtosAdministrativosMock).toHaveBeenLastCalledWith({
-        numero_sei: "123",
-        portaria_inicial: "10",
-        portaria_final: "20",
-        ano: "2025",
-        tipo: "DESIGNACAO",
+        tipo: "CESSACAO",
+        portaria: "100/2026",
+        numero_sei: "1234.5678/9012345-6",
+        nome_titular_e_indicado: "Servidor A",
+        status_publicacao: "PUBLICADO",
+        periodo_after: "2026-01-10",
+        periodo_before: "2026-02-20",
+        rf: "123456",
         page: 1,
       });
     });
-  });
 
-  it("onPageChange usa os valores do formulário atual e atualiza a página", async () => {
-    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { count: 0, next: null, previous: null, results: [] } });
-    const { result } = renderHook(() => useAtosAdministrativos());
-
-    await waitFor(() => {
-      expect(fetchAtosAdministrativosMock).toHaveBeenCalledTimes(1);
+    fetchAtosAdministrativosMock.mockResolvedValueOnce({
+      success: false,
+      error: "erro-na-busca",
     });
-
-    formValues = {
-      numero_sei: "SEI-1",
-      portaria_inicial: "11",
-      portaria_final: "22",
-      ano: "2024",
-      tipo: "CESSACAO",
-    };
 
     await act(async () => {
       result.current.onPageChange(3);
@@ -154,21 +151,26 @@ describe("useAtosAdministrativos", () => {
 
     await waitFor(() => {
       expect(fetchAtosAdministrativosMock).toHaveBeenLastCalledWith({
-        numero_sei: "SEI-1",
-        portaria_inicial: "11",
-        portaria_final: "22",
-        ano: "2024",
-        tipo: "CESSACAO",
+        tipo: "DESIGNACAO",
+        portaria: "",
+        numero_sei: "",
+        nome_titular_e_indicado: "",
+        status_publicacao: "",
+        periodo_after: undefined,
+        periodo_before: undefined,
+        rf: "",
         page: 3,
       });
     });
+
     await waitFor(() => {
-      expect(result.current.page).toBe(3);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("erro-na-busca");
     });
   });
 
-  it("handleClear reseta formulário e busca com valores padrão", async () => {
-    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { count: 0, next: null, previous: null, results: [] } });
+  it("limpa formulario, busca com defaults vazios e expõe setters/busca direta", async () => {
+    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { results: [] } });
+
     const { result } = renderHook(() => useAtosAdministrativos());
 
     await waitFor(() => {
@@ -180,61 +182,51 @@ describe("useAtosAdministrativos", () => {
     });
 
     expect(resetMock).toHaveBeenCalledWith({
-      numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
-      ano: currentYear,
       tipo: "",
+      portaria: "",
+      numero_sei: "",
+      nome_titular_e_indicado: "",
+      status_publicacao: "",
+      periodo: undefined,
+      periodo_after: "",
+      periodo_before: "",
+      rf: "",
     });
 
     await waitFor(() => {
       expect(fetchAtosAdministrativosMock).toHaveBeenLastCalledWith({
-        numero_sei: "",
-        portaria_inicial: "",
-        portaria_final: "",
-        ano: currentYear,
         tipo: "",
+        portaria: "",
+        numero_sei: "",
+        nome_titular_e_indicado: "",
+        status_publicacao: "",
+        periodo_after: undefined,
+        periodo_before: undefined,
+        rf: "",
         page: 1,
       });
     });
-  });
-
-  it("buscarAtosAdministrativos retorna a action e usa page padrão quando omitida", async () => {
-    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { count: 0, next: null, previous: null, results: [] } });
-    const { result } = renderHook(() => useAtosAdministrativos());
 
     const response = await result.current.buscarAtosAdministrativos({
-      numero_sei: "9",
-      portaria_inicial: "1",
-      portaria_final: "2",
-      ano: "2024",
-      tipo: "DESIGNACAO",
+      tipo: "APOSTILA_DESIGNACAO",
+      portaria: "222/2026",
+      numero_sei: "9000.0000/0000000-1",
+      nome_titular_e_indicado: "Servidor B",
+      status_publicacao: "NAO_PUBLICADO",
+      periodo_after: "",
+      periodo_before: "",
     });
 
-    expect(response).toEqual({
-      success: true,
-      data: { count: 0, next: null, previous: null, results: [] },
-    });
-    expect(fetchAtosAdministrativosMock).toHaveBeenLastCalledWith({
-      numero_sei: "9",
-      portaria_inicial: "1",
-      portaria_final: "2",
-      ano: "2024",
-      tipo: "DESIGNACAO",
-      page: 1,
-    });
-  });
-
-  it("setters de estado funcionam para salvando e tabelaKey", async () => {
-    fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { count: 0, next: null, previous: null, results: [] } });
-    const { result } = renderHook(() => useAtosAdministrativos());
+    expect(response).toEqual({ success: true, data: { results: [] } });
 
     act(() => {
       result.current.setSalvando(true);
-      result.current.setTabelaKey((current) => current + 5);
+      result.current.setTabelaKey((current) => current + 1);
     });
 
     expect(result.current.salvando).toBe(true);
-    expect(result.current.tabelaKey).toBe(5);
+    expect(result.current.tabelaKey).toBe(1);
+    expect(result.current.filterForm).toBeDefined();
+    expect(typeof result.current.buscar).toBe("function");
   });
 });
