@@ -56,6 +56,7 @@ export function useAtosAdministrativos() {
       periodo_before: periodoTo
         ? format(periodoTo, "yyyy-MM-dd")
         : undefined,
+      rf: values.rf,
     };
   };
 
