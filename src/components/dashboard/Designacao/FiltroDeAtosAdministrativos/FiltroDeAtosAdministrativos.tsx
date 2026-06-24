@@ -16,7 +16,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
   const { register, control, watch } = useFormContext();
 
 
-  const listarParaOpcoes = [
+  const AtosOpcoes = [
     { codigo: 'DESIGNACAO', nome: 'Designação' },
     { codigo: 'CESSACAO', nome: 'Cessação' },
     { codigo: 'INSUBSISTENCIA_DESIGNACAO', nome: 'Insubsistência de Designação' },
@@ -43,7 +43,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
       <p className="text-[14px] font-normal pt-1 pb-8">Selecione os campos para buscar as portarias disponíveis.</p>
 
       <div className="w-full flex gap-4">
-        <div className="w-[50%]">
+        <div className="w-[33%]">
           <FormField
             control={control}
             name="tipo"
@@ -56,7 +56,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      {listarParaOpcoes.map((item) => (
+                      {AtosOpcoes.map((item) => (
                         <SelectItem key={item.codigo} value={item.codigo}>
                           {item.nome}
                         </SelectItem>
@@ -70,7 +70,19 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
           />
 
         </div>
-        <div className="w-[50%]">
+        <div className="w-[34%]">
+          <InputField
+            register={register}
+            control={control}
+            name="numero_sei"
+            label="Nº SEI"
+            placeholder="1234.5678/9012345-6"
+            data-testid="input-numero_sei"
+            type="string"
+            mask="9999.9999/9999999-9"
+          />
+        </div>
+        <div className="w-[33%]">
           <DateRangePickerField
             register={register}
             control={control}
@@ -84,31 +96,46 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
       </div>
 
       <div className="w-full flex gap-4">
-        <div className="w-[33%]">
+        <div className="w-[50%]">
           <InputField
             register={register}
             control={control}
             name="portaria"
             label="Portaria de designação"
-            placeholder="Exemplo: 1234"
+            placeholder="0000/2026"
             data-testid="input-portaria"
             type="text"
           />
 
         </div>
-        <div className="w-[34%]">
+        <div className="w-[50%]">
           <InputField
             register={register}
             control={control}
             name="nome_titular_e_indicado"
             label="Servidor indicado/titular"
-            placeholder="Exemplo: 1234"
+            placeholder="Exemplo: João da Silva"
             data-testid="input-nome-titular-e-indicado"
             type="text"
           />
 
         </div>
-        <div className="w-[33%]">
+
+      </div>
+      <div className="w-full flex gap-4">
+
+        <div className="w-[50%]">
+          <InputField
+            register={register}
+            control={control}
+            name="rf"
+            label="Registro Funcional (RF)"
+            placeholder="Entre com o RF"
+            data-testid="input-rf"
+            type="number"
+          />
+        </div>
+        <div className="w-[50%]">
 
           <FormField
             control={control}
@@ -134,34 +161,6 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
               </FormItem>
             )}
           />
-
-
-        </div>
-      </div>
-      <div className="w-full flex gap-4">
-        <div className="w-[50%]">
-        <InputField
-            register={register}
-            control={control}
-            name="numero_sei"
-            label="Nº SEI"
-            placeholder="1234.5678/9012345-6"            
-            data-testid="input-numero_sei"
-            type="string"
-            mask="9999.9999/9999999-9"
-          />
-
-        </div>
-        <div className="w-[50%]">
-        <InputField
-              register={register}
-              control={control}
-              name="rf"
-              label="Registro Funcional (RF)"
-              placeholder="Entre com o RF"
-              data-testid="input-rf"
-              type="number"
-            />
         </div>
       </div>
 

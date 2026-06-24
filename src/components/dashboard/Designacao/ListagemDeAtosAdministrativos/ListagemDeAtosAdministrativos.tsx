@@ -16,8 +16,8 @@ import Delete from '@/assets/icons/Delete';
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
   {
-    color: '#B22B2A',
-    name: 'Não publicado'
+    color: '#9E9E9E',
+    name: 'Aguardando publicação'
   },
   [StatusAtosAdministrativos.PUBLICADO]: {
     color: '#10A957',
@@ -41,7 +41,7 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
 
   return (
     <Tag
-      className='rounded-full  w-[100px] h-[24px] text-center'
+      className='rounded-full  w-[148px] h-[24px] text-center'
       color={config.color}
       key={key} >
       {config.name}

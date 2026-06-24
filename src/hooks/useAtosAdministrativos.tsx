@@ -29,7 +29,7 @@ export function useAtosAdministrativos() {
   };
   const filterForm = useForm<filterFormSchemaFiltroAtosAdministrativosData>({
     resolver: zodResolver(filterFormSchemaFiltroAtosAdministrativos),
-    defaultValues: defaultValues,
+    defaultValues: {...defaultValues, tipo: "DESIGNACAO"},
     mode: "onChange",
   });
 
