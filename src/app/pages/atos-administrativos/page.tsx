@@ -14,7 +14,7 @@ import Designacao from "@/assets/icons/Designacao";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import FiltroDeATosAdministrativos from "@/components/dashboard/Designacao/FiltroDeATosAdministrativos/FiltroDeATosAdministrativos";
+import FiltroDeATosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos";
 
 export default function AtosAdministrativos() {
   const {
@@ -44,24 +44,23 @@ export default function AtosAdministrativos() {
           <Dropdown menu={{
             items: [
               {
-                key: '4',
-                label: 'Nova apostila',
-                icon: <Editar width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Nova apostila");
-                },
-              },
-              {
-                key: '1',
+                key: '5',
                 label: 'Nova designação',
                 icon: <Designacao width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
                   console.log("Nova designação");
                 },
               },
-
               {
                 key: '3',
+                label: 'Nova cessação',
+                icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+                onClick: () => {
+                  console.log("Nova cessação");
+                },
+              },
+              {
+                key: '4',
                 label: 'Tornar insubsistente',
                 icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
@@ -70,14 +69,14 @@ export default function AtosAdministrativos() {
               },
               {
                 key: '2',
-                label: 'Nova cessação',
-                icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+                label: 'Nova apostila',
+                icon: <Editar width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
-                  console.log("Nova cessação");
+                  console.log("Nova apostila");
                 },
               },
               {
-                key: '5',
+                key: '1',
                 label: 'Anular apostila',
                 icon: <Delete width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {

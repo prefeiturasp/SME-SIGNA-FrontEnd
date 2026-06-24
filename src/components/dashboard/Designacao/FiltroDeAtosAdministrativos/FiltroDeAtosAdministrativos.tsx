@@ -1,0 +1,156 @@
+
+import { DateRangePickerField, InputField } from '@/components/ui/FieldsForm';
+import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import React from 'react';
+import { useFormContext } from 'react-hook-form';
+import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
+import { StatusAtosAdministrativos } from '@/types/designacao';
+
+interface Props {
+  onClear?: () => void;
+}
+
+const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
+  const { register, control, watch } = useFormContext();
+
+
+  const listarParaOpcoes = [
+  { codigo: 'DESIGNACAO', nome: 'Designação' },
+  { codigo: 'CESSACAO', nome: 'Cessação' },
+  { codigo: 'INSUBSISTENCIA_DESIGNACAO', nome: 'Insubsistência de Designação' },
+  { codigo: 'INSUBSISTENCIA_CESSACAO', nome: 'Insubsistência de Cessação' },
+  { codigo: 'APOSTILA_DESIGNACAO', nome: 'Apostila de Designação' },
+  { codigo: 'APOSTILA_CESSACAO', nome: 'Apostila de Cessação' },  
+]
+
+  const watchedValues = watch([
+    "tipo",
+    "portaria",
+    "numero_sei",
+    "nome_titular_e_indicado",
+    "status_publicacao",
+    "periodo",
+  ]);
+  const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
+
+
+
+  const periodo = watchedValues[5];
+  // console.log("periodo", periodo);
+
+
+  return (
+    <>
+      <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
+      <p className="text-[14px] font-normal pt-1 pb-8">Selecione os campos para buscar as portarias disponíveis.</p>
+
+      <div className="w-full flex gap-4">
+      <div className="w-[50%]">
+      <FormField
+            control={control}
+            name="tipo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-[#313131] font-bold">Tipo</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
+                    <SelectTrigger data-testid="select-listar-para">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {listarParaOpcoes.map((item) => (
+                        <SelectItem key={item.codigo} value={item.codigo}>
+                          {item.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+        </div>
+        <div className="w-[50%]">
+            <DateRangePickerField
+              register={register}
+              control={control}
+              name="periodo"
+              label="Período"
+              placeholder="Selecione um período"
+            />
+         </div>
+     
+
+      </div>
+
+      <div className="w-full flex gap-4">
+        <div className="w-[33%]">
+        <InputField
+            register={register}
+            control={control}
+            name="portaria"
+            label="Portaria de designação"
+            placeholder="Exemplo: 1234"
+            data-testid="input-portaria"
+            type="text"
+          />
+         
+        </div>
+        <div className="w-[34%]">
+        <InputField
+            register={register}
+            control={control}
+            name="nome_titular_e_indicado"
+            label="Servidor indicado/titular"
+            placeholder="Exemplo: 1234"
+            data-testid="input-nome-titular-e-indicado"
+            type="text"
+          /> 
+      
+        </div>
+        <div className="w-[33%]">
+          
+        <FormField
+            control={control}
+            name="status_publicacao"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-[#313131] font-bold">Status</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
+                    <SelectTrigger data-testid="select-status-publicacao">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(StatusAtosAdministrativos).map((item: StatusAtosAdministrativos) => (
+                        <SelectItem key={item} value={item.toString()}>
+                          {item.toString().replace('_', ' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+     
+          
+        </div>
+      </div>
+
+
+
+     
+
+
+      <FiltroAcoes hasFilters={hasFilters} onClear={onClear} />
+    </>
+  );
+};
+
+export default FiltroDeATosAdministrativos;

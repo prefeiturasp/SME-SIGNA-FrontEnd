@@ -41,7 +41,7 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
 
   return (
     <Tag
-      className='rounded-full'
+      className='rounded-full  w-[100px] h-[24px] text-center'
       color={config.color}
       key={key} >
       {config.name}
