@@ -23,7 +23,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 import { toast } from "@/components/ui/headless-toast";
-import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
+import FiltroDeDesignacoes from "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes";
 
 export default function DesignacoesPasso1() {
   const [resultado, setResultado] = useState<DesignacaoPaginada | null>(null);
@@ -225,7 +225,7 @@ export default function DesignacoesPasso1() {
       <FundoBranco className="mb-4">
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FiltroDeDo onClear={handleClear} />
+            <FiltroDeDesignacoes onClear={handleClear} />
           </form>
         </FormProvider>
       </FundoBranco>
