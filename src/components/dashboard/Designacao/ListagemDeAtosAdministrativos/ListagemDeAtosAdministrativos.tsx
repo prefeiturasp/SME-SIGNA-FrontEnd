@@ -71,30 +71,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 }) => {
 
 
-  const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
-
-    if (record.tipo === 'DESIGNACAO') {
-      return [
-        {
-          key: '1',
-          label: 'Editar',
-          icon: <Editar width={20} height={20} color="#9CA3B9" />,
-        },
-      ];
-    }
-
-
-    return [
-
-
-    {
-      key: '1',
-      label: 'Editar',
-      icon: <Editar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
-    },
+  const desigacaoPublicadaItems = [
     {
       key: '2',
       label: 'Apostilar',
@@ -118,8 +95,19 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       onClick: () => {
         console.log("clicar");
       },
-    },
+    },    
+  ]
 
+  const desigacaoNaoPublicadaItems = [
+    {
+      key: '1',
+      label: 'Editar',
+      icon: <Editar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+    ...desigacaoPublicadaItems,
     {
       key: '5',
       label: 'Excluir',
@@ -128,7 +116,89 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         console.log("clicar");
       },
     },
-  ]};
+  ]
+
+  const cessacaoNaoPublicadaItems = [
+    {
+      key: '2',
+      label: 'Apostilar',
+      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+    {
+      key: '4',
+      label: 'Tornar insubsistente',
+      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+  ]
+  const cessacaoPublicadaItems  = [
+    {
+      key: '2',
+      label: 'Apostilar',
+      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("clicar");
+      },
+    },
+  ]
+
+  const apostilaItems = [
+    {
+      key: '2',
+      label: 'Anular Apostila',
+      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("Anular");
+      },
+    },
+  ]
+
+  const insubsistenciaItems = [
+    {
+      key: '1',
+      label: 'Tornar sem efeito',
+      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        console.log("Tornar sem efeito");
+      },
+    },
+  ]
+
+  
+  const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
+
+    const items = [];
+    
+    if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      items.push(...desigacaoPublicadaItems);
+    }
+    if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...desigacaoNaoPublicadaItems);              
+    }
+
+    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      items.push(...cessacaoPublicadaItems);
+    }
+    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...cessacaoNaoPublicadaItems);
+    }
+ 
+    if (record.tipo === 'APOSTILA' ) {
+      items.push(...apostilaItems);
+    }
+ 
+    if (record.tipo === 'INSUBSISTENCIA' ) {
+      items.push(...insubsistenciaItems);
+    }
+
+    return items;
+
+ };
 
 
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
