@@ -71,7 +71,21 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 }) => {
 
 
-  const getItems = (): MenuProps['items'] => [
+  const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
+
+    if (record.tipo === 'DESIGNACAO') {
+      return [
+        {
+          key: '1',
+          label: 'Editar',
+          icon: <Editar width={20} height={20} color="#9CA3B9" />,
+        },
+      ];
+    }
+
+
+    return [
+
 
     {
       key: '1',
@@ -114,7 +128,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         console.log("clicar");
       },
     },
-  ];
+  ]};
 
 
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
@@ -132,11 +146,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       title: '',
       key: 'action',
       width: 50,
-      render: () => (
+      render: ( record: ListagemAtosAdministrativosResponse ) => (
         <div>
           <Dropdown
             menu={{
-              items: getItems(),
+              items: getItems(record),
             }}
             trigger={['click']}
           >
