@@ -191,7 +191,7 @@ describe("ListagemDeAtosAdministrativos", () => {
       <>{statusRender?.(null, { ...rows[0], status_publicacao: StatusAtosAdministrativos.PUBLICADO })}</>
     );
     expect(screen.getByTestId("tag")).toHaveTextContent("Publicado");
-    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#10A957");
+    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#008809");
 
     rerender(
       <>
@@ -202,7 +202,7 @@ describe("ListagemDeAtosAdministrativos", () => {
       </>
     );
     expect(screen.getByTestId("tag")).toHaveTextContent("Aguardando publicação");
-    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#B22B2A");
+    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#9E9E9E");
   });
 
   it("renderiza status indisponível quando status é ausente", () => {
