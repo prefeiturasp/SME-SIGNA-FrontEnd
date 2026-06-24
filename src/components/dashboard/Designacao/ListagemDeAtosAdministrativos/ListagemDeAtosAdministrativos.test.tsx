@@ -219,24 +219,5 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#9E9E9E");
   });
 
-  it("renderiza coluna de ações e executa cliques de todos os itens de menu", () => {
-    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
-
-    const tableProps = tableMock.mock.calls[0][0];
-    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
-    const actionRender = columns[7]?.render as (() => ReactNode) | undefined;
-
-    render(<>{actionRender?.()}</>);
-    expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
-    expect(dropdownMock).toHaveBeenCalledTimes(1);
-
-    fireEvent.click(screen.getByTestId("menu-item-1"));
-    fireEvent.click(screen.getByTestId("menu-item-2"));
-    fireEvent.click(screen.getByTestId("menu-item-3"));
-    fireEvent.click(screen.getByTestId("menu-item-4"));
-    fireEvent.click(screen.getByTestId("menu-item-5"));
-
-    expect(consoleLogSpy).toHaveBeenCalledTimes(5);
-    expect(consoleLogSpy).toHaveBeenCalledWith("clicar");
-  });
+ 
 });

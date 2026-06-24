@@ -12,6 +12,9 @@ import Apostilar from '@/assets/icons/Apostilar';
 import Cancelar from '@/assets/icons/Cancelar';
 import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
+import { DropdownButtonType } from 'antd/es/dropdown';
+import { ButtonProps } from 'antd/lib/button';
+import { ItemType } from 'antd/es/menu/interface';
 
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
@@ -52,7 +55,16 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
+export interface ItemDropdown {
+  type?: DropdownButtonType;
+  disabled?: boolean;
+  loading?: ButtonProps['loading'];
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  icon?: React.ReactNode;
+  title?: string;
+  key?: string;
 
+}
 
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
@@ -73,7 +85,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   const desigacaoPublicadaItems = [
     {
-      key: '2',
+      key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -81,7 +93,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       },
     },
     {
-      key: '3',
+      key: '2',
       label: 'Cessar',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -89,18 +101,18 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       },
     },
     {
-      key: '4',
+      key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
         console.log("clicar");
       },
-    },    
+    },
   ]
 
   const desigacaoNaoPublicadaItems = [
     {
-      key: '1',
+      key: '4',
       label: 'Editar',
       icon: <Editar width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -118,9 +130,9 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ]
 
-  const cessacaoNaoPublicadaItems = [
+  const cessacaoItems = [
     {
-      key: '2',
+      key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -128,7 +140,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       },
     },
     {
-      key: '4',
+      key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -136,20 +148,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       },
     },
   ]
-  const cessacaoPublicadaItems  = [
-    {
-      key: '2',
-      label: 'Apostilar',
-      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
-    },
-  ]
+
 
   const apostilaItems = [
     {
-      key: '2',
+      key: '6',
       label: 'Anular Apostila',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -160,7 +163,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   const insubsistenciaItems = [
     {
-      key: '1',
+      key: '7',
       label: 'Tornar sem efeito',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
@@ -169,36 +172,51 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ]
 
-  
+
+
+
   const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
 
-    const items = [];
-    
+    let items: ItemType[] = [];
+
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
       items.push(...desigacaoPublicadaItems);
     }
+
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
-      items.push(...desigacaoNaoPublicadaItems);              
+      items.push(...desigacaoNaoPublicadaItems);
     }
 
-    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
-      items.push(...cessacaoPublicadaItems);
+
+    if (record.tipo === 'CESSACAO') {
+      items.push(...cessacaoItems);
     }
-    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
-      items.push(...cessacaoNaoPublicadaItems);
-    }
- 
-    if (record.tipo === 'APOSTILA' ) {
+
+
+    if (record.tipo === 'APOSTILA') {
       items.push(...apostilaItems);
     }
- 
-    if (record.tipo === 'INSUBSISTENCIA' ) {
+
+    if (record.tipo === 'INSUBSISTENCIA') {
       items.push(...insubsistenciaItems);
+    }
+
+    // remove as funções que ja foram executadas e não podem ser duplicadas
+    if (record.cessacao) {
+      items = items.filter((item) =>
+        item?.key !== '2'
+      )
+    }
+
+    if (record.insubsistencia) {
+      items = items.filter((item) =>
+        item?.key !== '3'  
+      )
     }
 
     return items;
 
- };
+  };
 
 
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
@@ -216,7 +234,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       title: '',
       key: 'action',
       width: 50,
-      render: ( record: ListagemAtosAdministrativosResponse ) => (
+      render: (record: ListagemAtosAdministrativosResponse) => (
         <div>
           <Dropdown
             menu={{
