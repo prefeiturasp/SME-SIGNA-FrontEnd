@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react';
 import { Dropdown, Pagination, Popconfirm, Table, Tag } from 'antd';
-import type { MenuProps, PaginationProps, TableProps } from 'antd';
-import { LeftOutlined, MoreOutlined, RightOutlined, } from '@ant-design/icons';
+import type { MenuProps, TableProps } from 'antd';
+import { MoreOutlined, } from '@ant-design/icons';
 
 import { Button } from '@/components/ui/button';
 import Download from '@/assets/icons/Download';
@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/headless-toast';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
 import EditarAction from '@/assets/icons/EditarAction';
+import { itemRender } from '@/components/pagination/utils';
 
 const NameColorStatusDesignacao = {
   [StatusDesignacao.PENDENTE]: { color: '#B22B2A', name: 'PENDENTE' },
@@ -44,25 +45,6 @@ const TagStatusDesignacao = (status: StatusDesignacao | undefined, key: string) 
 };
 
 
-const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
-  if ((type === 'prev' || type === 'next') && React.isValidElement(originalElement)) {
-    const label =
-      type === 'prev' ? (
-        <div className='flex items-center gap-1'>
-          <LeftOutlined />
-          Anterior
-        </div>
-      ) : (
-        <div className='flex items-center gap-1'>
-          Próximo
-          <RightOutlined />
-        </div>
-      );
-
-    return React.cloneElement(originalElement, {}, label);
-  }
-  return originalElement;
-};
 
 interface ListagemDeDesignacoesProps {
   data: ListagemDesignacoesResponse[];

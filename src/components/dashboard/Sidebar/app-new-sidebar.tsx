@@ -11,6 +11,7 @@ import { Protocolo } from "@/assets/icons/Protocolo";
 import { Apoio } from "@/assets/icons/Apoio";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import HomeMenuIcon from "@/assets/icons/HomeMenu";
 
  
 
@@ -23,6 +24,8 @@ export type MenuItemSMEProps = {
 };
 
 export enum MenuEnum {
+  Inicio,
+  AtosAdministrativos,
   Designacao,
   Designacoes,
   AlterarDataDoD,  
@@ -38,7 +41,18 @@ export enum MenuEnum {
 }
  
 
-
+export const MENU_INICIO: MenuItemConectaProps = {
+  key: MenuEnum.Inicio,
+  title: 'Início',
+  icon: <HomeMenuIcon />, 
+  children: [
+    {
+      key: MenuEnum.AtosAdministrativos,
+      title: 'Atos administrativos',
+      url: "/pages/atos-administrativos",
+    },
+  ],
+};
 
 
 export const MENU_MEUS_DADOS: MenuItemConectaProps = {
@@ -129,6 +143,7 @@ export interface MenuItemConectaProps extends MenuItemSMEProps {
 }
 
 export const menus: MenuItemConectaProps[] = [
+  MENU_INICIO,
   MENU_MEUS_DADOS,
   MENU_DESIGNACAO,
   MENU_NOMEACAO,

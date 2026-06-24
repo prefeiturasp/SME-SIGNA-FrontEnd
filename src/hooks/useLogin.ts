@@ -13,7 +13,7 @@ const useLogin = () => {
       if (!response.success) return;
       
       queryClient.invalidateQueries({ queryKey: ["me"] });
-       router.push("/pages/listagem-designacoes");
+       router.push("/pages/atos-administrativos");
     },
   });
 };

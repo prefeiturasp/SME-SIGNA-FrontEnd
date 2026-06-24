@@ -3,9 +3,12 @@ import { cookies } from "next/headers";
 import {
     fetchDesignacoesAction,
     fetchDesignacoesSemPaginacaoAction,
+    fetchAtosAdministrativos,
     fetchPortariasDO,
 } from "./designacao";
 import {
+    AtosAdministrativosFiltros,
+    AtosAdministrativosPaginada,
     DesignacaoFiltros,
     DesignacaoPaginada,
     ListagemPortariasResponse,
@@ -339,5 +342,108 @@ describe("fetchPortariasDO", () => {
         const result = await fetchPortariasDO(samplePortariasFiltros);
 
         expect(result).toEqual({ success: false, error: "Portaria não encontrada" });
+    });
+});
+
+const sampleAtosFiltros: AtosAdministrativosFiltros = {
+    numero_sei: "SEI-2026-1",
+    portaria_inicial: "10",
+    portaria_final: "20",
+    ano: "2026",
+    tipo: "DESIGNACAO",
+    page: 2,
+};
+
+const sampleAtosResponse: AtosAdministrativosPaginada = {
+    count: 1,
+    next: null,
+    previous: null,
+    results: [
+        {
+            id: 77,
+            ano_vigente: "2026",
+            criado_em: "2026-06-01T12:00:00.000Z",
+            nome: "Servidor Teste",
+            numero_sei: "SEI-2026-1",
+            observacoes: null,
+            portaria: "123/2026",
+            status_publicacao: "PUBLICADO",
+            tipo: "DESIGNACAO",
+            tipo_de_ato: "Designação",
+        },
+    ],
+};
+
+describe("fetchAtosAdministrativos", () => {
+    const mockAxiosInstance = { get: vi.fn() };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as any);
+    });
+
+    it("retorna erro quando getApiClient retorna null", async () => {
+        vi.mocked(getApiClient).mockResolvedValue(null);
+
+        const result = await fetchAtosAdministrativos(sampleAtosFiltros);
+
+        expect(result).toEqual({ success: false, error: "Usuário não autenticado" });
+        expect(mockAxiosInstance.get).not.toHaveBeenCalled();
+    });
+
+    it("retorna dados em caso de sucesso", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: sampleAtosResponse });
+
+        const result = await fetchAtosAdministrativos(sampleAtosFiltros);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/atos-administrativos/",
+            {
+                params: {
+                    numero_sei: "SEI-2026-1",
+                    portaria_inicial: "10",
+                    portaria_final: "20",
+                    ano: "2026",
+                    tipo: "DESIGNACAO",
+                    page: 2,
+                },
+            }
+        );
+        expect(result).toEqual({ success: true, data: sampleAtosResponse });
+    });
+
+    it("filtra parâmetros vazios e undefined antes de enviar", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: sampleAtosResponse });
+
+        const filtrosComVazios: AtosAdministrativosFiltros = {
+            numero_sei: "",
+            portaria_inicial: "10",
+            portaria_final: undefined,
+            ano: "2026",
+            tipo: "",
+            page: 1,
+        };
+
+        await fetchAtosAdministrativos(filtrosComVazios);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/atos-administrativos/",
+            { params: { portaria_inicial: "10", ano: "2026", page: 1 } }
+        );
+    });
+
+    it("retorna mensagem de erro tratada quando a requisição falha", async () => {
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 400 },
+        });
+
+        const result = await fetchAtosAdministrativos(sampleAtosFiltros);
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro ao buscar os atos administrativos",
+        });
     });
 });

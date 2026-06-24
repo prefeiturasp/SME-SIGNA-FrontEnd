@@ -1,0 +1,37 @@
+export default function DocumentoErro(
+  props: Readonly<React.SVGProps<SVGSVGElement>>
+) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      data-testid="insubsistencia-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M4 22V2H15.5L20 7.25V22H4Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.5 9L15.5 16M17 12.5C17 15.2615 14.7615 17.5 12 17.5C9.2385 17.5 7 15.2615 7 12.5C7 9.7385 9.2385 7.5 12 7.5C13.2767 7.49852 14.5053 7.98691 15.4325 8.8645C15.9282 9.3313 16.323 9.89471 16.5926 10.52C16.8622 11.1452 17.0009 11.8191 17 12.5Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M17 12.5C17 15.2615 14.7615 17.5 12 17.5M7 12.5C7 9.7385 9.2385 7.5 12 7.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
