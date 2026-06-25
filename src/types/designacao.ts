@@ -148,6 +148,11 @@ export interface PortariasDOFiltros {
 
 export interface AtosAdministrativosFiltros {
   numero_sei?: string;
+  portaria?: string;
+  nome_titular_e_indicado?: string;
+  status_publicacao?: string;
+  periodo_after?: string;
+  periodo_before?: string;
   portaria_inicial?: string;
   portaria_final?: string;
   ano?: string;

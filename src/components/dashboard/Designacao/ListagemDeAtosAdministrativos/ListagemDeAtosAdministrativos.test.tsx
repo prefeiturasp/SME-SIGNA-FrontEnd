@@ -178,7 +178,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     unmount();
   });
 
-  it("renderiza status publicado e não publicado com cores corretas", () => {
+  it("renderiza status publicado e Aguardando publicação com cores corretas", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
     const tableProps = tableMock.mock.calls[0][0];
@@ -191,7 +191,7 @@ describe("ListagemDeAtosAdministrativos", () => {
       <>{statusRender?.(null, { ...rows[0], status_publicacao: StatusAtosAdministrativos.PUBLICADO })}</>
     );
     expect(screen.getByTestId("tag")).toHaveTextContent("Publicado");
-    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#10A957");
+    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#008809");
 
     rerender(
       <>
@@ -201,8 +201,8 @@ describe("ListagemDeAtosAdministrativos", () => {
         })}
       </>
     );
-    expect(screen.getByTestId("tag")).toHaveTextContent("Não publicado");
-    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#B22B2A");
+    expect(screen.getByTestId("tag")).toHaveTextContent("Aguardando publicação");
+    expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#9E9E9E");
   });
 
   it("renderiza status indisponível quando status é ausente", () => {

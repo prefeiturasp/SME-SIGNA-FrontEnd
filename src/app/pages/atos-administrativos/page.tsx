@@ -14,7 +14,7 @@ import Designacao from "@/assets/icons/Designacao";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import FiltroDeATosAdministrativos from "@/components/dashboard/Designacao/FiltroDeATosAdministrativos/FiltroDeATosAdministrativos";
+import FiltroDeATosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos";
 
 export default function AtosAdministrativos() {
   const {
@@ -44,7 +44,31 @@ export default function AtosAdministrativos() {
           <Dropdown menu={{
             items: [
               {
+                key: '5',
+                label: 'Nova designação',
+                icon: <Designacao width={20} height={20} color="#9CA3B9" />,
+                onClick: () => {
+                  console.log("Nova designação");
+                },
+              },
+              {
+                icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+                label: 'Nova cessação',
+                onClick: () => {
+                  console.log("cessação new");
+                },
+                key: '3',                                             
+              },
+              {                
+                label: 'Tornar insubsistente',
                 key: '4',
+                icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+                onClick: () => {
+                  console.log("Tornar insubsistente");
+                },
+              },
+              {
+                key: '2',
                 label: 'Nova apostila',
                 icon: <Editar width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {
@@ -53,31 +77,6 @@ export default function AtosAdministrativos() {
               },
               {
                 key: '1',
-                label: 'Nova designação',
-                icon: <Designacao width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Nova designação");
-                },
-              },
-
-              {
-                key: '3',
-                label: 'Tornar insubsistente',
-                icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Tornar insubsistente");
-                },
-              },
-              {
-                key: '2',
-                label: 'Nova cessação',
-                icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Nova cessação");
-                },
-              },
-              {
-                key: '5',
                 label: 'Anular apostila',
                 icon: <Delete width={20} height={20} color="#9CA3B9" />,
                 onClick: () => {

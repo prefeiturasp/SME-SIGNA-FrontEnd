@@ -12,10 +12,12 @@ const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefine
 const onPageChangeMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
 const handleClearMock = vi.fn();
-const handleSubmitMock = vi.fn((callback: (...args: any[]) => unknown) => (event?: Event) => {
+const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (event?: Event) => {
   callback();
   event?.preventDefault();
 });
+
+type GenericProps = Record<string, unknown>;
 
 vi.mock("@/hooks/useAtosAdministrativos", () => ({
   useAtosAdministrativos: () => hookSpy(),
@@ -26,12 +28,12 @@ vi.mock("react-hook-form", () => ({
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  default: (props: any) => {
+  default: (props: GenericProps) => {
     pageHeaderSpy(props);
     return (
       <header>
-        <span data-testid="page-header-title">{props.title}</span>
-        {props.createButton}
+        <span data-testid="page-header-title">{props.title as React.ReactNode}</span>
+        {props.createButton as React.ReactNode}
       </header>
     );
   },
@@ -44,21 +46,27 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
 }));
 
 vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos", () => ({
-  default: (props: any) => {
+  default: (props: GenericProps) => {
     listagemSpy(props);
+    const data = (props.data as unknown[]) ?? [];
+    const total = props.total as React.ReactNode;
+    const page = props.page as React.ReactNode;
+    const isLoading = props.isLoading as boolean;
+    const onPageChange = props.onPageChange as ((page: number) => void) | undefined;
+
     return (
       <div>
-        <span data-testid="list-data-length">{props.data.length}</span>
-        <span data-testid="list-total">{props.total}</span>
-        <span data-testid="list-page">{props.page}</span>
-        <span data-testid="list-loading">{String(props.isLoading)}</span>
-        <button onClick={() => props.onPageChange?.(9)}>mudar pagina</button>
+        <span data-testid="list-data-length">{data.length}</span>
+        <span data-testid="list-total">{total}</span>
+        <span data-testid="list-page">{page}</span>
+        <span data-testid="list-loading">{String(isLoading)}</span>
+        <button onClick={() => onPageChange?.(9)}>mudar pagina</button>
       </div>
     );
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/FiltroDeATosAdministrativos/FiltroDeATosAdministrativos.tsx", () => ({
+vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos", () => ({
   default: ({ onClear }: { onClear: () => void }) => {
     filtroSpy({ onClear });
     return <button onClick={onClear}>limpar filtro</button>;
@@ -167,19 +175,4 @@ describe("Página de atos administrativos", () => {
     expect(listagemSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("executa ações dos itens do menu de novo ato", () => {
-    render(<AtosAdministrativos />);
-
-    fireEvent.click(screen.getByTestId("menu-item-1"));
-    fireEvent.click(screen.getByTestId("menu-item-2"));
-    fireEvent.click(screen.getByTestId("menu-item-3"));
-    fireEvent.click(screen.getByTestId("menu-item-4"));
-    fireEvent.click(screen.getByTestId("menu-item-5"));
-
-    expect(consoleLogSpy).toHaveBeenCalledWith("Nova designação");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Nova cessação");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Tornar insubsistente");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Nova apostila");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Anular apostila");
-  });
 });

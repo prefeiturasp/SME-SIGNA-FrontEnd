@@ -16,12 +16,14 @@ import Delete from '@/assets/icons/Delete';
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
   {
-    color: '#B22B2A',
-    name: 'Não publicado'
+    color: '#9E9E9E',
+    name: 'Aguardando publicação',
+    background: 'rgba(89, 89, 89, 0.10)'
   },
   [StatusAtosAdministrativos.PUBLICADO]: {
-    color: '#10A957',
-    name: 'Publicado'
+    color: '#008809',
+    name: 'Publicado',
+    background: 'rgba(0, 136, 9, 0.10)'
   },
 };
 
@@ -41,8 +43,9 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
 
   return (
     <Tag
-      className='rounded-full'
+      className='rounded-full  w-[148px] h-[24px] text-center'
       color={config.color}
+      style={{ background: config.background }}
       key={key} >
       {config.name}
     </Tag>
