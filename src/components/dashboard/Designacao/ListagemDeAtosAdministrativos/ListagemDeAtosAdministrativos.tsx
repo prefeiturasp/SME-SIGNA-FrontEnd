@@ -59,9 +59,7 @@ export interface ItemDropdown {
   type?: DropdownButtonType;
   disabled?: boolean;
   loading?: ButtonProps['loading'];
-  onClick?: React.MouseEventHandler<HTMLElement>;
-  icon?: React.ReactNode;
-  title?: string;
+  
   key?: string;
 
 }
@@ -88,25 +86,19 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
     {
       key: '2',
       label: 'Cessar',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
   ]
 
@@ -115,18 +107,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '4',
       label: 'Editar',
       icon: <Editar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
     ...desigacaoPublicadaItems,
     {
       key: '5',
       label: 'Excluir',
       icon: <Delete width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
   ]
 
@@ -135,17 +123,13 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
   ]
 
@@ -155,9 +139,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '6',
       label: 'Anular Apostila',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("Anular");
-      },
+      
     },
   ]
 
@@ -166,9 +148,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '7',
       label: 'Tornar sem efeito',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("Tornar sem efeito");
-      },
+      
     },
   ]
 
