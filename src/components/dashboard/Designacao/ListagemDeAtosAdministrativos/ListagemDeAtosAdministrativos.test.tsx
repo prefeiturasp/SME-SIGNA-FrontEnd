@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
@@ -12,10 +12,9 @@ const tableMock = vi.fn<(props: TableProps<ListagemAtosAdministrativosResponse>)
 const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
 const formatarDataHoraMock = vi.fn((value: string) => `formatado-${value}`);
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
 vi.mock("@/lib/utils", () => ({
-  formatarDataHora: (...args: unknown[]) => formatarDataHoraMock(...args),
+  formatarDataHora: (value: string) => formatarDataHoraMock(value),
 }));
 
 vi.mock("antd", () => ({
@@ -96,6 +95,11 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     tipo_de_ato: "Designação",
   },
 ];
+
+type RowWithRelations = ListagemAtosAdministrativosResponse & {
+  cessacao?: unknown;
+  insubsistencia?: unknown;
+};
 
 describe("ListagemDeAtosAdministrativos", () => {
   beforeEach(() => {
@@ -219,24 +223,73 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByTestId("tag")).toHaveAttribute("data-color", "#9E9E9E");
   });
 
-  it("renderiza coluna de ações e executa cliques de todos os itens de menu", () => {
+  it("monta menu de ações para designação publicada e remove itens já executados", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
-    const actionRender = columns[7]?.render as (() => ReactNode) | undefined;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
 
-    render(<>{actionRender?.()}</>);
-    expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
-    expect(dropdownMock).toHaveBeenCalledTimes(1);
+    const baseRecord: RowWithRelations = {
+      ...rows[0],
+      tipo: "DESIGNACAO",
+      status_publicacao: StatusAtosAdministrativos.PUBLICADO,
+    };
 
-    fireEvent.click(screen.getByTestId("menu-item-1"));
-    fireEvent.click(screen.getByTestId("menu-item-2"));
-    fireEvent.click(screen.getByTestId("menu-item-3"));
-    fireEvent.click(screen.getByTestId("menu-item-4"));
-    fireEvent.click(screen.getByTestId("menu-item-5"));
+    const { rerender } = render(<>{actionRender?.(baseRecord)}</>);
 
-    expect(consoleLogSpy).toHaveBeenCalledTimes(5);
-    expect(consoleLogSpy).toHaveBeenCalledWith("clicar");
+    expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
+    expect(screen.getByTestId("menu-item-2")).toHaveTextContent("Cessar");
+    expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
+    expect(screen.queryByTestId("menu-item-4")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("menu-item-5")).not.toBeInTheDocument();
+
+    rerender(<>{actionRender?.({ ...baseRecord, cessacao: { id: 11 } })}</>);
+    expect(screen.queryByTestId("menu-item-2")).not.toBeInTheDocument();
+
+    rerender(<>{actionRender?.({ ...baseRecord, insubsistencia: { id: 22 } })}</>);
+    expect(screen.queryByTestId("menu-item-3")).not.toBeInTheDocument();
+  });
+
+  it("monta menu de ações para designação não publicada", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-4")).toHaveTextContent("Editar");
+    expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
+    expect(screen.getByTestId("menu-item-2")).toHaveTextContent("Cessar");
+    expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
+    expect(screen.getByTestId("menu-item-5")).toHaveTextContent("Excluir");
+  });
+
+  it("monta menu de ações para cessação, apostila e insubsistência", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    const { rerender } = render(<>{actionRender?.({ ...rows[0], tipo: "CESSACAO" })}</>);
+    expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
+    expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
+
+    rerender(<>{actionRender?.({ ...rows[0], tipo: "APOSTILA" })}</>);
+    expect(screen.getByTestId("menu-item-6")).toHaveTextContent("Anular Apostila");
+
+    rerender(<>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA" })}</>);
+    expect(screen.getByTestId("menu-item-7")).toHaveTextContent("Tornar sem efeito");
   });
 });

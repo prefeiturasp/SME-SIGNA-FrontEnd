@@ -65,7 +65,6 @@ const ListagemDeDesignacoes: React.FC<ListagemDeDesignacoesProps> = ({
 }) => {
   const router = useRouter();
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<number | null>(null);
-
   const handleVisualizarDesignacao = (record: ListagemDesignacoesResponse) => {
     router.push(
       `/pages/listagem-designacoes/visualizar-designacao/${record.id}`

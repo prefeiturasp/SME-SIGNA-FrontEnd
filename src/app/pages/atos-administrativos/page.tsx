@@ -47,41 +47,31 @@ export default function AtosAdministrativos() {
                 key: '5',
                 label: 'Nova designação',
                 icon: <Designacao width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Nova designação");
-                },
+                
               },
               {
                 icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
                 label: 'Nova cessação',
-                onClick: () => {
-                  console.log("cessação new");
-                },
+                
                 key: '3',                                             
               },
               {                
                 label: 'Tornar insubsistente',
                 key: '4',
                 icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Tornar insubsistente");
-                },
+                
               },
               {
                 key: '2',
                 label: 'Nova apostila',
                 icon: <Editar width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Nova apostila");
-                },
+                
               },
               {
                 key: '1',
                 label: 'Anular apostila',
                 icon: <Delete width={20} height={20} color="#9CA3B9" />,
-                onClick: () => {
-                  console.log("Anular apostila");
-                },
+                
               },
             ]
           }} placement="top">
