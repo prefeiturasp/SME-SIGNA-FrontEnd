@@ -3,6 +3,7 @@ import {
     montarTrechoSubstituicao,
     montarTrechoFinal,
     montarAutoridade,
+    montarTrechoAfastamento,
 } from "./regrasPortaria";
 import { nameToCamelCase, formatarRF, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
 
@@ -47,6 +48,7 @@ export function gerarDadosPortaria(data: DesignacaoData) {
         ue: nameToCamelCaseUe(data?.ue_nome ?? ""),
         eh: data?.codigo_hierarquico,
         trecho_substituicao: montarTrechoSubstituicao(data),
+        trecho_afastamento: montarTrechoAfastamento(data),
         trecho_final: montarTrechoFinal(data),
         trecho_unidade: montarTrechoUnidade(data?.servidorIndicado?.lotacao ?? "", data?.ue_nome ?? "", data?.dre_nome ?? ""),
     };

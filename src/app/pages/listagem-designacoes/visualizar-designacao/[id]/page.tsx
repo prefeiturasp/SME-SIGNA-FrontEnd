@@ -58,7 +58,8 @@ export default function VisualizarDesignacao() {
         ? undefined
         : String(designacao.impedimento_substituicao),
       impedimento_label: designacao.impedimento_substituicao !== null ? designacao.impedimento_display : undefined,
-      motivo_substituicao: designacao.motivo_afastamento,
+      com_afastamento: designacao.com_afastamento,
+      motivo_afastamento: designacao.motivo_afastamento,
       tipo_cargo: designacao.tipo_vaga === "VAGO" ? "vago" : "substituicao",
       ue_nome: designacao.unidade_proponente,
       cargo_vago_selecionado: designacao.cargo_vaga_display,

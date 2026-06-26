@@ -154,6 +154,9 @@ export default function CessacaoPage() {
     data_inicio:
       values.cessacao.data_inicio?.toLocaleDateString("pt-BR"),
     trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
+    trecho_afastamento: designacao?.com_afastamento && designacao?.motivo_afastamento
+      ? `, ${designacao.motivo_afastamento}`
+      : "",
   });
 
   const handleGerarPortaria = () => {
