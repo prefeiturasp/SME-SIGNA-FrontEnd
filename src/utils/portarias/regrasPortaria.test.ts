@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
     montarTrechoSubstituicao,
     montarTrechoFinal,
-    montarAutoridade
+    montarAutoridade,
+    montarTrechoAfastamento,
 } from "./regrasPortaria";
 
 describe("montarTrechoSubstituicao", () => {
@@ -222,6 +223,61 @@ describe("montarAutoridade", () => {
         const resultado = montarAutoridade(data);
 
         expect(resultado).toContain("Secretário Municipal de Educação");
+    });
+
+});
+
+describe("montarTrechoAfastamento", () => {
+
+    it("retorna string vazia quando com_afastamento não está definido", () => {
+        const data: any = {};
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é 'nao'", () => {
+        const data: any = { com_afastamento: "nao", motivo_afastamento: "algum motivo" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é false", () => {
+        const data: any = { com_afastamento: false, motivo_afastamento: "algum motivo" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é 'sim' mas motivo está vazio", () => {
+        const data: any = { com_afastamento: "sim", motivo_afastamento: "" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é true mas motivo está vazio", () => {
+        const data: any = { com_afastamento: true, motivo_afastamento: "" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna o motivo com vírgula prefixada quando com_afastamento é 'sim'", () => {
+        const data: any = {
+            com_afastamento: "sim",
+            motivo_afastamento: "com afastamento total, nos termos do inciso IV do artigo 66 da Lei 14.660/07, do cargo Professor Educação Infantil, vínculo 2.",
+        };
+        const resultado = montarTrechoAfastamento(data);
+        expect(resultado).toBe(", com afastamento total, nos termos do inciso IV do artigo 66 da Lei 14.660/07, do cargo Professor Educação Infantil, vínculo 2.");
+    });
+
+    it("retorna o motivo com vírgula prefixada quando com_afastamento é true (booleano)", () => {
+        const data: any = {
+            com_afastamento: true,
+            motivo_afastamento: "com afastamento parcial, nos termos do art. 66.",
+        };
+        const resultado = montarTrechoAfastamento(data);
+        expect(resultado).toBe(", com afastamento parcial, nos termos do art. 66.");
+    });
+
+    it("remove espaços extras do motivo antes de retornar", () => {
+        const data: any = {
+            com_afastamento: "sim",
+            motivo_afastamento: "  com afastamento total  ",
+        };
+        expect(montarTrechoAfastamento(data)).toBe(", com afastamento total");
     });
 
 });
