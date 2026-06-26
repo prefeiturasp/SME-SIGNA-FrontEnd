@@ -12,6 +12,7 @@ import Apostilar from '@/assets/icons/Apostilar';
 import Cancelar from '@/assets/icons/Cancelar';
 import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
+import { ItemType } from 'antd/es/menu/interface';
 
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
@@ -52,7 +53,7 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
-
+ 
 
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
@@ -71,50 +72,122 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 }) => {
 
 
-  const getItems = (): MenuProps['items'] => [
-
+  const designacaoPublicadaItems = [
     {
       key: '1',
-      label: 'Editar',
-      icon: <Editar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      label: 'Apostilar',
+      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+      
     },
     {
       key: '2',
-      label: 'Apostilar',
-      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      label: 'Cessar',
+      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+      
     },
     {
       key: '3',
-      label: 'Cessar',
-      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
-    },
-    {
-      key: '4',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
+  ]
 
+  const desigacaoNaoPublicadaItems = [
+    {
+      key: '4',
+      label: 'Editar',
+      icon: <Editar width={20} height={20} color="#9CA3B9" />,
+      
+    },
+    ...designacaoPublicadaItems,
     {
       key: '5',
       label: 'Excluir',
       icon: <Delete width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        console.log("clicar");
-      },
+      
     },
-  ];
+  ]
+
+  const cessacaoItems = [
+    {
+      key: '1',
+      label: 'Apostilar',
+      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+      
+    },
+    {
+      key: '3',
+      label: 'Tornar insubsistente',
+      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+      
+    },
+  ]
+
+
+  const apostilaItems = [
+    {
+      key: '6',
+      label: 'Anular Apostila',
+      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+      
+    },
+  ]
+
+  const insubsistenciaItems = [
+    {
+      key: '7',
+      label: 'Tornar sem efeito',
+      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+      
+    },
+  ]
+
+
+
+
+  const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
+
+    let items: ItemType[] = [];
+
+    if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      items.push(...designacaoPublicadaItems);
+    }
+
+    if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...desigacaoNaoPublicadaItems);
+    }
+
+
+    if (record.tipo === 'CESSACAO') {
+      items.push(...cessacaoItems);
+    }
+
+
+    if (record.tipo === 'APOSTILA') {
+      items.push(...apostilaItems);
+    }
+
+    if (record.tipo === 'INSUBSISTENCIA') {
+      items.push(...insubsistenciaItems);
+    }
+
+    // remove as funções que ja foram executadas e não podem ser duplicadas
+    if (record.cessacao) {
+      items = items.filter((item) =>
+        item?.key !== '2'
+      )
+    }
+
+    if (record.insubsistencia) {
+      items = items.filter((item) =>
+        item?.key !== '3'  
+      )
+    }
+
+    return items;
+
+  };
 
 
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
@@ -132,11 +205,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       title: '',
       key: 'action',
       width: 50,
-      render: () => (
+      render: (record: ListagemAtosAdministrativosResponse) => (
         <div>
           <Dropdown
             menu={{
-              items: getItems(),
+              items: getItems(record),
             }}
             trigger={['click']}
           >

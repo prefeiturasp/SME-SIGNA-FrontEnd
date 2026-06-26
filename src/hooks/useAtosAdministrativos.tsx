@@ -15,7 +15,6 @@ export function useAtosAdministrativos() {
   const [tabelaKey, setTabelaKey] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
-
   const defaultValues = {
     tipo: "",
     portaria: "",
@@ -67,7 +66,6 @@ export function useAtosAdministrativos() {
     const filtros = {
       ...generateDesignacaoFiltros(values),
     };
-    console.log("filtros", filtros);
      return fetchAtosAdministrativos({ ...filtros, page: page ?? 1 });
   };
 
