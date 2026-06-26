@@ -55,14 +55,7 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
-export interface ItemDropdown {
-  type?: DropdownButtonType;
-  disabled?: boolean;
-  loading?: ButtonProps['loading'];
-  
-  key?: string;
-
-}
+ 
 
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
