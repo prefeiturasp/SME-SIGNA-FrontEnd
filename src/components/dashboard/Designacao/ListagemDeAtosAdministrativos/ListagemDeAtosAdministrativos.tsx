@@ -12,8 +12,6 @@ import Apostilar from '@/assets/icons/Apostilar';
 import Cancelar from '@/assets/icons/Cancelar';
 import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
-import { DropdownButtonType } from 'antd/es/dropdown';
-import { ButtonProps } from 'antd/lib/button';
 import { ItemType } from 'antd/es/menu/interface';
 
 const NameColorStatusAtosAdministrativos = {
