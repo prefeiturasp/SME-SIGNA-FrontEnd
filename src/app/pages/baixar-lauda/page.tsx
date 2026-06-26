@@ -22,7 +22,6 @@ export default function BaixarLauda() {
     onSubmitFilterForm,
     salvando,
   } = usePortariasDO();
-  console.log(' resultado', resultado )
 
 
   const handleBaixarLauda = async (selectedRows: ListagemPortariasResponse[], tipoArquivo: string) => {
