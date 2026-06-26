@@ -81,7 +81,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 }) => {
 
 
-  const desigacaoPublicadaItems = [
+  const designacaoPublicadaItems = [
     {
       key: '1',
       label: 'Apostilar',
@@ -109,7 +109,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       icon: <Editar width={20} height={20} color="#9CA3B9" />,
       
     },
-    ...desigacaoPublicadaItems,
+    ...designacaoPublicadaItems,
     {
       key: '5',
       label: 'Excluir',
@@ -160,7 +160,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     let items: ItemType[] = [];
 
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
-      items.push(...desigacaoPublicadaItems);
+      items.push(...designacaoPublicadaItems);
     }
 
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
