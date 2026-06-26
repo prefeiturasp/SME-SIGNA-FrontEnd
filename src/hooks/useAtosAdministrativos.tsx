@@ -15,7 +15,6 @@ export function useAtosAdministrativos() {
   const [tabelaKey, setTabelaKey] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
-  console.log('resultado',resultado)
   const defaultValues = {
     tipo: "",
     portaria: "",
