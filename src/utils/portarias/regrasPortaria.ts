@@ -87,6 +87,18 @@ export function montarTrechoFinal(data: DesignacaoData): string {
     return `portando diploma de Pedagogia e experiência de 3 anos no Magistério.`;
 }
 
+export function montarTrechoAfastamento(data: DesignacaoData): string {
+    const comAfastamento =
+        data?.com_afastamento === "sim" || data?.com_afastamento === true;
+    const motivo = data?.motivo_afastamento?.trim();
+
+    if (comAfastamento && motivo) {
+        return `, ${motivo}`;
+    }
+
+    return "";
+}
+
 export function montarAutoridade(data: DesignacaoData): string {
     if (data?.impedimento_substituicao === "4") {
         return "O Chefe de Gabinete";

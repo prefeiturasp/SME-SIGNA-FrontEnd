@@ -57,6 +57,9 @@ export interface DesignacaoData {
   impedimento_substituicao?: string;
   impedimento_label?: string;
 
+  com_afastamento?: string | boolean;
+  motivo_afastamento?: string;
+
   servidorIndicado?: Servidor;
   dadosTitular?: Titular | null;
 }
