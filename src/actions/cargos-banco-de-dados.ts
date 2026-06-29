@@ -9,7 +9,7 @@ import { ICargoType } from "@/types/cargos";
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;    
     try {
-        const { data } = await axios.get<ICargoType[]>(`${API_URL}/designacao/designacoes/cargos-base-pareados`,             {
+        const { data } = await axios.get<ICargoType[]>(`${API_URL}/designacao/v2/designacoes/cargos-base-pareados/`,             {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -25,7 +25,7 @@ import { ICargoType } from "@/types/cargos";
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;    
     try {
-        const { data } = await axios.get<ICargoType[]>(`${API_URL}/designacao/designacoes/cargos-sobrepostos-pareados`,             {
+        const { data } = await axios.get<ICargoType[]>(`${API_URL}/designacao/v2/designacoes/cargos-sobrepostos-pareados/`,             {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

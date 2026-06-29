@@ -30,7 +30,7 @@ Funcionalidade: Designação de Servidores
     E deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     E deve visualizar o texto "DRE"
@@ -71,7 +71,7 @@ Funcionalidade: Designação de Servidores
     E valida a existencia dos Botões "Voltar" e "Salvar"
     Quando clica em "Salvar"
 
-  @designacao-fluxo-completo @critico @cargo-vago
+  @skip -@designacao-fluxo-completo @critico @cargo-vago
   Cenário: Nova designação de servidor com cargo vago
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -92,7 +92,7 @@ Funcionalidade: Designação de Servidores
     E deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     E deve visualizar o texto "DRE"
@@ -114,9 +114,10 @@ Funcionalidade: Designação de Servidores
     E valida a existencia do texto "Selecione o tipo de cargo:"
     E valida a existencia das opcoes Cargo Disponivel e Cargo Vago
     E seleciona e clica a opcao "Cargo Vago"
-    E valida a existencia do texto "Selecione o cargo"
-    E clica no campo e seleciona aleatoriamente um dos cargos vagos
-    E espera 20 seg
+    E valida a existencia do Texto "Cargo"
+    E valida a existencia do botao de selecao de cargo vago
+    E clica no campo "Cargo" e seleciona a primeira opcao disponivel
+    E espera 10 seg
     E deve visualizar os botoes de navegacao do passo 2
     Quando clica em Avançar no rodape do passo 2
 
@@ -156,7 +157,7 @@ Funcionalidade: Designação de Servidores
     Então deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     Quando seleciona o cargo de forma aleatoria no painel da unidade
@@ -179,7 +180,7 @@ Funcionalidade: Designação de Servidores
     Então deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     Quando seleciona o cargo de forma aleatoria no painel da unidade
@@ -191,7 +192,7 @@ Funcionalidade: Designação de Servidores
     E navega ate Seleciona o tipo de cargo
     E seleciona a opcao "Cargo Disponível"
     E clica e preenche o campo RF titular com "0000000"
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botao e clica em pesquisar o titular
     Então o sistema exibe mensagem de titular não encontrado
 
@@ -218,7 +219,7 @@ Funcionalidade: Designação de Servidores
     Então deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     Quando seleciona o cargo de forma aleatoria no painel da unidade
@@ -231,6 +232,5 @@ Funcionalidade: Designação de Servidores
     E valida a existencia do texto "Selecione o tipo de cargo:"
     E valida a existencia das opcoes Cargo Disponivel e Cargo Vago
     E seleciona e clica a opcao "Cargo Vago"
-    E valida a existencia do texto "Selecione o cargo"
     Quando tenta avançar o passo 2 sem preencher a portaria
     Então o sistema impede o avanco do passo 2

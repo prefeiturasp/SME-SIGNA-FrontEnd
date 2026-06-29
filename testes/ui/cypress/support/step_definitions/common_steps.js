@@ -121,20 +121,13 @@ When('o usuário clica no menu de usuário', () => {
 // ─── Steps Genéricos Comuns ─────────────────────────────────────────────────
 
 Given('que o usuário está na página do dashboard', () => {
-  // Intercept para aguardar carregamento da página listagem-designacoes
-  cy.intercept('POST', '**/listagem-designacoes**').as('loadDashboard')
-  
-  // Aguarda a navegação natural após login
+  // Aguarda URL sem depender de interceptar POST (que pode já ter ocorrido durante o login)
   cy.url({ timeout: 40000 }).should('include', 'listagem-designacoes')
-  cy.wait('@loadDashboard', { timeout: 40000 })
-  
-  // Aguarda o main estar visível
+
+  // Aguarda conteúdo real da página — garante que os dados foram carregados
   cy.get('main', { timeout: 40000 }).should('be.visible')
-  
-  // Aguarda que não existam loaders
-  cy.get('.loading, .spinner, .loader', { timeout: 40000 }).should('not.exist')
-  
-  // Buffer final
+  cy.get('table tbody tr.ant-table-row', { timeout: 40000 }).should('have.length.greaterThan', 0)
+  cy.get('.loading, .spinner, .loader').should('not.exist')
   cy.wait(1500)
 });
 
@@ -191,6 +184,23 @@ Then('o sistema exibe a Tela {string}', (tela) => {
       .then(() => {
         cy.log(`✓ Tela "${tela}" validada`)
       })
+  }
+  // Validação específica para tela de Editar Designação
+  // URL real: /pages/designacoes/designacoes-passo-2?id=XX
+  else if (telaLower.includes('editar')) {
+    cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-2')
+    cy.log('✓ Navegação para tela de Editar Designação confirmada')
+    cy.contains(/Editar Designação/i, { timeout: 15000 }).should('be.visible')
+    cy.log(`✓ Tela "${tela}" carregada`)
+  }
+  // Validação específica para tela de Apostila
+  // URL real: /pages/apostila?id=XX  (sem "r" final)
+  // Texto real na página: "Apostila" (breadcrumb e título da seção)
+  else if (telaLower.includes('apostil')) {
+    cy.url({ timeout: 15000 }).should('include', 'apostila')
+    cy.log('✓ Navegação para tela Apostila confirmada')
+    cy.contains(/Apostila/i, { timeout: 15000 }).should('be.visible')
+    cy.log('✓ Tela "Apostila" carregada')
   }
   // Validação genérica para outras telas
   else {

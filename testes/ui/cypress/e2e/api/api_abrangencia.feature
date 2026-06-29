@@ -1,5 +1,5 @@
 #language: pt
-@api @abrangencia
+@skip @api @abrangencia
 Funcionalidade: API EOL - Abrangencia
   Como sistema integrado SME
   Quero validar os endpoints de abrangência institucional

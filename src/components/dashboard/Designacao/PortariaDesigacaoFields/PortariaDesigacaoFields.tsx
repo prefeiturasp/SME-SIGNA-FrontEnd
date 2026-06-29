@@ -219,7 +219,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                       <FormControl>
                         <Textarea
                           rows={4}
-                          placeholder="Motivo do afastamento"
+                          placeholder="com afastamento total, nos termos do inciso IV do artigo 66 da Lei 14.660/07, do cargo Professor Educação Infantil, vínculo 2."
                           value={field.value}
                           onChange={(value) =>
                             field.onChange(value.target.value)

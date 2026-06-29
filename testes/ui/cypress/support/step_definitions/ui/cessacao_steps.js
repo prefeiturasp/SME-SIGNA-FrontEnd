@@ -87,181 +87,119 @@ Then('navega para a seção Action', () => {
 })
 
 Then('clica e seleciona a opção {string}', (opcao) => {
-  const MAX_TENTATIVAS = 10
-  const paginaEsperada = opcao.toLowerCase().includes('insubsist') ? 'insubsistencia' : 'cessacao'
-  const chaveEnv = opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas' : 'designacoesTentadas'
-  
+  const MAX_TENTATIVAS = 4
+  const paginaEsperada = opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
+    : opcao.toLowerCase().includes('apostil') ? 'apostila'
+    : opcao.toLowerCase().includes('editar') ? 'designacoes-passo-2'
+    : 'cessacao'
+  const chaveEnv = opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
+    : opcao.toLowerCase().includes('apostil') ? 'apostilarTentadas'
+    : opcao.toLowerCase().includes('editar') ? 'editarTentadas'
+    : 'designacoesTentadas'
+
   cy.log(`Selecionando a opção: "${opcao.trim()}"`)
-  
-  // Lista todos os textos do dropdown para debug
-  cy.get('ul li span', { timeout: 10000 })
-    .should('have.length.greaterThan', 0)
-    .then($spans => {
-      const textos = $spans.map((i, el) => Cypress.$(el).text().trim()).get()
-      cy.log(`✓ Dropdown aberto com ${textos.length} opções: ${textos.join(', ')}`)
-    })
-  
-  // Tenta clicar na opção - se não existir, vai falhar e entramos no retry
-  cy.get('body').then($body => {
-    let opcaoEncontrada = false
-    
-    // Verifica se a opção existe checando todos os spans
-    $body.find('ul li span').each((index, el) => {
-      const texto = Cypress.$(el).text().trim().toLowerCase()
-      if (texto.includes(opcao.trim().toLowerCase())) {
-        opcaoEncontrada = true
-        return false // break
-      }
-    })
-    
-    if (!opcaoEncontrada) {
-      cy.log(`✗ Opção "${opcao}" não disponível para esta designação`)
-      
-      // Registra tentativa e tenta próxima
-      cy.get('@designacaoIndex').then(index => {
+
+  // Navega para a próxima designação disponível e chama tentarOpcao novamente
+  const irParaProxima = () => {
+    cy.log('↻ Voltando para listagem...')
+    cy.visit('/pages/listagem-designacoes')
+    cy.wait(2000)
+
+    cy.get('table tbody tr:not(.ant-table-measure-row)', { timeout: 15000 })
+      .should('have.length.greaterThan', 0)
+      .its('length')
+      .then(totalLinhas => {
         const tentadas = Cypress.env(chaveEnv) || []
-        tentadas.push(index)
-        Cypress.env(chaveEnv, tentadas)
-        
-        if (tentadas.length >= MAX_TENTATIVAS) {
-          throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas de encontrar designação válida`)
+        const disponiveis = Array.from({ length: totalLinhas }, (_, i) => i)
+          .filter(i => !tentadas.includes(i))
+
+        if (disponiveis.length === 0) {
+          throw new Error(`Todas as ${totalLinhas} designações foram testadas sem sucesso para "${opcao}"`)
         }
-        
-        cy.log(`Designação ${index} sem opção "${opcao}" (${tentadas.length}/${MAX_TENTATIVAS} tentadas)`)
-      })
-      
-      // Fecha dropdown e volta para listagem
-      cy.get('body').click(0, 0)
-      cy.wait(1000)
-      
-      cy.log('↻ Voltando para listagem...')
-      cy.visit('/pages/listagem-designacoes')
-      cy.wait(2000)
-      
-      // Seleciona próxima designação disponível
-      cy.get('table tbody tr:not(.ant-table-measure-row)', { timeout: 15000 })
-        .should('have.length.greaterThan', 0)
-        .its('length')
-        .then(totalLinhas => {
-          const tentadas = Cypress.env(chaveEnv) || []
-          const indicesDisponiveis = Array.from({ length: totalLinhas }, (_, i) => i)
-            .filter(i => !tentadas.includes(i))
-          
-          if (indicesDisponiveis.length === 0) {
-            throw new Error(`Todas as ${totalLinhas} designações foram testadas`)
-          }
-          
-          const novoIndex = indicesDisponiveis[0]
-          cy.log(`↻ Tentando designação ${novoIndex} (${indicesDisponiveis.length} restantes)`)
-          cy.wrap(novoIndex).as('designacaoIndex')
-          
-          // Abre dropdown da nova designação
-          cy.get('table tbody tr:not(.ant-table-measure-row)')
-            .eq(novoIndex)
-            .should('be.visible')
-            .scrollIntoView()
-            .within(() => {
-              cy.get('.ant-dropdown-trigger, [class*="dropdown-trigger"]')
-                .first()
-                .should('be.visible')
-                .click({ force: true })
-            })
-          
-          cy.wait(1000)
-          
-          // Tenta clicar na opção recursivamente
-          cy.then(() => {
-            cy.get('ul li span')
-              .contains(new RegExp(`^${opcao.trim()}$`, 'i'))
-              .should('be.visible')
-              .click({ force: true })
+
+        const novoIndex = disponiveis[0]
+        cy.log(`↻ Tentando designação ${novoIndex} (${disponiveis.length} restantes)`)
+        cy.wrap(novoIndex).as('designacaoIndex')
+
+        cy.get('table tbody tr:not(.ant-table-measure-row)')
+          .eq(novoIndex).should('be.visible').scrollIntoView()
+          .within(() => {
+            cy.get('.ant-dropdown-trigger, [class*="dropdown-trigger"]')
+              .first().should('be.visible').click({ force: true })
           })
-        })
-      
-      return
-    }
-    
-    // Opção encontrada - clica
-    cy.log(`✓ Opção "${opcao}" encontrada`)
-    cy.get('ul li span')
-      .contains(new RegExp(opcao.trim(), 'i'))
-      .should('be.visible')
-      .click({ force: true })
-    
-    cy.wait(3000)
-    
-    // Visualizar não precisa validar navegação
-    if (opcao.toLowerCase().includes('visualizar') || opcao.toLowerCase().includes('detalhar')) {
-      cy.log(`✓ Navegação para visualização`)
-      return
-    }
-    
-    // Valida navegação para Cessação/Insubsistência
-    cy.url({ timeout: 10000 }).then(url => {
-      if (!url.includes(paginaEsperada)) {
-        cy.log(`✗ Navegação falhou! Ainda em: ${url}`)
-        
-        // Registra falha e tenta próxima
+
+        cy.wait(1000)
+        tentarOpcao()
+      })
+  }
+
+  // Tenta clicar a opção no dropdown atual e valida navegação
+  // Se falhar, registra o índice e delega a irParaProxima (recursão efetiva)
+  const tentarOpcao = () => {
+    cy.get('ul li span', { timeout: 10000 })
+      .should('have.length.greaterThan', 0)
+      .then($spans => {
+        const textos = $spans.map((i, el) => Cypress.$(el).text().trim()).get()
+        cy.log(`Dropdown: ${textos.join(', ')}`)
+      })
+
+    cy.get('body').then($body => {
+      const encontrada = $body.find('ul li span').toArray()
+        .some(el => Cypress.$(el).text().trim().toLowerCase()
+          .includes(opcao.trim().toLowerCase()))
+
+      if (!encontrada) {
+        cy.log(`✗ Opção "${opcao}" não disponível`)
         cy.get('@designacaoIndex').then(index => {
           const tentadas = Cypress.env(chaveEnv) || []
-          tentadas.push(index)
+          if (!tentadas.includes(index)) tentadas.push(index)
           Cypress.env(chaveEnv, tentadas)
-          
           if (tentadas.length >= MAX_TENTATIVAS) {
-            throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas`)
+            throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas para "${opcao}"`)
           }
-          
+          cy.log(`Designação ${index} ignorada (${tentadas.length}/${MAX_TENTATIVAS})`)
+        })
+        cy.get('body').click(0, 0)
+        cy.wait(500)
+        irParaProxima()
+        return
+      }
+
+      cy.log(`✓ Opção "${opcao}" encontrada`)
+      // force: true ignora opacity:0 da animação ant-slide-up-appear do dropdown
+      cy.get('ul li span')
+        .contains(new RegExp(`^${opcao.trim()}$`, 'i'))
+        .click({ force: true })
+
+      // Visualizar/Detalhar não exige validação de URL
+      if (opcao.toLowerCase().includes('visualizar') || opcao.toLowerCase().includes('detalhar')) {
+        cy.log('✓ Navegação para visualização')
+        return
+      }
+
+      cy.wait(3000)
+      cy.url().then(url => {
+        if (url.includes(paginaEsperada)) {
+          cy.log(`✓ Navegação para ${paginaEsperada} confirmada!`)
+          return
+        }
+
+        cy.log(`✗ Navegação falhou! Ainda em: ${url}`)
+        cy.get('@designacaoIndex').then(index => {
+          const tentadas = Cypress.env(chaveEnv) || []
+          if (!tentadas.includes(index)) tentadas.push(index)
+          Cypress.env(chaveEnv, tentadas)
+          if (tentadas.length >= MAX_TENTATIVAS) {
+            throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas de navegação para "${opcao}"`)
+          }
           cy.log(`Designação ${index} não navegou (${tentadas.length}/${MAX_TENTATIVAS})`)
         })
-        
-        cy.log('↻ Voltando para listagem...')
-        cy.visit('/pages/listagem-designacoes')
-        cy.wait(2000)
-        
-        cy.get('table tbody tr:not(.ant-table-measure-row)', { timeout: 15000 })
-          .should('have.length.greaterThan', 0)
-          .its('length')
-          .then(totalLinhas => {
-            const tentadas = Cypress.env(chaveEnv) || []
-            const indicesDisponiveis = Array.from({ length: totalLinhas }, (_, i) => i)
-              .filter(i => !tentadas.includes(i))
-            
-            if (indicesDisponiveis.length === 0) {
-              throw new Error(`Todas as ${totalLinhas} designações testadas`)
-            }
-            
-            const novoIndex = indicesDisponiveis[0]
-            cy.log(`↻ Tentando designação ${novoIndex}`)
-            cy.wrap(novoIndex).as('designacaoIndex')
-            
-            cy.get('table tbody tr:not(.ant-table-measure-row)')
-              .eq(novoIndex)
-              .should('be.visible')
-              .scrollIntoView()
-              .within(() => {
-                cy.get('.ant-dropdown-trigger, [class*="dropdown-trigger"]')
-                  .first()
-                  .should('be.visible')
-                  .click({ force: true })
-              })
-            
-            cy.wait(1000)
-            
-            cy.then(() => {
-              cy.get('ul li span')
-                .contains(new RegExp(`^${opcao.trim()}$`, 'i'))
-                .should('be.visible')
-                .click({ force: true })
-              
-              cy.wait(3000)
-              cy.url({ timeout: 10000 }).should('include', paginaEsperada)
-            })
-          })
-      } else {
-        cy.log(`✓ Navegação para ${paginaEsperada} confirmada!`)
-      }
+        irParaProxima()
+      })
     })
-  })
+  }
+
+  tentarOpcao()
 })
 
 // ETAPAS 2-4: Validação de Abas

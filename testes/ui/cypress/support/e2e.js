@@ -28,8 +28,10 @@ beforeEach(() => {
 // After hook global - executa após cada teste
 afterEach(function() {
   // Capturar screenshot em caso de falha
+  // capture: 'fullPage' evita o erro "height greater than zero" quando o teste
+  // falha dentro de um within() ou com viewport não renderizado
   if (this.currentTest.state === 'failed') {
     const testName = this.currentTest.title.replace(/\s+/g, '_');
-    cy.screenshot(`failed-${testName}`);
+    cy.screenshot(`failed-${testName}`, { capture: 'fullPage' });
   }
 });

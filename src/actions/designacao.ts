@@ -6,6 +6,8 @@ import {
   DesignacaoPaginada,
   ListagemPortariasResponse,
   ListagemDesignacoesResponse,
+  AtosAdministrativosPaginada,
+  AtosAdministrativosFiltros,
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 import { handleApiError } from "@/lib/api-error";
@@ -64,12 +66,25 @@ export const fetchPortariasDO = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemPortariasResponse[]>(
-    "/designacao/portarias/",
+    "/designacao/v2/portarias/",
     filtros,
     "Erro ao buscar as dados para alterar a data do D.O"
   );
 };
 
+
+export const fetchAtosAdministrativos = async (
+  filtros: AtosAdministrativosFiltros
+): Promise<
+  | { success: true; data: AtosAdministrativosPaginada }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<AtosAdministrativosPaginada>(
+    "/designacao/atos-administrativos/",
+    filtros,
+    "Erro ao buscar os atos administrativos"
+  );
+};
 
 
 export const fetchDesignacoesSemPaginacaoAction = async (

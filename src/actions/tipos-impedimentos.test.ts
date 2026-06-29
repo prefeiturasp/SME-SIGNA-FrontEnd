@@ -43,7 +43,7 @@ describe("getImpedimentosAction", () => {
     });
 
     expect(axiosMock.get).toHaveBeenCalledWith(
-      "http://fake-api/designacao/designacoes/impedimentos/",
+      "http://fake-api/designacao/v2/designacoes/impedimentos/",
       {
         headers: {
           Authorization: "Bearer fake-token",

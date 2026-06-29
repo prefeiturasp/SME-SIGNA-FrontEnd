@@ -57,7 +57,7 @@ describe("getServidorDesignacaoAction", () => {
     const result = await getServidorDesignacaoAction(sampleRequest);
 
     expect(axios.post).toHaveBeenCalledWith(
-      "https://api.exemplo.com/designacao/servidor",
+      "https://api.exemplo.com/designacao/v2/servidor",
       { rf: "123" },
       {
         headers: {

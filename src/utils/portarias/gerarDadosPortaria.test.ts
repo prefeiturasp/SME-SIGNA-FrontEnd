@@ -5,6 +5,7 @@ import * as regrasPortaria from "./regrasPortaria";
 vi.mock("./regrasPortaria", () => ({
     montarAutoridade: vi.fn(),
     montarTrechoSubstituicao: vi.fn(),
+    montarTrechoAfastamento: vi.fn(),
     montarTrechoFinal: vi.fn(),
 }));
 
@@ -12,6 +13,7 @@ describe("gerarDadosPortaria", () => {
     it("gera os dados da portaria corretamente para cargo vago na mesma unidade", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade Teste");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Trecho Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Trecho Final");
 
         const data: any = {
@@ -49,6 +51,7 @@ describe("gerarDadosPortaria", () => {
             ue: "Escola Teste",
             eh: "123456",
             trecho_substituicao: "Trecho Substituição",
+            trecho_afastamento: "",
             trecho_unidade: "na referida Unidade",
             trecho_final: "Trecho Final",
         });
@@ -57,6 +60,7 @@ describe("gerarDadosPortaria", () => {
     it("gera os dados da portaria corretamente para cargo vago em outra unidade", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade Teste");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Trecho Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Trecho Final");
 
         const data: any = {
@@ -94,6 +98,7 @@ describe("gerarDadosPortaria", () => {
             ue: "Escola Teste",
             eh: "123456",
             trecho_substituicao: "Trecho Substituição",
+            trecho_afastamento: "",
             trecho_unidade: "na Escola Teste, da DRE Centro",
             trecho_final: "Trecho Final",
         });
@@ -102,6 +107,7 @@ describe("gerarDadosPortaria", () => {
     it("usa cargo_base do titular quando não for cargo vago", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
         const data: any = {
@@ -126,6 +132,7 @@ describe("gerarDadosPortaria", () => {
     it("inclui categoria no cargo_base quando servidorIndicado tem categoria", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
         const data: any = {
@@ -154,6 +161,7 @@ describe("gerarDadosPortaria", () => {
     it("não inclui categoria no cargo_base quando servidorIndicado não tem categoria", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
         const data: any = {
@@ -181,6 +189,7 @@ describe("gerarDadosPortaria", () => {
     it("usa cargo_vago_selecionado.label quando for um objeto", () => {
         vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
         vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
         const data: any = {

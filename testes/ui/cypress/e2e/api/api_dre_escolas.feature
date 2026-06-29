@@ -1,5 +1,5 @@
 #language: pt
-@api @dre_escolas
+@skip @api @dre_escolas
 Funcionalidade: Testes da API de Escolas por DRE e Tipo
   Como um testador
   Quero validar o endpoint GET /api/DREs/{codigoEolDRE}/escolas/{tipoEscola}

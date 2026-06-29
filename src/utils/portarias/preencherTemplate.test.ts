@@ -29,13 +29,13 @@ describe("preencherTemplate", () => {
         expect(resultado).toBe("Nome: ____");
     });
 
-    it("retorna ____ quando o valor é string vazia", () => {
+    it("retorna string vazia quando o valor é string vazia", () => {
         const template = "Nome: {{nome}}";
         const dados = { nome: "" };
 
         const resultado = preencherTemplate(template, dados);
 
-        expect(resultado).toBe("Nome: ____");
+        expect(resultado).toBe("Nome: ");
     });
 
     it("substitui múltiplos placeholders", () => {
