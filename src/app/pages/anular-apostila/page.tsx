@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, message } from "antd";
 import { Loader2 } from "lucide-react";
 
-import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
 import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
 import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
 import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado"
@@ -78,35 +77,8 @@ export default function AnularApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria] = useState("");
 
-  const gerarDados = (values: formSchemaAnularApostilaData) => {
-    const isCessacao = apostila?.cessacao;
-
-    const fonteDados = isCessacao ? apostila?.designacao?.cessacao : apostila?.designacao;
-
-    return {
-      sei: values.apostila.numero_sei,
-      dre: apostila?.designacao?.dre_nome ?? "-",
-      eh: apostila?.designacao?.codigo_hierarquico ?? "-",
-      doc: values.apostila.doc,
-      ato_apostilado: isCessacao ? "cessacao" : "designacao",
-
-      portaria_designacao: fonteDados?.numero_portaria ?? "-",
-      ano: fonteDados?.ano_vigente ?? "-",
-      doc_designacao: fonteDados?.doc ?? "-",
-      sei_designacao: isCessacao ? apostila?.designacao?.cessacao?.sei_numero : apostila?.designacao?.sei_numero ?? "-",
-
-      nome_indicado: apostila?.designacao?.indicado_nome_servidor ?? "-",
-      rf: formatarRF(apostila?.designacao?.indicado_rf ?? "-"),
-      vinculo: apostila?.designacao?.indicado_vinculo ?? "-",
-      cargo_base: nameToCamelCase(apostila?.designacao?.indicado_cargo_base ?? "-"),
-      cargo: nameToCamelCase(apostila?.designacao?.indicado_cargo_sobreposto ?? "-"),
-      ue: nameToCamelCaseUe(apostila?.designacao?.indicado_local_exercicio ?? "-"),
-      observacao: values.apostila.observacao ?? "",
-    };
-  };
 
   const handleGerarPortaria = () => {
-    gerarDados(form.getValues());
     setMostrarEditor(true);
   };
 
