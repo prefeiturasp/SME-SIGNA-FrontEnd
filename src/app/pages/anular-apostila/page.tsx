@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, message } from "antd";
 import { Loader2 } from "lucide-react";
 
-import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
 import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
 import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
@@ -18,7 +17,7 @@ import { Button } from "@/components/ui/button";
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
-import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import EditorSEI from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import BlocosDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao";
 
 
@@ -27,6 +26,15 @@ import { Servidor } from "@/types/designacao-unidade";
 import formSchemaAnularApostila, { formSchemaAnularApostilaData } from "./schema";
 import { useFetchApostilasById } from "@/hooks/useVisualizarApostilas";
 import PortariaAnularApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaAnularApostilaFields";
+
+const defaultValues = {
+  portaria: undefined,
+  ano: undefined,
+  numero_sei: "",
+  doc: "",
+  observacao: "",
+  texto_para_apostila: "É a presente portaria apostilada",
+};  
 
 export default function AnularApostilaPage() {
   const searchParams = useSearchParams();
@@ -39,14 +47,7 @@ export default function AnularApostilaPage() {
   const form = useForm<formSchemaAnularApostilaData>({
     resolver: zodResolver(formSchemaAnularApostila),
     defaultValues: {
-      apostila: {
-        portaria: undefined,
-        ano: undefined,
-        numero_sei: "",
-        doc: "",
-        observacao: "",
-        texto_para_apostila: "",
-      },
+      apostila: defaultValues,
     },
   });
 
@@ -65,24 +66,17 @@ export default function AnularApostilaPage() {
     [apostila]
   );
 
-
-
   useEffect(() => {
     if (!apostila) return;
     form.reset({
       apostila: {
-        portaria: undefined,
-        ano: undefined,
-        numero_sei: "",
-        doc: "",
-        texto_para_apostila: "",
-        observacao: "",
+        ...defaultValues,
       },
     });
-  }, [apostila, form]);
+  }, [apostila, form, defaultValues]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
-  const [htmlPortaria, setHtmlPortaria] = useState("");
+  const [htmlPortaria] = useState("");
 
   const gerarDados = (values: formSchemaAnularApostilaData) => {
     const isCessacao = apostila?.cessacao;
@@ -112,20 +106,7 @@ export default function AnularApostilaPage() {
   };
 
   const handleGerarPortaria = () => {
-    const values = form.getValues();
-    const dados = gerarDados(values);
-
-    let texto = TEMPLATE_APOSTILA;
-
-    Object.entries(dados).forEach(([key, value]) => {
-      let val = String(value ?? "");
-      if (["nome_indicado"].includes(key)) {
-        val = `<strong>${val}</strong>`;
-      }
-      texto = texto.replaceAll(`{{${key}}}`, val);
-    });
-
-    setHtmlPortaria(gerarHtmlPortaria(texto));
+    gerarDados(form.getValues());
     setMostrarEditor(true);
   };
 

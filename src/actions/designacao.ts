@@ -11,7 +11,7 @@ import {
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 import { handleApiError } from "@/lib/api-error";
-import { ApostilaDetailRead, ApostilaRead } from "@/types/apostila";
+import { ApostilaDetailRead } from "@/types/apostila";
 
 
 const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {

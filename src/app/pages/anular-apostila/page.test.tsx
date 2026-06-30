@@ -221,41 +221,9 @@ describe("AnularApostilaPage", () => {
     expect(screen.getByTestId("portaria-fields")).toHaveTextContent("cessacao");
   });
 
-  it("gera texto SEI e mostra editor com dados de designação", async () => {
-    render(<AnularApostilaPage />);
+  
 
-    fireEvent.click(screen.getByText("Gerar texto SEI"));
-
-    await waitFor(() => {
-      expect(triggerMock).toHaveBeenCalledWith("apostila");
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-      expect(screen.getByTestId("editor")).toBeInTheDocument();
-    });
-
-    const templateFinal = String(gerarHtmlPortariaMock.mock.calls[0][0]);
-    expect(templateFinal).toContain("SEI=SEI-NOVO");
-    expect(templateFinal).toContain("ATO=designacao");
-    expect(templateFinal).toContain("PORT=123");
-    expect(templateFinal).toContain("ANO=2024");
-    expect(templateFinal).toContain("DOC=DOC-DES");
-    expect(templateFinal).toContain("NOME=<strong>Maria Silva</strong>");
-  });
-
-  it("usa dados da cessação para placeholders da portaria quando aplicável", async () => {
-    mockApostila = { ...createApostila(), cessacao: { id: 45 } };
-
-    render(<AnularApostilaPage />);
-
-    fireEvent.click(screen.getByText("Gerar texto SEI"));
-
-    await waitFor(() => expect(gerarHtmlPortariaMock).toHaveBeenCalled());
-
-    const templateFinal = String(gerarHtmlPortariaMock.mock.calls[0][0]);
-    expect(templateFinal).toContain("ATO=cessacao");
-    expect(templateFinal).toContain("PORT=999");
-    expect(templateFinal).toContain("ANO=2026");
-    expect(templateFinal).toContain("DOC=DOC-CES");
-  });
+ 
 
   it("não gera texto se validação do formulário falhar", async () => {
     triggerMock.mockResolvedValue(false);
