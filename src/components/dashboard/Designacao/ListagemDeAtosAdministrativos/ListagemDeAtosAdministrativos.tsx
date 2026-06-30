@@ -233,7 +233,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
 
 
-  console.log('data', data);
 
   return (
     <div className="flex flex-col gap-1 bg-white  ">
