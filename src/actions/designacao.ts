@@ -11,6 +11,7 @@ import {
 } from "@/types/designacao";
 import { getApiClient } from "@/lib/api";
 import { handleApiError } from "@/lib/api-error";
+import { ApostilaDetailRead, ApostilaRead } from "@/types/apostila";
 
 
 const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
@@ -97,5 +98,19 @@ export const fetchDesignacoesSemPaginacaoAction = async (
     "/designacao/v2/designacoes/",
     filtros,
     "Erro ao buscar as designações"
+  );
+};
+
+
+export const fetchApostilasByIdAction = async (
+  id: number
+): Promise<
+  | { success: true; data: ApostilaDetailRead }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<ApostilaDetailRead>(
+    `/designacao/v2/apostilas/${id}/`,
+    {},
+    "Erro ao buscar as apostilas"
   );
 };

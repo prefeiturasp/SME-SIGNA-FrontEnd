@@ -9,6 +9,11 @@ type Props = {
   dadosPortaria: any;
   dadosPortariaCessacao: any;
   onSubmitEditarServidor?: (data: any) => void;
+  showExtraFields?: boolean;
+  showCursosTitulos?: boolean;
+  showLotacao?: boolean;
+  showCategoria?: boolean;
+  showCessacao?: boolean;
 };
 
 function BlocosDesignacao({
@@ -16,11 +21,16 @@ function BlocosDesignacao({
   dadosPortaria,
   dadosPortariaCessacao,
   onSubmitEditarServidor,
+  showExtraFields = false,
+  showCursosTitulos = false,
+  showLotacao = false,
+  showCategoria = true,
+  showCessacao = true,
 }: Readonly<Props>) {
   return (
     <>
       <CustomAccordionItem
-        title="Servidor indicado"
+        title="Dados do servidor indicado"
         value="servidor-indicado"
         color="gold"
       >
@@ -30,6 +40,9 @@ function BlocosDesignacao({
             onSubmitEditarServidor={
               onSubmitEditarServidor ?? (() => {})
             }
+            showCursosTitulos={showCursosTitulos}
+            showLotacao={showLotacao}
+            showCategoria={showCategoria}
           />
         )}
       </CustomAccordionItem>
@@ -42,11 +55,12 @@ function BlocosDesignacao({
         {dadosPortaria && (
           <ResumoPortariaDesigacao
             defaultValues={dadosPortaria}
-            showExtraFields={false}
+            showExtraFields={showExtraFields}
           />
         )}
       </CustomAccordionItem>
 
+      {showCessacao && (  
       <CustomAccordionItem
         title="Portarias de Cessação"
         value="portarias-cessacao"
@@ -62,6 +76,7 @@ function BlocosDesignacao({
           </div>
         )}
       </CustomAccordionItem>
+     )}
     </>
   );
 }

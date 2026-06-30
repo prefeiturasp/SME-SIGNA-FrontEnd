@@ -13,6 +13,7 @@ import Cancelar from '@/assets/icons/Cancelar';
 import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
+import { useRouter } from 'next/navigation';
 
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
@@ -53,7 +54,7 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
- 
+
 
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
@@ -71,25 +72,26 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   onPageChange,
 }) => {
 
+  const router = useRouter();
 
   const designacaoPublicadaItems = [
     {
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     {
       key: '2',
       label: 'Cessar',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
@@ -98,14 +100,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '4',
       label: 'Editar',
       icon: <Editar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     ...designacaoPublicadaItems,
     {
       key: '5',
       label: 'Excluir',
       icon: <Delete width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
@@ -114,32 +116,39 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
 
-  const apostilaItems = [
-    {
-      key: '6',
-      label: 'Anular Apostila',
-      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      
-    },
-  ]
+  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => 
+  {
+      console.log('record', record);
+    const items: ItemType[] = [
+      {
+        key: '6',
+        label: 'Anular Apostila',
+        icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          router.push(`/pages/anular-apostila?id=${record.id}`);
+        },
+      }
+    ]
+    return items;
+  };
 
   const insubsistenciaItems = [
     {
       key: '7',
       label: 'Tornar sem efeito',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
@@ -165,7 +174,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
 
     if (record.tipo === 'APOSTILA') {
-      items.push(...apostilaItems);
+      items.push(...apostilaItems(record));
     }
 
     if (record.tipo === 'INSUBSISTENCIA') {
@@ -181,7 +190,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
     if (record.insubsistencia) {
       items = items.filter((item) =>
-        item?.key !== '3'  
+        item?.key !== '3'
       )
     }
 
@@ -224,7 +233,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
 
 
-
+  console.log('data', data);
 
   return (
     <div className="flex flex-col gap-1 bg-white  ">

@@ -1,3 +1,5 @@
+import { Cessacao, DesignacaoResponse } from "./designacao";
+
 export interface ApostilaBody {
     ato_pai: number;
     sei_numero: string;
@@ -17,4 +19,16 @@ export interface ApostilaRead {
     status: string;
     observacao: string;
     criado_em: string;
+}
+
+
+export interface ApostilaDetailRead {
+    id: number;
+    sei_numero: string;
+    doc: string;
+    status: string;
+    observacao: string;
+    criado_em: string;
+    designacao: Partial<DesignacaoResponse>;
+    cessacao: Partial<Cessacao>;
 }
