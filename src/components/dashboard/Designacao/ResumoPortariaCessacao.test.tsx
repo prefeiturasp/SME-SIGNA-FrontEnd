@@ -12,20 +12,12 @@ const cessacaoBase: Cessacao = {
   a_pedido: false,
   remocao: false,
   aposentadoria: false,
-  data_designacao: "2025-03-01",
+  data_cessacao: "2025-03-01",
   criado_em: "2025-03-01T00:00:00Z",
-  is_deleted: false,
-  deleted_at: null,
-  designacao: 10,
-  insubsistencia: {
-    numero_portaria: "100",
-    ano_vigente: "2025",
-    sei_numero: "SEI-100",
-    doc: undefined,
-    observacoes: undefined,
-    tipo_insubsistencia: "designacao",
-    designacao: 10,
-  },
+  status: "cessada",
+  ato_pai_id: 10,
+  apostilas: [],
+  insubsistencia: null,
 };
 
 describe("ResumoPortariaCessacao", () => {
@@ -56,5 +48,50 @@ describe("ResumoPortariaCessacao", () => {
     );
 
     expect(container.firstChild).not.toHaveClass("classe-custom");
+  });
+
+  it("usa campo portaria como fallback e mostra campos extras formatados", () => {
+    const cessacaoSemNumero = {
+      ...cessacaoBase,
+      numero_portaria: "",
+      portaria: "PORT-FALLBACK",
+      data_cessacao: "2025-12-30",
+      a_pedido: true,
+      remocao: true,
+      aposentadoria: true,
+    };
+
+    render(
+      <ResumoPortariaCessacao
+        defaultValues={cessacaoSemNumero}
+        showExtraFields
+      />
+    );
+
+    expect(screen.getByText("PORT-FALLBACK")).toBeInTheDocument();
+    expect(screen.getByText("Cessar a partir de")).toBeInTheDocument();
+    expect(screen.getByText("30/12/2025")).toBeInTheDocument();
+    expect(screen.getByText("A pedido")).toBeInTheDocument();
+    expect(screen.getByText("Remoção")).toBeInTheDocument();
+    expect(screen.getByText("Aposentadoria")).toBeInTheDocument();
+    expect(screen.getAllByText("Sim")).toHaveLength(3);
+  });
+
+  it("mostra valores 'Não' para todos os booleanos extras", () => {
+    render(
+      <ResumoPortariaCessacao
+        defaultValues={{
+          ...cessacaoBase,
+          data_cessacao: "2026-01-01",
+          a_pedido: false,
+          remocao: false,
+          aposentadoria: false,
+        }}
+        showExtraFields
+      />
+    );
+
+    expect(screen.getByText("01/01/2026")).toBeInTheDocument();
+    expect(screen.getAllByText("Não")).toHaveLength(3);
   });
 });
