@@ -30,8 +30,8 @@ import { formatarRF } from "@/utils/portarias/formatadores";
 
 
 const defaultValues = {
-  portaria: undefined,
-  ano: undefined,
+  portaria: "",
+  ano: "",
   numero_sei: "",
   doc: "",
   observacao: "",
@@ -144,6 +144,7 @@ export default function AnularApostilaPage() {
     </span>
   );
 
+  console.log('dadosPortariaCessacao', apostila);
   return (
     <>
       <PageHeader
@@ -183,10 +184,9 @@ export default function AnularApostilaPage() {
                   showCursosTitulos
                   showLotacao
                   showCategoria={false}
-                  showCessacao={false}
+                  showCessacao={dadosPortariaCessacao}
+                  showCessacaoExtraFields={true}
                 />
-
-
 
                 <CustomAccordionItem title="Dados da portaria de anulação" value="portaria-apostila" color="blue">
                   <PortariaAnularApostilaFields
