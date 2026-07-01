@@ -12,6 +12,13 @@ const tableMock = vi.fn<(props: TableProps<ListagemAtosAdministrativosResponse>)
 const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
 const formatarDataHoraMock = vi.fn((value: string) => `formatado-${value}`);
+const pushMock = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: pushMock,
+  }),
+}));
 
 vi.mock("@/lib/utils", () => ({
   formatarDataHora: (value: string) => formatarDataHoraMock(value),
@@ -288,8 +295,21 @@ describe("ListagemDeAtosAdministrativos", () => {
 
     rerender(<>{actionRender?.({ ...rows[0], tipo: "APOSTILA" })}</>);
     expect(screen.getByTestId("menu-item-6")).toHaveTextContent("Anular Apostila");
+    screen.getByTestId("menu-item-6").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/anular-apostila?id=1");
 
     rerender(<>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA" })}</>);
     expect(screen.getByTestId("menu-item-7")).toHaveTextContent("Tornar sem efeito");
+  });
+
+  it("não exibe itens de ação para tipo não mapeado", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(<>{actionRender?.({ ...rows[0], tipo: "OUTRO" as any })}</>);
+    expect(screen.queryByTestId(/menu-item-/)).not.toBeInTheDocument();
   });
 });

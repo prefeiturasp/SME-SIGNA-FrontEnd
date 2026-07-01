@@ -281,6 +281,11 @@ describe("ResumoDesignacao", () => {
     expect(screen.queryByText("Lotação")).not.toBeInTheDocument();
   });
 
+  it("não renderiza categoria quando showCategoria é false", () => {
+    renderResumo({ showCategoria: false });
+    expect(screen.queryByText("Categoria")).not.toBeInTheDocument();
+  });
+
   it("fallback cursos", () => {
     renderResumo({
       showEditar: false,

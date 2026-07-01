@@ -1,0 +1,186 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, message } from "antd";
+import { Loader2 } from "lucide-react";
+
+import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
+import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
+import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado"
+
+
+import { Accordion } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+
+import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
+import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
+import EditorSEI from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import BlocosDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao";
+
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { Servidor } from "@/types/designacao-unidade";
+import formSchemaAnularApostila, { formSchemaAnularApostilaData } from "./schema";
+import { useFetchApostilasById } from "@/hooks/useVisualizarApostilas";
+import PortariaAnularApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaAnularApostilaFields";
+
+const defaultValues = {
+  portaria: undefined,
+  ano: undefined,
+  numero_sei: "",
+  doc: "",
+  observacao: "",
+  texto_para_apostila: "É a presente portaria apostilada",
+};  
+
+export default function AnularApostilaPage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const router = useRouter();
+
+  const { data: apostila, isLoading } = useFetchApostilasById(Number(id));
+  const tipo_portaria = apostila?.cessacao ? "cessacao" : "designacao";
+
+  const form = useForm<formSchemaAnularApostilaData>({
+    resolver: zodResolver(formSchemaAnularApostila),
+    defaultValues: {
+      apostila: defaultValues,
+    },
+  });
+
+  const dadosPortaria = useMemo(
+    () => getDadosPortaria(apostila?.designacao),
+    [apostila]
+  );
+
+  const dadosPortariaCessacao = useMemo(
+    () => getDadosPortariaCessacao(apostila),
+    [apostila]
+  );
+
+  const dadosIndicado: Servidor | null = useMemo(
+    () => getDadosIndicado(apostila?.designacao),
+    [apostila]
+  );
+
+  useEffect(() => {
+    if (!apostila) return;
+    form.reset({
+      apostila: {
+        ...defaultValues,
+      },
+    });
+  }, [apostila, form, defaultValues]);
+
+  const [mostrarEditor, setMostrarEditor] = useState(false);
+  const [htmlPortaria] = useState("");
+
+
+  const handleGerarPortaria = () => {
+    setMostrarEditor(true);
+  };
+
+  const onSubmit = async (values: formSchemaAnularApostilaData) => {
+    console.log('values', values);
+    try {
+
+      message.success("Apostila salva com sucesso!");
+      router.push("/pages/atos-administrativos");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      message.error(msg);
+    }
+  };
+
+    
+  const title = (
+    <span>
+      Anular Apostila
+    </span>
+  );
+
+  return (
+    <>
+      <PageHeader
+        title={title}
+        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Anular Apostila" }]}
+        showBackButton={false}
+      />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-[60vh]">
+          <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
+        </div>
+      ) : (
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Card className="mt-4"
+              title={
+                <div className="flex justify-between items-center">
+                  <span className="text-[#333]">{tipo_portaria=="designacao" ? "Designação" : "Cessação"}</span>
+                </div>
+              }
+            >
+              <Accordion
+                type="multiple"
+                defaultValue={[
+                  "servidor-indicado",
+                  "portaria-designacao",
+                  "portarias-cessacao",
+                  "portaria-apostila",
+                ]}
+              >
+                <BlocosDesignacao
+                  dadosIndicado={dadosIndicado}
+                  dadosPortaria={dadosPortaria}
+                  dadosPortariaCessacao={dadosPortariaCessacao}
+                  onSubmitEditarServidor={() => { }}
+                  showExtraFields
+                  showCursosTitulos
+                  showLotacao
+                  showCategoria={false}
+                  showCessacao={false}
+                />
+
+
+
+                <CustomAccordionItem title="Dados da portaria de anulação" value="portaria-apostila" color="blue">
+                  <PortariaAnularApostilaFields
+                    tipo_portaria={tipo_portaria}
+                  />
+                  <div className="w-full flex justify-end pt-[2rem]">
+                    <div className="w-[200px]">
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="w-full flex items-center justify-center gap-6"
+                        variant="destructive"
+                        onClick={async () => {
+                          const isValid = await form.trigger("apostila");
+                          if (!isValid) return;
+                          handleGerarPortaria();
+                        }}>
+                        Gerar texto SEI
+                      </Button>
+                    </div>
+                  </div>
+                </CustomAccordionItem>
+              </Accordion>
+
+              {mostrarEditor && (
+                <EditorSEI
+                  html={htmlPortaria}
+                  titulo="TEXTO"
+                  labelBotao="Salvar"
+                  tipoBotao="submit"
+                  testId="botao-proximo"
+                />
+              )}
+            </Card>
+          </form>
+        </FormProvider>
+      )}
+    </>
+  );
+}

@@ -25,6 +25,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showCursosTitulos?: boolean;
   showLotacao?: boolean;
   showLocalDeServico?: boolean;
+  showCategoria?: boolean;
   onClickCopiarRF?: (defaultValues: Servidor) => void;
   onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 }> = ({
@@ -36,6 +37,7 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   showCopiar = false,
   showLotacao = false,
   showLocalDeServico = false,
+  showCategoria = true,
   onSubmitEditarServidor,
   onClickCopiarRF = () => {}
 }) => {
@@ -92,10 +94,12 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                 />
                 <InfoItem label="Cargo base" value={defaultValues.cargo_base ?? '-'} />
 
-                <InfoItem
+                {showCategoria && (
+                  <InfoItem
                   label="Categoria"
-                  value={defaultValues.categoria ?? '-'}
-                />
+                    value={defaultValues.categoria ?? '-'}
+                  />
+                )}
 
                 {showLotacao && (
 
