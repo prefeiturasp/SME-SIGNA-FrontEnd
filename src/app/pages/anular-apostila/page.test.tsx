@@ -7,23 +7,27 @@ const pushMock = vi.fn();
 const messageSuccessMock = vi.fn();
 const messageErrorMock = vi.fn();
 const triggerMock = vi.fn();
-const resetMock = vi.fn();
-const gerarHtmlPortariaMock = vi.fn((texto: string) => `HTML(${texto})`);
+const fetchByIdMock = vi.fn();
+const formatarRFMock = vi.fn((value: string) => `RF(${value})`);
+const getDadosPortariaMock = vi.fn((value?: unknown) => ({ origem: "designacao", value }));
+const getDadosPortariaCessacaoMock = vi.fn((value?: unknown) => ({ origem: "cessacao", value }));
+const getDadosIndicadoMock = vi.fn((value?: unknown) => ({ origem: "indicado", value }));
+const blocosPropsMock = vi.fn();
+const gerarHtmlPortariaMock = vi.fn((texto: string) => `HTML:${texto}`);
 
-let mockId = "1";
+let mockId: string | null = "10";
 let mockIsLoading = false;
 let mockApostila: any = null;
-let formValues = {
+let formValues: any = {
   apostila: {
+    portaria: "999",
+    ano: "2026",
     numero_sei: "SEI-NOVO",
     doc: "DOC-NOVO",
     observacao: "Obs teste",
+    texto_para_apostila: "É a presente portaria apostilada",
   },
 };
-
-const getDadosPortariaMock = vi.fn((value?: unknown) => ({ numero_portaria: "PORT-D", value }));
-const getDadosPortariaCessacaoMock = vi.fn((value?: unknown) => ({ numero_portaria: "PORT-C", value }));
-const getDadosIndicadoMock = vi.fn((value?: unknown) => ({ nome_servidor: "Servidor resumo", value }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -35,21 +39,22 @@ vi.mock("@hookform/resolvers/zod", () => ({
 }));
 
 vi.mock("@/hooks/useVisualizarApostilas", () => ({
-  useFetchApostilasById: () => ({
-    data: mockApostila,
-    isLoading: mockIsLoading,
-  }),
+  useFetchApostilasById: (id: number) => {
+    fetchByIdMock(id);
+    return {
+      data: mockApostila,
+      isLoading: mockIsLoading,
+    };
+  },
 }));
 
 vi.mock("@/utils/portarias/templates", () => ({
-  TEMPLATE_APOSTILA:
-    "SEI={{sei}}|ATO={{ato_apostilado}}|PORT={{portaria_designacao}}|ANO={{ano}}|DOC={{doc_designacao}}|NOME={{nome_indicado}}",
+  TEMPLATE_ANULAR_APOSTILA:
+    "PORT={{portaria}}|ANO={{ano}}|SEI={{numero_sei}}|PAP={{portaria_apostilada}}|AAP={{ano_apostilado}}|DOCA={{doc_apostilado}}|SEIA={{sei_apostilado}}|NOME={{nome_indicado}}|RF={{rf}}|DRE={{dre}}|VINC={{vinculo}}|TEXTO={{texto_para_apostila}}",
 }));
 
 vi.mock("@/utils/portarias/formatadores", () => ({
-  nameToCamelCase: (value: string) => value,
-  nameToCamelCaseUe: (value: string) => value,
-  formatarRF: (value: string) => value,
+  formatarRF: (value: string) => formatarRFMock(value),
 }));
 
 vi.mock("@/utils/designacao/getDadosPortaria", () => ({
@@ -66,8 +71,7 @@ vi.mock("@/utils/ServidorIndicado/getDadosIndicado", () => ({
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   default: ({ title }: { title: ReactNode }) => (
-    <div>
-      <div data-testid="page-header">PageHeader</div>
+    <div data-testid="page-header">
       <div>{title}</div>
     </div>
   ),
@@ -88,13 +92,11 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao", () => ({
   __esModule: true,
-  default: ({ dadosIndicado, dadosPortaria, dadosPortariaCessacao }: any) => (
-    <div data-testid="blocos-designacao">
-      {dadosIndicado ? "tem-indicado" : "sem-indicado"}-
-      {dadosPortaria ? "tem-portaria" : "sem-portaria"}-
-      {dadosPortariaCessacao ? "tem-cessacao" : "sem-cessacao"}
-    </div>
-  ),
+  default: (props: any) => {
+    blocosPropsMock(props);
+    props.onSubmitEditarServidor?.({ edited: true });
+    return <div data-testid="blocos-designacao" />;
+  },
 }));
 
 vi.mock("@/components/dashboard/apostila/PortariaApostilaFields/PortariaAnularApostilaFields", () => ({
@@ -128,7 +130,7 @@ vi.mock("antd", () => ({
 }));
 
 vi.mock("lucide-react", () => ({
-  Loader2: () => <div data-testid="loading">loading</div>,
+  Loader2: ({ className }: { className?: string }) => <div data-testid="loading" className={className} />,
 }));
 
 vi.mock("react-hook-form", async () => {
@@ -137,13 +139,12 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual,
     useForm: () => ({
-      handleSubmit: (fn: (values: unknown) => void) => (e?: Event) => {
+      handleSubmit: (fn: (values: unknown) => unknown) => (e?: Event) => {
         e?.preventDefault?.();
-        fn(formValues);
+        return fn(formValues);
       },
       getValues: () => formValues,
       trigger: (...args: unknown[]) => triggerMock(...args),
-      reset: (...args: unknown[]) => resetMock(...args),
       control: {},
       formState: { errors: {} },
     }),
@@ -155,23 +156,14 @@ const createApostila = () => ({
   id: 10,
   designacao: {
     dre_nome: "DRE TESTE",
-    codigo_hierarquico: "EH 01",
     numero_portaria: "123",
     ano_vigente: "2024",
     doc: "DOC-DES",
-    sei_numero: "SEI-DES",
+    numero_sei: "SEI-DES",
     indicado_nome_servidor: "Maria Silva",
+    indicado_nome_civil: "Nome Civil",
     indicado_rf: "1234567",
     indicado_vinculo: "Efetivo",
-    indicado_cargo_base: "PROFESSOR",
-    indicado_cargo_sobreposto: "COORDENADOR",
-    indicado_local_exercicio: "UE X",
-    cessacao: {
-      numero_portaria: "999",
-      ano_vigente: "2026",
-      doc: "DOC-CES",
-      sei_numero: "SEI-CES",
-    },
   },
   cessacao: null,
 });
@@ -179,28 +171,34 @@ const createApostila = () => ({
 describe("AnularApostilaPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockId = "1";
+    mockId = "10";
     mockIsLoading = false;
     mockApostila = createApostila();
     formValues = {
       apostila: {
+        portaria: "999",
+        ano: "2026",
         numero_sei: "SEI-NOVO",
         doc: "DOC-NOVO",
         observacao: "Obs teste",
+        texto_para_apostila: "É a presente portaria apostilada",
       },
     };
     triggerMock.mockResolvedValue(true);
   });
 
-  it("renderiza estado de loading", () => {
+  it("renderiza loading e usa id 0 quando query param não existe", () => {
+    mockId = null;
     mockIsLoading = true;
 
     render(<AnularApostilaPage />);
 
+    expect(fetchByIdMock).toHaveBeenCalledWith(0);
     expect(screen.getByTestId("loading")).toBeInTheDocument();
+    expect(screen.queryByText("Gerar texto SEI")).not.toBeInTheDocument();
   });
 
-  it("renderiza card como Designação quando não há cessação", () => {
+  it("gera html para designação com campos destacados em negrito", async () => {
     render(<AnularApostilaPage />);
 
     expect(screen.getByText("Anular Apostila")).toBeInTheDocument();
@@ -209,27 +207,111 @@ describe("AnularApostilaPage", () => {
     expect(getDadosPortariaMock).toHaveBeenCalledWith(mockApostila.designacao);
     expect(getDadosPortariaCessacaoMock).toHaveBeenCalledWith(mockApostila);
     expect(getDadosIndicadoMock).toHaveBeenCalledWith(mockApostila.designacao);
-    expect(resetMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => expect(triggerMock).toHaveBeenCalledWith("apostila"));
+    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
+
+    const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
+    expect(textoGerado).toContain("PAP=-");
+    expect(textoGerado).toContain("AAP=2024");
+    expect(textoGerado).toContain("DOCA=DOC-DES");
+    expect(textoGerado).toContain("SEIA=SEI-DES");
+    expect(textoGerado).toContain("RF=RF(1234567)");
+    expect(textoGerado).toContain("NOME=<strong>NOME CIVIL</strong>");
+    expect(textoGerado).toContain("DRE=<strong>DRE TESTE</strong>");
+    expect(textoGerado).toContain("TEXTO=É a presente portaria apostilada");
+    expect(screen.getByTestId("editor")).toHaveTextContent(`HTML:${textoGerado}`);
+    expect(blocosPropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        showCessacaoExtraFields: true,
+        showCessacao: expect.anything(),
+      })
+    );
   });
 
-  it("renderiza card como Cessação quando apostila possui cessação", () => {
-    mockApostila = { ...createApostila(), cessacao: { id: 99 } };
+  it("gera html para cessação com fallback de dados e nome indicado por servidor", async () => {
+    mockApostila = {
+      ...createApostila(),
+      designacao: {
+        ...createApostila().designacao,
+        dre_nome: null,
+        indicado_nome_civil: "   ",
+        indicado_nome_servidor: "Servidor Sem Nome Civil",
+        indicado_rf: null,
+        indicado_vinculo: null,
+      },
+      cessacao: {
+        portaria: "777",
+        ano_vigente: "2025",
+        doc: undefined,
+        numero_sei: undefined,
+      },
+    };
 
     render(<AnularApostilaPage />);
 
     expect(screen.getByText("Cessação")).toBeInTheDocument();
     expect(screen.getByTestId("portaria-fields")).toHaveTextContent("cessacao");
+
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+    await waitFor(() => expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1));
+
+    const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
+    expect(textoGerado).toContain("PAP=777");
+    expect(textoGerado).toContain("AAP=2025");
+    expect(textoGerado).toContain("DOCA=-");
+    expect(textoGerado).toContain("SEIA=-");
+    expect(textoGerado).toContain("RF=RF(-)");
+    expect(textoGerado).toContain("NOME=<strong>SERVIDOR SEM NOME CIVIL</strong>");
+    expect(textoGerado).toContain("DRE=<strong>-</strong>");
   });
 
-  
+  it("gera html com fallback completo quando campos opcionais estão ausentes", async () => {
+    mockApostila = {
+      ...createApostila(),
+      designacao: {
+        ...createApostila().designacao,
+        portaria: undefined,
+        ano_vigente: undefined,
+        doc: undefined,
+        numero_sei: undefined,
+        indicado_nome_civil: undefined,
+        indicado_nome_servidor: undefined,
+        indicado_rf: undefined,
+        dre_nome: undefined,
+      },
+      cessacao: null,
+    };
+    formValues = {
+      apostila: {
+        portaria: "1000",
+        ano: "2026",
+        numero_sei: "SEI-1000",
+        texto_para_apostila: undefined,
+      },
+    };
 
- 
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
 
-  it("não gera texto se validação do formulário falhar", async () => {
+    await waitFor(() => expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1));
+
+    const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
+    expect(textoGerado).toContain("PAP=-");
+    expect(textoGerado).toContain("AAP=-");
+    expect(textoGerado).toContain("DOCA=-");
+    expect(textoGerado).toContain("SEIA=-");
+    expect(textoGerado).toContain("NOME=<strong>-</strong>");
+    expect(textoGerado).toContain("RF=RF(-)");
+    expect(textoGerado).toContain("TEXTO=");
+  });
+
+  it("não gera texto quando validação do formulário falha", async () => {
     triggerMock.mockResolvedValue(false);
 
     render(<AnularApostilaPage />);
-
     fireEvent.click(screen.getByText("Gerar texto SEI"));
 
     await waitFor(() => expect(triggerMock).toHaveBeenCalledWith("apostila"));
@@ -248,17 +330,30 @@ describe("AnularApostilaPage", () => {
     });
   });
 
-  it("mostra mensagem de erro quando ocorre falha inesperada no submit", async () => {
+  it("mostra erro com mensagem lançada como Error", async () => {
     messageSuccessMock.mockImplementationOnce(() => {
       throw new Error("falha ao salvar");
     });
 
     render(<AnularApostilaPage />);
-
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
       expect(messageErrorMock).toHaveBeenCalledWith("falha ao salvar");
+    });
+  });
+
+  it("mostra erro padrão quando exceção não é Error", async () => {
+    const unknownFailure = { reason: "erro-desconhecido" };
+    messageSuccessMock.mockImplementationOnce(() => {
+      throw unknownFailure;
+    });
+
+    render(<AnularApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(messageErrorMock).toHaveBeenCalledWith("Erro ao salvar");
     });
   });
 });

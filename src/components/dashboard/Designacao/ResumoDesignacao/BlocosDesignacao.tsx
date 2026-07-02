@@ -14,6 +14,7 @@ type Props = {
   showLotacao?: boolean;
   showCategoria?: boolean;
   showCessacao?: boolean;
+  showCessacaoExtraFields?: boolean;
 };
 
 function BlocosDesignacao({
@@ -26,6 +27,7 @@ function BlocosDesignacao({
   showLotacao = false,
   showCategoria = true,
   showCessacao = true,
+  showCessacaoExtraFields = false,
 }: Readonly<Props>) {
   return (
     <>
@@ -69,6 +71,7 @@ function BlocosDesignacao({
         {dadosPortariaCessacao ? (
           <ResumoPortariaCessacao
             defaultValues={dadosPortariaCessacao}
+            showExtraFields={showCessacaoExtraFields}
           />
         ) : (
           <div className="text-center text-[#777] p-4">

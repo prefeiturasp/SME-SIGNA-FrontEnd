@@ -83,6 +83,7 @@ describe("BlocosDesignacao", () => {
     expect(resumoCessacaoPropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         defaultValues: baseProps.dadosPortariaCessacao,
+        showExtraFields: false,
       })
     );
   });
@@ -115,5 +116,38 @@ describe("BlocosDesignacao", () => {
 
     fireEvent.click(screen.getByText("Resumo servidor"));
     expect(onSubmitEditarServidor).toHaveBeenCalledWith({ atualizado: true });
+  });
+
+  it("usa callback padrão e repassa flags extras", () => {
+    render(
+      <BlocosDesignacao
+        {...baseProps}
+        showExtraFields
+        showCursosTitulos
+        showLotacao
+        showCategoria={false}
+        showCessacaoExtraFields
+      />
+    );
+
+    fireEvent.click(screen.getByText("Resumo servidor"));
+
+    expect(resumoServidorPropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        showCursosTitulos: true,
+        showLotacao: true,
+        showCategoria: false,
+      })
+    );
+    expect(resumoPortariaPropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        showExtraFields: true,
+      })
+    );
+    expect(resumoCessacaoPropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        showExtraFields: true,
+      })
+    );
   });
 });

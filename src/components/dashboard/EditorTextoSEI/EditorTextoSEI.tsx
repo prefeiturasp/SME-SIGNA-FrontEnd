@@ -13,6 +13,7 @@ const PALAVRAS_FIXAS_PADRAO = [
     "FAZER CESSAR",
     "TORNAR INSUBSISTENTE",
     "O Secretário Municipal de Educação",
+    "APOSTILA FEITA NA PORTARIA"
 ];
 
 export function normalizarQuebras(texto: string): string {

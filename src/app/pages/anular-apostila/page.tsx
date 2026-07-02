@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
-import EditorSEI from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import BlocosDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao";
 
 
@@ -25,10 +25,13 @@ import { Servidor } from "@/types/designacao-unidade";
 import formSchemaAnularApostila, { formSchemaAnularApostilaData } from "./schema";
 import { useFetchApostilasById } from "@/hooks/useVisualizarApostilas";
 import PortariaAnularApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaAnularApostilaFields";
+import { TEMPLATE_ANULAR_APOSTILA } from "@/utils/portarias/templates";
+import { formatarRF } from "@/utils/portarias/formatadores";
+
 
 const defaultValues = {
-  portaria: undefined,
-  ano: undefined,
+  portaria: "",
+  ano: "",
   numero_sei: "",
   doc: "",
   observacao: "",
@@ -65,20 +68,60 @@ export default function AnularApostilaPage() {
     [apostila]
   );
 
-  useEffect(() => {
-    if (!apostila) return;
-    form.reset({
-      apostila: {
-        ...defaultValues,
-      },
-    });
-  }, [apostila, form, defaultValues]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
-  const [htmlPortaria] = useState("");
+  const [htmlPortaria, setHtmlPortaria] = useState("");
 
+  const gerarDados = (values: formSchemaAnularApostilaData) => {
+      const isCessacao = tipo_portaria === "cessacao";
+      
+      const fonteDados = isCessacao ? apostila?.cessacao : apostila?.designacao;
+
+      const nome_indicado =
+      apostila?.designacao?.indicado_nome_civil?.trim()
+          ? apostila?.designacao?.indicado_nome_civil
+          : apostila?.designacao?.indicado_nome_servidor;
+
+      return {
+
+        portaria: values.apostila.portaria,
+        ano: values.apostila.ano,
+        numero_sei: values.apostila.numero_sei,
+
+
+        portaria_apostilada: fonteDados?.portaria ?? "-",
+        ano_apostilado: fonteDados?.ano_vigente ?? "-",
+        doc_apostilado: fonteDados?.doc ?? "-",
+        sei_apostilado: fonteDados?.numero_sei ?? "-",
+
+
+        nome_indicado: nome_indicado?.toUpperCase() ?? "-",
+        rf: formatarRF(apostila?.designacao?.indicado_rf ?? "-"),      
+        dre: apostila?.designacao?.dre_nome ?? "-",
+        vinculo: apostila?.designacao?.indicado_vinculo ?? "-",
+
+        texto_para_apostila: values.apostila.texto_para_apostila,
+        
+        
+      
+      };
+    };
 
   const handleGerarPortaria = () => {
+    const values = form.getValues();
+    const dados = gerarDados(values);
+
+    let texto = TEMPLATE_ANULAR_APOSTILA;
+
+    Object.entries(dados).forEach(([key, value]) => {
+      let val = String(value ?? "");
+      if (["nome_indicado","dre"].includes(key)) {
+        val = `<strong>${val}</strong>`;
+      }
+      texto = texto.replaceAll(`{{${key}}}`, val);
+    });
+
+    setHtmlPortaria(gerarHtmlPortaria(texto));
     setMostrarEditor(true);
   };
 
@@ -101,6 +144,7 @@ export default function AnularApostilaPage() {
     </span>
   );
 
+  console.log('dadosPortariaCessacao', apostila);
   return (
     <>
       <PageHeader
@@ -140,10 +184,9 @@ export default function AnularApostilaPage() {
                   showCursosTitulos
                   showLotacao
                   showCategoria={false}
-                  showCessacao={false}
+                  showCessacao={dadosPortariaCessacao}
+                  showCessacaoExtraFields={true}
                 />
-
-
 
                 <CustomAccordionItem title="Dados da portaria de anulação" value="portaria-apostila" color="blue">
                   <PortariaAnularApostilaFields

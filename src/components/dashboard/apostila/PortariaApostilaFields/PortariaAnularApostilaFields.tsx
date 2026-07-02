@@ -12,14 +12,14 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
     {
       name: "apostila.portaria",
       label: "Portaria da apostila da "+tipo_portaria,
-      placeholder: "0000/2026",
+      placeholder: "0000",
       type: "number",
       disabled: false,
      },
     {
       name: "apostila.ano",
       label: "Ano Vigente",
-      placeholder: "Ano Vigente",
+      placeholder: "Exemplo: 2026",
       type: "number",
       disabled: false,
       maxLength: 4,
@@ -27,7 +27,7 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
     {
       name: "apostila.numero_sei",
       label: "Nº SEI",
-      placeholder: "Número SEI",
+      placeholder: "0000.0000/0000000-0",
       type: "string",
       mask: "9999.9999/9999999-9",
       disabled: false,
@@ -35,7 +35,7 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
     {
       name: "apostila.doc",
       label: "D.O",
-      placeholder: "D.O",
+      placeholder: "00000000",
       disabled: false,
       type: "number",
     },

@@ -117,6 +117,7 @@ export interface AtosAdministrativosPaginada {
   previous: string | null;
   results: ListagemAtosAdministrativosResponse[];
 }
+
 export interface ListagemAtosAdministrativosResponse {
   id: number;
   ano_vigente: string;
@@ -206,6 +207,8 @@ export interface Cessacao {
   ato_pai_id: number;
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
+  numero_sei?: string;
+  portaria?: string;
 }
 
 export interface DesignacaoResponse {
@@ -251,6 +254,8 @@ export interface DesignacaoResponse {
   numero_portaria: string;
   ano_vigente: string;
   sei_numero: string;
+  numero_sei?: string;
+  portaria?: string;
   doc: string;
   data_inicio: string;
   data_fim: string | null;
