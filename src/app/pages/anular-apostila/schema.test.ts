@@ -8,6 +8,7 @@ describe("formSchemaAnularApostila", () => {
         portaria: "123",
         ano: "2026",
         numero_sei: "SEI-123",
+        doc: new Date("2026-01-10"),
       },
     });
 
@@ -38,7 +39,12 @@ describe("formSchemaAnularApostila", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const messages = result.error.issues.map((issue) => issue.message);
-      expect(messages).toEqual(["Campo obrigatório", "Campo obrigatório", "Campo obrigatório"]);
+      expect(messages).toEqual([
+        "Campo obrigatório",
+        "Campo obrigatório",
+        "Campo obrigatório",
+        "Invalid input: expected date, received undefined",
+      ]);
     }
   });
 
@@ -48,12 +54,25 @@ describe("formSchemaAnularApostila", () => {
         portaria: "50",
         ano: "2026",
         numero_sei: "SEI-999",
-        doc: "DOC-2026",
+        doc: new Date("2026-02-20"),
         observacao: "Texto",
         texto_para_apostila: "conteúdo",
       },
     });
 
     expect(result.success).toBe(true);
+  });
+
+  it("retorna erro quando doc não é Date", () => {
+    const result = formSchemaAnularApostila.safeParse({
+      apostila: {
+        portaria: "50",
+        ano: "2026",
+        numero_sei: "SEI-999",
+        doc: "DOC-INVALIDO",
+      },
+    });
+
+    expect(result.success).toBe(false);
   });
 });
