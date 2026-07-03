@@ -3,10 +3,10 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useSalvarInsubsistencias } from "./useSalvarInsubsistencias";
-import { ApostilaInsubsistenciaAction } from "@/actions/apostila-insubsistencia-criar";
+import { insubsistenciaAction } from "@/actions/insubsistencia-criar";
 
-vi.mock("@/actions/apostila-insubsistencia-criar", () => ({
-  ApostilaInsubsistenciaAction: vi.fn(),
+vi.mock("@/actions/insubsistencia-criar", () => ({
+  insubsistenciaAction: vi.fn(),
 }));
 
 const createWrapper = () => {
@@ -25,7 +25,7 @@ const createWrapper = () => {
 };
 
 const valuesMock = {
-  apostila: {
+  apostila_insubsistencia: {
     portaria: "001",
     ano: "2026",
     numero_sei: "6016.2026/0001-1",
@@ -40,11 +40,11 @@ describe("useSalvarInsubsistencias", () => {
     vi.clearAllMocks();
   });
 
-  it("chama ApostilaInsubsistenciaAction com payload mapeado e doc formatado", async () => {
-    vi.mocked(ApostilaInsubsistenciaAction).mockResolvedValue({
+  it("chama insubsistenciaAction com payload mapeado e doc formatado", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
       success: true,
       data: { id: 1 },
-    });
+    } as never);
 
     const { result } = renderHook(() => useSalvarInsubsistencias(), {
       wrapper: createWrapper(),
@@ -57,7 +57,7 @@ describe("useSalvarInsubsistencias", () => {
       });
     });
 
-    expect(ApostilaInsubsistenciaAction).toHaveBeenCalledWith({
+    expect(insubsistenciaAction).toHaveBeenCalledWith({
       ato_pai: 10,
       numero_portaria: "001",
       ano_vigente: "2026",
@@ -69,10 +69,10 @@ describe("useSalvarInsubsistencias", () => {
   });
 
   it("envia doc undefined quando data não existe", async () => {
-    vi.mocked(ApostilaInsubsistenciaAction).mockResolvedValue({
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
       success: true,
       data: {},
-    });
+    } as never);
 
     const { result } = renderHook(() => useSalvarInsubsistencias(), {
       wrapper: createWrapper(),
@@ -81,8 +81,8 @@ describe("useSalvarInsubsistencias", () => {
     await act(async () => {
       await result.current.mutateAsync({
         values: {
-          apostila: {
-            ...valuesMock.apostila,
+          apostila_insubsistencia: {
+            ...valuesMock.apostila_insubsistencia,
             doc: undefined,
           },
         } as any,
@@ -90,7 +90,7 @@ describe("useSalvarInsubsistencias", () => {
       });
     });
 
-    expect(ApostilaInsubsistenciaAction).toHaveBeenCalledWith(
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
       expect.objectContaining({
         ato_pai: 3,
         doc: undefined,
@@ -99,10 +99,10 @@ describe("useSalvarInsubsistencias", () => {
   });
 
   it("retorna dados quando action responde com sucesso", async () => {
-    vi.mocked(ApostilaInsubsistenciaAction).mockResolvedValue({
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
       success: true,
       data: { id: 99, status: "ok" },
-    });
+    } as never);
 
     const { result } = renderHook(() => useSalvarInsubsistencias(), {
       wrapper: createWrapper(),
@@ -121,10 +121,10 @@ describe("useSalvarInsubsistencias", () => {
   });
 
   it("lança erro quando success é false", async () => {
-    vi.mocked(ApostilaInsubsistenciaAction).mockResolvedValue({
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
       success: false,
       error: "Erro ao salvar",
-    });
+    } as never);
 
     const { result } = renderHook(() => useSalvarInsubsistencias(), {
       wrapper: createWrapper(),
@@ -138,11 +138,12 @@ describe("useSalvarInsubsistencias", () => {
     ).rejects.toThrow("Erro ao salvar");
   });
 
-  it("marca isError como true após rejeição", async () => {
-    vi.mocked(ApostilaInsubsistenciaAction).mockResolvedValue({
+  it("marca isError como true após rejeição e loga erro", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
       success: false,
       error: "Falha técnica",
-    });
+    } as never);
 
     const { result } = renderHook(() => useSalvarInsubsistencias(), {
       wrapper: createWrapper(),
@@ -160,5 +161,7 @@ describe("useSalvarInsubsistencias", () => {
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
     });
+    expect(consoleSpy).toHaveBeenCalledWith("Falha técnica");
+    consoleSpy.mockRestore();
   });
 });

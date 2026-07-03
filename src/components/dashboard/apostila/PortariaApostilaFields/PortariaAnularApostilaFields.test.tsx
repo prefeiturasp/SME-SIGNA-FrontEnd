@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 import PortariaAnularApostilaFields from "./PortariaAnularApostilaFields";
 
@@ -13,6 +13,10 @@ vi.mock("./FieldsBase", () => ({
 }));
 
 describe("PortariaAnularApostilaFields", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("monta os campos para anulação de designação", () => {
     render(<PortariaAnularApostilaFields tipo_portaria="designacao" />);
 
@@ -22,30 +26,30 @@ describe("PortariaAnularApostilaFields", () => {
         isLoading: undefined,
         inputFields: expect.arrayContaining([
           expect.objectContaining({
-            name: "apostila.portaria",
+            name: "apostila_insubsistencia.portaria",
             label: "Portaria da apostila da designacao",
             type: "number",
             disabled: false,
           }),
           expect.objectContaining({
-            name: "apostila.numero_sei",
+            name: "apostila_insubsistencia.numero_sei",
             mask: "9999.9999/9999999-9",
             type: "string",
           }),
         ]),
         dateFields: [
           expect.objectContaining({
-            name: "apostila.doc",
+            name: "apostila_insubsistencia.doc",
             type: "date",
             placeholder: "Selecione a data",
           }),
         ],
         textareaFields: [
           expect.objectContaining({
-            name: "apostila.texto_para_apostila",
+            name: "apostila_insubsistencia.texto_para_apostila",
           }),
           expect.objectContaining({
-            name: "apostila.observacao",
+            name: "apostila_insubsistencia.observacao",
           }),
         ],
       })
@@ -60,15 +64,34 @@ describe("PortariaAnularApostilaFields", () => {
         isLoading: true,
         inputFields: expect.arrayContaining([
           expect.objectContaining({
-            name: "apostila.portaria",
+            name: "apostila_insubsistencia.portaria",
             label: "Portaria da apostila da cessacao",
           }),
           expect.objectContaining({
-            name: "apostila.ano",
+            name: "apostila_insubsistencia.ano",
             maxLength: 4,
           }),
         ]),
       })
     );
+  });
+
+  it("remove campo de texto para apostila quando showTextoParaApostila for false", () => {
+    render(
+      <PortariaAnularApostilaFields
+        tipo_portaria="designacao"
+        showTextoParaApostila={false}
+      />
+    );
+
+    const props = fieldsBasePropsMock.mock.calls[0][0] as {
+      textareaFields: Array<{ name: string }>;
+    };
+
+    expect(props.textareaFields).toEqual([
+      expect.objectContaining({
+        name: "apostila_insubsistencia.observacao",
+      }),
+    ]);
   });
 });
