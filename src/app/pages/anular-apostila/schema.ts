@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const formSchemaAnularApostila = z.object({
+const formSchemaAnularApostilaTornarSemEfeito = z.object({
   apostila_insubsistencia: z.object({
     portaria: z.string().min(1, "Campo obrigatório"),
     ano: z.string().min(1, "Campo obrigatório"),
@@ -11,6 +11,6 @@ const formSchemaAnularApostila = z.object({
   }),
 });
 
-export type formSchemaAnularApostilaData = z.infer<typeof formSchemaAnularApostila>;
+export type formSchemaAnularApostilaTornarSemEfeitoData = z.infer<typeof formSchemaAnularApostilaTornarSemEfeito>;
 
-export default formSchemaAnularApostila;
+export default formSchemaAnularApostilaTornarSemEfeito;

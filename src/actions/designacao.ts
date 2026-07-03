@@ -23,7 +23,7 @@ const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
 };
 
 
-const fetchWithClient = async <T>(
+export const fetchWithClient = async <T>(
   url: string,
   filtros: DesignacaoFiltros|PortariasDOFiltros,
   errorMessage: string
@@ -118,15 +118,3 @@ export const fetchApostilasByIdAction = async (
 
 
 
-export const fetchInsubsistenciasByIdAction = async (
-  id: number
-): Promise<
-  | { success: true; data: ApostilaDetailRead }
-  | { success: false; error: string }
-> => {
-  return fetchWithClient<ApostilaDetailRead>(
-    `/designacao/v2/insubsistencias/${id}/`,
-    {},
-    "Erro ao buscar as insubsistencias"
-  );
-};

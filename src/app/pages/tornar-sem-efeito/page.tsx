@@ -11,15 +11,14 @@ import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado"
 
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useSearchParams } from "next/navigation";
 import { Servidor } from "@/types/designacao-unidade";
-import formSchemaAnularApostila, { formSchemaAnularApostilaData } from "@/app/pages/anular-apostila/schema";
+import formSchemaAnularApostilaTornarSemEfeito, { formSchemaAnularApostilaTornarSemEfeitoData } from "@/app/pages/anular-apostila/schema";
 
 import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
 import AnularApostilaTornarSemEfeitoFormCard from "@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard";
 import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
 import { message } from "antd";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 const defaultValues = {
@@ -39,8 +38,8 @@ export default function AnularApostilaPage() {
 
   const tipo_portaria = insubsistencia?.cessacao ? "cessacao" : "designacao";
 
-  const form = useForm<formSchemaAnularApostilaData>({
-    resolver: zodResolver(formSchemaAnularApostila),
+  const form = useForm<formSchemaAnularApostilaTornarSemEfeitoData>({
+    resolver: zodResolver(formSchemaAnularApostilaTornarSemEfeito),
     defaultValues: {
       apostila_insubsistencia: defaultValues,
     },
@@ -65,7 +64,7 @@ export default function AnularApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
-  const gerarDados = (values: formSchemaAnularApostilaData) => {
+  const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
     console.log('values', values);
   };
   const salvarInsubsistencias = useSalvarInsubsistencias();
@@ -74,10 +73,11 @@ export default function AnularApostilaPage() {
 
   const handleGerarPortaria = () => {
     setMostrarEditor(true);
+    gerarDados(form.getValues());
 
   };
 
-  const onSubmit = async (values: formSchemaAnularApostilaData) => {    
+  const onSubmit = async (values: formSchemaAnularApostilaTornarSemEfeitoData) => {    
     const ato_pai = insubsistencia?.id;
     try {
       
@@ -102,7 +102,6 @@ export default function AnularApostilaPage() {
     </span>
   );
 
-  console.log('insubsistencia', insubsistencia);
   return (
     <>
       <PageHeader

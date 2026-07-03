@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchInsubsistenciasByIdAction } from "@/actions/designacao";
+import { fetchInsubsistenciasByIdAction } from "@/actions/insubsistencia-criar";
 
  
 export function useFetchInsubsistenciasById(id: number) {

@@ -17,7 +17,7 @@ import { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorT
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Servidor } from "@/types/designacao-unidade";
-import formSchemaAnularApostila, { formSchemaAnularApostilaData } from "./schema";
+import formSchemaAnularApostilaTornarSemEfeito, { formSchemaAnularApostilaTornarSemEfeitoData } from "./schema";
 import { useFetchApostilasById } from "@/hooks/useVisualizarApostilas";
 import AnularApostilaTornarSemEfeitoFormCard from "@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard";
 import { TEMPLATE_ANULAR_APOSTILA } from "@/utils/portarias/templates";
@@ -43,8 +43,8 @@ export default function AnularApostilaPage() {
   const { data: apostila, isLoading } = useFetchApostilasById(Number(id));
   const tipo_portaria = apostila?.cessacao ? "cessacao" : "designacao";
 
-  const form = useForm<formSchemaAnularApostilaData>({
-    resolver: zodResolver(formSchemaAnularApostila),
+  const form = useForm<formSchemaAnularApostilaTornarSemEfeitoData>({
+    resolver: zodResolver(formSchemaAnularApostilaTornarSemEfeito),
     defaultValues: {
       apostila_insubsistencia: defaultValues,
     },
@@ -69,7 +69,7 @@ export default function AnularApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
-  const gerarDados = (values: formSchemaAnularApostilaData) => {
+  const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
       const isCessacao = tipo_portaria === "cessacao";
       
       const fonteDados = isCessacao ? apostila?.cessacao : apostila?.designacao;
@@ -122,7 +122,7 @@ export default function AnularApostilaPage() {
     setMostrarEditor(true);
   };
 
-  const onSubmit = async (values: formSchemaAnularApostilaData) => {    
+  const onSubmit = async (values: formSchemaAnularApostilaTornarSemEfeitoData) => {    
     const ato_pai = apostila?.id;
     try {
       

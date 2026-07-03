@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import {  ApostilaInsubsistenciasBody   } from "@/types/apostila";
 import { formSchemaAnularApostilaData } from "@/app/pages/anular-apostila/schema";
-import { ApostilaInsubsistenciaAction } from "@/actions/apostila-insubsistencia-criar";
 import { format } from "date-fns";
+import { insubsistenciaAction } from "@/actions/insubsistencia-criar";
+import { InsubsistenciaBody } from "@/types/insubsistencia";
 
 export const useSalvarInsubsistencias = () => {
   return useMutation({
@@ -15,7 +15,7 @@ export const useSalvarInsubsistencias = () => {
     }) => {
 
       
-      const payload: ApostilaInsubsistenciasBody = {
+      const payload: InsubsistenciaBody = {
         ato_pai: atoPai,
         numero_portaria: values.apostila_insubsistencia.portaria,
         ano_vigente: values.apostila_insubsistencia.ano,
@@ -24,7 +24,7 @@ export const useSalvarInsubsistencias = () => {
         observacoes: values.apostila_insubsistencia.observacao,
         texto_apostila: values.apostila_insubsistencia.texto_para_apostila        
       };
-      const response = await ApostilaInsubsistenciaAction(payload);
+      const response = await insubsistenciaAction(payload);      
 
       if (!response.success) {
         console.log(response.error);
