@@ -24,8 +24,6 @@ export const useSalvarInsubsistencias = () => {
         observacoes: values.apostila.observacao,
         texto_apostila: values.apostila.texto_para_apostila        
       };
-      console.log(payload);
-
       const response = await ApostilaInsubsistenciaAction(payload);
 
       if (!response.success) {
