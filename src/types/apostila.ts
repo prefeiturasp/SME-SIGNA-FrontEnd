@@ -11,6 +11,17 @@ export interface ApostilaBody {
     }[];
 }
 
+ 
+export interface ApostilaInsubsistenciasBody {
+    ato_pai: number;
+    numero_portaria: string;
+    sei_numero: string;
+    doc?: string;
+    ano_vigente?: string;
+    observacoes?: string;
+    texto_apostila?: string;
+}
+
 // Formato retornado pela API (leitura)
 export interface ApostilaRead {
     id: number;

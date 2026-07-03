@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, message } from "antd";
@@ -27,6 +27,7 @@ import { useFetchApostilasById } from "@/hooks/useVisualizarApostilas";
 import PortariaAnularApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaAnularApostilaFields";
 import { TEMPLATE_ANULAR_APOSTILA } from "@/utils/portarias/templates";
 import { formatarRF } from "@/utils/portarias/formatadores";
+import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
 
 
 const defaultValues = {
@@ -42,6 +43,7 @@ export default function AnularApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const router = useRouter();
+  const salvarInsubsistencias = useSalvarInsubsistencias();
 
   const { data: apostila, isLoading } = useFetchApostilasById(Number(id));
   const tipo_portaria = apostila?.cessacao ? "cessacao" : "designacao";
@@ -126,8 +128,15 @@ export default function AnularApostilaPage() {
   };
 
   const onSubmit = async (values: formSchemaAnularApostilaData) => {
-    console.log('values', values);
+    const designacaoId = apostila?.designacao?.id;
+    const cessacaoId = apostila?.cessacao?.id ;
+    const ato_pai = tipo_portaria === "designacao" ? designacaoId : cessacaoId;
     try {
+      
+      await salvarInsubsistencias.mutateAsync({
+        values,
+        atoPai: ato_pai ?? 0,
+      });
 
       message.success("Apostila salva com sucesso!");
       router.push("/pages/atos-administrativos");
