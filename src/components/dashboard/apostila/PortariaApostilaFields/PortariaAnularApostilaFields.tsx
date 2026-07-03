@@ -32,14 +32,20 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
       mask: "9999.9999/9999999-9",
       disabled: false,
     },
+ 
+  ];
+
+  const dateFields: InputFieldType[] = [
     {
       name: "apostila.doc",
       label: "D.O",
-      placeholder: "00000000",
+      placeholder: "Selecione a data",
+      type: "date",
       disabled: false,
-      type: "number",
     },
   ];
+
+  
 
   const textareaFields: TextareaFieldType[] = [
     {
@@ -59,6 +65,7 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
         isLoading={isLoading}
         inputFields={inputFields}
         textareaFields={textareaFields}
+        dateFields={dateFields}
       />
   );
 };

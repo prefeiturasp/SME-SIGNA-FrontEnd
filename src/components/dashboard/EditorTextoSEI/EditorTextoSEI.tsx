@@ -16,6 +16,10 @@ const PALAVRAS_FIXAS_PADRAO = [
     "APOSTILA FEITA NA PORTARIA"
 ];
 
+const PALAVRAS_FIXAS_VERMELHAS = [
+    "É a presente portaria apostilada"
+]
+
 export function normalizarQuebras(texto: string): string {
     return texto.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
 }
@@ -48,6 +52,9 @@ export function gerarHtmlPortaria(
             let l = linha;
             for (const palavra of palavrasFixas) {
                 l = l.replaceAll(new RegExp(`(${palavra})`, "g"), "<strong>$1</strong>");
+            }
+            for (const palavra of PALAVRAS_FIXAS_VERMELHAS) {
+                l = l.replaceAll(new RegExp(`(${palavra})`, "g"), "<span style='color: red;'>$1</span>");
             }
             return `<div>${l}</div>`;
         })

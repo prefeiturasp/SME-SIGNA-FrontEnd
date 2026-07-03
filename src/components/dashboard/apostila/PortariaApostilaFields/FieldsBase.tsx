@@ -2,7 +2,7 @@
 
 import { useFormContext } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { InputField } from "@/components/ui/FieldsForm";
+import { DateField, InputField } from "@/components/ui/FieldsForm";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -25,9 +25,10 @@ interface Props {
   isLoading?: boolean;
   inputFields: InputFieldType[];
   textareaFields: TextareaFieldType[];
+  dateFields?: InputFieldType[];
 }
 
-const FieldsBase = ({ isLoading, inputFields, textareaFields }: Props) => {
+const FieldsBase = ({ isLoading, inputFields, textareaFields, dateFields=[] }: Props) => {
   const { register, control } = useFormContext();
 
 
@@ -53,6 +54,18 @@ const FieldsBase = ({ isLoading, inputFields, textareaFields }: Props) => {
                   mask={field.mask}
                 />
             )}
+            {dateFields.map((field) => (
+              <DateField
+                key={field.name}
+                register={register}
+                control={control}
+                name={field.name}
+                label={field.label}
+                placeholder={field.placeholder}
+                type="date"
+                allowClear={false}
+              />
+            ))}
           </div>
 
           {textareaFields.map((item) => (

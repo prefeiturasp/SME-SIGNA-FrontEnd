@@ -5,7 +5,7 @@ const formSchemaAnularApostila = z.object({
     portaria: z.string().min(1, "Campo obrigatório"),
     ano: z.string().min(1, "Campo obrigatório"),
     numero_sei: z.string().min(1, "Campo obrigatório"),
-    doc: z.string().optional(),
+    doc: z.date(),
     observacao: z.string().optional(),
     texto_para_apostila: z.string().optional(),
   }),

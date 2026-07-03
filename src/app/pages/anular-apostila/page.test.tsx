@@ -14,6 +14,7 @@ const getDadosPortariaCessacaoMock = vi.fn((value?: unknown) => ({ origem: "cess
 const getDadosIndicadoMock = vi.fn((value?: unknown) => ({ origem: "indicado", value }));
 const blocosPropsMock = vi.fn();
 const gerarHtmlPortariaMock = vi.fn((texto: string) => `HTML:${texto}`);
+const mutateAsyncMock = vi.fn();
 
 let mockId: string | null = "10";
 let mockIsLoading = false;
@@ -67,6 +68,12 @@ vi.mock("@/utils/cessacao/getDadosPortaria", () => ({
 
 vi.mock("@/utils/ServidorIndicado/getDadosIndicado", () => ({
   getDadosIndicado: (value: unknown) => getDadosIndicadoMock(value),
+}));
+
+vi.mock("@/hooks/useSalvarInsubsistencias", () => ({
+  useSalvarInsubsistencias: () => ({
+    mutateAsync: (...args: unknown[]) => mutateAsyncMock(...args),
+  }),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -179,12 +186,13 @@ describe("AnularApostilaPage", () => {
         portaria: "999",
         ano: "2026",
         numero_sei: "SEI-NOVO",
-        doc: "DOC-NOVO",
+        doc: new Date("2026-05-10"),
         observacao: "Obs teste",
         texto_para_apostila: "É a presente portaria apostilada",
       },
     };
     triggerMock.mockResolvedValue(true);
+    mutateAsyncMock.mockResolvedValue({ id: 123 });
   });
 
   it("renderiza loading e usa id 0 quando query param não existe", () => {
@@ -325,15 +333,17 @@ describe("AnularApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageSuccessMock).toHaveBeenCalledWith("Apostila salva com sucesso!");
+      expect(mutateAsyncMock).toHaveBeenCalledWith({
+        values: formValues,
+        atoPai: 10,
+      });
+      expect(messageSuccessMock).toHaveBeenCalledWith("Anulação de apostila salva com sucesso!");
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
 
   it("mostra erro com mensagem lançada como Error", async () => {
-    messageSuccessMock.mockImplementationOnce(() => {
-      throw new Error("falha ao salvar");
-    });
+    mutateAsyncMock.mockRejectedValueOnce(new Error("falha ao salvar"));
 
     render(<AnularApostilaPage />);
     fireEvent.submit(document.querySelector("form")!);
@@ -345,15 +355,30 @@ describe("AnularApostilaPage", () => {
 
   it("mostra erro padrão quando exceção não é Error", async () => {
     const unknownFailure = { reason: "erro-desconhecido" };
-    messageSuccessMock.mockImplementationOnce(() => {
-      throw unknownFailure;
-    });
+    mutateAsyncMock.mockRejectedValueOnce(unknownFailure);
 
     render(<AnularApostilaPage />);
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
       expect(messageErrorMock).toHaveBeenCalledWith("Erro ao salvar");
+    });
+  });
+
+  it("usa atoPai 0 quando apostila não possui id", async () => {
+    mockApostila = {
+      ...createApostila(),
+      id: undefined,
+    };
+
+    render(<AnularApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith({
+        values: formValues,
+        atoPai: 0,
+      });
     });
   });
 });

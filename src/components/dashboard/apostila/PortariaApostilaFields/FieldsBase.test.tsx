@@ -5,6 +5,7 @@ import FieldsBase, { InputFieldType, TextareaFieldType } from "./FieldsBase";
 
 const useFormContextMock = vi.fn();
 const inputFieldSpy = vi.fn();
+const dateFieldSpy = vi.fn();
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => useFormContextMock(),
@@ -18,6 +19,10 @@ vi.mock("@/components/ui/FieldsForm", () => ({
   InputField: (props: any) => {
     inputFieldSpy(props);
     return <div data-testid={`input-field-${props.name}`}>{props.label}</div>;
+  },
+  DateField: (props: any) => {
+    dateFieldSpy(props);
+    return <div data-testid={`date-field-${props.name}`}>{props.label}</div>;
   },
 }));
 
@@ -74,6 +79,16 @@ const textareaFields: TextareaFieldType[] = [
   },
 ];
 
+const dateFields: InputFieldType[] = [
+  {
+    name: "apostila.data_doc",
+    label: "Data DOC",
+    placeholder: "Selecione a data",
+    type: "date",
+    disabled: false,
+  },
+];
+
 describe("FieldsBase", () => {
   it("renderiza loading enquanto carrega", () => {
     useFormContextMock.mockReturnValue({ register: vi.fn(), control: {} });
@@ -124,5 +139,30 @@ describe("FieldsBase", () => {
       "Descreva"
     );
     expect(screen.getByTestId("form-message")).toBeInTheDocument();
+  });
+
+  it("renderiza DateField com type date e allowClear desabilitado", () => {
+    const register = vi.fn();
+    const control = {};
+    useFormContextMock.mockReturnValue({ register, control });
+
+    render(
+      <FieldsBase
+        inputFields={inputFields}
+        textareaFields={textareaFields}
+        dateFields={dateFields}
+      />
+    );
+
+    expect(screen.getByTestId("date-field-apostila.data_doc")).toBeInTheDocument();
+    expect(dateFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        register,
+        control,
+        name: "apostila.data_doc",
+        type: "date",
+        allowClear: false,
+      })
+    );
   });
 });
