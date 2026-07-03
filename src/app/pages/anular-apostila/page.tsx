@@ -34,7 +34,7 @@ const defaultValues = {
   portaria: "",
   ano: "",
   numero_sei: "",
-  doc: "",
+  doc: new Date(),
   observacao: "",
   texto_para_apostila: "É a presente portaria apostilada",
 };  
@@ -127,10 +127,8 @@ export default function AnularApostilaPage() {
     setMostrarEditor(true);
   };
 
-  const onSubmit = async (values: formSchemaAnularApostilaData) => {
-    const designacaoId = apostila?.designacao?.id;
-    const cessacaoId = apostila?.cessacao?.id ;
-    const ato_pai = tipo_portaria === "designacao" ? designacaoId : cessacaoId;
+  const onSubmit = async (values: formSchemaAnularApostilaData) => {    
+    const ato_pai = apostila?.id;
     try {
       
       await salvarInsubsistencias.mutateAsync({
@@ -138,7 +136,7 @@ export default function AnularApostilaPage() {
         atoPai: ato_pai ?? 0,
       });
 
-      message.success("Apostila salva com sucesso!");
+      message.success("Anulação de apostila salva com sucesso!");
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";

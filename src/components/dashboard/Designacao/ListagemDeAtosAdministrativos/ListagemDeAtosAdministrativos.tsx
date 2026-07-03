@@ -190,7 +190,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
     if (record.insubsistencia) {
       items = items.filter((item) =>
-        item?.key !== '3'
+        item?.key !== '3' && item?.key !== '6'
       )
     }
 
