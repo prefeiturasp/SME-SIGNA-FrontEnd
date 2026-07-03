@@ -17,12 +17,12 @@ export const useSalvarInsubsistencias = () => {
       
       const payload: ApostilaInsubsistenciasBody = {
         ato_pai: atoPai,
-        numero_portaria: values.apostila.portaria,
-        ano_vigente: values.apostila.ano,
-        sei_numero: values.apostila.numero_sei,
-        doc: values.apostila.doc ? format(values.apostila.doc, "yyyy-MM-dd") : undefined,
-        observacoes: values.apostila.observacao,
-        texto_apostila: values.apostila.texto_para_apostila        
+        numero_portaria: values.apostila_insubsistencia.portaria,
+        ano_vigente: values.apostila_insubsistencia.ano,
+        sei_numero: values.apostila_insubsistencia.numero_sei,
+        doc: values.apostila_insubsistencia.doc ? format(values.apostila_insubsistencia.doc, "yyyy-MM-dd") : undefined,
+        observacoes: values.apostila_insubsistencia.observacao,
+        texto_apostila: values.apostila_insubsistencia.texto_para_apostila        
       };
       const response = await ApostilaInsubsistenciaAction(payload);
 

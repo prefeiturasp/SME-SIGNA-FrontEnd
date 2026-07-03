@@ -129,7 +129,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => 
   {
-      console.log('record', record);
     const items: ItemType[] = [
       {
         key: '6',
@@ -143,14 +142,18 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     return items;
   };
 
-  const insubsistenciaItems = [
+  const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    return [  
     {
       key: '7',
       label: 'Tornar sem efeito',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/tornar-sem-efeito?id=${record.id}`);
+      },
     },
-  ]
+  ];
+  };
 
 
 
@@ -178,7 +181,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     }
 
     if (record.tipo === 'INSUBSISTENCIA') {
-      items.push(...insubsistenciaItems);
+      items.push(...insubsistenciaItems(record));
     }
 
     // remove as funções que ja foram executadas e não podem ser duplicadas
@@ -190,7 +193,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
     if (record.insubsistencia) {
       items = items.filter((item) =>
-        item?.key !== '3' && item?.key !== '6'
+        item?.key !== '3' && item?.key !== '6' && item?.key !== '7'
       )
     }
 
@@ -203,7 +206,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
-    { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
+    { title: 'Portaria', dataIndex: 'portaria', key: 'portaria' },
     { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
     { title: 'Responsável', dataIndex: 'responsavel', key: 'responsavel', render: () => <span >-</span> },
     {
@@ -231,6 +234,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ];
 
+  console.log('data', data);
 
 
 

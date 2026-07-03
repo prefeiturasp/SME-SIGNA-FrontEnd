@@ -114,3 +114,19 @@ export const fetchApostilasByIdAction = async (
     "Erro ao buscar as apostilas"
   );
 };
+
+
+
+
+export const fetchInsubsistenciasByIdAction = async (
+  id: number
+): Promise<
+  | { success: true; data: ApostilaDetailRead }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<ApostilaDetailRead>(
+    `/designacao/v2/insubsistencias/${id}/`,
+    {},
+    "Erro ao buscar as insubsistencias"
+  );
+};

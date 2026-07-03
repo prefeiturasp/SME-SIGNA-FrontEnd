@@ -4,20 +4,21 @@ import FieldsBase, {  InputFieldType, TextareaFieldType } from "./FieldsBase";
 interface Props {
   isLoading?: boolean;
   tipo_portaria: "designacao" | "cessacao";
+  showTextoParaApostila?: boolean;
 }
 
-const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
+const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria, showTextoParaApostila=true }: Props) => {
 
   const inputFields: InputFieldType[] = [
     {
-      name: "apostila.portaria",
+      name: "apostila_insubsistencia.portaria",
       label: "Portaria da apostila da "+tipo_portaria,
       placeholder: "0000",
       type: "number",
       disabled: false,
      },
     {
-      name: "apostila.ano",
+      name: "apostila_insubsistencia.ano",
       label: "Ano Vigente",
       placeholder: "Exemplo: 2026",
       type: "number",
@@ -25,7 +26,7 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
       maxLength: 4,
     },
     {
-      name: "apostila.numero_sei",
+      name: "apostila_insubsistencia.numero_sei",
       label: "Nº SEI",
       placeholder: "0000.0000/0000000-0",
       type: "string",
@@ -37,7 +38,7 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
 
   const dateFields: InputFieldType[] = [
     {
-      name: "apostila.doc",
+      name: "apostila_insubsistencia.doc",
       label: "D.O",
       placeholder: "Selecione a data",
       type: "date",
@@ -48,13 +49,15 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria }: Props) => {
   
 
   const textareaFields: TextareaFieldType[] = [
+    ...(showTextoParaApostila ? [ 
+      {
+        name: "apostila_insubsistencia.texto_para_apostila",
+        label: "Texto para apostila",
+        placeholder: "Digite um texto da apostila...",
+      },
+    ] : []),
     {
-      name: "apostila.texto_para_apostila",
-      label: "Texto para apostila",
-      placeholder: "Digite um texto da apostila...",
-    },
-    {
-      name: "apostila.observacao",
+      name: "apostila_insubsistencia.observacao",
       label: "Observações",
       placeholder: "Digite as informações adicionais...",
     },

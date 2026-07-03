@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const formSchemaAnularApostila = z.object({
-  apostila: z.object({
+  apostila_insubsistencia: z.object({
     portaria: z.string().min(1, "Campo obrigatório"),
     ano: z.string().min(1, "Campo obrigatório"),
     numero_sei: z.string().min(1, "Campo obrigatório"),
