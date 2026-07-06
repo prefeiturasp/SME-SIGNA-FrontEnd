@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { formSchemaAnularApostilaData } from "@/app/pages/anular-apostila/schema";
+import { formSchemaAnularApostilaTornarSemEfeitoData } from "@/app/pages/anular-apostila/schema";
 import { format } from "date-fns";
 import { insubsistenciaAction } from "@/actions/insubsistencia-criar";
 import { InsubsistenciaBody } from "@/types/insubsistencia";
@@ -10,7 +10,7 @@ export const useSalvarInsubsistencias = () => {
       values,
       atoPai,
     }: {
-      values: formSchemaAnularApostilaData;
+      values: formSchemaAnularApostilaTornarSemEfeitoData;
       atoPai: number;
     }) => {
 

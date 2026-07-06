@@ -135,6 +135,7 @@ export default function AnularApostilaPage() {
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      console.log('msg', msg);
       message.error(msg);
     }
   };
