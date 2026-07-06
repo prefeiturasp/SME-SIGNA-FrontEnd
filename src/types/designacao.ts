@@ -128,6 +128,7 @@ export interface ListagemAtosAdministrativosResponse {
   portaria: string;
   status_publicacao: string;
   tipo: string;
+  tipo_insubsistencia: string | null;
   tipo_de_ato: string;
   cessacao?: Partial<Cessacao> | null;
   insubsistencia?: Partial<InsubsistenciaRead>;
