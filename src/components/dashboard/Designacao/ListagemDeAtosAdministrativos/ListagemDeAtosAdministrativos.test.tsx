@@ -11,7 +11,8 @@ import {
 const tableMock = vi.fn<(props: TableProps<ListagemAtosAdministrativosResponse>) => ReactNode>();
 const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
-const formatarDataHoraMock = vi.fn((value: string) => `formatado-${value}`);
+const formatarDataHoraMock = vi.fn((_value: string) => `01/06/2026, 12:00`);
+const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 const pushMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
@@ -65,6 +66,12 @@ vi.mock("antd", () => ({
       {children}
     </span>
   ),
+  Tooltip: ({ children, title }: { children: ReactNode; title?: ReactNode }) => (
+    <div data-testid="tooltip">
+      <div data-testid="tooltip-title">{title}</div>
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock("@ant-design/icons", () => ({
@@ -93,8 +100,10 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     id: 1,
     ano_vigente: "2026",
     criado_em: "2026-06-01T12:00:00.000Z",
+    criado_por_nome: "Fulano da Silva",
     nome: "Servidor A",
-    numero_sei: "SEI-1",
+    rf: "1234567",
+    sei_numero: "SEI-1",
     observacoes: "obs 1",
     portaria: "100/2026",
     status_publicacao: StatusAtosAdministrativos.PUBLICADO,
@@ -165,28 +174,76 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(onPageChange).toHaveBeenCalledWith(4, 10);
   });
 
-  it("formata data/hora na coluna criado_em", () => {
+  it("exibe a coluna Nº SEI no lugar de Data/hora", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
-    const createdAtRender = columns[1]?.render as ((text: string) => ReactNode) | undefined;
+    const coluna = columns[1] as { title?: string; dataIndex?: string };
 
-    const rendered = createdAtRender?.("2026-06-01T12:00:00.000Z");
-    expect(rendered).toBe("formatado-2026-06-01T12:00:00.000Z");
-    expect(formatarDataHoraMock).toHaveBeenCalledWith("2026-06-01T12:00:00.000Z");
+    expect(coluna?.title).toBe("Nº SEI");
+    expect(coluna?.dataIndex).toBe("sei_numero");
   });
 
-  it("renderiza responsável com hífen fixo", () => {
+  it("exibe a coluna Servidor com o nome do indicado/titular", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
-    const responsavelRender = columns[5]?.render as (() => ReactNode) | undefined;
+    const coluna = columns[4] as { title?: string; dataIndex?: string };
 
-    const { unmount } = render(<>{responsavelRender?.()}</>);
+    expect(coluna?.title).toBe("Servidor");
+    expect(coluna?.dataIndex).toBe("nome");
+  });
+
+  it("exibe a coluna Registro Funcional (RF) no lugar de Responsável", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const coluna = columns[5] as { title?: string; dataIndex?: string };
+    const rfRender = columns[5]?.render as ((rf: string | null) => ReactNode) | undefined;
+
+    expect(coluna?.title).toBe("Registro Funcional (RF)");
+    expect(coluna?.dataIndex).toBe("rf");
+
+    const { unmount, rerender } = render(<>{rfRender?.("1234567")}</>);
+    expect(screen.getByText("1234567")).toBeInTheDocument();
+
+    rerender(<>{rfRender?.(null)}</>);
     expect(screen.getByText("-")).toBeInTheDocument();
     unmount();
+  });
+
+  it("exibe tooltip no status com nome do responsável, data e hora da criação", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const statusRender = columns[6]?.render as
+      | ((_: unknown, record: ListagemAtosAdministrativosResponse) => ReactNode)
+      | undefined;
+
+    render(<>{statusRender?.(null, rows[0])}</>);
+
+    expect(formatarDataHoraMock).toHaveBeenCalledWith(rows[0].criado_em);
+    expect(screen.getByTestId("tooltip-title")).toHaveTextContent("Fulano da Silva");
+    expect(screen.getByTestId("tooltip-title")).toHaveTextContent("Data: 01/06/2026");
+    expect(screen.getByTestId("tooltip-title")).toHaveTextContent("Hora: 12:00");
+  });
+
+  it("exibe 'Não informado' no tooltip quando não há responsável pela criação", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const statusRender = columns[6]?.render as
+      | ((_: unknown, record: ListagemAtosAdministrativosResponse) => ReactNode)
+      | undefined;
+
+    render(<>{statusRender?.(null, { ...rows[0], criado_por_nome: null })}</>);
+
+    expect(screen.getByTestId("tooltip-title")).toHaveTextContent("Não informado");
   });
 
   it("renderiza status publicado e Aguardando publicação com cores corretas", () => {
