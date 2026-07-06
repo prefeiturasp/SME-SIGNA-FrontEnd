@@ -192,7 +192,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
     const coluna = columns[4] as { title?: string; dataIndex?: string };
 
-    expect(coluna?.title).toBe("Servidor");
+    expect(coluna?.title).toBe("Servidor indicado");
     expect(coluna?.dataIndex).toBe("nome");
   });
 
