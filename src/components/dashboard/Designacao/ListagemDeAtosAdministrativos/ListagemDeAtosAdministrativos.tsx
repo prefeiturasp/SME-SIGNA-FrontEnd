@@ -207,7 +207,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
     { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
-    { title: 'Servidor', dataIndex: 'nome', key: 'nome' },
+    { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
     { title: 'Registro Funcional (RF)', dataIndex: 'rf', key: 'rf', render: (rf: string | null) => <span>{rf ?? '-'}</span> },
     {
       title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) => {
