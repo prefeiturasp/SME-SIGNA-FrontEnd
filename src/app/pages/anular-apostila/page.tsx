@@ -23,6 +23,7 @@ import AnularApostilaTornarSemEfeitoFormCard from "@/components/dashboard/aposti
 import { TEMPLATE_ANULAR_APOSTILA } from "@/utils/portarias/templates";
 import { formatarRF } from "@/utils/portarias/formatadores";
 import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
+import { formatarData } from "@/lib/utils";
 
 
 const defaultValues = {
@@ -88,8 +89,8 @@ export default function AnularApostilaPage() {
 
         portaria_apostilada: fonteDados?.portaria ?? "-",
         ano_apostilado: fonteDados?.ano_vigente ?? "-",
-        doc_apostilado: fonteDados?.doc ?? "-",
-        sei_apostilado: fonteDados?.numero_sei ?? "-",
+        doc_apostilado: fonteDados?.doc  ? formatarData(fonteDados?.doc ) : "-",
+        sei_apostilado: fonteDados?.sei_numero ?? "-",
 
 
         nome_indicado: nome_indicado?.toUpperCase() ?? "-",
