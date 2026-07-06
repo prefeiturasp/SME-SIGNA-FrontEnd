@@ -122,7 +122,9 @@ export interface ListagemAtosAdministrativosResponse {
   id: number;
   ano_vigente: string;
   criado_em: string;
+  criado_por_nome: string | null;
   nome: string;
+  rf: string | null;
   numero_sei: string;
   observacoes: string | null;
   portaria: string;

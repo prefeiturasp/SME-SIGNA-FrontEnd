@@ -4,7 +4,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
 import { formatarDataHora } from '@/lib/utils';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { Dropdown, Pagination, Table, Tag } from 'antd';
+import { Dropdown, Pagination, Table, Tag, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 
 import Editar from '@/assets/icons/Editar';
@@ -204,14 +204,28 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
     { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
-    { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
+    { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
-    { title: 'Portaria', dataIndex: 'portaria', key: 'portaria' },
-    { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
-    { title: 'Responsável', dataIndex: 'responsavel', key: 'responsavel', render: () => <span >-</span> },
+    { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
+    { title: 'Servidor', dataIndex: 'nome', key: 'nome' },
+    { title: 'Registro Funcional (RF)', dataIndex: 'rf', key: 'rf', render: (rf: string | null) => <span>{rf ?? '-'}</span> },
     {
-      title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) =>
-        TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status'),
+      title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) => {
+        const [data, hora] = formatarDataHora(record.criado_em).split(', ');
+        return (
+          <Tooltip
+            title={
+              <div>
+                <div>{record.criado_por_nome ?? 'Não informado'}</div>
+                <div>Data: {data}</div>
+                <div>Hora: {hora}</div>
+              </div>
+            }
+          >
+            {TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status')}
+          </Tooltip>
+        );
+      },
     },
     {
       title: '',
@@ -233,9 +247,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       ),
     },
   ];
-
-  console.log('data', data);
-
 
 
   return (
