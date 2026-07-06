@@ -13,10 +13,43 @@ const getDadosPortariaCessacaoMock = vi.fn((value?: unknown) => ({ origem: "cess
 const getDadosIndicadoMock = vi.fn((value?: unknown) => ({ origem: "indicado", value }));
 const formCardPropsMock = vi.fn();
 
+type FormValues = {
+  apostila_insubsistencia: {
+    portaria: string;
+    ano: string;
+    numero_sei: string;
+    doc: string | Date;
+    observacao: string;
+  };
+};
+
+type InsubsistenciaMock = {
+  id?: number;
+  designacao: {
+    dre_nome: string;
+    numero_portaria: string;
+    ano_vigente: string;
+    doc: string;
+    numero_sei: string;
+    indicado_nome_servidor: string;
+    indicado_nome_civil: string;
+    indicado_rf: string;
+    indicado_vinculo: string;
+  };
+  cessacao: { portaria: string } | null;
+};
+
+type FormCardPropsMock = {
+  tipoPortaria: string;
+  mostrarEditor: boolean;
+  onGerarPortaria: () => void;
+  onSubmit: (values: FormValues) => Promise<void> | void;
+};
+
 let mockId: string | null = "10";
 let mockIsLoading = false;
-let mockInsubsistencia: any = null;
-let formValues: any = {
+let mockInsubsistencia: InsubsistenciaMock | null = null;
+let formValues: FormValues = {
   apostila_insubsistencia: {
     portaria: "999",
     ano: "2026",
@@ -65,7 +98,7 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
 
 vi.mock("@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: FormCardPropsMock) => {
     formCardPropsMock(props);
     return (
       <div data-testid="form-card">
@@ -152,9 +185,9 @@ describe("AnularApostilaPage", () => {
         showTextoParaApostila: false,
       })
     );
-    expect(getDadosPortariaMock).toHaveBeenCalledWith(mockInsubsistencia.designacao);
+    expect(getDadosPortariaMock).toHaveBeenCalledWith(mockInsubsistencia!.designacao);
     expect(getDadosPortariaCessacaoMock).toHaveBeenCalledWith(mockInsubsistencia);
-    expect(getDadosIndicadoMock).toHaveBeenCalledWith(mockInsubsistencia.designacao);
+    expect(getDadosIndicadoMock).toHaveBeenCalledWith(mockInsubsistencia!.designacao);
   });
 
   it("define tipo da portaria como cessação quando houver dados de cessação", () => {
