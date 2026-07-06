@@ -66,6 +66,7 @@ export default function AnularApostilaPage() {
 
   const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
     console.log('values', values);
+    setHtmlPortaria("")
   };
   const salvarInsubsistencias = useSalvarInsubsistencias();
 
