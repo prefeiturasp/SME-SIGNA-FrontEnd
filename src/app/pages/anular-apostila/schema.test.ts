@@ -4,7 +4,7 @@ import formSchemaAnularApostila from "./schema";
 describe("formSchemaAnularApostila", () => {
   it("valida payload com todos os campos obrigatórios", () => {
     const result = formSchemaAnularApostila.safeParse({
-      apostila: {
+      apostila_insubsistencia: {
         portaria: "123",
         ano: "2026",
         numero_sei: "SEI-123",
@@ -17,7 +17,7 @@ describe("formSchemaAnularApostila", () => {
 
   it("retorna erro quando campos obrigatórios não são enviados", () => {
     const result = formSchemaAnularApostila.safeParse({
-      apostila: {},
+      apostila_insubsistencia: {},
     });
 
     expect(result.success).toBe(false);
@@ -29,7 +29,7 @@ describe("formSchemaAnularApostila", () => {
 
   it("retorna erro quando portaria, ano e numero_sei são vazios", () => {
     const result = formSchemaAnularApostila.safeParse({
-      apostila: {
+      apostila_insubsistencia: {
         portaria: "",
         ano: "",
         numero_sei: "",
@@ -50,7 +50,7 @@ describe("formSchemaAnularApostila", () => {
 
   it("aceita campos opcionais doc, observacao e texto_para_apostila", () => {
     const result = formSchemaAnularApostila.safeParse({
-      apostila: {
+      apostila_insubsistencia: {
         portaria: "50",
         ano: "2026",
         numero_sei: "SEI-999",
@@ -65,7 +65,7 @@ describe("formSchemaAnularApostila", () => {
 
   it("retorna erro quando doc não é Date", () => {
     const result = formSchemaAnularApostila.safeParse({
-      apostila: {
+      apostila_insubsistencia: {
         portaria: "50",
         ano: "2026",
         numero_sei: "SEI-999",

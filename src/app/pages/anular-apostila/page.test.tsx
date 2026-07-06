@@ -20,7 +20,7 @@ let mockId: string | null = "10";
 let mockIsLoading = false;
 let mockApostila: any = null;
 let formValues: any = {
-  apostila: {
+  apostila_insubsistencia: {
     portaria: "999",
     ano: "2026",
     numero_sei: "SEI-NOVO",
@@ -182,7 +182,7 @@ describe("AnularApostilaPage", () => {
     mockIsLoading = false;
     mockApostila = createApostila();
     formValues = {
-      apostila: {
+      apostila_insubsistencia: {
         portaria: "999",
         ano: "2026",
         numero_sei: "SEI-NOVO",
@@ -218,7 +218,7 @@ describe("AnularApostilaPage", () => {
 
     fireEvent.click(screen.getByText("Gerar texto SEI"));
 
-    await waitFor(() => expect(triggerMock).toHaveBeenCalledWith("apostila"));
+    await waitFor(() => expect(triggerMock).toHaveBeenCalledWith("apostila_insubsistencia"));
     expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
 
     const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
@@ -293,7 +293,7 @@ describe("AnularApostilaPage", () => {
       cessacao: null,
     };
     formValues = {
-      apostila: {
+      apostila_insubsistencia: {
         portaria: "1000",
         ano: "2026",
         numero_sei: "SEI-1000",
@@ -322,7 +322,7 @@ describe("AnularApostilaPage", () => {
     render(<AnularApostilaPage />);
     fireEvent.click(screen.getByText("Gerar texto SEI"));
 
-    await waitFor(() => expect(triggerMock).toHaveBeenCalledWith("apostila"));
+    await waitFor(() => expect(triggerMock).toHaveBeenCalledWith("apostila_insubsistencia"));
     expect(gerarHtmlPortariaMock).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
   });

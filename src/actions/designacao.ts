@@ -23,7 +23,7 @@ const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
 };
 
 
-const fetchWithClient = async <T>(
+export const fetchWithClient = async <T>(
   url: string,
   filtros: DesignacaoFiltros|PortariasDOFiltros,
   errorMessage: string
@@ -114,3 +114,7 @@ export const fetchApostilasByIdAction = async (
     "Erro ao buscar as apostilas"
   );
 };
+
+
+
+
