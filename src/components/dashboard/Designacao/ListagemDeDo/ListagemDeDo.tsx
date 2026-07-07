@@ -76,7 +76,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
     { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string | null) => formatDate(text) },
     { title: 'DATA DA DESIGNAÇÃO', dataIndex: 'data_designacao', key: 'data_designacao', render: (text: string | null) => formatDate(text) },
     { title: 'DATA DA CESSAÇÃO', dataIndex: 'data_cessacao', key: 'data_cessacao', render: (text: string | null) => formatDate(text) },
-    { title: 'Nº SEI', dataIndex: 'numero_sei', key: 'numero_sei' }
+    { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' }
   ];
   return (
     <div className="flex flex-col gap-1 bg-white  ">

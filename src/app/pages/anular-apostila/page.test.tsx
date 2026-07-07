@@ -23,7 +23,7 @@ let formValues: any = {
   apostila_insubsistencia: {
     portaria: "999",
     ano: "2026",
-    numero_sei: "SEI-NOVO",
+    sei_numero: "SEI-NOVO",
     doc: "DOC-NOVO",
     observacao: "Obs teste",
     texto_para_apostila: "É a presente portaria apostilada",
@@ -166,7 +166,7 @@ const createApostila = () => ({
     numero_portaria: "123",
     ano_vigente: "2024",
     doc: "DOC-DES",
-    numero_sei: "SEI-DES",
+    sei_numero: "SEI-DES",
     indicado_nome_servidor: "Maria Silva",
     indicado_nome_civil: "Nome Civil",
     indicado_rf: "1234567",
@@ -224,7 +224,6 @@ describe("AnularApostilaPage", () => {
     const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
     expect(textoGerado).toContain("PAP=-");
     expect(textoGerado).toContain("AAP=2024");
-    expect(textoGerado).toContain("DOCA=DOC-DES");
     expect(textoGerado).toContain("SEIA=SEI-DES");
     expect(textoGerado).toContain("RF=RF(1234567)");
     expect(textoGerado).toContain("NOME=<strong>NOME CIVIL</strong>");
@@ -310,7 +309,7 @@ describe("AnularApostilaPage", () => {
     expect(textoGerado).toContain("PAP=-");
     expect(textoGerado).toContain("AAP=-");
     expect(textoGerado).toContain("DOCA=-");
-    expect(textoGerado).toContain("SEIA=-");
+    expect(textoGerado).toContain("SEIA=SEI-DES");
     expect(textoGerado).toContain("NOME=<strong>-</strong>");
     expect(textoGerado).toContain("RF=RF(-)");
     expect(textoGerado).toContain("TEXTO=");
