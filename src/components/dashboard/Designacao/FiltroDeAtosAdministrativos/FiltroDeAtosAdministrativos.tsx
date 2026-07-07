@@ -23,6 +23,8 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
     { codigo: 'INSUBSISTENCIA_CESSACAO', nome: 'Insubsistência de Cessação' },
     { codigo: 'APOSTILA_DESIGNACAO', nome: 'Apostila de Designação' },
     { codigo: 'APOSTILA_CESSACAO', nome: 'Apostila de Cessação' },
+    { codigo: 'INSUBSISTENCIA_APOSTILA', nome: 'Anulação de Apostila' },
+    { codigo: 'INSUBSISTENCIA_INSUBSISTENCIA', nome: 'Tornar sem efeito' },
   ]
 
 

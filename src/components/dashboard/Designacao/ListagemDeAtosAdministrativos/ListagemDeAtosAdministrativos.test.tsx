@@ -298,8 +298,13 @@ describe("ListagemDeAtosAdministrativos", () => {
     screen.getByTestId("menu-item-6").click();
     expect(pushMock).toHaveBeenCalledWith("/pages/anular-apostila?id=1");
 
-    rerender(<>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA" })}</>);
+    rerender(<>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA", tipo_insubsistencia: "DESIGNACAO" })}</>);
     expect(screen.getByTestId("menu-item-7")).toHaveTextContent("Tornar sem efeito");
+
+    rerender(<>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA", tipo_insubsistencia: "CESSACAO" })}</>);
+    expect(screen.getByTestId("menu-item-7")).toHaveTextContent("Tornar sem efeito");
+
+    
   });
 
   it("não exibe itens de ação para tipo não mapeado", () => {

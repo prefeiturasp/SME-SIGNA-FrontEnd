@@ -34,7 +34,7 @@ export interface ApostilaRead {
 
 
 export interface ApostilaDetailRead {
-    id: number;
+    id: number;    
     sei_numero: string;
     doc: string;
     status: string;
