@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @dre_escola
+@api @dre_escola
 Funcionalidade: API EOL - DRE e Escola
   Como sistema integrado SME
   Quero validar os endpoints de DRE e Escola

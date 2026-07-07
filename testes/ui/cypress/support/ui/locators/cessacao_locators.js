@@ -6,7 +6,9 @@ export const cessacaoSelectors = {
     { timeout: 10000 }
   ),
 
-  label: (texto) => cy.contains(
+  // Escopado em "main" para não colidir com itens do menu lateral (<aside>)
+  // que podem conter o mesmo texto (ex.: "D.O" também aparece em "Alterar data do D.O").
+  label: (texto) => cy.get('main', { timeout: 10000 }).contains(
     'label, span, p, div, h1, h2, h3, h4',
     texto,
     { timeout: 10000 }
@@ -14,8 +16,8 @@ export const cessacaoSelectors = {
 
   inputPorLabel: (label) => {
     cy.log(`Buscando input para label: "${label}"`)
-    
-    return cy.get('body').then($body => {
+
+    return cy.get('main').then($body => {
       const $labelAntD = $body.find(`.ant-form-item:has(*:contains("${label}")) input`).first()
       if ($labelAntD.length > 0) {
         cy.log('Encontrado via Ant Design')

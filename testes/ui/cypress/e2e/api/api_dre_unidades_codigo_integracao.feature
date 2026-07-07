@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @dre_unidades_integracao
+@api @dre_unidades_integracao
 Funcionalidade: Testes da API de Unidades com Código de Integração por DRE
   Como um testador
   Quero validar o endpoint GET /api/DREs/{dreCodigo}/unidades/codigo-integracao
