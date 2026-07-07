@@ -121,7 +121,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
             register={register}
             control={control}
             name="nome_titular_e_indicado"
-            label="Servidor indicado/titular"
+            label="Servidor"
             placeholder="Exemplo: João da Silva"
             data-testid="input-nome-titular-e-indicado"
             type="text"
