@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @dre_unidades
+@api @dre_unidades
 Funcionalidade: Testes da API de Unidades por DRE
   Como um testador
   Quero validar o endpoint GET /api/DREs/{dreCodigo}/unidades

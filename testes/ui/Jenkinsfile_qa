@@ -32,7 +32,13 @@ pipeline {
                 script {
                     catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                         withDockerRegistry(credentialsId: 'jenkins_registry', url: 'https://registry.sme.prefeitura.sp.gov.br/repository/sme-registry/') {
-                            withCredentials([file(credentialsId: "cypress_env_signa", variable: 'env')]){
+                            withCredentials([
+                                file(credentialsId: "cypress_env_signa", variable: 'env'),
+                                // Credencial "Secret text" a ser cadastrada pelo DevOps no Jenkins
+                                // com a chave de gravação do projeto no dashboard self-hosted
+                                // (cypress-dashboard.sme.prefeitura.sp.gov.br > Project settings > Record Key).
+                                string(credentialsId: 'cypress_record_key', variable: 'CYPRESS_RECORD_KEY')
+                            ]){
                                 sh '''
                                     touch testes/ui/.env
                                     cp "$env" "testes/ui/.env"
@@ -42,16 +48,22 @@ pipeline {
                                         -e TERM=xterm \
                                         -e CI=true \
                                         -e CYPRESS_VERSION=${CYPRESS_VERSION} \
+                                        -e CYPRESS_API_URL=http://10.50.1.202:1234 \
+                                        -e CYPRESS_RECORD_KEY=${CYPRESS_RECORD_KEY} \
                                         -v "$WORKSPACE/testes/ui:/app" \
                                         -w /app \
                                         registry.sme.prefeitura.sp.gov.br/devops/cypress-agent:14.5.2 \
                                         sh -c "rm -rf allure-results allure-report && \
+                                            rm -f currents.config.js && \
                                             npm install && \
                                             npm install cypress@\"$CYPRESS_VERSION\" \
                                             @shelex/cypress-allure-plugin@2.41.2 mocha-allure-reporter@1.4.0 crypto-js@4.1.1 --save-dev && \
                                             npx cypress run \
                                                 --browser chrome \
                                                 --headless \
+                                                --record \
+                                                --key \$CYPRESS_RECORD_KEY \
+                                                --ci-build-id SME-SIGNA_JENKINS-BUILD-${BUILD_NUMBER} \
                                                 --reporter mocha-allure-reporter \
                                                 --reporter-options reportDir=allure-results; \
                                             TEST_EXIT=\$?; \

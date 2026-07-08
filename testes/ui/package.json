@@ -76,7 +76,6 @@
     "baseline-browser-mapping": "^2.9.2",
     "crypto-js": "4.1.1",
     "cypress": "14.5.2",
-    "cypress-cloud": "2.0.0-beta.1",
     "cypress-mochawesome-reporter": "^3.8.4",
     "dotenv": "^16.6.1",
     "eslint": "^9",

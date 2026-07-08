@@ -11,6 +11,8 @@ Funcionalidade: Apostilar designação de servidor
 
   Contexto:
     Dado que o usuário está autenticado no sistema
+    E navega até o menu lateral e seleciona "Designações"
+    E seleciona o submenu "Designação"
 
   # ============================================================
   # CENÁRIO 1 — Fluxo completo com tipo "Designação"

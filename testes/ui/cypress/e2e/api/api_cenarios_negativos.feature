@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @negativo
+@api @negativo
 Funcionalidade: API EOL - Cenários Negativos
   Como sistema integrado SME
   Quero validar o comportamento da API em entradas inválidas e cenários de falha

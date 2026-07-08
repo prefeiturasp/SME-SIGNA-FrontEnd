@@ -8,6 +8,8 @@ Funcionalidade: Cessação de Designação
 
   Contexto:
     Dado que o usuário está autenticado no sistema
+    E navega até o menu lateral e seleciona "Designações"
+    E seleciona o submenu "Designação"
 
   @cessacao-fluxo-completo @smoke
   Cenário: Cessação de designação existente - Fluxo completo
