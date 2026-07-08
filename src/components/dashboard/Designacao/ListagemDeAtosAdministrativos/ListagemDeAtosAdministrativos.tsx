@@ -180,17 +180,22 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...apostilaItems(record));
     }
 
-    if (record.tipo === 'INSUBSISTENCIA') {
+    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) { 
       items.push(...insubsistenciaItems(record));
     }
 
     // remove as funções que ja foram executadas e não podem ser duplicadas
+    // não pode cessar 2 vezes o mesmo ato
     if (record.cessacao) {
       items = items.filter((item) =>
         item?.key !== '2'
       )
     }
-
+   
+    //não pode insubsistir 2 vezes o mesmo ato 
+    // 3 'Tornar insubsistente',
+    // 6 'Anular Apostila',
+    // 7 'Tornar sem efeito',
     if (record.insubsistencia) {
       items = items.filter((item) =>
         item?.key !== '3' && item?.key !== '6' && item?.key !== '7'

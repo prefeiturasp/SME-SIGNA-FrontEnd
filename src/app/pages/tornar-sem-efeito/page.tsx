@@ -19,7 +19,10 @@ import AnularApostilaTornarSemEfeitoFormCard from "@/components/dashboard/aposti
 import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
 import { message } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
-
+import { TEMPLATE_TORNAR_SEM_EFEITO_INSUBSISTENCIA } from "@/utils/portarias/templates";
+import { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+ 
+import { formatarData } from "@/lib/utils";
 
 const defaultValues = {
   portaria: "",
@@ -64,19 +67,45 @@ export default function AnularApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
-  const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
-    console.log('values', values);
-    setHtmlPortaria("")
-  };
   const salvarInsubsistencias = useSalvarInsubsistencias();
 
   const router = useRouter();
 
-  const handleGerarPortaria = () => {
-    setMostrarEditor(true);
-    gerarDados(form.getValues());
+  const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
+    const isCessacao = tipo_portaria === "cessacao";
+    
+    const fonteDados = isCessacao ? insubsistencia?.cessacao : insubsistencia?.designacao;
 
+    return {
+      portaria: values.apostila_insubsistencia.portaria,
+      ano: values.apostila_insubsistencia.ano,
+      numero_sei: values.apostila_insubsistencia.numero_sei,
+
+      doc_da_insubsistencia: insubsistencia?.doc ? formatarData(insubsistencia?.doc ): "-",
+      numero_sei_da_insubsistencia: insubsistencia?.sei_numero ?? "-",
+
+      doc_do_ato_insubsistido: fonteDados?.doc ? formatarData(fonteDados?.doc ) : "-",
+      dre: insubsistencia?.designacao?.dre_nome ?? "-",    
+    };
   };
+
+const handleGerarPortaria = () => {
+  const values = form.getValues();
+  const dados = gerarDados(values);
+  let texto = TEMPLATE_TORNAR_SEM_EFEITO_INSUBSISTENCIA;
+
+  Object.entries(dados).forEach(([key, value]) => {
+    let val = String(value ?? "");
+    if (["nome_indicado"].includes(key)) {
+      val = `<strong>${val}</strong>`;
+    }
+    texto = texto.replaceAll(`{{${key}}}`, val);
+  });
+
+  setHtmlPortaria(gerarHtmlPortaria(texto));
+  setMostrarEditor(true);
+};
+ 
 
   const onSubmit = async (values: formSchemaAnularApostilaTornarSemEfeitoData) => {    
     const ato_pai = insubsistencia?.id;

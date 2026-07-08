@@ -130,6 +130,7 @@ export interface ListagemAtosAdministrativosResponse {
   portaria: string;
   status_publicacao: string;
   tipo: string;
+  tipo_insubsistencia: string | null;
   tipo_de_ato: string;
   cessacao?: Partial<Cessacao> | null;
   insubsistencia?: Partial<InsubsistenciaRead>;
@@ -144,7 +145,7 @@ export interface ListagemPortariasResponse {
   doc: string;
   data_designacao: string | null;
   data_cessacao: string | null;
-  numero_sei: string;
+  sei_numero: string;
 }
 
 export interface PortariasDOFiltros {
@@ -209,7 +210,6 @@ export interface Cessacao {
   ato_pai_id: number;
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
-  numero_sei?: string;
   portaria?: string;
 }
 
@@ -256,7 +256,6 @@ export interface DesignacaoResponse {
   numero_portaria: string;
   ano_vigente: string;
   sei_numero: string;
-  numero_sei?: string;
   portaria?: string;
   doc: string;
   data_inicio: string;
