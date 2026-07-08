@@ -24,7 +24,6 @@ export default function BaixarLauda() {
   } = usePortariasDO();
 
 
-
   const handleBaixarLauda = async (selectedRows: ListagemPortariasResponse[], tipoArquivo: string) => {
     console.log('selectedRows', selectedRows, tipoArquivo);
   };

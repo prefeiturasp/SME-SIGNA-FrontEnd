@@ -5,7 +5,6 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Button } from "@/components/ui/button";
 import Designacao from "@/assets/icons/Designacao";
-import FiltroDeDesignacoes from "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,6 +23,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 import { toast } from "@/components/ui/headless-toast";
+import FiltroDeDesignacoes from "@/components/dashboard/Designacao/FiltroDeDesignacoes/FiltroDeDesignacoes";
 
 export default function DesignacoesPasso1() {
   const [resultado, setResultado] = useState<DesignacaoPaginada | null>(null);

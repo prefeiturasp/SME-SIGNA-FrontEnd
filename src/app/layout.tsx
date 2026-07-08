@@ -49,7 +49,8 @@ export default function RootLayout({
                 borderRadius: 8,
                 fontSize: 14,
                 fontWeightStrong: 500,
-                controlHeightLG: 40,                
+                controlHeightLG: 40,     
+                colorPrimary: "#B22B2A",           
               },
             }}
           >

@@ -35,7 +35,7 @@ const ResumoPortariaDesigacao: React.FC<{
               <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
                 <InfoItem
                   label="Portaria da designação"
-                  value={defaultValues.numero_portaria}
+                  value={defaultValues.numero_portaria ?? defaultValues.portaria}
                 />
                 <InfoItem
                   label="Ano Vigente"

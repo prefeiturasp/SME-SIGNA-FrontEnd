@@ -18,6 +18,7 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 interface PropsField {
     register: UseFormRegister<FieldValues>;
     control: Control<FieldValues>;
@@ -212,6 +213,68 @@ export const DateRangeField = ({ register, control, name, label, placeholder }: 
                     <FormMessage />
                 </FormItem>
             )}
+        />
+    );
+};
+
+export const DateRangePickerField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => {
+                const value: [Dayjs | null, Dayjs | null] | null =
+                    field.value?.from instanceof Date && isValid(field.value?.from)
+                        ? [
+                            dayjs(field.value.from),
+                            field.value?.to instanceof Date && isValid(field.value?.to)
+                                ? dayjs(field.value.to)
+                                : null,
+                        ]
+                        : null;
+
+                return (
+                    <FormItem className="flex flex-col">
+                        <FormLabel className="required text-[#313131] font-bold">
+                            {label}
+                        </FormLabel>
+
+                        <FormControl>
+                            <DatePicker.RangePicker
+                                allowClear={allowClear}
+                                format="DD/MM/YYYY"
+                                size="large"
+                                value={value}
+                                placeholder={[
+                                    placeholder ?? "Data inicial",
+                                    placeholder ?? "Data final",
+                                ]}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                }}
+                                onChange={(dates) => {
+                                    field.onChange(
+                                        dates
+                                            ? {
+                                                from: dates[0]?.toDate(),
+                                                to: dates[1]?.toDate(),
+                                            }
+                                            : null,
+                                    );
+                                }}
+                                onBlur={field.onBlur}
+                                style={{ width: "100%" }}
+                            />
+                        </FormControl>
+
+                        <FormMessage />
+                    </FormItem>
+                );
+            }}
         />
     );
 };
