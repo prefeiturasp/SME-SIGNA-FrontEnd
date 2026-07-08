@@ -3,7 +3,7 @@
 import { InsubsistenciaBody } from "@/types/insubsistencia";
 import { postWithAuth } from "@/lib/serverRequest";
 import { ApostilaDetailRead } from "@/types/apostila";
-import { fetchWithClient } from "./designacao";
+import { fetchWithClient } from "./http";
 
 export async function insubsistenciaAction(payload: InsubsistenciaBody) {
   return postWithAuth(

@@ -36,6 +36,8 @@ import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const origem = searchParams.get("origem");
+  const atoApostiladoPadrao = origem === "cessacao" ? "cessacao" : "designacao";
   const salvarApostila = useSalvarApostila();
   const router = useRouter();
 
@@ -49,7 +51,7 @@ export default function ApostilaPage() {
         numero_sei: "",
         doc: "",
         observacao: "",
-        ato_apostilado: "designacao",
+        ato_apostilado: atoApostiladoPadrao,
       },
     },
   });
@@ -79,11 +81,11 @@ export default function ApostilaPage() {
       apostila: {
         numero_sei: "",
         doc: "",
-        ato_apostilado: "designacao",
+        ato_apostilado: atoApostiladoPadrao,
         observacao: "",
       },
     });
-  }, [designacao, form]);
+  }, [designacao, form, atoApostiladoPadrao]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");

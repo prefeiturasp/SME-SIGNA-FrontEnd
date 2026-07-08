@@ -9,41 +9,8 @@ import {
   AtosAdministrativosPaginada,
   AtosAdministrativosFiltros,
 } from "@/types/designacao";
-import { getApiClient } from "@/lib/api";
-import { handleApiError } from "@/lib/api-error";
 import { ApostilaDetailRead } from "@/types/apostila";
-
-
-const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
-  return Object.fromEntries(
-    Object.entries(filtros).filter(
-      ([_, v]) => v !== "" && v !== undefined && v !== null
-    )
-  );
-};
-
-
-export const fetchWithClient = async <T>(
-  url: string,
-  filtros: DesignacaoFiltros|PortariasDOFiltros,
-  errorMessage: string
-): Promise<{ success: true; data: T } | { success: false; error: string }> => {
-  const apiClient = await getApiClient();
-
-  if (!apiClient) {
-    return { success: false, error: "Usuário não autenticado" };
-  }
-
-  const params = sanitizeParams(filtros);
-  try {
-    const { data } = await apiClient.get<T>(url, { params });
-    return { success: true, data };
-  } catch (err) {
-    const message = handleApiError(err, errorMessage);
-    return { success: false, error: message };
-  }
-};
-
+import { fetchWithClient } from "./http";
 
 export const fetchDesignacoesAction = async (
   filtros: DesignacaoFiltros
