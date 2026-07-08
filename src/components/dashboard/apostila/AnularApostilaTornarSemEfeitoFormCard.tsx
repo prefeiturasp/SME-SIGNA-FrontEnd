@@ -24,8 +24,9 @@ type AnularApostilaTornarSemEfeitoFormCardProps<TFieldValues extends FieldValues
   onGerarPortaria: () => void;
   mostrarEditor: boolean;
   htmlPortaria: string;
-  showTextoParaApostila?: boolean;  
+  showTextoParaApostila?: boolean;
   tituloForm: string;
+  labelPortaria?: string;
 }>;
 
 export default function AnularApostilaTornarSemEfeitoFormCard<TFieldValues extends FieldValues>({
@@ -41,6 +42,7 @@ export default function AnularApostilaTornarSemEfeitoFormCard<TFieldValues exten
   htmlPortaria,
   showTextoParaApostila,
   tituloForm,
+  labelPortaria,
 }: AnularApostilaTornarSemEfeitoFormCardProps<TFieldValues>) {
   return (
     <FormProvider {...form}>
@@ -74,6 +76,7 @@ export default function AnularApostilaTornarSemEfeitoFormCard<TFieldValues exten
               <PortariaAnularApostilaFields
                 tipo_portaria={tipoPortaria}
                 showTextoParaApostila={showTextoParaApostila}
+                labelPortaria={labelPortaria}
               />
               <div className="w-full flex justify-end pt-[2rem]">
                 <div className="w-[200px]">
