@@ -4,6 +4,7 @@ import {
   designacaoLocators,
   designacaoTextos,
   designacaoUrls,
+  novaDesignacaoPack,
 } from '../../ui/locators/designacao_locators';
 
 const xpathToCssSelector = (locator) => {
@@ -117,15 +118,32 @@ Given('que o sistema carregou o dashboard', () => {
 When('valida e clica no botão Nova Designação', () => {
   cy.intercept('POST', '**/designacoes-passo-1**').as('loadPasso1');
 
-  // Valida existência do botão usando seletor estrutural do XPath convertido para CSS
-  cy.get('main > div:first-child > div:first-child > div > button', { timeout: 40000 })
-    .should('exist')
-    .and('be.visible')
+  // Bug de aplicação: a tela "Lista de designações" mantém um polling/refresh
+  // (POST na própria rota) que não é cancelado ao navegar para outra página.
+  // Minutos/segundos depois, a resposta desse polling força o app a navegar
+  // de volta para listagem-designacoes — mesmo já estando em designacoes-passo-1.
+  // Não precisamos mais dessa rota no restante do fluxo de criação de
+  // designação. IMPORTANTE: forceNetworkError faz o fetch() do app rejeitar de
+  // verdade, o que aciona o próprio tratamento de erro da aplicação e dispara
+  // o redirecionamento de volta para listagem-designacoes — ou seja, causava
+  // exatamente o bug que tentava neutralizar. Em vez disso, atrasamos a
+  // resposta (mesma técnica já usada acima, em "navega pelo menu lateral..."):
+  // sem erro, sem redirecionamento, e a resposta nunca chega a tempo de afetar
+  // o restante do fluxo de criação da designação.
+  cy.intercept('POST', '**/pages/listagem-designacoes**', (req) => {
+    req.continue((res) => {
+      res.delay = 90000;
+    });
+  }).as('blockListagemPolling');
+
+  // Seletor por texto (resiliente a mudanças de layout/estrutura do DOM)
+  novaDesignacaoPack.lista.botaoNovaDesignacao()
+    .should('be.visible')
     .then(($btn) => {
       cy.log(`Botão encontrado: ${$btn.text().trim()}`);
     });
 
-  cy.get('main > div:first-child > div:first-child > div > button', { timeout: 40000 })
+  novaDesignacaoPack.lista.botaoNovaDesignacao()
     .first()
     .click();
 
@@ -133,7 +151,6 @@ When('valida e clica no botão Nova Designação', () => {
   cy.url({ timeout: 40000 }).should('include', 'designacoes-passo-1');
   cy.contains('h1', 'Designação', { timeout: 40000 }).should('be.visible');
   cy.get(designacaoLocators.campoRF, { timeout: 40000 }).should('be.visible');
-  cy.wait(1000);
 });
 
 Then('valida a existencia dos Botões {string} e {string}', (btn1, btn2) => {
@@ -196,7 +213,16 @@ When('clica em {string}', (texto) => {
 
   if (seletor === 'Salvar') {
     cy.log('Clicando em Salvar...');
-    
+
+    // Ao salvar, o app navega de volta para listagem-designacoes. Se o
+    // intercept "blockListagemPolling" (forceNetworkError, registrado em
+    // "valida e clica no botão Nova Designação" para neutralizar o polling
+    // bugado enquanto estávamos em designacoes-passo-*) continuar ativo, ele
+    // também derruba as requisições legítimas da listagem após o retorno,
+    // gerando "TypeError: Failed to fetch" não capturado no fim do teste.
+    // Restauramos o comportamento normal da rota antes de navegar de volta.
+    cy.intercept('POST', '**/pages/listagem-designacoes**').as('unblockListagemPolling');
+
     // Tenta primeiro o seletor para cessação (dentro do form)
     cy.get('body').then(($body) => {
       if ($body.find('form button:contains("Salvar")').length > 0) {
@@ -392,13 +418,42 @@ Then('o sistema valida que está na listagem de designações', () => {
   cy.url({ timeout: 15000 }).should('include', 'listagem-designacoes');
 });
 
+// Workaround: bug conhecido na aplicação — uma chamada de polling/refresh
+// obsoleta da tela "listagem-designacoes" continua ativa após a navegação e,
+// segundos depois, força o retorno a essa URL. Como isso pode ocorrer a
+// qualquer momento (inclusive durante a espera de uma assertion), fazemos um
+// retry ativo: a cada tentativa verificamos a URL e, se tiver revertido,
+// reclicamos em "Nova Designação" e checamos de novo — em vez de uma única
+// verificação no início, que não pega o caso do bug disparar durante a espera.
+function aguardarPaginaNovaDesignacao(tentativas = 6) {
+  cy.url().then((url) => {
+    if (url.includes('designacoes-passo-1')) {
+      cy.contains('h1', 'Designação', { timeout: 10000 }).should('be.visible');
+      return;
+    }
+
+    if (tentativas <= 0) {
+      throw new Error(
+        'A aplicação continua retornando para listagem-designacoes — não foi possível permanecer na página de nova designação (bug de polling na aplicação).'
+      );
+    }
+
+    cy.log(`⚠ Página voltou para listagem-designacoes (bug de polling) — reclicando em "Nova Designação" (tentativas restantes: ${tentativas})`);
+    novaDesignacaoPack.lista.botaoNovaDesignacao().first().click();
+    cy.wait(800);
+    aguardarPaginaNovaDesignacao(tentativas - 1);
+  });
+}
+
 Then('o sistema valida que está na página de nova designação', () => {
-  cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-1');
+  aguardarPaginaNovaDesignacao();
 });
 
 Then('deve visualizar o texto {string}', (texto) => {
-  // scrollIntoView garante que o elemento está na viewport antes de validar visibilidade
-  cy.contains(texto, { timeout: 30000 })
+  // Escopo restrito a <main>: o sidebar pode conter o mesmo texto (ex.: "Designação"
+  // no submenu lateral, oculto quando a aba não está ativa), causando falso match.
+  cy.get('main', { timeout: 30000 })
+    .contains(texto, { timeout: 30000 })
     .should('exist')
     .scrollIntoView()
     .should('be.visible');

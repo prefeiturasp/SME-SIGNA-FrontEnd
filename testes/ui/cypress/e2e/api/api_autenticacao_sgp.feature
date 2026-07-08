@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @autenticacao_sgp
+@api @autenticacao_sgp
 Funcionalidade: API EOL - AutenticacaoSGP
   Como sistema integrado SME
   Quero validar os endpoints de autenticação e dados do usuário SGP

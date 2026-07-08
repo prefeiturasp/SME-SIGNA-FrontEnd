@@ -234,7 +234,7 @@ Then('valida a existencia dos Titulos', (docString) => {
   titulos.forEach((titulo, index) => {
     cy.log(`[${index + 1}/${titulos.length}] Validando: "${titulo}"`)
     
-    cy.get('body').then($body => {
+    cy.get('main').then($body => {
       const existe = $body.find(`label:contains("${titulo}"), span:contains("${titulo}"), p:contains("${titulo}"), div:contains("${titulo}"), h1:contains("${titulo}"), h2:contains("${titulo}"), h3:contains("${titulo}"), h4:contains("${titulo}")`).length > 0
       
       if (existe) {

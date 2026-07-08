@@ -107,3 +107,17 @@ export const designacaoUrls = {
   listaDesignacoes:      '/pages/designacoes',
   novaDesignacaoPasso1:  '/pages/designacoes/designacoes-passo-1',
 };
+
+// ─── Pack: Nova Designação — seletores resilientes baseados em texto ───────────
+// Preferidos sobre seletores estruturais (ex.: "main > div:first-child > ...")
+// que quebram a qualquer mudança de layout.
+export const novaDesignacaoPack = {
+  lista: {
+    titulo: () => cy.contains('Lista de designações', { timeout: 30000 }),
+    botaoNovaDesignacao: () =>
+      cy.contains('button', /Nova Designação/i, { timeout: 40000 }),
+  },
+  novaDesignacao: {
+    titulo: () => cy.contains('h1', 'Designação', { timeout: 15000 }),
+  },
+};

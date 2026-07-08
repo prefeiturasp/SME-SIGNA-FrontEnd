@@ -8,6 +8,8 @@ Funcionalidade: visualizar de Designação
 
   Contexto:
     Dado que o usuário está autenticado no sistema
+    E navega até o menu lateral e seleciona "Designações"
+    E seleciona o submenu "Designação"
 
   @visualizar-fluxo-completo @smoke
   Cenário: visualizar designação existente - Fluxo completo
