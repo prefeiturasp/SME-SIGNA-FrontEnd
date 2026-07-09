@@ -76,6 +76,26 @@ describe("PortariaAnularApostilaFields", () => {
     );
   });
 
+  it("usa labelPortaria quando informado, sobrepondo o label padrão", () => {
+    render(
+      <PortariaAnularApostilaFields
+        tipo_portaria="designacao"
+        labelPortaria="Portaria do ato tornar sem efeito"
+      />
+    );
+
+    expect(fieldsBasePropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputFields: expect.arrayContaining([
+          expect.objectContaining({
+            name: "apostila_insubsistencia.portaria",
+            label: "Portaria do ato tornar sem efeito",
+          }),
+        ]),
+      })
+    );
+  });
+
   it("remove campo de texto para apostila quando showTextoParaApostila for false", () => {
     render(
       <PortariaAnularApostilaFields

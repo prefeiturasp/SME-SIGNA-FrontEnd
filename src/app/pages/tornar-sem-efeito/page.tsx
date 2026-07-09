@@ -157,6 +157,7 @@ const handleGerarPortaria = () => {
           htmlPortaria={htmlPortaria}
           showTextoParaApostila={false}
           tituloForm="Portaria do ato tornar sem efeito"
+          labelPortaria="Portaria do ato tornar sem efeito"
         />
       )}
     </>
