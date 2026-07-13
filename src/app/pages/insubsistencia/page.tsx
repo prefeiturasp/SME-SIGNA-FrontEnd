@@ -41,6 +41,8 @@ import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 export default function InsubsistenciaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const origem = searchParams.get("origem");
+  const tipoInsubsistenciaPadrao = origem === "cessacao" ? "cessacao" : "designacao";
   const salvarInsubsistencia = useSalvarInsubsistencia();
   const router = useRouter();
 
@@ -57,7 +59,7 @@ export default function InsubsistenciaPage() {
         numero_sei: "",
         doc: "",
         observacoes: "",
-        tipo_insubsistencia: "designacao",
+        tipo_insubsistencia: tipoInsubsistenciaPadrao,
       },
     },
   });
@@ -101,11 +103,11 @@ export default function InsubsistenciaPage() {
         numero_sei: "",
         ano: new Date().getFullYear().toString(),
         doc: "",
-        tipo_insubsistencia: "designacao",
+        tipo_insubsistencia: tipoInsubsistenciaPadrao,
         observacoes: "",
       },
     });
-  }, [designacao, form]);
+  }, [designacao, form, tipoInsubsistenciaPadrao]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");

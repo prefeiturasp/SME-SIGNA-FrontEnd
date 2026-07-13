@@ -16,7 +16,9 @@ export const insubsistenteSelectors = {
   // ===============================
   // LABELS / TEXTOS
   // ===============================
-  label: (texto) => cy.contains(
+  // Escopado em "main" para não colidir com itens do menu lateral (<aside>)
+  // que podem conter o mesmo texto (ex.: "D.O" também aparece em "Alterar data do D.O").
+  label: (texto) => cy.get('main', { timeout: 10000 }).contains(
     'label, span, p, div, h1, h2, h3, h4',
     texto,
     { timeout: 10000 }
@@ -27,8 +29,8 @@ export const insubsistenteSelectors = {
   // ===============================
   inputPorLabel: (label) => {
     cy.log(`Buscando input: "${label}"`)
-    
-    return cy.get(`label:contains("${label}")`, { timeout: 10000 })
+
+    return cy.get('main', { timeout: 10000 }).find(`label:contains("${label}")`)
       .first()
       .then($label => {
         // Tenta via for/id
@@ -51,8 +53,8 @@ export const insubsistenteSelectors = {
   // ===============================
   textareaPorLabel: (label) => {
     cy.log(`Buscando textarea: "${label}"`)
-    
-    return cy.get(`label:contains("${label}")`, { timeout: 10000 })
+
+    return cy.get('main', { timeout: 10000 }).find(`label:contains("${label}")`)
       .first()
       .then($label => {
         // Tenta via for/id
@@ -73,7 +75,9 @@ export const insubsistenteSelectors = {
   // ===============================
   // 🔹 RADIO BUTTONS
   // ===============================
-  radioOpcao: (texto) => cy.contains(
+  // Escopado em "main" para não colidir com itens do menu lateral (<aside>)
+  // que podem conter o mesmo texto como substring (ex.: "Designações").
+  radioOpcao: (texto) => cy.get('main', { timeout: 10000 }).contains(
     '.ant-radio-wrapper, label',
     texto,
     { timeout: 10000 }
@@ -103,9 +107,9 @@ export const insubsistenteSelectors = {
   },
 
   verificarAbaVazia: () => {
-    return cy.get('body').then($body => {
-      const temConteudo = 
-        $body.find('input:visible, textarea:visible, select:visible, .ant-form-item').length > 0
+    return cy.get('main').then($main => {
+      const temConteudo =
+        $main.find('input:visible, textarea:visible, select:visible, .ant-form-item').length > 0
       return !temConteudo
     })
   }

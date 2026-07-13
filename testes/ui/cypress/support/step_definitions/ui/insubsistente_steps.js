@@ -83,8 +83,10 @@ Then('valida a existencia dos Titulos com skip se vazio', (docString) => {
   cy.log('Validando títulos (com skip se aba vazia)')
   
   // Verifica se a aba está vazia
-  cy.get('body').then($body => {
-    const abaVazia = $body.find('input:visible, textarea:visible, select:visible, .ant-form-item').length === 0
+  // Escopado em "main" para não considerar elementos do menu lateral (<aside>),
+  // que não faz parte do conteúdo da aba e pode conter textos coincidentes (ex.: "D.O").
+  cy.get('main').then($main => {
+    const abaVazia = $main.find('input:visible, textarea:visible, select:visible, .ant-form-item').length === 0
     
     if (abaVazia) {
       cy.log(' Aba vazia detectada, pulando validação')
@@ -107,7 +109,7 @@ Then('valida a existencia dos Titulos com skip se vazio', (docString) => {
     titulos.forEach((titulo, index) => {
       cy.log(`[${index + 1}/${titulos.length}] Validando: "${titulo}"`)
       
-      cy.get('body').then($b => {
+      cy.get('main').then($b => {
         const existe = $b.find(`label:contains("${titulo}"), span:contains("${titulo}"), p:contains("${titulo}"), div:contains("${titulo}"), h1:contains("${titulo}"), h2:contains("${titulo}"), h3:contains("${titulo}"), h4:contains("${titulo}")`).length > 0
         
         if (existe) {
@@ -142,29 +144,31 @@ Then('valida a existencia dos Titulos com skip se vazio', (docString) => {
 
 Then('valida a existencia das opções {string} e {string}', (opcao1, opcao2) => {
   cy.log(`Validando existência das opções: "${opcao1}" e "${opcao2}"`)
-  
-  // Valida primeira opção
-  cy.contains('.ant-radio-wrapper, label, span', opcao1, { timeout: 10000 })
+
+  // Escopado em "main" para não colidir com o menu lateral (<aside>), que contém
+  // um item "Designações" cujo texto inclui "Designação" como substring e faria
+  // o cy.contains casar com o <span> (por vezes oculto) do menu em vez do radio.
+  cy.get('main').contains('.ant-radio-wrapper, label, span', opcao1, { timeout: 10000 })
     .should('be.visible')
     .then(() => {
       cy.log(` Opção "${opcao1}" encontrada`)
     })
-  
+
   // Valida segunda opção
-  cy.contains('.ant-radio-wrapper, label, span', opcao2, { timeout: 10000 })
+  cy.get('main').contains('.ant-radio-wrapper, label, span', opcao2, { timeout: 10000 })
     .should('be.visible')
     .then(() => {
       cy.log(` Opção "${opcao2}" encontrada`)
     })
-  
+
   cy.wait(500)
 })
 
 Then('seleciona a opção {string}', (opcao) => {
   cy.log(`Selecionando opção: "${opcao}"`)
-  
-  // Procura o radio button pela label
-  cy.contains('.ant-radio-wrapper, label', opcao, { timeout: 10000 })
+
+  // Procura o radio button pela label (escopado em "main" pelo mesmo motivo acima)
+  cy.get('main').contains('.ant-radio-wrapper, label', opcao, { timeout: 10000 })
     .should('be.visible')
     .click({ force: true })
     .then(() => {

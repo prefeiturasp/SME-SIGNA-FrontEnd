@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @acessos
+@api @acessos
 Funcionalidade: API EOL - Acessos
   Como sistema integrado SME
   Quero validar os endpoints de controle de acesso

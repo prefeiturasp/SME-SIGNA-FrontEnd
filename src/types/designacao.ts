@@ -117,16 +117,20 @@ export interface AtosAdministrativosPaginada {
   previous: string | null;
   results: ListagemAtosAdministrativosResponse[];
 }
+
 export interface ListagemAtosAdministrativosResponse {
   id: number;
   ano_vigente: string;
   criado_em: string;
+  criado_por_nome: string | null;
   nome: string;
+  rf: string | null;
   numero_sei: string;
   observacoes: string | null;
   portaria: string;
   status_publicacao: string;
   tipo: string;
+  tipo_insubsistencia: string | null;
   tipo_de_ato: string;
   cessacao?: Partial<Cessacao> | null;
   insubsistencia?: Partial<InsubsistenciaRead>;
@@ -141,7 +145,7 @@ export interface ListagemPortariasResponse {
   doc: string;
   data_designacao: string | null;
   data_cessacao: string | null;
-  numero_sei: string;
+  sei_numero: string;
 }
 
 export interface PortariasDOFiltros {
@@ -206,6 +210,7 @@ export interface Cessacao {
   ato_pai_id: number;
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
+  portaria?: string;
 }
 
 export interface DesignacaoResponse {
@@ -251,6 +256,7 @@ export interface DesignacaoResponse {
   numero_portaria: string;
   ano_vigente: string;
   sei_numero: string;
+  portaria?: string;
   doc: string;
   data_inicio: string;
   data_fim: string | null;

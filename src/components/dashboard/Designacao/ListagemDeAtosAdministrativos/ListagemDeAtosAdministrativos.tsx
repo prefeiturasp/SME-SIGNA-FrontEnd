@@ -4,7 +4,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
 import { formatarDataHora } from '@/lib/utils';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { Dropdown, Pagination, Table, Tag } from 'antd';
+import { Dropdown, Pagination, Table, Tag, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 
 import Editar from '@/assets/icons/Editar';
@@ -13,6 +13,7 @@ import Cancelar from '@/assets/icons/Cancelar';
 import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
+import { useRouter } from 'next/navigation';
 
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
@@ -53,7 +54,7 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
- 
+
 
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
@@ -71,25 +72,26 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   onPageChange,
 }) => {
 
+  const router = useRouter();
 
   const designacaoPublicadaItems = [
     {
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     {
       key: '2',
       label: 'Cessar',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
@@ -98,14 +100,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '4',
       label: 'Editar',
       icon: <Editar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     ...designacaoPublicadaItems,
     {
       key: '5',
       label: 'Excluir',
       icon: <Delete width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
@@ -114,34 +116,44 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      
+
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      
+
     },
   ]
 
 
-  const apostilaItems = [
-    {
-      key: '6',
-      label: 'Anular Apostila',
-      icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-      
-    },
-  ]
+  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => 
+  {
+    const items: ItemType[] = [
+      {
+        key: '6',
+        label: 'Anular Apostila',
+        icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          router.push(`/pages/anular-apostila?id=${record.id}`);
+        },
+      }
+    ]
+    return items;
+  };
 
-  const insubsistenciaItems = [
+  const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    return [  
     {
       key: '7',
       label: 'Tornar sem efeito',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      
+      onClick: () => {
+        router.push(`/pages/tornar-sem-efeito?id=${record.id}`);
+      },
     },
-  ]
+  ];
+  };
 
 
 
@@ -165,23 +177,28 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
 
     if (record.tipo === 'APOSTILA') {
-      items.push(...apostilaItems);
+      items.push(...apostilaItems(record));
     }
 
-    if (record.tipo === 'INSUBSISTENCIA') {
-      items.push(...insubsistenciaItems);
+    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) { 
+      items.push(...insubsistenciaItems(record));
     }
 
     // remove as funções que ja foram executadas e não podem ser duplicadas
+    // não pode cessar 2 vezes o mesmo ato
     if (record.cessacao) {
       items = items.filter((item) =>
         item?.key !== '2'
       )
     }
-
+   
+    //não pode insubsistir 2 vezes o mesmo ato 
+    // 3 'Tornar insubsistente',
+    // 6 'Anular Apostila',
+    // 7 'Tornar sem efeito',
     if (record.insubsistencia) {
       items = items.filter((item) =>
-        item?.key !== '3'  
+        item?.key !== '3' && item?.key !== '6' && item?.key !== '7'
       )
     }
 
@@ -192,14 +209,28 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
     { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
-    { title: 'Data/hora', dataIndex: 'criado_em', key: 'criado_em', render: (text: string) => formatarDataHora(text) },
+    { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
     { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
     { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
-    { title: 'Responsável', dataIndex: 'responsavel', key: 'responsavel', render: () => <span >-</span> },
+    { title: 'Registro Funcional (RF)', dataIndex: 'rf', key: 'rf', render: (rf: string | null) => <span>{rf ?? '-'}</span> },
     {
-      title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) =>
-        TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status'),
+      title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) => {
+        const [data, hora] = formatarDataHora(record.criado_em).split(', ');
+        return (
+          <Tooltip
+            title={
+              <div>
+                <div>{record.criado_por_nome ?? 'Não informado'}</div>
+                <div>Data: {data}</div>
+                <div>Hora: {hora}</div>
+              </div>
+            }
+          >
+            {TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status')}
+          </Tooltip>
+        );
+      },
     },
     {
       title: '',
@@ -221,9 +252,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       ),
     },
   ];
-
-
-
 
 
   return (

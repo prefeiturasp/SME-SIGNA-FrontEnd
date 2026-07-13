@@ -8,6 +8,7 @@ import '@shelex/cypress-allure-plugin';
 // Importar comandos personalizados
 import './ui/commands/commands_globais';
 import './ui/commands/commands_login';
+import './ui/commands/commands_slowmo';
 
 // Importar comandos de API EOL
 import './api/commands';

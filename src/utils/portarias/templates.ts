@@ -52,3 +52,32 @@ APOSTILA FEITA NA PORTARIA, Nº {{portaria_designacao}}/{{ano}}, DA S.M.E., D.O.
 {{dre}}
 
 É a presente portaria apostilada, a fim de declarar que a servidora foi designada para exercer cargo vago de {{cargo}}, na {{ue}} E.H: {{eh}} e não como constou.`;
+
+
+
+
+
+export const TEMPLATE_ANULAR_APOSTILA = `PORTARIA Nº {{portaria}}/{{ano}}
+SEI Nº {{numero_sei}}
+
+
+APOSTILA FEITA NA PORTARIA, Nº {{portaria_apostilada}}/{{ano_apostilado}}, DA S.M.E., D.O.C. DE {{doc_apostilado}}, SEI Nº {{sei_apostilado}}, EM NOME DE {{nome_indicado}}, RF {{rf}}, VÍNCULO {{vinculo}}.
+
+
+{{dre}}
+
+
+{{texto_para_apostila}}`;
+
+
+export const TEMPLATE_TORNAR_SEM_EFEITO_INSUBSISTENCIA = `PORTARIA Nº {{portaria}}/{{ano}}
+SEI Nº {{numero_sei}}
+
+{{dre}}
+
+O Secretário Municipal de Educação, no uso de suas atribuições legais,
+
+R E S O L V E:
+
+TORNAR SEM EFEITO a publicação no D.O.C. de {{doc_da_insubsistencia}}, SEI Nº {{numero_sei_da_insubsistencia}}, que tornou Insubsistente o ato publicado no DOC {{doc_do_ato_insubsistido}}.
+`;

@@ -6,6 +6,7 @@ export interface InsubsistenciaBody {
     sei_numero: string;
     doc?: string;
     observacoes?: string;
+    texto_apostila?: string;
 }
 
 // Formato retornado pela API quando aninhado numa designação

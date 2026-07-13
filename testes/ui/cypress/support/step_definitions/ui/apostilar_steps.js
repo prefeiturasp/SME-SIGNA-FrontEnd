@@ -84,7 +84,9 @@ Then('Valida a existencia do texto {string}', (texto) => {
     cy.log(`⚠️ Skip (seção vazia): "${texto}"`)
     return
   }
-  cy.contains(texto.trim(), { timeout: 10000 }).should('be.visible')
+  // Escopado em "main" para não colidir com textos do menu lateral (<aside>),
+  // que pode conter substrings iguais (ex.: "D.O" também aparece em "Alterar data do D.O").
+  cy.get('main', { timeout: 10000 }).contains(texto.trim(), { timeout: 10000 }).should('be.visible')
   cy.log(`✓ Texto encontrado: "${texto}"`)
 })
 

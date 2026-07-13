@@ -3,6 +3,7 @@ export function getDadosPortaria(designacao: any) {
 
   return {
     numero_portaria: designacao.numero_portaria,
+    portaria: designacao.portaria,
     ano_vigente: designacao.ano_vigente,
     sei_numero: designacao.sei_numero,
     doc: designacao.doc,

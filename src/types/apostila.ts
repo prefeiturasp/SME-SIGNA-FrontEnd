@@ -1,3 +1,5 @@
+import { Cessacao, DesignacaoResponse } from "./designacao";
+
 export interface ApostilaBody {
     ato_pai: number;
     sei_numero: string;
@@ -9,6 +11,17 @@ export interface ApostilaBody {
     }[];
 }
 
+ 
+export interface ApostilaInsubsistenciasBody {
+    ato_pai: number;
+    numero_portaria: string;
+    sei_numero: string;
+    doc?: string;
+    ano_vigente?: string;
+    observacoes?: string;
+    texto_apostila?: string;
+}
+
 // Formato retornado pela API (leitura)
 export interface ApostilaRead {
     id: number;
@@ -17,4 +30,16 @@ export interface ApostilaRead {
     status: string;
     observacao: string;
     criado_em: string;
+}
+
+
+export interface ApostilaDetailRead {
+    id: number;    
+    sei_numero: string;
+    doc: string;
+    status: string;
+    observacao: string;
+    criado_em: string;
+    designacao: Partial<DesignacaoResponse>;
+    cessacao: Partial<Cessacao>;
 }

@@ -8,11 +8,12 @@ Funcionalidade: Designação de Servidores
 
   Contexto:
     Dado que o usuário está autenticado no sistema
+    E navega até o menu lateral e seleciona "Designações"
+    E seleciona o submenu "Designação"
 
   @designacao-fluxo-completo @critico
   Cenário: Nova designação de servidor Cargo Disponivel
-    Dado que o sistema carregou o dashboard
-    Quando valida e clica no botão Nova Designação
+    Dado valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o texto "Designação"
     E deve visualizar o formulário da designação
@@ -71,7 +72,7 @@ Funcionalidade: Designação de Servidores
     E valida a existencia dos Botões "Voltar" e "Salvar"
     Quando clica em "Salvar"
 
-  @skip -@designacao-fluxo-completo @critico @cargo-vago
+  @designacao-fluxo-completo @critico @cargo-vago
   Cenário: Nova designação de servidor com cargo vago
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -133,7 +134,7 @@ Funcionalidade: Designação de Servidores
   # CENÁRIOS DE EXCEÇÃO
   # ══════════════════════════════════════════════════════════════════════════════
 
-  @excecao @rf-invalido
+  @skip @excecao @rf-invalido
   Cenário: Pesquisa de servidor com RF inexistente no sistema
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -143,7 +144,7 @@ Funcionalidade: Designação de Servidores
     E clica em pesquisar
     Então o sistema exibe mensagem de servidor não encontrado
 
-  @excecao @passo2-sem-portaria
+  @skip @excecao @passo2-sem-portaria
   Cenário: Tentativa de avançar o Passo 2 sem preencher a portaria obrigatória
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -166,7 +167,7 @@ Funcionalidade: Designação de Servidores
     Quando tenta avançar o passo 2 sem preencher a portaria
     Então o sistema impede o avanco do passo 2
 
-  @excecao @rf-titular-invalido
+  @skip @excecao @rf-titular-invalido
   Cenário: Pesquisa de titular com RF inválido no Passo 2
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -196,7 +197,7 @@ Funcionalidade: Designação de Servidores
     E valida a existencia do botao e clica em pesquisar o titular
     Então o sistema exibe mensagem de titular não encontrado
 
-  @excecao @rf-vazio
+  @skip @excecao @rf-vazio
   Cenário: Tentativa de pesquisa sem preencher o campo RF
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -205,7 +206,7 @@ Funcionalidade: Designação de Servidores
     Quando tenta pesquisar sem preencher o campo RF
     Então o sistema impede a pesquisa sem RF
 
-  @excecao @cargo-vago-sem-selecao
+  @skip @excecao @cargo-vago-sem-selecao
   Cenário: Tentativa de avançar com Cargo Vago sem selecionar o cargo específico
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação

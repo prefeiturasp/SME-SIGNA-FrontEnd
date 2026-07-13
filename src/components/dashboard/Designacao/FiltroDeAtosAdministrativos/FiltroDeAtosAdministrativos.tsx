@@ -23,6 +23,8 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
     { codigo: 'INSUBSISTENCIA_CESSACAO', nome: 'Insubsistência de Cessação' },
     { codigo: 'APOSTILA_DESIGNACAO', nome: 'Apostila de Designação' },
     { codigo: 'APOSTILA_CESSACAO', nome: 'Apostila de Cessação' },
+    { codigo: 'INSUBSISTENCIA_APOSTILA', nome: 'Anulação de Apostila' },
+    { codigo: 'INSUBSISTENCIA_INSUBSISTENCIA', nome: 'Tornar sem efeito' },
   ]
 
 
@@ -119,7 +121,7 @@ const FiltroDeATosAdministrativos: React.FC<Props> = ({ onClear }) => {
             register={register}
             control={control}
             name="nome_titular_e_indicado"
-            label="Servidor indicado/titular"
+            label="Servidor"
             placeholder="Exemplo: João da Silva"
             data-testid="input-nome-titular-e-indicado"
             type="text"

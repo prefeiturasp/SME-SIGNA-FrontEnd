@@ -1,5 +1,5 @@
 #language: pt
-@skip @api @dre_codigo
+@api @dre_codigo
 Funcionalidade: Testes da API de Detalhes de DRE por Código
   Como um testador
   Quero validar o endpoint GET /api/DREs/{codigoEolDRE}

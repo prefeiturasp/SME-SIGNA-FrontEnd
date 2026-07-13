@@ -1,7 +1,8 @@
  
 
 export type PortariaDesignacao = {
-    numero_portaria: string;
+    numero_portaria?: string;
+    portaria?: string;
     ano_vigente: string;
     sei_numero: string;
     doc: string;
