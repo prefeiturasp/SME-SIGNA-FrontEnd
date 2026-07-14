@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card } from "antd";
 
 
 interface InformacoesAdicionaisProps {
@@ -25,7 +24,6 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
 
   return (
 
-      <div className="card-designacao">
         <FormProvider {...form}>
           <form >
             <div className="w-full ">
@@ -34,7 +32,7 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
                 control={form.control}
                 name="informacoes_adicionais"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mb-0">
                     <div className="mb-4">
                       <FormLabel className="required font-[400]">
                         Insira informações que considerar importante no processo da designação. Este é um campo opcional.
@@ -64,10 +62,11 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
 
                 <FormField
                 control={form.control}
+                
                 name="detalhe_para_quadro_de_historico_por_ano"
                 render={({ field }) => (
 
-                  <FormItem>
+                  <FormItem className="mb-0">
                     <FormLabel className="font-bold text-[#313131]">
                       Detalhe para quadro de histórico por ano
                     </FormLabel>
@@ -105,7 +104,6 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
             </div>
           </form>
         </FormProvider>
-      </div>
  
 
   )

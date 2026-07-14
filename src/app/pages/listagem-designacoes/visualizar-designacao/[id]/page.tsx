@@ -35,7 +35,7 @@ function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
-export default function VisualizarDesignacaoPage  () {
+export default function VisualizarDesignacaoPage() {
 
   const params = useParams();
   const id = params.id;
@@ -139,7 +139,7 @@ export default function VisualizarDesignacaoPage  () {
               onClick={() =>
                 router.push("/pages/atos-administrativos")
               }
-            >              
+            >
               <span className="font-bold">Voltar</span>
               <ArrowLeft />
             </Button>
@@ -304,12 +304,17 @@ export default function VisualizarDesignacaoPage  () {
           mostrarBotao={false}
         />
 
-        <InformacoesAdicionais
-          disableFields={true}
-          form={form}
-          onChangeDescricao={console.log}
-          onValueChangeDetalheParaQuadroDeHistoricoPorAno={console.log}
-        />
+        <div className="mt-8">
+          <div className="mb-8">
+          <span className="text-[#333] text-[16px] font-bold ">Informações adicionais</span>
+          </div>
+          <InformacoesAdicionais
+            disableFields={true}
+            form={form}
+            onChangeDescricao={console.log}
+            onValueChangeDetalheParaQuadroDeHistoricoPorAno={console.log}
+          />
+        </div>
 
       </Card>
     </>

@@ -90,7 +90,7 @@ export default function DesignacoesPasso3() {
       dadosEscapados[k] = escapeHtml(String(v));
     }
 
-  
+
     const dadosEscapadosNegrito = adicionarNegrito(dadosEscapados, CAMPOS_NEGRITO);
 
     return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapadosNegrito));
@@ -163,25 +163,27 @@ export default function DesignacoesPasso3() {
         title={<span className="text-[#333]">Informações adicionais</span>}
         className="mt-4 m-0"
       >
-        <InformacoesAdicionais
-          form={form}
-          onChangeDescricao={
-            (value) => {
+        <div className="card-designacao">
+
+          <InformacoesAdicionais
+            form={form}
+            onChangeDescricao={
+              (value) => {
+                setFormDesignacaoData({
+                  ...formDesignacaoData,
+                  informacoes_adicionais: value,
+                });
+              }}
+            onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {
+              const booleanValue = value === "true";
               setFormDesignacaoData({
-              ...formDesignacaoData,
-              informacoes_adicionais: value,
-            });
-          }}
-          onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {            
-            const booleanValue = value === "true";
-            setFormDesignacaoData({
-              ...formDesignacaoData,
-              detalhe_para_quadro_de_historico_por_ano: booleanValue,
-            });
-          }}
-          disableFields={false}
-        />
-      
+                ...formDesignacaoData,
+                detalhe_para_quadro_de_historico_por_ano: booleanValue,
+              });
+            }}
+            disableFields={false}
+          />
+        </div>
       </Card>
 
 
@@ -192,8 +194,8 @@ export default function DesignacoesPasso3() {
           disableProximo={salvando}
           labelProximo="Salvar"
           showAnterior
-          onAnterior={() => {            
-            id ? router.push(`/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`) : router.push(`/pages/designacoes/designacoes-passo-2?rf=${rf}`);             
+          onAnterior={() => {
+            id ? router.push(`/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`) : router.push(`/pages/designacoes/designacoes-passo-2?rf=${rf}`);
           }}
           onProximo={() => handleSalvar(id)}
         />
