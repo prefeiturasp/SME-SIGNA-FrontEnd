@@ -24,10 +24,7 @@ interface InformacoesAdicionaisProps {
 export default function InformacoesAdicionais({ disableFields = false, form, onChangeDescricao, onValueChangeDetalheParaQuadroDeHistoricoPorAno }: Readonly<InformacoesAdicionaisProps>) {
 
   return (
-    <Card
-      title={<span className="text-[#333]">Informações adicionais</span>}
-      className="mt-4 m-0"
-    >
+
       <div className="card-designacao">
         <FormProvider {...form}>
           <form >
@@ -49,7 +46,10 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
                         rows={4}
                         placeholder=""
                         value={field.value}
-                        onChange={(e) => onChangeDescricao(e.target.value)}
+                        onChange={(e) => {
+                          onChangeDescricao(e.target.value)
+                          return field.onChange(e.target.value);
+                        }}
                         data-testid="input-descricao-pendencia"
                       />
                     </FormControl>
@@ -82,7 +82,11 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
                   ) : (
                     <Select
                       value={field.value !== undefined ? String(field.value) : undefined}
-                      onValueChange={onValueChangeDetalheParaQuadroDeHistoricoPorAno}
+                      onValueChange={(value) => {
+                        onValueChangeDetalheParaQuadroDeHistoricoPorAno(value)
+                        const booleanValue = value === "true";                       
+                        return field.onChange(booleanValue)                        
+                      }}
                     >
                       <SelectTrigger >
                         <SelectValue placeholder="Selecione o Detalhe..." />
@@ -102,7 +106,7 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
           </form>
         </FormProvider>
       </div>
-    </Card>
+ 
 
   )
 }
