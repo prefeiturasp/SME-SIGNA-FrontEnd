@@ -253,6 +253,20 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ];
 
+  const handleRowClick = (record: ListagemAtosAdministrativosResponse) => {
+    const rotasPorTipo: Record<string, string> = {
+      DESIGNACAO: 'listagem-designacoes/visualizar-designacao',
+      CESSACAO: 'listagem-cessacoes/visualizar-cessacao',
+      APOSTILA: 'listagem-apostilas/visualizar-apostila',
+      INSUBSISTENCIA: 'listagem-insubsistencias/visualizar-insubsistencia',
+    };
+  
+    const path = rotasPorTipo[record.tipo];
+  
+    if (path) {
+      router.push(`/pages/${path}/${record.id}`);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-1 bg-white  ">
@@ -272,6 +286,13 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
           dataSource={data}
           rowKey={(record) => record.id.toString()}
           pagination={false}
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                handleRowClick(record);
+              },
+            };
+          }}
         />
         <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
 

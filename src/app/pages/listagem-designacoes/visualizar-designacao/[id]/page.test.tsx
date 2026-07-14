@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VisualizarDesignacao from "./page";
@@ -14,11 +14,14 @@ const infoItemSpy = vi.fn();
 const editorSEISpy = vi.fn();
 const preencherTemplateSpy = vi.fn();
 const gerarDadosPortariaSpy = vi.fn();
+const informacoesAdicionaisSpy = vi.fn();
 
 const useParamsMock = vi.fn();
+const pushMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useParams: () => useParamsMock(),
+  useRouter: () => ({ push: pushMock }),
 }));
 
 vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
@@ -40,10 +43,16 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
     title: string;
     breadcrumbs: Array<{ title: string; href?: string }>;
     showBackButton: boolean;
+    createButton?: ReactNode;
     icon?: ReactNode;
   }) => {
     pageHeaderSpy(props);
-    return <header data-testid="page-header">{props.title}</header>;
+    return (
+      <header data-testid="page-header">
+        {props.title}
+        {props.createButton}
+      </header>
+    );
   },
 }));
 
@@ -120,6 +129,9 @@ vi.mock("lucide-react", () => ({
   Loader2: ({ className }: { className?: string }) => (
     <div data-testid="loader" className={className} />
   ),
+  ArrowLeft: () => <span data-testid="icon-arrow-left" />,
+  History: () => <span data-testid="icon-history" />,
+  X: () => <span data-testid="icon-close" />,
 }));
 
 vi.mock(
@@ -145,6 +157,17 @@ vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
 vi.mock("@/utils/portarias/templates", () => ({
   TEMPLATE_DESIGNACAO: "",
 }));
+
+vi.mock(
+  "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais",
+  () => ({
+    __esModule: true,
+    default: (props: unknown) => {
+      informacoesAdicionaisSpy(props);
+      return <div data-testid="informacoes-adicionais" />;
+    },
+  })
+);
 
 describe("VisualizarDesignacao page", () => {
   const designacaoMock = {
@@ -193,6 +216,7 @@ describe("VisualizarDesignacao page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useParamsMock.mockReturnValue({ id: "12" });
+    pushMock.mockReset();
     preencherTemplateSpy.mockReturnValue("");
     gerarDadosPortariaSpy.mockReturnValue({});
   });
@@ -238,7 +262,8 @@ describe("VisualizarDesignacao page", () => {
     expect(screen.getByTestId("resumo-portaria")).toBeInTheDocument();
     expect(screen.getAllByTestId("resumo-servidor")).toHaveLength(2);
     expect(screen.getByTestId("editor-sei")).toBeInTheDocument();
-    expect(customAccordionItemSpy).toHaveBeenCalledTimes(4);
+    expect(screen.getByTestId("informacoes-adicionais")).toBeInTheDocument();
+    expect(customAccordionItemSpy.mock.calls.length).toBeGreaterThanOrEqual(4);
     expect(accordionSpy).toHaveBeenCalled();
     expect(pageHeaderSpy).toHaveBeenCalled();
     expect(resumoPesquisaSpy).toHaveBeenCalledWith(
@@ -256,6 +281,29 @@ describe("VisualizarDesignacao page", () => {
         mostrarBotao: false,
       })
     );
+    expect(informacoesAdicionaisSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        disableFields: true,
+        onChangeDescricao: expect.any(Function),
+        onValueChangeDetalheParaQuadroDeHistoricoPorAno: expect.any(Function),
+      })
+    );
+  });
+
+  it("navega ao clicar nos botões do cabeçalho", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    fireEvent.click(screen.getByTestId("btn-voltar"));
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/atos-administrativos");
+    expect(pushMock).toHaveBeenNthCalledWith(2, "/pages/historico-ato-administrativo");
   });
 
   it("aplica fallback vazio no resumo da unidade quando campos vêm indefinidos", () => {

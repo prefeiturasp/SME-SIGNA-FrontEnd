@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Card } from "antd";
+import { Button } from "@/components/ui/button";
 
 import { Accordion } from "@/components/ui/accordion";
 
@@ -9,12 +10,11 @@ import ResumoPesquisaDaUnidade from "@/components/dashboard/Designacao/ResumoPes
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
 
-import Designacao from "@/assets/icons/Designacao";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, History, Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import EditorSEI, {
   gerarHtmlPortaria,
@@ -24,6 +24,10 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
 import type { DesignacaoData } from "@/types/designacao";
+import { useForm } from "react-hook-form";
+import { formSchemaDesignacaoPasso3Data } from "@/app/pages/designacoes/designacoes-passo-3/schema";
+
+import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
 
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
 
@@ -31,7 +35,7 @@ function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
-export default function VisualizarDesignacao() {
+export default function VisualizarDesignacaoPage() {
 
   const params = useParams();
   const id = params.id;
@@ -99,15 +103,62 @@ export default function VisualizarDesignacao() {
     return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapados));
   }, [designacao]);
 
- 
+
+
+  const form = useForm<formSchemaDesignacaoPasso3Data>({
+    defaultValues: {
+      informacoes_adicionais: designacao?.informacoes_adicionais ?? "",
+      detalhe_para_quadro_de_historico_por_ano: designacao?.detalhe_para_quadro_de_historico_por_ano ?? true,
+    },
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    form.setValue("informacoes_adicionais", designacao?.informacoes_adicionais ?? "");
+    form.setValue("detalhe_para_quadro_de_historico_por_ano", designacao?.detalhe_para_quadro_de_historico_por_ano ?? true);
+  }, [designacao, form]);
+
+  const router = useRouter();
+
+
   return (
     <>
       <PageHeader
-        title="Visualizar Designação"
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
-          { title: "Visualizar Designação" }]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
+        title="Detalhes da designação"
+        breadcrumbs={[{ title: "Início", href: "/" },
+        { title: "Detalhes da designação" }]}
         showBackButton={false}
+        createButton={
+          <div className="flex gap-2">
+
+            <Button
+              type="button"
+              variant="default"
+              className="gap-2"
+              data-testid="btn-voltar"
+              onClick={() =>
+                router.push("/pages/atos-administrativos")
+              }
+            >
+              <span className="font-bold">Voltar</span>
+              <ArrowLeft />
+            </Button>
+
+            <Button
+              className="gap-2 px-4"
+              type="button"
+              variant="destructive"
+              size="lg"
+              onClick={() =>
+                router.push("/pages/historico-ato-administrativo")
+              }
+            >
+              <span className="font-bold">Consultar histórico</span>
+              <History width={15} height={15} />
+            </Button>
+          </div>
+        }
+
       />
 
       <Card
@@ -252,6 +303,19 @@ export default function VisualizarDesignacao() {
           titulo="PORTARIA"
           mostrarBotao={false}
         />
+
+        <div className="mt-8">
+          <div className="mb-8">
+          <span className="text-[#333] text-[16px] font-bold ">Informações adicionais</span>
+          </div>
+          <InformacoesAdicionais
+            disableFields={true}
+            form={form}
+            onChangeDescricao={console.log}
+            onValueChangeDetalheParaQuadroDeHistoricoPorAno={console.log}
+          />
+        </div>
+
       </Card>
     </>
   );
