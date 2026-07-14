@@ -80,7 +80,7 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
 
                   ) : (
                     <Select
-                      value={field.value !== undefined ? String(field.value) : undefined}
+                      value={field.value?.toString() ?? ''}
                       onValueChange={(value) => {
                         onValueChangeDetalheParaQuadroDeHistoricoPorAno(value)
                         const booleanValue = value === "true";                       

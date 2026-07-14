@@ -14,7 +14,7 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import { useParams, useRouter } from "next/navigation";
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import { ArrowLeft, History, Loader2, X } from "lucide-react";
+import { ArrowLeft, History, Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import EditorSEI, {
   gerarHtmlPortaria,
