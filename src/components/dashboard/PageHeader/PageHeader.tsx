@@ -36,7 +36,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
 
     return (
-        <div className="w-full pr-4">
+        <div className="w-full ">
             <div className="flex justify-between items-center">
                 
 
@@ -73,14 +73,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                {createButton && (
-                    <div className="flex justify-end">
-                        {createButton}
-                    </div>
-                )}
                  
             </div>
-            <div className="flex items-center justify-between w-full pr-4 mb-4">
+            <div className="flex items-center justify-between w-full mb-4">
                 <div className="flex items-center gap-2 mb-2">
                     {icon && (
                         <div className="w-6 h-6 ">
@@ -91,6 +86,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                         {title}
                     </h1>
                 </div>
+
+                {createButton && (
+                    <div className="flex justify-end">
+                        {createButton}
+                    </div>
+                )}
+                
                 {showBackButton && (
                     <Button asChild variant="customOutline" size="sm">
                         <Link href="/pages" onClick={onClickBack}>
