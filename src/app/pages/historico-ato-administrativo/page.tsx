@@ -31,7 +31,7 @@ export default function AtosAdministrativos() {
     status_publicacao: "",
     periodo_before: "",
     rf: "",
-    ato_id: id ? parseInt(id) : undefined,
+    ato_id: id ?  Number.parseInt(id) : undefined,
     observacao: "",
   };
 
