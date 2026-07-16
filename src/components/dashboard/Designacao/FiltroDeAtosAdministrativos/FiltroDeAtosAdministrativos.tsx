@@ -7,6 +7,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
 import { StatusAtosAdministrativos } from '@/types/designacao';
+import { StatusPublicacaoSelectField } from './FiltroDeHistoricoDeAtosAdministrativos';
 
 interface Props {
   onClear?: () => void;
@@ -29,6 +30,38 @@ export const StatusPublicacaoOpcoes = [
   { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: 'Aguardando publicação' },
   { codigo: StatusAtosAdministrativos.PUBLICADO, nome: 'Publicado' },
 ]
+
+export const TipoAtoSelectField: React.FC<{ AtosOpcoes: { codigo: string, nome: string }[] }> = ({ AtosOpcoes }) => {
+  const { control } = useFormContext();
+
+  return (
+    <FormField
+      control={control}
+      name="tipo"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-[#313131] font-bold">Tipo</FormLabel>
+          <FormControl>
+            <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
+              <SelectTrigger data-testid="select-listar-para">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                {AtosOpcoes.map((item) => (
+                  <SelectItem key={item.codigo} value={item.codigo}>
+                    {item.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
 const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
   const { register, control, watch } = useFormContext();
   const watchedValues = watch([
@@ -50,30 +83,7 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
 
       <div className="w-full flex gap-4">
         <div className="w-[33%]">
-          <FormField
-            control={control}
-            name="tipo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#313131] font-bold">Tipo</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-                    <SelectTrigger data-testid="select-listar-para">
-                      <SelectValue placeholder="Todos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {AtosOpcoes.map((item) => (
-                        <SelectItem key={item.codigo} value={item.codigo}>
-                          {item.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <TipoAtoSelectField AtosOpcoes={AtosOpcoes} />
 
         </div>
         <div className="w-[34%]">
@@ -142,31 +152,7 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
           />
         </div>
         <div className="w-[50%]">
-
-          <FormField
-            control={control}
-            name="status_publicacao"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#313131] font-bold">Status</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-                    <SelectTrigger data-testid="select-status-publicacao">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {StatusPublicacaoOpcoes.map((item) => (
-                        <SelectItem key={item.codigo} value={item.codigo}>
-                          {item.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <StatusPublicacaoSelectField StatusPublicacaoOpcoes={StatusPublicacaoOpcoes} />
         </div>
       </div>
 
