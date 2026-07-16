@@ -7,6 +7,7 @@ export const filterFormSchemaFiltroAtosAdministrativos = z
     portaria: z.string().optional(),
     nome_titular_e_indicado: z.string().optional(),
     status_publicacao: z.string().optional(), 
+    observacao: z.string().optional(),
     periodo_after: z.string().optional(),
     periodo_before: z.string().optional(),
     periodo: z

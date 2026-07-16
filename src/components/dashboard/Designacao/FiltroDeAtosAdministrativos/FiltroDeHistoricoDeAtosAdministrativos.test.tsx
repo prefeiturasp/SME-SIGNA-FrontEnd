@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FiltroDeAtosAdministrativos from "./FiltroDeAtosAdministrativos";
+import FiltroDeHistoricoDeAtosAdministrativos from "./FiltroDeHistoricoDeAtosAdministrativos";
 
 const watchValues: Record<string, unknown> = {};
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
@@ -92,32 +92,22 @@ vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
   },
 }));
 
-describe("FiltroDeAtosAdministrativos", () => {
+describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
   });
 
-  it("renderiza campos, opcoes de tipo e status, e envia hasFilters=false ao FiltroAcoes", () => {
-    render(<FiltroDeAtosAdministrativos />);
+  it("renderiza campos e envia hasFilters=false ao FiltroAcoes", () => {
+    render(<FiltroDeHistoricoDeAtosAdministrativos />);
 
     expect(screen.getByText("Filtros")).toBeInTheDocument();
-    expect(screen.getByTestId("input-numero_sei")).toBeInTheDocument();
-    expect(screen.getByTestId("input-portaria")).toBeInTheDocument();
-    expect(screen.getByTestId("input-nome-titular-e-indicado")).toBeInTheDocument();
-    expect(screen.getByTestId("input-rf")).toBeInTheDocument();
-    expect(screen.getByTestId("date-range-periodo")).toBeInTheDocument();
-
     expect(screen.getByTestId("select-listar-para")).toBeInTheDocument();
+    expect(screen.getByTestId("date-range-periodo")).toBeInTheDocument();
+    expect(screen.getByTestId("input-observacao")).toBeInTheDocument();
     expect(screen.getByTestId("select-status-publicacao")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-DESIGNACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-CESSACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-INSUBSISTENCIA_DESIGNACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-INSUBSISTENCIA_CESSACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-APOSTILA_DESIGNACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-APOSTILA_CESSACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-NAO_PUBLICADO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-PUBLICADO")).toBeInTheDocument();
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
@@ -127,21 +117,21 @@ describe("FiltroDeAtosAdministrativos", () => {
     );
   });
 
-  it("propaga alteracoes dos selects para o react-hook-form", () => {
-    render(<FiltroDeAtosAdministrativos />);
+  it("propaga alterações dos selects para o react-hook-form", () => {
+    render(<FiltroDeHistoricoDeAtosAdministrativos />);
 
-    const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
-    triggerButtons.forEach((button) => fireEvent.click(button));
+    const triggers = screen.getAllByRole("button", { name: "trigger-select" });
+    triggers.forEach((button) => fireEvent.click(button));
 
     expect(onChangeByField.tipo).toHaveBeenCalledWith("mock-value");
     expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
   });
 
-  it("marca hasFilters=true quando algum filtro estiver preenchido e executa onClear", () => {
+  it("marca hasFilters=true e dispara onClear", () => {
     const onClear = vi.fn();
-    watchValues.numero_sei = "1234.5678/9012345-6";
+    watchValues.observacao = "texto";
 
-    render(<FiltroDeAtosAdministrativos onClear={onClear} />);
+    render(<FiltroDeHistoricoDeAtosAdministrativos onClear={onClear} />);
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({

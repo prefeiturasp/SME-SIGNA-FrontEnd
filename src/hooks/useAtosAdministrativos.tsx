@@ -7,28 +7,30 @@ import filterFormSchemaFiltroAtosAdministrativos, { filterFormSchemaFiltroAtosAd
 import { format } from "date-fns";
 
 
+const defaultValuesFilters: AtosAdministrativosFiltros = {
+  tipo: "DESIGNACAO",
+  portaria: "",
+  numero_sei: "",
+  nome_titular_e_indicado: "",
+  status_publicacao: "",
+  periodo: {
+    from: undefined,
+    to: undefined,
+  },
+  periodo_before: "",
+  rf: "",
+};
 
-export function useAtosAdministrativos() {
+export function useAtosAdministrativos(defaultValues: AtosAdministrativosFiltros = defaultValuesFilters) {
 
   const [resultado, setResultado] = useState<AtosAdministrativosPaginada | null>(null);
   const [salvando, setSalvando] = useState(false); 
   const [tabelaKey, setTabelaKey] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
-  const defaultValues = {
-    tipo: "",
-    portaria: "",
-    numero_sei: "",
-    nome_titular_e_indicado: "",
-    status_publicacao: "",
-    periodo: undefined,
-    periodo_after: "",
-    periodo_before: "",
-    rf: "",
-  };
   const filterForm = useForm<filterFormSchemaFiltroAtosAdministrativosData>({
     resolver: zodResolver(filterFormSchemaFiltroAtosAdministrativos),
-    defaultValues: {...defaultValues, tipo: "DESIGNACAO"},
+    defaultValues: {...defaultValues},
     mode: "onChange",
   });
 
@@ -44,6 +46,7 @@ export function useAtosAdministrativos() {
     const periodoTo = values.periodo?.to;
 
     return {
+      ato_id: defaultValues.ato_id ?? undefined,      
       numero_sei: values.numero_sei,
       portaria: values.portaria,
       tipo: values.tipo,
@@ -56,6 +59,7 @@ export function useAtosAdministrativos() {
         ? format(periodoTo, "yyyy-MM-dd")
         : undefined,
       rf: values.rf,
+      observacao: values.observacao,
     };
   };
 
@@ -66,6 +70,7 @@ export function useAtosAdministrativos() {
     const filtros = {
       ...generateDesignacaoFiltros(values),
     };
+
      return fetchAtosAdministrativos({ ...filtros, page: page ?? 1 });
   };
 

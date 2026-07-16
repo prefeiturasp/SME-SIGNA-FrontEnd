@@ -15,6 +15,17 @@ import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
 import { useRouter } from 'next/navigation';
 
+
+
+const SimpleTag = ({ titulo, valor }: { titulo: string, valor: string }) => {
+  return (
+    <div className="flex flex-row gap-1 border border-[#B22B2A] rounded-md  px-2 w-fit">
+      <span className="text-[14px] font-bold text-[#B22B2A] py-1 ">{titulo}:</span>
+      <span className="text-[14px] font-normal text-[#B22B2A] py-1 ">{valor}</span>
+    </div>
+  );
+}
+
 const NameColorStatusAtosAdministrativos = {
   [StatusAtosAdministrativos.NAO_PUBLICADO]:
   {
@@ -28,6 +39,7 @@ const NameColorStatusAtosAdministrativos = {
     background: 'rgba(0, 136, 9, 0.10)'
   },
 };
+
 
 const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefined, key: string) => {
   const config = status === undefined ? undefined : NameColorStatusAtosAdministrativos[status];
@@ -43,6 +55,8 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
     );
   }
 
+
+
   return (
     <Tag
       className='rounded-full  w-[148px] h-[24px] text-center'
@@ -54,6 +68,18 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
+const getColumnContent = (content: unknown) => {
+  if (
+    content &&
+    typeof content === 'object' &&
+    'children' in content
+  ) {
+    return (content as { children?: React.ReactNode }).children ?? '-';
+  }
+
+  return (content as React.ReactNode) ?? '-';
+};
+
 
 
 interface ListagemDeAtosAdministrativosProps {
@@ -62,9 +88,19 @@ interface ListagemDeAtosAdministrativosProps {
   total: number;
   page: number;
   onPageChange?: (page: number) => void;
+  showCamposExtras?: boolean;
+  portaria?: string;
+  servidor_indicado?: string;
+  titulo?: string;
+  subtitulo?: string;
 }
 
 const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps> = ({
+  portaria,
+  servidor_indicado,
+  titulo = 'Lista de atos administrativos',
+  subtitulo = 'Aqui você encontra todos os atos administrativos realizados no sistema. Clique sobre ele para consultar mais detalhes e realize alterações ou novos registros vinculados a um ato já existente.',
+  showCamposExtras = true,
   total,
   page,
   data,
@@ -127,14 +163,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   ]
 
 
-  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => 
-  {
+  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const items: ItemType[] = [
       {
         key: '6',
         label: 'Anular Apostila',
         icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-        onClick: () => {
+        onClick: (e) => {
+          e.domEvent.preventDefault();
           router.push(`/pages/anular-apostila?id=${record.id}`);
         },
       }
@@ -143,16 +179,16 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   };
 
   const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
-    return [  
-    {
-      key: '7',
-      label: 'Tornar sem efeito',
-      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        router.push(`/pages/tornar-sem-efeito?id=${record.id}`);
+    return [
+      {
+        key: '7',
+        label: 'Tornar sem efeito',
+        icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          router.push(`/pages/tornar-sem-efeito?id=${record.id}`);
+        },
       },
-    },
-  ];
+    ];
   };
 
 
@@ -180,7 +216,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...apostilaItems(record));
     }
 
-    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) { 
+    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) {
       items.push(...insubsistenciaItems(record));
     }
 
@@ -191,7 +227,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         item?.key !== '2'
       )
     }
-   
+
     //não pode insubsistir 2 vezes o mesmo ato 
     // 3 'Tornar insubsistente',
     // 6 'Anular Apostila',
@@ -206,29 +242,33 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   };
 
+  const getTooltipContent = (record: ListagemAtosAdministrativosResponse) => {
+    const [data, hora] = formatarDataHora(record.criado_em).split(', ');
 
-  const columns: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
+    return (
+      <div>
+        <div>{record.criado_por_nome ?? 'Não informado'}</div>
+        <div>Data: {data}</div>
+        <div>Hora: {hora}</div>
+      </div>
+    );
+  };
+
+
+  const columnsBase: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
     { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
-    { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
-    { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
+    ...(
+      showCamposExtras ?
+        [{ title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
+        { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' }]
+        : []),
     { title: 'Registro Funcional (RF)', dataIndex: 'rf', key: 'rf', render: (rf: string | null) => <span>{rf ?? '-'}</span> },
     {
       title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) => {
-        const [data, hora] = formatarDataHora(record.criado_em).split(', ');
         return (
-          <Tooltip
-            title={
-              <div>
-                <div>{record.criado_por_nome ?? 'Não informado'}</div>
-                <div>Data: {data}</div>
-                <div>Hora: {hora}</div>
-              </div>
-            }
-          >
-            {TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status')}
-          </Tooltip>
+          TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status')
         );
       },
     },
@@ -237,14 +277,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: 'action',
       width: 50,
       render: (record: ListagemAtosAdministrativosResponse) => (
-        <div>
+        <div data-no-row-click="true">
           <Dropdown
             menu={{
               items: getItems(record),
             }}
             trigger={['click']}
           >
-            <div>
+            <div data-no-row-click="true">
               <MoreOutlined color='#000000' />
             </div>
           </Dropdown>
@@ -253,6 +293,27 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ];
 
+  const columns = columnsBase.map((column) => {
+    if (column.key === 'action') {
+      return column;
+    }
+
+    return {
+      ...column,
+      render: (value: unknown, record: ListagemAtosAdministrativosResponse, index: number) => {
+        const columnContent = column.render
+          ? column.render(value, record, index)
+          : value;
+
+        return (
+          <Tooltip title={getTooltipContent(record)}>
+            <div>{getColumnContent(columnContent)}</div>
+          </Tooltip>
+        );
+      },
+    };
+  });
+
   const handleRowClick = (record: ListagemAtosAdministrativosResponse) => {
     const rotasPorTipo: Record<string, string> = {
       DESIGNACAO: 'listagem-designacoes/visualizar-designacao',
@@ -260,9 +321,9 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       APOSTILA: 'listagem-apostilas/visualizar-apostila',
       INSUBSISTENCIA: 'listagem-insubsistencias/visualizar-insubsistencia',
     };
-  
+
     const path = rotasPorTipo[record.tipo];
-  
+
     if (path) {
       router.push(`/pages/${path}/${record.id}`);
     }
@@ -272,9 +333,20 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     <div className="flex flex-col gap-1 bg-white  ">
       <div className="pb-8">
 
-        <p className="text-[20px] font-bold pt-1 pb-1">Lista de atos administrativos</p>
-        <p className="text-[14px] font-normal pt-1 ">Aqui você encontra todos os atos administrativos realizados no sistema. Clique sobre ele para consultar mais detalhes e realize alterações ou novos registros vinculados a um ato já existente.</p>
+        <p className="text-[20px] font-bold pt-1 pb-1">{titulo}</p>
+        <p className="text-[14px] font-normal pt-1 ">{subtitulo}</p>
 
+
+
+      </div>
+
+      <div className="flex flex-row gap-2 pb-4">
+        {portaria && (
+          <SimpleTag titulo="Nº da portaria" valor={portaria} />
+        )}
+        {servidor_indicado && (
+          <SimpleTag titulo="Servidor indicado" valor={servidor_indicado} />
+        )}
       </div>
 
       <div className="w-full pb-2">
@@ -288,7 +360,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
           pagination={false}
           onRow={(record) => {
             return {
-              onClick: () => {
+              onClick: (event) => {
+                const target = event.target as HTMLElement;
+                if (target.closest('[data-no-row-click="true"]')) {
+                  return;
+                }
                 handleRowClick(record);
               },
             };

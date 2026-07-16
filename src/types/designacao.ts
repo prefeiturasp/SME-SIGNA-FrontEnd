@@ -161,6 +161,10 @@ export interface AtosAdministrativosFiltros {
   portaria?: string;
   nome_titular_e_indicado?: string;
   status_publicacao?: string;
+  periodo? : {
+    from?: Date;
+    to?: Date;
+  }|null;
   periodo_after?: string;
   periodo_before?: string;
   portaria_inicial?: string;
@@ -168,6 +172,9 @@ export interface AtosAdministrativosFiltros {
   ano?: string;
   tipo?: string;
   page?: number;
+  rf?: string;
+  ato_id?: number;  
+  observacao?: string;
 }
 
 

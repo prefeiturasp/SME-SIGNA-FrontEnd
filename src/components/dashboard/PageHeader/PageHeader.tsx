@@ -15,30 +15,30 @@ import {
 } from "@/components/ui/breadcrumb"
 import ArrowCircleDark from "@/assets/icons/ArrowCircleDark";
 import HomeIcon from "@/assets/icons/Home";
+import { useRouter } from "next/navigation";
 
 interface PageHeaderProps {
     title: React.ReactNode;
     showBackButton?: boolean;
-    onClickBack?: () => void;
     icon?: React.ReactNode;
-    breadcrumbs?: { title: string; href?: string }[];
+    breadcrumbs?: { title: string; href?: string; onClick?: React.MouseEventHandler<HTMLAnchorElement> }[];
     createButton?: React.ReactNode;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
     title,
-    showBackButton = true,
-    onClickBack,
+    showBackButton = false,
     icon,
     breadcrumbs,
     createButton,
 }) => {
+    const router = useRouter();
 
 
     return (
         <div className="w-full ">
             <div className="flex justify-between items-center">
-                
+
 
                 <Breadcrumb className="mb-8">
                     <BreadcrumbList>
@@ -55,8 +55,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                                     </BreadcrumbItem>
                                 )}
                                 <BreadcrumbItem>
-                                    {crumb.href ? (
-                                        <BreadcrumbLink href={crumb.href}>
+                                    {crumb.href || crumb.onClick ? (
+                                        <BreadcrumbLink href={crumb.href ?? "#"} onClick={crumb.onClick}>
                                             {crumb.title}
                                         </BreadcrumbLink>
                                     ) : (
@@ -73,7 +73,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                 
+
             </div>
             <div className="flex items-center justify-between w-full mb-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -87,20 +87,27 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     </h1>
                 </div>
 
-                {createButton && (
-                    <div className="flex justify-end">
-                        {createButton}
-                    </div>
-                )}
-                
-                {showBackButton && (
-                    <Button asChild variant="customOutline" size="sm">
-                        <Link href="/pages" onClick={onClickBack}>
+                <div className="flex gap-2">
+
+                    {showBackButton && (
+                        <Button
+                            type="button"
+                            variant="default"
+                            className="gap-2"
+                            data-testid="btn-voltar"
+                            onClick={() => router.back()}
+                        >
+                            <span className="font-bold">Voltar</span>
                             <ArrowLeft />
-                            &nbsp;Voltar
-                        </Link>
-                    </Button>
-                )}
+                        </Button>
+                    )}
+
+                    {createButton && (
+                        <>
+                            {createButton}
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );
