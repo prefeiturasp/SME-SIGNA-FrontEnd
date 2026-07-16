@@ -46,7 +46,15 @@ vi.mock("antd", () => ({
       <div data-testid="dropdown">
         {children}
         {menu?.items?.map((item) => (
-          <button key={item.key} data-testid={`menu-item-${item.key}`} onClick={item.onClick}>
+          <button
+            key={item.key}
+            data-testid={`menu-item-${item.key}`}
+            onClick={() =>
+              item.onClick?.({
+                domEvent: { preventDefault: vi.fn() },
+              } as any)
+            }
+          >
             {item.label}
           </button>
         ))}

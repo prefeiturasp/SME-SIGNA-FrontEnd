@@ -119,7 +119,6 @@ export default function VisualizarDesignacaoPage() {
   }, [designacao, form]);
 
   const router = useRouter();
-  console.log('designacao', designacao);
 
   return (
     <>

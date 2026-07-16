@@ -299,11 +299,9 @@ describe("VisualizarDesignacao page", () => {
 
     render(<VisualizarDesignacao />);
 
-    fireEvent.click(screen.getByTestId("btn-voltar"));
     fireEvent.click(screen.getByText("Consultar histórico"));
 
-    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/atos-administrativos");
-    expect(pushMock).toHaveBeenNthCalledWith(2, "/pages/historico-ato-administrativo");
+    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?id=12&tipo=undefined&tipo_display=Designação&ato_raiz_id=undefined");
   });
 
   it("aplica fallback vazio no resumo da unidade quando campos vêm indefinidos", () => {

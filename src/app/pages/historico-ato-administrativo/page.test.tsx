@@ -3,21 +3,16 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AtosAdministrativos from "./page";
 
-const listagemSpy = vi.fn();
 const pageHeaderSpy = vi.fn();
-const hookSpy = vi.fn();
-const novoAtoHookSpy = vi.fn();
-const modalBuscaPortariaSpy = vi.fn();
+const listagemSpy = vi.fn();
 const filtroSpy = vi.fn();
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
-
-const onPageChangeMock = vi.fn();
+const hookSpy = vi.fn();
+const backMock = vi.fn();
+const searchParamsGetMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
+const onPageChangeMock = vi.fn();
 const handleClearMock = vi.fn();
-const buscarMock = vi.fn();
-const limparErroMock = vi.fn();
-const pushMock = vi.fn();
-const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (event?: Event) => {
+const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => void) => (event?: Event) => {
   callback();
   event?.preventDefault();
 });
@@ -25,54 +20,24 @@ const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (e
 type GenericProps = Record<string, unknown>;
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
-}));
-
-vi.mock("@/hooks/useAtosAdministrativos", () => ({
-  useAtosAdministrativos: () => hookSpy(),
-}));
-
-vi.mock("@/hooks/useNovoAto", () => ({
-  useNovoAto: () => novoAtoHookSpy(),
-}));
-
-vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria", () => ({
-  default: (props: GenericProps) => {
-    modalBuscaPortariaSpy(props);
-    return (
-      <div data-testid="modal-busca-portaria">
-        <span data-testid="modal-title">{props.title as React.ReactNode}</span>
-        <span data-testid="modal-field-label">{props.fieldLabel as React.ReactNode}</span>
-        <button
-          data-testid="modal-fechar"
-          onClick={() => (props.onOpenChange as (open: boolean) => void)(false)}
-        >
-          fechar
-        </button>
-        <button
-          data-testid="modal-buscar"
-          onClick={() => (props.onSubmit as (portaria: string) => void)("100/2026")}
-        >
-          buscar
-        </button>
-      </div>
-    );
-  },
+  useRouter: () => ({ back: backMock }),
+  useSearchParams: () => ({
+    get: searchParamsGetMock,
+  }),
 }));
 
 vi.mock("react-hook-form", () => ({
   FormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+vi.mock("@/hooks/useAtosAdministrativos", () => ({
+  useAtosAdministrativos: (...args: unknown[]) => hookSpy(...args),
+}));
+
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   default: (props: GenericProps) => {
     pageHeaderSpy(props);
-    return (
-      <header>
-        <span data-testid="page-header-title">{props.title as React.ReactNode}</span>
-        {props.createButton as React.ReactNode}
-      </header>
-    );
+    return <header data-testid="page-header">{props.title as React.ReactNode}</header>;
   },
 }));
 
@@ -82,77 +47,52 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   ),
 }));
 
+vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos", () => ({
+  default: ({ onClear }: { onClear?: () => void }) => {
+    filtroSpy({ onClear });
+    return (
+      <button type="button" data-testid="filtro-clear" onClick={onClear}>
+        limpar filtro
+      </button>
+    );
+  },
+}));
+
 vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos", () => ({
   default: (props: GenericProps) => {
     listagemSpy(props);
-    const data = (props.data as unknown[]) ?? [];
-    const total = props.total as React.ReactNode;
-    const page = props.page as React.ReactNode;
-    const isLoading = props.isLoading as boolean;
     const onPageChange = props.onPageChange as ((page: number) => void) | undefined;
-
     return (
-      <div>
-        <span data-testid="list-data-length">{data.length}</span>
-        <span data-testid="list-total">{total}</span>
-        <span data-testid="list-page">{page}</span>
-        <span data-testid="list-loading">{String(isLoading)}</span>
-        <button onClick={() => onPageChange?.(9)}>mudar pagina</button>
+      <div data-testid="listagem">
+        <span data-testid="list-data-length">{((props.data as unknown[]) ?? []).length}</span>
+        <span data-testid="list-total">{String(props.total)}</span>
+        <span data-testid="list-page">{String(props.page)}</span>
+        <span data-testid="list-loading">{String(props.isLoading)}</span>
+        <span data-testid="list-show-campos-extras">{String(props.showCamposExtras)}</span>
+        <button type="button" onClick={() => onPageChange?.(9)}>
+          mudar pagina
+        </button>
       </div>
     );
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos", () => ({
-  default: ({ onClear }: { onClear: () => void }) => {
-    filtroSpy({ onClear });
-    return <button onClick={onClear}>limpar filtro</button>;
-  },
-}));
-
-vi.mock("antd", () => ({
-  Dropdown: ({
-    children,
-    menu,
-  }: {
-    children: React.ReactNode;
-    menu?: { items?: Array<{ key: string; label?: React.ReactNode; onClick?: () => void }> };
-  }) => (
-    <div>
-      {children}
-      {menu?.items?.map((item) => (
-        <button key={item.key} data-testid={`menu-item-${item.key}`} onClick={item.onClick}>
-          {item.label}
-        </button>
-      ))}
-    </div>
-  ),
-}));
-
-vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    ...rest
-  }: {
-    children: React.ReactNode;
-    [key: string]: unknown;
-  }) => <button {...rest}>{children}</button>,
-}));
-
-vi.mock("@/assets/icons/Designacao", () => ({ default: () => <span data-testid="icon-designacao" /> }));
-vi.mock("@/assets/icons/Cancelar", () => ({ default: () => <span data-testid="icon-cancelar" /> }));
-vi.mock("@/assets/icons/DocumentoErro", () => ({ default: () => <span data-testid="icon-documento-erro" /> }));
-vi.mock("@/assets/icons/DocumentoAlerta", () => ({ default: () => <span data-testid="icon-documento-alerta" /> }));
-vi.mock("@/assets/icons/Editar", () => ({ default: () => <span data-testid="icon-editar" /> }));
-vi.mock("@/assets/icons/Delete", () => ({ default: () => <span data-testid="icon-delete" /> }));
-vi.mock("@/assets/icons/Plus", () => ({ default: () => <span data-testid="icon-plus" /> }));
-
-describe("Página de atos administrativos", () => {
+describe("Página de histórico de ato administrativo", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParamsGetMock.mockImplementation((key: string) => {
+      const params: Record<string, string> = {
+        id: "42",
+        tipo: "DESIGNACAO",
+        ato_raiz_id: "11",
+        tipo_display: "Designação",
+      };
+      return params[key] ?? null;
+    });
+
     hookSpy.mockReturnValue({
       isPending: false,
-      tabelaKey: 0,
+      tabelaKey: 1,
       resultado: undefined,
       onPageChange: onPageChangeMock,
       page: 1,
@@ -162,41 +102,50 @@ describe("Página de atos administrativos", () => {
       onSubmitFilterForm: onSubmitFilterFormMock,
       handleClear: handleClearMock,
     });
-    novoAtoHookSpy.mockReturnValue({
-      buscar: buscarMock,
-      isLoading: false,
-      errorMessage: null,
-      limparErro: limparErroMock,
-    });
   });
 
-  it("renderiza com fallback quando resultado não existe", () => {
+  it("monta header com título dinâmico e breadcrumb de detalhes com retorno", () => {
     render(<AtosAdministrativos />);
 
-    expect(screen.getByTestId("page-header-title")).toHaveTextContent("Atos administrativos");
-    expect(screen.getByTestId("botao-proximo")).toHaveTextContent("Novo ato");
-    expect(screen.getByTestId("icon-plus")).toBeInTheDocument();
-    expect(screen.getAllByTestId("quadro-branco")).toHaveLength(2);
+    expect(pageHeaderSpy).toHaveBeenCalledTimes(1);
+    const props = pageHeaderSpy.mock.calls[0][0];
+    expect(props.title).toBe("Histórico da Designação");
+    expect(props.showBackButton).toBe(true);
+    expect(props.breadcrumbs).toHaveLength(3);
+    expect(props.breadcrumbs[1].title).toBe("Detalhes Designação");
+
+    const event = { preventDefault: vi.fn() } as unknown as React.MouseEvent<HTMLAnchorElement>;
+    props.breadcrumbs[1].onClick(event);
+
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(backMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("repassa dados do hook para listagem com fallback e showCamposExtras=false", () => {
+    render(<AtosAdministrativos />);
 
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("0");
     expect(screen.getByTestId("list-total")).toHaveTextContent("0");
     expect(screen.getByTestId("list-page")).toHaveTextContent("1");
     expect(screen.getByTestId("list-loading")).toHaveTextContent("false");
-
-    expect(pageHeaderSpy).toHaveBeenCalledTimes(1);
-    const props = pageHeaderSpy.mock.calls[0][0];
-    expect(props.showBackButton).toBe(false);
-    expect(props.breadcrumbs).toEqual([{ title: "Início", href: "/" }]);
+    expect(screen.getByTestId("list-show-campos-extras")).toHaveTextContent("false");
   });
 
-  it("passa dados do hook para a listagem e mantém callback de paginação", () => {
+  it("propaga paginação e clear quando os componentes filhos disparam callbacks", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByText("mudar pagina"));
+    expect(onPageChangeMock).toHaveBeenCalledWith(9);
+
+    fireEvent.click(screen.getByTestId("filtro-clear"));
+    expect(handleClearMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("submete formulário usando handleSubmit do react-hook-form", () => {
     hookSpy.mockReturnValue({
       isPending: true,
-      tabelaKey: 7,
-      resultado: {
-        count: 2,
-        results: [{ id: 1 }, { id: 2 }],
-      },
+      tabelaKey: 2,
+      resultado: { count: 2, results: [{ id: 1 }, { id: 2 }] },
       onPageChange: onPageChangeMock,
       page: 4,
       filterForm: {
@@ -207,83 +156,15 @@ describe("Página de atos administrativos", () => {
     });
 
     render(<AtosAdministrativos />);
+    const formElement = document.querySelector("form");
+    expect(formElement).not.toBeNull();
+    fireEvent.submit(formElement as HTMLFormElement);
 
+    expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitFilterFormMock);
+    expect(onSubmitFilterFormMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("2");
     expect(screen.getByTestId("list-total")).toHaveTextContent("2");
     expect(screen.getByTestId("list-page")).toHaveTextContent("4");
     expect(screen.getByTestId("list-loading")).toHaveTextContent("true");
-
-    fireEvent.click(screen.getByText("mudar pagina"));
-    expect(onPageChangeMock).toHaveBeenCalledWith(9);
-
-    expect(listagemSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("não exibe o modal de busca por padrão", () => {
-    render(<AtosAdministrativos />);
-
-    expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
-  });
-
-  it.each([
-    ["3", "Nova cessação", "Portaria de designação"],
-    ["4", "Nova insubsistência", "Portaria de designação ou cessação"],
-    ["6", "Novo ato de tornar sem efeito", "Portaria da insubsistência"],
-    ["2", "Nova apostila", "Portaria de designação ou cessação"],
-    ["1", "Nova anulação de apostila", "Portaria de designação ou cessação"],
-  ])("abre o modal correto ao clicar no item de menu %s", (key, title, fieldLabel) => {
-    render(<AtosAdministrativos />);
-
-    fireEvent.click(screen.getByTestId(`menu-item-${key}`));
-
-    expect(screen.getByTestId("modal-busca-portaria")).toBeInTheDocument();
-    expect(screen.getByTestId("modal-title")).toHaveTextContent(title);
-    expect(screen.getByTestId("modal-field-label")).toHaveTextContent(fieldLabel);
-  });
-
-  it("navega direto para o fluxo de nova designação, sem abrir modal de busca", () => {
-    render(<AtosAdministrativos />);
-
-    fireEvent.click(screen.getByTestId("menu-item-5"));
-
-    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
-    expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
-  });
-
-  it("chama buscar do useNovoAto com o tipo e a portaria informados", () => {
-    render(<AtosAdministrativos />);
-
-    fireEvent.click(screen.getByTestId("menu-item-3"));
-    fireEvent.click(screen.getByTestId("modal-buscar"));
-
-    expect(buscarMock).toHaveBeenCalledWith("cessacao", "100/2026");
-  });
-
-  it("fecha o modal e limpa o erro ao chamar onOpenChange(false)", () => {
-    render(<AtosAdministrativos />);
-
-    fireEvent.click(screen.getByTestId("menu-item-1"));
-    expect(screen.getByTestId("modal-busca-portaria")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId("modal-fechar"));
-
-    expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
-    expect(limparErroMock).toHaveBeenCalled();
-  });
-
-  it("repassa isLoading e errorMessage do useNovoAto para o modal", () => {
-    novoAtoHookSpy.mockReturnValue({
-      buscar: buscarMock,
-      isLoading: true,
-      errorMessage: "Nenhum registro foi encontrado para essa portaria.",
-      limparErro: limparErroMock,
-    });
-
-    render(<AtosAdministrativos />);
-    fireEvent.click(screen.getByTestId("menu-item-2"));
-
-    const props = modalBuscaPortariaSpy.mock.calls[0][0];
-    expect(props.isLoading).toBe(true);
-    expect(props.errorMessage).toBe("Nenhum registro foi encontrado para essa portaria.");
   });
 });
