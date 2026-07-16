@@ -20,8 +20,8 @@ import { useRouter } from 'next/navigation';
 const SimpleTag = ({ titulo, valor }: { titulo: string, valor: string }) => {
   return (
     <div className="flex flex-row gap-1 border border-[#B22B2A] rounded-md  px-2 w-fit">
-      <span className="text-[14px] font-bold text-[#B22B2A] pt-1 ">{titulo}:</span>
-      <span className="text-[14px] font-normal text-[#B22B2A] pt-1 ">{valor}</span>
+      <span className="text-[14px] font-bold text-[#B22B2A] py-1 ">{titulo}:</span>
+      <span className="text-[14px] font-normal text-[#B22B2A] py-1 ">{valor}</span>
     </div>
   );
 }
