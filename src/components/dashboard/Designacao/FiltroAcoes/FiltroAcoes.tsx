@@ -18,17 +18,17 @@ const FiltroAcoes: React.FC<Props> = ({ hasFilters, onClear }) => (
       data-testid="btn-limpar-filtros"
     >
       <span className="font-bold">Limpar filtros</span>
-      <X />
+      <X  width={16} height={16} />
     </Button>
     <Button
       type="submit"
-      variant="outline"
+      variant="destructive"
       className="gap-2"
       disabled={!hasFilters}
       data-testid="btn-pesquisar"
     >
       <span className="font-bold">Pesquisar</span>
-      <Search />
+      <Search width={16} height={16} />
     </Button>
   </div>
 );
