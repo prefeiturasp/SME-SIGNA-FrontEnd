@@ -117,6 +117,7 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     status_publicacao: StatusAtosAdministrativos.PUBLICADO,
     tipo: "DESIGNACAO",
     tipo_de_ato: "Designação",
+    
   },
 ];
 
@@ -210,15 +211,17 @@ describe("ListagemDeAtosAdministrativos", () => {
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
     const coluna = columns[5] as { title?: string; dataIndex?: string };
-    const rfRender = columns[5]?.render as ((rf: string | null) => ReactNode) | undefined;
+    const rfRender = columns[5]?.render as
+      | ((rf: string | null, record: ListagemAtosAdministrativosResponse, index: number) => ReactNode)
+      | undefined;
 
     expect(coluna?.title).toBe("Registro Funcional (RF)");
     expect(coluna?.dataIndex).toBe("rf");
 
-    const { unmount, rerender } = render(<>{rfRender?.("1234567")}</>);
+    const { unmount, rerender } = render(<>{rfRender?.("1234567", rows[0], 0)}</>);
     expect(screen.getByText("1234567")).toBeInTheDocument();
 
-    rerender(<>{rfRender?.(null)}</>);
+    rerender(<>{rfRender?.(null, rows[0], 0)}</>);
     expect(screen.getByText("-")).toBeInTheDocument();
     unmount();
   });
