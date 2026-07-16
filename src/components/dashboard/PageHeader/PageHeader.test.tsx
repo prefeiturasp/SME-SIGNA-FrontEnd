@@ -63,7 +63,6 @@ describe("PageHeader", () => {
       <PageHeader
         title="Página"
         breadcrumbs={[{ title: "Início", href: "/" }]}
-        onClickBack={onBack}
       />
     );
 

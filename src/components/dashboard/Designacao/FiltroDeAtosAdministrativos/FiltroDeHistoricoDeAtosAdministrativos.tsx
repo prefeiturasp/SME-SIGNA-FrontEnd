@@ -6,50 +6,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
-import { StatusAtosAdministrativos } from '@/types/designacao';
+import { AtosOpcoes, StatusPublicacaoOpcoes } from './FiltroDeAtosAdministrativos';
 
 interface Props {
   onClear?: () => void;
 }
 
 
-export const AtosOpcoes = [
-  { codigo: 'DESIGNACAO', nome: 'Designação' },
-  { codigo: 'CESSACAO', nome: 'Cessação' },
-  { codigo: 'INSUBSISTENCIA_DESIGNACAO', nome: 'Insubsistência de Designação' },
-  { codigo: 'INSUBSISTENCIA_CESSACAO', nome: 'Insubsistência de Cessação' },
-  { codigo: 'APOSTILA_DESIGNACAO', nome: 'Apostila de Designação' },
-  { codigo: 'APOSTILA_CESSACAO', nome: 'Apostila de Cessação' },
-  { codigo: 'INSUBSISTENCIA_APOSTILA', nome: 'Anulação de Apostila' },
-  { codigo: 'INSUBSISTENCIA_INSUBSISTENCIA', nome: 'Tornar sem efeito' },
-]
-
-
-export const StatusPublicacaoOpcoes = [
-  { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: 'Aguardando publicação' },
-  { codigo: StatusAtosAdministrativos.PUBLICADO, nome: 'Publicado' },
-]
-const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
+const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
   const { register, control, watch } = useFormContext();
   const watchedValues = watch([
     "tipo",
-    "portaria",
-    "numero_sei",
-    "nome_titular_e_indicado",
-    "status_publicacao",
     "periodo",
-    "numero_sei",
-    "rf",
+    "observacao",
+    "status_publicacao",
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
-      <p className="text-[14px] font-normal pt-1 pb-8">Selecione os campos para buscar as portarias disponíveis.</p>
+      <p className="text-[14px] font-normal pt-1 pb-8">Utilize os filtros para refinar a sua busca.</p>
 
       <div className="w-full flex gap-4">
-        <div className="w-[33%]">
+        <div className="w-[25%]">
           <FormField
             control={control}
             name="tipo"
@@ -76,19 +56,7 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
           />
 
         </div>
-        <div className="w-[34%]">
-          <InputField
-            register={register}
-            control={control}
-            name="numero_sei"
-            label="Nº SEI"
-            placeholder="1234.5678/9012345-6"
-            data-testid="input-numero_sei"
-            type="string"
-            mask="9999.9999/9999999-9"
-          />
-        </div>
-        <div className="w-[33%]">
+        <div className="w-[25%]">
           <DateRangePickerField
             register={register}
             control={control}
@@ -98,50 +66,19 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
           />
         </div>
 
-
-      </div>
-
-      <div className="w-full flex gap-4">
-        <div className="w-[50%]">
+        <div className="w-[25%]">
           <InputField
             register={register}
             control={control}
-            name="portaria"
-            label="Portaria de designação"
-            placeholder="0000/2026"
-            data-testid="input-portaria"
-            type="text"
-          />
-
-        </div>
-        <div className="w-[50%]">
-          <InputField
-            register={register}
-            control={control}
-            name="nome_titular_e_indicado"
-            label="Servidor"
-            placeholder="Exemplo: João da Silva"
-            data-testid="input-nome-titular-e-indicado"
-            type="text"
-          />
-
-        </div>
-
-      </div>
-      <div className="w-full flex gap-4">
-
-        <div className="w-[50%]">
-          <InputField
-            register={register}
-            control={control}
-            name="rf"
-            label="Registro Funcional (RF)"
-            placeholder="Entre com o RF"
-            data-testid="input-rf"
-            type="number"
+            name="observacao"
+            label="Buscar por observações"
+            placeholder="Digite ..."
+            data-testid="input-observacao"
+            type="string"
           />
         </div>
-        <div className="w-[50%]">
+
+        <div className="w-[25%]">
 
           <FormField
             control={control}
@@ -168,11 +105,13 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
             )}
           />
         </div>
+
       </div>
+ 
 
       <FiltroAcoes hasFilters={hasFilters} onClear={onClear} />
     </>
   );
 };
 
-export default FiltroDeAtosAdministrativos;
+export default FiltroDeHistoricoDeAtosAdministrativos;

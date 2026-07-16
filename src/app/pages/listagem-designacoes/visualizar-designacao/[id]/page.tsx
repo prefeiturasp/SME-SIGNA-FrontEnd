@@ -14,7 +14,7 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import { useParams, useRouter } from "next/navigation";
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import { ArrowLeft, History, Loader2 } from "lucide-react";
+import {  History, Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import EditorSEI, {
   gerarHtmlPortaria,
@@ -119,7 +119,7 @@ export default function VisualizarDesignacaoPage() {
   }, [designacao, form]);
 
   const router = useRouter();
-
+  console.log('designacao', designacao);
 
   return (
     <>
@@ -127,36 +127,20 @@ export default function VisualizarDesignacaoPage() {
         title="Detalhes da designação"
         breadcrumbs={[{ title: "Início", href: "/" },
         { title: "Detalhes da designação" }]}
-        showBackButton={false}
+        showBackButton={true}
         createButton={
-          <div className="flex gap-2">
-
-            <Button
-              type="button"
-              variant="default"
-              className="gap-2"
-              data-testid="btn-voltar"
-              onClick={() =>
-                router.push("/pages/atos-administrativos")
-              }
-            >
-              <span className="font-bold">Voltar</span>
-              <ArrowLeft />
-            </Button>
-
             <Button
               className="gap-2 px-4"
               type="button"
               variant="destructive"
               size="lg"
               onClick={() =>
-                router.push("/pages/historico-ato-administrativo")
+                router.push(`/pages/historico-ato-administrativo?id=${id}&tipo=${designacao?.tipo}&tipo_display=Designação&ato_raiz_id=${designacao?.ato_raiz_id}`)
               }
             >
               <span className="font-bold">Consultar histórico</span>
               <History width={15} height={15} />
             </Button>
-          </div>
         }
 
       />

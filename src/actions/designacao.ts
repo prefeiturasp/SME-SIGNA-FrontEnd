@@ -47,6 +47,7 @@ export const fetchAtosAdministrativos = async (
   | { success: true; data: AtosAdministrativosPaginada }
   | { success: false; error: string }
 > => {
+  console.log('filtros', filtros);
   return fetchWithClient<AtosAdministrativosPaginada>(
     "/designacao/atos-administrativos/",
     filtros,

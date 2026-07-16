@@ -62,9 +62,11 @@ interface ListagemDeAtosAdministrativosProps {
   total: number;
   page: number;
   onPageChange?: (page: number) => void;
+  showCamposExtras?: boolean;
 }
 
 const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps> = ({
+  showCamposExtras = true,
   total,
   page,
   data,
@@ -127,14 +129,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   ]
 
 
-  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => 
-  {
+  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const items: ItemType[] = [
       {
         key: '6',
         label: 'Anular Apostila',
         icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-        onClick: () => {
+        onClick: (e) => {
+          e.domEvent.preventDefault();
           router.push(`/pages/anular-apostila?id=${record.id}`);
         },
       }
@@ -143,16 +145,16 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   };
 
   const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
-    return [  
-    {
-      key: '7',
-      label: 'Tornar sem efeito',
-      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        router.push(`/pages/tornar-sem-efeito?id=${record.id}`);
+    return [
+      {
+        key: '7',
+        label: 'Tornar sem efeito',
+        icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          router.push(`/pages/tornar-sem-efeito?id=${record.id}`);
+        },
       },
-    },
-  ];
+    ];
   };
 
 
@@ -180,7 +182,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...apostilaItems(record));
     }
 
-    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) { 
+    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) {
       items.push(...insubsistenciaItems(record));
     }
 
@@ -191,7 +193,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         item?.key !== '2'
       )
     }
-   
+
     //não pode insubsistir 2 vezes o mesmo ato 
     // 3 'Tornar insubsistente',
     // 6 'Anular Apostila',
@@ -211,8 +213,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
-    { title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
-    { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' },
+    ...(
+      showCamposExtras ?
+        [{ title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
+        { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' }]
+        : []),
     { title: 'Registro Funcional (RF)', dataIndex: 'rf', key: 'rf', render: (rf: string | null) => <span>{rf ?? '-'}</span> },
     {
       title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) => {
@@ -237,14 +242,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       key: 'action',
       width: 50,
       render: (record: ListagemAtosAdministrativosResponse) => (
-        <div>
+        <div data-no-row-click="true">
           <Dropdown
             menu={{
               items: getItems(record),
             }}
             trigger={['click']}
           >
-            <div>
+            <div data-no-row-click="true">
               <MoreOutlined color='#000000' />
             </div>
           </Dropdown>
@@ -260,9 +265,9 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       APOSTILA: 'listagem-apostilas/visualizar-apostila',
       INSUBSISTENCIA: 'listagem-insubsistencias/visualizar-insubsistencia',
     };
-  
+
     const path = rotasPorTipo[record.tipo];
-  
+
     if (path) {
       router.push(`/pages/${path}/${record.id}`);
     }
@@ -288,7 +293,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
           pagination={false}
           onRow={(record) => {
             return {
-              onClick: () => {
+              onClick: (event) => {
+                const target = event.target as HTMLElement;
+                if (target.closest('[data-no-row-click="true"]')) {
+                  return;
+                }
                 handleRowClick(record);
               },
             };
