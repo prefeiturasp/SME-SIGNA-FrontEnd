@@ -8,7 +8,7 @@ const cessacaoBase: Cessacao = {
   numero_portaria: "050",
   ano_vigente: "2025",
   sei_numero: "6016.2025/0002-0",
-  doc: "DOC-50",
+  doc: "2025-10-10",
   a_pedido: false,
   remocao: false,
   aposentadoria: false,
@@ -31,7 +31,7 @@ describe("ResumoPortariaCessacao", () => {
     expect(screen.getByText("Nº SEI")).toBeInTheDocument();
     expect(screen.getByText("6016.2025/0002-0")).toBeInTheDocument();
     expect(screen.getByText("D.O")).toBeInTheDocument();
-    expect(screen.getByText("DOC-50")).toBeInTheDocument();
+    expect(screen.getByText("10/10/2025")).toBeInTheDocument();
   });
 
   it("aplica className passada via prop", () => {
@@ -93,5 +93,28 @@ describe("ResumoPortariaCessacao", () => {
 
     expect(screen.getByText("01/01/2026")).toBeInTheDocument();
     expect(screen.getAllByText("Não")).toHaveLength(3);
+  });
+
+  it("não renderiza campos extras quando showExtraFields é false", () => {
+    render(<ResumoPortariaCessacao defaultValues={cessacaoBase} showExtraFields={false} />);
+
+    expect(screen.queryByText("Cessar a partir de")).not.toBeInTheDocument();
+    expect(screen.queryByText("A pedido")).not.toBeInTheDocument();
+    expect(screen.queryByText("Remoção")).not.toBeInTheDocument();
+    expect(screen.queryByText("Aposentadoria")).not.toBeInTheDocument();
+  });
+
+  it("exibe '-' no campo D.O quando doc não é informado", () => {
+    render(
+      <ResumoPortariaCessacao
+        defaultValues={{
+          ...cessacaoBase,
+          doc: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText("D.O")).toBeInTheDocument();
+    expect(screen.getByText("-")).toBeInTheDocument();
   });
 });

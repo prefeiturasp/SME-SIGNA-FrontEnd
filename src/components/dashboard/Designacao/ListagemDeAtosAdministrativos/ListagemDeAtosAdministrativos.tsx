@@ -317,9 +317,9 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   const handleRowClick = (record: ListagemAtosAdministrativosResponse) => {
     const rotasPorTipo: Record<string, string> = {
       DESIGNACAO: 'listagem-designacoes/visualizar-designacao',
-      CESSACAO: 'listagem-cessacoes/visualizar-cessacao',
-      APOSTILA: 'listagem-apostilas/visualizar-apostila',
-      INSUBSISTENCIA: 'listagem-insubsistencias/visualizar-insubsistencia',
+      CESSACAO: '/visualizar-cessacao',
+      APOSTILA: '/visualizar-apostila',
+      INSUBSISTENCIA: '/visualizar-insubsistencia',
     };
 
     const path = rotasPorTipo[record.tipo];

@@ -220,6 +220,12 @@ export interface Cessacao {
   portaria?: string;
 }
 
+export interface CessacaoByIdResponse extends Cessacao {
+  tipo: string;
+  ato_raiz_id: number;
+  designacao: DesignacaoResponse;
+}
+
 export interface DesignacaoResponse {
   id: number;
   tipo: string;
@@ -263,7 +269,7 @@ export interface DesignacaoResponse {
   numero_portaria: string;
   ano_vigente: string;
   sei_numero: string;
-  portaria?: string;
+  portaria?: string;//campo temporario, remover após refatoração
   doc: string;
   data_inicio: string;
   data_fim: string | null;

@@ -20,7 +20,7 @@ export default function AtosAdministrativos() {
   const ato_raiz_id = searchParams.get("ato_raiz_id");
   const tipo_display = searchParams.get("tipo_display");
   console.log(tipo,ato_raiz_id);
-  const portaria = searchParams.get("portaria") ?? "";
+  const numero_portaria = searchParams.get("numero_portaria") ?? "";
   const servidor_indicado = searchParams.get("servidor_indicado") ?? "";
             
   const defaultValues: AtosAdministrativosFiltros = {
@@ -85,7 +85,7 @@ export default function AtosAdministrativos() {
 
         <div className="mt-4">
           <ListagemDeAtosAdministrativos
-            portaria={portaria}
+            portaria={numero_portaria}
             servidor_indicado={servidor_indicado}
             titulo={`Histórico da ${tipo_display}`}
             subtitulo={`Todos os atos administrativos têm origem em uma designação. Consulte abaixo o histórico completo de atos realizados a partir desta designação.`}
