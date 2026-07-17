@@ -41,7 +41,7 @@ describe("getCargos", () => {
     const result = await getCargos();
 
     expect(axios.get).toHaveBeenCalledWith(
-      "https://api.exemplo.com/designacao/v2/unidade/cargos/",
+      "https://api.exemplo.com/designacao/unidade/cargos/",
       {
         headers: {
           Authorization: "Bearer token-123",
@@ -58,7 +58,7 @@ describe("getCargos", () => {
     const result = await getCargos();
 
     expect(axios.get).toHaveBeenCalledWith(
-      "https://api.exemplo.com/designacao/v2/unidade/cargos/",
+      "https://api.exemplo.com/designacao/unidade/cargos/",
       {
         headers: {
           Authorization: "Bearer undefined",

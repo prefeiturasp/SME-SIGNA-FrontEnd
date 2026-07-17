@@ -21,7 +21,7 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
     try {
  
         const { data } = await axios.post<Servidor>(
-            `${API_URL}/designacao/v2/servidor`,
+            `${API_URL}/designacao/servidor`,
             {
                 rf: designacaoRequest.rf,
              },

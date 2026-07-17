@@ -39,7 +39,7 @@ describe("ApostilaAction", () => {
 
     expect(result).toEqual({ success: true, data: { id: 1, status: "salvo" } });
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      "https://api.example.com/designacao/v2/apostilas/",
+      "https://api.example.com/designacao/apostilas/",
       payloadMock,
       expect.any(Object)
     );
