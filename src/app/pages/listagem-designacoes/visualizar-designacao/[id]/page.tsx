@@ -134,7 +134,7 @@ export default function VisualizarDesignacaoPage() {
               variant="destructive"
               size="lg"
               onClick={() =>
-                router.push(`/pages/historico-ato-administrativo?id=${id}&tipo=${designacao?.tipo}&tipo_display=Designação&ato_raiz_id=${designacao?.ato_raiz_id}&portaria=${designacao?.numero_portaria}&servidor_indicado=${designacao?.indicado_nome_servidor}`)
+                router.push(`/pages/historico-ato-administrativo?id=${id}&tipo=${designacao?.tipo}&tipo_display=Designação&ato_raiz_id=${designacao?.ato_raiz_id}&numero_portaria=${designacao?.numero_portaria}&servidor_indicado=${designacao?.indicado_nome_servidor}`)
               }
             >
               <span className="font-bold">Consultar histórico</span>
