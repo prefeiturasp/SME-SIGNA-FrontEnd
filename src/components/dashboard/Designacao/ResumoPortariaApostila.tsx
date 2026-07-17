@@ -16,7 +16,7 @@ const ResumoPortariaApostila: React.FC<{
             label="Portaria da apostila"
             value={defaultValues.numero_portaria}
           />
-          <InfoItem label="Tipo de apostila" value={defaultValues.tipo_de_ato} />
+          <InfoItem label="Tipo de apostila" value={defaultValues.ato_apostilado_display} />
           <InfoItem label="Nº SEI" value={defaultValues.sei_numero} />
           <InfoItem label="D.O" value={ defaultValues?.doc ? formatDate(defaultValues.doc) : "-"} />    
         </div>

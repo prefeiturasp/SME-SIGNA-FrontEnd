@@ -17,15 +17,13 @@ import EditorSEI, {
   EditorSEIHandle,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
-import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
-import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
-import type { CessacaoByIdResponse } from "@/types/designacao";
+import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
 import { formatarRF, nameToCamelCaseUe, nameToCamelCase } from "@/utils/portarias/formatadores";
-import { formatDate } from "@/utils/formatDate";
 import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
 import ResumoPortariaApostila from "@/components/dashboard/Designacao/ResumoPortariaApostila";
+import { ApostilaDetailRead } from "@/types/apostila";
 
-const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei", "ano"] as const;
+const CAMPOS_NEGRITO = ["nome_indicado"] as const;
 
 function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
@@ -47,33 +45,33 @@ export default function VisualizarApostilaPage() {
 
 
   const htmlInicial = useMemo(() => {
-    const gerarDados = (cessacao: CessacaoByIdResponse) => ({
-      portaria: cessacao.numero_portaria,
-      ano: cessacao.ano_vigente,
-      sei: cessacao.sei_numero,
-      dre: designacao?.dre_nome ?? "-",
-      tipo_cessacao:
-        cessacao.a_pedido ? "a pedido" : "de ofício",
-      portaria_designacao: designacao?.numero_portaria ?? "-",
-      doc_designacao: designacao?.doc ? formatDate(designacao.doc) : "-",
-      sei_designacao: designacao?.sei_numero ?? "-",
-      nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-      rf: formatarRF(designacao?.indicado_rf ?? "-"),
-      vinculo: designacao?.indicado_vinculo ?? "-",
-      cargo_base: (() => {
-        const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
-        const cat = designacao?.indicado_categoria;
-        return cat ? `${base} - Categoria ${cat}` : base;
-      })(),
-      cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-      ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-      data_inicio: formatDate(cessacao.data_cessacao),
-      trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
-      trecho_afastamento: designacao?.com_afastamento && designacao?.motivo_afastamento
-        ? `, ${designacao.motivo_afastamento}`
-        : "",
-    });
+    const gerarDados = (apostila: ApostilaDetailRead) => {
+      const isCessacao = apostila.ato_apostilado === "CESSACAO";
+      
+      const fonteDados = isCessacao ? designacao?.cessacao : designacao;
 
+      return {
+        sei: apostila.sei_numero,
+        dre: designacao?.dre_nome ?? "-",
+        eh: designacao?.codigo_hierarquico ?? "-",
+        doc: apostila.doc,
+        ato_apostilado: apostila.ato_apostilado,
+        
+        portaria_designacao: fonteDados?.numero_portaria ?? "-",
+        ano: fonteDados?.ano_vigente ?? "-",
+        doc_designacao: fonteDados?.doc ?? "-",
+        sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
+        
+        nome_indicado: designacao?.indicado_nome_servidor ?? "-",
+        rf: formatarRF(designacao?.indicado_rf ?? "-"),
+        vinculo: designacao?.indicado_vinculo ?? "-",
+        cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+        cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
+        ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
+        observacao: apostila.observacao ?? "",
+      };
+    };
+    
     if (!designacao || !apostila) return "";
 
     const dadosPuros = gerarDados(apostila);
@@ -90,7 +88,7 @@ export default function VisualizarApostilaPage() {
       if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
     }
 
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_CESSACAO, dadosEscapados));
+    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_APOSTILA, dadosEscapados));
   }, [designacao, apostila]);
 
 
@@ -112,7 +110,7 @@ export default function VisualizarApostilaPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo=${apostila?.tipo}&tipo_display=Apostila&ato_raiz_id=${cessacao?.ato_raiz_id}&numero_portaria=${apostila?.numero_portaria}&servidor_indicado=${apostila?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?id=${id}&tipo=${apostila?.tipo}&tipo_display=Apostila&numero_portaria=${apostila?.numero_portaria}&servidor_indicado=${apostila?.designacao?.indicado_nome_servidor}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>

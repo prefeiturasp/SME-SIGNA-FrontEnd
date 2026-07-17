@@ -42,8 +42,6 @@ export default function ApostilaPage() {
   const router = useRouter();
 
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
-  console.log('designacao', designacao);
-
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {

@@ -37,7 +37,8 @@ export interface ApostilaDetailRead {
     id: number;    
     numero_portaria: string;
     tipo: string;
-    tipo_de_ato: string;
+    ato_apostilado: string;
+    ato_apostilado_display: string;
     sei_numero: string;
     doc: string;
     status: string;
