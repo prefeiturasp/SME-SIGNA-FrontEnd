@@ -19,7 +19,7 @@ import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 import { useNovoAto, TipoNovoAto } from "@/hooks/useNovoAto";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import FiltroDeATosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos";
+import FiltroDeAtosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos";
 
 const CONFIG_MODAL_NOVO_ATO: Record<
   TipoNovoAto,
@@ -163,7 +163,7 @@ export default function AtosAdministrativos() {
       <FundoBranco className="mb-4">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-            <FiltroDeATosAdministrativos onClear={handleClear} />
+            <FiltroDeAtosAdministrativos onClear={handleClear} />
           </form>
         </FormProvider>
       </FundoBranco>
