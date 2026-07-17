@@ -8,7 +8,7 @@ const cessacaoBase: Cessacao = {
   numero_portaria: "050",
   ano_vigente: "2025",
   sei_numero: "6016.2025/0002-0",
-  doc: "DOC-50",
+  doc: "2025-10-10",
   a_pedido: false,
   remocao: false,
   aposentadoria: false,
@@ -31,7 +31,7 @@ describe("ResumoPortariaCessacao", () => {
     expect(screen.getByText("Nº SEI")).toBeInTheDocument();
     expect(screen.getByText("6016.2025/0002-0")).toBeInTheDocument();
     expect(screen.getByText("D.O")).toBeInTheDocument();
-    expect(screen.getByText("DOC-50")).toBeInTheDocument();
+    expect(screen.getByText("10/10/2025")).toBeInTheDocument();
   });
 
   it("aplica className passada via prop", () => {

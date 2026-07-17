@@ -7,7 +7,7 @@ import {  CessacaoByIdResponse } from "@/types/designacao";
 
 export async function insubsistenciaAction(payload: InsubsistenciaBody) {
   return postWithAuth(
-    "/designacao/v2/cessacoes/",
+    "/designacao/cessacoes/",
     payload,
     "Erro ao salvar cessacão"
   );
@@ -21,7 +21,7 @@ export const fetchCessacaoByIdAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<CessacaoByIdResponse>(
-    `/designacao/v2/cessacoes/${id}/`,
+    `/designacao/cessacoes/${id}/`,
     {},
     "Erro ao buscar as cessacões"
   );
