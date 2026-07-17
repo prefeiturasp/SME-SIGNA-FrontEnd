@@ -57,7 +57,7 @@ describe("insubsistenciaAction", () => {
 
     expect(result).toEqual({ success: true, data: { id: 42 } });
     expect(axios.post).toHaveBeenCalledWith(
-      "http://api.test/designacao/v2/insubsistencias/",
+      "http://api.test/designacao/insubsistencias/",
       payloadBase,
       expect.objectContaining({
         headers: expect.objectContaining({ Authorization: "Bearer meu-token" }),

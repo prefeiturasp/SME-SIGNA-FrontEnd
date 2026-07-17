@@ -19,7 +19,7 @@ export const fetchDesignacoesAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<DesignacaoPaginada>(
-    "/designacao/v2/designacoes/",
+    "/designacao/designacoes/",
     filtros,
     "Erro ao buscar as designações"
   );
@@ -34,7 +34,7 @@ export const fetchPortariasDO = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemPortariasResponse[]>(
-    "/designacao/v2/portarias/",
+    "/designacao/portarias/",
     filtros,
     "Erro ao buscar as dados para alterar a data do D.O"
   );
@@ -62,7 +62,7 @@ export const fetchDesignacoesSemPaginacaoAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemDesignacoesResponse[]>(
-    "/designacao/v2/designacoes/",
+    "/designacao/designacoes/",
     filtros,
     "Erro ao buscar as designações"
   );
@@ -76,7 +76,7 @@ export const fetchApostilasByIdAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ApostilaDetailRead>(
-    `/designacao/v2/apostilas/${id}/`,
+    `/designacao/apostilas/${id}/`,
     {},
     "Erro ao buscar as apostilas"
   );

@@ -7,7 +7,7 @@ import { fetchWithClient } from "./http";
 
 export async function insubsistenciaAction(payload: InsubsistenciaBody) {
   return postWithAuth(
-    "/designacao/v2/insubsistencias/",
+    "/designacao/insubsistencias/",
     payload,
     "Erro ao salvar insubsistência"
   );
@@ -21,7 +21,7 @@ export const fetchInsubsistenciasByIdAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ApostilaDetailRead>(
-    `/designacao/v2/insubsistencias/${id}/`,
+    `/designacao/insubsistencias/${id}/`,
     {},
     "Erro ao buscar as insubsistencias"
   );

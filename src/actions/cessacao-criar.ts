@@ -45,8 +45,8 @@ export async function cessacaoAction(
 
   try {
     const request = id
-      ? axios.patch(`${API_URL}/designacao/v2/cessacoes/${id}/`, payload, { headers })
-      : axios.post(`${API_URL}/designacao/v2/cessacoes/`, payload, { headers });
+      ? axios.patch(`${API_URL}/designacao/cessacoes/${id}/`, payload, { headers })
+      : axios.post(`${API_URL}/designacao/cessacoes/`, payload, { headers });
 
     const { data } = await request;
     return { success: true, data };
