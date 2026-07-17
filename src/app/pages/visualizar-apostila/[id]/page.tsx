@@ -20,11 +20,10 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
 import type { CessacaoByIdResponse } from "@/types/designacao";
-
-import { useFetchCessacaoById } from "@/hooks/useVisualizarCessacao";
-import ResumoPortariaCessacao from "@/components/dashboard/Designacao/ResumoPortariaCessacao";
 import { formatarRF, nameToCamelCaseUe, nameToCamelCase } from "@/utils/portarias/formatadores";
 import { formatDate } from "@/utils/formatDate";
+import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
+import ResumoPortariaApostila from "@/components/dashboard/Designacao/ResumoPortariaApostila";
 
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei", "ano"] as const;
 
@@ -32,17 +31,17 @@ function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
-export default function VisualizarCessacaoPage() {
+export default function VisualizarApostilaPage() {
 
   const params = useParams();
   const id = params.id;
 
   const editorSEIRef = useRef<EditorSEIHandle>(null);
 
-  const { data: cessacao, isLoading: isLoadingDesignacao, error: errorDesignacao } = useFetchCessacaoById(
+  const { data: apostila, isLoading: isLoadingApostila, error: errorApostila } = useFetchApostilaById(
     Number(id),
   );
-  const designacao = cessacao?.designacao;
+  const designacao = apostila?.designacao;
 
 
 
@@ -75,10 +74,10 @@ export default function VisualizarCessacaoPage() {
         : "",
     });
 
-    if (!designacao || !cessacao) return "";
+    if (!designacao || !apostila) return "";
 
-    const dadosPuros = gerarDados(cessacao);
- 
+    const dadosPuros = gerarDados(apostila);
+
 
     const dadosEscapados: Record<string, string> = {};
     for (const [k, v] of Object.entries(dadosPuros)) {
@@ -92,18 +91,18 @@ export default function VisualizarCessacaoPage() {
     }
 
     return gerarHtmlPortaria(preencherTemplate(TEMPLATE_CESSACAO, dadosEscapados));
-  }, [designacao, cessacao]);
+  }, [designacao, apostila]);
 
 
   const router = useRouter();
 
-  console.log(cessacao);
+  console.log(apostila);
   return (
     <>
       <PageHeader
-        title="Detalhes da cessação"
+        title="Detalhes da apostila"
         breadcrumbs={[{ title: "Início", href: "/" },
-        { title: "Detalhes da cessação" }]}
+        { title: "Detalhes da apostila" }]}
         showBackButton={true}
         createButton={
           <Button
@@ -113,7 +112,7 @@ export default function VisualizarCessacaoPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo=${cessacao?.tipo}&tipo_display=Cessação&ato_raiz_id=${cessacao?.ato_raiz_id}&numero_portaria=${cessacao?.numero_portaria}&servidor_indicado=${cessacao?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?id=${id}&tipo=${apostila?.tipo}&tipo_display=Apostila&ato_raiz_id=${cessacao?.ato_raiz_id}&numero_portaria=${apostila?.numero_portaria}&servidor_indicado=${apostila?.designacao?.indicado_nome_servidor}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>
@@ -126,18 +125,18 @@ export default function VisualizarCessacaoPage() {
       <Card
         title={
           <div className="flex justify-between items-center">
-            <span className="text-[#333]">Cessação</span>
+            <span className="text-[#333]">Apostila</span>
           </div>
         }
         className="mt-4 m-0"
       >
-        {errorDesignacao && (
+        {errorApostila && (
           <div className="text-red-500 text-sm animate-in shake-1">
-            {errorDesignacao?.message}
+            {errorApostila?.message}
           </div>
         )}
 
-        {isLoadingDesignacao ? (
+        {isLoadingApostila ? (
           <div className="flex justify-center h-full">
             <Loader2 className="h-16 w-16 text-primary animate-spin" />
           </div>
@@ -145,23 +144,15 @@ export default function VisualizarCessacaoPage() {
           designacao && (
             <Accordion
               type="multiple"
-              defaultValue={["portarias-cessacao", "portarias-designacao", "servidor-indicado"]}
+              defaultValue={["portaria-apostila", "portarias-designacao", "servidor-indicado"]}
             >
               <ResumoPortariaEServidorIndicado
                 designacao={designacao}
-                isLoadingDesignacao={isLoadingDesignacao}
+                isLoadingDesignacao={isLoadingApostila}
               />
 
-
-
-              <CustomAccordionItem title="Portarias de Cessação" value="portarias-cessacao" color="green">
-                {cessacao ? (
-                  <ResumoPortariaCessacao defaultValues={cessacao} showExtraFields={true} />
-                ) : (
-                  <div className="text-center text-[#777] p-4">
-                    Não há portaria de cessão
-                  </div>
-                )}
+              <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
+                <ResumoPortariaApostila defaultValues={apostila} />
               </CustomAccordionItem>
 
             </Accordion>

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
-import { ApostilaAction } from "./apostila-criar"; // Ajuste o caminho conforme necessário
+import { ApostilaAction } from "./apostila"; // Ajuste o caminho conforme necessário
 
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios, true);
