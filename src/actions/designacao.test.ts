@@ -101,7 +101,7 @@ describe("fetchDesignacoesAction", () => {
 
         // Note que agora validamos o caminho relativo, pois a baseURL está no client
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/v2/designacoes/",
+            "/designacao/designacoes/",
             {
                 params: { rf: "123456", nome: "Servidor Teste", page: 1, page_size: 10 },
             }
@@ -124,7 +124,7 @@ describe("fetchDesignacoesAction", () => {
         await fetchDesignacoesAction(filtrosComVazios);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/v2/designacoes/",
+            "/designacao/designacoes/",
             {
                 params: { rf: "123456", page: 1 },
             }
@@ -240,7 +240,7 @@ describe("fetchDesignacoesAction", () => {
         const result = await fetchDesignacoesSemPaginacaoAction(sampleFiltros);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/v2/designacoes/",
+            "/designacao/designacoes/",
             {
                 params: { rf: "123456", nome: "Servidor Teste", page: 1, page_size: 10 },
             }
@@ -295,7 +295,7 @@ describe("fetchPortariasDO", () => {
         const result = await fetchPortariasDO(samplePortariasFiltros);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/v2/portarias/",
+            "/designacao/portarias/",
             { params: { portaria_inicial: "100", portaria_final: "200", ano: "2026" } }
         );
         expect(result).toEqual({ success: true, data: samplePortariasResponse });
@@ -315,7 +315,7 @@ describe("fetchPortariasDO", () => {
         await fetchPortariasDO(filtrosComVazios);
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-            "/designacao/v2/portarias/",
+            "/designacao/portarias/",
             { params: { portaria_inicial: "100", ano: "2026" } }
         );
     });

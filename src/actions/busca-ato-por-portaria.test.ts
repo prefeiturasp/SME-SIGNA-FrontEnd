@@ -37,19 +37,19 @@ describe.each([
   {
     nome: "buscarDesignacaoPorPortariaAction",
     action: buscarDesignacaoPorPortariaAction,
-    url: "/designacao/v2/designacoes/buscar-por-portaria/",
+    url: "/designacao/designacoes/buscar-por-portaria/",
     sampleData: { id: 1, numero_portaria: "100/2026" },
   },
   {
     nome: "buscarCessacaoPorPortariaAction",
     action: buscarCessacaoPorPortariaAction,
-    url: "/designacao/v2/cessacoes/buscar-por-portaria/",
+    url: "/designacao/cessacoes/buscar-por-portaria/",
     sampleData: { id: 2, numero_portaria: "200/2026", ato_pai_id: 1 },
   },
   {
     nome: "buscarInsubsistenciaPorPortariaAction",
     action: buscarInsubsistenciaPorPortariaAction,
-    url: "/designacao/v2/insubsistencias/buscar-por-portaria/",
+    url: "/designacao/insubsistencias/buscar-por-portaria/",
     sampleData: { id: 4, numero_portaria: "400/2026" },
   },
 ])("$nome", ({ action, url, sampleData }) => {
