@@ -57,17 +57,18 @@ export default function VisualizarApostilaPage() {
         doc: apostila.doc,
         ato_apostilado: apostila.ato_apostilado,
         
-        portaria_designacao: fonteDados?.numero_portaria ?? "-",
-        ano: fonteDados?.ano_vigente ?? "-",
-        doc_designacao: fonteDados?.doc ?? "-",
-        sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
         
-        nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-        rf: formatarRF(designacao?.indicado_rf ?? "-"),
-        vinculo: designacao?.indicado_vinculo ?? "-",
+        ano: fonteDados?.ano_vigente ?? "-",
+        sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
+        doc_designacao: fonteDados?.doc ?? "-",        
+        portaria_designacao: fonteDados?.numero_portaria ?? "-",
+        
+        rf: formatarRF(designacao?.indicado_rf ?? "-"),        
         cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
-        cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
         ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
+        cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
+        nome_indicado: designacao?.indicado_nome_servidor ?? "-",
+        vinculo: designacao?.indicado_vinculo ?? "-",
         observacao: apostila.observacao ?? "",
       };
     };
