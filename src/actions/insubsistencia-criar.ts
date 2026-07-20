@@ -2,7 +2,7 @@
 
 import { InsubsistenciaBody } from "@/types/insubsistencia";
 import { postWithAuth } from "@/lib/serverRequest";
-import { ApostilaDetailRead } from "@/types/apostila";
+import { InsubsistenciaDetailRead } from "@/types/apostila";
 import { fetchWithClient } from "./http";
 
 export async function insubsistenciaAction(payload: InsubsistenciaBody) {
@@ -17,10 +17,10 @@ export async function insubsistenciaAction(payload: InsubsistenciaBody) {
 export const fetchInsubsistenciasByIdAction = async (
   id: number
 ): Promise<
-  | { success: true; data: ApostilaDetailRead }
+  | { success: true; data: InsubsistenciaDetailRead }
   | { success: false; error: string }
 > => {
-  return fetchWithClient<ApostilaDetailRead>(
+  return fetchWithClient<InsubsistenciaDetailRead>(
     `/designacao/insubsistencias/${id}/`,
     {},
     "Erro ao buscar as insubsistencias"

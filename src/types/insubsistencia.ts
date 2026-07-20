@@ -1,3 +1,5 @@
+import { Cessacao, DesignacaoResponse } from "./designacao";
+
 // Payload para escrita (POST /v2/insubsistencias/)
 export interface InsubsistenciaBody {
     ato_pai: number;
@@ -18,7 +20,10 @@ export interface InsubsistenciaRead {
     doc: string;
     observacoes: string;
     criado_em: string;
+    designacao: DesignacaoResponse;
+    cessacao: Cessacao;
 }
+ 
 
 // Formato retornado pela API quando aninhado numa cessação
 export interface InsubsistenciaCessacaoRead {
