@@ -32,7 +32,7 @@ function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
-export default function VisualizarDesignacaoPage() {
+export default function VisualizarCessacaoPage() {
 
   const params = useParams();
   const id = params.id;

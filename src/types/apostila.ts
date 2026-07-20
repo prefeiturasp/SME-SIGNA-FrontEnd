@@ -35,11 +35,15 @@ export interface ApostilaRead {
 
 export interface ApostilaDetailRead {
     id: number;    
+    numero_portaria: string;
+    tipo: string;
+    ato_apostilado: string;
+    ato_apostilado_display: string;
     sei_numero: string;
     doc: string;
     status: string;
     observacao: string;
     criado_em: string;
-    designacao: Partial<DesignacaoResponse>;
-    cessacao: Partial<Cessacao>;
+    designacao: DesignacaoResponse;
+    cessacao: Cessacao;
 }
