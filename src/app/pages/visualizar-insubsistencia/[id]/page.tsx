@@ -20,7 +20,8 @@ import { TEMPLATE_ANULAR_APOSTILA, TEMPLATE_INSUBSISTENCIA_CESSACAO, TEMPLATE_IN
 import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
 import ResumoPortariaInsubsistencia from "@/components/dashboard/Designacao/ResumoPortariaInsubsistencia";
 import { gerarDadosInsubsistencia } from "../../insubsistencia/page";
- 
+import { formatarData } from "@/lib/utils";
+
 
 export default function VisualizarInsubsistenciaPage() {
 
@@ -66,8 +67,20 @@ export default function VisualizarInsubsistenciaPage() {
       texto = TEMPLATE_TORNAR_SEM_EFEITO_INSUBSISTENCIA;
     }
 
-    const dados = gerarDadosInsubsistencia(values, designacao, insubsistencia?.cessacao);
+    let dados = gerarDadosInsubsistencia(values, designacao, insubsistencia?.cessacao);
 
+    dados = {
+      ...dados,
+      doc_da_insubsistencia: insubsistencia?.insubsistencia?.doc ? formatarData(insubsistencia?.insubsistencia?.doc) : "",
+      numero_sei_da_insubsistencia: insubsistencia?.insubsistencia?.sei_numero ?? "-",
+      doc_do_ato_insubsistido: insubsistencia?.insubsistencia?.doc_do_ato_insubsistido ? formatarData(insubsistencia?.insubsistencia?.doc_do_ato_insubsistido) : "",
+
+      portaria_apostilada: insubsistencia?.ato_apostilado?.numero_portaria ?? "-",
+      ano_apostilado: insubsistencia?.ato_apostilado?.ano_vigente ?? "-",
+      doc_apostilado: insubsistencia?.ato_apostilado?.doc ? formatarData(insubsistencia?.ato_apostilado?.doc) : "",
+      sei_apostilado: insubsistencia?.ato_apostilado?.sei_numero ?? "-",
+      texto_para_apostila: insubsistencia?.ato_apostilado?.texto ?? "",
+    };
 
     Object.entries(dados).forEach(([key, value]) => {
       let val = String(value ?? "");
@@ -89,31 +102,31 @@ export default function VisualizarInsubsistenciaPage() {
   console.log(insubsistencia);
 
   const titulo = (() => {
-    if(insubsistencia?.tipo_insubsistencia === "APOSTILA") {
-    return "Detalhes da anulação da apostila";
-  } else if(insubsistencia?.tipo_insubsistencia === "INSUBSISTENCIA") {
-    return "Detalhes do ato de tornar sem efeito";
-  }
-  return "Detalhes de insubsistência";
+    if (insubsistencia?.tipo_insubsistencia === "APOSTILA") {
+      return "Detalhes da anulação da apostila";
+    } else if (insubsistencia?.tipo_insubsistencia === "INSUBSISTENCIA") {
+      return "Detalhes do ato de tornar sem efeito";
+    }
+    return "Detalhes de insubsistência";
   })();
 
   const titulo_portaria = (() => {
-    if(insubsistencia?.tipo_insubsistencia === "APOSTILA") {
-    return "Portaria da anulação";
-  } else if(insubsistencia?.tipo_insubsistencia === "INSUBSISTENCIA") {
-    return "Portaria do ato tornar sem efeito";
-  }
-  return "Portaria de insubsistência";
+    if (insubsistencia?.tipo_insubsistencia === "APOSTILA") {
+      return "Portaria da anulação";
+    } else if (insubsistencia?.tipo_insubsistencia === "INSUBSISTENCIA") {
+      return "Portaria do ato tornar sem efeito";
+    }
+    return "Portaria de insubsistência";
   })();
 
   const cor_portaria = (() => {
-    if(["APOSTILA","INSUBSISTENCIA"].includes(insubsistencia?.tipo_insubsistencia ?? "")) {
+    if (["APOSTILA", "INSUBSISTENCIA"].includes(insubsistencia?.tipo_insubsistencia ?? "")) {
       return "gray";
     } else {
       return "purple";
     }
   })();
-  
+
   return (
     <>
       <PageHeader

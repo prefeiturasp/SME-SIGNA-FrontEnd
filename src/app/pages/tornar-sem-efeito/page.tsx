@@ -79,7 +79,7 @@ export default function AnularApostilaPage() {
     return {
       portaria: values.apostila_insubsistencia.portaria,
       ano: values.apostila_insubsistencia.ano,
-      numero_sei: values.apostila_insubsistencia.numero_sei,
+      sei: values.apostila_insubsistencia.numero_sei,
 
       doc_da_insubsistencia: insubsistencia?.doc ? formatarData(insubsistencia?.doc ): "-",
       numero_sei_da_insubsistencia: insubsistencia?.sei_numero ?? "-",
