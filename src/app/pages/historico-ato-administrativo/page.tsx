@@ -16,15 +16,12 @@ export default function AtosAdministrativos() {
   const searchParams = useSearchParams();
 
   const id = searchParams.get("id");
-  const tipo = searchParams.get("tipo");
-  const ato_raiz_id = searchParams.get("ato_raiz_id");
   const tipo_display = searchParams.get("tipo_display");
-  console.log(tipo,ato_raiz_id);
   const numero_portaria = searchParams.get("numero_portaria") ?? "";
   const servidor_indicado = searchParams.get("servidor_indicado") ?? "";
             
   const defaultValues: AtosAdministrativosFiltros = {
-    tipo: "",
+    tipo: "TODOS",
     portaria: "",
     numero_sei: "",
     nome_titular_e_indicado: "",
@@ -56,7 +53,7 @@ export default function AtosAdministrativos() {
       <PageHeader
         showBackButton={true}
         title={
-          `Histórico da ${tipo_display}`
+          `Histórico ${tipo_display}`
         }
         breadcrumbs={[
           { title: "Início", href: "/" },
@@ -75,11 +72,10 @@ export default function AtosAdministrativos() {
 
 
 
-      <FundoBranco className="mb-4">
+      <FundoBranco className="mb-4 mt-8">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
             <FiltroDeHistoricoDeAtosAdministrativos onClear={handleClear} />
-
           </form>
         </FormProvider>
 
@@ -87,7 +83,7 @@ export default function AtosAdministrativos() {
           <ListagemDeAtosAdministrativos
             portaria={numero_portaria}
             servidor_indicado={servidor_indicado}
-            titulo={`Histórico da ${tipo_display}`}
+            titulo={`Histórico ${tipo_display}`}
             subtitulo={`Todos os atos administrativos têm origem em uma designação. Consulte abaixo o histórico completo de atos realizados a partir desta designação.`}
             onPageChange={onPageChange}
             key={tabelaKey}

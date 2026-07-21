@@ -35,9 +35,6 @@ export default function VisualizarInsubsistenciaPage() {
   );
   const designacao = insubsistencia?.designacao;
 
-
-
-
   const htmlInicial = useMemo(() => {
     const values = {
       insubsistencia: {
@@ -67,19 +64,26 @@ export default function VisualizarInsubsistenciaPage() {
       texto = TEMPLATE_TORNAR_SEM_EFEITO_INSUBSISTENCIA;
     }
 
-    let dados = gerarDadosInsubsistencia(values, designacao, insubsistencia?.cessacao);
+    const dados_base = gerarDadosInsubsistencia(values, designacao, insubsistencia?.cessacao);
 
-    dados = {
-      ...dados,
+    const isCessacao = insubsistencia?.ato_apostilado === "CESSACAO";
+      
+    const fonteDados = isCessacao ? insubsistencia?.cessacao : insubsistencia?.designacao;
+
+
+
+
+    const dados = {
+      ...dados_base,
       doc_da_insubsistencia: insubsistencia?.insubsistencia?.doc ? formatarData(insubsistencia?.insubsistencia?.doc) : "",
       numero_sei_da_insubsistencia: insubsistencia?.insubsistencia?.sei_numero ?? "-",
       doc_do_ato_insubsistido: insubsistencia?.insubsistencia?.doc_do_ato_insubsistido ? formatarData(insubsistencia?.insubsistencia?.doc_do_ato_insubsistido) : "",
 
-      portaria_apostilada: insubsistencia?.ato_apostilado?.numero_portaria ?? "-",
-      ano_apostilado: insubsistencia?.ato_apostilado?.ano_vigente ?? "-",
-      doc_apostilado: insubsistencia?.ato_apostilado?.doc ? formatarData(insubsistencia?.ato_apostilado?.doc) : "",
-      sei_apostilado: insubsistencia?.ato_apostilado?.sei_numero ?? "-",
-      texto_para_apostila: insubsistencia?.ato_apostilado?.texto ?? "",
+      portaria_apostilada: fonteDados?.numero_portaria ?? "-",
+      ano_apostilado: fonteDados?.ano_vigente ?? "-",
+      doc_apostilado: fonteDados?.doc ? formatarData(fonteDados?.doc) : "",
+      sei_apostilado: fonteDados?.sei_numero ?? "-",
+      texto_para_apostila: insubsistencia?.texto_apostila ?? "",
     };
 
     Object.entries(dados).forEach(([key, value]) => {
@@ -99,24 +103,14 @@ export default function VisualizarInsubsistenciaPage() {
 
   const router = useRouter();
 
-  console.log(insubsistencia);
 
-  const titulo = (() => {
+  const  tipo_display = (() => {
     if (insubsistencia?.tipo_insubsistencia === "APOSTILA") {
-      return "Detalhes da anulação da apostila";
+      return "da anulação da apostila";
     } else if (insubsistencia?.tipo_insubsistencia === "INSUBSISTENCIA") {
-      return "Detalhes do ato de tornar sem efeito";
+      return "do ato de tornar sem efeito";
     }
-    return "Detalhes de insubsistência";
-  })();
-
-  const titulo_portaria = (() => {
-    if (insubsistencia?.tipo_insubsistencia === "APOSTILA") {
-      return "Portaria da anulação";
-    } else if (insubsistencia?.tipo_insubsistencia === "INSUBSISTENCIA") {
-      return "Portaria do ato tornar sem efeito";
-    }
-    return "Portaria de insubsistência";
+    return "de insubsistência";
   })();
 
   const cor_portaria = (() => {
@@ -130,9 +124,9 @@ export default function VisualizarInsubsistenciaPage() {
   return (
     <>
       <PageHeader
-        title={titulo}
+        title={`Detalhes ${tipo_display}`}
         breadcrumbs={[{ title: "Início", href: "/" },
-        { title: titulo }]}
+        { title: `Detalhes ${tipo_display}` }]}
         showBackButton={true}
         createButton={
           <Button
@@ -142,7 +136,7 @@ export default function VisualizarInsubsistenciaPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo=${insubsistencia?.tipo}&tipo_display=Insubsistencia&numero_portaria=${insubsistencia?.numero_portaria}&servidor_indicado=${insubsistencia?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?id=${id}&tipo=${insubsistencia?.tipo}&tipo_display=${tipo_display}&numero_portaria=${insubsistencia?.numero_portaria}&servidor_indicado=${insubsistencia?.designacao?.indicado_nome_servidor}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>
@@ -181,8 +175,8 @@ export default function VisualizarInsubsistenciaPage() {
                 isLoadingDesignacao={isLoadingInsubsistencia}
               />
 
-              <CustomAccordionItem title={titulo_portaria} value="portaria-insubsistencia" color={cor_portaria ?? "purple"}>
-                <ResumoPortariaInsubsistencia defaultValues={insubsistencia} titulo_portaria={titulo_portaria} />
+              <CustomAccordionItem title={`Portaria ${tipo_display}`} value="portaria-insubsistencia" color={cor_portaria ?? "purple"}>
+                <ResumoPortariaInsubsistencia defaultValues={insubsistencia} titulo_portaria={`Portaria ${tipo_display}`} />
               </CustomAccordionItem>
             </Accordion>
           )
@@ -193,9 +187,6 @@ export default function VisualizarInsubsistenciaPage() {
           titulo="PORTARIA"
           mostrarBotao={false}
         />
-
-
-
       </Card>
     </>
   );

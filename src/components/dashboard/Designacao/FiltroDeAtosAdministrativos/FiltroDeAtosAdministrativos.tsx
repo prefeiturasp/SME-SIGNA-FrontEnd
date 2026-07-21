@@ -15,6 +15,7 @@ interface Props {
 
 
 export const AtosOpcoes = [
+  { codigo: 'TODOS', nome: 'Todos' },
   { codigo: 'DESIGNACAO', nome: 'Designação' },
   { codigo: 'CESSACAO', nome: 'Cessação' },
   { codigo: 'INSUBSISTENCIA_DESIGNACAO', nome: 'Insubsistência de Designação' },
@@ -44,7 +45,7 @@ export const TipoAtoSelectField: React.FC<{ AtosOpcoes: { codigo: string, nome: 
           <FormControl>
             <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
               <SelectTrigger data-testid="select-listar-para">
-                <SelectValue placeholder="Todos" />
+                <SelectValue placeholder="Selecione um tipo" />
               </SelectTrigger>
               <SelectContent>
                 {AtosOpcoes.map((item) => (
