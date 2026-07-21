@@ -310,7 +310,7 @@ describe("VisualizarApostila page", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo=APOSTILA&tipo_display=Apostila&numero_portaria=001&servidor_indicado=Servidor & Nome",
+      "/pages/historico-ato-administrativo?id=12&tipo_display=da apostila&numero_portaria=001&servidor_indicado=Servidor & Nome",
     );
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { insubsistenciaAction } from "./insubsistencia-criar";
+import { fetchInsubsistenciasByIdAction, insubsistenciaAction } from "./insubsistencia-criar";
 import { InsubsistenciaBody } from "@/types/insubsistencia";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -19,8 +19,13 @@ vi.mock("axios", async () => {
   };
 });
 
+vi.mock("./http", () => ({
+  fetchWithClient: vi.fn(),
+}));
+
 const { cookies } = await import("next/headers");
 const axios = (await import("axios")).default;
+const { fetchWithClient } = await import("./http");
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -152,5 +157,40 @@ describe("insubsistenciaAction", () => {
     const result = await insubsistenciaAction(payloadBase);
 
     expect(result).toEqual({ success: false, error: "Erro ao salvar insubsistência", field: undefined });
+  });
+});
+
+describe("fetchInsubsistenciasByIdAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("chama fetchWithClient com endpoint e mensagem esperados", async () => {
+    const resposta = {
+      success: true as const,
+      data: { id: 99 },
+    };
+    vi.mocked(fetchWithClient).mockResolvedValue(resposta as never);
+
+    const result = await fetchInsubsistenciasByIdAction(99);
+
+    expect(fetchWithClient).toHaveBeenCalledWith(
+      "/designacao/insubsistencias/99/",
+      {},
+      "Erro ao buscar as insubsistencias"
+    );
+    expect(result).toEqual(resposta);
+  });
+
+  it("propaga retorno de erro do fetchWithClient", async () => {
+    const respostaErro = {
+      success: false as const,
+      error: "falha ao buscar",
+    };
+    vi.mocked(fetchWithClient).mockResolvedValue(respostaErro as never);
+
+    const result = await fetchInsubsistenciasByIdAction(123);
+
+    expect(result).toEqual(respostaErro);
   });
 });

@@ -79,5 +79,5 @@ O Secretário Municipal de Educação, no uso de suas atribuições legais,
 
 R E S O L V E:
 
-TORNAR SEM EFEITO a publicação no D.O.C. de {{doc_da_insubsistencia}}, SEI Nº {{numero_sei_da_insubsistencia}}, que tornou Insubsistente o ato publicado no DOC {{doc_do_ato_insubsistido}}.
+TORNAR SEM EFEITO a publicação no D.O.C. de {{doc_da_insubsistencia}}, SEI Nº {{numero_sei_da_insubsistencia}}, que tornou Insubsistente o ato publicado no DOC {{doc_do_ato_insubstituido}}.
 `;

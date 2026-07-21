@@ -77,7 +77,7 @@ export default function VisualizarInsubsistenciaPage() {
       ...dados_base,
       doc_da_insubsistencia: insubsistencia?.insubsistencia?.doc ? formatarData(insubsistencia?.insubsistencia?.doc) : "",
       numero_sei_da_insubsistencia: insubsistencia?.insubsistencia?.sei_numero ?? "-",
-      doc_do_ato_insubsistido: insubsistencia?.insubsistencia?.doc_do_ato_insubsistido ? formatarData(insubsistencia?.insubsistencia?.doc_do_ato_insubsistido) : "",
+      doc_do_ato_insubstituido: insubsistencia?.insubsistencia?.doc_do_ato_insubstituido ? formatarData(insubsistencia?.insubsistencia?.doc_do_ato_insubstituido) : "",
 
       portaria_apostilada: fonteDados?.numero_portaria ?? "-",
       ano_apostilado: fonteDados?.ano_vigente ?? "-",

@@ -85,7 +85,7 @@ describe("Página de histórico de ato administrativo", () => {
         id: "42",
         tipo: "DESIGNACAO",
         ato_raiz_id: "11",
-        tipo_display: "Designação",
+        tipo_display: "da designação",
       };
       return params[key] ?? null;
     });
@@ -109,10 +109,10 @@ describe("Página de histórico de ato administrativo", () => {
 
     expect(pageHeaderSpy).toHaveBeenCalledTimes(1);
     const props = pageHeaderSpy.mock.calls[0][0];
-    expect(props.title).toBe("Histórico da Designação");
+    expect(props.title).toBe("Histórico da designação");
     expect(props.showBackButton).toBe(true);
     expect(props.breadcrumbs).toHaveLength(3);
-    expect(props.breadcrumbs[1].title).toBe("Detalhes Designação");
+    expect(props.breadcrumbs[1].title).toBe("Detalhes da designação");
 
     const event = { preventDefault: vi.fn() } as unknown as React.MouseEvent<HTMLAnchorElement>;
     props.breadcrumbs[1].onClick(event);
