@@ -61,10 +61,7 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) =>
 
       <div className="w-full flex gap-4">
         <div className="w-[25%]">
- 
-        <TipoAtoSelectField AtosOpcoes={AtosOpcoes} />
-
-
+        <TipoAtoSelectField AtosOpcoes={[{ codigo: 'TODOS', nome: 'Todos'}, ...AtosOpcoes]} />
         </div>
         <div className="w-[25%]">
           <DateRangePickerField

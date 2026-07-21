@@ -15,7 +15,6 @@ interface Props {
 
 
 export const AtosOpcoes = [
-  { codigo: 'TODOS', nome: 'Todos' },
   { codigo: 'DESIGNACAO', nome: 'Designação' },
   { codigo: 'CESSACAO', nome: 'Cessação' },
   { codigo: 'INSUBSISTENCIA_DESIGNACAO', nome: 'Insubsistência de Designação' },
