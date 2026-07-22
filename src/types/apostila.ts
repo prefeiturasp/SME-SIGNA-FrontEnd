@@ -47,3 +47,4 @@ export interface ApostilaDetailRead {
     designacao: DesignacaoResponse;
     cessacao: Cessacao;
 }
+

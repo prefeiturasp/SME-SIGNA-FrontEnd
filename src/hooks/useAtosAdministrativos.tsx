@@ -49,7 +49,7 @@ export function useAtosAdministrativos(defaultValues: AtosAdministrativosFiltros
       ato_id: defaultValues.ato_id ?? undefined,      
       numero_sei: values.numero_sei,
       portaria: values.portaria,
-      tipo: values.tipo,
+      tipo: values.tipo === 'TODOS' ? undefined : values.tipo,
       nome_titular_e_indicado: values.nome_titular_e_indicado,
       status_publicacao: values.status_publicacao,
       periodo_after: periodoFrom

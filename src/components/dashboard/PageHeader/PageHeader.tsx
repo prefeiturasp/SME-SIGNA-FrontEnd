@@ -91,6 +91,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
                     {showBackButton && (
                         <Button
+                            size="lg"
                             type="button"
                             variant="default"
                             className="gap-2"
@@ -98,7 +99,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                             onClick={() => router.back()}
                         >
                             <span className="font-bold">Voltar</span>
-                            <ArrowLeft />
+                            <ArrowLeft width={24} height={24} />
                         </Button>
                     )}
 

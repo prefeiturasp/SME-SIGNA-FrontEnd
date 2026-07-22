@@ -22,6 +22,7 @@ import { formatarRF, nameToCamelCaseUe, nameToCamelCase } from "@/utils/portaria
 import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
 import ResumoPortariaApostila from "@/components/dashboard/Designacao/ResumoPortariaApostila";
 import { ApostilaDetailRead } from "@/types/apostila";
+import { formatarData } from "@/lib/utils";
 
 const CAMPOS_NEGRITO = ["nome_indicado"] as const;
 
@@ -48,19 +49,19 @@ export default function VisualizarApostilaPage() {
     const gerarDados = (apostila: ApostilaDetailRead) => {
       const isCessacao = apostila.ato_apostilado === "CESSACAO";
       
-      const fonteDados = isCessacao ? designacao?.cessacao : designacao;
+      const fonteDados = isCessacao ? apostila?.cessacao : designacao;
 
       return {
         sei: apostila.sei_numero,
         dre: designacao?.dre_nome ?? "-",
         eh: designacao?.codigo_hierarquico ?? "-",
-        doc: apostila.doc,
+        doc: apostila.doc? formatarData(apostila.doc) : "",
         ato_apostilado: apostila.ato_apostilado,
         
         
         ano: fonteDados?.ano_vigente ?? "-",
-        sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
-        doc_designacao: fonteDados?.doc ?? "-",        
+        sei_designacao: fonteDados?.sei_numero ? fonteDados?.sei_numero : "-",               
+        doc_designacao: fonteDados?.doc ? formatarData(fonteDados.doc) : "",
         portaria_designacao: fonteDados?.numero_portaria ?? "-",
         
         rf: formatarRF(designacao?.indicado_rf ?? "-"),        
@@ -95,7 +96,6 @@ export default function VisualizarApostilaPage() {
 
   const router = useRouter();
 
-  console.log(apostila);
   return (
     <>
       <PageHeader
@@ -111,7 +111,7 @@ export default function VisualizarApostilaPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo=${apostila?.tipo}&tipo_display=Apostila&numero_portaria=${apostila?.numero_portaria}&servidor_indicado=${apostila?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?id=${id}&tipo_display=da apostila&numero_portaria=${apostila?.numero_portaria}&servidor_indicado=${apostila?.designacao?.indicado_nome_servidor}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>

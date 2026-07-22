@@ -33,8 +33,52 @@ import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "@/utils/portaria
 import {  TEMPLATE_INSUBSISTENCIA_CESSACAO, TEMPLATE_INSUBSISTENCIA_DESIGNACAO } from "@/utils/portarias/templates";
 import { formatarData } from "@/lib/utils";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
+import { Cessacao, DesignacaoResponse } from "@/types/designacao";
 
 
+
+export const gerarDadosInsubsistencia = (values: formSchemaInsubsistenciaData, designacao: DesignacaoResponse | undefined, cessacao: Cessacao | null | undefined) => {
+  let periodo_insubsistencia = "";
+   
+  
+
+  if(designacao?.data_fim){
+    periodo_insubsistencia = " no período de "+formatarData(designacao?.data_inicio ?? "")+" a "+formatarData(designacao?.data_fim ?? "");
+  } else {
+    periodo_insubsistencia = " a partir de "+formatarData(designacao?.data_inicio ?? "");
+  }
+  
+  
+  return  {
+
+  doc: values.insubsistencia.doc,
+  portaria: values.insubsistencia.numero_portaria,
+  ano: values.insubsistencia.ano,
+  sei: values.insubsistencia.numero_sei,
+  dre: designacao?.dre_nome ?? "-",    
+  portaria_designacao: designacao?.numero_portaria ?? "-",
+  
+  doc_designacao: formatarData(designacao?.doc ?? ""),
+  sei_designacao: designacao?.sei_numero ?? "-",
+
+  portaria_cessacao: cessacao?.numero_portaria ?? "-",
+  doc_cessacao: formatarData(cessacao?.doc ?? ""),
+  sei_cessacao: cessacao?.sei_numero ?? "-",
+  
+  nome_indicado: designacao?.indicado_nome_servidor ?? "-",
+  rf: formatarRF(designacao?.indicado_rf ?? "-"),
+  vinculo: designacao?.indicado_vinculo ?? "-",
+  cargo_base: (() => {
+    const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
+    const cat = designacao?.indicado_categoria;
+    return cat ? `${base} - Categoria ${cat}` : base;
+  })(),
+  cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
+  ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
+  periodo: periodo_insubsistencia,
+  trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
+};
+}
 
 
 
@@ -112,53 +156,17 @@ export default function InsubsistenciaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
-  const gerarDados = (values: formSchemaInsubsistenciaData, periodo_insubsistencia: string) => ({
-    doc: values.insubsistencia.doc,
-    portaria: values.insubsistencia.numero_portaria,
-    ano: values.insubsistencia.ano,
-    sei: values.insubsistencia.numero_sei,
-    dre: designacao?.dre_nome ?? "-",    
-    portaria_designacao: designacao?.numero_portaria ?? "-",
-    
-    doc_designacao: designacao?.doc ?? "-",
-    sei_designacao: designacao?.sei_numero ?? "-",
-
-    portaria_cessacao: designacao?.cessacao?.numero_portaria ?? "-",
-    doc_cessacao: designacao?.cessacao?.doc ?? "-",
-    sei_cessacao: designacao?.cessacao?.sei_numero ?? "-",
-    
-    nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-    rf: formatarRF(designacao?.indicado_rf ?? "-"),
-    vinculo: designacao?.indicado_vinculo ?? "-",
-    cargo_base: (() => {
-      const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
-      const cat = designacao?.indicado_categoria;
-      return cat ? `${base} - Categoria ${cat}` : base;
-    })(),
-    cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-    ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-    periodo: periodo_insubsistencia,
-    trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
-  });
 
   const handleGerarPortaria = () => {
     const values = form.getValues();
     let texto = TEMPLATE_INSUBSISTENCIA_DESIGNACAO;
-    let periodo_insubsistencia = "";
-     
-    
-  
-    if(designacao?.data_fim){
-      periodo_insubsistencia = " no período de "+formatarData(designacao?.data_inicio ?? "")+" a "+formatarData(designacao?.data_fim ?? "");
-    } else {
-      periodo_insubsistencia = " a partir de "+formatarData(designacao?.data_inicio ?? "");
-    }
+
  
     if(tipo_insubsistencia === "cessacao"){            
       texto = TEMPLATE_INSUBSISTENCIA_CESSACAO;
     }
   
-    const dados = gerarDados(values,periodo_insubsistencia);
+    const dados = gerarDadosInsubsistencia(values,designacao,designacao?.cessacao);
        
 
     Object.entries(dados).forEach(([key, value]) => {

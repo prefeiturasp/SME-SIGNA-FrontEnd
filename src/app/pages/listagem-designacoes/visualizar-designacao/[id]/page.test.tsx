@@ -301,7 +301,7 @@ describe("VisualizarDesignacao page", () => {
 
     fireEvent.click(screen.getByText("Consultar histórico"));
 
-    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?id=12&tipo=undefined&tipo_display=Designação&ato_raiz_id=undefined&numero_portaria=001&servidor_indicado=INDICADO");
+    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?id=12&tipo_display=da designação&numero_portaria=001&servidor_indicado=INDICADO");
   });
 
   it("aplica fallback vazio no resumo da unidade quando campos vêm indefinidos", () => {
