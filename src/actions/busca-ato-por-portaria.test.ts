@@ -56,7 +56,7 @@ describe.each([
   it("retorna erro quando não há token (getApiClient retorna null)", async () => {
     vi.mocked(getApiClient).mockResolvedValue(null);
 
-    const result = await action({ portaria: "100/2026" });
+    const result = await action({ portaria: "100", ano: "2026" });
 
     expect(result).toEqual({
       success: false,
@@ -65,13 +65,13 @@ describe.each([
     expect(mockAxiosInstance.get).not.toHaveBeenCalled();
   });
 
-  it("faz requisição com a portaria informada e retorna dados em caso de sucesso", async () => {
+  it("faz requisição com a portaria e o ano informados e retorna dados em caso de sucesso", async () => {
     mockAxiosInstance.get.mockResolvedValue({ data: sampleData });
 
-    const result = await action({ portaria: "100/2026" });
+    const result = await action({ portaria: "100", ano: "2026" });
 
     expect(mockAxiosInstance.get).toHaveBeenCalledWith(url, {
-      params: { portaria: "100/2026" },
+      params: { portaria: "100", ano: "2026" },
     });
     expect(result).toEqual({ success: true, data: sampleData });
   });
@@ -82,7 +82,7 @@ describe.each([
       response: { status: 404, data: { detail: "Não encontrado" } },
     });
 
-    const result = await action({ portaria: "inexistente" });
+    const result = await action({ portaria: "inexistente", ano: "2026" });
 
     expect(result.success).toBe(false);
   });

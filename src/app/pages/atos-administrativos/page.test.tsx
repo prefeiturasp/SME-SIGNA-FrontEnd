@@ -43,6 +43,7 @@ vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria
       <div data-testid="modal-busca-portaria">
         <span data-testid="modal-title">{props.title as React.ReactNode}</span>
         <span data-testid="modal-field-label">{props.fieldLabel as React.ReactNode}</span>
+        <span data-testid="modal-ano-field-label">{props.anoFieldLabel as React.ReactNode}</span>
         <button
           data-testid="modal-fechar"
           onClick={() => (props.onOpenChange as (open: boolean) => void)(false)}
@@ -51,7 +52,7 @@ vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria
         </button>
         <button
           data-testid="modal-buscar"
-          onClick={() => (props.onSubmit as (portaria: string) => void)("100/2026")}
+          onClick={() => (props.onSubmit as (portaria: string, ano: string) => void)("100/2026", "2026")}
         >
           buscar
         </button>
@@ -226,12 +227,12 @@ describe("Página de atos administrativos", () => {
   });
 
   it.each([
-    ["3", "Nova cessação", "Portaria de designação"],
-    ["4", "Nova insubsistência", "Portaria de designação ou cessação"],
-    ["6", "Novo ato de tornar sem efeito", "Portaria da insubsistência"],
-    ["2", "Nova apostila", "Portaria de designação ou cessação"],
-    ["1", "Nova anulação de apostila", "Portaria de designação ou cessação"],
-  ])("abre o modal correto ao clicar no item de menu %s", (key, title, fieldLabel) => {
+    ["3", "Nova cessação", "Portaria de designação", "Ano da designação"],
+    ["4", "Nova insubsistência", "Portaria de designação ou cessação", "Ano da designação ou cessação"],
+    ["6", "Novo ato de tornar sem efeito", "Portaria da insubsistência", "Ano da insubsistência"],
+    ["2", "Nova apostila", "Portaria de designação ou cessação", "Ano da designação ou cessação"],
+    ["1", "Nova anulação de apostila", "Portaria de designação ou cessação", "Ano da designação ou cessação"],
+  ])("abre o modal correto ao clicar no item de menu %s", (key, title, fieldLabel, anoFieldLabel) => {
     render(<AtosAdministrativos />);
 
     fireEvent.click(screen.getByTestId(`menu-item-${key}`));
@@ -239,6 +240,7 @@ describe("Página de atos administrativos", () => {
     expect(screen.getByTestId("modal-busca-portaria")).toBeInTheDocument();
     expect(screen.getByTestId("modal-title")).toHaveTextContent(title);
     expect(screen.getByTestId("modal-field-label")).toHaveTextContent(fieldLabel);
+    expect(screen.getByTestId("modal-ano-field-label")).toHaveTextContent(anoFieldLabel);
   });
 
   it("navega direto para o fluxo de nova designação, sem abrir modal de busca", () => {
@@ -250,13 +252,13 @@ describe("Página de atos administrativos", () => {
     expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
   });
 
-  it("chama buscar do useNovoAto com o tipo e a portaria informados", () => {
+  it("chama buscar do useNovoAto com o tipo, a portaria e o ano informados", () => {
     render(<AtosAdministrativos />);
 
     fireEvent.click(screen.getByTestId("menu-item-3"));
     fireEvent.click(screen.getByTestId("modal-buscar"));
 
-    expect(buscarMock).toHaveBeenCalledWith("cessacao", "100/2026");
+    expect(buscarMock).toHaveBeenCalledWith("cessacao", "100/2026", "2026");
   });
 
   it("fecha o modal e limpa o erro ao chamar onOpenChange(false)", () => {
