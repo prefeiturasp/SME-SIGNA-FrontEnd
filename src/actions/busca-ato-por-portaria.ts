@@ -6,6 +6,7 @@ import { fetchWithClient } from "./http";
 
 export interface BuscaPorPortariaRequest {
   portaria: string;
+  ano: string;
 }
 
 export const buscarDesignacaoPorPortariaAction = async (

@@ -39,7 +39,7 @@ export default function BaixarLauda() {
         }
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Designações", href: "/pages/listagem-designacoes" },
+          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
           { title: "Baixar lauda" }
         ]}        
       />

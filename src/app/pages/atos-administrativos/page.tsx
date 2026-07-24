@@ -23,36 +23,41 @@ import FiltroDeAtosAdministrativos from "@/components/dashboard/Designacao/Filtr
 
 const CONFIG_MODAL_NOVO_ATO: Record<
   TipoNovoAto,
-  { title: string; description: string; fieldLabel: string }
+  { title: string; description: string; fieldLabel: string; anoFieldLabel: string }
 > = {
   cessacao: {
     title: "Nova cessação",
-    description: "Digite o número da portaria de designação que deseja cessar.",
+    description: "Digite o número e selecione o ano da portaria de designação que deseja cessar.",
     fieldLabel: "Portaria de designação",
+    anoFieldLabel: "Ano da designação",
   },
   insubsistencia: {
     title: "Nova insubsistência",
     description:
-      "Digite o número da portaria de designação ou cessação que deseja tornar insubsistente.",
+      "Digite o número e selecione o ano da portaria de designação ou cessação que deseja tornar insubsistente.",
     fieldLabel: "Portaria de designação ou cessação",
+    anoFieldLabel: "Ano da designação ou cessação",
   },
   "tornar-sem-efeito": {
     title: "Novo ato de tornar sem efeito",
     description:
-      "Digite o número da portaria da insubsistência que deseja tornar sem efeito.",
+      "Digite o número e selecione o ano da portaria da insubsistência que deseja tornar sem efeito.",
     fieldLabel: "Portaria da insubsistência",
+    anoFieldLabel: "Ano da insubsistência",
   },
   apostila: {
     title: "Nova apostila",
     description:
-      "Digite o número da portaria de designação ou cessação que deseja apostilar.",
+      "Digite o número e selecione o ano da portaria de designação ou cessação que deseja apostilar.",
     fieldLabel: "Portaria de designação ou cessação",
+    anoFieldLabel: "Ano da designação ou cessação",
   },
   "anular-apostila": {
     title: "Nova anulação de apostila",
     description:
-      "Digite o número da portaria de designação ou cessação vinculada à apostila que deseja anular.",
+      "Digite o número e selecione o ano da portaria de designação ou cessação vinculada à apostila que deseja anular.",
     fieldLabel: "Portaria de designação ou cessação",
+    anoFieldLabel: "Ano da designação ou cessação",
   },
 };
 
@@ -79,9 +84,9 @@ export default function AtosAdministrativos() {
     }
   };
 
-  const handleBuscarPortaria = async (portaria: string) => {
+  const handleBuscarPortaria = async (portaria: string, ano: string) => {
     if (!tipoModalAberto) return;
-    await buscar(tipoModalAberto, portaria);
+    await buscar(tipoModalAberto, portaria, ano);
   };
 
   return (
@@ -154,6 +159,7 @@ export default function AtosAdministrativos() {
           title={CONFIG_MODAL_NOVO_ATO[tipoModalAberto].title}
           description={CONFIG_MODAL_NOVO_ATO[tipoModalAberto].description}
           fieldLabel={CONFIG_MODAL_NOVO_ATO[tipoModalAberto].fieldLabel}
+          anoFieldLabel={CONFIG_MODAL_NOVO_ATO[tipoModalAberto].anoFieldLabel}
           isLoading={isLoading}
           errorMessage={errorMessage}
           onSubmit={handleBuscarPortaria}

@@ -196,7 +196,7 @@ export default function InsubsistenciaPage() {
 
       message.success("Insubsistência salva com sucesso!");
 
-      router.push("/pages/listagem-designacoes");
+      router.push("/pages/atos-administrativos");
 
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
@@ -221,7 +221,7 @@ export default function InsubsistenciaPage() {
         title={title}
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
+          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
           { title: "Tornar Insubsistente" }
         ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
