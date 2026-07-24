@@ -127,7 +127,7 @@ export interface ListagemAtosAdministrativosResponse {
   rf: string | null;
   numero_sei: string;
   observacoes: string | null;
-  portaria: string;
+  numero_portaria: string;
   status_publicacao: string;
   tipo: string;
   tipo_insubsistencia: string | null;
@@ -138,7 +138,7 @@ export interface ListagemAtosAdministrativosResponse {
 }
 export interface ListagemPortariasResponse {
   id: number;
-  portaria: string;
+  numero_portaria: string;
   tipo_de_ato: string;
   nome: string;
   cargo: string;
