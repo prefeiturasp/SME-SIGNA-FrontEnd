@@ -28,6 +28,7 @@ function Calendar({
 
   return (
     <DayPicker
+    
       locale={ptBR}
       showOutsideDays={showOutsideDays}
       className={cn(

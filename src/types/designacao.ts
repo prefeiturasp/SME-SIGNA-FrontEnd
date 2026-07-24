@@ -12,6 +12,7 @@ export interface Servidor {
   vinculo?: number;
   cargo_base?: string;
   lotacao?: string;
+  categoria?: string;
 }
 
 export interface Titular {
@@ -54,6 +55,10 @@ export interface DesignacaoData {
   motivo_cancelamento?: string;
 
   impedimento_substituicao?: string;
+  impedimento_label?: string;
+
+  com_afastamento?: string | boolean;
+  motivo_afastamento?: string;
 
   servidorIndicado?: Servidor;
   dadosTitular?: Titular | null;
@@ -61,12 +66,22 @@ export interface DesignacaoData {
 
 export type StatusDesignacaoV2 = 'ativo' | 'cessada' | 'insubsistente';
 
+export enum StatusAtosAdministrativos {
+  NAO_PUBLICADO = 'NAO_PUBLICADO',
+  PUBLICADO = 'PUBLICADO',
+}
+
 export enum StatusDesignacao {
   PENDENTE = 0,
   AGUARD_PUBLICACAO = 1,
   PUBLICADO_COM_PENDENCIA = 2,
   PUBLICADO = 3,
 }
+
+export enum StatusPublicacao {
+  NAO_PUBLICADO = 0,
+  PUBLICADO = 1,
+ }
 
 export interface ListagemDesignacoesResponse {
   id: number;
@@ -96,6 +111,31 @@ export interface PortariasDOBody {
   data_publicacao: string;
 }
 
+export interface AtosAdministrativosPaginada {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ListagemAtosAdministrativosResponse[];
+}
+
+export interface ListagemAtosAdministrativosResponse {
+  id: number;
+  ano_vigente: string;
+  criado_em: string;
+  criado_por_nome: string | null;
+  nome: string;
+  rf: string | null;
+  numero_sei: string;
+  observacoes: string | null;
+  portaria: string;
+  status_publicacao: string;
+  tipo: string;
+  tipo_insubsistencia: string | null;
+  tipo_de_ato: string;
+  cessacao?: Partial<Cessacao> | null;
+  insubsistencia?: Partial<InsubsistenciaRead>;
+  apostilas?: Partial<ApostilaRead>[];  
+}
 export interface ListagemPortariasResponse {
   id: number;
   portaria: string;
@@ -105,7 +145,7 @@ export interface ListagemPortariasResponse {
   doc: string;
   data_designacao: string | null;
   data_cessacao: string | null;
-  numero_sei: string;
+  sei_numero: string;
 }
 
 export interface PortariasDOFiltros {
@@ -115,6 +155,23 @@ export interface PortariasDOFiltros {
   ano?: string;
   tipo?: string;
 }
+
+export interface AtosAdministrativosFiltros {
+  numero_sei?: string;
+  portaria?: string;
+  nome_titular_e_indicado?: string;
+  status_publicacao?: string;
+  periodo_after?: string;
+  periodo_before?: string;
+  portaria_inicial?: string;
+  portaria_final?: string;
+  ano?: string;
+  tipo?: string;
+  page?: number;
+}
+
+
+
 
 export interface DesignacaoFiltros {
   rf?: string;
@@ -153,6 +210,7 @@ export interface Cessacao {
   ato_pai_id: number;
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
+  portaria?: string;
 }
 
 export interface DesignacaoResponse {
@@ -183,6 +241,7 @@ export interface DesignacaoResponse {
   indicado_codigo_cargo_sobreposto: number;
   indicado_local_exercicio: string;
   indicado_local_servico: string;
+  indicado_categoria: string;
   titular_nome_civil: string;
   titular_nome_servidor: string;
   titular_rf: string;
@@ -197,6 +256,7 @@ export interface DesignacaoResponse {
   numero_portaria: string;
   ano_vigente: string;
   sei_numero: string;
+  portaria?: string;
   doc: string;
   data_inicio: string;
   data_fim: string | null;

@@ -26,12 +26,16 @@ Then('clica no ícone {string} da coluna Action', (nomeIcone) => {
 
 Then('valida a existencia da seção {string}', (nomeSecao) => {
   cy.log(`Validando seção: "${nomeSecao}"`)
-  
-  cy.contains('h2, h3, h4, div, span, p', nomeSecao, { timeout: 10000 })
+
+  cy.contains(
+    '.ant-collapse-header, [class*="collapse"] button, h2, h3, h4, div, span, p',
+    nomeSecao.trim(),
+    { timeout: 10000 }
+  )
     .should('exist')
     .scrollIntoView()
     .should('be.visible')
-  
+
   cy.wait(500)
 })
 

@@ -55,6 +55,7 @@ export function mapearPayloadDesignacao(form: any) {
         indicado_codigo_cargo_sobreposto: servidorIndicado.cd_cargo_sobreposto_funcao_atividade,
         indicado_local_exercicio: servidorIndicado.local_de_exercicio,
         indicado_local_servico: servidorIndicado.local_de_servico,
+        indicado_categoria: servidorIndicado.categoria ?? "",
 
         ...(titular && {
             titular_nome_civil: titular.nome_civil,
@@ -78,7 +79,7 @@ export function mapearPayloadDesignacao(form: any) {
         data_fim: formatarData(form.designacao_data_final),
 
         carater_excepcional: form.carater_especial === "sim",
-        impedimento_substituicao: form.impedimento_substituicao,
+        impedimento_substituicao: form.impedimento_substituicao != null ? Number(form.impedimento_substituicao) : null,
         com_afastamento: form.com_afastamento === "sim",
         motivo_afastamento: form.motivo_afastamento ?? null,
         possui_pendencia: form.com_pendencia === "sim",

@@ -56,10 +56,6 @@ export async function designacaoAction(
     } catch (err) {
         const error = err as AxiosError<DesignacaoErrorResponse>;
 
-        // to-do: remover quando temrinar o desenvolvimento
-        console.log("Status:", error.response?.status);
-        console.log("Response data:", JSON.stringify(error.response?.data, null, 2));
-
         let message = "Erro ao salvar designação";
 
         if (error.response?.status === 500) {

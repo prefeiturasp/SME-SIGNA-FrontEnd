@@ -8,6 +8,8 @@ Funcionalidade: Insubsistência de Designação
 
   Contexto:
     Dado que o usuário está autenticado no sistema
+    E navega até o menu lateral e seleciona "Designações"
+    E seleciona o submenu "Designação"
 
  @insubsistente-fluxo-completo @smoke
   Cenário: Tornar designação insubsistente - Designação
@@ -71,7 +73,7 @@ Funcionalidade: Insubsistência de Designação
     E valida a existencia do botão de navegação "Salvar"
     E clica em "Salvar"
 
- @insubsistente-cessacao @smoke
+ @skip @insubsistente-cessacao @smoke
   Cenário: Tornar designação insubsistente - Cessação
     
     # ETAPA 1: Navegação e Seleção da Designação

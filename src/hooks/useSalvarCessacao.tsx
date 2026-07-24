@@ -14,8 +14,6 @@ export const useSalvarCessacao = () => {
       id: string | null;
     }) => {
       const payload = mapearPayloadCessacao(values, designacaoId);
-      console.log("PAYLOAD FINAL:", payload);
-
       const response = await cessacaoAction(payload, id);
 
       if (!response.success) {

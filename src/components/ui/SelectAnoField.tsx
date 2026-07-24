@@ -21,16 +21,17 @@ import {
 interface SelectAnoFieldProps {
   name: string;
   label?: string;
+  opcoes?: { codigo: string; nome: string }[];
 }
 
-export const SelectAnoField = ({ name, label = "Ano Vigente" }: SelectAnoFieldProps) => {
-  const { control, setValue } = useFormContext();
+export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAnoFieldProps) => {
+  const { control } = useFormContext();
   const [pendingValue, setPendingValue] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
 
   const currentYear = new Date().getFullYear().toString();
 
-  const anos = Array.from(
+  const anosDefault = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
     (_, i) => {
       const ano = new Date().getFullYear() - i;
@@ -38,62 +39,66 @@ export const SelectAnoField = ({ name, label = "Ano Vigente" }: SelectAnoFieldPr
     }
   );
 
-  const handleValueChange = (value: string) => {
-    if (value !== currentYear) {
-      setPendingValue(value);
-      setOpenConfirm(true);
-    } else {
-      setValue(name, value);
-    }
-  };
+  const anos = opcoes ?? anosDefault;
 
   return (
     <FormField
       control={control}
       name={name}
       defaultValue={currentYear}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="required text-[#313131] font-bold">
-            {label}*
-          </FormLabel>
-          <FormControl>
-            <Select
-              value={field.value || currentYear}
-              onValueChange={handleValueChange}
-            >
-              <SelectTrigger data-testid="select-ano">
-                <SelectValue placeholder="Selecione um ano" />
-              </SelectTrigger>
+      render={({ field }) => {
+        const handleValueChange = (value: string) => {
+          if (!opcoes && value !== currentYear) {
+            setPendingValue(value);
+            setOpenConfirm(true);
+          } else {
+            field.onChange(value);
+          }
+        };
 
-              <SelectContent>
-                {anos.map((ano) => (
-                  <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`}>
-                    {ano.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+        return (
+          <FormItem>
+            <FormLabel className="required text-[#313131] font-bold">
+              {label}*
+            </FormLabel>
+            <FormControl>
+              <Select
+                value={field.value || currentYear}
+                onValueChange={handleValueChange}
+              >
+                <SelectTrigger data-testid="select-ano">
+                  <SelectValue placeholder="Selecione um ano" />
+                </SelectTrigger>
 
-              <Popconfirm
-                title="Mudar o ano"
-                description="Tem certeza que deseja mudar o ano?"
-                open={openConfirm}
-                onConfirm={() => {
-                  if (pendingValue) setValue(name, pendingValue);
-                  setOpenConfirm(false);
-                }}
-                onCancel={() => {
-                  setPendingValue(null);
-                  setOpenConfirm(false);
-                }}
-                okText="Sim"
-                cancelText="Não"
-              />
-            </Select>
-          </FormControl>
+                <SelectContent>
+                  {anos.map((ano) => (
+                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`}>
+                      {ano.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+
+                <Popconfirm
+                  title="Mudar o ano"
+                  description="Tem certeza que deseja mudar o ano?"
+                  open={openConfirm}
+                  onConfirm={() => {
+                    if (pendingValue) field.onChange(pendingValue);
+                    setOpenConfirm(false);
+                  }}
+                  onCancel={() => {
+                    setPendingValue(null);
+                    setOpenConfirm(false);
+                  }}
+                  okText="Sim"
+                  cancelText="Não"
+                />
+              </Select>
+            </FormControl>
             <FormMessage />
-        </FormItem>
-      )}
+          </FormItem>
+        );
+      }}
     />
   );
 };

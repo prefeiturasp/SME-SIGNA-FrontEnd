@@ -24,8 +24,8 @@ export const designacaoLocators = {
   tituloCardServidor: '.ant-card-head span:contains("Servidor")',
   // Campo RF — input dentro do corpo do card de servidor
   campoRF: '.ant-card-body input',
-  // Botão Pesquisar do card de servidor (1º botão Pesquisar da página)
-  botaoPesquisarServidor: '[id^="radix-"] form > div:nth-child(3) button, .ant-card-body button:contains("Pesquisar")',
+  // Botão Pesquisar do card de servidor — localizado pelo texto dentro do ant-card
+  botaoPesquisarServidor: '.ant-card-body button',
 
   // ─── Accordion "Dados do servidor indicado" (Radix UI) ────────────────────
   triggerAccordionServidor: 'button:contains("Dados do servidor indicado")',
@@ -74,10 +74,20 @@ export const designacaoLocators = {
   dropdownDRE:      'button[role="combobox"]:first',
   dropdownUnidade:  'button[role="combobox"]:eq(1)',
 
-  botaoPesquisarUnidade: 'button:contains("Pesquisar")',
+  // XPath: /html/body/.../form/div/div[3]/div/button
+  botaoPesquisarUnidade: '[id^="radix-"] form > div > div:nth-child(3) button',
 
   // Itens do dropdown (renderizados via portal pelo Radix)
   opcoesDropdown: '[role="option"]',
+
+  // ─── Passo 2 — Cargo Vago ──────────────────────────────────────────────────
+  // Usa seletor dinâmico: [id*="form-item"] busca qualquer ID que contenha "form-item"
+  // Fallback: navega pela label 'Cargo Vago' se ID dinâmico não funcionar
+  campoCargoVago:    '[id$="-form-item"]', // Seletor dinâmico: qualquer ID terminado em "-form-item"
+  // XPath: /html/body/div[2]/div/div/div/main/form/div[2]/div[2]/div/div[2]/div/div[2]/div/div/button
+  botaoDropdownCargoVago: 'html > body > div:nth-child(2) > div > div > div > main > form > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(2) > div > div:nth-child(2) > div > div > button',
+  campoCargoVagoTrigger: '[id$="-form-item"] button[role="combobox"], [id$="-form-item"] [role="combobox"], [id$="-form-item"] .ant-select-selector, [id$="-form-item"] input, button[role="combobox"]',
+  opcoesCargoVago:   'body [role="option"], body div[role="option"], body [role="listbox"] [role="option"], .ant-select-item, .ant-select-item-option, [class*="select-item"]',
 };
 
 // ─── Textos esperados ──────────────────────────────────────────────────────────
@@ -96,4 +106,18 @@ export const designacaoUrls = {
   dashboard:             '/pages',
   listaDesignacoes:      '/pages/designacoes',
   novaDesignacaoPasso1:  '/pages/designacoes/designacoes-passo-1',
+};
+
+// ─── Pack: Nova Designação — seletores resilientes baseados em texto ───────────
+// Preferidos sobre seletores estruturais (ex.: "main > div:first-child > ...")
+// que quebram a qualquer mudança de layout.
+export const novaDesignacaoPack = {
+  lista: {
+    titulo: () => cy.contains('Lista de designações', { timeout: 30000 }),
+    botaoNovaDesignacao: () =>
+      cy.contains('button', /Nova Designação/i, { timeout: 40000 }),
+  },
+  novaDesignacao: {
+    titulo: () => cy.contains('h1', 'Designação', { timeout: 15000 }),
+  },
 };

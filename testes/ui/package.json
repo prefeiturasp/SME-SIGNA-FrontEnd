@@ -53,6 +53,10 @@
     "zod": "^4.2.1",
     "zustand": "^5.0.9"
   },
+  "cypress-cucumber-preprocessor": {
+    "filterSpecs": true,
+    "omitFiltered": true
+  },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^24.0.1",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
@@ -72,7 +76,6 @@
     "baseline-browser-mapping": "^2.9.2",
     "crypto-js": "4.1.1",
     "cypress": "14.5.2",
-    "cypress-cloud": "2.0.0-beta.1",
     "cypress-mochawesome-reporter": "^3.8.4",
     "dotenv": "^16.6.1",
     "eslint": "^9",

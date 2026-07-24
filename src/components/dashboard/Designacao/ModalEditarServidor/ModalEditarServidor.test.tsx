@@ -188,7 +188,7 @@ describe("ModalEditarServidor", () => {
     });
   });
 
-  it("exibe erro ao deixar Nome Social vazio", async () => {
+  it("permite submit ao deixar Nome Social vazio", async () => {
     const user = userEvent.setup();
     renderModal();
 
@@ -197,9 +197,13 @@ describe("ModalEditarServidor", () => {
     await user.clear(input);
     await user.click(screen.getByTestId("botao-salvar"));
 
-    expect(
-      await screen.findByText(/digite o nome social/i)
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          nome_civil: "",
+        })
+      );
+    });
   });
 
   it("exibe erro ao deixar Nome Servidor vazio", async () => {

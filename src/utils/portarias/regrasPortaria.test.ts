@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
     montarTrechoSubstituicao,
     montarTrechoFinal,
-    montarAutoridade
+    montarAutoridade,
+    montarTrechoAfastamento,
 } from "./regrasPortaria";
 
 describe("montarTrechoSubstituicao", () => {
@@ -56,7 +57,7 @@ describe("montarTrechoSubstituicao", () => {
 
         const resultado = montarTrechoSubstituicao(data);
 
-        expect(resultado).toContain("em substituição a MARIA SOUZA, Registro nº 123.456, Vínculo Efetivo, Diretora, efetivo, a partir de 28/02/2025");
+        expect(resultado).toContain("em substituição a MARIA SOUZA, Registro nº 123.456, Vínculo Efetivo, Diretora, efetivo, a partir de 01/03/2025");
         expect(resultado).toContain("a partir de");
     });
 
@@ -111,6 +112,29 @@ describe("montarTrechoSubstituicao", () => {
         expect(resultado).toContain("férias");
     });
 
+    it("retorna texto com impedimento e período para substituição com impedimento legal", () => {
+        const data: any = {
+            impedimento_substituicao: "2",
+            impedimento_label: "Licença Médica",
+            a_partir_de: "2026-03-25",
+            designacao_data_final: "2026-04-13",
+            dadosTitular: {
+                nome_civil: "Clarice Botelho Cunha de Carvalho",
+                rf: "6105611",
+                vinculo: 4,
+                cargo_base: "Coordenador Pedagógico",
+                tipo_vinculo: "efetivo"
+            }
+        };
+
+        const resultado = montarTrechoSubstituicao(data);
+
+        expect(resultado).toContain("por licença médica");
+        expect(resultado).toContain("no período de");
+        expect(resultado).toContain("25/03/2026");
+        expect(resultado).toContain("13/04/2026");
+    });
+
 });
 
 describe("montarTrechoFinal", () => {
@@ -154,6 +178,33 @@ describe("montarTrechoFinal", () => {
         );
     });
 
+    it("retorna texto padrão para substituição com impedimento legal e período definido", () => {
+        const data: any = {
+            impedimento_substituicao: "2",
+            designacao_data_final: "2026-04-13"
+        };
+
+        const resultado = montarTrechoFinal(data);
+
+        expect(resultado).toBe(
+            "portando diploma de Pedagogia e experiência de 3 anos no Magistério."
+        );
+    });
+
+    it("retorna texto padrão para qualquer impedimento com período definido", () => {
+        const data: any = {
+            impedimento_substituicao: "5",
+            impedimento_label: "Licença Prêmio",
+            designacao_data_final: "2026-06-30"
+        };
+
+        const resultado = montarTrechoFinal(data);
+
+        expect(resultado).toBe(
+            "portando diploma de Pedagogia e experiência de 3 anos no Magistério."
+        );
+    });
+
 });
 
 describe("montarAutoridade", () => {
@@ -172,6 +223,61 @@ describe("montarAutoridade", () => {
         const resultado = montarAutoridade(data);
 
         expect(resultado).toContain("Secretário Municipal de Educação");
+    });
+
+});
+
+describe("montarTrechoAfastamento", () => {
+
+    it("retorna string vazia quando com_afastamento não está definido", () => {
+        const data: any = {};
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é 'nao'", () => {
+        const data: any = { com_afastamento: "nao", motivo_afastamento: "algum motivo" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é false", () => {
+        const data: any = { com_afastamento: false, motivo_afastamento: "algum motivo" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é 'sim' mas motivo está vazio", () => {
+        const data: any = { com_afastamento: "sim", motivo_afastamento: "" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna string vazia quando com_afastamento é true mas motivo está vazio", () => {
+        const data: any = { com_afastamento: true, motivo_afastamento: "" };
+        expect(montarTrechoAfastamento(data)).toBe("");
+    });
+
+    it("retorna o motivo com vírgula prefixada quando com_afastamento é 'sim'", () => {
+        const data: any = {
+            com_afastamento: "sim",
+            motivo_afastamento: "com afastamento total, nos termos do inciso IV do artigo 66 da Lei 14.660/07, do cargo Professor Educação Infantil, vínculo 2.",
+        };
+        const resultado = montarTrechoAfastamento(data);
+        expect(resultado).toBe(", com afastamento total, nos termos do inciso IV do artigo 66 da Lei 14.660/07, do cargo Professor Educação Infantil, vínculo 2.");
+    });
+
+    it("retorna o motivo com vírgula prefixada quando com_afastamento é true (booleano)", () => {
+        const data: any = {
+            com_afastamento: true,
+            motivo_afastamento: "com afastamento parcial, nos termos do art. 66.",
+        };
+        const resultado = montarTrechoAfastamento(data);
+        expect(resultado).toBe(", com afastamento parcial, nos termos do art. 66.");
+    });
+
+    it("remove espaços extras do motivo antes de retornar", () => {
+        const data: any = {
+            com_afastamento: "sim",
+            motivo_afastamento: "  com afastamento total  ",
+        };
+        expect(montarTrechoAfastamento(data)).toBe(", com afastamento total");
     });
 
 });

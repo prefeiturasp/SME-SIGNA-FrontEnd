@@ -14,15 +14,19 @@ import { Servidor } from "@/types/designacao-unidade";
 import ModalEditarServidor from "./ModalEditarServidor/ModalEditarServidor";
 import { InfoItem } from "@/components/ui/info-item";
 import { FormEditarServidorData } from "./ModalEditarServidor/schema";
+import Copy from "@/assets/icons/Copy";
 
 const ResumoDesignacaoServidorIndicado: React.FC<{
   showEditar?: boolean;
+  showCopiar?: boolean;
   className?: string;
   defaultValues: Servidor;
   isLoading?: boolean;
   showCursosTitulos?: boolean;
   showLotacao?: boolean;
   showLocalDeServico?: boolean;
+  showCategoria?: boolean;
+  onClickCopiarRF?: (defaultValues: Servidor) => void;
   onSubmitEditarServidor: (data: FormEditarServidorData) => void;
 }> = ({
   className,
@@ -30,9 +34,12 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
   isLoading,
   showCursosTitulos = false,
   showEditar = false,
+  showCopiar = false,
   showLotacao = false,
   showLocalDeServico = false,
-  onSubmitEditarServidor
+  showCategoria = true,
+  onSubmitEditarServidor,
+  onClickCopiarRF = () => {}
 }) => {
 
 
@@ -47,6 +54,8 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
     function handleOpenModalEditarServidor() {
       setOpenModalEditarServidor(!openModalEditarServidor);
     }
+    
+
 
     const { isLoading: isLoadingCursosETitulos } = useCursosETitulos();
     function handleSubmitEditarServidor(data: FormEditarServidorData) {
@@ -66,9 +75,9 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
             />
           </div>
         ) : (
-          <div className={className}>
-            <div className="w-full flex flex-col h-full flex-1 bg-[#FAFAFA]">
-              <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4">
+          <div className={className + " p-4 bg-[#FAFAFA] "}>
+            <div className="w-full flex flex-col h-full flex-1 ">
+              <div className="grid lg:grid-cols-2 xl:grid-cols-4 lg:text-left gap-4 ">
                 <InfoItem
                   label="Nome Servidor"
                   value={defaultValues.nome_servidor}
@@ -84,6 +93,13 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                   value={defaultValues?.vinculo?.toString() ?? '-'}
                 />
                 <InfoItem label="Cargo base" value={defaultValues.cargo_base ?? '-'} />
+
+                {showCategoria && (
+                  <InfoItem
+                  label="Categoria"
+                    value={defaultValues.categoria ?? '-'}
+                  />
+                )}
 
                 {showLotacao && (
 
@@ -140,6 +156,20 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
 
 
               </div>
+              {showCopiar && (
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className=" flex items-center justify-center gap-2" onClick={() => onClickCopiarRF(defaultValues)}>
+
+                  <p className="text-[16px] font-bold">Copiar RF</p>
+                  <Copy />  
+                </Button>
+              </div>
+            )}  
+
             </div>
 
             {showEditar && (
@@ -155,6 +185,8 @@ const ResumoDesignacaoServidorIndicado: React.FC<{
                 </Button>
               </div>
             )}
+
+
 
             <ModalEditarServidor
               isLoading={false}

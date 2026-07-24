@@ -13,8 +13,15 @@ Given('que o usuário acessa a página de login', () => {
 });
 
 Given('que o usuário está autenticado no sistema', () => {
-  const username = Cypress.env('username') || '7311559'
-  const password = Cypress.env('password') || 'Sgp1559'
+  const username = Cypress.env('username')
+  const password = Cypress.env('password')
+
+  if (!username || !password) {
+    throw new Error(
+      'Credenciais não configuradas: defina USERNAME/SIGNA_USERNAME e PASSWORD/SIGNA_PASSWORD no arquivo .env (veja .env.example).'
+    )
+  }
+
   cy.realizarLogin(username, password)
 });
 
@@ -121,25 +128,56 @@ When('o usuário clica no menu de usuário', () => {
 // ─── Steps Genéricos Comuns ─────────────────────────────────────────────────
 
 Given('que o usuário está na página do dashboard', () => {
-  // Intercept para aguardar carregamento da página listagem-designacoes
-  cy.intercept('POST', '**/listagem-designacoes**').as('loadDashboard')
-  
-  // Aguarda a navegação natural após login
+  // Navegação já realizada no Contexto via sidebar — apenas valida o estado atual
   cy.url({ timeout: 40000 }).should('include', 'listagem-designacoes')
-  cy.wait('@loadDashboard', { timeout: 40000 })
-  
-  // Aguarda o main estar visível
   cy.get('main', { timeout: 40000 }).should('be.visible')
-  
-  // Aguarda que não existam loaders
-  cy.get('.loading, .spinner, .loader', { timeout: 40000 }).should('not.exist')
-  
-  // Buffer final
+  cy.get('.loading, .spinner, .loader').should('not.exist')
   cy.wait(1500)
+})
+
+Given('navega até o menu lateral e seleciona {string}', (menuItem) => {
+  // Se o sidebar estiver colapsado (is-collapsed), qualquer evento no item de menu
+  // dispara navegação em vez de abrir submenu. Expande o sidebar primeiro.
+  cy.get('aside').then($aside => {
+    if ($aside.hasClass('is-collapsed')) {
+      // O botão hamburger (≡) é o primeiro <button> dentro do <aside>
+      cy.get('aside').find('button').first().click({ force: true })
+      cy.get('aside', { timeout: 8000 }).should('not.have.class', 'is-collapsed')
+      cy.wait(600)
+    }
+  })
+
+  cy.get('aside, nav', { timeout: 10000 }).should('be.visible')
+
+  // Sidebar expandida: clicar no item abre submenu inline (sem navegar)
+  // Filtra por :visible pois o Ant Design Menu mantém no DOM uma cópia oculta
+  // (popup usado no modo flyout/colapsado) com o mesmo texto, e cy.contains
+  // pegaria essa cópia oculta em vez do item realmente exibido.
+  cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${menuItem}$`, 'i'), { timeout: 15000 })
+    .closest('li, [role="menuitem"]')
+    .click({ force: true })
+
+  cy.wait(800)
+  cy.log(`✓ Menu lateral "${menuItem}" expandido`)
+})
+
+Given('seleciona o submenu {string}', (submenu) => {
+  // Sidebar expandida: submenu está visível inline — click normal sem force
+  // Filtra por :visible para não colidir com a cópia oculta do popup do menu
+  // (mesma questão descrita acima em "navega até o menu lateral e seleciona").
+  cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${submenu}$`, 'i'), { timeout: 15000 })
+    .should('be.visible')
+    .click()
+  cy.url({ timeout: 25000 }).should('include', 'listagem-designacoes')
+  cy.get('main', { timeout: 15000 }).should('be.visible')
+  cy.log(`✓ Submenu "${submenu}" selecionado — listagem carregada`)
 });
 
 Then('valida a existencia do Texto {string}', (texto) => {
-  cy.contains(texto, { timeout: 15000 }).should('be.visible')
+  // Escopado em "main" para não colidir com textos do menu lateral (<aside>),
+  // que pode conter substrings iguais às validadas no conteúdo da página
+  // (ex.: "D.O" também aparece no item de menu "Alterar data do D.O").
+  cy.get('main', { timeout: 15000 }).contains(texto, { timeout: 15000 }).should('be.visible')
 });
 
 Then('Valida a existencia da Tabela', () => {
@@ -192,9 +230,26 @@ Then('o sistema exibe a Tela {string}', (tela) => {
         cy.log(`✓ Tela "${tela}" validada`)
       })
   }
+  // Validação específica para tela de Editar Designação
+  // URL real: /pages/designacoes/designacoes-passo-2?id=XX
+  else if (telaLower.includes('editar')) {
+    cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-2')
+    cy.log('✓ Navegação para tela de Editar Designação confirmada')
+    cy.contains(/Editar Designação/i, { timeout: 15000 }).should('be.visible')
+    cy.log(`✓ Tela "${tela}" carregada`)
+  }
+  // Validação específica para tela de Apostila
+  // URL real: /pages/apostila?id=XX  (sem "r" final)
+  // Texto real na página: "Apostila" (breadcrumb e título da seção)
+  else if (telaLower.includes('apostil')) {
+    cy.url({ timeout: 15000 }).should('include', 'apostila')
+    cy.log('✓ Navegação para tela Apostila confirmada')
+    cy.contains(/Apostila/i, { timeout: 15000 }).should('be.visible')
+    cy.log('✓ Tela "Apostila" carregada')
+  }
   // Validação genérica para outras telas
   else {
-    cy.contains(tela, { timeout: 15000 }).should('be.visible')
+    cy.get('main', { timeout: 15000 }).contains(tela, { timeout: 15000 }).should('be.visible')
     cy.log(`✓ Tela "${tela}" carregada`)
   }
   

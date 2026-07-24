@@ -13,11 +13,30 @@ const PALAVRAS_FIXAS_PADRAO = [
     "FAZER CESSAR",
     "TORNAR INSUBSISTENTE",
     "O Secretário Municipal de Educação",
+    "APOSTILA FEITA NA PORTARIA",
+    "TORNAR SEM EFEITO"
 ];
+
+const PALAVRAS_FIXAS_VERMELHAS = [
+    "É a presente portaria apostilada"
+]
 
 export function normalizarQuebras(texto: string): string {
     return texto.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
 }
+
+
+
+export function adicionarNegrito(dados: Record<string, string|number>, camposNegrito: string[]|readonly string[] = []): Record<string, string|number> {
+    for (const chave of camposNegrito) {
+        const val = dados[chave];
+        if (val) dados[chave] = `<strong>${val}</strong>`;
+    }
+    return dados;
+}
+
+
+
 
 export function gerarHtmlPortaria(
     texto: string,
@@ -34,6 +53,9 @@ export function gerarHtmlPortaria(
             let l = linha;
             for (const palavra of palavrasFixas) {
                 l = l.replaceAll(new RegExp(`(${palavra})`, "g"), "<strong>$1</strong>");
+            }
+            for (const palavra of PALAVRAS_FIXAS_VERMELHAS) {
+                l = l.replaceAll(new RegExp(`(${palavra})`, "g"), "<span style='color: red;'>$1</span>");
             }
             return `<div>${l}</div>`;
         })

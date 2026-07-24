@@ -6,42 +6,11 @@ import {
   DesignacaoPaginada,
   ListagemPortariasResponse,
   ListagemDesignacoesResponse,
+  AtosAdministrativosPaginada,
+  AtosAdministrativosFiltros,
 } from "@/types/designacao";
-import { getApiClient } from "@/lib/api";
-import { handleApiError } from "@/lib/api-error";
-
-
-const sanitizeParams = (filtros: DesignacaoFiltros|PortariasDOFiltros) => {
-  return Object.fromEntries(
-    Object.entries(filtros).filter(
-      ([_, v]) => v !== "" && v !== undefined && v !== null
-    )
-  );
-};
-
-
-const fetchWithClient = async <T>(
-  url: string,
-  filtros: DesignacaoFiltros|PortariasDOFiltros,
-  errorMessage: string
-): Promise<{ success: true; data: T } | { success: false; error: string }> => {
-  const apiClient = await getApiClient();
-
-  if (!apiClient) {
-    return { success: false, error: "Usuário não autenticado" };
-  }
-
-    const params = sanitizeParams(filtros);
-  console.log('params33', params);
-  try {
-    const { data } = await apiClient.get<T>(url, { params });
-    return { success: true, data };
-  } catch (err) {
-    const message = handleApiError(err, errorMessage);
-    return { success: false, error: message };
-  }
-};
-
+import { ApostilaDetailRead } from "@/types/apostila";
+import { fetchWithClient } from "./http";
 
 export const fetchDesignacoesAction = async (
   filtros: DesignacaoFiltros
@@ -65,12 +34,25 @@ export const fetchPortariasDO = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemPortariasResponse[]>(
-    "/designacao/portarias/",
+    "/designacao/v2/portarias/",
     filtros,
     "Erro ao buscar as dados para alterar a data do D.O"
   );
 };
 
+
+export const fetchAtosAdministrativos = async (
+  filtros: AtosAdministrativosFiltros
+): Promise<
+  | { success: true; data: AtosAdministrativosPaginada }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<AtosAdministrativosPaginada>(
+    "/designacao/atos-administrativos/",
+    filtros,
+    "Erro ao buscar os atos administrativos"
+  );
+};
 
 
 export const fetchDesignacoesSemPaginacaoAction = async (
@@ -85,3 +67,21 @@ export const fetchDesignacoesSemPaginacaoAction = async (
     "Erro ao buscar as designações"
   );
 };
+
+
+export const fetchApostilasByIdAction = async (
+  id: number
+): Promise<
+  | { success: true; data: ApostilaDetailRead }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<ApostilaDetailRead>(
+    `/designacao/v2/apostilas/${id}/`,
+    {},
+    "Erro ao buscar as apostilas"
+  );
+};
+
+
+
+

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { InputBase, InputBaseMask } from "@/components/ui/input-base";
+import { InputBaseMask } from "@/components/ui/input-base";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,12 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 interface PropsField {
     register: UseFormRegister<FieldValues>;
     control: Control<FieldValues>;
@@ -25,6 +28,7 @@ interface PropsField {
     dataTestId?: string;
     type?: string;
     disabled?: boolean;
+    allowClear?: boolean;
 }
 
 
@@ -41,8 +45,6 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
                     </FormLabel>
                     <FormControl>
                         <RadioGroup
-
-
                             value={field.value}
                             onValueChange={field.onChange}
                             defaultValue="sim"
@@ -76,7 +78,7 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string }) => {
+export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number }) => {
     return (
         <FormField
             {...register(name)}
@@ -99,6 +101,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             }}
                             data-testid={dataTestId}
                             disabled={disabled}
+                            maxLength={maxLength}
                         />
                     </FormControl>
                     <FormMessage />
@@ -110,56 +113,49 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
 
 
 
-export const DateField = ({ register, control, name, label, placeholder }: PropsField) => {
+export const DateField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
     return (
         <FormField
             {...register(name)}
             control={control}
             name={name}
-            render={({ field }) => (
-                <FormItem className="flex flex-col">
-                    <FormLabel className="required text-[#313131] font-bold">
-                        {label}
-                    </FormLabel>
+            render={({ field }) => {
+                const value =
+                    field.value instanceof Date && isValid(field.value)
+                        ? dayjs(field.value)
+                        : null;
 
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                                <Button
-                                    variant="customOutline"
-                                    size="xl"
-                                    className={cn(
-                                        "pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground",
-                                    )}
-                                >
-                                    {field.value ? (
-                                        format(field.value, "dd/MM/yyyy")
-                                    ) : (
-                                        placeholder ? (
-                                            <span>{placeholder}</span>
-                                        ) : (
-                                            <span>Selecione uma data</span>
-                                        )
+                return (
+                    <FormItem className="flex flex-col">
+                        <FormLabel className="required text-[#313131] font-bold">
+                            {label}
+                        </FormLabel>
 
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </PopoverTrigger>
+                        <FormControl>
+                                <DatePicker
+                                    allowClear={allowClear}
+                                    format="DD/MM/YYYY"
+                                    size="large"
+                                    value={value}
+                                    placeholder={placeholder ?? "Selecione a data"}
+                                    onKeyDown={(event) => {
+                                        if (event.key === "Enter") {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                        }
+                                    }}
+                                    onChange={(date) => {
+                                        field.onChange(date ? date.toDate() : null);
+                                    }}
+                                    onBlur={field.onBlur}
+                                    style={{ width: "100%" }}
+                                />
+                         </FormControl>
 
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                            />
-                        </PopoverContent>
-                    </Popover>
-
-                    <FormMessage />
-                </FormItem>
-            )}
+                        <FormMessage />
+                    </FormItem>
+                );
+            }}
         />
     );
 };
@@ -217,6 +213,68 @@ export const DateRangeField = ({ register, control, name, label, placeholder }: 
                     <FormMessage />
                 </FormItem>
             )}
+        />
+    );
+};
+
+export const DateRangePickerField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => {
+                const value: [Dayjs | null, Dayjs | null] | null =
+                    field.value?.from instanceof Date && isValid(field.value?.from)
+                        ? [
+                            dayjs(field.value.from),
+                            field.value?.to instanceof Date && isValid(field.value?.to)
+                                ? dayjs(field.value.to)
+                                : null,
+                        ]
+                        : null;
+
+                return (
+                    <FormItem className="flex flex-col">
+                        <FormLabel className="required text-[#313131] font-bold">
+                            {label}
+                        </FormLabel>
+
+                        <FormControl>
+                            <DatePicker.RangePicker
+                                allowClear={allowClear}
+                                format="DD/MM/YYYY"
+                                size="large"
+                                value={value}
+                                placeholder={[
+                                    placeholder ?? "Data inicial",
+                                    placeholder ?? "Data final",
+                                ]}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                }}
+                                onChange={(dates) => {
+                                    field.onChange(
+                                        dates
+                                            ? {
+                                                from: dates[0]?.toDate(),
+                                                to: dates[1]?.toDate(),
+                                            }
+                                            : null,
+                                    );
+                                }}
+                                onBlur={field.onBlur}
+                                style={{ width: "100%" }}
+                            />
+                        </FormControl>
+
+                        <FormMessage />
+                    </FormItem>
+                );
+            }}
         />
     );
 };

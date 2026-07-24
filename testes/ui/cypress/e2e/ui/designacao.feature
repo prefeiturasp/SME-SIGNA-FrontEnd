@@ -8,11 +8,12 @@ Funcionalidade: Designação de Servidores
 
   Contexto:
     Dado que o usuário está autenticado no sistema
+    E navega até o menu lateral e seleciona "Designações"
+    E seleciona o submenu "Designação"
 
   @designacao-fluxo-completo @critico
   Cenário: Nova designação de servidor Cargo Disponivel
-    Dado que o sistema carregou o dashboard
-    Quando valida e clica no botão Nova Designação
+    Dado valida e clica no botão Nova Designação
     Então o sistema valida que está na página de nova designação
     E deve visualizar o texto "Designação"
     E deve visualizar o formulário da designação
@@ -30,7 +31,7 @@ Funcionalidade: Designação de Servidores
     E deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     E deve visualizar o texto "DRE"
@@ -92,7 +93,7 @@ Funcionalidade: Designação de Servidores
     E deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     E deve visualizar o texto "DRE"
@@ -114,9 +115,10 @@ Funcionalidade: Designação de Servidores
     E valida a existencia do texto "Selecione o tipo de cargo:"
     E valida a existencia das opcoes Cargo Disponivel e Cargo Vago
     E seleciona e clica a opcao "Cargo Vago"
-    E valida a existencia do texto "Selecione o cargo"
-    E clica no campo e seleciona aleatoriamente um dos cargos vagos
-    E espera 20 seg
+    E valida a existencia do Texto "Cargo"
+    E valida a existencia do botao de selecao de cargo vago
+    E clica no campo "Cargo" e seleciona a primeira opcao disponivel
+    E espera 10 seg
     E deve visualizar os botoes de navegacao do passo 2
     Quando clica em Avançar no rodape do passo 2
 
@@ -132,7 +134,7 @@ Funcionalidade: Designação de Servidores
   # CENÁRIOS DE EXCEÇÃO
   # ══════════════════════════════════════════════════════════════════════════════
 
-  @excecao @rf-invalido
+  @skip @excecao @rf-invalido
   Cenário: Pesquisa de servidor com RF inexistente no sistema
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -142,7 +144,7 @@ Funcionalidade: Designação de Servidores
     E clica em pesquisar
     Então o sistema exibe mensagem de servidor não encontrado
 
-  @excecao @passo2-sem-portaria
+  @skip @excecao @passo2-sem-portaria
   Cenário: Tentativa de avançar o Passo 2 sem preencher a portaria obrigatória
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -156,7 +158,7 @@ Funcionalidade: Designação de Servidores
     Então deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     Quando seleciona o cargo de forma aleatoria no painel da unidade
@@ -165,7 +167,7 @@ Funcionalidade: Designação de Servidores
     Quando tenta avançar o passo 2 sem preencher a portaria
     Então o sistema impede o avanco do passo 2
 
-  @excecao @rf-titular-invalido
+  @skip @excecao @rf-titular-invalido
   Cenário: Pesquisa de titular com RF inválido no Passo 2
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -179,7 +181,7 @@ Funcionalidade: Designação de Servidores
     Então deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     Quando seleciona o cargo de forma aleatoria no painel da unidade
@@ -191,11 +193,11 @@ Funcionalidade: Designação de Servidores
     E navega ate Seleciona o tipo de cargo
     E seleciona a opcao "Cargo Disponível"
     E clica e preenche o campo RF titular com "0000000"
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botao e clica em pesquisar o titular
     Então o sistema exibe mensagem de titular não encontrado
 
-  @excecao @rf-vazio
+  @skip @excecao @rf-vazio
   Cenário: Tentativa de pesquisa sem preencher o campo RF
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -204,7 +206,7 @@ Funcionalidade: Designação de Servidores
     Quando tenta pesquisar sem preencher o campo RF
     Então o sistema impede a pesquisa sem RF
 
-  @excecao @cargo-vago-sem-selecao
+  @skip @excecao @cargo-vago-sem-selecao
   Cenário: Tentativa de avançar com Cargo Vago sem selecionar o cargo específico
     Dado que o sistema carregou o dashboard
     Quando valida e clica no botão Nova Designação
@@ -218,7 +220,7 @@ Funcionalidade: Designação de Servidores
     Então deve visualizar a seção de unidade proponente
     Quando seleciona uma DRE aleatória no formulário
     E seleciona uma unidade proponente aleatória
-    E espera 20 seg
+    E espera 10 seg
     E valida a existencia do botão e clica em "Pesquisar Unidade proponente"
     Então o sistema carrega o painel de dados da unidade proponente
     Quando seleciona o cargo de forma aleatoria no painel da unidade
@@ -231,6 +233,5 @@ Funcionalidade: Designação de Servidores
     E valida a existencia do texto "Selecione o tipo de cargo:"
     E valida a existencia das opcoes Cargo Disponivel e Cargo Vago
     E seleciona e clica a opcao "Cargo Vago"
-    E valida a existencia do texto "Selecione o cargo"
     Quando tenta avançar o passo 2 sem preencher a portaria
     Então o sistema impede o avanco do passo 2

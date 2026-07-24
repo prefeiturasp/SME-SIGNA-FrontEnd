@@ -13,6 +13,7 @@ return {
   cargo_sobreposto_funcao_atividade: designacao.indicado_cargo_sobreposto,
   local_de_exercicio: designacao.indicado_local_exercicio,
   local_de_servico: designacao.indicado_local_servico,
+  categoria: designacao.indicado_categoria ?? "",
   cd_cargo_base: designacao.indicado_codigo_cargo_base ?? 0,
   cd_cargo_sobreposto_funcao_atividade:
     designacao.indicado_codigo_cargo_sobreposto ?? 0,

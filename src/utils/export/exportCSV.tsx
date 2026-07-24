@@ -34,10 +34,9 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
 
   const csvRows: string[] = [];
 
-  const headersCSV = columns
-  .map((columns) => {    
-    return columns.title;
-  });
+  const headersCSV = columns.map((col) =>
+    typeof col.title === "string" ? col.title : ""
+  );
 
   csvRows.push(headersCSV.join(","));
 

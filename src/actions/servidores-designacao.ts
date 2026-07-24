@@ -21,7 +21,7 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
     try {
  
         const { data } = await axios.post<Servidor>(
-            `${API_URL}/designacao/servidor`,
+            `${API_URL}/designacao/v2/servidor`,
             {
                 rf: designacaoRequest.rf,
              },
@@ -36,7 +36,6 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
  
         return { success: true, data };
     } catch (err) {
-        console.log("err", err);
         const error = err as AxiosError<{ detail?: string }>;
         let message = "Erro ao buscar as Servidor";
 
