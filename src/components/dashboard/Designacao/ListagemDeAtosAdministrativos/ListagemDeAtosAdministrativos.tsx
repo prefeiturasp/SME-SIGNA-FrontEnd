@@ -261,7 +261,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
     ...(
       showCamposExtras ?
-        [{ title: 'Portaria de designação', dataIndex: 'portaria', key: 'portaria' },
+        [{ title: 'Portaria do ato', dataIndex: 'numero_portaria', key: 'numero_portaria' },
         { title: 'Servidor indicado', dataIndex: 'nome', key: 'nome' }]
         : []),
     { title: 'Registro Funcional (RF)', dataIndex: 'rf', key: 'rf', render: (rf: string | null) => <span>{rf ?? '-'}</span> },
