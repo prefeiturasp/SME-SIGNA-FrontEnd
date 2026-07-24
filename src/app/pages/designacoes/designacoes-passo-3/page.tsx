@@ -118,7 +118,7 @@ export default function DesignacoesPasso3() {
       setModalSucesso(true);
       setSalvando(false);
       clearFormDesignacaoData();
-      setTimeout(() => router.push("/pages/listagem-designacoes"), 2200);
+      setTimeout(() => router.push("/pages/atos-administrativos"), 2200);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
       message.destroy();
@@ -133,7 +133,7 @@ export default function DesignacoesPasso3() {
         title={id ? "Editar Designação" : "Designação"}
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
+          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
           { title: "Designação" }
         ]}
         icon={<Designacao width={24} height={24} color="#660C0B" />}

@@ -40,9 +40,10 @@ const DESTINO_POR_TIPO: Record<"insubsistencia" | "apostila", string> = {
 };
 
 async function buscarDesignacaoOuCessacao(
-  portaria: string
+  portaria: string,
+  ano: string
 ): Promise<AtoEncontrado | null> {
-  const resultadoDesignacao = await buscarDesignacaoPorPortariaAction({ portaria });
+  const resultadoDesignacao = await buscarDesignacaoPorPortariaAction({ portaria, ano });
   if (resultadoDesignacao.success) {
     return {
       origem: "designacao",
@@ -51,7 +52,7 @@ async function buscarDesignacaoOuCessacao(
     };
   }
 
-  const resultadoCessacao = await buscarCessacaoPorPortariaAction({ portaria });
+  const resultadoCessacao = await buscarCessacaoPorPortariaAction({ portaria, ano });
   if (!resultadoCessacao.success) {
     return null;
   }
@@ -72,9 +73,10 @@ export function useNovoAto() {
 
   const buscarOuMostrarErro = async <T,>(
     buscarAction: (filtros: BuscaPorPortariaRequest) => Promise<ResultadoBusca<T>>,
-    portaria: string
+    portaria: string,
+    ano: string
   ): Promise<T | null> => {
-    const resultado = await buscarAction({ portaria });
+    const resultado = await buscarAction({ portaria, ano });
     if (!resultado.success) {
       setErrorMessage(MENSAGEM_NAO_ENCONTRADO);
       return null;
@@ -84,9 +86,10 @@ export function useNovoAto() {
 
   const buscarInsubsistenciaOuApostila = async (
     tipo: "insubsistencia" | "apostila",
-    portaria: string
+    portaria: string,
+    ano: string
   ): Promise<boolean> => {
-    const encontrado = await buscarDesignacaoOuCessacao(portaria);
+    const encontrado = await buscarDesignacaoOuCessacao(portaria, ano);
     if (!encontrado) {
       setErrorMessage(MENSAGEM_NAO_ENCONTRADO);
       return false;
@@ -97,8 +100,8 @@ export function useNovoAto() {
     return true;
   };
 
-  const buscarParaAnularApostila = async (portaria: string): Promise<boolean> => {
-    const encontrado = await buscarDesignacaoOuCessacao(portaria);
+  const buscarParaAnularApostila = async (portaria: string, ano: string): Promise<boolean> => {
+    const encontrado = await buscarDesignacaoOuCessacao(portaria, ano);
     if (!encontrado) {
       setErrorMessage(MENSAGEM_NAO_ENCONTRADO);
       return false;
@@ -112,21 +115,21 @@ export function useNovoAto() {
     return true;
   };
 
-  const buscar = async (tipo: TipoNovoAto, portaria: string): Promise<boolean> => {
+  const buscar = async (tipo: TipoNovoAto, portaria: string, ano: string): Promise<boolean> => {
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
       switch (tipo) {
         case "cessacao": {
-          const dados = await buscarOuMostrarErro(buscarDesignacaoPorPortariaAction, portaria);
+          const dados = await buscarOuMostrarErro(buscarDesignacaoPorPortariaAction, portaria, ano);
           if (!dados) return false;
           router.push(`/pages/cessacao?id=${dados.id}`);
           return true;
         }
 
         case "tornar-sem-efeito": {
-          const dados = await buscarOuMostrarErro(buscarInsubsistenciaPorPortariaAction, portaria);
+          const dados = await buscarOuMostrarErro(buscarInsubsistenciaPorPortariaAction, portaria, ano);
           if (!dados) return false;
           router.push(`/pages/tornar-sem-efeito?id=${dados.id}`);
           return true;
@@ -134,10 +137,10 @@ export function useNovoAto() {
 
         case "insubsistencia":
         case "apostila":
-          return buscarInsubsistenciaOuApostila(tipo, portaria);
+          return buscarInsubsistenciaOuApostila(tipo, portaria, ano);
 
         case "anular-apostila":
-          return buscarParaAnularApostila(portaria);
+          return buscarParaAnularApostila(portaria, ano);
       }
     } finally {
       setIsLoading(false);
