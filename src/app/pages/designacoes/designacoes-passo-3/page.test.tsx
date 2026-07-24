@@ -208,7 +208,7 @@ describe("DesignacoesPasso3 - Testes", () => {
 
     await vi.runAllTimersAsync();
 
-    expect(h.pushMock).toHaveBeenCalledWith("/pages/listagem-designacoes");
+    expect(h.pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
 
     vi.useRealTimers();
   });

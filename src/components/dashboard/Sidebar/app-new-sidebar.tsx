@@ -74,12 +74,6 @@ export const MENU_DESIGNACAO: MenuItemConectaProps = {
   icon: <Designacao width={20} height={20} />,
   children: [
     {
-      key: MenuEnum.Designacoes,
-      title: 'Designação',
-      url: "/pages/listagem-designacoes",
- 
-    },
-    {
       key: MenuEnum.AlterarDataDoD,
       title: 'Alterar data do D.O',
       url: "/pages/alterar-data-do",

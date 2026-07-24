@@ -5,7 +5,7 @@ import { PortariasDOBody } from "@/types/designacao";
 
 export async function PortariaDOAction(payload: PortariasDOBody) {
   return postWithAuth(
-    "/designacao/v2/portarias/atualizar-data-publicacao/",
+    "/designacao/portarias/atualizar-data-publicacao/",
     payload,
     "Erro ao salvar portaria D.O"
   );

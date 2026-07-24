@@ -12,7 +12,7 @@ const modules = [
         title: "Designação",
         description: "Realize a pesquisa e validação de servidores para verificar a aptidão e efetuar a designação para cargos ou funções disponíveis.",
         icon: ListIcon,
-        url: "/pages/listagem-designacoes",
+        url: "/pages/atos-administrativos",
     },
     {
         id: "nomeacao",

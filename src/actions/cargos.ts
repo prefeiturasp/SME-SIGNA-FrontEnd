@@ -9,7 +9,7 @@ import { ICargoType } from "@/types/cargos";
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;    
     try {
-        const { data } = await axios.get<ICargoType[]>(`${API_URL}/designacao/v2/unidade/cargos/`,             {
+        const { data } = await axios.get<ICargoType[]>(`${API_URL}/designacao/unidade/cargos/`,             {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

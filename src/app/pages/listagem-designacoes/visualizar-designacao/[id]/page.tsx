@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Card } from "antd";
+import { Button } from "@/components/ui/button";
 
 import { Accordion } from "@/components/ui/accordion";
 
@@ -8,13 +9,12 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import ResumoPesquisaDaUnidade from "@/components/dashboard/Designacao/ResumoPesquisaDaUnidade";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
+import ResumoPortariaEServidorIndicado from "@/components/dashboard/Designacao/ResumoPortariaEServidorIndicado";
 
-import Designacao from "@/assets/icons/Designacao";
 
-import { useParams } from "next/navigation";
-import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
+import { useParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import { Loader2 } from "lucide-react";
+import {  History, Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import EditorSEI, {
   gerarHtmlPortaria,
@@ -24,6 +24,10 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
 import type { DesignacaoData } from "@/types/designacao";
+import { useForm } from "react-hook-form";
+import { formSchemaDesignacaoPasso3Data } from "@/app/pages/designacoes/designacoes-passo-3/schema";
+
+import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
 
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
 
@@ -31,7 +35,7 @@ function escapeHtml(s: string) {
   return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
 }
 
-export default function VisualizarDesignacao() {
+export default function VisualizarDesignacaoPage() {
 
   const params = useParams();
   const id = params.id;
@@ -99,15 +103,45 @@ export default function VisualizarDesignacao() {
     return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapados));
   }, [designacao]);
 
- 
+
+
+  const form = useForm<formSchemaDesignacaoPasso3Data>({
+    defaultValues: {
+      informacoes_adicionais: designacao?.informacoes_adicionais ?? "",
+      detalhe_para_quadro_de_historico_por_ano: designacao?.detalhe_para_quadro_de_historico_por_ano ?? true,
+    },
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    form.setValue("informacoes_adicionais", designacao?.informacoes_adicionais ?? "");
+    form.setValue("detalhe_para_quadro_de_historico_por_ano", designacao?.detalhe_para_quadro_de_historico_por_ano ?? true);
+  }, [designacao, form]);
+
+  const router = useRouter();
+
   return (
     <>
       <PageHeader
-        title="Visualizar Designação"
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },
-          { title: "Visualizar Designação" }]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
-        showBackButton={false}
+        title="Detalhes da designação"
+        breadcrumbs={[{ title: "Início", href: "/" },
+        { title: "Detalhes da designação" }]}
+        showBackButton={true}
+        createButton={
+            <Button
+              className="gap-2 px-4"
+              type="button"
+              variant="destructive"
+              size="lg"
+              onClick={() =>
+                router.push(`/pages/historico-ato-administrativo?id=${id}&tipo_display=da designação&numero_portaria=${designacao?.numero_portaria}&servidor_indicado=${designacao?.indicado_nome_servidor}`)
+              }
+            >
+              <span className="font-bold">Consultar histórico</span>
+              <History width={15} height={15} />
+            </Button>
+        }
+
       />
 
       <Card
@@ -149,59 +183,12 @@ export default function VisualizarDesignacao() {
                 />
               </CustomAccordionItem>
 
-              <CustomAccordionItem
-                title="Portarias de designação"
-                color="purple"
-                value="portarias-designacao"
-              >
-                <ResumoPortariaDesigacao
-                  isLoading={isLoadingDesignacao}
-                  defaultValues={{
-                    numero_portaria: designacao.numero_portaria,
-                    ano_vigente: designacao.ano_vigente,
-                    sei_numero: designacao.sei_numero,
-                    doc: designacao.doc,
-                    data_inicio: designacao.data_inicio,
-                    data_fim: designacao.data_fim,
-                    carater_excepcional: designacao.carater_excepcional,
-                    impedimento_substituicao: designacao.impedimento_display,
-                    motivo_afastamento: designacao.motivo_afastamento,
-                    pendencias: designacao.pendencias,
-                  }}
-                />
-              </CustomAccordionItem>
+              <ResumoPortariaEServidorIndicado
+                designacao={designacao}
+                isLoadingDesignacao={isLoadingDesignacao}
+              />
 
-              <CustomAccordionItem
-                title="Dados do servidor indicado"
-                value="servidor-indicado"
-                color="gold"
-              >
-                <ResumoDesignacaoServidorIndicado
-                  isLoading={isLoadingDesignacao}
-                  defaultValues={{
-                    rf: designacao.indicado_rf,
-                    nome_servidor: designacao.indicado_nome_servidor,
-                    nome_civil: designacao.indicado_nome_civil,
-                    vinculo: designacao.indicado_vinculo,
-                    lotacao: designacao.indicado_lotacao,
-                    cargo_base: designacao.indicado_cargo_base,
-                    cargo_sobreposto_funcao_atividade: designacao.indicado_cargo_sobreposto,
-                    cursos_titulos: '-',
-                    codigo_hierarquia: '-',
-                    lotacao_cargo_base: designacao.indicado_lotacao,
-                    laudo_medico: '-',
-                    local_de_servico: designacao.indicado_local_servico,
-                    local_de_exercicio: designacao.indicado_local_exercicio,
-                    cd_cargo_base: designacao.indicado_codigo_cargo_base ?? 0,
-                    cd_cargo_sobreposto_funcao_atividade: designacao.indicado_codigo_cargo_sobreposto ?? 0,
-                    categoria: designacao.indicado_categoria ?? "",
-                  }}
-                  showCursosTitulos={true}
-                  showEditar={false}
-                  showLotacao={true}
-                  onSubmitEditarServidor={console.log}
-                />
-              </CustomAccordionItem>
+
 
               {designacao.tipo_vaga === "VAGO" ? (
                 <CustomAccordionItem
@@ -252,6 +239,19 @@ export default function VisualizarDesignacao() {
           titulo="PORTARIA"
           mostrarBotao={false}
         />
+
+        <div className="mt-8">
+          <div className="mb-8">
+          <span className="text-[#333] text-[16px] font-bold ">Informações adicionais</span>
+          </div>
+          <InformacoesAdicionais
+            disableFields={true}
+            form={form}
+            onChangeDescricao={console.log}
+            onValueChangeDetalheParaQuadroDeHistoricoPorAno={console.log}
+          />
+        </div>
+
       </Card>
     </>
   );

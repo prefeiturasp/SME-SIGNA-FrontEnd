@@ -96,7 +96,7 @@ export default function AlterarDataDo() {
     <>
       <PageHeader
         title={"Alterar data do D.O"}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Designações", href: "/pages/listagem-designacoes" }, { title: "Alterar data do D.O" }]}
+        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Atos Administrativos", href: "/pages/atos-administrativos" }, { title: "Alterar data do D.O" }]}
         showBackButton={false}
       />
 

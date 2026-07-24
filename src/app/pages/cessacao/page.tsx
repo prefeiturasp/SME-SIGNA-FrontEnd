@@ -186,7 +186,7 @@ export default function CessacaoPage() {
 
       message.success("Cessação salva com sucesso!");
 
-      router.push("/pages/listagem-designacoes");
+      router.push("/pages/atos-administrativos");
 
     } catch (error: unknown) {
       console.error("Erro ao salvar cessação:", error);
@@ -218,7 +218,7 @@ export default function CessacaoPage() {
         title={title}
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
+          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
           { title: "Cessação" }
         ]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}

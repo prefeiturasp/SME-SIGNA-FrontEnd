@@ -360,7 +360,7 @@ describe("InsubsistenciaPage", () => {
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
       expect(message.success).toHaveBeenCalledWith("Insubsistência salva com sucesso!");
-      expect(testControls.routerPush).toHaveBeenCalledWith("/pages/listagem-designacoes");
+      expect(testControls.routerPush).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
 

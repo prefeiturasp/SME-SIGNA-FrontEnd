@@ -214,6 +214,25 @@ describe("AnularApostilaPage", () => {
     });
   });
 
+  it("aplica negrito quando chave nome_indicado aparece no template", async () => {
+    const objectEntriesSpy = vi
+      .spyOn(Object, "entries")
+      .mockImplementationOnce(() => [
+        ["nome_indicado", "Servidor Bold"],
+        ["portaria", "123"],
+      ]);
+
+    render(<AnularApostilaPage />);
+
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("mostrar-editor")).toHaveTextContent("true");
+    });
+
+    objectEntriesSpy.mockRestore();
+  });
+
   it("submete com sucesso e redireciona", async () => {
     render(<AnularApostilaPage />);
 
