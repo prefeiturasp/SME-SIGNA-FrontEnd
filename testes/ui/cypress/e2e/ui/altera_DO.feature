@@ -12,6 +12,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
     E que o sistema carregou o dashboard
     E navega até "Alterar data do D.O" pelo menu lateral
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Alterar data do D.O de portarias selecionadas [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @selecao-e-alteracao @critico
   Cenário: Alterar data do D.O de portarias selecionadas
 
@@ -41,6 +44,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
 
     Então o sistema processa a alteração sem erros
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Consultar portarias utilizando filtros         [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @filtro-e-consulta
   Cenário: Consultar portarias utilizando filtros
 
@@ -49,6 +55,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
     Quando clica no botão "Pesquisar"
     Então o sistema exibe a lista de portarias filtradas
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Buscar portaria pelo número                    [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @busca-por-numero-portaria
   Cenário: Buscar portaria pelo número  (Filtros Portarias)
 
@@ -57,6 +66,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
     E clica no botão "Pesquisar"
     Então o sistema exibe a lista de portarias filtradas
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 4 — Buscar portaria pelo Nº SEI                    [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @busca-por-sei
   Cenário: Buscar portaria pelo Nº SEI (Filtro N°sei)
 
@@ -64,6 +76,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
     E clica no botão "Pesquisar"
     Então o sistema exibe a lista de portarias filtradas
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 5 — Limpar campos de filtro                        [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @limpar-filtros
   Cenário: limpa Campos (filtro Limpar)
 
@@ -72,6 +87,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
     E clica no botão "Limpar filtros"
     Então os campos de portaria estão limpos
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 6 — Busca combinada (Ano + número de portaria)     [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @busca-combinada-filtros
   Cenário: Buscar portaria combinando filtros de Ano e número de portaria
 
@@ -81,6 +99,9 @@ Funcionalidade: Alterar data do Diário Oficial das portarias
     E clica no botão "Pesquisar"
     Então o sistema exibe a lista de portarias filtradas
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 7 — Nº SEI inexistente (tabela sem resultados)     [@skip]
+  # ══════════════════════════════════════════════════════════════
   @skip @pesquisa-sem-resultado
   Cenário: Pesquisa com Nº SEI inexistente exibe tabela sem resultados
 
