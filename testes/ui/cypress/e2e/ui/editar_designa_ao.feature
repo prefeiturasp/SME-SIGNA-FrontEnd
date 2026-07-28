@@ -13,9 +13,9 @@ Funcionalidade: Editar designação de servidor
     E navega até o menu lateral e seleciona "Designações"
     E seleciona o submenu "Designação"
 
-  # ============================================================
-  # CENÁRIO 1 — Fluxo completo de edição com todas as seções
-  # ============================================================
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Fluxo completo de edição (todas as seções)   [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @editar-fluxo-completo @smoke
   Cenário: Editar designação e validar todas as seções do formulário
 
@@ -41,19 +41,26 @@ Funcionalidade: Editar designação de servidor
     # ── ETAPA 5: Tipo de cargo e RF Titular ──────────────────────────────────
     E valida a existencia do campo "Selecione o tipo de cargo:"
     E valida as opções de tipo de cargo "Cargo Disponível" e "Cargo Vago"
-    E valida a existencia do campo "RF Titular"
+    # "RF Titular" só existe quando a designação selecionada é do tipo
+    # "Cargo Vago" (tem um servidor titular sendo substituído). Designações
+    # "Cargo Disponível" (posição genuinamente vaga) não têm titular — por
+    # isso a validação abaixo verifica qual tipo está marcado no formulário
+    # antes de exigir o campo, em vez de assumir que toda designação é do
+    # tipo "Cargo Vago".
+    E valida a existencia do campo "RF Titular" quando aplicável ao tipo de cargo selecionado
 
     # ── ETAPA 6: Seção "Dados do Servidor Titular" ────────────────────────────
-    E valida a existencia da seção "Dados do Servidor Titular"
+    # Mesma ressalva da Etapa 5: só existe para designações "Cargo Vago".
+    E valida a existencia da seção "Dados do Servidor Titular" quando aplicável ao tipo de cargo selecionado
 
     # ── ETAPA FINAL: Botões de navegação ─────────────────────────────────────
     E valida a existencia dos botões de edição "Voltar" e "Avançar"
     Quando clica em "Avançar"
     Então o sistema avança o fluxo de edição sem erros
 
-  # ============================================================
-  # CENÁRIO 2 — Validação rápida das seções (regressão)
-  # ============================================================
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Validação rápida das seções (regressão)      [ATIVO]
+  # ══════════════════════════════════════════════════════════════
  @editar-validacao-secoes @regressao
   Cenário: Validar presença de todas as seções na tela Editar Designação
 
@@ -67,4 +74,4 @@ Funcionalidade: Editar designação de servidor
     E valida a existencia da seção "Portarias de designação"
     E valida a existencia da seção "Dados do servidor indicado"
     E valida a existencia do campo "Selecione o tipo de cargo:"
-    E valida a existencia da seção "Dados do Servidor Titular"
+    E valida a existencia da seção "Dados do Servidor Titular" quando aplicável ao tipo de cargo selecionado
