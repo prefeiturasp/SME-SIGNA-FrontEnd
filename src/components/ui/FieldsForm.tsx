@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 interface PropsField {
     register: UseFormRegister<FieldValues>;
     control: Control<FieldValues>;
@@ -103,6 +104,63 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             disabled={disabled}
                             maxLength={maxLength}
                         />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+    );
+};
+
+interface SelectOption {
+    value: string;
+    label: string;
+}
+
+export const SelectField = ({
+    control,
+    name,
+    label,
+    placeholder,
+    dataTestId,
+    options,
+    disabled = false,
+    register,
+}: {
+    control: Control<FieldValues>;
+    name: string;
+    label: string;
+    placeholder?: string;
+    dataTestId?: string;
+    options: SelectOption[];
+    disabled?: boolean;
+    register: UseFormRegister<FieldValues>;
+}) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel className="text-[#313131] font-bold">{label}</FormLabel>
+                    <FormControl>
+                        <Select
+                            value={field.value}
+                            onValueChange={(value) => field.onChange(value)}
+                            disabled={disabled}
+                        >
+                            <SelectTrigger data-testid={dataTestId}>
+                                <SelectValue placeholder={placeholder} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {options.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
