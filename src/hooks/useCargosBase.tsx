@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import filterFormSchemaFiltroCargosBase, { filterFormSchemaFiltroCargosBaseData } from "@/components/dashboard/Gestão/FiltroDeCargosBase/filterFormSchemaCargosBase";
+import filterFormSchemaFiltroCargosBase, { filterFormSchemaFiltroCargosBaseData } from "@/components/dashboard/Gestao/FiltroDeCargosBase/filterFormSchemaCargosBase";
 import { CargosBaseFiltros } from "@/types/gestao";
 
 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import { useCargosBase } from "@/hooks/useCargosBase";
-import FiltroDeCargosBase from "@/components/dashboard/Gestão/FiltroDeCargosBase/FiltroDeCargosBase";
+import FiltroDeCargosBase from "@/components/dashboard/Gestao/FiltroDeCargosBase/FiltroDeCargosBase";
 
 
 
