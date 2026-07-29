@@ -36,12 +36,12 @@ import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const origem = searchParams.get("origem");
+  const atoApostiladoPadrao = origem === "cessacao" ? "cessacao" : "designacao";
   const salvarApostila = useSalvarApostila();
   const router = useRouter();
 
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
-  console.log('designacao', designacao);
-
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
@@ -49,7 +49,7 @@ export default function ApostilaPage() {
         numero_sei: "",
         doc: "",
         observacao: "",
-        ato_apostilado: "designacao",
+        ato_apostilado: atoApostiladoPadrao,
       },
     },
   });
@@ -79,11 +79,11 @@ export default function ApostilaPage() {
       apostila: {
         numero_sei: "",
         doc: "",
-        ato_apostilado: "designacao",
+        ato_apostilado: atoApostiladoPadrao,
         observacao: "",
       },
     });
-  }, [designacao, form]);
+  }, [designacao, form, atoApostiladoPadrao]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
@@ -142,7 +142,7 @@ export default function ApostilaPage() {
         cessacaoId: designacao?.cessacao?.id,
       });
       message.success("Apostila salva com sucesso!");
-      router.push("/pages/listagem-designacoes");
+      router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
       message.error(msg);
@@ -162,7 +162,7 @@ export default function ApostilaPage() {
     <>
       <PageHeader
         title={title}
-        breadcrumbs={[{ title: "Início", href: "/" },  { title: "Listagem de Designações", href: "/pages/listagem-designacoes" }, { title: "Apostila" }]}
+        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Atos Administrativos", href: "/pages/atos-administrativos" }, { title: "Apostila" }]}
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />

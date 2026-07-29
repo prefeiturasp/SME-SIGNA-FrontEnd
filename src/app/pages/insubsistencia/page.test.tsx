@@ -8,7 +8,7 @@ import { message } from "antd";
 
 const testControls = vi.hoisted(() => ({
   routerPush: vi.fn(),
-  searchParamsGet: vi.fn(() => "5"),
+  searchParamsGet: vi.fn((_key?: string) => "5"),
   radioOnValueChange: undefined as ((value: string) => void) | undefined,
   forceTriggerResult: null as boolean | null,
   forceUndefinedGetValues: false,
@@ -360,7 +360,7 @@ describe("InsubsistenciaPage", () => {
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
       expect(message.success).toHaveBeenCalledWith("Insubsistência salva com sucesso!");
-      expect(testControls.routerPush).toHaveBeenCalledWith("/pages/listagem-designacoes");
+      expect(testControls.routerPush).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
 
@@ -409,6 +409,46 @@ describe("InsubsistenciaPage", () => {
     const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
     expect(textoGerado).toContain("no período de 01/01/2026 a 31/01/2026");
     expect(textoGerado).toContain("<strong>SERVIDOR TESTE</strong>");
+  });
+
+  it("pré-seleciona tipo 'cessação' quando a URL vem com origem=cessacao", async () => {
+    testControls.searchParamsGet.mockImplementation((key?: string) =>
+      key === "origem" ? "cessacao" : "5"
+    );
+
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, cessacao: cessacaoMock },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+    });
+
+    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
+    expect(textoGerado).toContain("que cessou os efeitos da Port.");
+  });
+
+  it("usa o tipo 'designação' por padrão quando não há origem na URL", async () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, cessacao: cessacaoMock },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+    });
+
+    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
+    expect(textoGerado).not.toContain("que cessou os efeitos da Port.");
   });
 
   it("não gera trechos para o SEI quando o trigger do formulário é inválido", async () => {

@@ -5,14 +5,15 @@ interface Props {
   isLoading?: boolean;
   tipo_portaria: "designacao" | "cessacao";
   showTextoParaApostila?: boolean;
+  labelPortaria?: string;
 }
 
-const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria, showTextoParaApostila=true }: Props) => {
+const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria, showTextoParaApostila=true, labelPortaria }: Props) => {
 
   const inputFields: InputFieldType[] = [
     {
       name: "apostila_insubsistencia.portaria",
-      label: "Portaria da apostila da "+tipo_portaria,
+      label: labelPortaria ?? "Portaria da apostila da "+tipo_portaria,
       placeholder: "0000",
       type: "number",
       disabled: false,

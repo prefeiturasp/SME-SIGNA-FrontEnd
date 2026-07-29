@@ -6,12 +6,17 @@ import AtosAdministrativos from "./page";
 const listagemSpy = vi.fn();
 const pageHeaderSpy = vi.fn();
 const hookSpy = vi.fn();
+const novoAtoHookSpy = vi.fn();
+const modalBuscaPortariaSpy = vi.fn();
 const filtroSpy = vi.fn();
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
 const onPageChangeMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
 const handleClearMock = vi.fn();
+const buscarMock = vi.fn();
+const limparErroMock = vi.fn();
+const pushMock = vi.fn();
 const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (event?: Event) => {
   callback();
   event?.preventDefault();
@@ -19,8 +24,41 @@ const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (e
 
 type GenericProps = Record<string, unknown>;
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: pushMock }),
+}));
+
 vi.mock("@/hooks/useAtosAdministrativos", () => ({
   useAtosAdministrativos: () => hookSpy(),
+}));
+
+vi.mock("@/hooks/useNovoAto", () => ({
+  useNovoAto: () => novoAtoHookSpy(),
+}));
+
+vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria", () => ({
+  default: (props: GenericProps) => {
+    modalBuscaPortariaSpy(props);
+    return (
+      <div data-testid="modal-busca-portaria">
+        <span data-testid="modal-title">{props.title as React.ReactNode}</span>
+        <span data-testid="modal-field-label">{props.fieldLabel as React.ReactNode}</span>
+        <span data-testid="modal-ano-field-label">{props.anoFieldLabel as React.ReactNode}</span>
+        <button
+          data-testid="modal-fechar"
+          onClick={() => (props.onOpenChange as (open: boolean) => void)(false)}
+        >
+          fechar
+        </button>
+        <button
+          data-testid="modal-buscar"
+          onClick={() => (props.onSubmit as (portaria: string, ano: string) => void)("100/2026", "2026")}
+        >
+          buscar
+        </button>
+      </div>
+    );
+  },
 }));
 
 vi.mock("react-hook-form", () => ({
@@ -105,6 +143,7 @@ vi.mock("@/components/ui/button", () => ({
 vi.mock("@/assets/icons/Designacao", () => ({ default: () => <span data-testid="icon-designacao" /> }));
 vi.mock("@/assets/icons/Cancelar", () => ({ default: () => <span data-testid="icon-cancelar" /> }));
 vi.mock("@/assets/icons/DocumentoErro", () => ({ default: () => <span data-testid="icon-documento-erro" /> }));
+vi.mock("@/assets/icons/DocumentoAlerta", () => ({ default: () => <span data-testid="icon-documento-alerta" /> }));
 vi.mock("@/assets/icons/Editar", () => ({ default: () => <span data-testid="icon-editar" /> }));
 vi.mock("@/assets/icons/Delete", () => ({ default: () => <span data-testid="icon-delete" /> }));
 vi.mock("@/assets/icons/Plus", () => ({ default: () => <span data-testid="icon-plus" /> }));
@@ -123,6 +162,12 @@ describe("Página de atos administrativos", () => {
       },
       onSubmitFilterForm: onSubmitFilterFormMock,
       handleClear: handleClearMock,
+    });
+    novoAtoHookSpy.mockReturnValue({
+      buscar: buscarMock,
+      isLoading: false,
+      errorMessage: null,
+      limparErro: limparErroMock,
     });
   });
 
@@ -175,5 +220,72 @@ describe("Página de atos administrativos", () => {
     expect(listagemSpy).toHaveBeenCalledTimes(1);
   });
 
- 
+  it("não exibe o modal de busca por padrão", () => {
+    render(<AtosAdministrativos />);
+
+    expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["3", "Nova cessação", "Portaria de designação", "Ano da designação"],
+    ["4", "Nova insubsistência", "Portaria de designação ou cessação", "Ano da designação ou cessação"],
+    ["6", "Novo ato de tornar sem efeito", "Portaria da insubsistência", "Ano da insubsistência"],
+    ["2", "Nova apostila", "Portaria de designação ou cessação", "Ano da designação ou cessação"],
+    ["1", "Nova anulação de apostila", "Portaria de designação ou cessação", "Ano da designação ou cessação"],
+  ])("abre o modal correto ao clicar no item de menu %s", (key, title, fieldLabel, anoFieldLabel) => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId(`menu-item-${key}`));
+
+    expect(screen.getByTestId("modal-busca-portaria")).toBeInTheDocument();
+    expect(screen.getByTestId("modal-title")).toHaveTextContent(title);
+    expect(screen.getByTestId("modal-field-label")).toHaveTextContent(fieldLabel);
+    expect(screen.getByTestId("modal-ano-field-label")).toHaveTextContent(anoFieldLabel);
+  });
+
+  it("navega direto para o fluxo de nova designação, sem abrir modal de busca", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-5"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
+    expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
+  });
+
+  it("chama buscar do useNovoAto com o tipo, a portaria e o ano informados", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-3"));
+    fireEvent.click(screen.getByTestId("modal-buscar"));
+
+    expect(buscarMock).toHaveBeenCalledWith("cessacao", "100/2026", "2026");
+  });
+
+  it("fecha o modal e limpa o erro ao chamar onOpenChange(false)", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-1"));
+    expect(screen.getByTestId("modal-busca-portaria")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("modal-fechar"));
+
+    expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
+    expect(limparErroMock).toHaveBeenCalled();
+  });
+
+  it("repassa isLoading e errorMessage do useNovoAto para o modal", () => {
+    novoAtoHookSpy.mockReturnValue({
+      buscar: buscarMock,
+      isLoading: true,
+      errorMessage: "Nenhum registro foi encontrado para essa portaria.",
+      limparErro: limparErroMock,
+    });
+
+    render(<AtosAdministrativos />);
+    fireEvent.click(screen.getByTestId("menu-item-2"));
+
+    const props = modalBuscaPortariaSpy.mock.calls[0][0];
+    expect(props.isLoading).toBe(true);
+    expect(props.errorMessage).toBe("Nenhum registro foi encontrado para essa portaria.");
+  });
 });

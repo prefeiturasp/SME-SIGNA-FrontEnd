@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FiltroDeATosAdministrativos from "./FiltroDeAtosAdministrativos";
+import FiltroDeAtosAdministrativos from "./FiltroDeAtosAdministrativos";
 
 const watchValues: Record<string, unknown> = {};
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
@@ -92,7 +92,7 @@ vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
   },
 }));
 
-describe("FiltroDeATosAdministrativos", () => {
+describe("FiltroDeAtosAdministrativos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
@@ -100,7 +100,7 @@ describe("FiltroDeATosAdministrativos", () => {
   });
 
   it("renderiza campos, opcoes de tipo e status, e envia hasFilters=false ao FiltroAcoes", () => {
-    render(<FiltroDeATosAdministrativos />);
+    render(<FiltroDeAtosAdministrativos />);
 
     expect(screen.getByText("Filtros")).toBeInTheDocument();
     expect(screen.getByTestId("input-numero_sei")).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe("FiltroDeATosAdministrativos", () => {
   });
 
   it("propaga alteracoes dos selects para o react-hook-form", () => {
-    render(<FiltroDeATosAdministrativos />);
+    render(<FiltroDeAtosAdministrativos />);
 
     const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
     triggerButtons.forEach((button) => fireEvent.click(button));
@@ -141,7 +141,7 @@ describe("FiltroDeATosAdministrativos", () => {
     const onClear = vi.fn();
     watchValues.numero_sei = "1234.5678/9012345-6";
 
-    render(<FiltroDeATosAdministrativos onClear={onClear} />);
+    render(<FiltroDeAtosAdministrativos onClear={onClear} />);
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -3,10 +3,10 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useSalvarApostila } from "./useSalvarApostila";
-import { ApostilaAction } from "@/actions/apostila-criar";
+import { ApostilaAction } from "@/actions/apostila";
 
 
-vi.mock("@/actions/apostila-criar", () => ({
+vi.mock("@/actions/apostila", () => ({
   ApostilaAction: vi.fn(),
 }));
 

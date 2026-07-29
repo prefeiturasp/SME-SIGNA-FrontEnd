@@ -1,13 +1,13 @@
 "use server";
 
-import { InsubsistenciaBody } from "@/types/insubsistencia";
+import { InsubsistenciaBody, InsubsistenciaRead } from "@/types/insubsistencia";
 import { postWithAuth } from "@/lib/serverRequest";
-import { ApostilaDetailRead } from "@/types/apostila";
-import { fetchWithClient } from "./designacao";
+
+import { fetchWithClient } from "./http";
 
 export async function insubsistenciaAction(payload: InsubsistenciaBody) {
   return postWithAuth(
-    "/designacao/v2/insubsistencias/",
+    "/designacao/insubsistencias/",
     payload,
     "Erro ao salvar insubsistência"
   );
@@ -17,11 +17,11 @@ export async function insubsistenciaAction(payload: InsubsistenciaBody) {
 export const fetchInsubsistenciasByIdAction = async (
   id: number
 ): Promise<
-  | { success: true; data: ApostilaDetailRead }
+  | { success: true; data: InsubsistenciaRead }
   | { success: false; error: string }
 > => {
-  return fetchWithClient<ApostilaDetailRead>(
-    `/designacao/v2/insubsistencias/${id}/`,
+  return fetchWithClient<InsubsistenciaRead>(
+    `/designacao/insubsistencias/${id}/`,
     {},
     "Erro ao buscar as insubsistencias"
   );

@@ -74,12 +74,6 @@ export const MENU_DESIGNACAO: MenuItemConectaProps = {
   icon: <Designacao width={20} height={20} />,
   children: [
     {
-      key: MenuEnum.Designacoes,
-      title: 'Designação',
-      url: "/pages/listagem-designacoes",
- 
-    },
-    {
       key: MenuEnum.AlterarDataDoD,
       title: 'Alterar data do D.O',
       url: "/pages/alterar-data-do",
@@ -152,8 +146,19 @@ export const menus: MenuItemConectaProps[] = [
 
 ];
  
+function collectMenuUrls(items: MenuItemSMEProps[]): string[] {
+  return items.flatMap((item) => [
+    ...(item.url ? [item.url] : []),
+    ...(item.children ? collectMenuUrls(item.children) : []),
+  ]);
+}
+
 export function AppNewSidebar() {
   const navigate = useRouter();
+
+  React.useEffect(() => {
+    collectMenuUrls(menus).forEach((url) => navigate.prefetch(url));
+  }, [navigate]);
 
   const itemMenuEscolhido = (item: MenuItemSMEProps) => {
     if (item?.url) {
