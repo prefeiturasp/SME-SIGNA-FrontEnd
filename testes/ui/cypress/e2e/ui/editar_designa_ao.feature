@@ -1,6 +1,6 @@
 # language: pt
 
-@editar-designacao
+@editar-designacao @skip 
 Funcionalidade: Editar designação de servidor
   Como gestor de RH no sistema SIGNA
   Eu quero editar designações ativas

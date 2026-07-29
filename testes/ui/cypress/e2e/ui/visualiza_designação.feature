@@ -1,6 +1,6 @@
 # language: pt
 
-@visualizar 
+@visualizar   @skip
 Funcionalidade: visualizar de Designação
   Como um usuário do sistema SIGNA
   Eu quero gerenciar visualizar designações

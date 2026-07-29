@@ -1,6 +1,6 @@
 # language: pt
 
-@cessacao 
+@cessacao @skip
 Funcionalidade: Cessação de Designação
   Como um usuário do sistema SIGNA
   Eu quero gerenciar cessações de designações

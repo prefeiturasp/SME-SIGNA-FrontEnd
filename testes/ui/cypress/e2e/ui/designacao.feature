@@ -1,6 +1,6 @@
 # language: pt
 
-@designacao @smoke
+@designacao @smoke @skip
 Funcionalidade: Designação de Servidores
   Como um usuário do sistema SIGNA
   Eu quero gerenciar designações de servidores

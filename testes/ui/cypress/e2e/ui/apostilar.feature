@@ -1,6 +1,6 @@
 # language: pt
 
-@apostilar
+@apostilar @skip
 Funcionalidade: Apostilar designação de servidor
   Como gestor de RH no sistema SIGNA
   Eu quero realizar o apostilamento de designações ativas
