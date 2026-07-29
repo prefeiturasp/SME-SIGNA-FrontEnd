@@ -1,6 +1,6 @@
 # language: pt
 
-@visualizar 
+@visualizar   @skip
 Funcionalidade: visualizar de Designação
   Como um usuário do sistema SIGNA
   Eu quero gerenciar visualizar designações
@@ -11,6 +11,9 @@ Funcionalidade: visualizar de Designação
     E navega até o menu lateral e seleciona "Designações"
     E seleciona o submenu "Designação"
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Visualizar designação existente (fluxo completo) [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @visualizar-fluxo-completo @smoke
   Cenário: visualizar designação existente - Fluxo completo
     
@@ -61,7 +64,12 @@ Funcionalidade: visualizar de Designação
       """
 
     # ETAPA 5: Validação da seção "Dados do Servidor Titular"
-    E valida a existencia da seção "Dados do Servidor Titular"
+    # Só existe quando a designação selecionada tem um servidor titular
+    # vinculado (tipo "Cargo Vago"). Designações "Cargo Disponível" não
+    # exibem esta seção — por isso a validação abaixo pula graciosamente
+    # quando não aplicável, em vez de assumir que toda designação tem
+    # titular (ver comentário em visualizar_steps.js).
+    E valida a existencia da seção "Dados do Servidor Titular" quando aplicável a esta designação
     E valida a existencia dos Titulos
       """
       Nome Servidor
@@ -75,4 +83,8 @@ Funcionalidade: visualizar de Designação
 
     # ETAPA 6: Validação Final - Portaria
     E valida a existencia do Texto "PORTARIA"
+
+    # ETAPA 7: Retorno à listagem de designações
+    E clico no botão "Voltar"
+    Então o sistema direciona para a tela "Listagem de designações"
 

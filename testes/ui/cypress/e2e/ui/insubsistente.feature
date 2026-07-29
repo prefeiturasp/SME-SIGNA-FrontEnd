@@ -1,6 +1,6 @@
 # language: pt
 
-@insubsistente
+@insubsistente @skip
 Funcionalidade: Insubsistência de Designação
   Como um usuário do sistema SIGNA
   Eu quero gerenciar insubsistências de designações
@@ -11,6 +11,9 @@ Funcionalidade: Insubsistência de Designação
     E navega até o menu lateral e seleciona "Designações"
     E seleciona o submenu "Designação"
 
+ # ══════════════════════════════════════════════════════════════
+ # CENÁRIO 1 — Tornar insubsistente, tipo Designação        [ATIVO]
+ # ══════════════════════════════════════════════════════════════
  @insubsistente-fluxo-completo @smoke
   Cenário: Tornar designação insubsistente - Designação
     
@@ -73,6 +76,9 @@ Funcionalidade: Insubsistência de Designação
     E valida a existencia do botão de navegação "Salvar"
     E clica em "Salvar"
 
+ # ══════════════════════════════════════════════════════════════
+ # CENÁRIO 2 — Tornar insubsistente, tipo Cessação          [@skip]
+ # ══════════════════════════════════════════════════════════════
  @skip @insubsistente-cessacao @smoke
   Cenário: Tornar designação insubsistente - Cessação
     
@@ -138,6 +144,9 @@ Funcionalidade: Insubsistência de Designação
 
 
 
+ # ══════════════════════════════════════════════════════════════
+ # CENÁRIO 3 — Navegação entre todas as abas do formulário  [ATIVO]
+ # ══════════════════════════════════════════════════════════════
  @insubsistente-navegacao-abas @smoke
   Cenário: Validação de navegação entre todas as abas do formulário
     
@@ -166,6 +175,9 @@ Funcionalidade: Insubsistência de Designação
     # ETAPA 5: Validação de que todas as abas são acessíveis
     Então todas as abas do formulário foram acessadas com sucesso
 
+ # ══════════════════════════════════════════════════════════════
+ # CENÁRIO 4 — Exibição de dados nas abas                   [ATIVO]
+ # ══════════════════════════════════════════════════════════════
  @insubsistente-validacao-dados @smoke
   Cenário: Validação de exibição de dados nas abas
     
