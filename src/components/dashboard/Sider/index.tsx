@@ -2,9 +2,6 @@
 import { Button, Layout, Menu, MenuProps } from 'antd';
 import React, { CSSProperties, useContext } from 'react';
 
-
-import MenuItem from 'antd/es/menu/MenuItem';
-import SubMenu from 'antd/es/menu/SubMenu';
 import MenuContextProvider, { MenuContext } from './provider';
 import Bars from '@/assets/icons/Bars';
 import { X } from 'lucide-react';
@@ -57,6 +54,17 @@ export type MenuSMEProps = {
   routePathname?: string;
 };
 
+const findMenuItem = (list: MenuItemSMEProps[], key: React.Key): MenuItemSMEProps | undefined => {
+  for (const item of list) {
+    if (item.key?.toString() === key?.toString()) return item;
+    if (item.children) {
+      const found = findMenuItem(item.children, key);
+      if (found) return found;
+    }
+  }
+  return undefined;
+};
+
 const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
   items,
   menuProps,
@@ -75,41 +83,20 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
     return item.children.some((child) => hasSelectedChild(child));
   };
 
-  const montarMenuItem = (item: MenuItemSMEProps) => {
-    return (
-      <MenuItem
-        key={item.key}
-        id={item?.key?.toString()}
-        onClick={() => {
-          setOpenKeys([]);
-          setSelectedKeys([item?.key?.toString()]);
+  const montarMenuItems = (list: MenuItemSMEProps[], isSubMenu = false): NonNullable<MenuProps['items']> =>
+    list.map((menuItem) => {
+      if (menuItem?.children?.length) {
+        const itemKey = menuItem?.key?.toString();
+        const itemIsSelected = hasSelectedChild(menuItem);
+        const isOpen = !!itemKey && openKeys.includes(itemKey);
+        const hasRedBackground = !isSubMenu && !itemIsSelected && !isOpen;
 
-          if (!item?.children?.length && !collapsed) setCollapsed(!collapsed);
-
-          if (onClick) onClick(item);
-        }}
-      >
-        <div className='app-sider-menu-title'>
-          {item?.title}
-        </div>
-      </MenuItem>
-    );
-  };
-
-  const montarSubMenu = (menuItem: MenuItemSMEProps, isSubMenu = false) => (
-    (() => {
-      const itemKey = menuItem?.key?.toString();
-      const itemIsSelected = hasSelectedChild(menuItem);
-      const isOpen = !!itemKey && openKeys.includes(itemKey);
-      const hasRedBackground = !isSubMenu && !itemIsSelected && !isOpen;
-
-      return (
-        <SubMenu
-          key={menuItem?.key}
-          className={`app-sider-submenu ${
+        return {
+          key: menuItem.key,
+          className: `app-sider-submenu ${
             collapsed ? 'is-collapsed' : 'is-expanded'
-          } ${isSubMenu ? 'is-submenu' : 'is-root-submenu'}`}
-          title={
+          } ${isSubMenu ? 'is-submenu' : 'is-root-submenu'}`,
+          label: (
             <div
               className={`app-sider-menu-group relative flex items-center ${
                 collapsed ? 'flex-col' : 'flex-row'
@@ -133,18 +120,28 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
                 <Bars width={16} height={16} opacity={0.5} style={{ top: 0, right: 6, position: 'absolute' }} />
               )}
             </div>
-          }
-        >
-          <>
-            {menuItem?.children?.map((item: MenuItemSMEProps) => {
-              if (item?.children?.length) return montarSubMenu(item, true);
-              return montarMenuItem(item);
-            })}
-          </>
-        </SubMenu>
-      );
-    })()
-  );
+          ),
+          children: montarMenuItems(menuItem.children, true),
+        };
+      }
+
+      return {
+        key: menuItem.key,
+        label: <div className='app-sider-menu-title'>{menuItem?.title}</div>,
+      };
+    });
+
+  const handleMenuClick: NonNullable<MenuProps['onClick']> = (info) => {
+    const item = items && findMenuItem(items, info.key);
+    if (!item) return;
+
+    setOpenKeys([]);
+    setSelectedKeys([item?.key?.toString()]);
+
+    if (!item?.children?.length && !collapsed) setCollapsed(!collapsed);
+
+    if (onClick) onClick(item);
+  };
 
   if (!items?.length) return <></>;
 
@@ -198,8 +195,10 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           className='app-sider-ant-menu'
           mode='inline'
           {...menuProps}
+          items={montarMenuItems(items)}
           openKeys={openKeys}
           selectedKeys={currentSelectedKeys}
+          onClick={handleMenuClick}
           onOpenChange={(newOpenKeys: string[]) => {
             if (collapsed) {
               const newValue = !collapsed;
@@ -212,9 +211,7 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
               menuProps.onOpenChange(newOpenKeys);
             }
           }}
-        >
-          <>{items?.map((menuItem: MenuItemSMEProps) => montarSubMenu(menuItem))}</>
-        </Menu>
+        />
       </div>
     </Layout.Sider>
   );
