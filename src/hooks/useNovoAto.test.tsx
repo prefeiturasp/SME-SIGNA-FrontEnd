@@ -232,6 +232,41 @@ describe("useNovoAto", () => {
     expect(pushMock).toHaveBeenCalledWith("/pages/apostila?id=12&origem=cessacao");
   });
 
+  it("apostila: quando a designação já possui apostila ativa, informa erro e não navega", async () => {
+    vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
+      success: true,
+      data: { id: 55, apostilas: [{ id: 550, status: "ativo" }] } as any,
+    });
+
+    const { result } = renderHook(() => useNovoAto());
+
+    let sucesso: boolean | undefined;
+    await act(async () => {
+      sucesso = await result.current.buscar("apostila", "550/2026", "2026");
+    });
+
+    expect(sucesso).toBe(false);
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(result.current.errorMessage).toBe(
+      "Essa portaria já possui uma apostila vinculada."
+    );
+  });
+
+  it("apostila: quando a designação possui apostila anulada (não ativa), navega normalmente", async () => {
+    vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
+      success: true,
+      data: { id: 56, apostilas: [{ id: 560, status: "anulado" }] } as any,
+    });
+
+    const { result } = renderHook(() => useNovoAto());
+
+    await act(async () => {
+      await result.current.buscar("apostila", "560/2026", "2026");
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/apostila?id=56&origem=designacao");
+  });
+
   it("apostila: quando nem designação nem cessação são encontradas, define mensagem de erro", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue(erroNaoEncontrado);
     vi.mocked(buscarCessacaoPorPortariaAction).mockResolvedValue(erroNaoEncontrado);
