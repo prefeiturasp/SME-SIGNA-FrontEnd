@@ -54,7 +54,7 @@ export default function CargosBase() {
       </FundoBranco>
 
       <FundoBranco className="mb-4">
-        <>listagem de cargos base</>
+        listagem de cargos base
 
       </ FundoBranco>
     </>
