@@ -8,11 +8,17 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import { useCargosBase } from "@/hooks/useCargosBase";
 import FiltroDeCargosBase from "@/components/dashboard/Gestao/FiltroDeCargosBase/FiltroDeCargosBase";
+import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
 
 
 
 export default function CargosBase() {
-  const {
+  const { 
+    isPending,
+    tabelaKey,
+    resultado,
+    onPageChange,
+    page,
     filterForm,
     onSubmitFilterForm,
     handleClear,
@@ -54,7 +60,14 @@ export default function CargosBase() {
       </FundoBranco>
 
       <FundoBranco className="mb-4">
-        <>listagem de cargos base</>
+        <ListagemDeAtosAdministrativos
+          onPageChange={onPageChange}
+          key={tabelaKey}
+          data={resultado?.results ?? []}
+          total={resultado?.count ?? 0}
+          page={page}
+          isLoading={isPending}
+        />
 
       </ FundoBranco>
     </>

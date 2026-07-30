@@ -6,3 +6,15 @@ export interface CargosBaseFiltros {
   situacao_funcional?: string;
   status?: string;
 }
+
+export interface CargosBasePaginada {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: CargosBaseResponse[];
+}
+
+export interface CargosBaseResponse {
+  id: number;
+  nome: string;
+}
