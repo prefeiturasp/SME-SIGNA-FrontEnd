@@ -162,12 +162,21 @@ Given('navega até o menu lateral e seleciona {string}', (menuItem) => {
 })
 
 Given('seleciona o submenu {string}', (submenu) => {
-  // Sidebar expandida: submenu está visível inline — click normal sem force
   // Filtra por :visible para não colidir com a cópia oculta do popup do menu
   // (mesma questão descrita acima em "navega até o menu lateral e seleciona").
+  //
+  // {force: true}: o <span> do submenu fica com "pointer-events: none"
+  // enquanto a transição CSS do menu Ant Design (abertura do acordeão do
+  // item pai, clicado no step anterior) ainda está em andamento — condição
+  // de corrida confirmada em execução real (CypressError "has CSS
+  // pointer-events: none" em visualiza_designação.feature, mesmo com o
+  // cy.wait(800) do step anterior já ter passado). Todo o resto do projeto
+  // já usa force:true nos cliques do menu lateral por este mesmo motivo
+  // (ver "navega até o menu lateral e seleciona {string}" logo acima);
+  // este era o único click() sem force.
   cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${submenu}$`, 'i'), { timeout: 15000 })
     .should('be.visible')
-    .click()
+    .click({ force: true })
   cy.url({ timeout: 25000 }).should('include', 'listagem-designacoes')
   cy.get('main', { timeout: 15000 }).should('be.visible')
   cy.log(`✓ Submenu "${submenu}" selecionado — listagem carregada`)
@@ -242,6 +251,16 @@ Then('o sistema exibe a Tela {string}', (tela) => {
   // URL real: /pages/apostila?id=XX  (sem "r" final)
   // Texto real na página: "Apostila" (breadcrumb e título da seção)
   else if (telaLower.includes('apostil')) {
+    // "Anular apostila" pode não navegar quando a portaria buscada não tem
+    // apostila vinculada (ver "valida se a portaria possui apostila
+    // vinculada para anular", atos_administrativos_steps.js) — resultado de
+    // negócio válido, não uma falha. O flag é setado explicitamente por
+    // aquele step antes deste rodar, então aqui só false (não undefined)
+    // deve pular.
+    if (Cypress.env('apostilaCessacaoTemDados') === false) {
+      cy.log('⚠️ Skip: portaria sem apostila vinculada — não há tela de apostila para validar')
+      return
+    }
     cy.url({ timeout: 15000 }).should('include', 'apostila')
     cy.log('✓ Navegação para tela Apostila confirmada')
     cy.contains(/Apostila/i, { timeout: 15000 }).should('be.visible')

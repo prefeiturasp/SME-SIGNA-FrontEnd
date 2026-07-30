@@ -160,8 +160,19 @@ export const menus: MenuItemConectaProps[] = [
   MENU_GESTAO,
 ];
  
+function collectMenuUrls(items: MenuItemSMEProps[]): string[] {
+  return items.flatMap((item) => [
+    ...(item.url ? [item.url] : []),
+    ...(item.children ? collectMenuUrls(item.children) : []),
+  ]);
+}
+
 export function AppNewSidebar() {
   const navigate = useRouter();
+
+  React.useEffect(() => {
+    collectMenuUrls(menus).forEach((url) => navigate.prefetch(url));
+  }, [navigate]);
 
   const itemMenuEscolhido = (item: MenuItemSMEProps) => {
     if (item?.url) {

@@ -15,11 +15,13 @@ import {
 } from "./app-new-sidebar";
 
 const pushMock = vi.fn();
+const prefetchMock = vi.fn();
 const siderSpy = vi.fn();
 
 vi.mock("next/navigation", () => ({
     useRouter: () => ({
         push: pushMock,
+        prefetch: prefetchMock,
     }),
 }));
 
@@ -73,6 +75,7 @@ vi.mock("../Sider", () => ({
 describe("app-new-sidebar", () => {
     beforeEach(() => {
         pushMock.mockClear();
+        prefetchMock.mockClear();
         siderSpy.mockClear();
     });
 
@@ -107,6 +110,7 @@ describe("app-new-sidebar", () => {
         expect(firstCallProps.styleSider).toEqual({ zIndex: 12 });
         expect(firstCallProps.items).toBe(menus);
         expect(screen.getByAltText("Logo Signa")).toBeInTheDocument();
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/meus-dados");
 
         fireEvent.click(screen.getByTestId("trigger-item-with-url"));
         expect(pushMock).toHaveBeenCalledWith("/pages/meus-dados");

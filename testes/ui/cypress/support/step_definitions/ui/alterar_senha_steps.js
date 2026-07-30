@@ -158,12 +158,23 @@ When('clica no botão {string}', (btnText) => {
       cy.contains('button', btnText, { matchCase: false, timeout: 10000 }).click({ force: true });
     });
   } else if (textoNormalizado.includes('voltar')) {
-    cy.get('main a', { timeout: 10000 })
-      .filter((index, element) => {
-        const texto = Cypress.$(element).text().toLowerCase();
-        return texto.includes('voltar');
-      })
-      .first()
+    // A tela "Meus Dados" não tem nenhum link/botão "Voltar" dentro de
+    // <main> — confirmado via screenshot real de falha (cypress/screenshots/
+    // ui/alterar_senha.feature/...png): cy.get('main a') retornava 0
+    // elementos. O caminho real de volta à página inicial é o item
+    // "Início" do menu lateral esquerdo. Reaproveita o mesmo padrão de
+    // seletor já validado em atos_administrativos_steps.js/common_steps.js
+    // (filtra por :visible para não colidir com a cópia oculta do menu
+    // Ant Design, e trata o caso do sidebar colapsado).
+    cy.get('aside').then(($aside) => {
+      if ($aside.hasClass('is-collapsed')) {
+        cy.get('aside').find('button').first().click({ force: true });
+        cy.get('aside', { timeout: 8000 }).should('not.have.class', 'is-collapsed');
+        cy.wait(600);
+      }
+    });
+    cy.contains('span:visible, a:visible, div:visible', /^início$/i, { timeout: 15000 })
+      .closest('li, [role="menuitem"], a')
       .click({ force: true });
   } else {
     cy.contains('button, a', btnText, { matchCase: false, timeout: 10000 }).click({ force: true });

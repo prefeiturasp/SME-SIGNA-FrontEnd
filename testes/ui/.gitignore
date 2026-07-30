@@ -54,6 +54,15 @@ cypress/support/locators/unidade_proponente_locators.js
 # Rascunhos sem extensão .feature (notas/protótipos locais)
 cypress/e2e/ui/criaçao
 cypress/e2e/ui/criacao
+
+# Suíte extra/carga/stress do SIGNA — pausada (tag @skip), ainda não subida
+# ao repositório. Remova estas linhas quando decidir versionar/rodar de fato.
+cypress/e2e/ui/signa_extra.feature
+cypress/e2e/ui/signa_carga.feature
+cypress/e2e/ui/signa_stress.feature
+cypress/support/step_definitions/ui/signa_extra_steps.js
+cypress/support/step_definitions/ui/signa_carga_steps.js
+cypress/support/step_definitions/ui/signa_stress_steps.js
 # Pasta plugins obsoleta (Cypress 10+ não usa)
 cypress/plugins/
 

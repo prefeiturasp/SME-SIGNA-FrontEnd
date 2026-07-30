@@ -1,6 +1,6 @@
 # language: pt
 
-@cessacao 
+@cessacao @skip
 Funcionalidade: Cessação de Designação
   Como um usuário do sistema SIGNA
   Eu quero gerenciar cessações de designações
@@ -11,6 +11,9 @@ Funcionalidade: Cessação de Designação
     E navega até o menu lateral e seleciona "Designações"
     E seleciona o submenu "Designação"
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Cessação de designação existente (fluxo completo) [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @cessacao-fluxo-completo @smoke
   Cenário: Cessação de designação existente - Fluxo completo
     

@@ -1,6 +1,9 @@
 # language: pt
 Funcionalidade: Alteração de e-mail
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Validar opções na seção Meus Dados            [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   Cenário: Usuário valida as opções de alteração na seção Meus Dados
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema
@@ -9,6 +12,9 @@ Funcionalidade: Alteração de e-mail
     E valida a existencia dos botões "Alterar e-mail" e "Alterar senha"
 
    
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Acessar alteração de e-mail via Meus Dados     [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   Cenário: Usuário acessa a alteração de e-mail via Meus Dados
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema
@@ -19,6 +25,9 @@ Funcionalidade: Alteração de e-mail
     E preenche o campo E-mail com "teste_qa@sme.prefeitura.sp.gov.br"
     Então o sistema deve apresentar a mensagem alertando o usuário sobre a alteração do e-mail
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Usuário realiza a alteração do e-mail          [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   Cenário: Usuário realiza a alteração do e-mail
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema
