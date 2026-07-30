@@ -32,6 +32,26 @@ vi.mock("@/components/ui/FieldsForm", () => ({
   DateRangePickerField: ({ name, label }: { name: string; label: string }) => (
     <div data-testid={`date-range-${name}`}>{label}</div>
   ),
+  SelectField: ({
+    name,
+    label,
+    dataTestId,
+    options,
+  }: {
+    name: string;
+    label: string;
+    dataTestId?: string;
+    options: { value: string; label: string }[];
+  }) => (
+    <div data-testid={dataTestId ?? `select-${name}`}>
+      {label}
+      {options.map((option) => (
+        <div key={option.value} data-testid={`select-item-${option.value}`}>
+          {option.label}
+        </div>
+      ))}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/ui/form", () => ({
@@ -127,13 +147,12 @@ describe("FiltroDeAtosAdministrativos", () => {
     );
   });
 
-  it("propaga alteracoes dos selects para o react-hook-form", () => {
+  it("propaga alteracoes do select de status para o react-hook-form", () => {
     render(<FiltroDeAtosAdministrativos />);
 
     const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
-    triggerButtons.forEach((button) => fireEvent.click(button));
+    fireEvent.click(triggerButtons[0]);
 
-    expect(onChangeByField.tipo).toHaveBeenCalledWith("mock-value");
     expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
   });
 

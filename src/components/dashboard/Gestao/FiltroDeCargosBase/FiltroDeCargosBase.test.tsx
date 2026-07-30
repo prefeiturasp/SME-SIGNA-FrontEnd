@@ -1,10 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FiltroDeAtosAdministrativos from "./FiltroDeAtosAdministrativos";
+import FiltroDeCargosBase, {
+  CargosBaseOpcoes,
+  SituacaoFuncionalOpcoes,
+  StatusOpcoes,
+} from "./FiltroDeCargosBase";
 
 const watchValues: Record<string, unknown> = {};
-const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
+const inputFieldSpy = vi.fn();
+const selectFieldSpy = vi.fn();
 const filtroAcoesMock = vi.fn();
 
 vi.mock("react-hook-form", () => ({
@@ -20,68 +24,31 @@ vi.mock("react-hook-form", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
-  InputField: ({
-    name,
-    label,
-    "data-testid": dataTestId,
-  }: {
+  InputField: (props: { name: string; label: string; "data-testid"?: string }) => {
+    inputFieldSpy(props);
+    return <div data-testid={props["data-testid"] ?? `input-${props.name}`}>{props.label}</div>;
+  },
+  SelectField: (props: {
     name: string;
     label: string;
+    options: Array<{ value: string; label: string }>;
     "data-testid"?: string;
-  }) => <div data-testid={dataTestId ?? `input-${name}`}>{label}</div>,
-  DateRangePickerField: ({ name, label }: { name: string; label: string }) => (
-    <div data-testid={`date-range-${name}`}>{label}</div>
-  ),
-}));
-
-vi.mock("@/components/ui/form", () => ({
-  FormField: ({
-    name,
-    render,
-  }: {
-    name: string;
-    render: (args: { field: { value: string; onChange: (value: string) => void } }) => ReactNode;
   }) => {
-    const onChange = vi.fn();
-    onChangeByField[name] = onChange;
-    return <div>{render({ field: { value: "", onChange } })}</div>;
+    selectFieldSpy(props);
+    return (
+      <div>
+        <div data-testid={props["data-testid"] ?? `select-${props.name}`}>{props.label}</div>
+        {props.options.map((option) => (
+          <span key={option.value} data-testid={`select-item-${props.name}-${option.value}`}>
+            {option.label}
+          </span>
+        ))}
+      </div>
+    );
   },
-  FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  FormMessage: () => <span data-testid="form-message" />,
-  FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
-  FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/ui/select", () => ({
-  Select: ({
-    children,
-    onValueChange,
-  }: {
-    children: ReactNode;
-    onValueChange?: (value: string) => void;
-  }) => (
-    <div>
-      <button type="button" onClick={() => onValueChange?.("mock-value")}>
-        trigger-select
-      </button>
-      {children}
-    </div>
-  ),
-  SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  SelectItem: ({ children, value }: { children: ReactNode; value: string }) => (
-    <div data-testid={`select-item-${value}`}>{children}</div>
-  ),
-  SelectTrigger: ({
-    children,
-    "data-testid": dataTestId,
-  }: {
-    children: ReactNode;
-    "data-testid"?: string;
-  }) => <button data-testid={dataTestId}>{children}</button>,
-  SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
-}));
-
-vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
+vi.mock("../../Designacao/FiltroAcoes/FiltroAcoes", () => ({
   default: ({ hasFilters, onClear }: { hasFilters: boolean; onClear?: () => void }) => {
     filtroAcoesMock({ hasFilters, onClear });
     return (
@@ -92,62 +59,60 @@ vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
   },
 }));
 
-describe("FiltroDeAtosAdministrativos", () => {
+describe("FiltroDeCargosBase", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
-    Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
   });
 
-  it("renderiza campos, opcoes de tipo e status, e envia hasFilters=false ao FiltroAcoes", () => {
-    render(<FiltroDeAtosAdministrativos />);
+  it("exporta as listas de opções esperadas", () => {
+    expect(SituacaoFuncionalOpcoes).toEqual([
+      { codigo: "1", nome: "Cargo em comissão" },
+      { codigo: "2", nome: "Efetivo" },
+      { codigo: "3", nome: "Contratado" },
+    ]);
+    expect(StatusOpcoes).toEqual([
+      { codigo: "1", nome: "Ativo" },
+      { codigo: "2", nome: "Inativo" },
+      { codigo: "3", nome: "Extinto" },
+    ]);
+    expect(CargosBaseOpcoes).toEqual([
+      { codigo: "1", nome: "Apoio - educação" },
+      { codigo: "2", nome: "Docentes" },
+      { codigo: "3", nome: "Gestores - educação" },
+    ]);
+  });
 
-    expect(screen.getByText("Filtros")).toBeInTheDocument();
-    expect(screen.getByTestId("input-numero_sei")).toBeInTheDocument();
-    expect(screen.getByTestId("input-portaria")).toBeInTheDocument();
-    expect(screen.getByTestId("input-nome-titular-e-indicado")).toBeInTheDocument();
-    expect(screen.getByTestId("input-rf")).toBeInTheDocument();
-    expect(screen.getByTestId("date-range-periodo")).toBeInTheDocument();
+  it("renderiza os campos e envia hasFilters=false para FiltroAcoes sem filtros", () => {
+    render(<FiltroDeCargosBase />);
 
-    expect(screen.getByTestId("select-listar-para")).toBeInTheDocument();
-    expect(screen.getByTestId("select-status-publicacao")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-DESIGNACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-CESSACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-INSUBSISTENCIA_DESIGNACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-INSUBSISTENCIA_CESSACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-APOSTILA_DESIGNACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-APOSTILA_CESSACAO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-NAO_PUBLICADO")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-PUBLICADO")).toBeInTheDocument();
-
+    expect(screen.getByTestId("input-grupamento")).toBeInTheDocument();
+    expect(screen.getByTestId("input-descricao_resumida")).toBeInTheDocument();
+    expect(screen.getByTestId("input-descricao_completa")).toBeInTheDocument();
+    expect(screen.getByTestId("input-situacao_funcional")).toBeInTheDocument();
+    expect(screen.getByTestId("input-status")).toBeInTheDocument();
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         hasFilters: false,
-      })
+      }),
     );
   });
 
-  it("propaga alteracoes dos selects para o react-hook-form", () => {
-    render(<FiltroDeAtosAdministrativos />);
-
-    const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
-    triggerButtons.forEach((button) => fireEvent.click(button));
-
-    expect(onChangeByField.tipo).toHaveBeenCalledWith("mock-value");
-    expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
-  });
-
-  it("marca hasFilters=true quando algum filtro estiver preenchido e executa onClear", () => {
+  it("mapeia opções para selects e aciona onClear quando clicado no filtro de ações", () => {
     const onClear = vi.fn();
-    watchValues.numero_sei = "1234.5678/9012345-6";
+    watchValues.grupamento = "2";
 
-    render(<FiltroDeAtosAdministrativos onClear={onClear} />);
+    render(<FiltroDeCargosBase onClear={onClear} />);
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         hasFilters: true,
-      })
+      }),
     );
+
+    expect(screen.getByTestId("select-item-grupamento-1")).toHaveTextContent("Apoio - educação");
+    expect(screen.getByTestId("select-item-situacao_funcional-2")).toHaveTextContent("Efetivo");
+    expect(screen.getByTestId("select-item-status-3")).toHaveTextContent("Extinto");
 
     fireEvent.click(screen.getByTestId("mock-filtro-acoes"));
     expect(onClear).toHaveBeenCalledTimes(1);
