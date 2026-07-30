@@ -436,3 +436,10 @@ input[type="number"] {
 .ant-card .ant-card-body{
   padding: 16px;
 }
+
+
+.disabled-row {
+  background-color: #F9F9F9;  
+  opacity: 0.5;
+  pointer-events: none;
+}
