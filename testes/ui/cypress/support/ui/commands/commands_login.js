@@ -10,7 +10,6 @@ Cypress.Commands.add('realizarLogin', (usuario, senha) => {
   cy.visit('/login');
   cy.wait(1000); // buffer para carregamento da página
 
-  // Preencher RF/CPF
   cy.get(loginLocators.campoRfCpf, { timeout: 40000 })
     .should('be.visible')
     .and('not.be.disabled')
@@ -18,22 +17,19 @@ Cypress.Commands.add('realizarLogin', (usuario, senha) => {
     .type(usuario, { delay: 100 });
   cy.wait(500);
 
-  // Preencher Senha com validações rigorosas
   cy.get(loginLocators.campoSenha, { timeout: 40000 })
     .should('be.visible')
     .and('not.be.disabled')
-    .clear({ force: true })      // ← Added force: true
+    .clear({ force: true })
     .wait(300)
-    .type(senha, { delay: 100, force: true });  // ← Added force: true
+    .type(senha, { delay: 100, force: true });
   cy.wait(500);
 
-  // Clicar em Entrar
   cy.get(loginLocators.botaoEntrar, { timeout: 40000 })
     .should('be.visible')
     .and('not.be.disabled')
     .click();
 
-  // Aguardar redirecionamento
   cy.url({ timeout: 40000 }).should('not.include', '/login');
   cy.aguardarCarregamento();
 });
@@ -77,8 +73,7 @@ Cypress.Commands.add('tentarLoginInvalido', (usuario, senha) => {
   cy.get(loginLocators.campoRfCpf).clear().type(usuario);
   cy.get(loginLocators.campoSenha).clear().type(senha);
   cy.get(loginLocators.botaoEntrar).click();
-  
-  // Deve permanecer na página de login
+
   cy.url().should('include', '/login');
 });
 
@@ -144,7 +139,6 @@ Cypress.Commands.add('loginViaAPI', (usuario, senha) => {
     }
   }).then((response) => {
     expect(response.status).to.eq(200);
-    // Salvar token se necessário
     if (response.body.token) {
       window.localStorage.setItem('token', response.body.token);
     }
