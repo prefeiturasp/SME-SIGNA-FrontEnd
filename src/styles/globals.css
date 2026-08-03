@@ -203,18 +203,11 @@
   border-color: #FFFFFF !important;
 }
 
-/* antd v6: barra do indeterminate fica em ::after direto no .ant-checkbox */
 .tabela-principal .ant-table-thead .ant-table-selection-column .ant-checkbox-indeterminate::after {
   background-color: #B22B2A !important;
 }
 
-/*
- * Radio DO option
- * antd v6: .ant-radio-inner foi removido do DOM.
- * Os estilos de borda/fundo agora ficam diretamente em .ant-radio,
- * e o ponto interno usa .ant-radio::after.
- */
-  .radio-do-option .ant-radio {
+.radio-do-option .ant-radio {
     --ant-radio-dot-size: 12;
     width: 24px !important;
     height: 24px !important;
