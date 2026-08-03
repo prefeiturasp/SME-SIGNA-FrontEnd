@@ -63,6 +63,14 @@ cypress/e2e/ui/signa_stress.feature
 cypress/support/step_definitions/ui/signa_extra_steps.js
 cypress/support/step_definitions/ui/signa_carga_steps.js
 cypress/support/step_definitions/ui/signa_stress_steps.js
+
+# Features retiradas do repositório a pedido, mantidas só localmente e
+# excluídas da execução (ver excludeSpecPattern em cypress.config.js).
+cypress/e2e/ui/cessacao.feature
+cypress/e2e/ui/designacao.feature
+cypress/e2e/ui/insubsistente.feature
+cypress/e2e/ui/apostilar.feature
+cypress/e2e/ui/altera_DO.feature
 # Pasta plugins obsoleta (Cypress 10+ não usa)
 cypress/plugins/
 
