@@ -4,7 +4,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 // Contexto - Navegação
 Given('que eu acesso o sistema', () => {
   cy.visit('/');
-  cy.wait(1000); // Aguardar carregamento
+  cy.wait(1000);
 });
 
 Given('que o usuário acessa a página de login', () => {
@@ -128,8 +128,12 @@ When('o usuário clica no menu de usuário', () => {
 // ─── Steps Genéricos Comuns ─────────────────────────────────────────────────
 
 Given('que o usuário está na página do dashboard', () => {
-  // Navegação já realizada no Contexto via sidebar — apenas valida o estado atual
-  cy.url({ timeout: 40000 }).should('include', 'listagem-designacoes')
+  // Navegação já realizada no Contexto via sidebar — apenas valida o estado atual.
+  // Migração do menu lateral (commit b7f0f32): o submenu "Designação" não navega
+  // mais para /pages/listagem-designacoes — a listagem foi unificada em
+  // /pages/atos-administrativos (mesma tabela usada por atos_novos/filtra_atos,
+  // filtrada por tipo "Designação").
+  cy.url({ timeout: 40000 }).should('include', 'atos-administrativos')
   cy.get('main', { timeout: 40000 }).should('be.visible')
   cy.get('.loading, .spinner, .loader').should('not.exist')
   cy.wait(1500)
@@ -165,19 +169,33 @@ Given('seleciona o submenu {string}', (submenu) => {
   // Filtra por :visible para não colidir com a cópia oculta do popup do menu
   // (mesma questão descrita acima em "navega até o menu lateral e seleciona").
   //
+  // Escopado em "aside, nav" (não em todo o body): após a migração do menu
+  // lateral (commit b7f0f32) o item "Designações" passou a navegar direto
+  // para /pages/atos-administrativos, sem mais abrir um submenu com "Designação"
+  // como item próprio. Um cy.contains(...) sem escopo casava, em vez disso, com
+  // o <span> de valor selecionado do filtro "Tipo" daquela página (que também
+  // exibe o texto "Designação"), e o click({force:true}) abria o dropdown do
+  // filtro ao invés de navegar — confirmado em execução real (screenshot: menu
+  // lateral já achatado, filtro Tipo aberto mostrando "Designação" marcado).
+  // Escopando em aside/nav este engano fica impossível.
+  //
   // {force: true}: o <span> do submenu fica com "pointer-events: none"
   // enquanto a transição CSS do menu Ant Design (abertura do acordeão do
   // item pai, clicado no step anterior) ainda está em andamento — condição
   // de corrida confirmada em execução real (CypressError "has CSS
-  // pointer-events: none" em visualiza_designação.feature, mesmo com o
-  // cy.wait(800) do step anterior já ter passado). Todo o resto do projeto
+  // pointer-events: none" no cenário de Visualizar, hoje mesclado em
+  // consulta_atos_adminstra.feature, mesmo com o cy.wait(800) do step anterior já
+  // ter passado). Todo o resto do projeto
   // já usa force:true nos cliques do menu lateral por este mesmo motivo
   // (ver "navega até o menu lateral e seleciona {string}" logo acima);
   // este era o único click() sem force.
-  cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${submenu}$`, 'i'), { timeout: 15000 })
+  cy.get('aside, nav', { timeout: 10000 })
+    .contains('span:visible, a:visible, div:visible', new RegExp(`^${submenu}$`, 'i'), { timeout: 15000 })
     .should('be.visible')
     .click({ force: true })
-  cy.url({ timeout: 25000 }).should('include', 'listagem-designacoes')
+  // Ver comentário em "que o usuário está na página do dashboard": listagem
+  // agora vive em /pages/atos-administrativos, não mais /pages/listagem-designacoes.
+  cy.url({ timeout: 25000 }).should('include', 'atos-administrativos')
   cy.get('main', { timeout: 15000 }).should('be.visible')
   cy.log(`✓ Submenu "${submenu}" selecionado — listagem carregada`)
 });
@@ -218,33 +236,22 @@ Then('o sistema exibe a Tela {string}', (tela) => {
         cy.log(`✓ Tela "${tela}" validada`)
       })
   }
-  // Validação específica para tela de Visualizar Designação
-  else if (telaLower.includes('visualizar')) {
-    cy.log('🔍 Validando tela de Visualização')
-    
-    // Aguarda URL mudar (pode ser /designacao/id ou /visualizar)
-    cy.url({ timeout: 15000 }).should('satisfy', url => {
-      const contemVisualizacao = url.includes('designacao') || 
-                                  url.includes('visualizar') ||
-                                  url.includes('detalhes')
-      return contemVisualizacao
-    })
-    
-    cy.log('✓ Navegação para tela de Visualização confirmada')
-    
-    // Valida presença de abas (característica da tela de visualização)
-    cy.get('.ant-tabs-tab, button, span', { timeout: 15000 })
-      .should('have.length.greaterThan', 0)
-      .then(() => {
-        cy.log(`✓ Tela "${tela}" validada`)
-      })
-  }
-  // Validação específica para tela de Editar Designação
-  // URL real: /pages/designacoes/designacoes-passo-2?id=XX
-  else if (telaLower.includes('editar')) {
-    cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-2')
-    cy.log('✓ Navegação para tela de Editar Designação confirmada')
-    cy.contains(/Editar Designação/i, { timeout: 15000 }).should('be.visible')
+  // Validação específica para tela de Visualizar/Editar Designação
+  // Confirmado por screenshot real (execução manual): tanto "Detalhar"
+  // quanto "Editar" abrem a MESMA tela somente leitura "Detalhes da
+  // designação" (título real da página, com botões "Voltar" e "Consultar
+  // histórico" — sem rádio "Cargo Disponível"/"Cargo Vago", sem campo "RF
+  // Titular", sem botão "Avançar"). Não existe hoje uma tela de edição
+  // própria; "Editar Designação"/"Visualizar Designação" nos nomes dos
+  // steps são só rótulos semânticos de qual ação disparou a navegação — o
+  // conteúdo real validado é sempre "Detalhes da designação".
+  else if (telaLower.includes('visualizar') || telaLower.includes('editar')) {
+    cy.log(`🔍 Validando tela de "${tela}" (Detalhes da designação)`)
+
+    cy.url({ timeout: 15000 }).should('include', 'visualizar-designacao')
+    cy.log('✓ Navegação para visualizar-designacao confirmada')
+
+    cy.contains(/Detalhes da designação/i, { timeout: 15000 }).should('be.visible')
     cy.log(`✓ Tela "${tela}" carregada`)
   }
   // Validação específica para tela de Apostila
