@@ -8,23 +8,19 @@ const pageHeaderSpy = vi.fn();
 const filtroSpy = vi.fn();
 const handleClearMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
+const listagemSpy = vi.fn();
 const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (event?: Event) => {
   callback({ submitted: true });
   event?.preventDefault();
 });
+const useCargosBaseMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
 }));
 
 vi.mock("@/hooks/useCargosBase", () => ({
-  useCargosBase: () => ({
-    filterForm: {
-      handleSubmit: handleSubmitMock,
-    },
-    onSubmitFilterForm: onSubmitFilterFormMock,
-    handleClear: handleClearMock,
-  }),
+  useCargosBase: () => useCargosBaseMock(),
 }));
 
 vi.mock("react-hook-form", () => ({
@@ -66,6 +62,13 @@ vi.mock("@/components/dashboard/Gestao/FiltroDeCargosBase/FiltroDeCargosBase", (
   },
 }));
 
+vi.mock("@/components/dashboard/Gestao/ListagemDeCargos/ListagemDeCargos", () => ({
+  default: (props: Record<string, unknown>) => {
+    listagemSpy(props);
+    return <div>listagem de cargos base</div>;
+  },
+}));
+
 vi.mock("@/assets/icons/Plus", () => ({
   default: () => <span data-testid="icon-plus" />,
 }));
@@ -73,6 +76,17 @@ vi.mock("@/assets/icons/Plus", () => ({
 describe("Página Gestão de cargos base", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useCargosBaseMock.mockReturnValue({
+      isPending: false,
+      resultado: null,
+      onPageChange: vi.fn(),
+      page: 1,
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
+    });
   });
 
   it("renderiza header, breadcrumbs e conteúdo base", () => {
@@ -91,6 +105,15 @@ describe("Página Gestão de cargos base", () => {
       { title: "Gestão", href: "/" },
       { title: "Cargo base", href: "" },
     ]);
+
+    expect(listagemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [],
+        total: 0,
+        page: 1,
+        isLoading: false,
+      }),
+    );
   });
 
   it("submete o formulário e chama callback de limpeza de filtros", () => {
@@ -103,6 +126,36 @@ describe("Página Gestão de cargos base", () => {
     fireEvent.click(screen.getByTestId("mock-filtro-clear"));
     expect(handleClearMock).toHaveBeenCalledTimes(1);
     expect(filtroSpy).toHaveBeenCalledWith({ onClear: handleClearMock });
+  });
+
+  it("repassa dados e estado de loading para a listagem quando houver resultado", () => {
+    const onPageChangeMock = vi.fn();
+    useCargosBaseMock.mockReturnValue({
+      isPending: true,
+      resultado: {
+        count: 2,
+        results: [{ id: 10 }, { id: 20 }],
+      },
+      onPageChange: onPageChangeMock,
+      page: 3,
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
+    });
+
+    render(<CargosBase />);
+
+    expect(listagemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [{ id: 10 }, { id: 20 }],
+        total: 2,
+        page: 3,
+        isLoading: true,
+        onPageChange: onPageChangeMock,
+      }),
+    );
   });
 
   it("navega para cadastro de cargo base ao clicar no botão do header", () => {

@@ -43,6 +43,9 @@ export default function RootLayout({
                   colorText: "#FFFFFF",
                   colorTextHeading: "#FFFFFF",
                 },
+                Badge: {
+                  statusSize: 10,
+                },
               },
               token: {
                 colorBorder: "#dadada",
