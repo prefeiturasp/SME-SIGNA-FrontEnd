@@ -1,18 +1,10 @@
 'use client'
-import { MenuProps } from 'antd/lib/menu';
-import { MoreOutlined } from '@ant-design/icons';
-import { StatusAtosAdministrativos } from '@/types/designacao';
-import { formatarDataHora } from '@/lib/utils';
-import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { Badge, Dropdown, Pagination, Table, Tag, Tooltip } from 'antd';
-import type { TableProps } from 'antd';
 
+import { MoreOutlined } from '@ant-design/icons';
+import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
+import { Badge, Dropdown, Pagination, Table } from 'antd';
+import type { TableProps } from 'antd';
 import Editar from '@/assets/icons/Editar';
-import Apostilar from '@/assets/icons/Apostilar';
-import Cancelar from '@/assets/icons/Cancelar';
-import DocumentoErro from '@/assets/icons/DocumentoErro';
-import Delete from '@/assets/icons/Delete';
-import { ItemType } from 'antd/es/menu/interface';
 import { useRouter } from 'next/navigation';
 import { CargosBaseResponse } from '@/types/gestao';
 
