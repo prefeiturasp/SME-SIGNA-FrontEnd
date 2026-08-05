@@ -16,7 +16,7 @@ import {
 import { format, isValid } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DatePicker } from "antd";
+import { DatePicker, Switch } from "antd";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,10 +30,12 @@ interface PropsField {
     type?: string;
     disabled?: boolean;
     allowClear?: boolean;
+    showBlankSpace?: boolean;
+    description?: string;
 }
 
 
-export const CheckboxField = ({ register, control, name, label, dataTestId }: PropsField) => {
+export const CheckboxField = ({ register, control, name, label, dataTestId, showBlankSpace }: PropsField) => {
     return (
         <FormField
             {...register(name)}
@@ -70,16 +72,16 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
                                     <Label htmlFor="doc-nao">Não</Label>
                                 </Field>
                             </div>
-                        </RadioGroup>                        
+                        </RadioGroup>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         ></FormField>
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number }) => {
+export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength, showBlankSpace = true }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
     return (
         <FormField
             {...register(name)}
@@ -105,7 +107,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             maxLength={maxLength}
                         />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         />
@@ -126,6 +128,7 @@ export const SelectField = ({
     options,
     disabled = false,
     register,
+    showBlankSpace = true,
 }: {
     control: Control<FieldValues>;
     name: string;
@@ -135,6 +138,7 @@ export const SelectField = ({
     options: SelectOption[];
     disabled?: boolean;
     register: UseFormRegister<FieldValues>;
+    showBlankSpace?: boolean;
 }) => {
     return (
         <FormField
@@ -162,7 +166,7 @@ export const SelectField = ({
                             </SelectContent>
                         </Select>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         />
@@ -171,7 +175,7 @@ export const SelectField = ({
 
 
 
-export const DateField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
+export const DateField = ({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField) => {
     return (
         <FormField
             {...register(name)}
@@ -190,27 +194,27 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
                         </FormLabel>
 
                         <FormControl>
-                                <DatePicker
-                                    allowClear={allowClear}
-                                    format="DD/MM/YYYY"
-                                    size="large"
-                                    value={value}
-                                    placeholder={placeholder ?? "Selecione a data"}
-                                    onKeyDown={(event) => {
-                                        if (event.key === "Enter") {
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                        }
-                                    }}
-                                    onChange={(date) => {
-                                        field.onChange(date ? date.toDate() : null);
-                                    }}
-                                    onBlur={field.onBlur}
-                                    style={{ width: "100%" }}
-                                />
-                         </FormControl>
+                            <DatePicker
+                                allowClear={allowClear}
+                                format="DD/MM/YYYY"
+                                size="large"
+                                value={value}
+                                placeholder={placeholder ?? "Selecione a data"}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                }}
+                                onChange={(date) => {
+                                    field.onChange(date ? date.toDate() : null);
+                                }}
+                                onBlur={field.onBlur}
+                                style={{ width: "100%" }}
+                            />
+                        </FormControl>
 
-                        <FormMessage />
+                        <FormMessage showBlankSpace={showBlankSpace} />
                     </FormItem>
                 );
             }}
@@ -218,7 +222,7 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
     );
 };
 
-export const DateRangeField = ({ register, control, name, label, placeholder }: PropsField) => {
+export const DateRangeField = ({ register, control, name, label, placeholder, showBlankSpace = true }: PropsField) => {
     return (
         <FormField
             {...register(name)}
@@ -268,14 +272,14 @@ export const DateRangeField = ({ register, control, name, label, placeholder }: 
                         </PopoverContent>
                     </Popover>
 
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         />
     );
 };
 
-export const DateRangePickerField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
+export const DateRangePickerField = ({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField) => {
     return (
         <FormField
             {...register(name)}
@@ -329,10 +333,57 @@ export const DateRangePickerField = ({ register, control, name, label, placehold
                             />
                         </FormControl>
 
-                        <FormMessage />
+                        <FormMessage showBlankSpace={showBlankSpace} />
                     </FormItem>
                 );
             }}
+        />
+    );
+};
+
+
+
+export const SwitchField = ({
+    register,
+    control,
+    name,
+    label,
+    dataTestId,
+    disabled = false,
+    showBlankSpace = true,
+    description
+}: PropsField) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FormItem>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <FormLabel className="text-[#313131] font-bold">
+                                {label}
+                            </FormLabel>
+                            <p className="text-sm max-w-[416px]">
+                                {description}
+                            </p>
+                        </div>
+                        
+                        <FormControl className="min-w-[22px]">
+                            <Switch
+                                checked={!!field.value}
+                                onChange={(checked) => field.onChange(checked)}
+                                disabled={disabled}
+                                data-testid={dataTestId}
+                                checkedChildren="Sim" unCheckedChildren="Não"
+                            />
+                        </FormControl>                      
+                    </div>
+
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
         />
     );
 };

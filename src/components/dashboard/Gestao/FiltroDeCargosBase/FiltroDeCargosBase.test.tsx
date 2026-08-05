@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FiltroDeCargosBase, {
-  CargosBaseOpcoes,
+  CargosBaseGrupamento,
   SituacaoFuncionalOpcoes,
   StatusOpcoes,
 } from "./FiltroDeCargosBase";
@@ -76,7 +76,7 @@ describe("FiltroDeCargosBase", () => {
       { codigo: "2", nome: "Inativo" },
       { codigo: "3", nome: "Extinto" },
     ]);
-    expect(CargosBaseOpcoes).toEqual([
+    expect(CargosBaseGrupamento).toEqual([
       { codigo: "1", nome: "Apoio - educação" },
       { codigo: "2", nome: "Docentes" },
       { codigo: "3", nome: "Gestores - educação" },
