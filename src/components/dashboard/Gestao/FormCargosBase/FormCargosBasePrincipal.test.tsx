@@ -130,9 +130,9 @@ describe("FormCargosBasePrincipal", () => {
       dataTestId: "select-codigo-cargo-eol",
     });
 
-    expect(screen.getByTestId("option-grupamento-1")).toHaveTextContent("Apoio - educação");
-    expect(screen.getByTestId("option-situacao_funcional-2")).toHaveTextContent("Efetivo");
-    expect(screen.getByTestId("option-status-3")).toHaveTextContent("Extinto");
+    expect(screen.getByTestId("option-grupamento-APOIO_EDUCACAO")).toHaveTextContent("Apoio - educação");
+    expect(screen.getByTestId("option-situacao_funcional-EFETIVO")).toHaveTextContent("Efetivo");
+    expect(screen.getByTestId("option-status-EXTINTO")).toHaveTextContent("Extinto");
   });
 
   it("usa lista vazia de cargos quando não recebe CargosBaseOpcoes", () => {
