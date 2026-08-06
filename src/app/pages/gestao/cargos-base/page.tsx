@@ -38,7 +38,7 @@ export default function CargosBase() {
         ]}
         createButton={
           <Button
-            size="sm"
+            size="lg"
             className="w-full flex items-center justify-center gap-2"
             variant="destructive"
             data-testid="botao-proximo"

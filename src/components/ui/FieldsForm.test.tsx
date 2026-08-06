@@ -9,6 +9,7 @@ import {
   DateRangePickerField,
   InputField,
   SelectField,
+  SwitchField,
 } from "./FieldsForm";
 
 type FormFieldState = {
@@ -162,7 +163,32 @@ vi.mock("antd", () => {
     rangePickerSpy(props);
     return <div data-testid="antd-range-picker" />;
   };
-  return { DatePicker };
+  const Switch = ({
+    onChange,
+    checked,
+    disabled,
+    "data-testid": dataTestId,
+    checkedChildren,
+    unCheckedChildren,
+  }: {
+    onChange?: (value: boolean) => void;
+    checked?: boolean;
+    disabled?: boolean;
+    "data-testid"?: string;
+    checkedChildren?: string;
+    unCheckedChildren?: string;
+  }) => (
+    <button
+      type="button"
+      data-testid={dataTestId}
+      data-checked={String(checked)}
+      disabled={disabled}
+      onClick={() => onChange?.(!checked)}
+    >
+      {checkedChildren}/{unCheckedChildren}
+    </button>
+  );
+  return { DatePicker, Switch };
 });
 
 vi.mock("@/components/ui/select", () => ({
@@ -472,5 +498,29 @@ describe("FieldsForm", () => {
     };
     expect(props.value).toBeNull();
     expect(props.placeholder).toEqual(["Data custom", "Data custom"]);
+  });
+
+  it("SwitchField converte o valor para booleano e propaga mudança", () => {
+    setFieldState("usa_ste", "qualquer-valor-truthy");
+
+    render(
+      <SwitchField
+        register={registerMock as never}
+        control={controlMock as never}
+        name="usa_ste"
+        label="Utiliza para STE?"
+        description="Descrição de uso"
+        dataTestId="switch-usa-ste"
+      />,
+    );
+
+    expect(screen.getByText("Utiliza para STE?")).toBeInTheDocument();
+    expect(screen.getByText("Descrição de uso")).toBeInTheDocument();
+    expect(screen.getByTestId("switch-usa-ste")).toHaveAttribute("data-checked", "true");
+    expect(screen.getByTestId("switch-usa-ste")).not.toBeDisabled();
+    expect(screen.getByTestId("switch-usa-ste")).toHaveTextContent("Sim/Não");
+
+    fireEvent.click(screen.getByTestId("switch-usa-ste"));
+    expect(fieldStateByName.usa_ste.onChange).toHaveBeenCalledWith(false);
   });
 });

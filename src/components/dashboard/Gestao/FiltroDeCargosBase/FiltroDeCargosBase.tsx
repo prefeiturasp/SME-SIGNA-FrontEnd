@@ -20,7 +20,7 @@ export const StatusOpcoes = [
   { codigo: '2', nome: 'Inativo' },
   { codigo: '3', nome: 'Extinto' },
 ]
-export const CargosBaseOpcoes = [
+export const CargosBaseGrupamento = [
   { codigo: '1', nome: 'Apoio - educação' },
   { codigo: '2', nome: 'Docentes' },
   { codigo: '3', nome: 'Gestores - educação' },
@@ -49,7 +49,7 @@ const FiltroDeCargosBase: React.FC<Props> = ({ onClear }) => {
             label="Grupamento"
             placeholder="Selecione"
             data-testid="input-grupamento"
-            options={CargosBaseOpcoes.map((item) => ({
+            options={CargosBaseGrupamento.map((item) => ({
               value: item.codigo,
               label: item.nome,
             }))}

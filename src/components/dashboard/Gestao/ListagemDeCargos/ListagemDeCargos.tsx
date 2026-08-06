@@ -7,6 +7,7 @@ import type { TableProps } from 'antd';
 import Editar from '@/assets/icons/Editar';
 import { useRouter } from 'next/navigation';
 import { CargosBaseResponse } from '@/types/gestao';
+import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 
 
 
@@ -146,11 +147,11 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
 
   return (
     <div className="flex flex-col gap-1 bg-white  ">
-      <div className="pb-8">
-        <p className="text-[20px] font-bold pt-1 pb-1">Lista de cargos base</p>
-        <p className="text-[14px] font-normal pt-1 ">Aqui você encontra todos os cargos base cadastrados no sistema.</p>
-      </div>
 
+    <SimpleTableHeader
+      title="Lista de cargos base"
+      subtitle="Aqui você encontra todos os cargos base cadastrados no sistema."
+    />
 
 
       <div className="w-full pb-2">
