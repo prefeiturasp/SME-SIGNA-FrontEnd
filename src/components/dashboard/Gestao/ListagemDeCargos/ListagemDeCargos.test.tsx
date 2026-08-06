@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode } from "react";
 import ListagemDeCargos from "./ListagemDeCargos";
-import { CargosBaseResponse } from "@/types/gestao";
+import { CargosBaseResponse, StatusCargosBase } from "@/types/gestao";
 
 const tableMock = vi.fn<(props: TableProps<CargosBaseResponse>) => ReactNode>();
 const paginationMock = vi.fn();
@@ -89,7 +89,7 @@ const row: CargosBaseResponse = {
   usado_em_ste: true,
   usado_em_permutas: false,
   cargo_base_ficticio: true,
-  status: 1,
+  status: StatusCargosBase.ATIVO,
 };
 
 describe("ListagemDeCargos", () => {
@@ -179,14 +179,14 @@ describe("ListagemDeCargos", () => {
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
     const renderStatus = columns[9]?.render as
-      | ((status: number, record: CargosBaseResponse) => ReactNode)
+      | ((status: StatusCargosBase, record: CargosBaseResponse) => ReactNode)
       | undefined;
 
-    const { rerender } = render(<>{renderStatus?.(1, row)}</>);
+    const { rerender } = render(<>{renderStatus?.(StatusCargosBase.ATIVO, row)}</>);
     expect(screen.getByText("Ativo")).toBeInTheDocument();
     expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#008809");
 
-    rerender(<>{renderStatus?.(99, row)}</>);
+    rerender(<>{renderStatus?.("DESCONHECIDO" as StatusCargosBase, row)}</>);
     expect(screen.queryByText("Ativo")).not.toBeInTheDocument();
     expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#9CA3B9");
   });
@@ -197,9 +197,12 @@ describe("ListagemDeCargos", () => {
     const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
     const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
 
-    expect((tableProps.rowClassName as (record: CargosBaseResponse) => string)({ ...row, status: 0 })).toBe(
-      "disabled-row",
-    );
+    expect(
+      (tableProps.rowClassName as (record: CargosBaseResponse) => string)({
+        ...row,
+        status: StatusCargosBase.INATIVO,
+      }),
+    ).toBe("disabled-row");
     expect((tableProps.rowClassName as (record: CargosBaseResponse) => string)(row)).toBe("");
 
     render(<>{actionRender?.(row)}</>);

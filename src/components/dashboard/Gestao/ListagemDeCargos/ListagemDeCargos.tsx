@@ -6,9 +6,9 @@ import { Badge, Dropdown, Pagination, Table } from 'antd';
 import type { TableProps } from 'antd';
 import Editar from '@/assets/icons/Editar';
 import { useRouter } from 'next/navigation';
-import { CargosBaseResponse } from '@/types/gestao';
+import { CargosBaseResponse, StatusCargosBase } from '@/types/gestao';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
-import { StatusCargosBase } from '@/types/gestao';
+
 
 
 

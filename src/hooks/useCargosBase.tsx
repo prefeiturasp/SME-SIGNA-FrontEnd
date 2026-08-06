@@ -39,11 +39,11 @@ export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFi
     return fetchCargosBase({ ...filtros, page: page ?? 1 });
   };
 
-  const buscar = (values: CargosBaseFiltros, page = 1) => {
+  const buscar = (values: CargosBaseFiltros, page?: number) => {
     startTransition(async () => {
       const response = await buscarCargosBase(values, page);
       if (response.success) {        
-        setPage(page);
+        setPage(page ?? 1);
         setResultado(response.data);
       } else {
         console.error(response.error);
@@ -75,6 +75,7 @@ export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFi
 
   useEffect(() => {
     buscar(filterForm.getValues());    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

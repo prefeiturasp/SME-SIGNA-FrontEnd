@@ -6,6 +6,7 @@ import { fetchCargosBase } from "@/actions/gestao";
 const resetMock = vi.fn();
 const getValuesMock = vi.fn();
 const handleSubmitMock = vi.fn();
+const notificationErrorMock = vi.fn();
 const useFormMock = vi.fn(() => ({
   reset: resetMock,
   getValues: getValuesMock,
@@ -33,6 +34,12 @@ vi.mock("@hookform/resolvers/zod", () => ({
 
 vi.mock("@/actions/gestao", () => ({
   fetchCargosBase: vi.fn(),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    error: notificationErrorMock,
+  }),
 }));
 
 describe("useCargosBase", () => {
@@ -200,6 +207,10 @@ describe("useCargosBase", () => {
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("erro ao consultar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro ao buscar cargos base!",
+        clearPrevious: true,
+      });
       expect(result.current.resultado).toBeNull();
       expect(startTransitionMock).toHaveBeenCalled();
     });
