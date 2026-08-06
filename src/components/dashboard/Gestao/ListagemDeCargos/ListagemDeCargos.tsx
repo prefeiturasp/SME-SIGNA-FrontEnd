@@ -66,12 +66,6 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
 
   const router = useRouter();
 
-
-
-
-
-
-
   const columnsBase: TableProps<CargosBaseResponse>['columns'] = [
     { title: 'Grupamento', dataIndex: 'grupamento', key: 'grupamento', },
     { title: 'Descrição resumida', dataIndex: 'descricao_resumida', key: 'descricao_resumida', },

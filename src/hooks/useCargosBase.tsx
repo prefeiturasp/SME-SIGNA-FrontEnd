@@ -47,9 +47,10 @@ export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFi
         setResultado(response.data);
       } else {
         console.error(response.error);
-        notification.error(
-          "Erro ao buscar cargos base!"
-        );
+        notification.error({
+          title: "Erro ao buscar cargos base!",
+          clearPrevious: true,
+        });
       }
     });
   };

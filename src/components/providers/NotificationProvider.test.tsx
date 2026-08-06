@@ -10,6 +10,7 @@ const successMock = vi.fn();
 const errorMock = vi.fn();
 const warningMock = vi.fn();
 const infoMock = vi.fn();
+const destroyMock = vi.fn();
 
 vi.mock("antd", () => ({
   notification: {
@@ -19,6 +20,7 @@ vi.mock("antd", () => ({
         error: errorMock,
         warning: warningMock,
         info: infoMock,
+        destroy: destroyMock,
       },
       <div key="notification-holder" data-testid="notification-context-holder" />,
     ],
@@ -41,6 +43,16 @@ function Consumer() {
         onClick={() => notification.error("Erro", "Algo falhou")}
       >
         error
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          notification.error({
+            title: "Erro com limpeza",
+            clearPrevious: true,
+          })}
+      >
+        error with clear
       </button>
       <button
         type="button"
@@ -98,6 +110,16 @@ describe("NotificationProvider", () => {
     expect(errorMock).toHaveBeenCalledWith({
       message: "Erro",
       description: "Algo falhou",
+      placement: "topRight",
+      duration: 5,
+      closeIcon: null,
+    });
+
+    await user.click(screen.getByRole("button", { name: /error with clear/i }));
+    expect(destroyMock).toHaveBeenCalledTimes(1);
+    expect(errorMock).toHaveBeenCalledWith({
+      message: "Erro com limpeza",
+      description: undefined,
       placement: "topRight",
       duration: 5,
       closeIcon: null,
