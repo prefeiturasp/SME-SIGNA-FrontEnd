@@ -5,7 +5,6 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Button } from "@/components/ui/button";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import { useCargosBase } from "@/hooks/useCargosBase";
 import FormCargosBasePrincipal from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal";
 import FormCargosBaseSecundario from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario";
 import { useCargosBaseCriarEditar } from "@/hooks/useCargosBaseCriarEditar";
