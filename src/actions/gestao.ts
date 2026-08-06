@@ -11,7 +11,7 @@ export const fetchCargosBase = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<CargosBasePaginada>(
-    "/gestao/cargos-base/",
+    "/gestao/cargos-bases/",
     filtros,
     "Erro ao buscar os cargos base"
   );

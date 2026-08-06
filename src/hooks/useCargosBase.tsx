@@ -4,6 +4,7 @@ import filterFormSchemaFiltroCargosBase, { filterFormSchemaFiltroCargosBaseData 
 import { CargosBaseFiltros, CargosBasePaginada } from "@/types/gestao";
 import { useEffect, useState, useTransition } from "react";
 import { fetchCargosBase } from "@/actions/gestao";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 
 const defaultValuesFilters: CargosBaseFiltros = {
@@ -17,7 +18,7 @@ const defaultValuesFilters: CargosBaseFiltros = {
 export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFilters) {
   const [resultado, setResultado] = useState<CargosBasePaginada | null>(null);
   
-  
+  const notification = useAppNotification();
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
   const filterForm = useForm<filterFormSchemaFiltroCargosBaseData>({
@@ -46,6 +47,9 @@ export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFi
         setResultado(response.data);
       } else {
         console.error(response.error);
+        notification.error(
+          "Erro ao buscar cargos base!"
+        );
       }
     });
   };
@@ -69,7 +73,7 @@ export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFi
   };
 
   useEffect(() => {
-    buscar(filterForm.getValues());
+    buscar(filterForm.getValues());    
   }, []);
 
   return {

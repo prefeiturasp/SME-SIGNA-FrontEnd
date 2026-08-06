@@ -8,30 +8,30 @@ import Editar from '@/assets/icons/Editar';
 import { useRouter } from 'next/navigation';
 import { CargosBaseResponse } from '@/types/gestao';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
+import { StatusCargosBase } from '@/types/gestao';
 
 
 
 
 
 const NameColorStatusCargosBase = {
-  [0]: {
-    color: '#9CA3B9',
-    name: 'Inativo'
-  },
-  [1]: {
+  [StatusCargosBase.ATIVO]: {
     color: '#008809',
     name: 'Ativo',
   },
-  [2]: {
+  [StatusCargosBase.INATIVO]: {
+    color: '#9CA3B9',
+    name: 'Inativo'
+  },
+  [StatusCargosBase.EXTINTO]: {
     color: '#B22B2A',
     name: 'Extinto',
-  },
-  
+  },  
 }; 
 
-const BadgeStatusCargosBase = (status: number, key: string) => {
+const BadgeStatusCargosBase = (status: StatusCargosBase, key: string) => {
   
-  const config = NameColorStatusCargosBase[status as keyof typeof NameColorStatusCargosBase];
+  const config = NameColorStatusCargosBase[status];
   return (
     <div className='flex items-center gap-2'>
       <Badge
@@ -108,7 +108,7 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
       },
     },
     {
-      title: 'Status', dataIndex: 'status', key: 'status', render: (status: number, record: CargosBaseResponse) => {
+      title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: CargosBaseResponse) => {
         return (
           BadgeStatusCargosBase(status, String(record.id) + '_status')
         );
@@ -163,7 +163,7 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
           dataSource={data}
           rowKey={(record) => record.id.toString()}
           pagination={false}
-          rowClassName={(record: CargosBaseResponse) => record.status === 0 ? "disabled-row" : ""}
+          rowClassName={(record: CargosBaseResponse) => record.status === StatusCargosBase.INATIVO ? "disabled-row" : ""}
         />
         <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
           <MostrarRegistros page={page} total={total} />
@@ -176,7 +176,6 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
             itemRender={itemRender}
           />
         </div>
-
       </div>
     </div>
   );

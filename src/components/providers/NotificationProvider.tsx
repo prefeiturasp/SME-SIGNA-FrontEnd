@@ -9,10 +9,10 @@ import {
 } from "react";
 
 type NotificationContextData = {
-  success: (message: string, description?: string) => void;
-  error: (message: string, description?: string) => void;
-  warning: (message: string, description?: string) => void;
-  info: (message: string, description?: string) => void;
+  success: (title: string, description?: string) => void;
+  error: (title: string, description?: string) => void;
+  warning: (title: string, description?: string) => void;
+  info: (title: string, description?: string) => void;
 };
 
 
@@ -36,44 +36,44 @@ export function NotificationProvider({
   }, []);
 
   const success = useCallback(function success(
-    message: string,
+    title: string,
     description?: string
   ) {
     api.success({
-      message,
+      title,
       description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
 
   const error = useCallback(function error(
-    message: string,
+    title: string,
     description?: string
   ) {
     api.error({
-      message,
+      title,
       description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
 
   const warning = useCallback(function warning(
-    message: string,
+    title: string,
     description?: string
   ) {
     api.warning({
-      message,
+      title,
       description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
 
   const info = useCallback(function info(
-    message: string,
+    title: string,
     description?: string
   ) {
     api.info({
-      message,
+      title,
       description,
       ...notificationProps,
     });

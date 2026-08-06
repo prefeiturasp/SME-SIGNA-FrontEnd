@@ -10,20 +10,20 @@ interface Props {
 }
 
 export const SituacaoFuncionalOpcoes = [
-  { codigo: '1', nome: 'Cargo em comissão' },
-  { codigo: '2', nome: 'Efetivo' },
-  { codigo: '3', nome: 'Contratado' }
+  { codigo: 'COMISSIONADO', nome: 'Cargo em comissão' },
+  { codigo: 'EFETIVO', nome: 'Efetivo' },
+  { codigo: 'CONTRATADO', nome: 'Contratado' }
 ]
 
 export const StatusOpcoes = [
-  { codigo: '1', nome: 'Ativo' },
-  { codigo: '2', nome: 'Inativo' },
-  { codigo: '3', nome: 'Extinto' },
+  { codigo: 'ATIVO', nome: 'Ativo' },
+  { codigo: 'INATIVO', nome: 'Inativo' },
+  { codigo: 'EXTINTO', nome: 'Extinto' },
 ]
 export const CargosBaseGrupamento = [
-  { codigo: '1', nome: 'Apoio - educação' },
-  { codigo: '2', nome: 'Docentes' },
-  { codigo: '3', nome: 'Gestores - educação' },
+  { codigo: 'APOIO_EDUCACAO', nome: 'Apoio - educação' },
+  { codigo: 'DOCENTES', nome: 'Docentes' },
+  { codigo: 'GESTORES_EDUCACAO', nome: 'Gestores - educação' },
 ]
 
 const FiltroDeCargosBase: React.FC<Props> = ({ onClear }) => {
