@@ -9,6 +9,11 @@ export interface CargosBaseFiltros {
 
 }
 
+export enum StatusCargosBase {
+  ATIVO = 'ATIVO',
+  INATIVO = 'INATIVO',
+  EXTINTO = 'EXTINTO',
+}
 
 export interface CargosBaseCriarEditar {
   codigo_cargo_eol: string;
@@ -43,5 +48,5 @@ export interface CargosBaseResponse {
   usado_em_ste: boolean;
   usado_em_permutas: boolean;
   cargo_base_ficticio: boolean;  
-  status: number;  
+  status: StatusCargosBase;  
 }

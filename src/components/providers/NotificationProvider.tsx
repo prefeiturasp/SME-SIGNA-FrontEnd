@@ -8,11 +8,26 @@ import {
   useCallback,
 } from "react";
 
+type NotificationMessageParams = {
+  title: string;
+  description?: string;
+  clearPrevious?: boolean;
+};
+
+
 type NotificationContextData = {
-  success: (message: string, description?: string) => void;
-  error: (message: string, description?: string) => void;
-  warning: (message: string, description?: string) => void;
-  info: (message: string, description?: string) => void;
+  success: (
+    notification: NotificationMessageParams,
+  ) => void;
+  error: (
+    notification: NotificationMessageParams,
+  ) => void;
+  warning: (
+    notification: NotificationMessageParams,
+  ) => void;
+  info: (
+    notification: NotificationMessageParams,
+  ) => void;
 };
 
 
@@ -24,7 +39,7 @@ export function NotificationProvider({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const [api, contextHolder] =
+  const [api, contextHolder] =  
     notification.useNotification();
 
   const notificationProps = useMemo(() => {
@@ -36,45 +51,53 @@ export function NotificationProvider({
   }, []);
 
   const success = useCallback(function success(
-    message: string,
-    description?: string
+    notification: NotificationMessageParams,
+ 
   ) {
+    if (notification.clearPrevious) api.destroy();
+
     api.success({
-      message,
-      description,
+      message: notification.title,
+      description: notification.description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
 
   const error = useCallback(function error(
-    message: string,
-    description?: string
+    notification: NotificationMessageParams,
+ 
   ) {
+    if (notification.clearPrevious) api.destroy();
+
     api.error({
-      message,
-      description,
+      message: notification.title,
+      description: notification.description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
 
   const warning = useCallback(function warning(
-    message: string,
-    description?: string
+    notification: NotificationMessageParams,
+ 
   ) {
+    if (notification.clearPrevious) api.destroy();
+
     api.warning({
-      message,
-      description,
+      message: notification.title,
+      description: notification.description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
 
   const info = useCallback(function info(
-    message: string,
-    description?: string
+    notification: NotificationMessageParams,
+    
   ) {
+    if (notification.clearPrevious) api.destroy();
+
     api.info({
-      message,
-      description,
+      message: notification.title,
+      description: notification.description,
       ...notificationProps,
     });
   }, [api, notificationProps]);
