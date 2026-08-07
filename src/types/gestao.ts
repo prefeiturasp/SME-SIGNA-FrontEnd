@@ -16,7 +16,7 @@ export enum StatusCargosBase {
 }
 
 export interface CargosBaseCriarEditar {
-  codigo_cargo_eol: string;
+  codigo_cargo: string;
   grupamento: string;
   descricao_resumida: string;
   descricao_completa: string;

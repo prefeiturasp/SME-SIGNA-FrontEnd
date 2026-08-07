@@ -7,16 +7,16 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import FormCargosBasePrincipal from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal";
 import FormCargosBaseSecundario from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario";
-import { useCargosBaseCriarEditar } from "@/hooks/useCargosBaseCriarEditar";
+import { useCriarEditarCargosBase } from "@/hooks/useCriarEditarCargosBase";
 
 
 
-export default function CadastrarCargoBase() {
+export default function CriarEditarCargoBase() {
   const {
     form,
     onSubmitForm,    
     CargosBaseOpcoes,
-  } = useCargosBaseCriarEditar();
+  } = useCriarEditarCargosBase();
   const router = useRouter();
 
   

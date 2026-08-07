@@ -57,7 +57,7 @@ export function NotificationProvider({
     if (notification.clearPrevious) api.destroy();
 
     api.success({
-      message: notification.title,
+      title: notification.title,
       description: notification.description,
       ...notificationProps,
     });
@@ -70,7 +70,7 @@ export function NotificationProvider({
     if (notification.clearPrevious) api.destroy();
 
     api.error({
-      message: notification.title,
+      title: notification.title,
       description: notification.description,
       ...notificationProps,
     });
@@ -83,7 +83,7 @@ export function NotificationProvider({
     if (notification.clearPrevious) api.destroy();
 
     api.warning({
-      message: notification.title,
+      title: notification.title,
       description: notification.description,
       ...notificationProps,
     });
@@ -96,7 +96,7 @@ export function NotificationProvider({
     if (notification.clearPrevious) api.destroy();
 
     api.info({
-      message: notification.title,
+      title: notification.title,
       description: notification.description,
       ...notificationProps,
     });

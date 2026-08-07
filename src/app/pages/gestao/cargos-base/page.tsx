@@ -6,7 +6,7 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Button } from "@/components/ui/button";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import { useCargosBase } from "@/hooks/useCargosBase";
+import { useVisualizarCargosBase } from "@/hooks/useVisualizarCargosBase";
 import FiltroDeCargosBase from "@/components/dashboard/Gestao/FiltroDeCargosBase/FiltroDeCargosBase";
 import ListagemDeCargos from "@/components/dashboard/Gestao/ListagemDeCargos/ListagemDeCargos";
 
@@ -21,7 +21,7 @@ export default function CargosBase() {
     filterForm,
     onSubmitFilterForm,
     handleClear,
-  } = useCargosBase();
+  } = useVisualizarCargosBase();
   const router = useRouter();
 
   return (
@@ -42,7 +42,7 @@ export default function CargosBase() {
             className="w-full flex items-center justify-center gap-2"
             variant="destructive"
             data-testid="botao-proximo"
-            onClick={() => router.push("/pages/gestao/cadastrar-cargo-base")}
+            onClick={() => router.push("/pages/gestao/criar-editar-cargo-base")}
           >Cadastrar novo cargo
             <Plus />
           </Button>

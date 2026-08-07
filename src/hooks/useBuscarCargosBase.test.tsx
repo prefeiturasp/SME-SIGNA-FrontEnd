@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useCargosBase } from "./useCargosBase";
+import { useVisualizarCargosBase } from "./useVisualizarCargosBase";
 import { fetchCargosBase } from "@/actions/gestao";
 
 const resetMock = vi.fn();
@@ -60,7 +60,7 @@ describe("useCargosBase", () => {
       data: { count: 1, next: null, previous: null, results: [{ id: 9 }] as any },
     });
 
-    const { result } = renderHook(() => useCargosBase());
+    const { result } = renderHook(() => useVisualizarCargosBase());
 
     expect(useFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -105,7 +105,7 @@ describe("useCargosBase", () => {
         data: { count: 30, next: null, previous: null, results: [] },
       });
 
-    const { result } = renderHook(() => useCargosBase());
+    const { result } = renderHook(() => useVisualizarCargosBase());
 
     await waitFor(() => {
       expect(fetchCargosBase).toHaveBeenCalledTimes(1);
@@ -178,7 +178,7 @@ describe("useCargosBase", () => {
       });
 
     getValuesMock.mockReturnValue(customDefaults);
-    const { result } = renderHook(() => useCargosBase(customDefaults));
+    const { result } = renderHook(() => useVisualizarCargosBase(customDefaults));
 
     await waitFor(() => {
       expect(fetchCargosBase).toHaveBeenCalledTimes(1);
@@ -203,7 +203,7 @@ describe("useCargosBase", () => {
       error: "erro ao consultar",
     });
 
-    const { result } = renderHook(() => useCargosBase());
+    const { result } = renderHook(() => useVisualizarCargosBase());
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("erro ao consultar");

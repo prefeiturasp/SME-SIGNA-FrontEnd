@@ -15,7 +15,7 @@ const defaultValuesFilters: CargosBaseFiltros = {
   status: "",
 };
 
-export function useCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFilters) {
+export function useVisualizarCargosBase(defaultValues: CargosBaseFiltros = defaultValuesFilters) {
   const [resultado, setResultado] = useState<CargosBasePaginada | null>(null);
   
   const notification = useAppNotification();

@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useCargosBaseCriarEditar } from "./useCargosBaseCriarEditar";
+import { useCargosBaseCriarEditar } from "./useCriarEditarCargosBase";
 import createFormSchemaCargosBase from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import type { CargosBaseCriarEditar } from "@/types/gestao";
 
@@ -30,7 +30,7 @@ describe("useCargosBaseCriarEditar", () => {
         resolver: "resolver-mock",
         defaultValues: {
           grupamento: "",
-          codigo_cargo_eol: "",
+          codigo_cargo: "",
           descricao_resumida: "",
           descricao_completa: "",
           situacao_funcional: "",
@@ -62,7 +62,7 @@ describe("useCargosBaseCriarEditar", () => {
   it("permite sobrescrever valores padrão ao criar o hook", () => {
     const customDefaults: CargosBaseCriarEditar = {
       grupamento: "2",
-      codigo_cargo_eol: "9",
+      codigo_cargo: "9",
       descricao_resumida: "Resumo",
       descricao_completa: "Completa",
       situacao_funcional: "1",
@@ -87,7 +87,7 @@ describe("useCargosBaseCriarEditar", () => {
   it("expõe onSubmitForm que registra os valores submetidos", () => {
     const { result } = renderHook(() => useCargosBaseCriarEditar());
     const payload = {
-      codigo_cargo_eol: "1",
+      codigo_cargo: "1",
       grupamento: "2",
       descricao_resumida: "Resumo",
       descricao_completa: "Completa",
