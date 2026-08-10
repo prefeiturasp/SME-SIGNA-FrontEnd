@@ -42,7 +42,6 @@ export function useCriarEditarCargosBase(defaultValues: CargosBaseCriarEditar = 
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
-      console.log('values',values);
       await criarCargosBase.mutateAsync({
         values,
       });
