@@ -23,7 +23,6 @@ export default function CargosBase() {
     handleClear,
   } = useVisualizarCargosBase();
   const router = useRouter();
-
   return (
     <>
       <PageHeader
