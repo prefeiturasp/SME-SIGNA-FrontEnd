@@ -15,20 +15,6 @@ export enum StatusCargosBase {
   EXTINTO = 'EXTINTO',
 }
 
-export interface CargosBaseCriarEditar {
-  codigo_cargo: string;
-  grupamento: string;
-  descricao_resumida: string;
-  descricao_completa: string;
-  situacao_funcional: string;
-  status: string;
-  usado_em_funcoes: boolean;
-  usado_em_designacoes: boolean;
-  usado_em_outros: boolean;
-  usado_em_ste: boolean;
-  usado_em_permutas: boolean;
-  cargo_base_ficticio: boolean;
-}
 
 export interface CargosBasePaginada {
   count: number;
@@ -37,8 +23,9 @@ export interface CargosBasePaginada {
   results: CargosBaseResponse[];
 }
 
-export interface CargosBaseResponse {
-  id: number;
+
+
+export interface CargosBaseCamposComuns {
   grupamento: string;
   descricao_resumida: string;
   descricao_completa: string;
@@ -47,6 +34,14 @@ export interface CargosBaseResponse {
   usado_em_designacoes: boolean;
   usado_em_ste: boolean;
   usado_em_permutas: boolean;
-  cargo_base_ficticio: boolean;  
-  status: StatusCargosBase;  
+  cargo_base_ficticio: boolean;
+  status: string;
+}
+
+export interface CargosBaseResponse extends CargosBaseCamposComuns {
+  id: number;
+}
+
+export interface CargosBaseCriarEditar extends CargosBaseCamposComuns {
+  codigo_cargo: string;
 }

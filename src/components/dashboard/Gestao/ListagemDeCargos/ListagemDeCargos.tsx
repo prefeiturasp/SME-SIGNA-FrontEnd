@@ -63,7 +63,6 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
   isLoading = false,
   onPageChange,
 }) => {
-  console.log("data",data);
 
   const router = useRouter();
 
@@ -120,21 +119,8 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
               key: '4',
               label: 'Editar',
               icon: <Editar width={20} height={20} color="#9CA3B9" />,
-              onClick: ( ) => {
-                const params = new URLSearchParams({ id: record.id.toString(),
-                  grupamento: record.grupamento,
-                  descricao_resumida: record.descricao_resumida,
-                  descricao_completa: record.descricao_completa,
-                  situacao_funcional: record.situacao_funcional,
-                  usado_em_funcoes: (record.usado_em_funcoes||false).toString(),
-                  usado_em_designacoes: (record.usado_em_designacoes||false).toString(),
-                  usado_em_ste: (record.usado_em_ste||false).toString(),
-                  usado_em_permutas: (record.usado_em_permutas||false).toString(),
-                  cargo_base_ficticio: (record.cargo_base_ficticio||false).toString(),
-                  status: record.status,
-                 } );     
-                 
-                router.push(`/pages/gestao/criar-editar-cargo-base?${params.toString()}`);
+              onClick: () => {
+                router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
               },
             }],
           }}

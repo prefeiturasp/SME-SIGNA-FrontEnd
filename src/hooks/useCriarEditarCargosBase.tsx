@@ -5,9 +5,47 @@ import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/co
 import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosBase";
 import { useRouter } from "next/navigation";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
-import { useCriarCargosBase } from "./useCriarCargosBase";
+import { useEffect } from "react";
+
+import { useMutation } from "@tanstack/react-query";
+import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
+
+export const useCriarCargosBase = () => {
+  return useMutation({
+    mutationFn: async ({
+      values
+    }: {
+      values: createFormSchemaCargosBaseData;
+    }) => {
+      const response = await criarCargosBaseAction(values);
+
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+  });
+};
 
 
+export const useEditarCargosBase = () => {
+  return useMutation({
+    mutationFn: async ({
+      id,
+      values
+    }: {
+      id: number;
+      values: createFormSchemaCargosBaseData;
+    }) => {
+      const response = await editarCargosBaseAction(id, values);
+
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+  });
+};
 
 const defaultValuesCreateEdit: CargosBaseCriarEditar = {
   grupamento: "",
@@ -18,21 +56,22 @@ const defaultValuesCreateEdit: CargosBaseCriarEditar = {
   status: "",
   usado_em_funcoes: false,
   usado_em_designacoes: false,
-  usado_em_outros: false,
   usado_em_ste: false,
   usado_em_permutas: false,
   cargo_base_ficticio: false,
 };
 
-export function useCriarEditarCargosBase( defaultValues: CargosBaseCriarEditar = defaultValuesCreateEdit, id: number|null = null) {
+export function useCriarEditarCargosBase(id: number | null = null, defaultValues: CargosBaseCriarEditar = defaultValuesCreateEdit) {
 
 
   const router = useRouter();
   const notification = useAppNotification();
   const { data: CargosBaseOpcoes = [], isLoading: isLoadingCargosBase } = useBuscarCargosBase();
-  const { data: cargoBase, isLoading: isLoadingCargoBase } = useBuscarCargosBaseById(id ?? 0);
-  console.log("cargoBase",cargoBase);
+  const { data: cargoBase, isLoading: isLoadingEditarCargosBase } = useBuscarCargosBaseById(id ?? 0);
+  console.log("CargosBaseOpcoes", CargosBaseOpcoes);
+
   const criarCargosBase = useCriarCargosBase();
+  const editarCargosBase = useEditarCargosBase();
 
   const isPending = false;
 
@@ -42,25 +81,46 @@ export function useCriarEditarCargosBase( defaultValues: CargosBaseCriarEditar =
     mode: "onChange",
   });
 
+  useEffect(() => {
+    if (cargoBase) {
+      form.reset(cargoBase);
+    }
+  }, [cargoBase]);
+
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
-      await criarCargosBase.mutateAsync({
-        values,
-      });
+      let successMessage = "O cargo base foi criado.";
+      if (id) {
+        console.log("values", values);
+        console.log("id", id);
+        await editarCargosBase.mutateAsync({
+          id,
+          values,
+        });
+        successMessage = "As alterações foram salvas.";
+      } else {
+        await criarCargosBase.mutateAsync({
+          values,
+        });
+      }
 
       notification.success({
         title: "Tudo certo por aqui!",
-        description: "O cargo base foi criado.",
+        description: successMessage,
       });
 
       router.push("/pages/gestao/cargos-base");
 
     } catch (error: unknown) {
       console.error("Erro ao salvar cargo base:", error);
+      let message = "Não conseguimos criar o cargo base. Por favor, tente novamente.";
+      if (id) {
+        message = "Não conseguimos salvar as alterações. Por favor, tente novamente.";
+      }
       notification.error({
         title: "Erro!",
-        description: "Não conseguimos criar o cargo base. Por favor, tente novamente.",
+        description: message,
         clearPrevious: true,
       });
     }
@@ -69,9 +129,10 @@ export function useCriarEditarCargosBase( defaultValues: CargosBaseCriarEditar =
 
   return {
     isLoadingCargosBase,
-    CargosBaseOpcoes,
+    CargosBaseOpcoes: [{ codigoCargo: 20, nomeCargo: 'TEST 1' }],
     isPending,
     form,
     onSubmitForm,
+    isLoadingEditarCargosBase
   };
 } 

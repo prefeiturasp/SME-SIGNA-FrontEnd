@@ -55,3 +55,26 @@ export async function postWithAuth<TPayload, TResponse = unknown>(
     return extractErrorMessage(error, defaultErrorMessage) as ActionResult<TResponse>;
   }
 }
+export async function patchWithAuth<TPayload, TResponse = unknown>(
+  url: string,
+  payload: TPayload,
+  defaultErrorMessage = "Erro ao salvar"
+): Promise<ActionResult<TResponse>> {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
+  try {
+    const response = await axios.patch(`${API_URL}${url}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
+    });
+
+    return { success: true, data: response.data };
+  } catch (err) {
+    const error = err as AxiosError<ErrorResponse>;
+    return extractErrorMessage(error, defaultErrorMessage) as ActionResult<TResponse>;
+  }
+}

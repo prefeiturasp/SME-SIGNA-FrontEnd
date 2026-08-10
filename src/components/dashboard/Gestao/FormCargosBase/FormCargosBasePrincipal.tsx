@@ -14,9 +14,11 @@ import { ICargoType } from '@/types/cargos';
  
 interface Props {
   readonly CargosBaseOpcoes: ICargoType[];
+  readonly isEditing: boolean;
+  readonly isLoading: boolean;
 }
 
-const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[] }) => {
+const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditing=false, isLoading=false }) => {
   const { register, control, setValue } = useFormContext();
 
   return (
@@ -29,6 +31,7 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[] }) => {
 
 
         <FormField
+
           control={control}
           name="codigo_cargo"
           render={({ field }) => (
@@ -38,6 +41,7 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[] }) => {
               </FormLabel>
               <FormControl>
                    <Combobox
+                   disabled={isEditing || isLoading}                   
                     options={CargosBaseOpcoes.map(
                       (cargo: ICargoType) => ({
                         label: cargo.nomeCargo,
