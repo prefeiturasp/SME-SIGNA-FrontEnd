@@ -1,218 +1,75 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useVisualizarCargosBase } from "./useVisualizarCargosBase";
-import { fetchCargosBase } from "@/actions/gestao";
+import { useBuscarCargosBase } from "./useBuscarCargosBase";
+import { fetchCargosBaseAction } from "@/actions/cargos-base";
 
-const resetMock = vi.fn();
-const getValuesMock = vi.fn();
-const handleSubmitMock = vi.fn();
-const notificationErrorMock = vi.fn();
-const useFormMock = vi.fn(() => ({
-  reset: resetMock,
-  getValues: getValuesMock,
-  handleSubmit: handleSubmitMock,
-}));
-const zodResolverMock = vi.fn(() => "resolver-mock");
-const startTransitionMock = vi.fn((callback: () => Promise<void> | void) => callback());
-const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+const useQueryMock = vi.fn((options) => options);
 
-vi.mock("react", async () => {
-  const actual = await vi.importActual<typeof import("react")>("react");
-  return {
-    ...actual,
-    useTransition: () => [false, startTransitionMock] as const,
-  };
-});
-
-vi.mock("react-hook-form", () => ({
-  useForm: (...args: unknown[]) => useFormMock(...args),
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: (options: unknown) => useQueryMock(options),
 }));
 
-vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: (...args: unknown[]) => zodResolverMock(...args),
+vi.mock("@/actions/cargos-base", () => ({
+  fetchCargosBaseAction: vi.fn(),
 }));
 
-vi.mock("@/actions/gestao", () => ({
-  fetchCargosBase: vi.fn(),
-}));
-
-vi.mock("@/components/providers/NotificationProvider", () => ({
-  useAppNotification: () => ({
-    error: notificationErrorMock,
-  }),
-}));
-
-describe("useCargosBase", () => {
+describe("useBuscarCargosBase", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getValuesMock.mockReturnValue({
-      grupamento: "",
-      descricao_resumida: "",
-      descricao_completa: "",
-      situacao_funcional: "",
-      status: "",
-    });
   });
 
-  it("configura useForm e busca dados iniciais com sucesso", async () => {
-    vi.mocked(fetchCargosBase).mockResolvedValueOnce({
-      success: true,
-      data: { count: 1, next: null, previous: null, results: [{ id: 9 }] as any },
-    });
+  it("configura query com chave e opções esperadas", () => {
+    renderHook(() => useBuscarCargosBase());
 
-    const { result } = renderHook(() => useVisualizarCargosBase());
-
-    expect(useFormMock).toHaveBeenCalledWith(
+    expect(useQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        resolver: "resolver-mock",
-        defaultValues: {
-          grupamento: "",
-          descricao_resumida: "",
-          descricao_completa: "",
-          situacao_funcional: "",
-          status: "",
-        },
-        mode: "onChange",
+        queryKey: ["get-cargos-base"],
+        refetchOnWindowFocus: false,
+        staleTime: 0,
+        gcTime: 0,
       }),
     );
 
-    await waitFor(() => {
-      expect(fetchCargosBase).toHaveBeenCalledWith({
-        grupamento: "",
-        descricao_resumida: "",
-        descricao_completa: "",
-        situacao_funcional: "",
-        status: "",
-        page: 1,
-      });
-      expect(result.current.page).toBe(1);
-      expect(result.current.resultado?.count).toBe(1);
-    });
+    const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
+    expect(typeof queryOptions.queryFn).toBe("function");
   });
 
-  it("muda página e submete filtros reiniciando para a primeira página", async () => {
-    vi.mocked(fetchCargosBase)
-      .mockResolvedValueOnce({
-        success: true,
-        data: { count: 10, next: null, previous: null, results: [] },
-      })
-      .mockResolvedValueOnce({
-        success: true,
-        data: { count: 20, next: null, previous: null, results: [] },
-      })
-      .mockResolvedValueOnce({
-        success: true,
-        data: { count: 30, next: null, previous: null, results: [] },
-      });
-
-    const { result } = renderHook(() => useVisualizarCargosBase());
-
-    await waitFor(() => {
-      expect(fetchCargosBase).toHaveBeenCalledTimes(1);
+  it("retorna lista vazia quando o primeiro cargo tem codigo 0", async () => {
+    vi.mocked(fetchCargosBaseAction).mockResolvedValueOnce({
+      success: true,
+      data: [{ codigoCargo: 0, nomeCargo: "placeholder" } as never],
     });
 
-    getValuesMock.mockReturnValue({
-      grupamento: "2",
-      descricao_resumida: "abc",
-      descricao_completa: "def",
-      situacao_funcional: "1",
-      status: "3",
-    });
+    renderHook(() => useBuscarCargosBase());
+    const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
+    const data = await queryOptions.queryFn();
 
-    await act(async () => {
-      result.current.onPageChange(3);
-    });
-
-    await waitFor(() => {
-      expect(fetchCargosBase).toHaveBeenCalledWith({
-        grupamento: "2",
-        descricao_resumida: "abc",
-        descricao_completa: "def",
-        situacao_funcional: "1",
-        status: "3",
-        page: 3,
-      });
-      expect(result.current.page).toBe(3);
-    });
-
-    await act(async () => {
-      result.current.onSubmitFilterForm({
-        grupamento: "1",
-        descricao_resumida: "novo",
-        descricao_completa: "novo completo",
-        situacao_funcional: "2",
-        status: "1",
-      });
-    });
-
-    await waitFor(() => {
-      expect(fetchCargosBase).toHaveBeenCalledWith({
-        grupamento: "1",
-        descricao_resumida: "novo",
-        descricao_completa: "novo completo",
-        situacao_funcional: "2",
-        status: "1",
-        page: 1,
-      });
-      expect(result.current.page).toBe(1);
-    });
+    expect(data).toEqual([]);
   });
 
-  it("limpa filtros com defaults customizados e refaz busca", async () => {
-    const customDefaults = {
-      grupamento: "2",
-      descricao_resumida: "Resumo",
-      descricao_completa: "Descrição completa",
-      situacao_funcional: "1",
-      status: "3",
-    };
-
-    vi.mocked(fetchCargosBase)
-      .mockResolvedValueOnce({
-        success: true,
-        data: { count: 1, next: null, previous: null, results: [] },
-      })
-      .mockResolvedValueOnce({
-        success: true,
-        data: { count: 2, next: null, previous: null, results: [] },
-      });
-
-    getValuesMock.mockReturnValue(customDefaults);
-    const { result } = renderHook(() => useVisualizarCargosBase(customDefaults));
-
-    await waitFor(() => {
-      expect(fetchCargosBase).toHaveBeenCalledTimes(1);
+  it("retorna os dados quando a busca é bem-sucedida", async () => {
+    const payload = [{ codigoCargo: 12, nomeCargo: "Cargo 12" }];
+    vi.mocked(fetchCargosBaseAction).mockResolvedValueOnce({
+      success: true,
+      data: payload as never,
     });
 
-    await act(async () => {
-      result.current.handleClear();
-    });
+    renderHook(() => useBuscarCargosBase());
+    const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
+    const data = await queryOptions.queryFn();
 
-    expect(resetMock).toHaveBeenCalledWith(customDefaults);
-    await waitFor(() => {
-      expect(fetchCargosBase).toHaveBeenLastCalledWith({
-        ...customDefaults,
-        page: 1,
-      });
-    });
+    expect(data).toEqual(payload);
   });
 
-  it("registra erro quando a busca falha", async () => {
-    vi.mocked(fetchCargosBase).mockResolvedValueOnce({
+  it("lança erro quando action retorna falha", async () => {
+    vi.mocked(fetchCargosBaseAction).mockResolvedValueOnce({
       success: false,
-      error: "erro ao consultar",
+      error: "falha ao buscar",
     });
 
-    const { result } = renderHook(() => useVisualizarCargosBase());
+    renderHook(() => useBuscarCargosBase());
+    const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
 
-    await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith("erro ao consultar");
-      expect(notificationErrorMock).toHaveBeenCalledWith({
-        title: "Erro ao buscar cargos base!",
-        clearPrevious: true,
-      });
-      expect(result.current.resultado).toBeNull();
-      expect(startTransitionMock).toHaveBeenCalled();
-    });
+    await expect(queryOptions.queryFn()).rejects.toThrow("falha ao buscar");
   });
 });

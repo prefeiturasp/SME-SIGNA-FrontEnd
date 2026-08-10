@@ -12,14 +12,14 @@ const handleSubmitMock = vi.fn((callback: (payload: unknown) => void) => (event?
   event?.preventDefault();
 });
 const onSubmitFormMock = vi.fn();
-const useCargosBaseCriarEditarMock = vi.fn();
+const useCriarEditarCargosBaseMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
 }));
 
-vi.mock("@/hooks/useCargosBaseCriarEditar", () => ({
-  useCargosBaseCriarEditar: () => useCargosBaseCriarEditarMock(),
+vi.mock("@/hooks/useCriarEditarCargosBase", () => ({
+  useCriarEditarCargosBase: () => useCriarEditarCargosBaseMock(),
 }));
 
 vi.mock("react-hook-form", () => ({
@@ -51,7 +51,7 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
 }));
 
 vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal", () => ({
-  default: (props: { CargosBaseOpcoes: Array<{ codigo: string; nome: string }> }) => {
+  default: (props: { CargosBaseOpcoes: Array<{ codigoCargo: number; nomeCargo: string }> }) => {
     principalSpy(props);
     return <div data-testid="form-principal">form principal</div>;
   },
@@ -67,12 +67,12 @@ vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario",
 describe("Página de cadastro de cargo base", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useCargosBaseCriarEditarMock.mockReturnValue({
+    useCriarEditarCargosBaseMock.mockReturnValue({
       form: {
         handleSubmit: handleSubmitMock,
       },
       onSubmitForm: onSubmitFormMock,
-      CargosBaseOpcoes: [{ codigo: "1", nome: "Cargo A" }],
+      CargosBaseOpcoes: [{ codigoCargo: 1, nomeCargo: "Cargo A" }],
     });
   });
 
@@ -98,7 +98,7 @@ describe("Página de cadastro de cargo base", () => {
       }),
     );
     expect(principalSpy).toHaveBeenCalledWith({
-      CargosBaseOpcoes: [{ codigo: "1", nome: "Cargo A" }],
+      CargosBaseOpcoes: [{ codigoCargo: 1, nomeCargo: "Cargo A" }],
     });
     expect(secundarioSpy).toHaveBeenCalledTimes(1);
   });

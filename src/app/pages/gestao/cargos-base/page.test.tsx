@@ -162,6 +162,6 @@ describe("Página Gestão de cargos base", () => {
     render(<CargosBase />);
 
     fireEvent.click(screen.getByTestId("botao-proximo"));
-    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cadastrar-editar-cargo-base");
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base");
   });
 });
