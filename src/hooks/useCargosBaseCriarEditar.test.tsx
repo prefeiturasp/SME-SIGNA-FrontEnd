@@ -1,12 +1,22 @@
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useCargosBaseCriarEditar } from "./useCargosBaseCriarEditar";
+import { useCriarEditarCargosBase } from "./useCriarEditarCargosBase";
 import createFormSchemaCargosBase from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import type { CargosBaseCriarEditar } from "@/types/gestao";
 
 const useFormMock = vi.fn(() => ({ mockedForm: true }));
 const zodResolverMock = vi.fn(() => "resolver-mock");
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+const pushMock = vi.fn();
+const successNotificationMock = vi.fn();
+const errorNotificationMock = vi.fn();
+const mutateAsyncMock = vi.fn();
+const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: pushMock,
+  }),
+}));
 
 vi.mock("react-hook-form", () => ({
   useForm: (...args: unknown[]) => useFormMock(...args),
@@ -16,13 +26,35 @@ vi.mock("@hookform/resolvers/zod", () => ({
   zodResolver: (...args: unknown[]) => zodResolverMock(...args),
 }));
 
-describe("useCargosBaseCriarEditar", () => {
-  beforeEach(() => {
+vi.mock("./useBuscarCargosBase", () => ({
+  useBuscarCargosBase: vi.fn(),
+}));
+
+vi.mock("./useCriarCargosBase", () => ({
+  useCriarCargosBase: () => ({
+    mutateAsync: mutateAsyncMock,
+  }),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: successNotificationMock,
+    error: errorNotificationMock,
+  }),
+}));
+
+describe("useCriarEditarCargosBase", () => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    const { useBuscarCargosBase } = await import("./useBuscarCargosBase");
+    vi.mocked(useBuscarCargosBase).mockReturnValue({
+      data: [{ codigoCargo: 10, nomeCargo: "Cargo 10" }],
+      isLoading: true,
+    } as never);
   });
 
-  it("inicializa o formulário com schema, defaults e opções fixas", () => {
-    const { result } = renderHook(() => useCargosBaseCriarEditar());
+  it("inicializa formulário e expõe estado da listagem de cargos base", () => {
+    const { result } = renderHook(() => useCriarEditarCargosBase());
 
     expect(zodResolverMock).toHaveBeenCalledWith(createFormSchemaCargosBase);
     expect(useFormMock).toHaveBeenCalledWith(
@@ -30,7 +62,7 @@ describe("useCargosBaseCriarEditar", () => {
         resolver: "resolver-mock",
         defaultValues: {
           grupamento: "",
-          codigo_cargo_eol: "",
+          codigo_cargo: "",
           descricao_resumida: "",
           descricao_completa: "",
           situacao_funcional: "",
@@ -47,22 +79,15 @@ describe("useCargosBaseCriarEditar", () => {
     );
 
     expect(result.current.form).toEqual({ mockedForm: true });
+    expect(result.current.CargosBaseOpcoes).toEqual([{ codigoCargo: 10, nomeCargo: "Cargo 10" }]);
+    expect(result.current.isLoadingCargosBase).toBe(true);
     expect(result.current.isPending).toBe(false);
-    expect(result.current.CargosBaseOpcoes).toHaveLength(10);
-    expect(result.current.CargosBaseOpcoes[0]).toEqual({
-      codigo: "1",
-      nome: "1234567 - Professor do Ensino Fundamental I",
-    });
-    expect(result.current.CargosBaseOpcoes[9]).toEqual({
-      codigo: "10",
-      nome: "1234576 - Professor do Ensino Fundamental X",
-    });
   });
 
-  it("permite sobrescrever valores padrão ao criar o hook", () => {
+  it("permite sobrescrever valores padrão no useForm", () => {
     const customDefaults: CargosBaseCriarEditar = {
       grupamento: "2",
-      codigo_cargo_eol: "9",
+      codigo_cargo: "9",
       descricao_resumida: "Resumo",
       descricao_completa: "Completa",
       situacao_funcional: "1",
@@ -75,7 +100,7 @@ describe("useCargosBaseCriarEditar", () => {
       cargo_base_ficticio: true,
     };
 
-    renderHook(() => useCargosBaseCriarEditar(customDefaults));
+    renderHook(() => useCriarEditarCargosBase(customDefaults));
 
     expect(useFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -84,10 +109,12 @@ describe("useCargosBaseCriarEditar", () => {
     );
   });
 
-  it("expõe onSubmitForm que registra os valores submetidos", () => {
-    const { result } = renderHook(() => useCargosBaseCriarEditar());
+  it("notifica sucesso e navega após salvar cargo base", async () => {
+    mutateAsyncMock.mockResolvedValueOnce({ id: 123 });
+    const { result } = renderHook(() => useCriarEditarCargosBase());
+
     const payload = {
-      codigo_cargo_eol: "1",
+      codigo_cargo: "1",
       grupamento: "2",
       descricao_resumida: "Resumo",
       descricao_completa: "Completa",
@@ -101,7 +128,45 @@ describe("useCargosBaseCriarEditar", () => {
       cargo_base_ficticio: false,
     };
 
-    result.current.onSubmitForm(payload);
-    expect(consoleLogSpy).toHaveBeenCalledWith(payload);
+    await act(async () => {
+      await result.current.onSubmitForm(payload);
+    });
+
+    expect(mutateAsyncMock).toHaveBeenCalledWith({ values: payload });
+    expect(successNotificationMock).toHaveBeenCalledWith({
+      title: "Tudo certo por aqui!",
+      description: "O cargo base foi criado.",
+    });
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cargos-base");
+  });
+
+  it("notifica erro quando salvar cargo base falha", async () => {
+    const error = new Error("erro de API");
+    mutateAsyncMock.mockRejectedValueOnce(error);
+    const { result } = renderHook(() => useCriarEditarCargosBase());
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        codigo_cargo: "1",
+        grupamento: "2",
+        descricao_resumida: "Resumo",
+        descricao_completa: "Completa",
+        situacao_funcional: "1",
+        status: "3",
+        utilizado_para_funcoes: true,
+        utilizado_para_designacoes: false,
+        utilizado_para_outros: false,
+        utilizado_para_ste: true,
+        utilizado_para_permutas: false,
+        cargo_base_ficticio: false,
+      });
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Erro ao salvar cargo base:", error);
+    expect(errorNotificationMock).toHaveBeenCalledWith({
+      title: "Erro!",
+      description: "Não conseguimos criar o cargo base. Por favor, tente novamente.",
+      clearPrevious: true,
+    });
   });
 });

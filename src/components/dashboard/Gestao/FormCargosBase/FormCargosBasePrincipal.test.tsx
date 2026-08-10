@@ -8,11 +8,13 @@ const inputFieldSpy = vi.fn();
 const selectFieldSpy = vi.fn();
 const comboboxSpy = vi.fn();
 const fieldOnChangeMock = vi.fn();
+const setValueMock = vi.fn();
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
     register: vi.fn(),
     control: {},
+    setValue: setValueMock,
   }),
 }));
 
@@ -102,8 +104,8 @@ describe("FormCargosBasePrincipal", () => {
     render(
       <FormCargosBasePrincipal
         CargosBaseOpcoes={[
-          { codigo: "1", nome: "Cargo A" },
-          { codigo: "2", nome: "Cargo B" },
+          { codigoCargo: 1, nomeCargo: "Cargo A" },
+          { codigoCargo: 2, nomeCargo: "Cargo B" },
         ]}
       />,
     );
@@ -116,6 +118,7 @@ describe("FormCargosBasePrincipal", () => {
     expect(screen.getByTestId("select-codigo-cargo-eol")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("select-codigo-cargo-eol"));
     expect(fieldOnChangeMock).toHaveBeenCalledWith("2");
+    expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "Cargo B");
 
     expect(screen.getByTestId("input-grupamento")).toBeInTheDocument();
     expect(screen.getByTestId("input-descricao_resumida")).toBeInTheDocument();
@@ -135,7 +138,15 @@ describe("FormCargosBasePrincipal", () => {
     expect(screen.getByTestId("option-status-EXTINTO")).toHaveTextContent("Extinto");
   });
 
-  it("usa lista vazia de cargos quando não recebe CargosBaseOpcoes", () => {
+  it("preenche descrição completa com vazio quando cargo não existe na lista", () => {
+    render(<FormCargosBasePrincipal CargosBaseOpcoes={[{ codigoCargo: 1, nomeCargo: "Cargo A" }]} />);
+
+    fireEvent.click(screen.getByTestId("select-codigo-cargo-eol"));
+
+    expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "");
+  });
+
+  it("usa lista vazia de cargos quando não recebe opções", () => {
     render(<FormCargosBasePrincipal CargosBaseOpcoes={undefined as never} />);
 
     expect(comboboxSpy).toHaveBeenCalledWith({

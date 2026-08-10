@@ -6,17 +6,18 @@ import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { FormControl, FormField, FormLabel, FormItem, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/Combobox';
 import { StatusOpcoes, CargosBaseGrupamento, SituacaoFuncionalOpcoes } from '../FiltroDeCargosBase/FiltroDeCargosBase';
+import { ICargoType } from '@/types/cargos';
 
   
 
 
  
 interface Props {
-  readonly CargosBaseOpcoes: { codigo: string; nome: string }[];
+  readonly CargosBaseOpcoes: ICargoType[];
 }
 
 const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[] }) => {
-  const { register, control } = useFormContext();
+  const { register, control, setValue } = useFormContext();
 
   return (
     <>
@@ -29,7 +30,7 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[] }) => {
 
         <FormField
           control={control}
-          name="codigo_cargo_eol"
+          name="codigo_cargo"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="required text-[#313131] font-bold">
@@ -38,14 +39,15 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[] }) => {
               <FormControl>
                    <Combobox
                     options={CargosBaseOpcoes.map(
-                      (cargo: { codigo: string; nome: string }) => ({
-                        label: cargo.nome,
-                        value: cargo.codigo,
+                      (cargo: ICargoType) => ({
+                        label: cargo.nomeCargo,
+                        value: cargo.codigoCargo.toString(),
                       })
                     )}
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
+                      setValue("descricao_completa", CargosBaseOpcoes.find(cargo => cargo.codigoCargo.toString() === value)?.nomeCargo || "");
                     }}
                     placeholder="Selecione"
                     data-testid="select-codigo-cargo-eol"
