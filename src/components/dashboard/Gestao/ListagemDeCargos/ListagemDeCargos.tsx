@@ -72,27 +72,27 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
     { title: 'Descrição completa', dataIndex: 'descricao_completa', key: 'descricao_completa', },
     { title: 'Situação funcional', dataIndex: 'situacao_funcional', key: 'situacao_funcional', },
     {
-      title: 'Usado em funções', dataIndex: 'usado_em_funcoes', key: 'usado_em_funcoes',
+      title: 'Usado em funções', dataIndex: 'utilizado_para_funcoes', key: 'utilizado_para_funcoes',
       render: (_, record) => {
-        return (<>{record.usado_em_funcoes ? 'Sim' : 'Não'}</>);
+        return (<>{record.utilizado_para_funcoes ? 'Sim' : 'Não'}</>);
       },
     },
     {
-      title: 'Usado em designações', dataIndex: 'usado_em_designacoes', key: 'usado_em_designacoes',
+      title: 'Usado em designações', dataIndex: 'utilizado_para_designacoes', key: 'utilizado_para_designacoes',
       render: (_, record) => {
-        return (<>{record.usado_em_designacoes ? 'Sim' : 'Não'}</>);
+        return (<>{record.utilizado_para_designacoes ? 'Sim' : 'Não'}</>);
       },
     },
     {
-      title: 'Usado em STE', dataIndex: 'usado_em_ste', key: 'usado_em_ste',
+      title: 'Usado em STE', dataIndex: 'utilizado_para_ste', key: 'utilizado_para_ste',
       render: (_, record) => {
-        return (<>{record.usado_em_ste ? 'Sim' : 'Não'}</>);
+        return (<>{record.utilizado_para_ste ? 'Sim' : 'Não'}</>);
       },
     },
     {
-      title: 'Usado em permutas', dataIndex: 'usado_em_permutas', key: 'usado_em_permutas',
+      title: 'Usado em permutas', dataIndex: 'utilizado_para_permutas', key: 'utilizado_para_permutas',
       render: (_, record) => {
-        return (<>{record.usado_em_permutas ? 'Sim' : 'Não'}</>);
+        return (<>{record.utilizado_para_permutas ? 'Sim' : 'Não'}</>);
       },
     },
     {

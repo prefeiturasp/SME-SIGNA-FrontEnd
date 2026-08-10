@@ -61,7 +61,7 @@ export default function CriarEditarCargoBase() {
 
         <div className="w-full flex flex-col lg:flex-row gap-4 mb-4 mt-8" >
           <FundoBranco className="w-full lg:w-[50%]">
-            <FormCargosBasePrincipal CargosBaseOpcoes={CargosBaseOpcoes} />
+            <FormCargosBasePrincipal CargosBaseOpcoes={[{codigoCargo: 23, nomeCargo: "Cargo 1"}, {codigoCargo: 2, nomeCargo  : "Cargo 2"}]} />
           </FundoBranco>
 
           <FundoBranco className="w-full lg:w-[50%]">

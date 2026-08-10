@@ -43,10 +43,10 @@ export interface CargosBaseResponse {
   descricao_resumida: string;
   descricao_completa: string;
   situacao_funcional: string;
-  usado_em_funcoes: boolean;
-  usado_em_designacoes: boolean;
-  usado_em_ste: boolean;
-  usado_em_permutas: boolean;
+  utilizado_para_funcoes: boolean;
+  utilizado_para_designacoes: boolean;
+  utilizado_para_ste: boolean;
+  utilizado_para_permutas: boolean;
   cargo_base_ficticio: boolean;  
   status: StatusCargosBase;  
 }
