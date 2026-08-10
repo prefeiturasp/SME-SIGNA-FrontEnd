@@ -54,10 +54,10 @@ const defaultValuesCreateEdit: CargosBaseCriarEditar = {
   descricao_completa: "",
   situacao_funcional: "",
   status: "",
-  usado_em_funcoes: false,
-  usado_em_designacoes: false,
-  usado_em_ste: false,
-  usado_em_permutas: false,
+  utilizado_para_funcoes: false,
+  utilizado_para_designacoes: false,
+  utilizado_para_ste: false,
+  utilizado_para_permutas: false,
   cargo_base_ficticio: false,
 };
 

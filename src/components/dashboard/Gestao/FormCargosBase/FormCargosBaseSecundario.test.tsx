@@ -54,7 +54,7 @@ describe("FormCargosBaseSecundario", () => {
     expect(switchFieldSpy).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        name: "usado_em_funcoes",
+        name: "utilizado_para_funcoes",
         showBlankSpace: false,
       }),
     );

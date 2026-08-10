@@ -84,10 +84,10 @@ const row: CargosBaseResponse = {
   descricao_resumida: "Professor",
   descricao_completa: "Professor de educacao basica",
   situacao_funcional: "Efetivo",
-  usado_em_funcoes: true,
-  usado_em_designacoes: false,
-  usado_em_ste: true,
-  usado_em_permutas: false,
+  utilizado_para_funcoes: true,
+  utilizado_para_designacoes: false,
+  utilizado_para_ste: true,
+  utilizado_para_permutas: false,
   cargo_base_ficticio: true,
   status: StatusCargosBase.ATIVO,
 };
@@ -162,10 +162,10 @@ describe("ListagemDeCargos", () => {
 
     rerender(
       <>
-        {renderFuncoes?.(null, { ...row, usado_em_funcoes: false })}
-        {renderDesignacoes?.(null, { ...row, usado_em_designacoes: true })}
-        {renderSte?.(null, { ...row, usado_em_ste: false })}
-        {renderPermutas?.(null, { ...row, usado_em_permutas: true })}
+        {renderFuncoes?.(null, { ...row, utilizado_para_funcoes: false })}
+        {renderDesignacoes?.(null, { ...row, utilizado_para_designacoes: true })}
+        {renderSte?.(null, { ...row, utilizado_para_ste: false })}
+        {renderPermutas?.(null, { ...row, utilizado_para_permutas: true })}
         {renderFicticio?.(null, { ...row, cargo_base_ficticio: false })}
       </>,
     );
