@@ -92,7 +92,7 @@ describe("Página de cadastro de cargo base", () => {
         breadcrumbs: [
           { title: "Início", href: "/" },
           { title: "Gestão", href: "/pages/gestao/cargos-base" },
-          { title: "Cargo base", href: "/pages/gestao/cargos-base" },
+          { title: "Cargos base", href: "/pages/gestao/cargos-base" },
           { title: "Cadastrar cargo base", href: "/" },
         ],
       }),

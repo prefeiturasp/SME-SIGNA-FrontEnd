@@ -24,11 +24,10 @@ describe("actions/cargos-base", () => {
       descricao_completa: "Completa",
       situacao_funcional: "EFETIVO",
       status: "ATIVO",
-      utilizado_para_funcoes: true,
-      utilizado_para_designacoes: false,
-      utilizado_para_outros: false,
-      utilizado_para_ste: false,
-      utilizado_para_permutas: false,
+      usado_em_funcoes: true,
+      usado_em_designacoes: false,
+      usado_em_ste: false,
+      usado_em_permutas: false,
       cargo_base_ficticio: false,
     };
 

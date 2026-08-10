@@ -208,6 +208,6 @@ describe("ListagemDeCargos", () => {
     render(<>{actionRender?.(row)}</>);
     expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
     screen.getByTestId("menu-item-4").click();
-    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cargos-base/editar-cargo-base/10");
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base/10");
   });
 });

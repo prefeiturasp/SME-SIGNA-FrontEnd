@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CargosBaseCriarEditar } from "@/types/gestao";
 import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
-import { useBuscarCargosBase } from "./useBuscarCargosBase";
+import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosBase";
 import { useRouter } from "next/navigation";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { useCriarCargosBase } from "./useCriarCargosBase";
@@ -16,19 +16,22 @@ const defaultValuesCreateEdit: CargosBaseCriarEditar = {
   descricao_completa: "",
   situacao_funcional: "",
   status: "",
-  utilizado_para_funcoes: false,
-  utilizado_para_designacoes: false,
-  utilizado_para_outros: false,
-  utilizado_para_ste: false,
-  utilizado_para_permutas: false,
+  usado_em_funcoes: false,
+  usado_em_designacoes: false,
+  usado_em_outros: false,
+  usado_em_ste: false,
+  usado_em_permutas: false,
   cargo_base_ficticio: false,
 };
 
-export function useCriarEditarCargosBase(defaultValues: CargosBaseCriarEditar = defaultValuesCreateEdit) {
+export function useCriarEditarCargosBase( defaultValues: CargosBaseCriarEditar = defaultValuesCreateEdit, id: number|null = null) {
+
 
   const router = useRouter();
   const notification = useAppNotification();
   const { data: CargosBaseOpcoes = [], isLoading: isLoadingCargosBase } = useBuscarCargosBase();
+  const { data: cargoBase, isLoading: isLoadingCargoBase } = useBuscarCargosBaseById(id ?? 0);
+  console.log("cargoBase",cargoBase);
   const criarCargosBase = useCriarCargosBase();
 
   const isPending = false;

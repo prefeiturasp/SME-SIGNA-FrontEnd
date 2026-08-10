@@ -18,7 +18,7 @@ const FormCargosBaseSecundario: React.FC = () => {
         <SwitchField
           register={register}
           control={control}
-          name="utilizado_para_funcoes"
+          name="usado_em_funcoes"
           label="Utilizado para funções?"
           description="Permite utilizar este cargo em processos de atribuição de funções."
           dataTestId="input-utilizacao-funcoes"
@@ -30,7 +30,7 @@ const FormCargosBaseSecundario: React.FC = () => {
         <SwitchField
           register={register}
           control={control}
-          name="utilizado_para_designacoes"
+          name="usado_em_designacoes"
           label="Utilizado para designações?"
           description="Permite utilizar este cargo em processos de designação."
           dataTestId="input-utilizacao-designacoes"
@@ -41,7 +41,7 @@ const FormCargosBaseSecundario: React.FC = () => {
         <SwitchField
           register={register}
           control={control}
-          name="utilizado_para_ste"
+          name="usado_em_ste"
           label="Utilizado para STE?"
           description="Permite utilizar este cargo em processos de STE."
           dataTestId="input-utilizado-para-ste"
@@ -52,7 +52,7 @@ const FormCargosBaseSecundario: React.FC = () => {
         <SwitchField
           register={register}
           control={control}
-          name="utilizado_para_permutas"
+          name="usado_em_permutas"
           label="Utilizado para permutas?"
           description="Permite utilizar este cargo em processos de permuta."
           dataTestId="input-utilizado-para-permutas"

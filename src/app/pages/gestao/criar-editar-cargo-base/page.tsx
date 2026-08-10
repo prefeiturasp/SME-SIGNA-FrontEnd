@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Button } from "@/components/ui/button";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
@@ -8,34 +8,58 @@ import { FormProvider } from "react-hook-form";
 import FormCargosBasePrincipal from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal";
 import FormCargosBaseSecundario from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario";
 import { useCriarEditarCargosBase } from "@/hooks/useCriarEditarCargosBase";
+import { CargosBaseCriarEditar, StatusCargosBase } from "@/types/gestao";
 
 
 
 export default function CriarEditarCargoBase() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const grupamento = searchParams.get("grupamento");
+  const descricao_resumida = searchParams.get("descricao_resumida");
+  const descricao_completa = searchParams.get("descricao_completa");
+  const situacao_funcional = searchParams.get("situacao_funcional");
+  const usado_em_funcoes = searchParams.get("usado_em_funcoes");
+  const usado_em_designacoes = searchParams.get("usado_em_designacoes");
+  const usado_em_ste = searchParams.get("usado_em_ste");
+  const usado_em_permutas = searchParams.get("usado_em_permutas");
+  const cargo_base_ficticio = searchParams.get("cargo_base_ficticio");
+  const status = searchParams.get("status");
+  const defaultValues: CargosBaseCriarEditar = {
+    grupamento: grupamento ? grupamento : "",
+    descricao_resumida: descricao_resumida ? descricao_resumida : "",
+    descricao_completa: descricao_completa ? descricao_completa : "",
+    situacao_funcional: situacao_funcional ? situacao_funcional : "",
+    usado_em_funcoes: usado_em_funcoes ? JSON.parse(usado_em_funcoes) : false,
+    usado_em_designacoes: usado_em_designacoes ? JSON.parse(usado_em_designacoes) : false,
+    usado_em_ste: usado_em_ste ? JSON.parse(usado_em_ste) : false,
+    usado_em_permutas: usado_em_permutas ? JSON.parse(usado_em_permutas) : false,
+    cargo_base_ficticio: cargo_base_ficticio ? JSON.parse(cargo_base_ficticio) : false,
+    status: status as StatusCargosBase,
+  };
   const {
     form,
     onSubmitForm,    
     CargosBaseOpcoes,
-  } = useCriarEditarCargosBase();
-  const router = useRouter();
+  } = useCriarEditarCargosBase(defaultValues, id ? Number(id) : null);
+  const router = useRouter(); 
 
-  
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmitForm)}>
         <PageHeader
           showBackButton={false}
           title={
-            "Cadastrar cargo base"
+            id ? "Editar cargo base" : "Cadastrar cargo base"
           }
           breadcrumbs={[
             { title: "Início", href: "/" },
             { title: "Gestão", href: "/pages/gestao/cargos-base" },
-            { title: "Cargo base", href: "/pages/gestao/cargos-base" },
-            { title: "Cadastrar cargo base", href: "/" },
+            { title: "Cargos base", href: "/pages/gestao/cargos-base" },
+            { title: id ? "Editar cargo base" : "Cadastrar cargo base", href: "/" },
           ]}
           createButton={
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="flex justify-end gap-2">
               <Button
                 size="lg"
                 type="button"
@@ -53,7 +77,7 @@ export default function CriarEditarCargoBase() {
                 data-testid="botao-cadastrar-cargo"
                 type="submit"               
               >
-                Cadastrar cargo
+                {id ? "Salvar" : "Cadastrar cargo"}
               </Button>
             </div>
           }

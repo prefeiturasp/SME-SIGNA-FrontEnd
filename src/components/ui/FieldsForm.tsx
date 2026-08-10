@@ -365,7 +365,7 @@ export const SwitchField = ({
                             <FormLabel className="text-[#313131] font-bold">
                                 {label}
                             </FormLabel>
-                            <p className="text-sm max-w-[416px]">
+                            <p className="text-sm max-w-[511px]">
                                 {description}
                             </p>
                         </div>

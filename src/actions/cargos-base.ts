@@ -26,3 +26,11 @@ export const fetchCargosBaseAction = async (
     "Erro ao buscar as insubsistencias"
   );
 };
+
+export async function fetchCargosBaseActionByIdAction(id: number) {
+  return fetchWithClient<ICargoType>(
+    `/gestao/cargos-base/${id}/`,
+    {},
+    "Erro ao buscar o cargo base"
+  );
+}
