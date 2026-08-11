@@ -129,7 +129,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   return {
     isLoadingCargosBase,
-    CargosBaseOpcoes: [{ codigoCargo: 20, nomeCargo: 'TEST 1' }],
+    CargosBaseOpcoes: CargosBaseOpcoes,
     isPending,
     form,
     onSubmitForm,
