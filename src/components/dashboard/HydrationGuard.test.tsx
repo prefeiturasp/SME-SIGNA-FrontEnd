@@ -15,7 +15,16 @@ vi.mock("react", async (importOriginal) => {
 describe("HydrationGuard", () => {
     beforeEach(() => {
         useSyncExternalStoreMock.mockImplementation(
-            (_subscribe: unknown, getSnapshot: () => boolean) => getSnapshot()
+            (
+                subscribe: () => () => void,
+                getSnapshot: () => boolean,
+                getServerSnapshot: () => boolean
+            ) => {
+                const unsubscribe = subscribe();
+                unsubscribe();
+                getServerSnapshot();
+                return getSnapshot();
+            }
         );
     });
 
