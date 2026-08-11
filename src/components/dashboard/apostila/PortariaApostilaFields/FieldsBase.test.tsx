@@ -16,11 +16,11 @@ vi.mock("lucide-react", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
-  InputField: (props: any) => {
+  InputField: (props: { name: string; label: ReactNode }) => {
     inputFieldSpy(props);
     return <div data-testid={`input-field-${props.name}`}>{props.label}</div>;
   },
-  DateField: (props: any) => {
+  DateField: (props: { name: string; label: ReactNode }) => {
     dateFieldSpy(props);
     return <div data-testid={`date-field-${props.name}`}>{props.label}</div>;
   },

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { gerarDadosPortaria, montarTrechoUnidade } from "./gerarDadosPortaria";
 import * as regrasPortaria from "./regrasPortaria";
+import type { DesignacaoData } from "@/types/designacao";
 
 vi.mock("./regrasPortaria", () => ({
     montarAutoridade: vi.fn(),
@@ -16,7 +17,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Trecho Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "vago",
             cargo_vago_selecionado: "Diretor",
             portaria_designacao: "123",
@@ -34,7 +35,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado).toEqual({
             portaria: "123/2025",
@@ -63,7 +64,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Trecho Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "vago",
             cargo_vago_selecionado: "Diretor",
             portaria_designacao: "123",
@@ -81,7 +82,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado).toEqual({
             portaria: "123/2025",
@@ -110,7 +111,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "titular",
             dadosTitular: {
                 cargo_base: "Coordenador",
@@ -124,7 +125,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_indicado).toBe("Coordenador");
     });
@@ -135,7 +136,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "disponivel",
             portaria_designacao: "100",
             ano: "2026",
@@ -153,7 +154,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_base).toBe("Professor de Educação Infantil - Categoria 3");
     });
@@ -164,7 +165,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "disponivel",
             portaria_designacao: "101",
             ano: "2026",
@@ -181,7 +182,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_base).toBe("Professor de Educação Infantil");
     });
@@ -192,7 +193,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "vago",
             cargo_vago_selecionado: { label: "Vice-Diretor", value: "vice_diretor" },
             portaria_designacao: "456",
@@ -210,7 +211,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_indicado).toBe("Vice-diretor");
     });

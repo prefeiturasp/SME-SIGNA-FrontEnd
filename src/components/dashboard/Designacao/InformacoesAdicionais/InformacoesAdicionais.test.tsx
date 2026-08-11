@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldValues, type UseFormReturn } from "react-hook-form";
 import type { ReactNode } from "react";
 import InformacoesAdicionais from "./InformacoesAdicionais";
 
@@ -62,7 +62,7 @@ function renderComFormulario(options: {
     return (
       <InformacoesAdicionais
         disableFields={disableFields}
-        form={form}
+        form={form as unknown as UseFormReturn<FieldValues>}
         onChangeDescricao={onChangeDescricao}
         onValueChangeDetalheParaQuadroDeHistoricoPorAno={
           onValueChangeDetalheParaQuadroDeHistoricoPorAno

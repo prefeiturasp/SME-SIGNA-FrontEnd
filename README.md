@@ -11,6 +11,17 @@
 -   [Vitest](https://vitest.dev/guide/)
 
 
+## 🟢 Versão do Node
+
+A versão do Node usada no projeto está fixada no arquivo [`.nvmrc`](.nvmrc). Se você usa o [nvm](https://github.com/nvm-sh/nvm), rode na raiz do projeto:
+
+```bash
+nvm use
+
+```
+
+Se ainda não tiver essa versão instalada, instale antes com `nvm install`.
+
 ## 📦 Gerenciador de pacotes
 
 O `yarn` é o gerenciador oficial do projeto: é ele quem builda a aplicação nos ambientes de qa, homolog e prod (veja `Dockerfile` e `Dockerfile.production`, que rodam `yarn install`/`yarn --frozen-lockfile`). O `npm` pode ser usado localmente por conveniência, mas **sempre que uma dependência for adicionada/removida/atualizada, rode `yarn install` e commite o `yarn.lock` resultante junto com o `package.json`**, mesmo que a instalação local tenha sido feita via `npm`. Caso contrário, os ambientes reais podem subir com dependências desatualizadas ou ausentes.

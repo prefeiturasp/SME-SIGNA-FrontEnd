@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchCargosBase } from "./gestao";
 import { fetchWithClient } from "./http";
+import type { CargosBasePaginada } from "@/types/gestao";
 
 vi.mock("./http", () => ({
   fetchWithClient: vi.fn(),
@@ -22,7 +23,7 @@ describe("fetchCargosBase", () => {
     };
     const response = {
       success: true as const,
-      data: { count: 1, next: null, previous: null, results: [{ id: 7 }] as any },
+      data: { count: 1, next: null, previous: null, results: [{ id: 7 }] as unknown as CargosBasePaginada["results"] },
     };
     vi.mocked(fetchWithClient).mockResolvedValueOnce(response);
 

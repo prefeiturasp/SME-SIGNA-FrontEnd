@@ -4,8 +4,8 @@ import { useCriarEditarCargosBase } from "./useCriarEditarCargosBase";
 import createFormSchemaCargosBase from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import type { CargosBaseCriarEditar } from "@/types/gestao";
 
-const useFormMock = vi.fn(() => ({ mockedForm: true }));
-const zodResolverMock = vi.fn(() => "resolver-mock");
+const useFormMock = vi.fn((..._args: unknown[]) => ({ mockedForm: true }));
+const zodResolverMock = vi.fn((..._args: unknown[]) => "resolver-mock");
 const pushMock = vi.fn();
 const successNotificationMock = vi.fn();
 const errorNotificationMock = vi.fn();

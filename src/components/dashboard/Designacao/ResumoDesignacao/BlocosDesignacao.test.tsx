@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import BlocosDesignacao from "./BlocosDesignacao";
+import type { Servidor } from "@/types/designacao-unidade";
 
 const resumoServidorPropsMock = vi.fn();
 const resumoPortariaPropsMock = vi.fn();
@@ -23,10 +24,10 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: { onSubmitEditarServidor?: (data: { atualizado: boolean }) => void }) => {
     resumoServidorPropsMock(props);
     return (
-      <button onClick={() => props.onSubmitEditarServidor({ atualizado: true })}>
+      <button onClick={() => props.onSubmitEditarServidor?.({ atualizado: true })}>
         Resumo servidor
       </button>
     );
@@ -35,7 +36,7 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", ()
 
 vi.mock("@/components/dashboard/Designacao/ResumoPortariaDesigacao", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: Record<string, unknown>) => {
     resumoPortariaPropsMock(props);
     return <div>Resumo portaria designacao</div>;
   },
@@ -43,16 +44,42 @@ vi.mock("@/components/dashboard/Designacao/ResumoPortariaDesigacao", () => ({
 
 vi.mock("@/components/dashboard/Designacao/ResumoPortariaCessacao", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: Record<string, unknown>) => {
     resumoCessacaoPropsMock(props);
     return <div>Resumo portaria cessacao</div>;
   },
 }));
 
 const baseProps = {
-  dadosIndicado: { nome_servidor: "Servidor" } as any,
-  dadosPortaria: { numero_portaria: "100" },
-  dadosPortariaCessacao: { numero_portaria: "200" },
+  dadosIndicado: { nome_servidor: "Servidor" } as unknown as Servidor,
+  dadosPortaria: {
+    numero_portaria: "100",
+    ano_vigente: "2026",
+    sei_numero: "SEI-100",
+    doc: "DOC-100",
+    data_inicio: "2026-01-01",
+    data_fim: null,
+    carater_excepcional: false,
+    impedimento_substituicao: null,
+    motivo_afastamento: "",
+    pendencias: "",
+  },
+  dadosPortariaCessacao: {
+    id: 1,
+    numero_portaria: "200",
+    ano_vigente: "2026",
+    sei_numero: "SEI-200",
+    a_pedido: false,
+    remocao: false,
+    aposentadoria: false,
+    data_cessacao: "2026-01-01",
+    doc: "DOC-200",
+    criado_em: "2026-01-01",
+    status: "ativo" as const,
+    ato_pai_id: 1,
+    apostilas: [],
+    insubsistencia: null,
+  },
 };
 
 describe("BlocosDesignacao", () => {
