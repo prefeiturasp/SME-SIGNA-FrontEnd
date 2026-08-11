@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fetchInsubsistenciasByIdAction } from "@/actions/insubsistencia-criar";
 import { useFetchInsubsistenciasById } from "./useVisualizarInsubsistencia";
+import type { InsubsistenciaRead } from "@/types/insubsistencia";
 
 vi.mock("@/actions/insubsistencia-criar", () => ({
   fetchInsubsistenciasByIdAction: vi.fn(),
@@ -31,7 +32,7 @@ describe("useFetchInsubsistenciasById", () => {
   it("busca os dados quando id é válido", async () => {
     vi.mocked(fetchInsubsistenciasByIdAction).mockResolvedValueOnce({
       success: true,
-      data: { id: 7, numero_portaria: "100" },
+      data: { id: 7, numero_portaria: "100" } as unknown as InsubsistenciaRead,
     });
 
     const { result } = renderHook(() => useFetchInsubsistenciasById(7), { wrapper });

@@ -159,10 +159,11 @@ vi.mock("antd", () => {
     datePickerSpy(props);
     return <div data-testid="antd-date-picker" />;
   };
-  DatePicker.RangePicker = (props: Record<string, unknown>) => {
+  function RangePicker(props: Record<string, unknown>) {
     rangePickerSpy(props);
     return <div data-testid="antd-range-picker" />;
-  };
+  }
+  DatePicker.RangePicker = RangePicker;
   const Switch = ({
     onChange,
     checked,

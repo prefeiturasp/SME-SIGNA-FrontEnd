@@ -2,6 +2,13 @@ import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useCriarCargosBase } from "./useCriarCargosBase";
 import { criarCargosBaseAction } from "@/actions/cargos-base";
+import type { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
+
+// O mock de useMutation abaixo devolve as options recebidas (não o UseMutationResult
+// real), então result.current aqui é na verdade { mutationFn }, daí o cast local.
+type MutationOptions = {
+  mutationFn: (variables: { values: createFormSchemaCargosBaseData }) => Promise<unknown>;
+};
 
 const useMutationMock = vi.fn((options) => options);
 
@@ -26,7 +33,7 @@ describe("useCriarCargosBase", () => {
         mutationFn: expect.any(Function),
       }),
     );
-    expect(typeof result.current.mutationFn).toBe("function");
+    expect(typeof (result.current as unknown as MutationOptions).mutationFn).toBe("function");
   });
 
   it("retorna dados quando action é bem-sucedida", async () => {
@@ -51,7 +58,7 @@ describe("useCriarCargosBase", () => {
     } as never);
 
     const { result } = renderHook(() => useCriarCargosBase());
-    const data = await result.current.mutationFn({ values });
+    const data = await (result.current as unknown as MutationOptions).mutationFn({ values });
 
     expect(criarCargosBaseAction).toHaveBeenCalledWith(values);
     expect(data).toEqual({ id: 99 });
@@ -66,7 +73,7 @@ describe("useCriarCargosBase", () => {
     const { result } = renderHook(() => useCriarCargosBase());
 
     await expect(
-      result.current.mutationFn({
+      (result.current as unknown as MutationOptions).mutationFn({
         values: {
           grupamento: "",
           codigo_cargo: "",

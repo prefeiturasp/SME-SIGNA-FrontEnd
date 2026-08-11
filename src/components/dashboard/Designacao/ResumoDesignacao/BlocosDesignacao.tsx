@@ -3,12 +3,15 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import ResumoPortariaCessacao from "@/components/dashboard/Designacao/ResumoPortariaCessacao";
 import { Servidor } from "@/types/designacao-unidade";
+import { Cessacao } from "@/types/designacao";
+import { PortariaDesignacao } from "@/types/portaria-designacao";
+import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 
 type Props = {
   dadosIndicado: Servidor | null;
-  dadosPortaria: any;
-  dadosPortariaCessacao: any;
-  onSubmitEditarServidor?: (data: any) => void;
+  dadosPortaria: PortariaDesignacao | null;
+  dadosPortariaCessacao: Cessacao | null;
+  onSubmitEditarServidor?: (data: FormEditarServidorData) => void;
   showExtraFields?: boolean;
   showCursosTitulos?: boolean;
   showLotacao?: boolean;

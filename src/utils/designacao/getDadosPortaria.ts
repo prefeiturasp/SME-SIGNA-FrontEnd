@@ -1,4 +1,9 @@
-export function getDadosPortaria(designacao: any) {
+import { DesignacaoResponse } from "@/types/designacao";
+import { PortariaDesignacao } from "@/types/portaria-designacao";
+
+export function getDadosPortaria(
+  designacao: DesignacaoResponse | undefined
+): PortariaDesignacao | null {
   if (!designacao) return null;
 
   return {

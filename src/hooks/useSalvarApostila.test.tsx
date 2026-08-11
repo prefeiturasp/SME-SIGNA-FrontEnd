@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useSalvarApostila } from "./useSalvarApostila";
 import { ApostilaAction } from "@/actions/apostila";
+import type { formSchemaApostilaData } from "@/app/pages/apostila/schema";
 
 
 vi.mock("@/actions/apostila", () => ({
@@ -27,7 +28,7 @@ const createWrapper = () => {
   return Wrapper;
 };
 
-const valuesMock = {
+const valuesMock: formSchemaApostilaData = {
   apostila: {
     numero_sei: "6016.2024/000123-4",
     doc: "2024-05-20",
@@ -60,7 +61,7 @@ describe("useSalvarApostila", () => {
 
     await act(async () => {
       await result.current.mutateAsync({
-        values: valuesMock as any,
+        values: valuesMock,
         designacaoId: 10,
       });
     });
@@ -84,7 +85,7 @@ describe("useSalvarApostila", () => {
 
     await act(async () => {
       await result.current.mutateAsync({
-        values: valuesCessacao as any,
+        values: valuesCessacao,
         designacaoId: 10,
         cessacaoId: 55,
       });
@@ -109,7 +110,7 @@ describe("useSalvarApostila", () => {
     let response;
     await act(async () => {
       response = await result.current.mutateAsync({
-        values: valuesMock as any,
+        values: valuesMock,
         designacaoId: 10,
       });
     });
@@ -130,7 +131,7 @@ describe("useSalvarApostila", () => {
 
     await expect(
       result.current.mutateAsync({
-        values: valuesMock as any,
+        values: valuesMock,
         designacaoId: 10,
       })
     ).rejects.toThrow(errorMessage);
@@ -149,7 +150,7 @@ describe("useSalvarApostila", () => {
     await act(async () => {
       try {
         await result.current.mutateAsync({
-          values: valuesMock as any,
+          values: valuesMock,
           designacaoId: 10,
         });
       } catch (e) {
