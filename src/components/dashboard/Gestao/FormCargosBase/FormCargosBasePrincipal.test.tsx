@@ -9,6 +9,7 @@ const selectFieldSpy = vi.fn();
 const comboboxSpy = vi.fn();
 const fieldOnChangeMock = vi.fn();
 const setValueMock = vi.fn();
+const fieldValueMock = vi.fn(() => "");
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
@@ -64,7 +65,7 @@ vi.mock("@/components/ui/form", () => ({
     <div data-testid="form-field-codigo-cargo-eol">
       {renderProp({
         field: {
-          value: "",
+          value: fieldValueMock(),
           onChange: fieldOnChangeMock,
         },
       })}
@@ -80,13 +81,19 @@ vi.mock("@/components/ui/Combobox", () => ({
   Combobox: ({
     options,
     onChange,
+    disabled,
+    placeholder,
+    value,
     "data-testid": dataTestId,
   }: {
     options: Array<{ value: string; label: string }>;
     onChange: (value: string) => void;
+    disabled?: boolean;
+    placeholder?: string;
+    value?: string;
     "data-testid"?: string;
   }) => {
-    comboboxSpy({ options, dataTestId });
+    comboboxSpy({ options, dataTestId, disabled, placeholder, value });
     return (
       <button type="button" data-testid={dataTestId} onClick={() => onChange("2")}>
         selecionar-codigo
@@ -98,6 +105,7 @@ vi.mock("@/components/ui/Combobox", () => ({
 describe("FormCargosBasePrincipal", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    fieldValueMock.mockReturnValue("");
   });
 
   it("renderiza cabeçalho, campos e mapeia opções para combobox e selects", () => {
@@ -107,6 +115,8 @@ describe("FormCargosBasePrincipal", () => {
           { codigoCargo: 1, nomeCargo: "Cargo A" },
           { codigoCargo: 2, nomeCargo: "Cargo B" },
         ]}
+        isEditing={false}
+        isLoading={false}
       />,
     );
 
@@ -131,6 +141,9 @@ describe("FormCargosBasePrincipal", () => {
         { label: "Cargo B", value: "2" },
       ],
       dataTestId: "select-codigo-cargo-eol",
+      disabled: false,
+      placeholder: "Selecione",
+      value: "",
     });
 
     expect(screen.getByTestId("option-grupamento-APOIO_EDUCACAO")).toHaveTextContent("Apoio - educação");
@@ -139,19 +152,54 @@ describe("FormCargosBasePrincipal", () => {
   });
 
   it("preenche descrição completa com vazio quando cargo não existe na lista", () => {
-    render(<FormCargosBasePrincipal CargosBaseOpcoes={[{ codigoCargo: 1, nomeCargo: "Cargo A" }]} />);
+    render(
+      <FormCargosBasePrincipal
+        CargosBaseOpcoes={[{ codigoCargo: 1, nomeCargo: "Cargo A" }]}
+        isEditing={false}
+        isLoading={false}
+      />,
+    );
 
     fireEvent.click(screen.getByTestId("select-codigo-cargo-eol"));
 
     expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "");
   });
 
-  it("usa lista vazia de cargos quando não recebe opções", () => {
-    render(<FormCargosBasePrincipal CargosBaseOpcoes={undefined as never} />);
+  it("desabilita combobox quando está editando ou carregando", () => {
+    render(<FormCargosBasePrincipal CargosBaseOpcoes={[]} isEditing={true} isLoading={false} />);
+
+    expect(comboboxSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        disabled: true,
+      }),
+    );
+
+    vi.clearAllMocks();
+    render(<FormCargosBasePrincipal CargosBaseOpcoes={[]} isEditing={false} isLoading={true} />);
+
+    expect(comboboxSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        disabled: true,
+      }),
+    );
+  });
+
+  it("usa lista vazia de cargos quando não recebe opções e mantém selects renderizados", () => {
+    fieldValueMock.mockReturnValue("1");
+    render(
+      <FormCargosBasePrincipal
+        CargosBaseOpcoes={undefined as never}
+        isEditing={false}
+        isLoading={false}
+      />,
+    );
 
     expect(comboboxSpy).toHaveBeenCalledWith({
       options: [],
       dataTestId: "select-codigo-cargo-eol",
+      disabled: false,
+      placeholder: "Selecione",
+      value: "1",
     });
     expect(inputFieldSpy).toHaveBeenCalledTimes(1);
     expect(selectFieldSpy).toHaveBeenCalledTimes(3);

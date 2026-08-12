@@ -103,7 +103,7 @@ describe("Página Gestão de cargos base", () => {
     expect(headerProps.breadcrumbs).toEqual([
       { title: "Início", href: "/" },
       { title: "Gestão", href: "/" },
-      { title: "Cargo base", href: "" },
+      { title: "Cargos base", href: "" },
     ]);
 
     expect(listagemSpy).toHaveBeenCalledWith(

@@ -33,7 +33,7 @@ export default function CargosBase() {
         breadcrumbs={[
           { title: "Início", href: "/" },
           { title: "Gestão", href: "/" },
-          { title: "Cargo base", href: "" },
+          { title: "Cargos base", href: "" },
         ]}
         createButton={
           <Button

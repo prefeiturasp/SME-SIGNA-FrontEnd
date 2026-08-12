@@ -120,7 +120,7 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
               label: 'Editar',
               icon: <Editar width={20} height={20} color="#9CA3B9" />,
               onClick: () => {
-                router.push(`/pages/gestao/cargos-base/editar-cargo-base/${record.id}`);
+                router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
               },
             }],
           }}

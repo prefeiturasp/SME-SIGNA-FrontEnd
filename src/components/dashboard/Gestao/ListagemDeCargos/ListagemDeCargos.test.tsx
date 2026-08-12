@@ -186,8 +186,16 @@ describe("ListagemDeCargos", () => {
     expect(screen.getByText("Ativo")).toBeInTheDocument();
     expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#008809");
 
+    rerender(<>{renderStatus?.(StatusCargosBase.INATIVO, row)}</>);
+    expect(screen.getByText("Inativo")).toBeInTheDocument();
+    expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#9CA3B9");
+
+    rerender(<>{renderStatus?.(StatusCargosBase.EXTINTO, row)}</>);
+    expect(screen.getByText("Extinto")).toBeInTheDocument();
+    expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#B22B2A");
+
     rerender(<>{renderStatus?.("DESCONHECIDO" as StatusCargosBase, row)}</>);
-    expect(screen.queryByText("Ativo")).not.toBeInTheDocument();
+    expect(screen.queryByText("Extinto")).not.toBeInTheDocument();
     expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#9CA3B9");
   });
 
@@ -208,6 +216,6 @@ describe("ListagemDeCargos", () => {
     render(<>{actionRender?.(row)}</>);
     expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
     screen.getByTestId("menu-item-4").click();
-    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cargos-base/editar-cargo-base/10");
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=10");
   });
 });

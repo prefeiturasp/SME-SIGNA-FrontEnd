@@ -10,7 +10,6 @@ export const createFormSchemaCargosBase = z
     status: z.string().min(1, { message: "Campo obrigatório." }),
     utilizado_para_funcoes: z.boolean(),
     utilizado_para_designacoes: z.boolean(),
-    utilizado_para_outros: z.boolean(),
     utilizado_para_ste: z.boolean(),
     utilizado_para_permutas: z.boolean(),
     cargo_base_ficticio: z.boolean(), 
