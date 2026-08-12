@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { Card, message, Modal, Result } from "antd";
+import { Card } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
 
 function escapeHtml(s: string) {
@@ -44,12 +45,11 @@ export default function DesignacoesPasso3() {
   const id = searchParams.get("id");
   const rf = searchParams.get("rf");
   const { formDesignacaoData, clearFormDesignacaoData, setFormDesignacaoData } = useDesignacaoContext();
+  const notification = useAppNotification();
   const editorSEIRef = useRef<EditorSEIHandle>(null);
   const textoPlanoRef = useRef<string>("");
 
   const [salvando, setSalvando] = useState(false);
-  const [modalSucesso, setModalSucesso] = useState(false);
-  const [modalErro, setModalErro] = useState(false);
 
   const form = useForm<formSchemaDesignacaoPasso3Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso3),
@@ -112,17 +112,15 @@ export default function DesignacoesPasso3() {
   const handleSalvar = async (id: string | null) => {
     try {
       setSalvando(true);
-      message.loading({ content: "Salvando portaria...", duration: 0 });
       await salvarPortaria(id);
-      message.destroy();
-      setModalSucesso(true);
-      setSalvando(false);
+      notification.success({ title: "Portaria salva com sucesso!" });
       clearFormDesignacaoData();
-      setTimeout(() => router.push("/pages/atos-administrativos"), 2200);
+      router.push("/pages/atos-administrativos");
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
-      message.destroy();
-      setModalErro(true);
+      const msg = error instanceof Error ? error.message : "Erro ao salvar a portaria!";
+      notification.error({ title: msg });
+    } finally {
       setSalvando(false);
     }
   };
@@ -200,31 +198,6 @@ export default function DesignacoesPasso3() {
           onProximo={() => handleSalvar(id)}
         />
       </div>
-
-      <Modal open={modalSucesso} footer={null} closable={false} centered>
-        <Result
-          status="success"
-          title="Portaria salva com sucesso!"
-          subTitle="Redirecionando para a página inicial..."
-        />
-      </Modal>
-
-      <Modal open={modalErro} footer={null} closable={false} centered>
-        <Result
-          status="error"
-          title="Erro ao salvar a portaria!"
-          subTitle="Ocorreu um erro ao tentar salvar. Tente novamente."
-          extra={[
-            <button
-              key="fechar"
-              onClick={() => setModalErro(false)}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-            >
-              Fechar
-            </button>,
-          ]}
-        />
-      </Modal>
     </>
   );
 }

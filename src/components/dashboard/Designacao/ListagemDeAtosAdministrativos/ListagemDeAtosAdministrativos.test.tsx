@@ -15,8 +15,8 @@ const formatarDataHoraMock = vi.fn((_value: string) => `01/06/2026, 12:00`);
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 const pushMock = vi.fn();
 const modalConfirmMock = vi.fn();
-const messageSuccessMock = vi.fn();
-const messageErrorMock = vi.fn();
+const notificationSuccessMock = vi.fn();
+const notificationErrorMock = vi.fn();
 const mutateAsyncMock = vi.fn();
 const domEventStopPropagationMock = vi.fn();
 
@@ -32,6 +32,13 @@ vi.mock("@/lib/utils", () => ({
 
 vi.mock("@/hooks/useExcluirDesignacao", () => ({
   useExcluirDesignacao: () => ({ mutateAsync: mutateAsyncMock }),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
 }));
 
 vi.mock("antd", () => ({
@@ -97,10 +104,6 @@ vi.mock("antd", () => ({
       { confirm: (options: { onOk?: () => void | Promise<void> }) => modalConfirmMock(options) },
       <div data-testid="modal-context-holder" key="modal-context-holder" />,
     ],
-  },
-  message: {
-    success: (msg: string) => messageSuccessMock(msg),
-    error: (msg: string) => messageErrorMock(msg),
   },
 }));
 
@@ -415,7 +418,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     await confirmOptions.onOk();
 
     expect(mutateAsyncMock).toHaveBeenCalledWith(1);
-    expect(messageSuccessMock).toHaveBeenCalledWith("Designação excluída com sucesso!");
+    expect(notificationSuccessMock).toHaveBeenCalledWith({ title: "Designação excluída com sucesso!" });
     expect(onAtoExcluido).toHaveBeenCalledTimes(1);
   });
 
