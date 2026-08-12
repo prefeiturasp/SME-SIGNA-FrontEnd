@@ -17,12 +17,12 @@ import formSchemaAnularApostilaTornarSemEfeito, { formSchemaAnularApostilaTornar
 import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
 import AnularApostilaTornarSemEfeitoFormCard from "@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard";
 import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
-import { message } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TEMPLATE_TORNAR_SEM_EFEITO_INSUBSISTENCIA } from "@/utils/portarias/templates";
 import { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
  
 import { formatarData } from "@/lib/utils";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 const defaultValues = {
   portaria: "",
@@ -70,6 +70,7 @@ export default function AnularApostilaPage() {
   const salvarInsubsistencias = useSalvarInsubsistencias();
 
   const router = useRouter();
+  const notification = useAppNotification();
 
   const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
     const isCessacao = tipo_portaria === "cessacao";
@@ -116,11 +117,16 @@ const handleGerarPortaria = () => {
         atoPai: ato_pai ?? 0,
       });
 
-      message.success("Ato foi tornado sem efeito com sucesso!");
+      notification.success({
+        title: "Tudo certo por aqui!",
+        description: "O ato de tornar uma insubsistência sem efeito foi concluído.",
+      });
       router.push("/pages/atos-administrativos");
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      message.error(msg);
+    } catch {
+      notification.error({
+        title: "Erro!",
+        description: "Não conseguimos concluir a ação. Por favor, tente novamente.",
+      });
     }
   };
 

@@ -4,7 +4,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
 import { formatarDataHora } from '@/lib/utils';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { Dropdown, message, Modal, Pagination, Table, Tag, Tooltip } from 'antd';
+import { Dropdown, Modal, Pagination, Table, Tag, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 
 import Editar from '@/assets/icons/Editar';
@@ -15,6 +15,7 @@ import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
 import { useRouter } from 'next/navigation';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
+import { useAppNotification } from '@/components/providers/NotificationProvider';
 
 
 
@@ -114,6 +115,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   const router = useRouter();
   const excluirDesignacao = useExcluirDesignacao();
   const [modal, contextHolder] = Modal.useModal();
+  const notification = useAppNotification();
 
   const handleExcluirDesignacao = (record: ListagemAtosAdministrativosResponse) => {
     modal.confirm({
@@ -126,13 +128,13 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         try {
           const resultado = await excluirDesignacao.mutateAsync(record.id);
           if (!resultado.success) {
-            message.error(resultado.error);
+            notification.error({ title: resultado.error });
             return;
           }
-          message.success('Designação excluída com sucesso!');
+          notification.success({ title: 'Designação excluída com sucesso!' });
           onAtoExcluido?.();
         } catch {
-          message.error('Erro ao excluir a designação');
+          notification.error({ title: 'Erro ao excluir a designação' });
         }
       },
     });

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, message } from "antd";
+import { Card } from "antd";
 import { Loader2 } from "lucide-react";
 import { useSalvarCessacao } from "@/hooks/useSalvarCessacao";
 
@@ -33,12 +33,14 @@ import EditorSEI, { adicionarNegrito, gerarHtmlPortaria } from "@/components/das
 import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 export default function CessacaoPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const salvarCessacao = useSalvarCessacao();
   const router = useRouter();
+  const notification = useAppNotification();
 
 
   const { data: designacao, isLoading } =
@@ -184,14 +186,14 @@ export default function CessacaoPage() {
         id: null,
       });
 
-      message.success("Cessação salva com sucesso!");
+      notification.success({ title: "Cessação salva com sucesso!" });
 
       router.push("/pages/atos-administrativos");
 
     } catch (error: unknown) {
       console.error("Erro ao salvar cessação:", error);
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      message.error(msg);
+      notification.error({ title: msg });
     }
   };
 

@@ -132,21 +132,19 @@ vi.mock("antd", () => ({
       {children}
     </article>
   ),
-  Modal: ({ open, children }: { open: boolean; children: ReactNode }) =>
-    open ? <div data-testid="modal">{children}</div> : null,
-  Result: ({ status, title, subTitle, extra }: {
-    status: string;
-    title: ReactNode;
-    subTitle?: ReactNode;
-    extra?: ReactNode;
-  }) => (
-    <div data-testid={`result-${status}`}>
-      <h4>{title}</h4>
-      {subTitle && <p>{subTitle}</p>}
-      {extra}
-    </div>
-  ),
-  message: { loading: vi.fn(), destroy: vi.fn(), error: vi.fn() },
+}));
+
+// ── Notification mock ───────────────────────────
+const { notificationSuccessMock, notificationErrorMock } = vi.hoisted(() => ({
+  notificationSuccessMock: vi.fn(),
+  notificationErrorMock: vi.fn(),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
 }));
 
 // ── TESTES ───────────────────────────
@@ -157,6 +155,8 @@ describe("DesignacoesPasso3 - Testes", () => {
     h.searchId = null;
     h.searchRf = "1234567";
     h.formData = { ...defaultFormData } as unknown as FormDesignacaoEServidorIndicado;
+    notificationSuccessMock.mockReset();
+    notificationErrorMock.mockReset();
   });
 
   it("renderiza editor com conteúdo formatado", async () => {
@@ -212,56 +212,40 @@ describe("DesignacoesPasso3 - Testes", () => {
   });
 
   it("redireciona após sucesso", async () => {
-    vi.useFakeTimers();
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
     fireEvent.click(screen.getByText("Salvar"));
-
-    await vi.runAllTimersAsync();
-
-    expect(h.pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
-
-    vi.useRealTimers();
-  });
-
-  it("exibe modal de sucesso", async () => {
-    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
-
-    render(<DesignacoesPasso3 />);
-    fireEvent.click(screen.getByText("Salvar"));
-
-    expect(await screen.findByTestId("modal")).toBeInTheDocument();
-    expect(screen.getByText("Portaria salva com sucesso!")).toBeInTheDocument();
-  });
-
-  it("exibe modal de erro", async () => {
-    vi.mocked(designacaoAction).mockResolvedValueOnce({
-      success: false,
-      error: "Erro teste",
-    });
-
-    render(<DesignacoesPasso3 />);
-    fireEvent.click(screen.getByText("Salvar"));
-
-    expect(await screen.findByTestId("modal")).toBeInTheDocument();
-    expect(screen.getByText("Erro ao salvar a portaria!")).toBeInTheDocument();
-  });
-
-  it("fecha modal de erro ao clicar em Fechar", async () => {
-    vi.mocked(designacaoAction).mockResolvedValueOnce({
-      success: false,
-      error: "Erro teste",
-    });
-
-    render(<DesignacoesPasso3 />);
-    fireEvent.click(screen.getByText("Salvar"));
-
-    expect(await screen.findByText("Erro ao salvar a portaria!")).toBeInTheDocument();
-    fireEvent.click(screen.getByText("Fechar"));
 
     await waitFor(() => {
-      expect(screen.queryByText("Erro ao salvar a portaria!")).not.toBeInTheDocument();
+      expect(h.pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
+    });
+  });
+
+  it("exibe notificação de sucesso", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(notificationSuccessMock).toHaveBeenCalledWith({
+        title: "Portaria salva com sucesso!",
+      });
+    });
+  });
+
+  it("exibe notificação de erro", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Erro teste",
+    });
+
+    render(<DesignacoesPasso3 />);
+    fireEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "Erro teste" });
     });
   });
 
@@ -367,7 +351,12 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(editor).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Salvar"));
-    expect(await screen.findByText("Erro ao salvar a portaria!")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Dados do formulário não encontrados.",
+      });
+    });
     expect(designacaoAction).not.toHaveBeenCalled();
   });
 });

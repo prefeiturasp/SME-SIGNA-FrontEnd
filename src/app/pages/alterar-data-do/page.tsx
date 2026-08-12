@@ -14,7 +14,7 @@ import {
 import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo";
 import mainDOFormSchema, { mainDOFormSchemaData } from "./mainDOFormSchema";
 import MainDOForm, { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
-import { message, Modal, Result } from "antd";
+import { Modal, Result } from "antd";
 import { useSalvarPortariasDo } from "@/hooks/useSalvarPortariasDO";
 import { usePortariasDO } from "@/hooks/usePortariasDO";
 
@@ -68,12 +68,10 @@ export default function AlterarDataDo() {
 
     try {
       setSalvando(true);
-      message.loading({ content: "Salvando portaria...", duration: 0 });
       await salvarPortariasDo.mutateAsync({
         values: selectedRows,
         data_publicacao: format(data_publicacao, "yyyy-MM-dd")
       });
-      message.destroy();
       setModalSucesso(true);
       setSalvando(false);
       setTimeout(() => {
@@ -84,7 +82,6 @@ export default function AlterarDataDo() {
       }, 2000);
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
-      message.destroy();
       setModalErro(true);
       setSalvando(false);
     }
