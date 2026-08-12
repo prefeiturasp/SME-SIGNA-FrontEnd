@@ -9,9 +9,9 @@ let mockIsLoading = false;
 
 const pushMock = vi.fn();
 const mutateAsyncMock = vi.fn();
-const { messageSuccessMock, messageErrorMock } = vi.hoisted(() => ({
-  messageSuccessMock: vi.fn(),
-  messageErrorMock: vi.fn(),
+const { notificationSuccessMock, notificationErrorMock } = vi.hoisted(() => ({
+  notificationSuccessMock: vi.fn(),
+  notificationErrorMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -22,6 +22,13 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/hooks/useSalvarApostila", () => ({
   useSalvarApostila: () => ({
     mutateAsync: mutateAsyncMock,
+  }),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
   }),
 }));
 
@@ -159,10 +166,6 @@ vi.mock("@/components/ui/label", () => ({
 
 vi.mock("antd", () => ({
   Card: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  message: {
-    success: messageSuccessMock,
-    error: messageErrorMock,
-  },
   Tooltip: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
@@ -210,8 +213,8 @@ describe("ApostilaPage", () => {
     mockIsLoading = false;
     mutateAsyncMock.mockReset();
     pushMock.mockReset();
-    messageSuccessMock.mockReset();
-    messageErrorMock.mockReset();
+    notificationSuccessMock.mockReset();
+    notificationErrorMock.mockReset();
     mockDesignacaoAtual = mockDesignacao;
   });
 
@@ -270,7 +273,7 @@ describe("ApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("falha detalhada");
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "falha detalhada" });
     });
   });
 

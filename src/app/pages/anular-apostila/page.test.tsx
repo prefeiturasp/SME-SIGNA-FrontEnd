@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import AnularApostilaPage from "./page";
 
 const pushMock = vi.fn();
-const messageSuccessMock = vi.fn();
-const messageErrorMock = vi.fn();
+const notificationSuccessMock = vi.fn();
+const notificationErrorMock = vi.fn();
 const triggerMock = vi.fn();
 const fetchByIdMock = vi.fn();
 const formatarRFMock = vi.fn((value: string) => `RF(${value})`);
@@ -76,6 +76,13 @@ vi.mock("@/hooks/useSalvarInsubsistencias", () => ({
   }),
 }));
 
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
+}));
+
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   default: ({ title }: { title: ReactNode }) => (
     <div data-testid="page-header">
@@ -130,10 +137,6 @@ vi.mock("antd", () => ({
       {children}
     </div>
   ),
-  message: {
-    success: (value: string) => messageSuccessMock(value),
-    error: (value: string) => messageErrorMock(value),
-  },
 }));
 
 vi.mock("lucide-react", () => ({
@@ -336,7 +339,7 @@ describe("AnularApostilaPage", () => {
         values: formValues,
         atoPai: 10,
       });
-      expect(messageSuccessMock).toHaveBeenCalledWith("Anulação de apostila salva com sucesso!");
+      expect(notificationSuccessMock).toHaveBeenCalledWith({ title: "Anulação de apostila salva com sucesso!" });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
@@ -348,7 +351,7 @@ describe("AnularApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("falha ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "falha ao salvar" });
     });
   });
 
@@ -360,7 +363,7 @@ describe("AnularApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("Erro ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "Erro ao salvar" });
     });
   });
 

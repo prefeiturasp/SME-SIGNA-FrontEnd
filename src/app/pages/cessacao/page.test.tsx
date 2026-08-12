@@ -67,10 +67,16 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("antd", () => ({
   Card: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  message: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
+}));
+
+const mockNotificationSuccess = vi.fn();
+const mockNotificationError = vi.fn();
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: mockNotificationSuccess,
+    error: mockNotificationError,
+  }),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -295,7 +301,6 @@ describe("CessacaoPage", () => {
   });
 
   it("exibe mensagem de erro quando salvar falha", async () => {
-    const { message } = await import("antd");
     mockTrigger.mockResolvedValue(true);
     mockMutateAsync.mockRejectedValueOnce(new Error("Erro de rede"));
 
@@ -306,7 +311,7 @@ describe("CessacaoPage", () => {
     await userEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(message.error).toHaveBeenCalledWith("Erro de rede");
+      expect(mockNotificationError).toHaveBeenCalledWith({ title: "Erro de rede" });
     });
   });
 
