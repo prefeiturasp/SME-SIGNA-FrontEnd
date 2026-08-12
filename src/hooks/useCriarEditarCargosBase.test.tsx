@@ -6,21 +6,33 @@ import {
   useEditarCargosBase,
 } from "./useCriarEditarCargosBase";
 import createFormSchemaCargosBase from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
+import type { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import type { CargosBaseCriarEditar } from "@/types/gestao";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 
-const useFormMock = vi.fn();
-const zodResolverMock = vi.fn(() => "resolver-mock");
-const pushMock = vi.fn();
-const successNotificationMock = vi.fn();
-const errorNotificationMock = vi.fn();
-const useBuscarCargosBaseMock = vi.fn();
-const useBuscarCargosBaseByIdMock = vi.fn();
-const useMutationMock = vi.fn((options: { mutationFn: (args: unknown) => Promise<unknown> }) => ({
-  mutateAsync: vi.fn((args: unknown) => options.mutationFn(args)),
-  mutationFn: options.mutationFn,
+const {
+  useFormMock,
+  zodResolverMock,
+  pushMock,
+  successNotificationMock,
+  errorNotificationMock,
+  useBuscarCargosBaseMock,
+  useBuscarCargosBaseByIdMock,
+  useMutationMock,
+  formResetMock,
+} = vi.hoisted(() => ({
+  useFormMock: vi.fn(),
+  zodResolverMock: vi.fn(() => "resolver-mock"),
+  pushMock: vi.fn(),
+  successNotificationMock: vi.fn(),
+  errorNotificationMock: vi.fn(),
+  useBuscarCargosBaseMock: vi.fn(),
+  useBuscarCargosBaseByIdMock: vi.fn(),
+  useMutationMock: vi.fn((options: { mutationFn: (args: unknown) => Promise<unknown> }) => ({
+    mutateAsync: vi.fn((args: unknown) => options.mutationFn(args)),
+  })),
+  formResetMock: vi.fn(),
 }));
-const formResetMock = vi.fn();
 const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
@@ -31,16 +43,16 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("react-hook-form", () => ({
-  useForm: (...args: unknown[]) => useFormMock(...args),
+  useForm: useFormMock,
 }));
 
 vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: (...args: unknown[]) => zodResolverMock(...args),
+  zodResolver: zodResolverMock,
 }));
 
 vi.mock("./useBuscarCargosBase", () => ({
-  useBuscarCargosBase: (...args: unknown[]) => useBuscarCargosBaseMock(...args),
-  useBuscarCargosBaseById: (...args: unknown[]) => useBuscarCargosBaseByIdMock(...args),
+  useBuscarCargosBase: useBuscarCargosBaseMock,
+  useBuscarCargosBaseById: useBuscarCargosBaseByIdMock,
 }));
 
 vi.mock("@/components/providers/NotificationProvider", () => ({
@@ -51,7 +63,7 @@ vi.mock("@/components/providers/NotificationProvider", () => ({
 }));
 
 vi.mock("@tanstack/react-query", () => ({
-  useMutation: (...args: unknown[]) => useMutationMock(...args),
+  useMutation: useMutationMock,
 }));
 
 vi.mock("@/actions/cargos-base", () => ({
@@ -59,7 +71,7 @@ vi.mock("@/actions/cargos-base", () => ({
   editarCargosBaseAction: vi.fn(),
 }));
 
-const payloadBase = {
+const payloadBase: createFormSchemaCargosBaseData = {
   codigo_cargo: "1",
   grupamento: "2",
   descricao_resumida: "Resumo",
@@ -95,10 +107,10 @@ describe("hooks/useCriarEditarCargosBase", () => {
     vi.mocked(criarCargosBaseAction).mockResolvedValueOnce({
       success: true,
       data: { id: 123 },
-    } as never);
+    });
 
     const { result } = renderHook(() => useCriarCargosBase());
-    const response = await result.current.mutationFn({ values: payloadBase });
+    const response = await result.current.mutateAsync({ values: payloadBase });
 
     expect(useMutationMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -116,18 +128,18 @@ describe("hooks/useCriarEditarCargosBase", () => {
     });
 
     const { result } = renderHook(() => useCriarCargosBase());
-    await expect(result.current.mutationFn({ values: payloadBase })).rejects.toThrow("erro ao criar");
+    await expect(result.current.mutateAsync({ values: payloadBase })).rejects.toThrow("erro ao criar");
   });
 
   it("configura useEditarCargosBase e retorna dados no sucesso", async () => {
     vi.mocked(editarCargosBaseAction).mockResolvedValueOnce({
       success: true,
       data: { id: 7 },
-    } as never);
+    });
 
-    const values = { grupamento: "DOCENTES" };
+    const values: Partial<createFormSchemaCargosBaseData> = { grupamento: "DOCENTES" };
     const { result } = renderHook(() => useEditarCargosBase());
-    const response = await result.current.mutationFn({ id: 7, values });
+    const response = await result.current.mutateAsync({ id: 7, values });
 
     expect(editarCargosBaseAction).toHaveBeenCalledWith(7, values);
     expect(response).toEqual({ id: 7 });
@@ -141,7 +153,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
 
     const { result } = renderHook(() => useEditarCargosBase());
     await expect(
-      result.current.mutationFn({ id: 7, values: { descricao_resumida: "Resumo" } }),
+      result.current.mutateAsync({ id: 7, values: { descricao_resumida: "Resumo" } }),
     ).rejects.toThrow("erro ao editar");
   });
 
@@ -228,7 +240,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     vi.mocked(criarCargosBaseAction).mockResolvedValueOnce({
       success: true,
       data: { id: 123 },
-    } as never);
+    });
 
     const { result } = renderHook(() => useCriarEditarCargosBase());
 
@@ -248,7 +260,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     vi.mocked(editarCargosBaseAction).mockResolvedValueOnce({
       success: true,
       data: { id: 44 },
-    } as never);
+    });
 
     const { result } = renderHook(() => useCriarEditarCargosBase(44));
     const expectedPartial = {

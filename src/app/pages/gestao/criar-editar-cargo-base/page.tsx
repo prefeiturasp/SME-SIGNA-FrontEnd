@@ -67,7 +67,7 @@ export default function CriarEditarCargoBase() {
 
         <div className="w-full flex flex-col lg:flex-row gap-4 mb-4 mt-8" >
           <FundoBranco className="w-full lg:w-[50%]">
-            <FormCargosBasePrincipal CargosBaseOpcoes={CargosBaseOpcoes} isEditing={id ? true : false} isLoading={isLoadingEditarCargosBase || isLoadingCargosBase}/>
+            <FormCargosBasePrincipal CargosBaseOpcoes={CargosBaseOpcoes} isEditing={id !== null} isLoading={isLoadingEditarCargosBase || isLoadingCargosBase}/>
           </FundoBranco>
 
           <FundoBranco className="w-full lg:w-[50%]">

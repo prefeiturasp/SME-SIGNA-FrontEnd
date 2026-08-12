@@ -5,12 +5,21 @@ import createFormSchemaCargosBase from "@/components/dashboard/Gestao/FormCargos
 import type { CargosBaseCriarEditar } from "@/types/gestao";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 
-const useFormMock = vi.fn();
-const formResetMock = vi.fn();
-const zodResolverMock = vi.fn((..._args: unknown[]) => "resolver-mock");
-const pushMock = vi.fn();
-const successNotificationMock = vi.fn();
-const errorNotificationMock = vi.fn();
+const {
+  useFormMock,
+  formResetMock,
+  zodResolverMock,
+  pushMock,
+  successNotificationMock,
+  errorNotificationMock,
+} = vi.hoisted(() => ({
+  useFormMock: vi.fn(),
+  formResetMock: vi.fn(),
+  zodResolverMock: vi.fn(() => "resolver-mock"),
+  pushMock: vi.fn(),
+  successNotificationMock: vi.fn(),
+  errorNotificationMock: vi.fn(),
+}));
 const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
 vi.mock("next/navigation", () => ({
@@ -20,11 +29,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("react-hook-form", () => ({
-  useForm: (...args: unknown[]) => useFormMock(...args),
+  useForm: useFormMock,
 }));
 
 vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: (...args: unknown[]) => zodResolverMock(...args),
+  zodResolver: zodResolverMock,
 }));
 
 vi.mock("@tanstack/react-query", () => ({
@@ -118,7 +127,6 @@ describe("useCriarEditarCargosBase", () => {
       status: "3",
       utilizado_para_funcoes: true,
       utilizado_para_designacoes: true,
-      utilizado_para_outros: false,
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: true,
@@ -143,7 +151,6 @@ describe("useCriarEditarCargosBase", () => {
       status: "3",
       utilizado_para_funcoes: true,
       utilizado_para_designacoes: false,
-      utilizado_para_outros: false,
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
@@ -212,7 +219,6 @@ describe("useCriarEditarCargosBase", () => {
         status: "3",
         utilizado_para_funcoes: true,
         utilizado_para_designacoes: false,
-        utilizado_para_outros: false,
         utilizado_para_ste: true,
         utilizado_para_permutas: false,
         cargo_base_ficticio: false,
@@ -290,7 +296,6 @@ describe("useCriarEditarCargosBase", () => {
         status: "3",
         utilizado_para_funcoes: true,
         utilizado_para_designacoes: false,
-        utilizado_para_outros: false,
         utilizado_para_ste: true,
         utilizado_para_permutas: false,
         cargo_base_ficticio: false,
