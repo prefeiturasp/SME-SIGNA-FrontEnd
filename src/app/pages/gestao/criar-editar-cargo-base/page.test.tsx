@@ -23,7 +23,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/hooks/useCriarEditarCargosBase", () => ({
-  useCriarEditarCargosBase: () => useCriarEditarCargosBaseMock(),
+  useCriarEditarCargosBase: (...args: unknown[]) => useCriarEditarCargosBaseMock(...args),
 }));
 
 vi.mock("react-hook-form", () => ({

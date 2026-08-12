@@ -7,6 +7,8 @@ import {
   buscarDesignacaoPorPortariaAction,
   buscarInsubsistenciaPorPortariaAction,
 } from "@/actions/busca-ato-por-portaria";
+import type { Cessacao, DesignacaoResponse } from "@/types/designacao";
+import type { InsubsistenciaRead } from "@/types/insubsistencia";
 
 const pushMock = vi.fn();
 
@@ -30,7 +32,7 @@ describe("useNovoAto", () => {
   it("cessacao: busca designação pela portaria e navega para /pages/cessacao", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 10 } as any,
+      data: { id: 10 } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -49,7 +51,7 @@ describe("useNovoAto", () => {
   it("insubsistencia: quando a portaria é de designação, navega com origem=designacao sem consultar cessação", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 20 } as any,
+      data: { id: 20 } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -66,7 +68,7 @@ describe("useNovoAto", () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue(erroNaoEncontrado);
     vi.mocked(buscarCessacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 21, ato_pai_id: 11 } as any,
+      data: { id: 21, ato_pai_id: 11 } as unknown as Cessacao,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -99,7 +101,7 @@ describe("useNovoAto", () => {
   it("tornar-sem-efeito: busca insubsistência pela portaria e navega para /pages/tornar-sem-efeito", async () => {
     vi.mocked(buscarInsubsistenciaPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 30 } as any,
+      data: { id: 30 } as unknown as InsubsistenciaRead,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -114,7 +116,7 @@ describe("useNovoAto", () => {
   it("anular-apostila: quando a portaria é de designação com apostila, navega direto para /pages/anular-apostila", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 40, apostilas: [{ id: 400 }] } as any,
+      data: { id: 40, apostilas: [{ id: 400 }] } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -130,7 +132,7 @@ describe("useNovoAto", () => {
   it("anular-apostila: quando a designação não tem apostila, informa que não há apostila vinculada", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 41, apostilas: [] } as any,
+      data: { id: 41, apostilas: [] } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -151,7 +153,7 @@ describe("useNovoAto", () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue(erroNaoEncontrado);
     vi.mocked(buscarCessacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 50, apostilas: [{ id: 500 }] } as any,
+      data: { id: 50, apostilas: [{ id: 500 }] } as unknown as Cessacao,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -167,7 +169,7 @@ describe("useNovoAto", () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue(erroNaoEncontrado);
     vi.mocked(buscarCessacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 51, apostilas: [] } as any,
+      data: { id: 51, apostilas: [] } as unknown as Cessacao,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -203,7 +205,7 @@ describe("useNovoAto", () => {
   it("apostila: quando portaria é de designação, navega com origem=designacao sem consultar cessação", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 50 } as any,
+      data: { id: 50 } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -220,7 +222,7 @@ describe("useNovoAto", () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue(erroNaoEncontrado);
     vi.mocked(buscarCessacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 60, ato_pai_id: 12 } as any,
+      data: { id: 60, ato_pai_id: 12 } as unknown as Cessacao,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -235,7 +237,7 @@ describe("useNovoAto", () => {
   it("apostila: quando a designação já possui apostila ativa, informa erro e não navega", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 55, apostilas: [{ id: 550, status: "ativo" }] } as any,
+      data: { id: 55, apostilas: [{ id: 550, status: "ativo" }] } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());
@@ -255,7 +257,7 @@ describe("useNovoAto", () => {
   it("apostila: quando a designação possui apostila anulada (não ativa), navega normalmente", async () => {
     vi.mocked(buscarDesignacaoPorPortariaAction).mockResolvedValue({
       success: true,
-      data: { id: 56, apostilas: [{ id: 560, status: "anulado" }] } as any,
+      data: { id: 56, apostilas: [{ id: 560, status: "anulado" }] } as unknown as DesignacaoResponse,
     });
 
     const { result } = renderHook(() => useNovoAto());

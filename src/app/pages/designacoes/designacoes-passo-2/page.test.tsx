@@ -1,7 +1,9 @@
 import React from "react";
+import type { ReactNode } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import DesignacoesPasso2 from "./page";
+import type { DesignacaoResponse } from "@/types/designacao";
 
 type DesignacaoContextData = {
   servidorIndicado?: {
@@ -24,7 +26,7 @@ type DesignacaoContextData = {
 const h = vi.hoisted(() => ({
   searchId: null as string | null,
   searchRf: null as string | null,
-  designacao: null as any,
+  designacao: null as DesignacaoResponse | null,
   isLoadingDesignacao: false,
   formDesignacaoData: null as DesignacaoContextData | null,
   mutateAsync: vi.fn(),
@@ -66,7 +68,7 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
 }));
 
 vi.mock("antd", () => ({
-  Card: ({ title, children }: any) => (
+  Card: ({ title, children }: { title: ReactNode; children: ReactNode }) => (
     <section>
       <div>{title}</div>
       {children}
@@ -75,15 +77,15 @@ vi.mock("antd", () => ({
 }));
 
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: any) => <div data-testid="accordion">{children}</div>,
+  Accordion: ({ children }: { children: ReactNode }) => <div data-testid="accordion">{children}</div>,
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  default: ({ title }: any) => <h1>{title}</h1>,
+  default: ({ title }: { title: ReactNode }) => <h1>{title}</h1>,
 }));
 
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  default: ({ children }: any) => <div>{children}</div>,
+  default: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
@@ -91,7 +93,7 @@ vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
 }));
 
 vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
-  CustomAccordionItem: ({ children, title }: any) => (
+  CustomAccordionItem: ({ children, title }: { children: ReactNode; title: ReactNode }) => (
     <div>
       <h2>{title}</h2>
       {children}
@@ -100,7 +102,7 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 }));
 
 vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields", () => ({
-  default: ({ isLoading }: any) => (
+  default: ({ isLoading }: { isLoading?: boolean }) => (
     <div data-testid="portaria-fields">{String(Boolean(isLoading))}</div>
   ),
 }));
@@ -110,7 +112,7 @@ vi.mock("@/components/dashboard/Designacao/ResumoPesquisaDaUnidade", () => ({
 }));
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", () => ({
-  default: ({ onSubmitEditarServidor }: any) => (
+  default: ({ onSubmitEditarServidor }: { onSubmitEditarServidor: (data: { nome_servidor: string; nome_civil: string }) => void }) => (
     <div>
       <button
         data-testid="editar-indicado"
@@ -128,7 +130,11 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", ()
 }));
 
 vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
-  default: ({ onBuscaTitular, form, rf_default }: any) => (
+  default: ({ onBuscaTitular, form, rf_default }: {
+    onBuscaTitular: (values: { rf: string }) => void;
+    form: { setValue: (name: string, value: unknown) => void };
+    rf_default?: string;
+  }) => (
     <div>
       <span data-testid="rf-default">{rf_default}</span>
       <button data-testid="buscar-titular" onClick={() => onBuscaTitular({ rf: "1234567" })}>
@@ -156,7 +162,11 @@ vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServid
 }));
 
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
-  default: ({ disableProximo, onProximo, onAnterior }: any) => (
+  default: ({ disableProximo, onProximo, onAnterior }: {
+    disableProximo?: boolean;
+    onProximo: () => void;
+    onAnterior: () => void;
+  }) => (
     <div>
       <button data-testid="anterior" onClick={onAnterior}>
         Anterior
@@ -175,7 +185,7 @@ vi.mock("@/components/dashboard/Designacao/ModalHistoricoUltimaDesignacao/ModalH
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("@/assets/icons/Designacao", () => ({ default: () => <svg /> }));
@@ -256,7 +266,7 @@ describe("DesignacoesPasso2", () => {
     h.designacao = {
       ...designacaoCompleta,
       tipo_vaga: "DISPONIVEL",
-    };
+    } as unknown as DesignacaoResponse;
     h.formDesignacaoData = {
       servidorIndicado: {
         nome_servidor: "Servidor Inicial",
@@ -311,7 +321,7 @@ describe("DesignacoesPasso2", () => {
       com_afastamento: false,
       possui_pendencia: true,
       pendencias: "Pendencia A",
-    };
+    } as unknown as DesignacaoResponse;
     h.formDesignacaoData = {
       servidorIndicado: {
         nome_servidor: "Servidor Inicial",
@@ -348,7 +358,7 @@ describe("DesignacoesPasso2", () => {
       indicado_nome_servidor: "",
       indicado_nome_civil: "",
       indicado_rf: "",
-    };
+    } as unknown as DesignacaoResponse;
     h.formDesignacaoData = {
       servidorIndicado: {
         nome_servidor: "Servidor Contexto",

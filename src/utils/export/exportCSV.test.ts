@@ -4,8 +4,8 @@ import { downloadCSV } from "./exportCSV";
 
 type TestRow = {
   key: string;
-  nome: any;
-  idade: any;
+  nome: unknown;
+  idade: unknown;
 };
 
 class MockBlob {
@@ -136,9 +136,9 @@ describe("downloadCSV", () => {
 
     const data = [
       { key: "1", nome: undefined, idade: null },
-    ] as any;
+    ];
 
-    const columns: ColumnsType<any> = [
+    const columns: ColumnsType<TestRow> = [
       { key: "nome", title: "Nome" },
       { key: "idade", title: "Idade" },
     ];
@@ -155,9 +155,9 @@ describe("downloadCSV", () => {
 
     const data = [
       { key: "1", nome: true, idade: BigInt(99) },
-    ] as any;
+    ];
 
-    const columns: ColumnsType<any> = [
+    const columns: ColumnsType<TestRow> = [
       { key: "nome", title: "Nome" },
       { key: "idade", title: "Idade" },
     ];
@@ -176,9 +176,9 @@ describe("downloadCSV", () => {
 
     const data = [
       { key: "1", nome: "Ana", idade: date },
-    ] as any;
+    ];
 
-    const columns: ColumnsType<any> = [
+    const columns: ColumnsType<TestRow> = [
       { key: "nome", title: "Nome" },
       { key: "idade", title: "Idade" },
     ];
@@ -195,9 +195,9 @@ describe("downloadCSV", () => {
 
     const data = [
       { key: "1", nome: { a: 1 }, idade: 30 },
-    ] as any;
+    ];
 
-    const columns: ColumnsType<any> = [
+    const columns: ColumnsType<TestRow> = [
       { key: "nome", title: "Nome" },
       { key: "idade", title: "Idade" },
     ];
@@ -212,14 +212,14 @@ describe("downloadCSV", () => {
   it("retorna vazio quando JSON.stringify falha (circular)", () => {
     const { createObjectURLSpy } = setupDOMMocks();
 
-    const circular: any = {};
+    const circular: Record<string, unknown> = {};
     circular.self = circular;
 
     const data = [
       { key: "1", nome: circular, idade: 1 },
     ];
 
-    const columns: ColumnsType<any> = [
+    const columns: ColumnsType<TestRow> = [
       { key: "nome", title: "Nome" },
       { key: "idade", title: "Idade" },
     ];

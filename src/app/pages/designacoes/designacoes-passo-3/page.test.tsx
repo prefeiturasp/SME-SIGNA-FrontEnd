@@ -1,9 +1,11 @@
 import React from "react";
+import type { ReactNode } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import DesignacoesPasso3 from "./page";
 import { designacaoAction } from "@/actions/cadastro-designacao";
 import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
+import type { FormDesignacaoEServidorIndicado } from "../DesignacaoContext";
 
 // ── Mocks de Navegação ───────────────────────────
 const h = vi.hoisted(() => ({
@@ -18,7 +20,7 @@ const h = vi.hoisted(() => ({
     portaria_designacao: "123/2024",
     numero_sei: "6016.2024/0001-2",
     servidorIndicado: { nome_civil: "JOÃO SILVA" },
-  } as any,
+  } as unknown as FormDesignacaoEServidorIndicado | null,
 }));
 const defaultFormData = {
   dre_nome: "DRE CENTRO",
@@ -50,19 +52,24 @@ vi.mock("../DesignacaoContext", () => ({
 
 // ── UI mocks ───────────────────────────
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
-  default: ({ title }: any) => <h1>{title}</h1>,
+  default: ({ title }: { title: ReactNode }) => <h1>{title}</h1>,
 }));
 
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
-  default: ({ children }: any) => <section>{children}</section>,
+  default: ({ children }: { children: ReactNode }) => <section>{children}</section>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/StepperDesignacao", () => ({
-  default: ({ current }: any) => <div data-testid="stepper">Passo {current}</div>,
+  default: ({ current }: { current: number }) => <div data-testid="stepper">Passo {current}</div>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
-  default: ({ onAnterior, onProximo, disableProximo, labelProximo }: any) => (
+  default: ({ onAnterior, onProximo, disableProximo, labelProximo }: {
+    onAnterior: () => void;
+    onProximo: () => void;
+    disableProximo?: boolean;
+    labelProximo?: string;
+  }) => (
     <nav>
       <button onClick={onAnterior}>Anterior</button>
       <button onClick={onProximo} disabled={disableProximo}>
@@ -73,7 +80,7 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
 }));
 
 vi.mock("@/components/ui/select", () => ({
-  Select: ({ children, onValueChange }: any) => (
+  Select: ({ children, onValueChange }: { children: ReactNode; onValueChange?: (value: string) => void }) => (
     <div>
       <button
         type="button"
@@ -92,10 +99,10 @@ vi.mock("@/components/ui/select", () => ({
       {children}
     </div>
   ),
-  SelectContent: ({ children }: any) => <div>{children}</div>,
-  SelectItem: ({ children, value }: any) => <div data-value={value}>{children}</div>,
-  SelectTrigger: ({ children }: any) => <div>{children}</div>,
-  SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
+  SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  SelectItem: ({ children, value }: { children: ReactNode; value: string }) => <div data-value={value}>{children}</div>,
+  SelectTrigger: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
 }));
 
 vi.mock("@/assets/icons/Designacao", () => ({
@@ -104,7 +111,7 @@ vi.mock("@/assets/icons/Designacao", () => ({
 
 // ── Utils mock ───────────────────────────
 vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: vi.fn((_template: string, dados: any) => {
+  preencherTemplate: vi.fn((_template: string, dados: Record<string, unknown>) => {
     return `PORTARIA Nº ${dados.portaria}
 SEI Nº ${dados.sei}
 EXPEDE:
@@ -119,15 +126,20 @@ vi.mock("@/actions/cadastro-designacao", () => ({
 
 // ── Antd mock ───────────────────────────
 vi.mock("antd", () => ({
-  Card: ({ title, children }: any) => (
+  Card: ({ title, children }: { title: ReactNode; children: ReactNode }) => (
     <article>
       <h3>{title}</h3>
       {children}
     </article>
   ),
-  Modal: ({ open, children }: any) =>
+  Modal: ({ open, children }: { open: boolean; children: ReactNode }) =>
     open ? <div data-testid="modal">{children}</div> : null,
-  Result: ({ status, title, subTitle, extra }: any) => (
+  Result: ({ status, title, subTitle, extra }: {
+    status: string;
+    title: ReactNode;
+    subTitle?: ReactNode;
+    extra?: ReactNode;
+  }) => (
     <div data-testid={`result-${status}`}>
       <h4>{title}</h4>
       {subTitle && <p>{subTitle}</p>}
@@ -144,7 +156,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     vi.clearAllMocks();
     h.searchId = null;
     h.searchRf = "1234567";
-    h.formData = { ...defaultFormData };
+    h.formData = { ...defaultFormData } as unknown as FormDesignacaoEServidorIndicado;
   });
 
   it("renderiza editor com conteúdo formatado", async () => {
@@ -183,7 +195,7 @@ describe("DesignacoesPasso3 - Testes", () => {
   });
 
   it("bloqueia botão durante loading", async () => {
-    let resolveFn: any;
+    let resolveFn!: (value: Awaited<ReturnType<typeof designacaoAction>>) => void;
     vi.mocked(designacaoAction).mockImplementation(
       () => new Promise((r) => (resolveFn = r))
     );

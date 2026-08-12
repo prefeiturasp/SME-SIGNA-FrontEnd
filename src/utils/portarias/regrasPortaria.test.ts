@@ -5,11 +5,12 @@ import {
     montarAutoridade,
     montarTrechoAfastamento,
 } from "./regrasPortaria";
+import type { DesignacaoData, Titular } from "@/types/designacao";
 
 describe("montarTrechoSubstituicao", () => {
 
     it("retorna texto para cargo vago com data string", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             tipo_cargo: "vago",
             a_partir_de: "2025-03-01"
         };
@@ -21,7 +22,7 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("aceita data como objeto Date", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             tipo_cargo: "vago",
             a_partir_de: new Date("2025-03-01")
         };
@@ -32,8 +33,8 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("retorna string vazia quando não há titular", () => {
-        const data: any = {
-            tipo_cargo: "titular",
+        const data: DesignacaoData = {
+            tipo_cargo: "substituicao",
             a_partir_de: "2025-03-01"
         };
 
@@ -43,16 +44,18 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("retorna substituição padrão quando não há impedimento", () => {
-        const data: any = {
-            tipo_cargo: "titular",
+        const data: DesignacaoData = {
+            tipo_cargo: "substituicao",
             a_partir_de: "2025-03-01",
+            // vinculo aqui é o texto exibido na portaria (ex.: "Efetivo"), não o
+            // código numérico do tipo Titular — daí o cast.
             dadosTitular: {
                 nome_civil: "Maria Souza",
                 rf: "123456",
                 vinculo: "Efetivo",
                 cargo_base: "Diretora",
                 tipo_vinculo: "efetivo"
-            }
+            } as unknown as Titular,
         };
 
         const resultado = montarTrechoSubstituicao(data);
@@ -62,8 +65,8 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("usa ____ quando dados do titular estão ausentes", () => {
-        const data: any = {
-            tipo_cargo: "titular",
+        const data: DesignacaoData = {
+            tipo_cargo: "substituicao",
             a_partir_de: "2025-03-01",
             dadosTitular: {}
         };
@@ -74,7 +77,7 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("retorna texto para licença médica", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             impedimento_substituicao: "2",
             a_partir_de: "2025-03-01",
             designacao_data_final: "2025-03-10",
@@ -84,7 +87,7 @@ describe("montarTrechoSubstituicao", () => {
                 vinculo: "Efetivo",
                 cargo_base: "Diretora",
                 tipo_vinculo: "efetivo"
-            }
+            } as unknown as Titular,
         };
 
         const resultado = montarTrechoSubstituicao(data);
@@ -94,7 +97,7 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("retorna texto para férias", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             impedimento_substituicao: "4",
             a_partir_de: "2025-03-01",
             designacao_data_final: "2025-03-10",
@@ -104,7 +107,7 @@ describe("montarTrechoSubstituicao", () => {
                 vinculo: "Efetivo",
                 cargo_base: "Diretora",
                 tipo_vinculo: "efetivo"
-            }
+            } as unknown as Titular,
         };
 
         const resultado = montarTrechoSubstituicao(data);
@@ -113,7 +116,7 @@ describe("montarTrechoSubstituicao", () => {
     });
 
     it("retorna texto com impedimento e período para substituição com impedimento legal", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             impedimento_substituicao: "2",
             impedimento_label: "Licença Médica",
             a_partir_de: "2026-03-25",
@@ -140,7 +143,7 @@ describe("montarTrechoSubstituicao", () => {
 describe("montarTrechoFinal", () => {
 
     it("retorna texto para cargo vago", () => {
-        const data: any = { tipo_cargo: "vago" };
+        const data: DesignacaoData = { tipo_cargo: "vago" };
 
         const resultado = montarTrechoFinal(data);
 
@@ -150,7 +153,7 @@ describe("montarTrechoFinal", () => {
     });
 
     it("retorna texto para licença médica", () => {
-        const data: any = { impedimento_substituicao: "2" };
+        const data: DesignacaoData = { impedimento_substituicao: "2" };
 
         const resultado = montarTrechoFinal(data);
 
@@ -158,7 +161,7 @@ describe("montarTrechoFinal", () => {
     });
 
     it("retorna texto para férias", () => {
-        const data: any = { impedimento_substituicao: "4" };
+        const data: DesignacaoData = { impedimento_substituicao: "4" };
 
         const resultado = montarTrechoFinal(data);
 
@@ -166,8 +169,8 @@ describe("montarTrechoFinal", () => {
     });
 
     it("retorna texto padrão quando não há regra específica", () => {
-        const data: any = {
-            tipo_cargo: "titular",
+        const data: DesignacaoData = {
+            tipo_cargo: "substituicao",
             impedimento_substituicao: "1"
         };
 
@@ -179,7 +182,7 @@ describe("montarTrechoFinal", () => {
     });
 
     it("retorna texto padrão para substituição com impedimento legal e período definido", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             impedimento_substituicao: "2",
             designacao_data_final: "2026-04-13"
         };
@@ -192,7 +195,7 @@ describe("montarTrechoFinal", () => {
     });
 
     it("retorna texto padrão para qualquer impedimento com período definido", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             impedimento_substituicao: "5",
             impedimento_label: "Licença Prêmio",
             designacao_data_final: "2026-06-30"
@@ -210,7 +213,7 @@ describe("montarTrechoFinal", () => {
 describe("montarAutoridade", () => {
 
     it("retorna Chefe de Gabinete quando impedimento for férias", () => {
-        const data: any = { impedimento_substituicao: "4" };
+        const data: DesignacaoData = { impedimento_substituicao: "4" };
 
         const resultado = montarAutoridade(data);
 
@@ -218,7 +221,7 @@ describe("montarAutoridade", () => {
     });
 
     it("retorna Secretário Municipal de Educação no caso padrão", () => {
-        const data: any = {};
+        const data: DesignacaoData = {};
 
         const resultado = montarAutoridade(data);
 
@@ -230,32 +233,32 @@ describe("montarAutoridade", () => {
 describe("montarTrechoAfastamento", () => {
 
     it("retorna string vazia quando com_afastamento não está definido", () => {
-        const data: any = {};
+        const data: DesignacaoData = {};
         expect(montarTrechoAfastamento(data)).toBe("");
     });
 
     it("retorna string vazia quando com_afastamento é 'nao'", () => {
-        const data: any = { com_afastamento: "nao", motivo_afastamento: "algum motivo" };
+        const data: DesignacaoData = { com_afastamento: "nao", motivo_afastamento: "algum motivo" };
         expect(montarTrechoAfastamento(data)).toBe("");
     });
 
     it("retorna string vazia quando com_afastamento é false", () => {
-        const data: any = { com_afastamento: false, motivo_afastamento: "algum motivo" };
+        const data: DesignacaoData = { com_afastamento: false, motivo_afastamento: "algum motivo" };
         expect(montarTrechoAfastamento(data)).toBe("");
     });
 
     it("retorna string vazia quando com_afastamento é 'sim' mas motivo está vazio", () => {
-        const data: any = { com_afastamento: "sim", motivo_afastamento: "" };
+        const data: DesignacaoData = { com_afastamento: "sim", motivo_afastamento: "" };
         expect(montarTrechoAfastamento(data)).toBe("");
     });
 
     it("retorna string vazia quando com_afastamento é true mas motivo está vazio", () => {
-        const data: any = { com_afastamento: true, motivo_afastamento: "" };
+        const data: DesignacaoData = { com_afastamento: true, motivo_afastamento: "" };
         expect(montarTrechoAfastamento(data)).toBe("");
     });
 
     it("retorna o motivo com vírgula prefixada quando com_afastamento é 'sim'", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             com_afastamento: "sim",
             motivo_afastamento: "com afastamento total, nos termos do inciso IV do artigo 66 da Lei 14.660/07, do cargo Professor Educação Infantil, vínculo 2.",
         };
@@ -264,7 +267,7 @@ describe("montarTrechoAfastamento", () => {
     });
 
     it("retorna o motivo com vírgula prefixada quando com_afastamento é true (booleano)", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             com_afastamento: true,
             motivo_afastamento: "com afastamento parcial, nos termos do art. 66.",
         };
@@ -273,7 +276,7 @@ describe("montarTrechoAfastamento", () => {
     });
 
     it("remove espaços extras do motivo antes de retornar", () => {
-        const data: any = {
+        const data: DesignacaoData = {
             com_afastamento: "sim",
             motivo_afastamento: "  com afastamento total  ",
         };

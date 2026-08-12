@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import InsubsistenciaPage from "./page";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
 import { message } from "antd";
@@ -24,7 +25,11 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual,
     useForm: (...args: unknown[]) => {
-      const form = (actual.useForm as (...callArgs: unknown[]) => any)(...args);
+      const form = (actual.useForm as (...callArgs: unknown[]) => UseFormReturn<FieldValues>)(...args) as
+        Omit<UseFormReturn<FieldValues>, "trigger" | "getValues"> & {
+          trigger: (...args: unknown[]) => unknown;
+          getValues: (...args: unknown[]) => unknown;
+        };
       const originalTrigger = form.trigger.bind(form);
       const originalGetValues = form.getValues.bind(form);
 

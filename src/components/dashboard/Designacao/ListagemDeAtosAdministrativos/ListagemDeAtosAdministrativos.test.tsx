@@ -133,13 +133,14 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     criado_por_nome: "Fulano da Silva",
     nome: "Servidor A",
     rf: "1234567",
-    sei_numero: "SEI-1",
+    numero_sei: "SEI-1",
     observacoes: "obs 1",
-    portaria: "100/2026",
+    numero_portaria: "100/2026",
     status_publicacao: StatusAtosAdministrativos.PUBLICADO,
     tipo: "DESIGNACAO",
+    tipo_insubsistencia: null,
     tipo_de_ato: "Designação",
-    
+
   },
 ];
 
@@ -458,7 +459,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
     const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
 
-    render(<>{actionRender?.({ ...rows[0], tipo: "OUTRO" as any })}</>);
+    render(<>{actionRender?.({ ...rows[0], tipo: "OUTRO" })}</>);
     expect(screen.queryByTestId(/menu-item-/)).not.toBeInTheDocument();
   });
 });

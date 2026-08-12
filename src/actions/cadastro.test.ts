@@ -22,7 +22,6 @@ describe("cadastroAction", () => {
         username: "12345678900",
         cpf: "12345678900",
         email: "teste@email.com",
-        password: "pastel",
     };
 
     beforeEach(() => {
@@ -42,7 +41,6 @@ describe("cadastroAction", () => {
             "https://api.exemplo.com/users/registrar",
             {
                 username: "12345678900",
-                password: "pastel",
                 name: "Usuário Teste",
                 cpf: "12345678900",
                 email: "teste@email.com",
