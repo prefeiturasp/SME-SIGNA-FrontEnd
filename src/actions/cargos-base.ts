@@ -16,7 +16,7 @@ export async function criarCargosBaseAction(payload: createFormSchemaCargosBaseD
   );
 }
 
-export async function editarCargosBaseAction(id: number, payload: createFormSchemaCargosBaseData) {
+export async function editarCargosBaseAction(id: number, payload: Partial<createFormSchemaCargosBaseData>) {
   return patchWithAuth(
     `/gestao/cargos-base/${id}/`,
     payload,

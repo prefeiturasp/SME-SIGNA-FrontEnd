@@ -7,6 +7,7 @@ const pushMock = vi.fn();
 const pageHeaderSpy = vi.fn();
 const principalSpy = vi.fn();
 const secundarioSpy = vi.fn();
+let searchParamId: string | null = null;
 const handleSubmitMock = vi.fn((callback: (payload: unknown) => void) => (event?: Event) => {
   callback({ enviado: true });
   event?.preventDefault();
@@ -16,6 +17,9 @@ const useCriarEditarCargosBaseMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
+  useSearchParams: () => ({
+    get: (key: string) => (key === "id" ? searchParamId : null),
+  }),
 }));
 
 vi.mock("@/hooks/useCriarEditarCargosBase", () => ({
@@ -67,12 +71,15 @@ vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario",
 describe("Página de cadastro de cargo base", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParamId = null;
     useCriarEditarCargosBaseMock.mockReturnValue({
       form: {
         handleSubmit: handleSubmitMock,
       },
       onSubmitForm: onSubmitFormMock,
       CargosBaseOpcoes: [{ codigoCargo: 1, nomeCargo: "Cargo A" }],
+      isLoadingEditarCargosBase: false,
+      isLoadingCargosBase: false,
     });
   });
 
@@ -99,6 +106,8 @@ describe("Página de cadastro de cargo base", () => {
     );
     expect(principalSpy).toHaveBeenCalledWith({
       CargosBaseOpcoes: [{ codigoCargo: 1, nomeCargo: "Cargo A" }],
+      isEditing: false,
+      isLoading: false,
     });
     expect(secundarioSpy).toHaveBeenCalledTimes(1);
   });
@@ -112,5 +121,42 @@ describe("Página de cadastro de cargo base", () => {
     fireEvent.click(screen.getByTestId("botao-cadastrar-cargo"));
     expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitFormMock);
     expect(onSubmitFormMock).toHaveBeenCalledWith({ enviado: true });
+  });
+
+  it("renderiza modo edição quando existe id na querystring", () => {
+    searchParamId = "77";
+    useCriarEditarCargosBaseMock.mockReturnValue({
+      form: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitForm: onSubmitFormMock,
+      CargosBaseOpcoes: [{ codigoCargo: 9, nomeCargo: "Cargo Editável" }],
+      isLoadingEditarCargosBase: true,
+      isLoadingCargosBase: false,
+    });
+
+    render(<CadastrarCargoBase />);
+
+    expect(useCriarEditarCargosBaseMock).toHaveBeenCalledWith(77);
+    expect(screen.getByTestId("page-title")).toHaveTextContent("Editar cargo base");
+    expect(screen.getByTestId("botao-cadastrar-cargo")).toHaveTextContent("Salvar");
+    expect(screen.getByTestId("botao-cadastrar-cargo")).toBeDisabled();
+
+    expect(pageHeaderSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        breadcrumbs: [
+          { title: "Início", href: "/" },
+          { title: "Gestão", href: "/pages/gestao/cargos-base" },
+          { title: "Cargos base", href: "/pages/gestao/cargos-base" },
+          { title: "Editar cargo base", href: "/" },
+        ],
+      }),
+    );
+
+    expect(principalSpy).toHaveBeenCalledWith({
+      CargosBaseOpcoes: [{ codigoCargo: 9, nomeCargo: "Cargo Editável" }],
+      isEditing: true,
+      isLoading: true,
+    });
   });
 });

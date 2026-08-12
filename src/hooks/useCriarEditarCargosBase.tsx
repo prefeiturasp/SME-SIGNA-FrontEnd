@@ -35,7 +35,7 @@ export const useEditarCargosBase = () => {
       values
     }: {
       id: number;
-      values: createFormSchemaCargosBaseData;
+      values: Partial<createFormSchemaCargosBaseData>;
     }) => {
       const response = await editarCargosBaseAction(id, values);
 
@@ -92,11 +92,12 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
     try {
       let successMessage = "O cargo base foi criado.";
       if (id) {
-        console.log("values", values);
-        console.log("id", id);
+        const partialValues: Partial<createFormSchemaCargosBaseData> = { ...values };
+        delete partialValues["descricao_completa"];
+        delete partialValues["codigo_cargo"];
         await editarCargosBase.mutateAsync({
           id,
-          values,
+          values: partialValues,
         });
         successMessage = "As alterações foram salvas.";
       } else {
