@@ -19,7 +19,7 @@ const ResumoPortariaCessacao: React.FC<{
           />
           <InfoItem label="Ano da Cessação" value={defaultValues.ano_vigente} />
           <InfoItem label="Nº SEI" value={defaultValues.sei_numero} />
-          <InfoItem label="D.O" value={defaultValues.doc} />
+          <InfoItem label="D.O" value={ defaultValues?.doc ? formatDate(defaultValues.doc) : "-"} />
 
           {showExtraFields && (
             <>

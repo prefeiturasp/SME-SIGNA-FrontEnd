@@ -79,12 +79,12 @@ export default function AnularApostilaPage() {
     return {
       portaria: values.apostila_insubsistencia.portaria,
       ano: values.apostila_insubsistencia.ano,
-      numero_sei: values.apostila_insubsistencia.numero_sei,
+      sei: values.apostila_insubsistencia.numero_sei,
 
       doc_da_insubsistencia: insubsistencia?.doc ? formatarData(insubsistencia?.doc ): "-",
       numero_sei_da_insubsistencia: insubsistencia?.sei_numero ?? "-",
 
-      doc_do_ato_insubsistido: fonteDados?.doc ? formatarData(fonteDados?.doc ) : "-",
+      doc_do_ato_insubstituido: fonteDados?.doc ? formatarData(fonteDados?.doc ) : "-",
       dre: insubsistencia?.designacao?.dre_nome ?? "-",    
     };
   };

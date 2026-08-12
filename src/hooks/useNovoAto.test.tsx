@@ -37,10 +37,10 @@ describe("useNovoAto", () => {
 
     let sucesso: boolean | undefined;
     await act(async () => {
-      sucesso = await result.current.buscar("cessacao", "100/2026");
+      sucesso = await result.current.buscar("cessacao", "100/2026", "2026");
     });
 
-    expect(buscarDesignacaoPorPortariaAction).toHaveBeenCalledWith({ portaria: "100/2026" });
+    expect(buscarDesignacaoPorPortariaAction).toHaveBeenCalledWith({ portaria: "100/2026", ano: "2026" });
     expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=10");
     expect(sucesso).toBe(true);
     expect(result.current.errorMessage).toBeNull();
@@ -55,7 +55,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("insubsistencia", "200/2026");
+      await result.current.buscar("insubsistencia", "200/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/insubsistencia?id=20&origem=designacao");
@@ -72,7 +72,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("insubsistencia", "210/2026");
+      await result.current.buscar("insubsistencia", "210/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/insubsistencia?id=11&origem=cessacao");
@@ -86,7 +86,7 @@ describe("useNovoAto", () => {
 
     let sucesso: boolean | undefined;
     await act(async () => {
-      sucesso = await result.current.buscar("insubsistencia", "220/2026");
+      sucesso = await result.current.buscar("insubsistencia", "220/2026", "2026");
     });
 
     expect(sucesso).toBe(false);
@@ -105,7 +105,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("tornar-sem-efeito", "300/2026");
+      await result.current.buscar("tornar-sem-efeito", "300/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/tornar-sem-efeito?id=30");
@@ -120,7 +120,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("anular-apostila", "400/2026");
+      await result.current.buscar("anular-apostila", "400/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/anular-apostila?id=400");
@@ -137,7 +137,7 @@ describe("useNovoAto", () => {
 
     let sucesso: boolean | undefined;
     await act(async () => {
-      sucesso = await result.current.buscar("anular-apostila", "410/2026");
+      sucesso = await result.current.buscar("anular-apostila", "410/2026", "2026");
     });
 
     expect(sucesso).toBe(false);
@@ -157,7 +157,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("anular-apostila", "500/2026");
+      await result.current.buscar("anular-apostila", "500/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/anular-apostila?id=500");
@@ -174,7 +174,7 @@ describe("useNovoAto", () => {
 
     let sucesso: boolean | undefined;
     await act(async () => {
-      sucesso = await result.current.buscar("anular-apostila", "510/2026");
+      sucesso = await result.current.buscar("anular-apostila", "510/2026", "2026");
     });
 
     expect(sucesso).toBe(false);
@@ -191,7 +191,7 @@ describe("useNovoAto", () => {
 
     let sucesso: boolean | undefined;
     await act(async () => {
-      sucesso = await result.current.buscar("anular-apostila", "520/2026");
+      sucesso = await result.current.buscar("anular-apostila", "520/2026", "2026");
     });
 
     expect(sucesso).toBe(false);
@@ -209,7 +209,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("apostila", "500/2026");
+      await result.current.buscar("apostila", "500/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/apostila?id=50&origem=designacao");
@@ -226,7 +226,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("apostila", "600/2026");
+      await result.current.buscar("apostila", "600/2026", "2026");
     });
 
     expect(pushMock).toHaveBeenCalledWith("/pages/apostila?id=12&origem=cessacao");
@@ -240,7 +240,7 @@ describe("useNovoAto", () => {
 
     let sucesso: boolean | undefined;
     await act(async () => {
-      sucesso = await result.current.buscar("apostila", "700/2026");
+      sucesso = await result.current.buscar("apostila", "700/2026", "2026");
     });
 
     expect(sucesso).toBe(false);
@@ -256,7 +256,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("cessacao", "999/2026");
+      await result.current.buscar("cessacao", "999/2026", "2026");
     });
 
     await waitFor(() => {
@@ -273,7 +273,7 @@ describe("useNovoAto", () => {
     const { result } = renderHook(() => useNovoAto());
 
     await act(async () => {
-      await result.current.buscar("cessacao", "999/2026");
+      await result.current.buscar("cessacao", "999/2026", "2026");
     });
     expect(result.current.errorMessage).not.toBeNull();
 

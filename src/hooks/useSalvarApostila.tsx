@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { formSchemaApostilaData } from "@/app/pages/apostila/schema";
-import { ApostilaAction } from "@/actions/apostila-criar";
+import { ApostilaAction } from "@/actions/apostila";
 import { ApostilaBody } from "@/types/apostila";
 
 export const useSalvarApostila = () => {

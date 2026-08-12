@@ -27,7 +27,7 @@ vi.mock("@hookform/resolvers/zod", () => ({
 }));
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
 
   return {
     ...actual,
@@ -168,7 +168,7 @@ describe("useAtosAdministrativos", () => {
     });
   });
 
-  it("limpa formulario, busca com defaults vazios e expõe setters/busca direta", async () => {
+  it("limpa formulario com defaults do hook e expõe setters/busca direta", async () => {
     fetchAtosAdministrativosMock.mockResolvedValue({ success: true, data: { results: [] } });
 
     const { result } = renderHook(() => useAtosAdministrativos());
@@ -182,20 +182,22 @@ describe("useAtosAdministrativos", () => {
     });
 
     expect(resetMock).toHaveBeenCalledWith({
-      tipo: "",
+      tipo: "DESIGNACAO",
       portaria: "",
       numero_sei: "",
       nome_titular_e_indicado: "",
       status_publicacao: "",
-      periodo: undefined,
-      periodo_after: "",
+      periodo: {
+        from: undefined,
+        to: undefined,
+      },
       periodo_before: "",
       rf: "",
     });
 
     await waitFor(() => {
       expect(fetchAtosAdministrativosMock).toHaveBeenLastCalledWith({
-        tipo: "",
+        tipo: "DESIGNACAO",
         portaria: "",
         numero_sei: "",
         nome_titular_e_indicado: "",

@@ -18,10 +18,31 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { InputField } from "@/components/ui/FieldsForm";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import formSchemaBuscaPortaria, { FormBuscaPortariaData } from "./schema";
+
+const ANOS_PARA_TRAS = 10;
+
+const ANOS = Array.from(
+  { length: ANOS_PARA_TRAS + 1 },
+  (_, i) => (new Date().getFullYear() - i).toString()
+);
 
 interface ModalBuscaPortariaProps {
   open: boolean;
@@ -29,9 +50,10 @@ interface ModalBuscaPortariaProps {
   title: string;
   description: string;
   fieldLabel: string;
+  anoFieldLabel: string;
   isLoading: boolean;
   errorMessage?: string | null;
-  onSubmit: (portaria: string) => void;
+  onSubmit: (portaria: string, ano: string) => void;
 }
 
 export default function ModalBuscaPortaria({
@@ -40,19 +62,20 @@ export default function ModalBuscaPortaria({
   title,
   description,
   fieldLabel,
+  anoFieldLabel,
   isLoading,
   errorMessage,
   onSubmit,
 }: Readonly<ModalBuscaPortariaProps>) {
   const form = useForm<FormBuscaPortariaData>({
     resolver: zodResolver(formSchemaBuscaPortaria),
-    defaultValues: { portaria: "" },
+    defaultValues: { portaria: "", ano: "" },
     mode: "onSubmit",
   });
 
   useEffect(() => {
     if (open) {
-      form.reset({ portaria: "" });
+      form.reset({ portaria: "", ano: "" });
     }
   }, [open]);
 
@@ -60,8 +83,10 @@ export default function ModalBuscaPortaria({
   const controlFieldValues = form.control as unknown as Control<FieldValues>;
 
   const handleSubmit = (values: FormBuscaPortariaData) => {
-    onSubmit(values.portaria);
+    onSubmit(values.portaria, values.ano);
   };
+
+  const handleCancelar = () => onOpenChange(false);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,32 +101,52 @@ export default function ModalBuscaPortaria({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-2"
+            className="flex flex-col gap-4"
           >
-            <div className="flex items-start gap-2">
-              <div className="flex-1">
-                <InputField
-                  register={registerFieldValues}
-                  control={controlFieldValues}
-                  name="portaria"
-                  label={fieldLabel}
-                  placeholder="Digite o número da portaria"
-                  dataTestId="input-busca-portaria"
-                  disabled={isLoading}
-                />
-              </div>
+            <InputField
+              register={registerFieldValues}
+              control={controlFieldValues}
+              name="portaria"
+              label={fieldLabel}
+              placeholder="Digite o número da portaria"
+              dataTestId="input-busca-portaria"
+              disabled={isLoading}
+            />
 
-              <Button
-                type="submit"
-                variant="destructive"
-                className="mt-[26px] flex items-center gap-2"
-                disabled={isLoading}
-                data-testid="botao-buscar-portaria"
-              >
-                {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                Buscar
-              </Button>
-            </div>
+            <FormField
+              control={controlFieldValues}
+              name="ano"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#313131] font-bold">
+                    {anoFieldLabel}
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isLoading}
+                    >
+                      <SelectTrigger data-testid="select-busca-ano">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ANOS.map((ano) => (
+                          <SelectItem
+                            key={ano}
+                            value={ano}
+                            data-testid={`select-item-ano-${ano}`}
+                          >
+                            {ano}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {errorMessage && (
               <p
@@ -111,6 +156,29 @@ export default function ModalBuscaPortaria({
                 {errorMessage}
               </p>
             )}
+
+            <div className="flex justify-end gap-3 mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelar}
+                disabled={isLoading}
+                data-testid="botao-cancelar-busca-portaria"
+              >
+                Cancelar
+              </Button>
+
+              <Button
+                type="submit"
+                variant="destructive"
+                className="flex items-center gap-2"
+                disabled={isLoading}
+                data-testid="botao-buscar-portaria"
+              >
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                Buscar
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

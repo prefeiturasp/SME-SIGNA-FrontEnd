@@ -106,8 +106,8 @@ export default function DesignacoesPasso1() {
         title="Designação"
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Listagem de Designações", href: "/pages/listagem-designacoes" },  
-          { title: "Designação" },  
+          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
+          { title: "Designação" },
         ]}
         icon={<Designacao width={24} height={24} color="#660C0B" />}
         showBackButton={false}

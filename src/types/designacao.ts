@@ -127,7 +127,7 @@ export interface ListagemAtosAdministrativosResponse {
   rf: string | null;
   numero_sei: string;
   observacoes: string | null;
-  portaria: string;
+  numero_portaria: string;
   status_publicacao: string;
   tipo: string;
   tipo_insubsistencia: string | null;
@@ -138,7 +138,7 @@ export interface ListagemAtosAdministrativosResponse {
 }
 export interface ListagemPortariasResponse {
   id: number;
-  portaria: string;
+  numero_portaria: string;
   tipo_de_ato: string;
   nome: string;
   cargo: string;
@@ -161,6 +161,10 @@ export interface AtosAdministrativosFiltros {
   portaria?: string;
   nome_titular_e_indicado?: string;
   status_publicacao?: string;
+  periodo? : {
+    from?: Date;
+    to?: Date;
+  }|null;
   periodo_after?: string;
   periodo_before?: string;
   portaria_inicial?: string;
@@ -168,6 +172,9 @@ export interface AtosAdministrativosFiltros {
   ano?: string;
   tipo?: string;
   page?: number;
+  rf?: string;
+  ato_id?: number;  
+  observacao?: string;
 }
 
 
@@ -213,6 +220,12 @@ export interface Cessacao {
   portaria?: string;
 }
 
+export interface CessacaoByIdResponse extends Cessacao {
+  tipo: string;
+  ato_raiz_id: number;
+  designacao: DesignacaoResponse;
+}
+
 export interface DesignacaoResponse {
   id: number;
   tipo: string;
@@ -256,7 +269,7 @@ export interface DesignacaoResponse {
   numero_portaria: string;
   ano_vigente: string;
   sei_numero: string;
-  portaria?: string;
+  portaria?: string;//campo temporario, remover após refatoração
   doc: string;
   data_inicio: string;
   data_fim: string | null;

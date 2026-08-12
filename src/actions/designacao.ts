@@ -1,31 +1,13 @@
 "use server";
 
 import {
-  DesignacaoFiltros,
   PortariasDOFiltros,
-  DesignacaoPaginada,
   ListagemPortariasResponse,
-  ListagemDesignacoesResponse,
   AtosAdministrativosPaginada,
   AtosAdministrativosFiltros,
 } from "@/types/designacao";
 import { ApostilaDetailRead } from "@/types/apostila";
 import { fetchWithClient } from "./http";
-
-export const fetchDesignacoesAction = async (
-  filtros: DesignacaoFiltros
-): Promise<
-  | { success: true; data: DesignacaoPaginada }
-  | { success: false; error: string }
-> => {
-  return fetchWithClient<DesignacaoPaginada>(
-    "/designacao/v2/designacoes/",
-    filtros,
-    "Erro ao buscar as designações"
-  );
-};
-
-
 
 export const fetchPortariasDO = async (
   filtros: PortariasDOFiltros
@@ -34,7 +16,7 @@ export const fetchPortariasDO = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ListagemPortariasResponse[]>(
-    "/designacao/v2/portarias/",
+    "/designacao/portarias/",
     filtros,
     "Erro ao buscar as dados para alterar a data do D.O"
   );
@@ -55,20 +37,6 @@ export const fetchAtosAdministrativos = async (
 };
 
 
-export const fetchDesignacoesSemPaginacaoAction = async (
-  filtros: DesignacaoFiltros
-): Promise<
-  | { success: true; data: ListagemDesignacoesResponse[] }
-  | { success: false; error: string }
-> => {
-  return fetchWithClient<ListagemDesignacoesResponse[]>(
-    "/designacao/v2/designacoes/",
-    filtros,
-    "Erro ao buscar as designações"
-  );
-};
-
-
 export const fetchApostilasByIdAction = async (
   id: number
 ): Promise<
@@ -76,7 +44,7 @@ export const fetchApostilasByIdAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<ApostilaDetailRead>(
-    `/designacao/v2/apostilas/${id}/`,
+    `/designacao/apostilas/${id}/`,
     {},
     "Erro ao buscar as apostilas"
   );

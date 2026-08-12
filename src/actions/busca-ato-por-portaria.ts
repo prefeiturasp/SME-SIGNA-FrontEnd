@@ -6,6 +6,7 @@ import { fetchWithClient } from "./http";
 
 export interface BuscaPorPortariaRequest {
   portaria: string;
+  ano: string;
 }
 
 export const buscarDesignacaoPorPortariaAction = async (
@@ -15,7 +16,7 @@ export const buscarDesignacaoPorPortariaAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<DesignacaoResponse>(
-    "/designacao/v2/designacoes/buscar-por-portaria/",
+    "/designacao/designacoes/buscar-por-portaria/",
     filtros,
     "Erro ao buscar a designação"
   );
@@ -28,7 +29,7 @@ export const buscarCessacaoPorPortariaAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<Cessacao>(
-    "/designacao/v2/cessacoes/buscar-por-portaria/",
+    "/designacao/cessacoes/buscar-por-portaria/",
     filtros,
     "Erro ao buscar a cessação"
   );
@@ -41,7 +42,7 @@ export const buscarInsubsistenciaPorPortariaAction = async (
   | { success: false; error: string }
 > => {
   return fetchWithClient<InsubsistenciaRead>(
-    "/designacao/v2/insubsistencias/buscar-por-portaria/",
+    "/designacao/insubsistencias/buscar-por-portaria/",
     filtros,
     "Erro ao buscar a insubsistência"
   );

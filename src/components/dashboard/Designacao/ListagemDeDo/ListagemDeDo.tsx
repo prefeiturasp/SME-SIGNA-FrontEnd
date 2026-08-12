@@ -69,7 +69,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
 
 
   const columns: TableProps<ListagemPortariasResponse>['columns'] = [
-    { title: 'PORTARIA', dataIndex: 'portaria', key: 'portaria' },
+    { title: 'PORTARIA', dataIndex: 'numero_portaria', key: 'numero_portaria' },
     { title: 'TIPO DE ATO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
     { title: 'NOME', dataIndex: 'nome', key: 'nome' },
     { title: 'CARGO', dataIndex: 'cargo', key: 'cargo' },

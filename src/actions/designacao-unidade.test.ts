@@ -47,7 +47,7 @@ describe("getDesignacaoUnidadeAction", () => {
     const result = await getDesignacaoUnidadeAction("999999");
 
     expect(axiosGetMock).toHaveBeenCalledWith(
-      "https://api.exemplo.com/designacao/v2/unidade/",
+      "https://api.exemplo.com/designacao/unidade/",
 
       {
         headers: {
