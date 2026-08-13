@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
+import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 
 // ── Mocks ────────────────────────────────────────
 
@@ -23,13 +24,13 @@ const mockCookies = (token: string | undefined) => {
     vi.mocked(cookies).mockResolvedValue({
         get: (key: string) =>
             key === "auth_token" && token ? { value: token } : undefined,
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof cookies>>);
 };
 
 const formDataMock = {
     dre: "dre-1",
     ue: "ue-1",
-} as any;
+} as unknown as FormDesignacaoEServidorIndicado;
 
 // ── Testes ───────────────────────────────────────
 
@@ -40,7 +41,7 @@ describe("designacaoAction", () => {
     });
 
     it("retorna erro se formData for null", async () => {
-        const result = await designacaoAction(null);
+        const result = await designacaoAction(null, null);
 
         expect(result).toEqual({
             success: false,
@@ -52,14 +53,14 @@ describe("designacaoAction", () => {
         mockCookies("token-abc");
         mockedAxios.post.mockResolvedValueOnce({ data: { id: 1 } });
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({ success: true, data: { id: 1 } });
     });
 
     it("retorna sucesso quando axios.patch resolve para edição", async () => {
         mockCookies("token-abc");
-        mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } } as any);
+        mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } });
 
         const result = await designacaoAction(formDataMock, "99");
 
@@ -75,7 +76,7 @@ describe("designacaoAction", () => {
         mockCookies("meu-token");
         mockedAxios.post.mockResolvedValueOnce({ data: {} });
 
-        await designacaoAction(formDataMock);
+        await designacaoAction(formDataMock, null);
 
         expect(mockedAxios.post).toHaveBeenCalledWith(
             "https://api.example.com/designacao/designacoes/",
@@ -92,7 +93,7 @@ describe("designacaoAction", () => {
         mockCookies(undefined);
         mockedAxios.post.mockResolvedValueOnce({ data: {} });
 
-        await designacaoAction(formDataMock);
+        await designacaoAction(formDataMock, null);
 
         const callHeaders = mockedAxios.post.mock.calls[0][2]?.headers as Record<string, string>;
         expect(callHeaders).not.toHaveProperty("Authorization");
@@ -108,7 +109,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -130,7 +131,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -152,7 +153,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -171,7 +172,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -190,7 +191,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -205,7 +206,7 @@ describe("designacaoAction", () => {
 
         const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
 
-        await designacaoAction(formDataMock);
+        await designacaoAction(formDataMock, null);
 
         expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock);
     });

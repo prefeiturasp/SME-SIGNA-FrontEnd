@@ -14,6 +14,11 @@ const dropdownMock = vi.fn();
 const formatarDataHoraMock = vi.fn((_value: string) => `01/06/2026, 12:00`);
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 const pushMock = vi.fn();
+const modalConfirmMock = vi.fn();
+const notificationSuccessMock = vi.fn();
+const notificationErrorMock = vi.fn();
+const mutateAsyncMock = vi.fn();
+const domEventStopPropagationMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -23,6 +28,17 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/utils", () => ({
   formatarDataHora: (value: string) => formatarDataHoraMock(value),
+}));
+
+vi.mock("@/hooks/useExcluirDesignacao", () => ({
+  useExcluirDesignacao: () => ({ mutateAsync: mutateAsyncMock }),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
 }));
 
 vi.mock("antd", () => ({
@@ -39,7 +55,10 @@ vi.mock("antd", () => ({
     menu,
   }: {
     children: ReactNode;
-    menu?: { items?: Array<{ key: string; label?: ReactNode; onClick?: () => void }> };
+    menu?: {
+      items?: Array<{ key: string; label?: ReactNode; onClick?: (info: { domEvent: { preventDefault: () => void; stopPropagation: () => void } }) => void }>;
+      onClick?: (info: { domEvent: { preventDefault: () => void; stopPropagation: () => void } }) => void;
+    };
   }) => {
     dropdownMock(menu);
     return (
@@ -49,11 +68,11 @@ vi.mock("antd", () => ({
           <button
             key={item.key}
             data-testid={`menu-item-${item.key}`}
-            onClick={() =>
-              item.onClick?.({
-                domEvent: { preventDefault: vi.fn() },
-              } as any)
-            }
+            onClick={() => {
+              const info = { domEvent: { preventDefault: vi.fn(), stopPropagation: domEventStopPropagationMock } };
+              item.onClick?.(info);
+              menu.onClick?.(info);
+            }}
           >
             {item.label}
           </button>
@@ -80,6 +99,12 @@ vi.mock("antd", () => ({
       {children}
     </div>
   ),
+  Modal: {
+    useModal: () => [
+      { confirm: (options: { onOk?: () => void | Promise<void> }) => modalConfirmMock(options) },
+      <div data-testid="modal-context-holder" key="modal-context-holder" />,
+    ],
+  },
 }));
 
 vi.mock("@ant-design/icons", () => ({
@@ -111,13 +136,14 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     criado_por_nome: "Fulano da Silva",
     nome: "Servidor A",
     rf: "1234567",
-    sei_numero: "SEI-1",
+    numero_sei: "SEI-1",
     observacoes: "obs 1",
-    portaria: "100/2026",
+    numero_portaria: "100/2026",
     status_publicacao: StatusAtosAdministrativos.PUBLICADO,
     tipo: "DESIGNACAO",
+    tipo_insubsistencia: null,
     tipo_de_ato: "Designação",
-    
+
   },
 ];
 
@@ -319,6 +345,16 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.queryByTestId("menu-item-4")).not.toBeInTheDocument();
     expect(screen.queryByTestId("menu-item-5")).not.toBeInTheDocument();
 
+    screen.getByTestId("menu-item-1").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/apostila?id=1&origem=designacao");
+    expect(domEventStopPropagationMock).toHaveBeenCalled();
+
+    screen.getByTestId("menu-item-2").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=1");
+
+    screen.getByTestId("menu-item-3").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/insubsistencia?id=1&origem=designacao");
+
     rerender(<>{actionRender?.({ ...baseRecord, cessacao: { id: 11 } })}</>);
     expect(screen.queryByTestId("menu-item-2")).not.toBeInTheDocument();
 
@@ -348,6 +384,42 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByTestId("menu-item-2")).toHaveTextContent("Cessar");
     expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
     expect(screen.getByTestId("menu-item-5")).toHaveTextContent("Excluir");
+
+    screen.getByTestId("menu-item-4").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-2?id=1");
+  });
+
+  it("abre confirmação e exclui a designação ao clicar em Excluir", async () => {
+    const onAtoExcluido = vi.fn();
+    mutateAsyncMock.mockResolvedValueOnce({ success: true });
+
+    render(
+      <ListagemDeAtosAdministrativos data={rows} total={1} page={1} onAtoExcluido={onAtoExcluido} />
+    );
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-5").click();
+
+    expect(modalConfirmMock).toHaveBeenCalledTimes(1);
+    const confirmOptions = modalConfirmMock.mock.calls[0][0];
+    await confirmOptions.onOk();
+
+    expect(mutateAsyncMock).toHaveBeenCalledWith(1);
+    expect(notificationSuccessMock).toHaveBeenCalledWith({ title: "Designação excluída com sucesso!" });
+    expect(onAtoExcluido).toHaveBeenCalledTimes(1);
   });
 
   it("monta menu de ações para cessação, apostila e insubsistência", () => {
@@ -357,9 +429,17 @@ describe("ListagemDeAtosAdministrativos", () => {
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
     const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
 
-    const { rerender } = render(<>{actionRender?.({ ...rows[0], tipo: "CESSACAO" })}</>);
+    const { rerender } = render(
+      <>{actionRender?.({ ...rows[0], tipo: "CESSACAO", ato_pai_id: 99 })}</>
+    );
     expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
     expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
+
+    screen.getByTestId("menu-item-1").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/apostila?id=99&origem=cessacao");
+
+    screen.getByTestId("menu-item-3").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/insubsistencia?id=99&origem=cessacao");
 
     rerender(<>{actionRender?.({ ...rows[0], tipo: "APOSTILA" })}</>);
     expect(screen.getByTestId("menu-item-6")).toHaveTextContent("Anular Apostila");
@@ -382,7 +462,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
     const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
 
-    render(<>{actionRender?.({ ...rows[0], tipo: "OUTRO" as any })}</>);
+    render(<>{actionRender?.({ ...rows[0], tipo: "OUTRO" })}</>);
     expect(screen.queryByTestId(/menu-item-/)).not.toBeInTheDocument();
   });
 });

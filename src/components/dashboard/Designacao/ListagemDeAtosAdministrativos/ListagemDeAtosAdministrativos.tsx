@@ -4,7 +4,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { ListagemAtosAdministrativosResponse, StatusAtosAdministrativos } from '@/types/designacao';
 import { formatarDataHora } from '@/lib/utils';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { Dropdown, Pagination, Table, Tag, Tooltip } from 'antd';
+import { Dropdown, Modal, Pagination, Table, Tag, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 
 import Editar from '@/assets/icons/Editar';
@@ -14,6 +14,8 @@ import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
 import { useRouter } from 'next/navigation';
+import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
+import { useAppNotification } from '@/components/providers/NotificationProvider';
 
 
 
@@ -93,6 +95,7 @@ interface ListagemDeAtosAdministrativosProps {
   servidor_indicado?: string;
   titulo?: string;
   subtitulo?: string;
+  onAtoExcluido?: () => void;
 }
 
 const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps> = ({
@@ -106,59 +109,100 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   data,
   isLoading = false,
   onPageChange,
+  onAtoExcluido,
 }) => {
 
   const router = useRouter();
+  const excluirDesignacao = useExcluirDesignacao();
+  const [modal, contextHolder] = Modal.useModal();
+  const notification = useAppNotification();
 
-  const designacaoPublicadaItems = [
+  const handleExcluirDesignacao = (record: ListagemAtosAdministrativosResponse) => {
+    modal.confirm({
+      title: 'Excluir designação',
+      content: 'Tem certeza que deseja excluir esta designação? Essa ação não pode ser desfeita.',
+      okText: 'Excluir',
+      okType: 'danger',
+      cancelText: 'Cancelar',
+      onOk: async () => {
+        try {
+          const resultado = await excluirDesignacao.mutateAsync(record.id);
+          if (!resultado.success) {
+            notification.error({ title: resultado.error });
+            return;
+          }
+          notification.success({ title: 'Designação excluída com sucesso!' });
+          onAtoExcluido?.();
+        } catch {
+          notification.error({ title: 'Erro ao excluir a designação' });
+        }
+      },
+    });
+  };
+
+  const designacaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
     {
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/apostila?id=${record.id}&origem=designacao`);
+      },
     },
     {
       key: '2',
       label: 'Cessar',
       icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/cessacao?id=${record.id}`);
+      },
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/insubsistencia?id=${record.id}&origem=designacao`);
+      },
     },
   ]
 
-  const desigacaoNaoPublicadaItems = [
+  const desigacaoNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
     {
       key: '4',
       label: 'Editar',
       icon: <Editar width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/designacoes/designacoes-passo-2?id=${record.id}`);
+      },
     },
-    ...designacaoPublicadaItems,
+    ...designacaoPublicadaItems(record),
     {
       key: '5',
       label: 'Excluir',
       icon: <Delete width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        handleExcluirDesignacao(record);
+      },
     },
   ]
 
-  const cessacaoItems = [
+  const cessacaoItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
     {
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/apostila?id=${record.ato_pai_id}&origem=cessacao`);
+      },
     },
     {
       key: '3',
       label: 'Tornar insubsistente',
       icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-
+      onClick: () => {
+        router.push(`/pages/insubsistencia?id=${record.ato_pai_id}&origem=cessacao`);
+      },
     },
   ]
 
@@ -199,16 +243,16 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     let items: ItemType[] = [];
 
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
-      items.push(...designacaoPublicadaItems);
+      items.push(...designacaoPublicadaItems(record));
     }
 
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
-      items.push(...desigacaoNaoPublicadaItems);
+      items.push(...desigacaoNaoPublicadaItems(record));
     }
 
 
     if (record.tipo === 'CESSACAO') {
-      items.push(...cessacaoItems);
+      items.push(...cessacaoItems(record));
     }
 
 
@@ -281,6 +325,9 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
           <Dropdown
             menu={{
               items: getItems(record),
+              onClick: (info) => {
+                info.domEvent.stopPropagation();
+              },
             }}
             trigger={['click']}
           >
@@ -331,6 +378,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
   return (
     <div className="flex flex-col gap-1 bg-white  ">
+      {contextHolder}
       <div className="pb-8">
 
         <p className="text-[20px] font-bold pt-1 pb-1">{titulo}</p>

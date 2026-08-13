@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import AnularApostilaPage from "./page";
 
 const pushMock = vi.fn();
-const messageSuccessMock = vi.fn();
-const messageErrorMock = vi.fn();
+const notificationSuccessMock = vi.fn();
+const notificationErrorMock = vi.fn();
 const triggerMock = vi.fn();
 const fetchByIdMock = vi.fn();
 const formatarRFMock = vi.fn((value: string) => `RF(${value})`);
@@ -18,8 +18,8 @@ const mutateAsyncMock = vi.fn();
 
 let mockId: string | null = "10";
 let mockIsLoading = false;
-let mockApostila: any = null;
-let formValues: any = {
+let mockApostila: Record<string, unknown> | null = null;
+let formValues: Record<string, unknown> = {
   apostila_insubsistencia: {
     portaria: "999",
     ano: "2026",
@@ -76,6 +76,13 @@ vi.mock("@/hooks/useSalvarInsubsistencias", () => ({
   }),
 }));
 
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
+}));
+
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   default: ({ title }: { title: ReactNode }) => (
     <div data-testid="page-header">
@@ -99,7 +106,7 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: { onSubmitEditarServidor?: (data: { edited: boolean }) => void }) => {
     blocosPropsMock(props);
     props.onSubmitEditarServidor?.({ edited: true });
     return <div data-testid="blocos-designacao" />;
@@ -114,7 +121,7 @@ vi.mock("@/components/dashboard/apostila/PortariaApostilaFields/PortariaAnularAp
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
@@ -130,10 +137,6 @@ vi.mock("antd", () => ({
       {children}
     </div>
   ),
-  message: {
-    success: (value: string) => messageSuccessMock(value),
-    error: (value: string) => messageErrorMock(value),
-  },
 }));
 
 vi.mock("lucide-react", () => ({
@@ -141,7 +144,7 @@ vi.mock("lucide-react", () => ({
 }));
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
 
   return {
     ...actual,
@@ -212,9 +215,9 @@ describe("AnularApostilaPage", () => {
     expect(screen.getByText("Anular Apostila")).toBeInTheDocument();
     expect(screen.getByText("Designação")).toBeInTheDocument();
     expect(screen.getByTestId("portaria-fields")).toHaveTextContent("designacao");
-    expect(getDadosPortariaMock).toHaveBeenCalledWith(mockApostila.designacao);
+    expect(getDadosPortariaMock).toHaveBeenCalledWith(mockApostila!.designacao);
     expect(getDadosPortariaCessacaoMock).toHaveBeenCalledWith(mockApostila);
-    expect(getDadosIndicadoMock).toHaveBeenCalledWith(mockApostila.designacao);
+    expect(getDadosIndicadoMock).toHaveBeenCalledWith(mockApostila!.designacao);
 
     fireEvent.click(screen.getByText("Gerar texto SEI"));
 
@@ -336,7 +339,7 @@ describe("AnularApostilaPage", () => {
         values: formValues,
         atoPai: 10,
       });
-      expect(messageSuccessMock).toHaveBeenCalledWith("Anulação de apostila salva com sucesso!");
+      expect(notificationSuccessMock).toHaveBeenCalledWith({ title: "Anulação de apostila salva com sucesso!" });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
@@ -348,7 +351,7 @@ describe("AnularApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("falha ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "falha ao salvar" });
     });
   });
 
@@ -360,7 +363,7 @@ describe("AnularApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("Erro ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "Erro ao salvar" });
     });
   });
 

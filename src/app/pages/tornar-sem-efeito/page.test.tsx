@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import AnularApostilaPage from "./page";
 
 const pushMock = vi.fn();
-const messageSuccessMock = vi.fn();
-const messageErrorMock = vi.fn();
+const notificationSuccessMock = vi.fn();
+const notificationErrorMock = vi.fn();
 const fetchByIdMock = vi.fn();
 const mutateAsyncMock = vi.fn();
 const getDadosPortariaMock = vi.fn((value?: unknown) => ({ origem: "designacao", value }));
@@ -80,6 +80,13 @@ vi.mock("@/hooks/useSalvarInsubsistencias", () => ({
   }),
 }));
 
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
+}));
+
 vi.mock("@/utils/designacao/getDadosPortaria", () => ({
   getDadosPortaria: (value: unknown) => getDadosPortariaMock(value),
 }));
@@ -112,13 +119,6 @@ vi.mock("@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard",
         </button>
       </div>
     );
-  },
-}));
-
-vi.mock("antd", () => ({
-  message: {
-    success: (value: string) => messageSuccessMock(value),
-    error: (value: string) => messageErrorMock(value),
   },
 }));
 
@@ -243,7 +243,10 @@ describe("AnularApostilaPage", () => {
         values: formValues,
         atoPai: 10,
       });
-      expect(messageSuccessMock).toHaveBeenCalledWith("Ato foi tornado sem efeito com sucesso!");
+      expect(notificationSuccessMock).toHaveBeenCalledWith({
+        title: "Tudo certo por aqui!",
+        description: "O ato de tornar uma insubsistência sem efeito foi concluído.",
+      });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
@@ -255,7 +258,10 @@ describe("AnularApostilaPage", () => {
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("falha ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro!",
+        description: "Não conseguimos concluir a ação. Por favor, tente novamente.",
+      });
     });
   });
 
@@ -266,7 +272,10 @@ describe("AnularApostilaPage", () => {
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("Erro ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro!",
+        description: "Não conseguimos concluir a ação. Por favor, tente novamente.",
+      });
     });
   });
 

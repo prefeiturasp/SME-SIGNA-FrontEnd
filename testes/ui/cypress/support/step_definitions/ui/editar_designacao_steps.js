@@ -70,6 +70,64 @@ Then('valida as opções de tipo de cargo {string} e {string}', (opcao1, opcao2)
   cy.log(`✓ Opção de cargo "${opcao2}" visível`)
 })
 
+// ─── ETAPA 5/6 — Campos exclusivos de designações "Cargo Vago" ────────────────
+// "RF Titular" (campo) e "Dados do Servidor Titular" (seção) só existem
+// quando a designação sendo editada é do tipo "Cargo Vago" (posição sendo
+// substituída, com um servidor titular vinculado). Designações "Cargo
+// Disponível" (posição genuinamente vaga, sem titular) não renderizam esses
+// elementos — confirmado em execução real contra o QA: a designação id=135
+// (índice 0 da listagem, a que "Seleciona uma das Designação de forma
+// aleatoria" sempre pega primeiro) é "Cargo Disponível", e os asserts
+// incondicionais anteriores estouravam timeout esperando algo que nunca ia
+// aparecer para aquele registro. Em vez de assumir um tipo fixo, os steps
+// abaixo leem qual rádio está de fato marcado no formulário (reflete o dado
+// real da designação, já que é tela de edição) antes de validar — mesmo
+// padrão de tolerância a dado ausente usado em "... com skip se vazio"
+// (apostilar_steps.js/insubsistente_steps.js).
+
+function tipoCargoAtualEhVago() {
+  return cy.get('body').then(($body) => {
+    const $opcaoVago = $body
+      .find('.ant-radio-wrapper, [role="radio"]')
+      .filter((_, el) => /cargo vago/i.test(el.textContent))
+      .first()
+
+    if ($opcaoVago.length === 0) return false
+
+    const inputMarcado = $opcaoVago.find('input[type="radio"]').is(':checked')
+    const wrapperMarcado = $opcaoVago.hasClass('ant-radio-wrapper-checked')
+      || $opcaoVago.find('.ant-radio-checked').length > 0
+
+    return inputMarcado || wrapperMarcado
+  })
+}
+
+Then('valida a existencia do campo {string} quando aplicável ao tipo de cargo selecionado', (textoLabel) => {
+  tipoCargoAtualEhVago().then((ehVago) => {
+    if (!ehVago) {
+      cy.log(`↷ Campo "${textoLabel}" pulado — designação atual é "Cargo Disponível" (sem titular)`)
+      return
+    }
+    cy.contains('label, span, p, h4, h5', textoLabel.trim(), { timeout: 10000 }).should('be.visible')
+    cy.log(`✓ Campo "${textoLabel}" encontrado`)
+  })
+})
+
+Then('valida a existencia da seção {string} quando aplicável ao tipo de cargo selecionado', (nomeSecao) => {
+  tipoCargoAtualEhVago().then((ehVago) => {
+    if (!ehVago) {
+      cy.log(`↷ Seção "${nomeSecao}" pulada — designação atual é "Cargo Disponível" (sem titular)`)
+      return
+    }
+    cy.contains(
+      '.ant-collapse-header, [class*="collapse"] button, h2, h3, h4, div, span, p',
+      nomeSecao.trim(),
+      { timeout: 10000 }
+    ).should('exist').scrollIntoView().should('be.visible')
+    cy.wait(500)
+  })
+})
+
 // ─── ETAPA FINAL — Valida existência dos dois botões de navegação ──────────────
 
 Then('valida a existencia dos botões de edição {string} e {string}', (botao1, botao2) => {

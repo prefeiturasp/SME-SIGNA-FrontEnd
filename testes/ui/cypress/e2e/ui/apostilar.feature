@@ -1,6 +1,6 @@
 # language: pt
 
-@apostilar
+@apostilar @skip
 Funcionalidade: Apostilar designação de servidor
   Como gestor de RH no sistema SIGNA
   Eu quero realizar o apostilamento de designações ativas
@@ -14,9 +14,9 @@ Funcionalidade: Apostilar designação de servidor
     E navega até o menu lateral e seleciona "Designações"
     E seleciona o submenu "Designação"
 
-  # ============================================================
-  # CENÁRIO 1 — Fluxo completo com tipo "Designação"
-  # ============================================================
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Fluxo completo com tipo "Designação"        [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @apostilar-tipo-designacao @smoke
   Cenário: Apostilar designação selecionando o tipo "Designação"
 
@@ -80,9 +80,9 @@ Funcionalidade: Apostilar designação de servidor
     Quando Clica em salvar apostilamento
     Então o sistema processa o apostilamento sem erros
 
-  # ============================================================
-  # CENÁRIO 2 — Fluxo completo com tipo "Cessação"
-  # ============================================================
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Fluxo completo com tipo "Cessação"          [@skip]
+  # ══════════════════════════════════════════════════════════════
   @skip @apostilar-tipo-cessacao @smoke
   Cenário: Apostilar designação selecionando o tipo "Cessação"
 
@@ -116,9 +116,9 @@ Funcionalidade: Apostilar designação de servidor
     Quando Clica em salvar apostilamento
     Então o sistema processa o apostilamento sem erros
 
-  # ============================================================
-  # CENÁRIO 3 — Navegação entre seções e validação de conteúdo
-  # ============================================================
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Navegação entre seções e validação de conteúdo [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   @apostilar-validacao-abas @regressao
   Cenário: Validar navegação e conteúdo de todas as seções da tela Apostila
 

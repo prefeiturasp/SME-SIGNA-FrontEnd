@@ -35,11 +35,11 @@ describe("useSolicitarRedefinicaoSenha", () => {
         });
 
         await act(async () => {
-            await result.current.mutateAsync({ username: "47198005055" });
+            await result.current.mutateAsync({ seu_rf: "47198005055" });
         });
 
         expect(esqueciSenhaAction).toHaveBeenCalledWith(
-            { username: "47198005055" },
+            { seu_rf: "47198005055" },
             expect.anything()
         );
         await waitFor(() => {
@@ -62,11 +62,11 @@ describe("useSolicitarRedefinicaoSenha", () => {
         });
 
         await act(async () => {
-            await result.current.mutateAsync({ username: "00000000000" });
+            await result.current.mutateAsync({ seu_rf: "00000000000" });
         });
 
         expect(esqueciSenhaAction).toHaveBeenCalledWith(
-            { username: "00000000000" },
+            { seu_rf: "00000000000" },
             expect.anything()
         );
         await waitFor(() => {
@@ -89,7 +89,7 @@ describe("useSolicitarRedefinicaoSenha", () => {
 
         await act(async () => {
             await expect(
-                result.current.mutateAsync({ username: "47198005055" })
+                result.current.mutateAsync({ seu_rf: "47198005055" })
             ).rejects.toThrow();
         });
 
@@ -105,12 +105,12 @@ describe("useSolicitarRedefinicaoSenha", () => {
 
         await act(async () => {
             try {
-                await result.current.mutateAsync({ username: "" });
+                await result.current.mutateAsync({ seu_rf: "" });
             } catch {}
         });
 
         expect(esqueciSenhaAction).toHaveBeenCalledWith(
-            { username: "" },
+            { seu_rf: "" },
             expect.anything()
         );
     });

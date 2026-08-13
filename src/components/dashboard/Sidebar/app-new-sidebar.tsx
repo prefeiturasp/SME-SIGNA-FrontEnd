@@ -12,6 +12,7 @@ import { Apoio } from "@/assets/icons/Apoio";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import HomeMenuIcon from "@/assets/icons/HomeMenu";
+import { Settings } from "@/assets/icons/Settings";
 
  
 
@@ -38,6 +39,8 @@ export enum MenuEnum {
   Protocolos,
   ApoioAdministrativo,   
   ApoiosAdministrativos,
+  Gestao,
+  CargosBase
 }
  
 
@@ -129,7 +132,18 @@ export const MENU_APOIO_ADMINISTRATIVO: MenuItemConectaProps = {
   ],
 };
 
- 
+export const MENU_GESTAO: MenuItemConectaProps = {
+  key: MenuEnum.Gestao,
+  title: 'Gestão',
+  icon: <Settings />, 
+  children: [
+    {
+      key: MenuEnum.CargosBase,
+      title: 'Cargos base',
+      url: "/pages/gestao/cargos-base",
+    },
+  ],
+};
  
 export interface MenuItemConectaProps extends MenuItemSMEProps {
   key: MenuEnum;
@@ -143,11 +157,22 @@ export const menus: MenuItemConectaProps[] = [
   MENU_NOMEACAO,
   MENU_PROTOCOLO,
   MENU_APOIO_ADMINISTRATIVO,
-
+  MENU_GESTAO,
 ];
  
+function collectMenuUrls(items: MenuItemSMEProps[]): string[] {
+  return items.flatMap((item) => [
+    ...(item.url ? [item.url] : []),
+    ...(item.children ? collectMenuUrls(item.children) : []),
+  ]);
+}
+
 export function AppNewSidebar() {
   const navigate = useRouter();
+
+  React.useEffect(() => {
+    collectMenuUrls(menus).forEach((url) => navigate.prefetch(url));
+  }, [navigate]);
 
   const itemMenuEscolhido = (item: MenuItemSMEProps) => {
     if (item?.url) {
