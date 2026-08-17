@@ -1,362 +1,232 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
-import type {
-  ControllerRenderProps,
-  FieldValues,
-  Path,
-  PathValue,
-} from 'react-hook-form';
-import FormularioUEDesignacao from './FormularioUEDesignacao';
+import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ControllerRenderProps } from "react-hook-form";
+import FormularioUEDesignacao from "./FormularioUEDesignacao";
+import formSchemaDesignacao, { type FormDesignacaoData } from "./schema";
 
-// Mock dos hooks
-const mockUseFetchDREs = vi.fn();
-const mockUseFetchUEs = vi.fn();
-
-vi.mock('@/hooks/useUnidades', () => ({
-  useFetchDREs: () => mockUseFetchDREs(),
-  useFetchUEs: () => mockUseFetchUEs(),
+const {
+  useFetchDREsMock,
+  useFetchUEsMock,
+  useFormMock,
+  setValueMock,
+  handleSubmitMock,
+  zodResolverMock,
+} = vi.hoisted(() => ({
+  useFetchDREsMock: vi.fn(),
+  useFetchUEsMock: vi.fn(),
+  useFormMock: vi.fn(),
+  setValueMock: vi.fn(),
+  handleSubmitMock: vi.fn(),
+  zodResolverMock: vi.fn(() => "resolver-mock"),
 }));
 
+let currentDre = "";
+let currentUe = "";
+let selectOnValueChange: ((value: string) => void) | null = null;
 
-vi.mock('@/components/ui/form', () => ({
-  Form: ({
-    children,
-    onSubmit,
-  }: {
-    children: React.ReactNode;
-    onSubmit: () => void;
-  }) => (
-    <form onSubmit={onSubmit} data-testid="form">
-      {children}
-    </form>
-  ),
+vi.mock("@/hooks/useUnidades", () => ({
+  useFetchDREs: () => useFetchDREsMock(),
+  useFetchUEs: (dre: string) => useFetchUEsMock(dre),
+}));
 
-  FormField: <T extends FieldValues>({
+vi.mock("@hookform/resolvers/zod", () => ({
+  zodResolver: zodResolverMock,
+}));
+
+vi.mock("react-hook-form", () => ({
+  useForm: useFormMock,
+}));
+
+vi.mock("@/components/ui/form", () => ({
+  Form: ({ children }: { children: React.ReactNode }) => <div data-testid="form">{children}</div>,
+  FormField: ({
     name,
     render,
   }: {
-    name: Path<T>;
+    name: keyof FormDesignacaoData;
     render: (props: {
-      field: ControllerRenderProps<T, Path<T>>;
+      field: ControllerRenderProps<FormDesignacaoData, keyof FormDesignacaoData>;
     }) => React.ReactNode;
   }) => {
-    const field: ControllerRenderProps<T, Path<T>> = {
+    const field = {
       name,
-      value: '' as PathValue<T, Path<T>>,
-      onChange: vi.fn(),
+      value: name === "dre" ? currentDre : currentUe,
+      onChange: (value: string) => {
+        if (name === "dre") currentDre = value;
+        if (name === "ue") currentUe = value;
+      },
       onBlur: vi.fn(),
       ref: vi.fn(),
-    };
+    } as unknown as ControllerRenderProps<FormDesignacaoData, keyof FormDesignacaoData>;
 
     return <>{render({ field })}</>;
   },
-
   FormControl: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-
   FormItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-
-  FormLabel: ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => <label className={className}>{children}</label>,
-
+  FormLabel: ({ children }: { children: React.ReactNode }) => <label>{children}</label>,
   FormMessage: () => <div data-testid="form-message" />,
 }));
 
-
-let mockSelectOnValueChange: ((value: string) => void) | null = null;
-
-vi.mock('@/components/ui/select', () => ({
-  Select: ({ 
-    children, 
+vi.mock("@/components/ui/select", () => ({
+  Select: ({
+    children,
     onValueChange,
-    'data-testid': testId 
-  }: { 
-    children: React.ReactNode; 
+    "data-testid": testId,
+  }: {
+    children: React.ReactNode;
     onValueChange: (value: string) => void;
-    'data-testid'?: string;
-  }) => (
-    <div
-      data-testid={testId}
-      onClick={() => {
-        mockSelectOnValueChange = onValueChange;
-      }}
-    >
-      {children}
-    </div>
-  ),
+    "data-testid"?: string;
+  }) => {
+    selectOnValueChange = onValueChange;
+    return <div data-testid={testId}>{children}</div>;
+  },
   SelectTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   SelectValue: ({ placeholder }: { placeholder: string }) => <div>{placeholder}</div>,
   SelectContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  SelectItem: ({ 
-    children, 
-    value 
-  }: { 
-    children: React.ReactNode; 
-    value: string 
-  }) => (
-    <div
-      data-value={value}
-      onClick={() => mockSelectOnValueChange?.(value)}
-    >
-      {children}
-    </div>
-  ),
-}));
-
-vi.mock('@/components/ui/Combobox', () => ({
-  Combobox: ({ 
-    value, 
-    onChange, 
-    options, 
-    disabled,
-    'data-testid': testId 
-  }: { 
-    value: string; 
-    onChange: (value: string) => void; 
-    options: Array<{ label: string; value: string }>;
-    disabled?: boolean;
-    'data-testid'?: string;
-  }) => (
-    <input 
-      data-testid={testId}
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      data-options={JSON.stringify(options)}
-    />
-  ),
-}));
-
-vi.mock('@/components/ui/button', () => ({
-  Button: ({ 
-    children, 
-    type,
-    disabled 
-  }: { 
-    children: React.ReactNode; 
-    type?: 'button' | 'submit' | 'reset';
-    disabled?: boolean;
-  }) => (
-    <button type={type} disabled={disabled} data-testid="button">
+  SelectItem: ({ children, value }: { children: React.ReactNode; value: string }) => (
+    <button type="button" onClick={() => selectOnValueChange?.(value)}>
       {children}
     </button>
   ),
 }));
 
-vi.mock('@/components/dashboard/Designacao/BotoesDeNavegacao', () => ({
-  default: ({ 
-    disableAnterior, 
+vi.mock("@/components/ui/Combobox", () => ({
+  Combobox: ({
+    options,
+    disabled,
+    "data-testid": testId,
+  }: {
+    options: Array<{ label: string; value: string }>;
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => (
+    <input
+      data-testid={testId}
+      data-options={JSON.stringify(options)}
+      disabled={disabled}
+      readOnly
+    />
+  ),
+}));
+
+vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
+  default: ({
+    disableAnterior,
     disableProximo,
-    onProximo,
-    onAnterior 
-  }: { 
-    disableAnterior: boolean; 
+  }: {
+    disableAnterior: boolean;
     disableProximo: boolean;
-    onProximo: () => void;
-    onAnterior: () => void;
   }) => (
     <div data-testid="botoes-navegacao">
-      <button 
-        disabled={disableAnterior} 
-        onClick={onAnterior}
-        data-testid="btn-anterior"
-      >
+      <button data-testid="btn-anterior" disabled={disableAnterior}>
         Anterior
       </button>
-      <button 
-        disabled={disableProximo} 
-        onClick={onProximo}
-        data-testid="btn-proximo"
-      >
+      <button data-testid="btn-proximo" disabled={disableProximo}>
         Próximo
       </button>
     </div>
   ),
 }));
 
-const mockOnSubmitDesignacao = vi.fn();
+describe("FormularioUEDesignacao", () => {
+  const onSubmitDesignacaoMock = vi.fn();
 
-describe('FormularioUEDesignacao', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    
-    mockUseFetchDREs.mockReturnValue({
-    data: [
-        {
-        codigoDRE: 'dre-codigoDRE-1',
-        nomeDRE: 'DRE 1',
-        siglaDRE: 'DRE1',
-        },
-        {
-        codigoDRE: 'dre-codigoDRE-2',
-        nomeDRE: 'DRE 2',
-        siglaDRE: 'DRE2',
-        },
-    ],
-    });
+    currentDre = "";
+    currentUe = "";
+    selectOnValueChange = null;
 
-
-    mockUseFetchUEs.mockReturnValue({
+    useFetchDREsMock.mockReturnValue({
       data: [
-        { codigoEscola: 'ue-codigoEscola-1', nomeEscola: 'UE 1' },
-        { codigoEscola: 'ue-codigoEol-2', nomeEscola: 'UE 2' },
-      ],
-    });
-  });
-
-  it('renderiza o formulário corretamente com valores iniciais', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    expect(screen.getByTestId('form')).toBeInTheDocument();
-    expect(screen.getByTestId('select-dre')).toBeInTheDocument();
-    expect(screen.getByTestId('select-ue')).toBeInTheDocument();
-    expect(screen.getByTestId('botoes-navegacao')).toBeInTheDocument();
-  });
-
-  it('exibe opções de DRE do hook useFetchDREs', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    
-    const selectDRE = screen.getByTestId('select-dre');
-    fireEvent.click(selectDRE);
-    
-    
-    expect(mockUseFetchDREs).toHaveBeenCalled();
-  });
-
-  it('habilita o combobox de UE apenas quando uma DRE é selecionada', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    const selectUE = screen.getByTestId('select-ue') as HTMLInputElement;
-    
-    expect(selectUE.disabled).toBe(true);
-
-    const selectDRE = screen.getByTestId('select-dre');
-    fireEvent.click(selectDRE);
-
-  });
-
-  it('chama o hook useFetchUEs', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    expect(mockUseFetchUEs).toHaveBeenCalled();
-  });
-
-  it('limpa o campo UE quando muda a DRE', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    const selectDRE = screen.getByTestId('select-dre');
-    fireEvent.click(selectDRE);
-
-  });
-
-
-  it('mostra botões de navegação desabilitados conforme props', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    const btnAnterior = screen.getByTestId('btn-anterior');
-    const btnProximo = screen.getByTestId('btn-proximo');
-
-    expect(btnAnterior).toBeDisabled();
-    expect(btnProximo).toBeDisabled();
-  });
-
-  it('chama onProximo quando botão próximo é clicado', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    const btnProximo = screen.getByTestId('btn-proximo');
-    
-    expect(btnProximo).toBeInTheDocument();
-  });
-
-  it('valida formulário com schema zod', async () => {
-    const mockOnSubmitWithError = vi.fn();
-    
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitWithError} />);
-
-    const form = screen.getByTestId('form');
-    fireEvent.submit(form);
-
-    await waitFor(() => {
-      expect(mockOnSubmitWithError).not.toHaveBeenCalled();
-    });
-  });
-
-  it('usa mode onChange para validação', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-  });
-
-  it('atualiza valores do formulário em tempo real com watch', () => {
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-  });
-
-  it('seleciona DRE e UE e verifica qual DRE está selecionada', () => {
-    
-    mockUseFetchUEs.mockReturnValue({
-      data: [
-        { codigoEscola: 'ue-codigoEol-1', nomeEscola: 'UE 1 da DRE Selecionada', siglaTipoEscola: 'EMEI' },
-        { codigoEscola: 'ue-codigoEol-2', nomeEscola: 'UE 2 da DRE Selecionada', siglaTipoEscola: 'EMEF'},
+        { codigoDRE: "dre-1", nomeDRE: "DRE 1", siglaDRE: "DRE1" },
+        { codigoDRE: "dre-2", nomeDRE: "DRE 2", siglaDRE: "DRE2" },
       ],
     });
 
-    render(<FormularioUEDesignacao onSubmitDesignacao={mockOnSubmitDesignacao} />);
-
-    
-    const selectDRE = screen.getByTestId('select-dre');
-    const selectUE = screen.getByTestId('select-ue') as HTMLInputElement;
-
-    expect(selectDRE).toBeInTheDocument();
-    expect(selectUE).toBeInTheDocument();
-
-    
-    expect(selectUE.disabled).toBe(true);
-
-    
-    expect(mockUseFetchDREs).toHaveBeenCalled();
-    expect(mockUseFetchUEs).toHaveBeenCalled();
-
-    
-    fireEvent.click(selectDRE);
-    fireEvent.click(screen.getByText('DRE 1'));
-
-    
-    expect(screen.getByText('DRE 1')).toBeInTheDocument();
-    expect(screen.getByText('DRE 2')).toBeInTheDocument();
-
-    
-    
-    const ueOptions = JSON.parse(selectUE.getAttribute('data-options') || '[]');
-    expect(ueOptions).toHaveLength(2);
-    expect(ueOptions[0]).toEqual({
-      label: 'EMEI - UE 1 da DRE Selecionada',
-      value: 'ue-codigoEol-1',
-    });
-    expect(ueOptions[1]).toEqual({
-      label: 'EMEF - UE 2 da DRE Selecionada',
-      value: 'ue-codigoEol-2',
+    useFetchUEsMock.mockReturnValue({
+      data: [
+        { codigoEscola: "ue-1", nomeEscola: "UE 1", siglaTipoEscola: "EMEI" },
+        { codigoEscola: "ue-2", nomeEscola: "UE 2", siglaTipoEscola: "EMEF" },
+      ],
     });
 
-    
-    fireEvent.change(selectUE);
+    handleSubmitMock.mockImplementation(
+      (callback: (values: { dre: string; ue: string }) => void) => (event?: Event) => {
+        event?.preventDefault?.();
+        callback({ dre: currentDre, ue: currentUe });
+      },
+    );
 
-    
-    
-    expect(selectDRE).toBeInTheDocument();
-    expect(screen.getByText('DRE 1')).toBeInTheDocument();
-    expect(screen.getByText('DRE 2')).toBeInTheDocument();
-    
-    
-    
-    expect(mockUseFetchDREs).toHaveBeenCalled();
-    expect(mockUseFetchUEs).toHaveBeenCalled();
+    useFormMock.mockImplementation(() => ({
+      control: {},
+      watch: () => ({ dre: currentDre, ue: currentUe }),
+      setValue: setValueMock,
+      handleSubmit: handleSubmitMock,
+    }));
+  });
+
+  it("configura useForm com resolver e valores padrão", () => {
+    render(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+
+    expect(zodResolverMock).toHaveBeenCalledWith(formSchemaDesignacao);
+    expect(useFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resolver: "resolver-mock",
+        defaultValues: { dre: "", ue: "" },
+        mode: "onChange",
+      }),
+    );
+  });
+
+  it("renderiza campos e botões de navegação desabilitados", () => {
+    render(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+
+    expect(screen.getByTestId("form")).toBeInTheDocument();
+    expect(screen.getByTestId("select-dre")).toBeInTheDocument();
+    expect(screen.getByTestId("select-ue")).toBeInTheDocument();
+    expect(screen.getByTestId("btn-anterior")).toBeDisabled();
+    expect(screen.getByTestId("btn-proximo")).toBeDisabled();
+  });
+
+  it("chama useFetchUEs com DRE atual e mantém combobox desabilitado sem DRE", () => {
+    render(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+
+    expect(useFetchUEsMock).toHaveBeenCalledWith("");
+    expect(screen.getByTestId("select-ue")).toBeDisabled();
+  });
+
+  it("limpa campo UE ao trocar DRE e habilita combobox após rerender", () => {
+    const { rerender } = render(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+
+    fireEvent.click(screen.getByText("DRE 1"));
+    expect(setValueMock).toHaveBeenCalledWith("ue", "");
+
+    rerender(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+    expect(useFetchUEsMock).toHaveBeenLastCalledWith("dre-1");
+    expect(screen.getByTestId("select-ue")).not.toBeDisabled();
+  });
+
+  it("mapeia opções de UE com sigla + nome", () => {
+    const { rerender } = render(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+    fireEvent.click(screen.getByText("DRE 1"));
+    rerender(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+
+    const options = JSON.parse(screen.getByTestId("select-ue").getAttribute("data-options") ?? "[]");
+    expect(options).toEqual([
+      { label: "EMEI - UE 1", value: "ue-1" },
+      { label: "EMEF - UE 2", value: "ue-2" },
+    ]);
+  });
+
+  it("submete formulário usando handleSubmit do react-hook-form", () => {
+    currentDre = "dre-1";
+    currentUe = "ue-1";
+    render(<FormularioUEDesignacao onSubmitDesignacao={onSubmitDesignacaoMock} />);
+
+    fireEvent.submit(screen.getByTestId("form").querySelector("form") as HTMLFormElement);
+    expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitDesignacaoMock);
+    expect(onSubmitDesignacaoMock).toHaveBeenCalledWith({ dre: "dre-1", ue: "ue-1" });
   });
 });
