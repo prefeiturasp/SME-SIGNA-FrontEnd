@@ -153,6 +153,23 @@ vi.mock("@/utils/portarias/formatadores", () => ({
   nameToCamelCaseUe: (value: string) => nameToCamelCaseUeSpy(value),
 }));
 
+type UseFetchCessacaoByIdReturn = ReturnType<typeof useFetchCessacaoById>;
+
+const mockUseFetchCessacaoByIdReturn = ({
+  data,
+  isLoading,
+  error,
+}: {
+  data: unknown;
+  isLoading: boolean;
+  error: { message: string } | null;
+}): UseFetchCessacaoByIdReturn =>
+  ({
+    data,
+    isLoading,
+    error,
+  }) as unknown as UseFetchCessacaoByIdReturn;
+
 describe("VisualizarCessacao page", () => {
   const designacaoBaseMock = {
     dre_nome: "DRE Centro",
@@ -217,11 +234,11 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("renderiza loading quando consulta está carregando", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: undefined,
       isLoading: true,
       error: null,
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
 
@@ -231,11 +248,11 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("renderiza mensagem de erro quando a consulta falha", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: undefined,
       isLoading: false,
       error: { message: "Erro ao carregar" },
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
 
@@ -243,11 +260,11 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("renderiza o conteúdo quando há cessação e designação", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: cessacaoBaseMock,
       isLoading: false,
       error: null,
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
 
@@ -267,11 +284,11 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("navega ao clicar em consultar histórico", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: cessacaoBaseMock,
       isLoading: false,
       error: null,
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
     fireEvent.click(screen.getByText("Consultar histórico"));
@@ -282,14 +299,14 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("não renderiza accordion quando não há designação", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: {
         ...cessacaoBaseMock,
         designacao: null,
       },
       isLoading: false,
       error: null,
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
 
@@ -298,7 +315,7 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("gera HTML inicial com escape, negrito e sem nulos", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: {
         ...cessacaoBaseMock,
         designacao: {
@@ -308,7 +325,7 @@ describe("VisualizarCessacao page", () => {
       },
       isLoading: false,
       error: null,
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
 
@@ -339,7 +356,7 @@ describe("VisualizarCessacao page", () => {
   });
 
   it("envia categoria e fallback de códigos ao resumo do servidor", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue({
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: {
         ...cessacaoBaseMock,
         designacao: {
@@ -351,7 +368,7 @@ describe("VisualizarCessacao page", () => {
       },
       isLoading: false,
       error: null,
-    } as never);
+    }));
 
     render(<VisualizarCessacaoPage />);
 
@@ -362,6 +379,106 @@ describe("VisualizarCessacao page", () => {
           cd_cargo_base: 0,
           cd_cargo_sobreposto_funcao_atividade: 0,
         }),
+      }),
+    );
+  });
+
+  it("mantém editor com html vazio quando não há cessação", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(editorSEISpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: "",
+      }),
+    );
+  });
+
+  it("aplica fallbacks '-' quando a designação não possui dados", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: {
+        ...cessacaoBaseMock,
+        designacao: {},
+      },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(preencherTemplateSpy).toHaveBeenCalledWith(
+      "TEMPLATE-CESSACAO",
+      expect.objectContaining({
+        dre: "-",
+        portaria_designacao: "-",
+        doc_designacao: "-",
+        sei_designacao: "-",
+        nome_indicado: "<strong>-</strong>",
+        vinculo: "-",
+        trecho_afastamento: "",
+      }),
+    );
+    expect(montarTrechoUnidadeSpy).toHaveBeenCalledWith("", "", "");
+  });
+
+  it("monta cargo base sem categoria quando ela não é informada", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: {
+        ...cessacaoBaseMock,
+        designacao: {
+          ...designacaoBaseMock,
+          indicado_categoria: "",
+        },
+      },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(preencherTemplateSpy).toHaveBeenCalledWith(
+      "TEMPLATE-CESSACAO",
+      expect.objectContaining({
+        cargo_base: "camel-PROFESSOR",
+      }),
+    );
+  });
+
+  it("descarta campos indefinidos antes de preencher o template", () => {
+    formatDateSpy.mockReturnValue(undefined);
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: cessacaoBaseMock,
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    const dados = preencherTemplateSpy.mock.calls[0][1] as Record<string, string>;
+    expect(dados).not.toHaveProperty("data_inicio");
+  });
+
+  it("usa tipo_cessacao 'de ofício' quando a_pedido for false", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: {
+        ...cessacaoBaseMock,
+        a_pedido: false,
+      },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(preencherTemplateSpy).toHaveBeenCalledWith(
+      "TEMPLATE-CESSACAO",
+      expect.objectContaining({
+        tipo_cessacao: "de ofício",
       }),
     );
   });
