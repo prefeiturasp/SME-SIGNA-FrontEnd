@@ -14,11 +14,20 @@ import PortariaCessacaoFields from "./PortariaCessacaoFields";
 vi.mock("@/components/ui/select", async () => {
   const React = await import("react");
 
-  const SelectContext = React.createContext<any>(null);
+  type SelectContextValue = {
+    value?: string;
+    onValueChange?: (value: string) => void;
+  } | null;
+
+  const SelectContext = React.createContext<SelectContextValue>(null);
 
 
   return {
-    Select: ({ value, onValueChange, children }: any) => {
+    Select: ({ value, onValueChange, children }: {
+      value?: string;
+      onValueChange?: (value: string) => void;
+      children: React.ReactNode;
+    }) => {
     const contextValue = React.useMemo(
         () => ({ value, onValueChange }),
         [value, onValueChange]
@@ -30,15 +39,15 @@ vi.mock("@/components/ui/select", async () => {
         </SelectContext.Provider>
     );
     },
-    SelectTrigger: ({ children }: any) => <button>{children}</button>,
-    SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
-    SelectContent: ({ children }: any) => <div>{children}</div>,
-    SelectItem: ({ value, children }: any) => {
+    SelectTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+    SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
+    SelectContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SelectItem: ({ value, children }: { value: string; children: React.ReactNode }) => {
       const ctx = React.useContext(SelectContext);
       return (
         <button
           data-testid={`select-item-${value}`}
-          onClick={() => ctx.onValueChange(value)}
+          onClick={() => ctx?.onValueChange?.(value)}
         >
           {children}
         </button>
@@ -48,7 +57,11 @@ vi.mock("@/components/ui/select", async () => {
 });
 
 vi.mock("antd", () => ({
-  Popconfirm: ({ open, onConfirm, onCancel }: any) =>
+  Popconfirm: ({ open, onConfirm, onCancel }: {
+    open: boolean;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  }) =>
     open ? (
       <div data-testid="popconfirm">
         <button data-testid="confirm" onClick={onConfirm}>
@@ -64,7 +77,7 @@ vi.mock("antd", () => ({
 vi.mock("@/components/ui/FieldsForm", () => ({
   InputField: () => <div>InputField</div>,
   DateField: () => <div>DateField</div>,
-  CheckboxField: ({ name, register }: any) => (
+  CheckboxField: ({ name, register }: { name: string; register: (name: string) => { onChange: (e: unknown) => void } }) => (
     <input
       data-testid={name}
       type="checkbox"

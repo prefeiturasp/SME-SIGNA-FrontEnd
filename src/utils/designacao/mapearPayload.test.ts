@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mapearPayloadDesignacao } from "./mapearPayload";
+import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 
 // ── Helpers ──────────────────────────────────────
 
@@ -7,10 +8,14 @@ const servidorIndicado = {
     nome_civil: "João Silva",
     nome_servidor: "SILVA, JOÃO",
     rf: "123456",
-    vinculo: "Efetivo",
+    vinculo: 1,
     cargo_base: "Professor",
+    cd_cargo_base: 10,
     lotacao: "EMEF Teste",
     cargo_sobreposto_funcao_atividade: "Diretor",
+    cd_cargo_sobreposto_funcao_atividade: 20,
+    cursos_titulos: "-",
+    laudo_medico: "-",
     local_de_exercicio: "Escola A",
     local_de_servico: "DRE Centro",
 };
@@ -19,16 +24,19 @@ const dadosTitular = {
     nome_civil: "Maria Souza",
     nome_servidor: "SOUZA, MARIA",
     rf: "654321",
-    vinculo: "Efetivo",
+    vinculo: 1,
     cargo_base: "Coordenador",
+    cd_cargo_base: 11,
     lotacao: "EMEF Outra",
     cargo_sobreposto_funcao_atividade: "Vice-Diretor",
-    cd_cargo_sobreposto_funcao_atividade: "77",
+    cd_cargo_sobreposto_funcao_atividade: 77,
+    cursos_titulos: "-",
+    laudo_medico: "-",
     local_de_exercicio: "Escola B",
     local_de_servico: "DRE Sul",
 };
 
-const formBase = {
+const formBase: FormDesignacaoEServidorIndicado = {
     dre_nome: "DRE Centro",
     ue_nome: "EMEF Teste",
     codigo_hierarquico: "001",
@@ -37,14 +45,14 @@ const formBase = {
     ano: "2024",
     numero_sei: "SEI-001",
     doc: "DOC-001",
-    a_partir_de: "2024-01-15T00:00:00",
-    designacao_data_final: "2024-12-31T00:00:00",
+    a_partir_de: new Date("2024-01-15T00:00:00"),
+    designacao_data_final: new Date("2024-12-31T00:00:00"),
     carater_especial: "sim",
     com_afastamento: "nao",
-    motivo_afastamento: null,
+    motivo_afastamento: "",
     com_pendencia: "nao",
-    motivo_pendencia: null,
-    tipo_cargo: "substituto",
+    motivo_pendencia: "",
+    tipo_cargo: "vago",
     cargo_vago_selecionado: null,
 };
 
@@ -62,7 +70,7 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.indicado_nome_civil).toBe("João Silva");
         expect(result?.indicado_nome_servidor).toBe("SILVA, JOÃO");
         expect(result?.indicado_rf).toBe("123456");
-        expect(result?.indicado_vinculo).toBe("Efetivo");
+        expect(result?.indicado_vinculo).toBe(1);
         expect(result?.indicado_cargo_base).toBe("Professor");
         expect(result?.indicado_lotacao).toBe("EMEF Teste");
         expect(result?.indicado_cargo_sobreposto).toBe("Diretor");
@@ -88,7 +96,7 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.titular_nome_civil).toBe("Maria Souza");
         expect(result?.titular_nome_servidor).toBe("SOUZA, MARIA");
         expect(result?.titular_rf).toBe("654321");
-        expect(result?.titular_vinculo).toBe("Efetivo");
+        expect(result?.titular_vinculo).toBe(1);
         expect(result?.titular_cargo_base).toBe("Coordenador");
         expect(result?.titular_lotacao).toBe("EMEF Outra");
         expect(result?.titular_cargo_sobreposto).toBe("Vice-Diretor");
@@ -104,22 +112,27 @@ describe("mapearPayloadDesignacao", () => {
         expect(result).not.toHaveProperty("titular_lotacao");
     });
 
-    it("formata data_inicio e data_fim a partir de string ISO", () => {
+    it("formata data_inicio e data_fim a partir de objeto Date", () => {
         const result = mapearPayloadDesignacao({ ...formBase });
 
         expect(result?.data_inicio).toBe("2024-01-15");
         expect(result?.data_fim).toBe("2024-12-31");
     });
 
-    it("formata data a partir de objeto Date", () => {
+    // As datas do formulário são persistidas em localStorage (DesignacaoContext) via
+    // JSON.stringify/parse, o que desfaz `Date` em string — por isso `formatarData`
+    // aceita `unknown` e os casos abaixo simulam esse valor "corrompido" pela
+    // serialização, fora do que o schema declara.
+
+    it("formata data a partir de string ISO (valor reidratado do localStorage)", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
-            a_partir_de: new Date("2024-03-10T00:00:00Z"),
-            designacao_data_final: new Date("2024-11-20T00:00:00Z"),
-        });
+            a_partir_de: "2024-01-15T00:00:00",
+            designacao_data_final: "2024-12-31T00:00:00",
+        } as unknown as FormDesignacaoEServidorIndicado);
 
-        expect(result?.data_inicio).toBe("2024-03-10");
-        expect(result?.data_fim).toBe("2024-11-20");
+        expect(result?.data_inicio).toBe("2024-01-15");
+        expect(result?.data_fim).toBe("2024-12-31");
     });
 
     it("formata data a partir de objeto com método .format() (dayjs/moment)", () => {
@@ -129,7 +142,7 @@ describe("mapearPayloadDesignacao", () => {
             ...formBase,
             a_partir_de: mockDayjs,
             designacao_data_final: mockDayjs,
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.data_inicio).toBe("2024-06-01");
         expect(result?.data_fim).toBe("2024-06-01");
@@ -140,7 +153,7 @@ describe("mapearPayloadDesignacao", () => {
             ...formBase,
             a_partir_de: null,
             designacao_data_final: undefined,
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.data_inicio).toBeNull();
         expect(result?.data_fim).toBeNull();
@@ -151,7 +164,7 @@ describe("mapearPayloadDesignacao", () => {
             ...formBase,
             a_partir_de: 12345,
             designacao_data_final: { value: "2024-01-01" },
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.data_inicio).toBeNull();
         expect(result?.data_fim).toBeNull();
@@ -193,22 +206,31 @@ describe("mapearPayloadDesignacao", () => {
     });
 
     it("retorna null para motivo_afastamento e pendencias quando ausentes", () => {
-        const result = mapearPayloadDesignacao({ ...formBase });
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            motivo_afastamento: undefined,
+            motivo_pendencia: undefined,
+        });
 
         expect(result?.motivo_afastamento).toBeNull();
         expect(result?.pendencias).toBeNull();
     });
 
     it("converte tipo_vaga para uppercase", () => {
-        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "substituto" });
+        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "vago" });
 
-        expect(result?.tipo_vaga).toBe("SUBSTITUTO");
+        expect(result?.tipo_vaga).toBe("VAGO");
     });
 
     // ── getCargoVaga ──────────────────────────────
 
     it("retorna cargo_vaga undefined quando tipo_cargo não é 'vago' nem 'disponivel'", () => {
-        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "substituto" });
+        // Valor fora do enum atual: cenário de dado legado/corrompido vindo do
+        // localStorage, que a função trata defensivamente.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            tipo_cargo: "substituto",
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.cargo_vaga).toBeUndefined();
     });
@@ -217,18 +239,20 @@ describe("mapearPayloadDesignacao", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "vago",
-            cargo_vago_selecionado: { id: 99 },
+            cargo_vago_selecionado: { id: 99, label: "Cargo 99" },
         });
 
         expect(result?.cargo_vaga).toBe(99);
     });
 
     it("usa Number(cargo_vago_selecionado) quando tipo_cargo é 'vago' e é string", () => {
+        // Formato legado do campo (antes de virar { id, label }), mantido como
+        // fallback defensivo em getCargoVaga.
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "vago",
             cargo_vago_selecionado: "99",
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.cargo_vaga).toBe(99);
     });
@@ -257,7 +281,10 @@ describe("mapearPayloadDesignacao", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "disponivel",
-            dadosTitular: { ...dadosTitular, cd_cargo_sobreposto_funcao_atividade: undefined },
+            dadosTitular: {
+                ...dadosTitular,
+                cd_cargo_sobreposto_funcao_atividade: undefined,
+            } as unknown as typeof dadosTitular,
         });
 
         expect(result?.cargo_vaga).toBeUndefined();

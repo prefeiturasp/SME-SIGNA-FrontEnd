@@ -1,0 +1,178 @@
+'use client'
+
+import { MoreOutlined } from '@ant-design/icons';
+import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
+import { Badge, Dropdown, Pagination, Table } from 'antd';
+import type { TableProps } from 'antd';
+import Editar from '@/assets/icons/Editar';
+import { useRouter } from 'next/navigation';
+import { CargosBaseResponse, StatusCargosBase } from '@/types/gestao';
+import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
+
+
+
+
+
+
+const NameColorStatusCargosBase = {
+  [StatusCargosBase.ATIVO]: {
+    color: '#008809',
+    name: 'Ativo',
+  },
+  [StatusCargosBase.INATIVO]: {
+    color: '#9CA3B9',
+    name: 'Inativo'
+  },
+  [StatusCargosBase.EXTINTO]: {
+    color: '#B22B2A',
+    name: 'Extinto',
+  },  
+}; 
+
+const BadgeStatusCargosBase = (status: StatusCargosBase, key: string) => {
+  
+  const config = NameColorStatusCargosBase[status];
+  return (
+    <div className='flex items-center gap-2'>
+      <Badge
+        className='rounded-full text-center'
+        key={key}
+        color={config?.color ?? '#9CA3B9'}
+ 
+      />
+      {config?.name}
+      </div>
+  )
+};
+
+
+interface ListagemDeCargosProps {
+  data: CargosBaseResponse[];
+  isLoading?: boolean;
+  total: number;
+  page: number;
+  onPageChange?: (page: number) => void;
+  titulo?: string;
+  subtitulo?: string;
+}
+
+const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
+  total,
+  page,
+  data,
+  isLoading = false,
+  onPageChange,
+}) => {
+
+  const router = useRouter();
+
+  const columnsBase: TableProps<CargosBaseResponse>['columns'] = [
+    { title: 'Grupamento', dataIndex: 'grupamento', key: 'grupamento', },
+    { title: 'Descrição resumida', dataIndex: 'descricao_resumida', key: 'descricao_resumida', },
+    { title: 'Descrição completa', dataIndex: 'descricao_completa', key: 'descricao_completa', },
+    { title: 'Situação funcional', dataIndex: 'situacao_funcional', key: 'situacao_funcional', },
+    {
+      title: 'Usado em funções', dataIndex: 'utilizado_para_funcoes', key: 'utilizado_para_funcoes',
+      render: (_, record) => {
+        return (<>{record.utilizado_para_funcoes ? 'Sim' : 'Não'}</>);
+      },
+    },
+    {
+      title: 'Usado em designações', dataIndex: 'utilizado_para_designacoes', key: 'utilizado_para_designacoes',
+      render: (_, record) => {
+        return (<>{record.utilizado_para_designacoes ? 'Sim' : 'Não'}</>);
+      },
+    },
+    {
+      title: 'Usado em STE', dataIndex: 'utilizado_para_ste', key: 'utilizado_para_ste',
+      render: (_, record) => {
+        return (<>{record.utilizado_para_ste ? 'Sim' : 'Não'}</>);
+      },
+    },
+    {
+      title: 'Usado em permutas', dataIndex: 'utilizado_para_permutas', key: 'utilizado_para_permutas',
+      render: (_, record) => {
+        return (<>{record.utilizado_para_permutas ? 'Sim' : 'Não'}</>);
+      },
+    },
+    {
+      title: 'Cargo base fictício', dataIndex: 'cargo_base_ficticio', key: 'cargo_base_ficticio',
+      render: (_, record) => {
+        return (<>{record.cargo_base_ficticio ? 'Sim' : 'Não'}</>);
+      },
+    },
+    {
+      title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: CargosBaseResponse) => {
+        return (
+          BadgeStatusCargosBase(status, String(record.id) + '_status')
+        );
+      },
+    },
+    {
+      title: '',
+      key: 'action',
+      width: 50,
+      render: (record: CargosBaseResponse) => (
+        <Dropdown
+          menu={{
+            items: [{
+              key: '4',
+              label: 'Editar',
+              icon: <Editar width={20} height={20} color="#9CA3B9" />,
+              onClick: () => {
+                router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
+              },
+            }],
+          }}
+          trigger={['click']}
+        >
+          <div >
+            <MoreOutlined color='#000000' />
+          </div>
+        </Dropdown>
+
+      ),
+    },
+  ];
+
+
+
+
+
+  return (
+    <div className="flex flex-col gap-1 bg-white  ">
+
+    <SimpleTableHeader
+      title="Lista de cargos base"
+      subtitle="Aqui você encontra todos os cargos base cadastrados no sistema."
+    />
+
+
+      <div className="w-full pb-2">
+        <Table<CargosBaseResponse>
+          className="tabela-principal w-full"
+          scroll={{ x: '100%' }}
+          loading={isLoading}
+          columns={columnsBase}
+          dataSource={data}
+          rowKey={(record) => record.id.toString()}
+          pagination={false}
+          rowClassName={(record: CargosBaseResponse) => record.status === StatusCargosBase.INATIVO ? "disabled-row" : ""}
+        />
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
+          <MostrarRegistros page={page} total={total} />
+          <Pagination
+            current={page}
+            pageSize={10}
+            total={total}
+            showSizeChanger={false}
+            onChange={onPageChange}
+            itemRender={itemRender}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ListagemDeCargos;

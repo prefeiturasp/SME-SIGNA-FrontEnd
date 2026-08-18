@@ -1,12 +1,22 @@
-function formatarData(valor: any): string | null {
+import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
+
+// `a_partir_de`/`designacao_data_final` são `Date` no schema, mas o formulário é
+// persistido em localStorage via JSON.stringify/parse (DesignacaoContext), o que
+// desfaz o tipo Date em string. Por isso essa função aceita `unknown` de propósito.
+function formatarData(valor: unknown): string | null {
     if (!valor) return null;
-    if (typeof valor.format === "function") return valor.format("YYYY-MM-DD");
+    if (
+        typeof valor === "object" &&
+        "format" in valor &&
+        typeof valor.format === "function"
+    )
+        return valor.format("YYYY-MM-DD");
     if (valor instanceof Date) return valor.toISOString().split("T")[0];
     if (typeof valor === "string") return valor.split("T")[0];
     return null;
 }
 
-function getCargoVaga(form: any): number | undefined {
+function getCargoVaga(form: FormDesignacaoEServidorIndicado): number | undefined {
     const tipo = form.tipo_cargo?.toLowerCase();
 
     if (tipo === "disponivel") {
@@ -28,10 +38,13 @@ function getCargoVaga(form: any): number | undefined {
     return undefined;
 }
 
-export function mapearPayloadDesignacao(form: any) {
+export function mapearPayloadDesignacao(
+    form: FormDesignacaoEServidorIndicado | null | undefined
+) {
     if (!form) return null;
 
-    const { servidorIndicado, dadosTitular } = form;
+    const servidorIndicado = form.servidorIndicado!;
+    const { dadosTitular } = form;
     const titular = dadosTitular ?? null;
 
     const cargoVaga = getCargoVaga(form);

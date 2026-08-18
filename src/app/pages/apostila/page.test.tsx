@@ -1,4 +1,5 @@
 import React from "react";
+import type { ReactNode } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import ApostilaPage from "./page";
@@ -8,9 +9,9 @@ let mockIsLoading = false;
 
 const pushMock = vi.fn();
 const mutateAsyncMock = vi.fn();
-const { messageSuccessMock, messageErrorMock } = vi.hoisted(() => ({
-  messageSuccessMock: vi.fn(),
-  messageErrorMock: vi.fn(),
+const { notificationSuccessMock, notificationErrorMock } = vi.hoisted(() => ({
+  notificationSuccessMock: vi.fn(),
+  notificationErrorMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -24,11 +25,34 @@ vi.mock("@/hooks/useSalvarApostila", () => ({
   }),
 }));
 
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
+}));
+
 vi.mock("@hookform/resolvers/zod", () => ({
   zodResolver: () => () => ({}),
 }));
 
-const mockDesignacao = {
+type MockDesignacao = {
+  numero_portaria?: string;
+  ano_vigente?: string;
+  sei_numero?: string;
+  doc?: string;
+  indicado_nome_servidor?: string;
+  indicado_rf?: string;
+  indicado_vinculo?: string;
+  indicado_cargo_base?: string;
+  indicado_cargo_sobreposto?: string;
+  indicado_local_exercicio?: string;
+  dre_nome?: string;
+  codigo_hierarquico?: string;
+  cessacao?: unknown;
+} | null;
+
+const mockDesignacao: MockDesignacao = {
   numero_portaria: "123",
   ano_vigente: "2024",
   sei_numero: "999",
@@ -41,10 +65,10 @@ const mockDesignacao = {
   indicado_local_exercicio: "ESCOLA",
   dre_nome: "DRE",
   codigo_hierarquico: "EH",
-  cessacao: null as any,
+  cessacao: null,
 };
 
-let mockDesignacaoAtual = mockDesignacao;
+let mockDesignacaoAtual: MockDesignacao = mockDesignacao;
 
 vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
   useFetchDesignacoesById: () => ({
@@ -75,16 +99,16 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
 }));
 
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: any) => <div>{children}</div>,
+  Accordion: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
-  CustomAccordionItem: ({ children }: any) => <div>{children}</div>,
+  CustomAccordionItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao", () => ({
   __esModule: true,
-  default: ({ onSubmitEditarServidor }: any) => (
+  default: ({ onSubmitEditarServidor }: { onSubmitEditarServidor: () => void }) => (
     <button data-testid="blocos-editar-servidor" onClick={onSubmitEditarServidor}>
       ResumoServidor
     </button>
@@ -108,26 +132,26 @@ vi.mock("@/components/dashboard/Designacao/ResumoPortariaCessacao", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => (
+  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
     <button {...props}>{children}</button>
   ),
 }));
 
 vi.mock("@/components/ui/form", () => ({
-  FormField: ({ render }: any) =>
+  FormField: ({ render }: { render: (args: { field: { value: string; onChange: (v: unknown) => void } }) => ReactNode }) =>
     render({
       field: {
         value: "designacao",
         onChange: vi.fn(),
       },
     }),
-  FormItem: ({ children }: any) => <div>{children}</div>,
-  FormLabel: ({ children }: any) => <label>{children}</label>,
-  FormControl: ({ children }: any) => <div>{children}</div>,
+  FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
+  FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/components/ui/radio-group", () => ({
-  RadioGroup: ({ children, onValueChange }: any) => (
+  RadioGroup: ({ children, onValueChange }: { children: ReactNode; onValueChange?: (value: string) => void }) => (
     <div>
       <button type="button" data-testid="change-ato-apostilado" onClick={() => onValueChange?.("cessacao")} />
       {children}
@@ -137,16 +161,12 @@ vi.mock("@/components/ui/radio-group", () => ({
 }));
 
 vi.mock("@/components/ui/label", () => ({
-  Label: ({ children }: any) => <span>{children}</span>,
+  Label: ({ children }: { children: ReactNode }) => <span>{children}</span>,
 }));
 
 vi.mock("antd", () => ({
-  Card: ({ children }: any) => <div>{children}</div>,
-  message: {
-    success: messageSuccessMock,
-    error: messageErrorMock,
-  },
-  Tooltip: ({ children }: any) => <div>{children}</div>,
+  Card: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  Tooltip: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("lucide-react", () => ({
@@ -154,12 +174,12 @@ vi.mock("lucide-react", () => ({
 }));
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof ReactHookForm>("react-hook-form");
 
   return {
     ...actual,
     useForm: () => ({
-      handleSubmit: (fn: any) => (e: any) => {
+      handleSubmit: (fn: (values: unknown) => unknown) => (e?: { preventDefault?: () => void }) => {
         e?.preventDefault?.();
         fn({
           apostila: {
@@ -183,7 +203,7 @@ vi.mock("react-hook-form", async () => {
       }),
       reset: vi.fn(),
     }),
-    FormProvider: ({ children }: any) => <div>{children}</div>,
+    FormProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   };
 });
 
@@ -193,8 +213,8 @@ describe("ApostilaPage", () => {
     mockIsLoading = false;
     mutateAsyncMock.mockReset();
     pushMock.mockReset();
-    messageSuccessMock.mockReset();
-    messageErrorMock.mockReset();
+    notificationSuccessMock.mockReset();
+    notificationErrorMock.mockReset();
     mockDesignacaoAtual = mockDesignacao;
   });
 
@@ -253,7 +273,7 @@ describe("ApostilaPage", () => {
     fireEvent.submit(document.querySelector("form")!);
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("falha detalhada");
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "falha detalhada" });
     });
   });
 
@@ -273,7 +293,7 @@ describe("ApostilaPage", () => {
     const triggerMock = vi.fn().mockResolvedValue(false);
 
     vi.spyOn(ReactHookForm, "useForm").mockReturnValue({
-      handleSubmit: (fn: any) => (e: any) => {
+      handleSubmit: (_fn: (values: unknown) => unknown) => (e?: { preventDefault?: () => void }) => {
         e?.preventDefault?.();
       },
       control: {},
@@ -281,7 +301,7 @@ describe("ApostilaPage", () => {
       trigger: triggerMock, // ✅ AQUI
       getValues: vi.fn(),
       reset: vi.fn(),
-    });
+    } as unknown as ReturnType<typeof ReactHookForm.useForm>);
 
     render(<ApostilaPage />);
 
@@ -299,7 +319,7 @@ describe("ApostilaPage", () => {
   });
 
   it("não quebra quando designacao é null", () => {
-    mockDesignacaoAtual = null as any;
+    mockDesignacaoAtual = null;
 
     render(<ApostilaPage />);
 
@@ -313,7 +333,7 @@ describe("ApostilaPage", () => {
         id: 7,
         apostilas: [{ status: "ativo" }],
       },
-    } as any;
+    };
 
     render(<ApostilaPage />);
     expect(screen.getByText("Cessação")).toBeInTheDocument();
@@ -331,7 +351,7 @@ describe("ApostilaPage", () => {
     };
 
     vi.spyOn(ReactHookForm, "useForm").mockReturnValue({
-      handleSubmit: (fn: any) => (e: any) => {
+      handleSubmit: (fn: (values: unknown) => unknown) => (e?: { preventDefault?: () => void }) => {
         e?.preventDefault?.();
         fn({
           apostila: {
@@ -354,7 +374,7 @@ describe("ApostilaPage", () => {
         },
       }),
       reset: vi.fn(),
-    });
+    } as unknown as ReturnType<typeof ReactHookForm.useForm>);
 
     render(<ApostilaPage />);
 
@@ -377,7 +397,7 @@ describe("ApostilaPage", () => {
           dre_nome: undefined,
           codigo_hierarquico: undefined,
           sei_numero: undefined,
-        } as any;
+        };
 
         render(<ApostilaPage />);
 
@@ -392,13 +412,13 @@ describe("ApostilaPage", () => {
     const resetMock = vi.fn();
 
     vi.spyOn(ReactHookForm, "useForm").mockReturnValue({
-      handleSubmit: (fn: any) => (e: any) => e?.preventDefault?.(),
+      handleSubmit: (_fn: (values: unknown) => unknown) => (e?: { preventDefault?: () => void }) => e?.preventDefault?.(),
       control: {},
       formState: { errors: {} },
       trigger: vi.fn().mockResolvedValue(true),
       getValues: vi.fn(),
       reset: resetMock,
-    });
+    } as unknown as ReturnType<typeof ReactHookForm.useForm>);
 
     render(<ApostilaPage />);
 
@@ -412,7 +432,7 @@ describe("ApostilaPage", () => {
     };
 
     vi.spyOn(ReactHookForm, "useForm").mockReturnValue({
-      handleSubmit: (fn: any) => (e: any) => {
+      handleSubmit: (fn: (values: unknown) => unknown) => (e?: { preventDefault?: () => void }) => {
         e?.preventDefault?.();
         fn({
           apostila: {
@@ -432,7 +452,7 @@ describe("ApostilaPage", () => {
         },
       }),
       reset: vi.fn(),
-    });
+    } as unknown as ReturnType<typeof ReactHookForm.useForm>);
 
     render(<ApostilaPage />);
 

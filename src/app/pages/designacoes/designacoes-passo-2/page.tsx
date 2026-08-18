@@ -19,7 +19,7 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import SelecaoServidorIndicado from "@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado";
 
 // Context, Icons & Hooks
-import { FormDesignacaoEServidorIndicado, useDesignacaoContext } from "../DesignacaoContext";
+import { useDesignacaoContext } from "../DesignacaoContext";
 import Designacao from "@/assets/icons/Designacao";
 import Historico from "@/assets/icons/Historico";
 import useServidorDesignacao from "@/hooks/useServidorDesignacao";
@@ -118,8 +118,11 @@ export default function DesignacoesPasso2() {
           rf: d.indicado_rf,
           vinculo: d.indicado_vinculo,
           cargo_base: d.indicado_cargo_base,
+          cd_cargo_base: d.indicado_codigo_cargo_base,
           lotacao: d.indicado_lotacao,
           cargo_sobreposto_funcao_atividade: d.indicado_cargo_sobreposto,
+          cd_cargo_sobreposto_funcao_atividade: d.indicado_codigo_cargo_sobreposto,
+          cursos_titulos: "-",
           local_de_exercicio: d.indicado_local_exercicio,
           laudo_medico: "Indisponível",
           local_de_servico: d.indicado_local_servico,
@@ -133,17 +136,17 @@ export default function DesignacoesPasso2() {
       quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
       codigo_hierarquico: formDesignacaoData?.codigo_hierarquico ?? d.codigo_hierarquico,
       cargo_sobreposto: formDesignacaoData?.cargo_sobreposto ?? d.titular_cargo_sobreposto,
-      modulos: formDesignacaoData?.modulos ?? 1,
+      modulos: formDesignacaoData?.modulos ?? "1",
       portaria_designacao: d.numero_portaria,
       numero_sei: d.sei_numero,
       ano: d.ano_vigente,
       a_partir_de: d.data_inicio ? new Date(d.data_inicio.replace(/-/g, '/')) : new Date(),
       designacao_data_final: d.data_fim ? new Date(d.data_fim.replace(/-/g, '/')) : null,
-      com_afastamento: d.com_afastamento,
+      com_afastamento: d.com_afastamento ? "sim" : "nao",
       motivo_afastamento: d.motivo_afastamento,
-      com_pendencia: d.possui_pendencia,
+      com_pendencia: d.possui_pendencia ? "sim" : "nao",
       motivo_pendencia: d.pendencias,
-      tipo_cargo: d.tipo_vaga.toLowerCase(),
+      tipo_cargo: d.tipo_vaga.toLowerCase() as "vago" | "disponivel",
       rf_titular: d.titular_rf,
       cargo_vago_selecionado: { id: d.cargo_vaga, label: d.cargo_vaga_display },
       impedimento_substituicao: d.impedimento_substituicao,
@@ -151,7 +154,7 @@ export default function DesignacoesPasso2() {
       dadosTitular: null,
       informacoes_adicionais: d.informacoes_adicionais ?? "",
       detalhe_para_quadro_de_historico_por_ano: d.detalhe_para_quadro_de_historico_por_ano ?? true,
-    } as unknown as FormDesignacaoEServidorIndicado);
+    });
   };
 
   useEffect(() => {

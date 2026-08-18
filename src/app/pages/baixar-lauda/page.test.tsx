@@ -1,102 +1,43 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import AlterarDataDoPage from "./page";
+import BaixarLaudaPage from "./page";
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
+import type { ListagemPortariasResponse } from "@/types/designacao";
 
-const pushMock = vi.fn();
-const fetchPortariasDOMock = vi.fn();
-const mutateAsyncMock = vi.fn();
-const messageLoadingMock = vi.fn();
-const messageDestroyMock = vi.fn();
-const filterResetMock = vi.fn();
-const filterTriggerMock = vi.fn().mockResolvedValue(true);
+const {
+  usePortariasDOMock,
+  handleClearMock,
+  onSubmitFilterFormMock,
+  handleSubmitMock,
+} = vi.hoisted(() => ({
+  usePortariasDOMock: vi.fn(),
+  handleClearMock: vi.fn(),
+  onSubmitFilterFormMock: vi.fn(),
+  handleSubmitMock: vi.fn(),
+}));
 
-const selectedRowsMock = [
+const selectedRowsMock: ListagemPortariasResponse[] = [
   {
     id: 1,
-    portaria: "100",
+    numero_portaria: "100",
     doc: "DOC",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",
     cargo: "Diretor",
-    data_designacao: "",
-    data_cessacao: "",
-    numero_sei: "SEI-1",  
+    data_designacao: null,
+    data_cessacao: null,
+    sei_numero: "SEI-1",
   },
 ];
 
-let filterValues = {
-  numero_sei: "",
-  portaria_inicial: "",
-  portaria_final: "",
-  ano: "2026",
-  tipo: "",
-};
-
-let mainValues = {
-  portarias_selecionadas: PORTARIAS_SEM_DATA_DE_PUBLICACAO,
-  data_considerada_portaria: undefined as Date | undefined,
-  data_publicacao: new Date("2026-05-20T00:00:00.000Z"),
-};
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
+vi.mock("../../../hooks/usePortariasDO", () => ({
+  usePortariasDO: () => usePortariasDOMock(),
 }));
 
-vi.mock("@/actions/designacao", () => ({
-  fetchPortariasDO: (...args: unknown[]) => fetchPortariasDOMock(...args),
+vi.mock("react-hook-form", () => ({
+  FormProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
-
-vi.mock("@/hooks/useSalvarPortariasDO", () => ({
-  useSalvarPortariasDo: () => ({
-    mutateAsync: (...args: unknown[]) => mutateAsyncMock(...args),
-  }),
-}));
-
-vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: () => () => ({}),
-}));
-
-vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
-
-  return {
-    ...actual,
-    useForm: (options?: { defaultValues?: Record<string, unknown> }) => {
-      const isMainForm = Boolean(options?.defaultValues?.portarias_selecionadas);
-
-      if (isMainForm) {
-        return {
-          handleSubmit: (fn: (values: typeof mainValues) => void) => (e?: Event) => {
-            e?.preventDefault?.();
-            fn(mainValues);
-          },
-          control: {},
-          watch: (field: keyof typeof mainValues) => mainValues[field],
-          getValues: () => mainValues,
-          reset: vi.fn(),
-          trigger: vi.fn().mockResolvedValue(true),
-          formState: { errors: {} },
-        };
-      }
-
-      return {
-        handleSubmit: (fn: (values: typeof filterValues) => void) => (e?: Event) => {
-          e?.preventDefault?.();
-          fn(filterValues);
-        },
-        control: {},
-        watch: (field: keyof typeof filterValues) => filterValues[field],
-        getValues: () => filterValues,
-        reset: filterResetMock,
-        trigger: filterTriggerMock,
-        formState: { errors: {} },
-      };
-    },
-    FormProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  };
-});
 
 vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
   __esModule: true,
@@ -122,117 +63,120 @@ vi.mock("@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo", () => ({
   ),
 }));
 
-vi.mock("@/components/dashboard/Designacao/MainDOForm/MainDOForm", () => ({
-  __esModule: true,
-  PORTARIAS_SEM_DATA_DE_PUBLICACAO: 1,
-  default: () => <div data-testid="main-do-form">Main DO Form</div>,
-}));
-
 vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
   __esModule: true,
   default: ({
     onClickBaixarLauda,
+    data,
+    value,
+    isLoading,
+    isListagemDo,
+    data_considerada_portaria,
+    data_publicacao,
     isDisabled,
   }: {
     onClickBaixarLauda?: (rows: typeof selectedRowsMock, tipoArquivo: string) => void;
+    data: ListagemPortariasResponse[];
+    value: number;
+    isLoading: boolean;
+    isListagemDo: boolean;
+    data_considerada_portaria: Date;
+    data_publicacao: Date;
     isDisabled?: boolean;
   }) => (
     <div>
+      <span data-testid="listagem-data-size">{data.length}</span>
+      <span data-testid="listagem-value">{String(value)}</span>
+      <span data-testid="listagem-loading">{String(isLoading)}</span>
+      <span data-testid="listagem-is-listagem-do">{String(isListagemDo)}</span>
+      <span data-testid="listagem-data-considerada">
+        {data_considerada_portaria.toISOString().slice(0, 10)}
+      </span>
+      <span data-testid="listagem-data-publicacao">{data_publicacao.toISOString().slice(0, 10)}</span>
       <span data-testid="is-disabled-listagem">{String(isDisabled)}</span>
-      <button data-testid="submit-main-action" onClick={() => onClickBaixarLauda?.(selectedRowsMock, "PDF")}>
-        Alterar data
+      <button
+        data-testid="submit-main-action"
+        onClick={() => onClickBaixarLauda?.(selectedRowsMock, "PDF")}
+      >
+        Baixar
       </button>
     </div>
   ),
 }));
 
-vi.mock("antd", () => ({
-  message: {
-    loading: (...args: unknown[]) => messageLoadingMock(...args),
-    destroy: (...args: unknown[]) => messageDestroyMock(...args),
-  },
-  Modal: ({
-    open,
-    children,
-  }: {
-    open: boolean;
-    children: React.ReactNode;
-  }) => (open ? <div>{children}</div> : null),
-  Result: ({
-    title,
-    subTitle,
-    extra,
-  }: {
-    title: string;
-    subTitle?: string;
-    extra?: React.ReactNode;
-  }) => (
-    <div>
-      <p>{title}</p>
-      {subTitle ? <p>{subTitle}</p> : null}
-      {extra}
-    </div>
-  ),
-}));
-
-describe("AlterarDataDo page", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.clearAllTimers();
-  });
-
+describe("BaixarLauda page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    handleSubmitMock.mockImplementation(
+      (fn: (values: { ano: string; numero_sei: string }) => void) => (event?: Event) => {
+        event?.preventDefault?.();
+        fn({ ano: "2026", numero_sei: "" });
+      },
+    );
 
-    filterValues = {
-      numero_sei: "",
-      portaria_inicial: "",
-      portaria_final: "",
-      ano: "2026",
-      tipo: "",
-    };
-
-    mainValues = {
-      portarias_selecionadas: PORTARIAS_SEM_DATA_DE_PUBLICACAO,
-      data_considerada_portaria: undefined,
-      data_publicacao: new Date("2026-05-20T00:00:00.000Z"),
-    };
-
-    fetchPortariasDOMock.mockResolvedValue({
-      success: true,
-      data: selectedRowsMock,
+    usePortariasDOMock.mockReturnValue({
+      handleClear: handleClearMock,
+      isPending: false,
+      tabelaKey: 7,
+      resultado: selectedRowsMock,
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      salvando: true,
     });
   });
 
-  it("busca portarias na carga inicial com filtros padrão", async () => {
-    render(<AlterarDataDoPage />);
-
-    await waitFor(() => {
-      expect(fetchPortariasDOMock).toHaveBeenCalledWith({
-        numero_sei: "",
-        portaria_inicial: "",
-        portaria_final: "",
-        ano: "2026",
-        tipo: "",
-      });
-    });
+  it("renderiza página e repassa props esperadas para a listagem", () => {
+    render(<BaixarLaudaPage />);
 
     expect(screen.getByRole("heading", { name: "Baixar lauda" })).toBeInTheDocument();
+    expect(screen.getByTestId("listagem-data-size")).toHaveTextContent("1");
+    expect(screen.getByTestId("listagem-value")).toHaveTextContent(
+      String(PORTARIAS_SEM_DATA_DE_PUBLICACAO),
+    );
+    expect(screen.getByTestId("listagem-loading")).toHaveTextContent("false");
+    expect(screen.getByTestId("listagem-is-listagem-do")).toHaveTextContent("false");
+    expect(screen.getByTestId("is-disabled-listagem")).toHaveTextContent("true");
   });
 
-  it("limpa filtros e busca novamente ao executar onClear", async () => {
-    filterValues.numero_sei = "1111.1111/1111111-1";
-    render(<AlterarDataDoPage />);
-
+  it("executa handleClear ao clicar em limpar filtros", () => {
+    render(<BaixarLaudaPage />);
     fireEvent.click(screen.getByTestId("clear-filters"));
-
-    expect(filterResetMock).toHaveBeenCalled();
-    await waitFor(() => {
-      expect(fetchPortariasDOMock).toHaveBeenCalledTimes(2);
-    });
+    expect(handleClearMock).toHaveBeenCalledTimes(1);
   });
 
-   
+  it("submete filtros via handleSubmit do react-hook-form", () => {
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("submit-filters"));
+    expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitFilterFormMock);
+    expect(onSubmitFilterFormMock).toHaveBeenCalledWith({ ano: "2026", numero_sei: "" });
+  });
 
-  
+  it("aciona callback de baixar lauda com as linhas selecionadas", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("submit-main-action"));
+    expect(consoleLogSpy).toHaveBeenCalledWith("selectedRows", selectedRowsMock, "PDF");
+  });
+
+  it("envia array vazio para listagem quando resultado for nulo", () => {
+    usePortariasDOMock.mockReturnValueOnce({
+      handleClear: handleClearMock,
+      isPending: true,
+      tabelaKey: 1,
+      resultado: null,
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      salvando: false,
+    });
+
+    render(<BaixarLaudaPage />);
+
+    expect(screen.getByTestId("listagem-data-size")).toHaveTextContent("0");
+    expect(screen.getByTestId("listagem-loading")).toHaveTextContent("true");
+    expect(screen.getByTestId("is-disabled-listagem")).toHaveTextContent("false");
+  });
 });

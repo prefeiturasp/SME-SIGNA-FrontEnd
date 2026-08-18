@@ -1,6 +1,9 @@
 import { Servidor } from "@/types/designacao-unidade";
+import { DesignacaoResponse } from "@/types/designacao";
 
-export function getDadosIndicado(designacao: any): Servidor | null {
+export function getDadosIndicado(
+  designacao: DesignacaoResponse | undefined
+): Servidor | null {
   if (!designacao) return null;
 
 return {
@@ -17,7 +20,7 @@ return {
   cd_cargo_base: designacao.indicado_codigo_cargo_base ?? 0,
   cd_cargo_sobreposto_funcao_atividade:
     designacao.indicado_codigo_cargo_sobreposto ?? 0,
-  cursos_titulos: designacao.cursos_titulos ?? "-",
-  laudo_medico: designacao.laudo_medico ?? "-",
+  cursos_titulos: "-",
+  laudo_medico: "-",
 };
 }
