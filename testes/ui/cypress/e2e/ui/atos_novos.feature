@@ -121,7 +121,6 @@ Funcionalidade: Criação de atos administrativos
     E clica em "Buscar"
     Então o sistema exibe a Tela "Cessação"
 
-    # ETAPA 2: Aba "Portaria de designação"
     E valida e clica na aba "Portaria de designação"
     E valida a existencia dos Titulos
       """
@@ -137,7 +136,6 @@ Funcionalidade: Criação de atos administrativos
       Pendência:
       """
 
-    # ETAPA 3: Aba "Servidor indicado"
     E valida e clica na aba "Servidor indicado"
     E valida a existencia dos Titulos
       """
@@ -151,7 +149,6 @@ Funcionalidade: Criação de atos administrativos
       Laudo médico
       """
       
-    # ETAPA 4: Aba "Servidor titular"
     E valida e clica na aba "Servidor titular"
     E valida a existencia dos Titulos
       """
@@ -167,7 +164,6 @@ Funcionalidade: Criação de atos administrativos
       """
     E valida a existencia do Botão "Editar"
 
-    # ETAPA 5: Aba "Portaria de cessação"
     E valida e clica na aba "Portaria de cessação"
     E valida a existencia do Texto "Portaria de cessação*"
     E preenche o campo "Portaria de cessação*" com numero aleatorio
@@ -180,12 +176,10 @@ Funcionalidade: Criação de atos administrativos
     E valida a existencia do Texto "Remoção?*"
     E valida a existencia do Texto "Aposentadoria?*"
 
-    # ETAPA 6: Validação de Trechos para o SEI
     E valida a existencia do botão de navegação "Trechos para o SEI"
     Quando clica no botão "Trechos para o SEI"
     E valida a existencia do Texto "PORTARIA"
 
-    # ETAPA 7: Finalização
     E valida a existencia do botão de navegação "Salvar"
     # E clica em "Salvar"
 
@@ -233,7 +227,6 @@ Funcionalidade: Criação de atos administrativos
       Laudo médico
       """
 
-    # ETAPA 3: Aba "Portaria de designação"
     E valida a existencia e clica na aba "Portaria de designação"
     E valida a existencia dos Titulos com skip se vazio
       """
@@ -243,13 +236,11 @@ Funcionalidade: Criação de atos administrativos
       D.O
       """
 
-    # ETAPA 4: Aba "Portarias de Cessação" - Seleção do tipo
     E valida a existencia e clica na aba "Portarias de Cessação"
     E valida a existencia do Texto "Selecione o tipo de insubsistência:"
     E valida a existencia das opções "Designação" e "Cessação"
     E seleciona a opção "Designação"
 
-    # ETAPA 5: Formulário de Insubsistência (aparece após selecionar tipo)
     E valida a existencia do Texto "Portaria de insubsistência"
     E preenche o campo "Portaria de insubsistência" com numero aleatorio
     E valida a existencia do Texto "Ano Vigente*"
@@ -257,14 +248,12 @@ Funcionalidade: Criação de atos administrativos
     E preenche o campo "Nº SEI" com numero aleatorio
     E valida a existencia do Texto "D.O"
 
-    # ETAPA 6: Observações e Trechos para o SEI
     E valida a existencia do Texto "Observações"
     E preenche o campo "Observações" com texto aleatorio
     E valida a existencia do botão de navegação "Trechos para o SEI"
     Quando clica no botão "Trechos para o SEI"
     E valida a existencia do Texto "PORTARIA"
 
-    # ETAPA 7: Finalização
     E valida a existencia do botão de navegação "Salvar"
     # E clica em "Salvar" — não executado: poucas portarias disponíveis em QA
     # para reuso em testes; salvar consumiria uma a cada execução.
@@ -315,7 +304,6 @@ Funcionalidade: Criação de atos administrativos
       Laudo médico
       """
 
-    # ── ETAPA 3: Seção "Portaria de designação" — dados somente leitura ─────
     E valida a existencia e clica na aba "Portaria de designação"
     E valida a existencia dos Titulos com skip se vazio
       """
@@ -325,7 +313,6 @@ Funcionalidade: Criação de atos administrativos
       D.O
       """
 
-    # ── ETAPA 4: Accordion "Portarias de Cessação" — abre e define flag ──────
     # "valida a existencia da aba" (sem "e clica") abre o accordion e define
     # apostilaCessacaoTemDados. Steps com capital "V" abaixo verificam esse flag:
     # true → executa | false → pula com log (seção sem dados de cessação).
@@ -333,7 +320,6 @@ Funcionalidade: Criação de atos administrativos
     E Valida a existencia do texto "Selecione o tipo de Apostila:"
     E Valida e seleciona "Designação"
 
-    # ── ETAPA 5: Sub-seção "Portaria de Apostila" — formulário ───────────────
     E Valida a existencia e clica na aba "Portaria de Apostila"
     E Valida a existencia do texto "Nº SEI"
     E Valida a existencia do texto "D.O"
@@ -341,12 +327,10 @@ Funcionalidade: Criação de atos administrativos
     E Valida a existencia do texto "Observações"
     E preenche o campo apostilamento "Observações" com "teste de automação 11062026"
 
-    # ── ETAPA 6: Trechos para o SEI e preview da portaria ────────────────────
     E Valida o botão "Trechos para o SEI"
     Quando Clica no botão apostilamento "Trechos para o SEI"
     Então Valida a existencia do texto "PORTARIA"
 
-    # ── ETAPA 7: Finalização ─────────────────────────────────────────────────
     E Valida o botão "Salvar"
     # Quando Clica em salvar apostilamento — não executado: poucas portarias
     # disponíveis em QA para reuso em testes; salvar consumiria uma a cada
@@ -392,7 +376,6 @@ Funcionalidade: Criação de atos administrativos
     # e "Dados da portaria de anulação". Não há necessidade (nem elemento) de
     # clique em aba para revelar o conteúdo.
 
-    # ETAPA 2: Seção "Dados do servidor indicado" — dados somente leitura
     E Valida a existencia do texto "Dados do servidor indicado"
     E valida a existencia dos Titulos com skip se vazio
       """
@@ -406,7 +389,6 @@ Funcionalidade: Criação de atos administrativos
       Laudo médico
       """
 
-    # ETAPA 3: Seção "Portaria de designação" — dados somente leitura
     E Valida a existencia do texto "Portaria de designação"
     E valida a existencia dos Titulos com skip se vazio
       """
@@ -416,7 +398,6 @@ Funcionalidade: Criação de atos administrativos
       D.O
       """
 
-    # ETAPA 4: Seção "Dados da portaria de anulação" — formulário
     E Valida a existencia do texto "Dados da portaria de anulação"
     E Valida a existencia do texto "Portaria da apostila da designacao"
     E preenche o campo apostilamento "Portaria da apostila da designacao" com "5485746"
@@ -428,13 +409,11 @@ Funcionalidade: Criação de atos administrativos
     E Valida a existencia do texto "Observações"
     E preenche o campo apostilamento "Observações" com "teste de automação 562"
 
-    # ETAPA 5: Geração do texto SEI e preview da portaria
     # Nota: nesta tela o botão chama-se "Gerar texto SEI" (não "Trechos para o SEI").
     E Valida o botão "Gerar texto SEI"
     Quando Clica no botão apostilamento "Gerar texto SEI"
     Então Valida a existencia do texto "PORTARIA"
 
-    # ETAPA 6: Finalização
     # Nota: nas capturas de tela desta cena o botão "Salvar" não aparece ainda
     # na página (ela termina logo após "Gerar texto SEI"). Se o botão só surgir
     # dinamicamente após gerar o texto, a validação abaixo deve passar; caso
