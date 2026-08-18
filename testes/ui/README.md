@@ -75,11 +75,10 @@ testes/ui/
 │   │       ├── alterar_senha.feature
 │   │       ├── alteracao_email.feature
 │   │       ├── designacao.feature
-│   │       ├── editar_designa_ao.feature
+│   │       ├── consulta_atos_adminstra.feature
 │   │       ├── cessacao.feature
 │   │       ├── apostilar.feature
-│   │       ├── insubsistente.feature
-│   │       └── visualiza_designação.feature
+│   │       └── insubsistente.feature
 │   ├── support/
 │   │   ├── e2e.js
 │   │   ├── commands.js

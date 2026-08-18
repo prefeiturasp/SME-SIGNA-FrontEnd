@@ -58,12 +58,12 @@ Then('Seleciona uma das Designação de forma aleatoria', () => {
 })
 
 Then('navega para a seção Action', () => {
-  cy.contains('th', 'Action', { timeout: 10000 })
-    .should('be.visible')
-    .then(() => {
-      cy.log('Coluna Action validada')
-    })
-
+  // A coluna de ações da tabela unificada de Atos Administrativos não tem
+  // cabeçalho de texto "Action" (é a última coluna, só com ícone/dropdown) —
+  // confirmado em execução real (colunas atuais: Tipo, Nº SEI, Observações,
+  // Portaria do ato, Servidor indicado, Registro Funcional (RF), Status).
+  // Por isso não validamos mais o texto do th, só localizamos o dropdown
+  // trigger na linha selecionada.
   cy.get('@designacaoIndex').then(index => {
     cy.log(`Buscando ação na linha: ${index}`)
     
@@ -88,9 +88,15 @@ Then('navega para a seção Action', () => {
 
 Then('clica e seleciona a opção {string}', (opcao) => {
   const MAX_TENTATIVAS = 4
+  // "Editar" passou a navegar para /visualizar-designacao/{id} — a mesma URL
+  // de "Detalhar" — confirmado em execução real (duas rodadas completas, 4
+  // designações distintas cada, sempre o mesmo destino). Antes da migração do
+  // menu era /designacoes-passo-2, uma rota própria; hoje URL não distingue
+  // mais editar de visualizar, então a validação de conteúdo em "o sistema
+  // exibe a Tela" (common_steps.js) é quem garante que é de fato o modo edição.
   const paginaEsperada = opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
     : opcao.toLowerCase().includes('apostil') ? 'apostila'
-    : opcao.toLowerCase().includes('editar') ? 'designacoes-passo-2'
+    : opcao.toLowerCase().includes('editar') ? 'visualizar-designacao'
     : 'cessacao'
   const chaveEnv = opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
     : opcao.toLowerCase().includes('apostil') ? 'apostilarTentadas'
@@ -102,7 +108,7 @@ Then('clica e seleciona a opção {string}', (opcao) => {
   // Navega para a próxima designação disponível e chama tentarOpcao novamente
   const irParaProxima = () => {
     cy.log('↻ Voltando para listagem...')
-    cy.visit('/pages/listagem-designacoes')
+    cy.visit('/pages/atos-administrativos')
     cy.wait(2000)
 
     cy.get('table tbody tr:not(.ant-table-measure-row)', { timeout: 15000 })
@@ -177,25 +183,43 @@ Then('clica e seleciona a opção {string}', (opcao) => {
         return
       }
 
-      cy.wait(3000)
-      cy.url().then(url => {
-        if (url.includes(paginaEsperada)) {
-          cy.log(`✓ Navegação para ${paginaEsperada} confirmada!`)
-          return
-        }
-
-        cy.log(`✗ Navegação falhou! Ainda em: ${url}`)
-        cy.get('@designacaoIndex').then(index => {
-          const tentadas = Cypress.env(chaveEnv) || []
-          if (!tentadas.includes(index)) tentadas.push(index)
-          Cypress.env(chaveEnv, tentadas)
-          if (tentadas.length >= MAX_TENTATIVAS) {
-            throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas de navegação para "${opcao}"`)
+      // Polling em vez de um wait(3000) fixo seguido de checagem única: sob
+      // ambiente de QA lento (mesmo padrão de instabilidade já visto com
+      // 500 esporádico nas DREs), a navegação real pode levar mais que 3s
+      // para trocar a URL — um wait fixo curto demais queima as 4 tentativas
+      // em falso negativo (linha descartada por lentidão, não por estar
+      // realmente indisponível), gerando "Esgotadas N tentativas" mesmo com
+      // o app funcionando. Confere a cada 1s, até 8s no total, antes de
+      // desistir da linha atual.
+      const MAX_CHECAGENS_URL = 8
+      const aguardarNavegacao = (checagem) => {
+        cy.wait(1000)
+        cy.url().then(url => {
+          if (url.includes(paginaEsperada)) {
+            cy.log(`✓ Navegação para ${paginaEsperada} confirmada! (checagem ${checagem}/${MAX_CHECAGENS_URL})`)
+            return
           }
-          cy.log(`Designação ${index} não navegou (${tentadas.length}/${MAX_TENTATIVAS})`)
+
+          if (checagem < MAX_CHECAGENS_URL) {
+            aguardarNavegacao(checagem + 1)
+            return
+          }
+
+          cy.log(`✗ Navegação falhou! Ainda em: ${url}`)
+          cy.get('@designacaoIndex').then(index => {
+            const tentadas = Cypress.env(chaveEnv) || []
+            if (!tentadas.includes(index)) tentadas.push(index)
+            Cypress.env(chaveEnv, tentadas)
+            if (tentadas.length >= MAX_TENTATIVAS) {
+              throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas de navegação para "${opcao}"`)
+            }
+            cy.log(`Designação ${index} não navegou (${tentadas.length}/${MAX_TENTATIVAS})`)
+          })
+          irParaProxima()
         })
-        irParaProxima()
-      })
+      }
+
+      aguardarNavegacao(1)
     })
   }
 
