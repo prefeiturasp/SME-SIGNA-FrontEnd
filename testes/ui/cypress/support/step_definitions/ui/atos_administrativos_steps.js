@@ -53,9 +53,18 @@ Given('que o usuário já está autenticado no sistema', () => {
     // todos os cenários seguintes. Fecha qualquer dialog/dropdown residual
     // com Esc antes de seguir.
     cy.get('body').then(($body) => {
-      if ($body.find('[role="dialog"]').length > 0) {
+      if ($body.find('[role="dialog"], [role="listbox"]').length > 0) {
         cy.get('body').type('{esc}')
         cy.wait(300)
+      }
+
+      // Se o cenário anterior falhou fora da tela de Atos Administrativos
+      // (ex.: preso em designacoes-passo-1), "Limpar filtros" nunca vai
+      // aparecer aqui — sem esse fallback, todos os cenários seguintes
+      // falhariam em cascata por causa de um único cenário quebrado.
+      if ($body.find('button:contains("Limpar filtros")').length === 0) {
+        cy.visit(`/pages/${atosAdministrativosUrls.pagina}`)
+        cy.wait(500)
       }
     })
     atosAdministrativosPack.botoes.limpar().click({ force: true })
@@ -418,4 +427,48 @@ Then('valida se a portaria possui apostila vinculada para anular', () => {
     cy.get('body').type('{esc}')
     cy.wait(300)
   })
+})
+
+// A portaria "5791346" (preenchida no passo anterior do cenário) é
+// reaproveitada entre execuções e pode já ter sido apostilada — resultado de
+// negócio válido ("Essa portaria já possui uma apostila vinculada."), não uma
+// falha do teste. Antes de desistir, tenta as portarias alternativas abaixo
+// no mesmo modal; só falha de fato se nenhuma delas tiver apostila disponível.
+const PORTARIAS_APOSTILA_FALLBACK = ['5791346', '7890123', '1019142']
+
+Then('valida se a portaria possui apostila disponível para criar', () => {
+  const tentar = (indice) => {
+    cy.wait(500)
+    cy.url().then((url) => {
+      if (url.includes('apostila')) {
+        cy.log(`✓ Portaria "${PORTARIAS_APOSTILA_FALLBACK[indice]}" elegível para apostila — segue para a tela de apostilamento`)
+        return
+      }
+
+      cy.get('[role="dialog"]', { timeout: 10000 })
+        .invoke('text')
+        .then((mensagem) => {
+          const proximaPortaria = PORTARIAS_APOSTILA_FALLBACK[indice + 1]
+
+          if (!proximaPortaria) {
+            throw new Error(`Nenhuma das portarias testadas (${PORTARIAS_APOSTILA_FALLBACK.join(', ')}) possui apostila disponível para criar — mensagem do modal: "${mensagem.trim()}"`)
+          }
+
+          cy.log(`⚠️ Portaria "${PORTARIAS_APOSTILA_FALLBACK[indice]}" sem apostila disponível — tentando "${proximaPortaria}"`)
+
+          atosAdministrativosPack.modal.campoPorLabel('Portaria')
+            .should('be.visible')
+            .clear()
+            .type(proximaPortaria, { delay: 100 })
+
+          cy.contains('button', 'Buscar', { timeout: 10000 })
+            .should('be.visible')
+            .click()
+
+          tentar(indice + 1)
+        })
+    })
+  }
+
+  tentar(0)
 })

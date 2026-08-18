@@ -12,9 +12,23 @@ pnpm-lock.yaml
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
-cypress/reports/
 cypress/logs/
 .cypress-cucumber-preprocessorrc
+
+# Relatórios brutos do mochawesome ficam locais, mas o dashboard.html
+# consolidado (scripts/gerar_dashboard_html.py) é versionado de propósito —
+# é assim que dá pra consultar o último resultado de teste direto pelo
+# repositório, sem precisar rodar a suíte. Atualização é manual: quem rodar
+# a suíte local deve gerar de novo e commitar o dashboard.html atualizado.
+cypress/reports/*
+!cypress/reports/mochawesome/
+cypress/reports/mochawesome/*
+!cypress/reports/mochawesome/dashboard.html
+
+# Retestes/evidências avulsas de correção de bug — feature + steps + tudo
+# que essa pasta gerar (vídeo/screenshot já cobertos acima). Uso local sob
+# demanda, não faz parte da suíte de regressão versionada.
+cypress/e2e/ui/correcoes/
 
 # Relatórios de teste
 allure-results/
@@ -41,6 +55,13 @@ lerna-debug.log*
 # Integrações externas (não configuradas)
 
 
+# Saída local da extensão Playwright MCP (logs de console e snapshots de
+# página gerados durante inspeção manual) — não faz parte da automação.
+.playwright-mcp/
+
+# Planilha de apoio local, não referenciada por nenhum teste/código.
+cypress/e2e/api/planilha_automacao.xlsx
+
 # Features em desenvolvimento / rascunhos (não subir ao repositório)
 cypress/e2e/ui/consulta_rf.feature
 cypress/e2e/ui/design_portaria.feature
@@ -57,20 +78,16 @@ cypress/e2e/ui/criacao
 
 # Suíte extra/carga/stress do SIGNA — pausada (tag @skip), ainda não subida
 # ao repositório. Remova estas linhas quando decidir versionar/rodar de fato.
-cypress/e2e/ui/signa_extra.feature
-cypress/e2e/ui/signa_carga.feature
-cypress/e2e/ui/signa_stress.feature
 cypress/support/step_definitions/ui/signa_extra_steps.js
 cypress/support/step_definitions/ui/signa_carga_steps.js
 cypress/support/step_definitions/ui/signa_stress_steps.js
 
-# Features retiradas do repositório a pedido, mantidas só localmente e
-# excluídas da execução (ver excludeSpecPattern em cypress.config.js).
-cypress/e2e/ui/cessacao.feature
-cypress/e2e/ui/designacao.feature
-cypress/e2e/ui/insubsistente.feature
-cypress/e2e/ui/apostilar.feature
-cypress/e2e/ui/altera_DO.feature
+# Features legadas/retiradas do repositório a pedido (cessação, designação,
+# insubsistente, apostilar, altera D.O., signa extra/carga/stress) —
+# centralizadas em ui/nao_executar/, mantidas só localmente e excluídas da
+# execução (ver excludeSpecPattern em cypress.config.js).
+cypress/e2e/ui/nao_executar/
+
 # Pasta plugins obsoleta (Cypress 10+ não usa)
 cypress/plugins/
 

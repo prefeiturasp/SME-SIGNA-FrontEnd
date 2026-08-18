@@ -183,25 +183,43 @@ Then('clica e seleciona a opção {string}', (opcao) => {
         return
       }
 
-      cy.wait(3000)
-      cy.url().then(url => {
-        if (url.includes(paginaEsperada)) {
-          cy.log(`✓ Navegação para ${paginaEsperada} confirmada!`)
-          return
-        }
-
-        cy.log(`✗ Navegação falhou! Ainda em: ${url}`)
-        cy.get('@designacaoIndex').then(index => {
-          const tentadas = Cypress.env(chaveEnv) || []
-          if (!tentadas.includes(index)) tentadas.push(index)
-          Cypress.env(chaveEnv, tentadas)
-          if (tentadas.length >= MAX_TENTATIVAS) {
-            throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas de navegação para "${opcao}"`)
+      // Polling em vez de um wait(3000) fixo seguido de checagem única: sob
+      // ambiente de QA lento (mesmo padrão de instabilidade já visto com
+      // 500 esporádico nas DREs), a navegação real pode levar mais que 3s
+      // para trocar a URL — um wait fixo curto demais queima as 4 tentativas
+      // em falso negativo (linha descartada por lentidão, não por estar
+      // realmente indisponível), gerando "Esgotadas N tentativas" mesmo com
+      // o app funcionando. Confere a cada 1s, até 8s no total, antes de
+      // desistir da linha atual.
+      const MAX_CHECAGENS_URL = 8
+      const aguardarNavegacao = (checagem) => {
+        cy.wait(1000)
+        cy.url().then(url => {
+          if (url.includes(paginaEsperada)) {
+            cy.log(`✓ Navegação para ${paginaEsperada} confirmada! (checagem ${checagem}/${MAX_CHECAGENS_URL})`)
+            return
           }
-          cy.log(`Designação ${index} não navegou (${tentadas.length}/${MAX_TENTATIVAS})`)
+
+          if (checagem < MAX_CHECAGENS_URL) {
+            aguardarNavegacao(checagem + 1)
+            return
+          }
+
+          cy.log(`✗ Navegação falhou! Ainda em: ${url}`)
+          cy.get('@designacaoIndex').then(index => {
+            const tentadas = Cypress.env(chaveEnv) || []
+            if (!tentadas.includes(index)) tentadas.push(index)
+            Cypress.env(chaveEnv, tentadas)
+            if (tentadas.length >= MAX_TENTATIVAS) {
+              throw new Error(`Esgotadas ${MAX_TENTATIVAS} tentativas de navegação para "${opcao}"`)
+            }
+            cy.log(`Designação ${index} não navegou (${tentadas.length}/${MAX_TENTATIVAS})`)
+          })
+          irParaProxima()
         })
-        irParaProxima()
-      })
+      }
+
+      aguardarNavegacao(1)
     })
   }
 

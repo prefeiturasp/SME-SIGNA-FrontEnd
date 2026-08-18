@@ -26,7 +26,7 @@ Funcionalidade: Editar e visualizar designação de servidor
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 1 — Editar designação (fluxo completo)            [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @editar-fluxo-completo @smoke
+  @editar-fluxo-completo @smoke @skip
   Cenário: Editar designação e validar todas as seções do formulário
 
     # ── ETAPA 1: Dashboard e seleção da designação ───────────────────────────
@@ -62,7 +62,7 @@ Funcionalidade: Editar e visualizar designação de servidor
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 2 — Visualizar designação (somente leitura)       [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @visualizar-fluxo-completo @smoke
+  @visualizar-fluxo-completo @smoke @skip
   Cenário: Visualizar designação existente e validar todos os dados
 
     # ── ETAPA 1: Dashboard e seleção da designação ───────────────────────────

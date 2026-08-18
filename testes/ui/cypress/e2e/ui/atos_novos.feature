@@ -12,9 +12,9 @@ Funcionalidade: Criação de atos administrativos
     E está na página "Atos Administrativos"
 
   # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 1 — Nova Designação (via menu "Novo ato")      [ATIVO]
+  # CENÁRIO 1 — Nova Designação (via menu "Novo ato")
   # ══════════════════════════════════════════════════════════════
-  @atos @nova_designacao @critico @smoke
+  @atos @nova_designacao @critico @smoke 
   Cenário: Iniciar nova designação através de Atos Administrativos
 
     Então valida a existencia do titulo "Atos administrativos"
@@ -98,7 +98,7 @@ Funcionalidade: Criação de atos administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 2 — Nova Cessação (via menu "Novo ato")        [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @atos @nova_cessacao @critico @smoke
+  @atos @nova_cessacao @critico @smoke  
   Cenário: Iniciar nova cessação através de Atos Administrativos
 
     Então valida a existencia do titulo "Atos administrativos"
@@ -198,7 +198,7 @@ Funcionalidade: Criação de atos administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 3 — Nova Insubsistência (via menu "Novo ato")   [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @atos @nova_insubsistencia @critico @smoke
+  @atos @nova_insubsistencia @critico @smoke 
   Cenário: Iniciar nova insubsistência através de Atos Administrativos
 
     Então valida a existencia do titulo "Atos administrativos"
@@ -278,7 +278,7 @@ Funcionalidade: Criação de atos administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 4 — Nova Apostila (via menu "Novo ato")        [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @skip @atos @nova_apostila @critico @smoke
+  @atos @nova_apostila @critico @smoke
   Cenário: Iniciar nova apostila através de Atos Administrativos
 
     Então valida a existencia do titulo "Atos administrativos"
@@ -299,6 +299,7 @@ Funcionalidade: Criação de atos administrativos
     Quando preenche o campo "Portaria" com "5791346"
     E seleciona o ano "2026" no campo de busca
     E clica em "Buscar"
+    E valida se a portaria possui apostila disponível para criar
     Então o sistema exibe a Tela "Apostila"
 
     E valida a existencia e clica na aba "Servidor indicado"
@@ -361,7 +362,7 @@ Funcionalidade: Criação de atos administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 5 — Anular Apostila (via menu "Novo ato")        [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @skip @atos @anular_apostila @critico @smoke
+  @atos @anular_apostila @critico @smoke
   Cenário: Iniciar anulação de apostila através de Atos Administrativos
 
     Então valida a existencia do titulo "Atos administrativos"

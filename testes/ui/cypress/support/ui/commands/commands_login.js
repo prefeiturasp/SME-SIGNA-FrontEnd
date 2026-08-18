@@ -45,11 +45,16 @@ Cypress.Commands.add('loginPadrao', () => {
 
 /**
  * Comando para fazer logout do sistema
+ *
+ * O botão "Sair" (SignOutButton) fica sempre visível na Navbar, sem menu
+ * de usuário para abrir antes — clica direto nele. Após o logout a app
+ * redireciona para "/" (raiz), não para "/login" (rota que não existe
+ * neste projeto — confirmado em src/proxy.ts e na estrutura de rotas em
+ * src/app), por isso a checagem valida que a URL saiu de "/pages/*".
  */
 Cypress.Commands.add('realizarLogout', () => {
-  cy.get(loginLocators.menuUsuario).click();
-  cy.get(loginLocators.opcaoSair).click();
-  cy.url().should('include', '/login');
+  cy.get(loginLocators.opcaoSair).should('be.visible').click();
+  cy.url({ timeout: 15000 }).should('not.include', '/pages');
 });
 
 /**
@@ -74,7 +79,9 @@ Cypress.Commands.add('tentarLoginInvalido', (usuario, senha) => {
   cy.get(loginLocators.campoSenha).clear().type(senha);
   cy.get(loginLocators.botaoEntrar).click();
 
-  cy.url().should('include', '/login');
+  // Login inválido não navega para dentro de "/pages/*" (mesma lógica de
+  // "/login" explicada em realizarLogout acima).
+  cy.url().should('not.include', '/pages');
 });
 
 /**
@@ -86,17 +93,27 @@ Cypress.Commands.add('alternarVisibilidadeSenha', () => {
 
 /**
  * Comando para verificar se está autenticado
+ *
+ * Toda tela autenticada vive sob "/pages/*" (ver src/proxy.ts) — checagem
+ * mais confiável do que "not.include('/login')", já que a app nem usa essa
+ * rota.
  */
 Cypress.Commands.add('verificarAutenticacao', () => {
-  cy.url().should('not.include', '/login');
+  cy.url({ timeout: 15000 }).should('include', '/pages');
   cy.get(loginLocators.menuPrincipal).should('be.visible');
 });
 
 /**
  * Comando para verificar se não está autenticado
+ *
+ * A tela de login real fica em "/" (raiz), não em "/login" — a rota
+ * "/login" não existe na aplicação (ver src/proxy.ts e src/app). Verifica
+ * a saída de "/pages/*" e a presença do campo de RF/CPF, que só existe na
+ * tela de login.
  */
 Cypress.Commands.add('verificarNaoAutenticado', () => {
-  cy.url().should('include', '/login');
+  cy.url({ timeout: 15000 }).should('not.include', '/pages');
+  cy.get(loginLocators.campoRfCpf, { timeout: 15000 }).should('be.visible');
 });
 
 /**
