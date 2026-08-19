@@ -104,6 +104,33 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.titular_local_servico).toBe("DRE Sul");
     });
 
+    it("converte campos null do titular (integração SME) para string vazia", () => {
+        // Regressão: a integração SME pode retornar null nesses campos, mas o
+        // backend usa CharField(blank=True, default="") sem allow_null=True,
+        // e rejeita null explícito com 400.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            dadosTitular: {
+                ...dadosTitular,
+                nome_civil: null,
+                nome_servidor: null,
+                cargo_base: null,
+                lotacao: null,
+                cargo_sobreposto_funcao_atividade: null,
+                local_de_exercicio: null,
+                local_de_servico: null,
+            } as unknown as typeof dadosTitular,
+        });
+
+        expect(result?.titular_nome_civil).toBe("");
+        expect(result?.titular_nome_servidor).toBe("");
+        expect(result?.titular_cargo_base).toBe("");
+        expect(result?.titular_lotacao).toBe("");
+        expect(result?.titular_cargo_sobreposto).toBe("");
+        expect(result?.titular_local_exercicio).toBe("");
+        expect(result?.titular_local_servico).toBe("");
+    });
+
     it("omite campos do titular quando dadosTitular é null/undefined", () => {
         const result = mapearPayloadDesignacao({ ...formBase, dadosTitular: null });
 
