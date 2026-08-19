@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CargosBaseCriarEditar } from "@/types/gestao";
 import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosBase";
 import { useRouter } from "next/navigation";
@@ -60,17 +59,22 @@ const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
   utilizado_para_permutas: false,
   cargo_base_ficticio: false,
   testar_laudo: false,
-  pesquisar_licencas_no_sigpec:false,
-  quantidade_maxima_de_dias_de_licenca:'15'
+  pesquisar_licencas_no_sigpec: false,
+  quantidade_maxima_de_dias_de_licenca: '15'
 };
 
-export function useCriarEditarCargosBase(id: number | null = null, defaultValues: CargosBaseCriarEditar = defaultValuesCreateEdit) {
+
+
+
+
+export function useCriarEditarCargosBase(id: number | null = null, defaultValues: createFormSchemaCargosBaseData = defaultValuesCreateEdit) {
 
   const router = useRouter();
   const notification = useAppNotification();
   const { data: CargosBaseOpcoes = [], isLoading: isLoadingCargosBase } = useBuscarCargosBase();
   const { data: cargoBase, isLoading: isLoadingEditarCargosBase } = useBuscarCargosBaseById(id ?? 0);
 
+  console.log("cargoBase", cargoBase);
   const criarCargosBase = useCriarCargosBase();
   const editarCargosBase = useEditarCargosBase();
 
@@ -84,7 +88,12 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   useEffect(() => {
     if (cargoBase) {
-      form.reset(cargoBase);
+      form.reset(
+        {
+          ...cargoBase,
+          quantidade_maxima_de_dias_de_licenca:
+            cargoBase.quantidade_maxima_de_dias_de_licenca?.toString() ?? "0"
+        });
     }
   }, [cargoBase]);
 

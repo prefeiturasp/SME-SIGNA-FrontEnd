@@ -5,9 +5,7 @@ import {
   useCriarEditarCargosBase,
   useEditarCargosBase,
 } from "./useCriarEditarCargosBase";
-import createFormSchemaCargosBase from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
-import type { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
-import type { CargosBaseCriarEditar } from "@/types/gestao";
+import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 
 const {
@@ -193,7 +191,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
   });
 
   it("permite sobrescrever valores padrão no useForm", () => {
-    const customDefaults: CargosBaseCriarEditar = {
+    const customDefaults: createFormSchemaCargosBaseData = {
       grupamento: "2",
       codigo_cargo: "9",
       descricao_resumida: "Resumo",
