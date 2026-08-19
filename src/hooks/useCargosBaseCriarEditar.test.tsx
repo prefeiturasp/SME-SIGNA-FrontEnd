@@ -11,6 +11,8 @@ const {
   pushMock,
   successNotificationMock,
   errorNotificationMock,
+  formWatchMock,
+  formTriggerMock,
 } = vi.hoisted(() => ({
   useFormMock: vi.fn(),
   formResetMock: vi.fn(),
@@ -18,6 +20,8 @@ const {
   pushMock: vi.fn(),
   successNotificationMock: vi.fn(),
   errorNotificationMock: vi.fn(),
+  formWatchMock: vi.fn(),
+  formTriggerMock: vi.fn(),
 }));
 const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
@@ -65,9 +69,22 @@ vi.mock("@/components/providers/NotificationProvider", () => ({
 describe("useCriarEditarCargosBase", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    formWatchMock.mockImplementation((name: string) => {
+      if (name === "quantidade_maxima_de_dias_de_licenca") {
+        return "15";
+      }
+
+      if (name === "pesquisar_licencas_no_sigpec") {
+        return false;
+      }
+
+      return undefined;
+    });
 
     useFormMock.mockReturnValue({
       reset: formResetMock,
+      watch: formWatchMock,
+      trigger: formTriggerMock,
       mockedForm: true,
     });
 
@@ -101,6 +118,9 @@ describe("useCriarEditarCargosBase", () => {
           utilizado_para_ste: false,
           utilizado_para_permutas: false,
           cargo_base_ficticio: false,
+          testar_laudo: false,
+          pesquisar_licencas_no_sigpec: false,
+          quantidade_maxima_de_dias_de_licenca: "15",
         },
         mode: "onChange",
       }),
@@ -108,6 +128,8 @@ describe("useCriarEditarCargosBase", () => {
 
     expect(result.current.form).toEqual({
       reset: formResetMock,
+      watch: formWatchMock,
+      trigger: formTriggerMock,
       mockedForm: true,
     });
     expect(result.current.CargosBaseOpcoes).toEqual([{ codigoCargo: 10, nomeCargo: "Cargo 10" }]);
@@ -156,6 +178,9 @@ describe("useCriarEditarCargosBase", () => {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
+      testar_laudo: true,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: 20,
     };
 
     const { useBuscarCargosBaseById } = await import("./useBuscarCargosBase");
@@ -166,7 +191,10 @@ describe("useCriarEditarCargosBase", () => {
 
     renderHook(() => useCriarEditarCargosBase(12));
 
-    expect(formResetMock).toHaveBeenCalledWith(cargoBase);
+    expect(formResetMock).toHaveBeenCalledWith({
+      ...cargoBase,
+      quantidade_maxima_de_dias_de_licenca: "20",
+    });
   });
 
   it("notifica sucesso e navega após criar cargo base", async () => {
@@ -281,6 +309,9 @@ describe("useCriarEditarCargosBase", () => {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: "10",
     });
     expect(successNotificationMock).toHaveBeenCalledWith({
       title: "Tudo certo por aqui!",

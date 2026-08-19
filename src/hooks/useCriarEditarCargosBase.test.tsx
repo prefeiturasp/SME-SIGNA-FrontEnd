@@ -18,6 +18,8 @@ const {
   useBuscarCargosBaseByIdMock,
   useMutationMock,
   formResetMock,
+  formWatchMock,
+  formTriggerMock,
 } = vi.hoisted(() => ({
   useFormMock: vi.fn(),
   zodResolverMock: vi.fn(() => "resolver-mock"),
@@ -30,9 +32,10 @@ const {
     mutateAsync: vi.fn((args: unknown) => options.mutationFn(args)),
   })),
   formResetMock: vi.fn(),
+  formWatchMock: vi.fn(),
+  formTriggerMock: vi.fn(),
 }));
 const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -89,9 +92,22 @@ const payloadBase: createFormSchemaCargosBaseData = {
 describe("hooks/useCriarEditarCargosBase", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    formWatchMock.mockImplementation((name: string) => {
+      if (name === "quantidade_maxima_de_dias_de_licenca") {
+        return "15";
+      }
+
+      if (name === "pesquisar_licencas_no_sigpec") {
+        return false;
+      }
+
+      return undefined;
+    });
     useFormMock.mockReturnValue({
       mockedForm: true,
       reset: formResetMock,
+      watch: formWatchMock,
+      trigger: formTriggerMock,
       handleSubmit: vi.fn(),
     });
     useBuscarCargosBaseMock.mockReturnValue({
@@ -177,6 +193,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
           utilizado_para_ste: false,
           utilizado_para_permutas: false,
           cargo_base_ficticio: false,
+          testar_laudo: false,
+          pesquisar_licencas_no_sigpec: false,
+          quantidade_maxima_de_dias_de_licenca: "15",
         },
         mode: "onChange",
       }),
@@ -187,7 +206,23 @@ describe("hooks/useCriarEditarCargosBase", () => {
     expect(result.current.isLoadingCargosBase).toBe(true);
     expect(result.current.isPending).toBe(false);
     expect(result.current.isLoadingEditarCargosBase).toBe(false);
-    expect(consoleLogSpy).toHaveBeenCalledWith("CargosBaseOpcoes", [{ codigoCargo: 10, nomeCargo: "Cargo 10" }]);
+    expect(useBuscarCargosBaseByIdMock).toHaveBeenCalledWith(0);
+    expect(formTriggerMock).toHaveBeenCalledWith([
+      "quantidade_maxima_de_dias_de_licenca",
+      "pesquisar_licencas_no_sigpec",
+    ]);
+  });
+
+  it("usa lista vazia quando a busca de cargos base ainda não retornou dados", () => {
+    useBuscarCargosBaseMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useCriarEditarCargosBase());
+
+    expect(result.current.CargosBaseOpcoes).toEqual([]);
+    expect(result.current.isLoadingCargosBase).toBe(false);
   });
 
   it("permite sobrescrever valores padrão no useForm", () => {
@@ -229,6 +264,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       utilizado_para_ste: false,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
+      testar_laudo: true,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: 30,
       status: "ATIVO",
     };
     useBuscarCargosBaseByIdMock.mockReturnValue({
@@ -237,7 +275,39 @@ describe("hooks/useCriarEditarCargosBase", () => {
     });
 
     renderHook(() => useCriarEditarCargosBase(44));
-    expect(formResetMock).toHaveBeenCalledWith(cargoBase);
+    expect(useBuscarCargosBaseByIdMock).toHaveBeenCalledWith(44);
+    expect(formResetMock).toHaveBeenCalledWith({
+      ...cargoBase,
+      quantidade_maxima_de_dias_de_licenca: "30",
+    });
+  });
+
+  it("reseta quantidade máxima de dias como zero quando cargo carregado não possui valor", () => {
+    const cargoBase = {
+      id: 45,
+      grupamento: "DOCENTES",
+      descricao_resumida: "Resumo edição",
+      descricao_completa: "Completa edição",
+      situacao_funcional: "EFETIVO",
+      utilizado_para_funcoes: true,
+      utilizado_para_designacoes: false,
+      utilizado_para_ste: false,
+      utilizado_para_permutas: false,
+      cargo_base_ficticio: false,
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: true,
+      status: "ATIVO",
+    };
+    useBuscarCargosBaseByIdMock.mockReturnValue({
+      data: cargoBase,
+      isLoading: false,
+    });
+
+    renderHook(() => useCriarEditarCargosBase(45));
+    expect(formResetMock).toHaveBeenCalledWith({
+      ...cargoBase,
+      quantidade_maxima_de_dias_de_licenca: "0",
+    });
   });
 
   it("notifica sucesso e navega após criar cargo base", async () => {
@@ -277,6 +347,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: "10",
     };
 
     await act(async () => {

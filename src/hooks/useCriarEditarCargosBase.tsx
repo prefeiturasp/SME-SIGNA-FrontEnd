@@ -74,7 +74,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
   const { data: CargosBaseOpcoes = [], isLoading: isLoadingCargosBase } = useBuscarCargosBase();
   const { data: cargoBase, isLoading: isLoadingEditarCargosBase } = useBuscarCargosBaseById(id ?? 0);
 
-  console.log("cargoBase", cargoBase);
+
   const criarCargosBase = useCriarCargosBase();
   const editarCargosBase = useEditarCargosBase();
 
