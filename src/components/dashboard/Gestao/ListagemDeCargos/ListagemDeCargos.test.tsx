@@ -90,6 +90,9 @@ const row: CargosBaseResponse = {
   utilizado_para_permutas: false,
   cargo_base_ficticio: true,
   status: StatusCargosBase.ATIVO,
+  testar_laudo: false,
+  pesquisar_licencas_no_sigpec: false,
+  quantidade_maxima_de_dias_de_licenca: "10",
 };
 
 describe("ListagemDeCargos", () => {

@@ -130,6 +130,9 @@ describe("useCriarEditarCargosBase", () => {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: true,
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: "10",
     };
 
     renderHook(() => useCriarEditarCargosBase(null, customDefaults));
@@ -187,6 +190,9 @@ describe("useCriarEditarCargosBase", () => {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: "10",
     };
 
     await act(async () => {
@@ -222,6 +228,9 @@ describe("useCriarEditarCargosBase", () => {
         utilizado_para_ste: true,
         utilizado_para_permutas: false,
         cargo_base_ficticio: false,
+        testar_laudo: false,
+        pesquisar_licencas_no_sigpec: true,
+        quantidade_maxima_de_dias_de_licenca: "10",
       });
     });
 
@@ -253,6 +262,9 @@ describe("useCriarEditarCargosBase", () => {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: true,
+      quantidade_maxima_de_dias_de_licenca: "10",
     };
 
     await act(async () => {
@@ -299,6 +311,9 @@ describe("useCriarEditarCargosBase", () => {
         utilizado_para_ste: true,
         utilizado_para_permutas: false,
         cargo_base_ficticio: false,
+        testar_laudo: false,
+        pesquisar_licencas_no_sigpec: true,
+        quantidade_maxima_de_dias_de_licenca: "10",
       });
     });
 

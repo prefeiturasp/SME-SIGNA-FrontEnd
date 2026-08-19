@@ -35,7 +35,10 @@ export interface CargosBaseCamposComuns {
   utilizado_para_ste: boolean;
   utilizado_para_permutas: boolean;
   cargo_base_ficticio: boolean;
+  testar_laudo: boolean;
   status: string;
+  pesquisar_licencas_no_sigpec: boolean;
+  quantidade_maxima_de_dias_de_licenca?: string;
 }
 
 export interface CargosBaseResponse extends CargosBaseCamposComuns {
