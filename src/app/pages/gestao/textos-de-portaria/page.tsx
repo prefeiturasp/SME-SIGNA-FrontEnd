@@ -2,29 +2,31 @@
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
-import { FormProvider } from "react-hook-form";
-import { useVisualizarCargosBase } from "@/hooks/useVisualizarCargosBase";
-import FiltroDeCargosBase from "@/components/dashboard/Gestao/FiltroDeCargosBase/FiltroDeCargosBase";
-import ListagemDeCargos from "@/components/dashboard/Gestao/ListagemDeCargos/ListagemDeCargos";
 import SimpleTableHeader, { SimpleHeaderWithBorder } from "@/components/dashboard/SimpleTableHeader/SimpleTableHeader";
 import { Tabs } from "antd";
 import { Button } from "@/components/ui/button";
-
 import { Plus } from "lucide-react";
 import ListagemDeTextosDePortarias from "@/components/dashboard/Gestao/ListagemDeTextosDePortarias/ListagemDeTextosDePortarias";
+import { TextosDePortariasPaginada } from "@/types/gestao";
 
 
 
 export default function TextosDePortaria() {
-  const {
-    isPending,
-    resultado,
-    onPageChange,
-    page,
-    filterForm,
-    onSubmitFilterForm,
-    handleClear,
-  } = useVisualizarCargosBase();
+
+  const isPending = false;
+  const resultado: TextosDePortariasPaginada = {
+    count: 0,
+    next: null,
+    previous: null,
+    results: [
+      {id: 1, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 1", status: "ATIVO", atualizado_por: "Usuario 1", atualizado_em: "30/06/2026 08:05"},
+      {id: 2, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 2", status: "ATIVO", atualizado_por: "Usuario 2", atualizado_em: "28/06/2026 11:12"},
+      {id: 3, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 3", status: "INATIVO", atualizado_por: "Usuario 3", atualizado_em: "15/06/2026 06:30"},
+    ],
+  };
+  const onPageChange = () => { };
+  const page = 1;
+
   return (
     <>
       <PageHeader
@@ -38,8 +40,6 @@ export default function TextosDePortaria() {
           { title: "Textos de portaria", href: "" },
         ]}
       />
-
-
 
       <FundoBranco className="mb-4 mt-8">
         <SimpleTableHeader
@@ -74,12 +74,6 @@ export default function TextosDePortaria() {
                     }
                   />
 
-                  <FormProvider {...filterForm} >
-                    <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-                      <FiltroDeCargosBase onClear={handleClear} />
-                    </form>
-                  </FormProvider>
-
                   <ListagemDeTextosDePortarias
                     onPageChange={onPageChange}
                     key={"lista-de-textos-de-portarias"}
@@ -99,11 +93,6 @@ export default function TextosDePortaria() {
             }
           ]}
         />
-
-
-
-
-
 
       </ FundoBranco>
     </>

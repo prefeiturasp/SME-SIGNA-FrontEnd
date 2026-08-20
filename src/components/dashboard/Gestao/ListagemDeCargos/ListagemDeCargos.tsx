@@ -4,7 +4,6 @@ import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
 import { Badge, Pagination, Table } from 'antd';
 import type { TableProps } from 'antd';
 import Editar from '@/assets/icons/Editar';
-import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { CargosBaseResponse, StatusCargosBase } from '@/types/gestao';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
@@ -113,9 +112,8 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
       key: 'action',
       width: 50,
       render: (record: CargosBaseResponse) => (
-        <Editar
-          width={20}
-          height={20}
+        <Editar        
+          className='w-4 h-4 fill-[#000000] cursor-pointer'                          
           onClick={() => {
             router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
           }}

@@ -23,6 +23,12 @@ export interface CargosBasePaginada {
   results: CargosBaseResponse[];
 }
 
+export interface TextosDePortariasPaginada {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: TextosDePortariasResponse[];
+}
 
 
 export interface CargosBaseCamposComuns {
@@ -47,4 +53,13 @@ export interface CargosBaseResponse extends CargosBaseCamposComuns {
 
 export interface CargosBaseCriarEditar extends CargosBaseCamposComuns {
   codigo_cargo: string;
+}
+
+export interface TextosDePortariasResponse {
+  id: number;
+  tipo_de_portaria: string;
+  nome_do_modelo: string;
+  status: string;
+  atualizado_por: string;
+  atualizado_em: string;
 }

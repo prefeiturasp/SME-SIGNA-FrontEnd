@@ -1,25 +1,14 @@
 'use client'
 
-import { MoreOutlined } from '@ant-design/icons';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import {  Dropdown, Pagination, Table } from 'antd';
-import type { TableProps } from 'antd';
-import Editar from '@/assets/icons/Editar';
-import { useRouter } from 'next/navigation';
-import { CargosBaseResponse, StatusCargosBase } from '@/types/gestao';
+import { Pagination, Table } from 'antd';
+import type { TableProps } from 'antd';;
+import { StatusCargosBase, TextosDePortariasResponse } from '@/types/gestao';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { BadgeStatusCargosBase } from '../ListagemDeCargos/ListagemDeCargos';
 
-
-
-
-
-
- 
-
-
 interface ListagemDeTextosDePortariasProps {
-  data: CargosBaseResponse[];
+  data: TextosDePortariasResponse[];
   isLoading?: boolean;
   total: number;
   page: number;
@@ -36,21 +25,20 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
   onPageChange,
 }) => {
 
-  const router = useRouter();
 
-  const columnsBase: TableProps<CargosBaseResponse>['columns'] = [
-    { title: 'Tipo de portaria', dataIndex: 'grupamento', key: 'grupamento', },
-    { title: 'Nome do modelo', dataIndex: 'descricao_resumida', key: 'descricao_resumida', },
+  const columnsBase: TableProps<TextosDePortariasResponse>['columns'] = [
+    { title: 'Tipo de portaria', dataIndex: 'tipo_de_portaria', key: 'tipo_de_portaria', },
+    { title: 'Nome do modelo', dataIndex: 'nome_do_modelo', key: 'nome_do_modelo', },
     {
-      title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: CargosBaseResponse) => {
+      title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: TextosDePortariasResponse) => {
         return (
-          BadgeStatusCargosBase(status, String(record.id) + '_status')
+          BadgeStatusCargosBase(status as StatusCargosBase, String(record.id) + '_status')
         );
       },
+      width: '100px',
     },
-    { title: 'Atualizado por', dataIndex: 'descricao_completa', key: 'descricao_completa', },
-    { title: 'Atualizado em', dataIndex: 'situacao_funcional', key: 'situacao_funcional', },
-    
+    { title: 'Atualizado por', dataIndex: 'atualizado_por', key: 'atualizado_por', },
+    { title: 'Atualizado em', dataIndex: 'atualizado_em', key: 'atualizado_em', width: '150px', },
   ];
 
 
@@ -60,14 +48,13 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
   return (
     <div className="flex flex-col gap-1 bg-white  ">
 
-    <SimpleTableHeader
-      title="Lista de cargos base"
-      subtitle="Aqui você encontra todos os cargos base cadastrados no sistema."
-    />
-
+      <SimpleTableHeader
+        title="Lista de textos de portarias"
+        subtitle="Consulte os modelos de texto de Portaria cadastrados no sistema. Selecione um modelo para conferir seus detalhes ou escolha a opção “editar” para fazer alterações."
+      />
 
       <div className="w-full pb-2">
-        <Table<CargosBaseResponse>
+        <Table<TextosDePortariasResponse>
           className="tabela-principal w-full"
           scroll={{ x: '100%' }}
           loading={isLoading}
@@ -75,7 +62,7 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
           dataSource={data}
           rowKey={(record) => record.id.toString()}
           pagination={false}
-          rowClassName={(record: CargosBaseResponse) => record.status === StatusCargosBase.INATIVO ? "disabled-row" : ""}
+          rowClassName={(record: TextosDePortariasResponse) => record.status === StatusCargosBase.INATIVO ? "disabled-row" : ""}
         />
         <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
           <MostrarRegistros page={page} total={total} />
