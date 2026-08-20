@@ -1,29 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 
-Then('clica no ícone {string} da coluna Action', (nomeIcone) => {
-  cy.log(`Clicando no ícone "${nomeIcone}"`)
-  
-  cy.get('@designacaoIndex').then(index => {
-    cy.log(`Clicando no ícone da linha ${index}`)
-    
-    cy.get('table tbody tr:not(.ant-table-measure-row)', { timeout: 10000 })
-      .eq(index)
-      .should('be.visible')
-      .scrollIntoView()
-      .within(() => {
-        cy.get('td')
-          .last()
-          .find('div svg, svg, button svg')
-          .first()
-          .scrollIntoView()
-          .should('be.visible')
-          .click({ force: true })
-      })
-  })
-  
-  cy.wait(3000)
-})
-
 Then('valida a existencia da seção {string}', (nomeSecao) => {
   cy.log(`Validando seção: "${nomeSecao}"`)
 

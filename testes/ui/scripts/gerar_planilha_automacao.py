@@ -49,16 +49,17 @@ COMPLEXIDADE_UI = {
     "cessacao": 1.6,
     "apostilar": 1.73,
     "insubsistente": 2.08,
-    "visualiza_designação": 1.57,
+    # consulta_atos_adminstra (ex-editar_designa_ao) absorveu o antigo
+    # visualiza_designação.feature: os dois fluxos convergem para a mesma
+    # tela (visualizar-designacao/{id}) desde a migração do menu lateral,
+    # então viraram 2 cenários num só arquivo em vez de dois quase idênticos.
+    "consulta_atos_adminstra": 1.57,
     "altera_DO": 1.21,
-    "baixa_lauda": 1.21,
 }
 
 # Quando a feature ainda e um stub (0 cenarios escritos) usamos uma
 # quantidade planejada de cenarios para nao subestimar o esforco restante.
-CENARIOS_PLANEJADOS_STUB = {
-    "baixa_lauda": 7,
-}
+CENARIOS_PLANEJADOS_STUB = {}
 
 CRUD_UI = {
     "login": "R",
@@ -66,13 +67,11 @@ CRUD_UI = {
     "alterar_senha": "U",
     "alteracao_email": "U",
     "designacao": "C",
-    "editar_designa_ao": "U",
+    "consulta_atos_adminstra": "U/R",
     "cessacao": "U",
     "apostilar": "U",
     "insubsistente": "U",
-    "visualiza_designação": "R",
     "altera_DO": "U",
-    "baixa_lauda": "A definir",
 }
 
 # Funcionalidades de API cujo POST e usado como filtro/consulta (nao "Create")
@@ -85,13 +84,11 @@ FEATURE_TO_STEPFILE = {
     "alterar_senha": "alterar_senha_steps.js",
     "alteracao_email": "alteracao_email_steps.js",
     "designacao": "designacao_steps.js",
-    "editar_designa_ao": "editar_designacao_steps.js",
+    "consulta_atos_adminstra": "editar_designacao_steps.js",
     "cessacao": "cessacao_steps.js",
     "apostilar": "apostilar_steps.js",
     "insubsistente": "insubsistente_steps.js",
-    "visualiza_designação": "visualizar_steps.js",
     "altera_DO": "altera_DO_steps.js",
-    "baixa_lauda": "baixa_lauda_steps.js",
 }
 
 # Fallback manual quando nao ha cy.visit/should(include) explicito no codigo
@@ -100,8 +97,7 @@ URL_FALLBACK_UI = {
     "login": "/login",
     "insubsistente": "/pages/listagem-designacoes (acao Insubsistente)",
     "apostilar": "/pages/listagem-designacoes (acao Apostilar)",
-    "editar_designa_ao": "/pages/listagem-designacoes (acao Editar)",
-    "visualiza_designação": "/pages/listagem-designacoes (acao Visualizar)",
+    "consulta_atos_adminstra": "/pages/listagem-designacoes/visualizar-designacao/{id} (acoes Editar e Detalhar)",
     "alterar_senha": "/meus-dados (modal Alterar Senha)",
 }
 
@@ -113,9 +109,7 @@ URL_FALLBACK_API = {
 
 # Nome legivel para features que ainda sao apenas um stub (sem linha
 # "Funcionalidade:" escrita).
-FUNCIONALIDADE_FALLBACK = {
-    "baixa_lauda": "Baixa de Lauda",
-}
+FUNCIONALIDADE_FALLBACK = {}
 
 PALAVRAS_EXCECAO = re.compile(
     r"negativ|inv[aá]lid|inexistente|sem (login|token|auth)|erro|obrigat[oó]rio|"

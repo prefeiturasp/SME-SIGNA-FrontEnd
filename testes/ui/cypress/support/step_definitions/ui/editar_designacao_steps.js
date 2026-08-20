@@ -1,5 +1,17 @@
 // Step Definitions — Editar Designação
-// Steps reutilizados de outros arquivos:
+// Este arquivo cobre o Cenário 1 (Editar) de consulta_atos_adminstra.feature.
+// O Cenário 2 (Visualizar) do mesmo arquivo — antigo visualiza_designação.feature,
+// mesclado aqui porque os dois fluxos convergem para a mesma tela de destino
+// (visualizar-designacao/{id}) — usa steps próprios em visualizar_steps.js.
+//
+// A tela real acessada via "Editar" é "Detalhes da designação" — a mesma
+// tela somente leitura do Cenário 2, sem rádio "Cargo Disponível"/"Cargo
+// Vago" nem campo "RF Titular" (confirmado por screenshot real). Por isso o
+// Cenário 1 reutiliza "valida a existencia da seção {string} quando
+// aplicável a esta designação" (visualizar_steps.js) em vez de ter sua
+// própria variante condicionada a tipo de cargo.
+//
+// Steps reutilizados de outros arquivos (Cenário 1):
 //   • "que o usuário está autenticado"           → common_steps.js
 //   • "que o usuário está na página do dashboard"→ common_steps.js
 //   • "valida a existencia do Texto"             → common_steps.js (lowercase v, capital T)
@@ -8,10 +20,22 @@
 //   • "navega para a seção Action"               → cessacao_steps.js
 //   • "clica e seleciona a opção"                → cessacao_steps.js
 //   • "o sistema exibe a Tela"                   → common_steps.js
+//   • "valida a existencia da seção {string} quando aplicável a esta designação" → visualizar_steps.js
 //   • "clica em"                                 → designacao_steps.js
+//   • "o sistema direciona para a tela"          → atos_administrativos_steps.js
+//
+// Steps do Cenário 2 (Visualizar) → visualizar_steps.js, exceto onde indicado:
+//   • "Seleciona uma das Designação de forma aleatoria" (sem "para editar") → cessacao_steps.js
+//   • "navega para a seção Action" / "clica e seleciona a opção" (mesmos steps
+//     do Cenário 1, reaproveitados) → cessacao_steps.js — não existe mais
+//     ícone/ação "Detalhar" separado na tabela, só o dropdown com "Editar,
+//     Apostilar, Cessar, Tornar insubsistente, Excluir" (confirmado em
+//     execução real), então os dois cenários navegam pelo mesmo caminho.
+//   • "valida a existencia da seção {string}" (singular, sem Data Table)
+//   • "valida a existencia dos Titulos" (docstring) → cessacao_steps.js
+//   • "clico no botão {string}" → atos_administrativos_steps.js
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
-import { editarDesignacaoLocators } from '../../ui/locators/editar_designacao_locators'
 
 // ─── ETAPA 1 — Seleção aleatória da designação para editar ────────────────────
 
@@ -41,90 +65,22 @@ Then('Seleciona uma das Designação de forma aleatoria para editar', () => {
     })
 })
 
-// ─── ETAPA 5 — Valida presença de campo por texto de label ────────────────────
+// ─── ETAPA 2-4 — Validação unificada das seções incondicionais do formulário ──
+// Unidade Proponente / Portarias de designação / Dados do servidor indicado
+// sempre existem (sem depender do tipo de cargo, ao contrário das ETAPAS 5/6
+// abaixo) — por isso viraram uma única Data Table em vez de 3 steps Gherkin
+// separados. Mesmo padrão de "valida a existencia dos filtros:"/"valida a
+// existencia dos botões:" em atos_administrativos_steps.js.
 
-Then('valida a existencia do campo {string}', (textoLabel) => {
-  cy.contains(
-    'label, span, p, h4, h5',
-    textoLabel.trim(),
-    { timeout: 10000 }
-  ).should('be.visible')
-  cy.log(`✓ Campo "${textoLabel}" encontrado`)
-})
-
-// ─── ETAPA 5 — Valida as duas opções de tipo de cargo ─────────────────────────
-
-Then('valida as opções de tipo de cargo {string} e {string}', (opcao1, opcao2) => {
-  cy.contains(
-    '.ant-radio-wrapper, label, [role="radio"]',
-    opcao1.trim(),
-    { timeout: 8000 }
-  ).should('be.visible')
-  cy.log(`✓ Opção de cargo "${opcao1}" visível`)
-
-  cy.contains(
-    '.ant-radio-wrapper, label, [role="radio"]',
-    opcao2.trim(),
-    { timeout: 8000 }
-  ).should('be.visible')
-  cy.log(`✓ Opção de cargo "${opcao2}" visível`)
-})
-
-// ─── ETAPA 5/6 — Campos exclusivos de designações "Cargo Vago" ────────────────
-// "RF Titular" (campo) e "Dados do Servidor Titular" (seção) só existem
-// quando a designação sendo editada é do tipo "Cargo Vago" (posição sendo
-// substituída, com um servidor titular vinculado). Designações "Cargo
-// Disponível" (posição genuinamente vaga, sem titular) não renderizam esses
-// elementos — confirmado em execução real contra o QA: a designação id=135
-// (índice 0 da listagem, a que "Seleciona uma das Designação de forma
-// aleatoria" sempre pega primeiro) é "Cargo Disponível", e os asserts
-// incondicionais anteriores estouravam timeout esperando algo que nunca ia
-// aparecer para aquele registro. Em vez de assumir um tipo fixo, os steps
-// abaixo leem qual rádio está de fato marcado no formulário (reflete o dado
-// real da designação, já que é tela de edição) antes de validar — mesmo
-// padrão de tolerância a dado ausente usado em "... com skip se vazio"
-// (apostilar_steps.js/insubsistente_steps.js).
-
-function tipoCargoAtualEhVago() {
-  return cy.get('body').then(($body) => {
-    const $opcaoVago = $body
-      .find('.ant-radio-wrapper, [role="radio"]')
-      .filter((_, el) => /cargo vago/i.test(el.textContent))
-      .first()
-
-    if ($opcaoVago.length === 0) return false
-
-    const inputMarcado = $opcaoVago.find('input[type="radio"]').is(':checked')
-    const wrapperMarcado = $opcaoVago.hasClass('ant-radio-wrapper-checked')
-      || $opcaoVago.find('.ant-radio-checked').length > 0
-
-    return inputMarcado || wrapperMarcado
-  })
-}
-
-Then('valida a existencia do campo {string} quando aplicável ao tipo de cargo selecionado', (textoLabel) => {
-  tipoCargoAtualEhVago().then((ehVago) => {
-    if (!ehVago) {
-      cy.log(`↷ Campo "${textoLabel}" pulado — designação atual é "Cargo Disponível" (sem titular)`)
-      return
-    }
-    cy.contains('label, span, p, h4, h5', textoLabel.trim(), { timeout: 10000 }).should('be.visible')
-    cy.log(`✓ Campo "${textoLabel}" encontrado`)
-  })
-})
-
-Then('valida a existencia da seção {string} quando aplicável ao tipo de cargo selecionado', (nomeSecao) => {
-  tipoCargoAtualEhVago().then((ehVago) => {
-    if (!ehVago) {
-      cy.log(`↷ Seção "${nomeSecao}" pulada — designação atual é "Cargo Disponível" (sem titular)`)
-      return
-    }
+Then('valida a existencia das seguintes seções:', (dataTable) => {
+  const secoes = dataTable.raw().flat()
+  secoes.forEach((secao) => {
     cy.contains(
       '.ant-collapse-header, [class*="collapse"] button, h2, h3, h4, div, span, p',
-      nomeSecao.trim(),
+      secao.trim(),
       { timeout: 10000 }
     ).should('exist').scrollIntoView().should('be.visible')
-    cy.wait(500)
+    cy.log(`✓ Seção "${secao}" encontrada`)
   })
 })
 
@@ -138,23 +94,3 @@ Then('valida a existencia dos botões de edição {string} e {string}', (botao1,
   cy.log(`✓ Botão "${botao2}" visível`)
 })
 
-// ─── ETAPA FINAL — Validação pós-clique em Avançar ───────────────────────────
-
-Then('o sistema avança o fluxo de edição sem erros', () => {
-  cy.wait(3000)
-
-  cy.get('body').then($body => {
-    const temErro = $body.find(
-      '.ant-message-error, .ant-notification-notice-error, [class*="error-message"]'
-    ).length > 0
-
-    if (temErro) {
-      cy.get('.ant-message-error, .ant-notification-notice-error, [class*="error-message"]')
-        .first().then($el => {
-          throw new Error(`Avanço de edição falhou: ${$el.text().trim()}`)
-        })
-    } else {
-      cy.log('✓ Fluxo de edição avançou sem erros visíveis')
-    }
-  })
-})

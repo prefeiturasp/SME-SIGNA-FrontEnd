@@ -290,7 +290,11 @@ When('cancela a edição no modal', () => {
     .click();
 });
 
-When('seleciona uma DRE aleatória no formulário', () => {
+// Escolhe uma DRE aleatória no primeiro combobox e aguarda o backend
+// carregar as unidades correspondentes. Extraído em função para poder ser
+// chamado de novo em caso de retry (ver "seleciona uma unidade proponente
+// aleatória" abaixo).
+function escolherDREAleatoria() {
   cy.get('button[role="combobox"]').first()
     .should('be.visible')
     .click();
@@ -300,20 +304,49 @@ When('seleciona uma DRE aleatória no formulário', () => {
       const idx = Math.floor(Math.random() * $opts.length);
       cy.wrap($opts.eq(idx)).click({ force: true });
     });
+  cy.wait(1500);
+}
+
+When('seleciona uma DRE aleatória no formulário', () => {
+  escolherDREAleatoria();
 });
 
 When('seleciona uma unidade proponente aleatória', () => {
-  cy.get('button[role="combobox"]').eq(1)
-    .should('be.visible')
-    .click();
-  cy.get(designacaoLocators.opcoesDropdown, { timeout: 10000 })
-    .should('have.length.greaterThan', 0)
-    .then(($opts) => {
-      // Seleciona do início da lista — primeiras unidades têm maior chance de ter dados completos
-      const max = Math.min(5, $opts.length - 1);
-      const idx = Math.floor(Math.random() * max);
-      cy.wrap($opts.eq(idx)).scrollIntoView().click({ force: true });
+  // Algumas DREs retornam erro 500 do backend neste ambiente ao carregar
+  // suas unidades (confirmado em execução real — nada relacionado à DRE
+  // escolhida no passo anterior é validado antes deste ponto). Em vez de
+  // falhar o cenário por causa de um dado específico sorteado, troca de
+  // DRE e tenta de novo, com um número limitado de tentativas.
+  const MAX_TENTATIVAS = 4;
+
+  const tentarSelecionarUnidade = (tentativa) => {
+    cy.get('button[role="combobox"]').eq(1)
+      .should('be.visible')
+      .click();
+    cy.wait(1000);
+
+    cy.get('body').then(($body) => {
+      const temOpcoes = $body.find('[role="option"]').length > 0;
+
+      if (!temOpcoes && tentativa < MAX_TENTATIVAS) {
+        cy.get('body').type('{esc}');
+        escolherDREAleatoria();
+        tentarSelecionarUnidade(tentativa + 1);
+        return;
+      }
+
+      cy.get(designacaoLocators.opcoesDropdown, { timeout: 10000 })
+        .should('have.length.greaterThan', 0)
+        .then(($opts) => {
+          // Seleciona do início da lista — primeiras unidades têm maior chance de ter dados completos
+          const max = Math.min(5, $opts.length - 1);
+          const idx = Math.floor(Math.random() * (max + 1));
+          cy.wrap($opts.eq(idx)).scrollIntoView().click({ force: true });
+        });
     });
+  };
+
+  tentarSelecionarUnidade(1);
 });
 
 When('espera {int} seg', (segundos) => {

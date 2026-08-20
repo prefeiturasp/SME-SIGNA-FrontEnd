@@ -16,7 +16,6 @@ When('preenche o campo E-mail com {string}', (email) => {
 
   cy.wait(500)
 
-  // Tenta submeter se houver botão de confirmação
   cy.get('body').then($body => {
     if ($body.find('button:contains("Salvar"), button:contains("Confirmar"), button[type="submit"]').length > 0) {
       cy.contains('button', /salvar|confirmar|enviar/i, { timeout: 5000 }).click({ force: true })
