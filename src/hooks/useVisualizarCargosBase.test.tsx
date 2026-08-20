@@ -55,7 +55,7 @@ const resultadoMock: CargosBasePaginada = {
   next: null,
   previous: null,
   results: [
-    {
+      {
       id: 1,
       grupamento: "Docentes",
       descricao_resumida: "Resumo",
@@ -66,7 +66,10 @@ const resultadoMock: CargosBasePaginada = {
       utilizado_para_ste: true,
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
-      status: "ATIVO",
+      status: "ATIVO",  
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: false,
+      quantidade_maxima_de_dias_de_licenca: "10",
     },
   ],
 };
