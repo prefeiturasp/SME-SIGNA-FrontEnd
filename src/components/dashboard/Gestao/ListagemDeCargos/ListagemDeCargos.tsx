@@ -113,6 +113,7 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
       width: 50,
       render: (record: CargosBaseResponse) => (
         <Editar        
+          data-testid="edit-icon-button"
           className='w-4 h-4 fill-[#000000] cursor-pointer'                          
           onClick={() => {
             router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
