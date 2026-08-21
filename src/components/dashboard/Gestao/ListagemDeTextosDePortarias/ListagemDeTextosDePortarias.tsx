@@ -32,7 +32,7 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
     {
       title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: TextosDePortariasResponse) => {
         return (
-          BadgeStatusCargosBase(status as StatusCargosBase, String(record.id) + '_status')
+          BadgeStatusCargosBase(status, String(record.id) + '_status')
         );
       },
       width: '100px',
