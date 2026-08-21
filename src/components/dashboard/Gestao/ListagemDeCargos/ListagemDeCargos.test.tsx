@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
-import type { ReactNode } from "react";
+import type { ReactNode, SVGProps } from "react";
 import ListagemDeCargos from "./ListagemDeCargos";
 import { CargosBaseResponse, StatusCargosBase } from "@/types/gestao";
 
@@ -59,7 +59,7 @@ vi.mock("@ant-design/icons", () => ({
 }));
 
 vi.mock("@/assets/icons/Editar", () => ({
-  default: () => <span data-testid="icon-editar" />,
+  default: (props: SVGProps<SVGSVGElement>) => <svg {...props} />,
 }));
 
 vi.mock("@/assets/icons/Apostilar", () => ({
@@ -202,11 +202,9 @@ describe("ListagemDeCargos", () => {
     expect(screen.getByTestId("status-badge")).toHaveAttribute("data-color", "#9CA3B9");
   });
 
-  it("marca linha inativa e cria ação de edição com navegação", () => {
+  it("marca linha inativa", () => {
     render(<ListagemDeCargos data={[row]} total={1} page={1} />);
     const tableProps = tableMock.mock.calls[0][0];
-    const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
-    const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
 
     expect(
       (tableProps.rowClassName as (record: CargosBaseResponse) => string)({
@@ -215,10 +213,18 @@ describe("ListagemDeCargos", () => {
       }),
     ).toBe("disabled-row");
     expect((tableProps.rowClassName as (record: CargosBaseResponse) => string)(row)).toBe("");
+  });
+
+  it("verifica a ação de edição com navegação", () => {
+    render(<ListagemDeCargos data={[row]} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
+    const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
 
     render(<>{actionRender?.(row)}</>);
-    expect(screen.getByTestId("more-outlined")).toBeInTheDocument();
-    screen.getByTestId("menu-item-4").click();
+    expect(screen.getByTestId("edit-icon-button")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("edit-icon-button"));
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=10");
   });
 });
