@@ -77,8 +77,8 @@ export default function TextosDePortaria() {
                   <ListagemDeTextosDePortarias
                     onPageChange={onPageChange}
                     key={"lista-de-textos-de-portarias"}
-                    data={resultado?.results ?? []}
-                    total={resultado?.count ?? 0}
+                    data={resultado.results}
+                    total={resultado.count}
                     page={page}
                     isLoading={isPending}
                   />
