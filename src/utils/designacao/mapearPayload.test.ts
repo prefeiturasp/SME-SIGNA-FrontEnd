@@ -78,6 +78,29 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.indicado_local_servico).toBe("DRE Centro");
     });
 
+    it("converte campos opcionais null do indicado (integração SME) para string vazia", () => {
+        // Regressão: mesmo bug do titular, agora para servidorIndicado — mas só
+        // nos campos onde o backend aceita blank (CharField com default="",
+        // allow_blank=True): nome_civil, cargo_sobreposto e local_servico.
+        // nome_servidor, cargo_base, lotacao e local_exercicio são obrigatórios
+        // no backend (sem allow_blank/default) e não recebem esse tratamento —
+        // se a SME mandar null neles, é falta de dado na origem, não um caso
+        // de mapeamento.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                nome_civil: null,
+                cargo_sobreposto_funcao_atividade: null,
+                local_de_servico: null,
+            } as unknown as typeof servidorIndicado,
+        });
+
+        expect(result?.indicado_nome_civil).toBe("");
+        expect(result?.indicado_cargo_sobreposto).toBe("");
+        expect(result?.indicado_local_servico).toBe("");
+    });
+
     it("mapeia os campos gerais do form corretamente", () => {
         const result = mapearPayloadDesignacao({ ...formBase });
 

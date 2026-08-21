@@ -57,17 +57,17 @@ export function mapearPayloadDesignacao(
         funcionarios_da_unidade: form.funcionarios_da_unidade,
         codigo_hierarquico: form.codigo_hierarquico,
 
-        indicado_nome_civil: servidorIndicado.nome_civil,
+        indicado_nome_civil: servidorIndicado.nome_civil ?? "",
         indicado_nome_servidor: servidorIndicado.nome_servidor,
         indicado_rf: servidorIndicado.rf,
         indicado_vinculo: servidorIndicado.vinculo,
         indicado_cargo_base: servidorIndicado.cargo_base,
         indicado_codigo_cargo_base: servidorIndicado.cd_cargo_base,
         indicado_lotacao: servidorIndicado.lotacao,
-        indicado_cargo_sobreposto: servidorIndicado.cargo_sobreposto_funcao_atividade,
+        indicado_cargo_sobreposto: servidorIndicado.cargo_sobreposto_funcao_atividade ?? "",
         indicado_codigo_cargo_sobreposto: servidorIndicado.cd_cargo_sobreposto_funcao_atividade,
         indicado_local_exercicio: servidorIndicado.local_de_exercicio,
-        indicado_local_servico: servidorIndicado.local_de_servico,
+        indicado_local_servico: servidorIndicado.local_de_servico ?? "",
         indicado_categoria: servidorIndicado.categoria ?? "",
 
         ...(titular && {
