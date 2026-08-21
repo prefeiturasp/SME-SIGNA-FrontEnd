@@ -23,6 +23,12 @@ export interface CargosBasePaginada {
   results: CargosBaseResponse[];
 }
 
+export interface TextosDePortariasPaginada {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: TextosDePortariasResponse[];
+}
 
 
 export interface CargosBaseCamposComuns {
@@ -35,7 +41,10 @@ export interface CargosBaseCamposComuns {
   utilizado_para_ste: boolean;
   utilizado_para_permutas: boolean;
   cargo_base_ficticio: boolean;
+  testar_laudo: boolean;
   status: string;
+  pesquisar_licencas_no_sigpec: boolean;
+  quantidade_maxima_de_dias_de_licenca?: string;
 }
 
 export interface CargosBaseResponse extends CargosBaseCamposComuns {
@@ -44,4 +53,13 @@ export interface CargosBaseResponse extends CargosBaseCamposComuns {
 
 export interface CargosBaseCriarEditar extends CargosBaseCamposComuns {
   codigo_cargo: string;
+}
+
+export interface TextosDePortariasResponse {
+  id: number;
+  tipo_de_portaria: string;
+  nome_do_modelo: string;
+  status: string;
+  atualizado_por: string;
+  atualizado_em: string;
 }

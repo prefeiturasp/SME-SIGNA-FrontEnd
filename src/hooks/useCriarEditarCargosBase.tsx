@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CargosBaseCriarEditar } from "@/types/gestao";
 import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosBase";
 import { useRouter } from "next/navigation";
@@ -47,7 +46,7 @@ export const useEditarCargosBase = () => {
   });
 };
 
-const defaultValuesCreateEdit: CargosBaseCriarEditar = {
+const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
   grupamento: "",
   codigo_cargo: "",
   descricao_resumida: "",
@@ -59,16 +58,22 @@ const defaultValuesCreateEdit: CargosBaseCriarEditar = {
   utilizado_para_ste: false,
   utilizado_para_permutas: false,
   cargo_base_ficticio: false,
+  testar_laudo: false,
+  pesquisar_licencas_no_sigpec: false,
+  quantidade_maxima_de_dias_de_licenca: '15'
 };
 
-export function useCriarEditarCargosBase(id: number | null = null, defaultValues: CargosBaseCriarEditar = defaultValuesCreateEdit) {
 
+
+
+
+export function useCriarEditarCargosBase(id: number | null = null, defaultValues: createFormSchemaCargosBaseData = defaultValuesCreateEdit) {
 
   const router = useRouter();
   const notification = useAppNotification();
   const { data: CargosBaseOpcoes = [], isLoading: isLoadingCargosBase } = useBuscarCargosBase();
   const { data: cargoBase, isLoading: isLoadingEditarCargosBase } = useBuscarCargosBaseById(id ?? 0);
-  console.log("CargosBaseOpcoes", CargosBaseOpcoes);
+
 
   const criarCargosBase = useCriarCargosBase();
   const editarCargosBase = useEditarCargosBase();
@@ -83,7 +88,12 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   useEffect(() => {
     if (cargoBase) {
-      form.reset(cargoBase);
+      form.reset(
+        {
+          ...cargoBase,
+          quantidade_maxima_de_dias_de_licenca:
+            cargoBase.quantidade_maxima_de_dias_de_licenca?.toString() ?? "0"
+        });
     }
   }, [cargoBase]);
 
@@ -97,12 +107,12 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
         delete partialValues["codigo_cargo"];
         await editarCargosBase.mutateAsync({
           id,
-          values: partialValues,
+          values: { ...partialValues },
         });
         successMessage = "As alterações foram salvas.";
       } else {
         await criarCargosBase.mutateAsync({
-          values,
+          values
         });
       }
 
@@ -126,6 +136,14 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
       });
     }
   };
+
+
+  const quantidadeMaximaDeDiasDeLicenca = form.watch("quantidade_maxima_de_dias_de_licenca");
+  const pesquisarLicencasNoSigpec = form.watch("pesquisar_licencas_no_sigpec");
+
+  useEffect(() => {
+    form.trigger(["quantidade_maxima_de_dias_de_licenca", "pesquisar_licencas_no_sigpec"]);
+  }, [quantidadeMaximaDeDiasDeLicenca, pesquisarLicencasNoSigpec, form]);
 
 
   return {

@@ -40,7 +40,8 @@ export enum MenuEnum {
   ApoioAdministrativo,   
   ApoiosAdministrativos,
   Gestao,
-  CargosBase
+  CargosBase,
+  TextosDePortaria
 }
  
 
@@ -141,6 +142,11 @@ export const MENU_GESTAO: MenuItemConectaProps = {
       key: MenuEnum.CargosBase,
       title: 'Cargos base',
       url: "/pages/gestao/cargos-base",
+    },
+    {
+      key: MenuEnum.TextosDePortaria,
+      title: 'Textos de portaria',
+      url: "/pages/gestao/textos-de-portaria",
     },
   ],
 };

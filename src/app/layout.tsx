@@ -34,6 +34,9 @@ export default function RootLayout({
             locale={ptBR}
             theme={{
               components: {
+                Tabs: {                  
+                  horizontalMargin: "0 0 32px 0",                  
+                },
                 Notification: {
                   colorSuccessBg: "#333638",  
                   colorInfoBg: "#333638",  
