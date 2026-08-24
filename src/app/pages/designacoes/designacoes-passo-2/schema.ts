@@ -2,7 +2,10 @@ import { z } from "zod";
 
 const formSchemaDesignacaoPasso2 = z
   .object({
-    portaria_designacao: z.string().min(1, "Selecione uma Portaria de Designação"),
+        portaria_designacao: z
+      .string()
+      .min(1, "Selecione uma Portaria de Designação")
+      .max(20, "A Portaria de Designação deve ter no máximo 20 caracteres"),
     numero_sei: z.string().min(1, "Digite o número do SEI"),
     a_partir_de: z.date(),
     designacao_data_final: z.date().optional().nullable(),

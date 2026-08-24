@@ -80,7 +80,7 @@ export function mapearPayloadDesignacao(
             titular_lotacao: titular.lotacao ?? "",
             titular_cargo_sobreposto: titular.cargo_sobreposto_funcao_atividade ?? "",
             titular_codigo_cargo_sobreposto: titular.cd_cargo_sobreposto_funcao_atividade,
-            titular_local_exercicio: titular.local_de_exercicio ?? "",
+            titular_local_exercicio: titular.local_de_exercicio,
             titular_local_servico: titular.local_de_servico ?? "",
         }),
 
