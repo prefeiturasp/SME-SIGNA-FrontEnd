@@ -6,6 +6,7 @@ import type { TableProps } from 'antd';;
 import { StatusCargosBase, TextosDePortariasResponse } from '@/types/gestao';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { BadgeStatusCargosBase } from '../ListagemDeCargos/ListagemDeCargos';
+import { formatDateAndHour } from '@/utils/formatDate';
 
 interface ListagemDeTextosDePortariasProps {
   data: TextosDePortariasResponse[];
@@ -27,8 +28,8 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
 
 
   const columnsBase: TableProps<TextosDePortariasResponse>['columns'] = [
-    { title: 'Tipo de portaria', dataIndex: 'tipo_de_portaria', key: 'tipo_de_portaria', },
-    { title: 'Nome do modelo', dataIndex: 'nome_do_modelo', key: 'nome_do_modelo', },
+    { title: 'Tipo de portaria', dataIndex: 'tipo_portaria', key: 'tipo_portaria', },
+    { title: 'Nome do modelo', dataIndex: 'nome_modelo', key: 'nome_modelo', },
     {
       title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: TextosDePortariasResponse) => {
         return (
@@ -37,8 +38,8 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
       },
       width: '100px',
     },
-    { title: 'Atualizado por', dataIndex: 'atualizado_por', key: 'atualizado_por', },
-    { title: 'Atualizado em', dataIndex: 'atualizado_em', key: 'atualizado_em', width: '150px', },
+    { title: 'Criado em', dataIndex: 'criado_em', key: 'criado_em', width: '150px', render: (text: string | null) => formatDateAndHour(text) },
+    { title: 'Atualizado em', dataIndex: 'atualizado_em', key: 'atualizado_em', width: '150px', render: (text: string | null) => formatDateAndHour(text) },
   ];
 
 
