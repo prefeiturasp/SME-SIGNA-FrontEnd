@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
 import { FieldValues, UseFormRegister, Control } from "react-hook-form";
+import type { ReactNode } from "react";
 import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -24,14 +25,14 @@ interface PropsField {
     register: UseFormRegister<FieldValues>;
     control: Control<FieldValues>;
     name: string;
-    label: string;
+    label: string | ReactNode;
     placeholder?: string;
     dataTestId?: string;
     type?: string;
     disabled?: boolean;
     allowClear?: boolean;
     showBlankSpace?: boolean;
-    description?: string;
+    description?: string | ReactNode;
 }
 
 
@@ -81,7 +82,7 @@ export const CheckboxField = ({ register, control, name, label, dataTestId, show
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength, showBlankSpace = true }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
+export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength, showBlankSpace = true }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
     return (
         <FormField
             {...register(name)}
@@ -132,7 +133,7 @@ export const SelectField = ({
 }: {
     control: Control<FieldValues>;
     name: string;
-    label: string;
+    label: string | ReactNode;
     placeholder?: string;
     dataTestId?: string;
     options: SelectOption[];
