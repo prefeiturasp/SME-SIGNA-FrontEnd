@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { BaseSyntheticEvent, ButtonHTMLAttributes, ReactNode } from "react";
 import type { TabsProps } from "antd";
+import type { SubmitHandler, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 import TextosDePortaria from "./page";
-import { TextosDePortariasResponse } from "@/types/gestao";
+import { filterFormSchemaTextosPortariaData } from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/filterFormSchemaTextosPortaria";
+import { TextosDePortariasPaginada, TextosDePortariasResponse } from "@/types/gestao";
 
 interface PageHeaderMockProps {
   showBackButton: boolean;
@@ -36,7 +38,22 @@ interface ListagemMockProps {
   total: number;
   page: number;
   isLoading: boolean;
-  onPageChange: () => void;
+  onPageChange: (page: number) => void;
+}
+
+interface FiltroMockProps {
+  onClear?: () => void;
+}
+
+interface HookMockReturn {
+  isPending: boolean;
+  resultado: TextosDePortariasPaginada;
+  onPageChange: (page: number) => void;
+  page: number;
+  filterForm: Partial<UseFormReturn<filterFormSchemaTextosPortariaData>> &
+    Pick<UseFormReturn<filterFormSchemaTextosPortariaData>, "handleSubmit">;
+  onSubmitFilterForm: SubmitHandler<filterFormSchemaTextosPortariaData>;
+  handleClear: () => void;
 }
 
 const pageHeaderSpy = vi.fn<(props: PageHeaderMockProps) => void>();
@@ -45,6 +62,64 @@ const simpleTableHeaderSpy = vi.fn<(props: SimpleTableHeaderMockProps) => void>(
 const simpleHeaderWithBorderSpy = vi.fn<(props: SimpleHeaderWithBorderMockProps) => void>();
 const tabsSpy = vi.fn<(props: TabsProps) => void>();
 const listagemSpy = vi.fn<(props: ListagemMockProps) => void>();
+const filtroSpy = vi.fn<(props: FiltroMockProps) => void>();
+const formProviderSpy = vi.fn();
+const useVisualizarTextosPortariaMock = vi.fn<() => HookMockReturn>();
+
+const textos: TextosDePortariasResponse[] = [
+  {
+    id: 1,
+    tipo_portaria: "Portaria",
+    nome_modelo: "Modelo 1",
+    status: "ATIVO",
+    criado_em: "2026-06-11T08:05:00",
+    atualizado_em: "2026-06-11T10:00:00",
+  },
+  {
+    id: 2,
+    tipo_portaria: "Portaria",
+    nome_modelo: "Modelo 2",
+    status: "INATIVO",
+    criado_em: "2026-06-28T11:12:00",
+    atualizado_em: "2026-06-28T11:40:00",
+  },
+];
+
+const resultado: TextosDePortariasPaginada = {
+  count: 2,
+  next: null,
+  previous: null,
+  results: textos,
+};
+
+const handleClearMock = vi.fn();
+const onPageChangeMock = vi.fn();
+const onSubmitFilterFormMock = vi.fn();
+const submittedValues: filterFormSchemaTextosPortariaData = {
+  tipo_portaria: "Portaria",
+  nome_modelo: "Modelo",
+  status: "ATIVO",
+};
+const handleSubmitMock = vi.fn(
+  (callback: SubmitHandler<filterFormSchemaTextosPortariaData>) => async (event?: BaseSyntheticEvent) => {
+    event?.preventDefault();
+    await callback(submittedValues, event);
+  },
+);
+
+vi.mock("@/hooks/useVisualizarTextosPortaria", () => ({
+  useVisualizarTextosPortaria: () => useVisualizarTextosPortariaMock(),
+}));
+
+vi.mock("react-hook-form", () => ({
+  FormProvider: ({
+    children,
+    ...formProps
+  }: Partial<UseFormReturn<filterFormSchemaTextosPortariaData>> & { children: ReactNode }) => {
+    formProviderSpy(formProps);
+    return <>{children}</>;
+  },
+}));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   default: (props: PageHeaderMockProps) => {
@@ -106,13 +181,27 @@ vi.mock("lucide-react", () => ({
   Plus: () => <span data-testid="icon-plus" />,
 }));
 
+vi.mock("@/components/dashboard/Gestao/FiltroDeTextosPortaria/FiltroDeTextosPortaria", () => ({
+  default: (props: FiltroMockProps) => {
+    filtroSpy(props);
+    return (
+      <div>
+        <button type="submit">buscar</button>
+        <button type="button" onClick={props.onClear}>
+          limpar
+        </button>
+      </div>
+    );
+  },
+}));
+
 vi.mock("@/components/dashboard/Gestao/ListagemDeTextosDePortarias/ListagemDeTextosDePortarias", () => ({
   default: (props: ListagemMockProps) => {
     listagemSpy(props);
     return (
       <div data-testid="listagem-textos">
         <span>{props.data.length}</span>
-        <button type="button" onClick={props.onPageChange}>
+        <button type="button" onClick={() => props.onPageChange(4)}>
           mudar pagina
         </button>
       </div>
@@ -123,6 +212,17 @@ vi.mock("@/components/dashboard/Gestao/ListagemDeTextosDePortarias/ListagemDeTex
 describe("Página Textos de Portaria", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useVisualizarTextosPortariaMock.mockReturnValue({
+      isPending: true,
+      resultado,
+      onPageChange: onPageChangeMock,
+      page: 3,
+      filterForm: {
+        handleSubmit: handleSubmitMock as unknown as UseFormHandleSubmit<filterFormSchemaTextosPortariaData>,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
+    });
   });
 
   it("renderiza header, breadcrumbs e container principal", () => {
@@ -138,7 +238,6 @@ describe("Página Textos de Portaria", () => {
       { title: "Gestão", href: "/" },
       { title: "Textos de portaria", href: "" },
     ]);
-
     expect(fundoBrancoSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         className: "mb-4 mt-8",
@@ -146,7 +245,7 @@ describe("Página Textos de Portaria", () => {
     );
   });
 
-  it("renderiza abas, chamada de cadastro e listagem com dados mockados da página", () => {
+  it("renderiza abas, filtro e listagem com dados vindos do hook", () => {
     render(<TextosDePortaria />);
 
     expect(simpleTableHeaderSpy).toHaveBeenCalledWith({
@@ -162,7 +261,6 @@ describe("Página Textos de Portaria", () => {
       }),
     );
 
-    expect(screen.getByTestId("tabs")).toBeInTheDocument();
     expect(screen.getByTestId("tab-1")).toHaveTextContent("Textos de portaria");
     expect(screen.getByTestId("tab-2")).toHaveTextContent("Regras");
     expect(screen.getByTestId("tab-2")).toHaveTextContent("TBD");
@@ -173,42 +271,32 @@ describe("Página Textos de Portaria", () => {
     expect(tabsProps.defaultActiveKey).toBe("1");
     expect(tabsProps.type).toBe("card");
     expect(tabsProps.size).toBe("medium");
-
+    expect(formProviderSpy).toHaveBeenCalledWith(expect.objectContaining({ handleSubmit: handleSubmitMock }));
+    expect(filtroSpy).toHaveBeenCalledWith({ onClear: handleClearMock });
     expect(listagemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: [
-          {
-            id: 1,
-            tipo_de_portaria: "Portaria",
-            nome_do_modelo: "Modelo 1",
-            status: "ATIVO",
-            criado_em: "Usuario 1",
-            atualizado_em: "30/06/2026 08:05",
-          },
-          {
-            id: 2,
-            tipo_de_portaria: "Portaria",
-            nome_do_modelo: "Modelo 2",
-            status: "ATIVO",
-            criado_em: "Usuario 2",
-            atualizado_em: "28/06/2026 11:12",
-          },
-          {
-            id: 3,
-            tipo_de_portaria: "Portaria",
-            nome_do_modelo: "Modelo 3",
-            status: "INATIVO",
-            criado_em: "Usuario 3",
-            atualizado_em: "15/06/2026 06:30",
-          },
-        ],
-        total: 0,
-        page: 1,
-        isLoading: false,
+        data: textos,
+        total: 2,
+        page: 3,
+        isLoading: true,
+        onPageChange: onPageChangeMock,
       }),
     );
+  });
+
+  it("executa ações do formulário, paginação e botão de cadastro", () => {
+    render(<TextosDePortaria />);
+
+    fireEvent.submit(screen.getByRole("button", { name: "buscar" }).closest("form") as HTMLFormElement);
+    expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitFilterFormMock);
+    expect(onSubmitFilterFormMock).toHaveBeenCalledWith(submittedValues, expect.any(Object));
+
+    fireEvent.click(screen.getByRole("button", { name: "limpar" }));
+    expect(handleClearMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "mudar pagina" }));
+    expect(onPageChangeMock).toHaveBeenCalledWith(4);
 
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar novo texto" }));
-    fireEvent.click(screen.getByRole("button", { name: "mudar pagina" }));
   });
 });

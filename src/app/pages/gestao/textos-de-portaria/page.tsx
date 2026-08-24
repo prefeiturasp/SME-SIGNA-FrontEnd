@@ -27,6 +27,7 @@ export default function TextosDePortaria() {
   } = useVisualizarTextosPortaria();
 
 
+    
   return (
     <>
       <PageHeader
@@ -82,8 +83,8 @@ export default function TextosDePortaria() {
                   <ListagemDeTextosDePortarias
                     onPageChange={onPageChange}
                     key={"lista-de-textos-de-portarias"}
-                    data={resultado.results}
-                    total={resultado.count}
+                    data={resultado?.results ?? []}
+                    total={resultado?.count ?? 0}
                     page={page}
                     isLoading={isPending}
                   />
