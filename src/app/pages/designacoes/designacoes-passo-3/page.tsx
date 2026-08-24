@@ -119,7 +119,7 @@ export default function DesignacoesPasso3() {
     } catch (error) {
       console.error("Erro ao salvar portaria:", error);
       const msg = error instanceof Error ? error.message : "Erro ao salvar a portaria!";
-      notification.error({ title: msg });
+      notification.error({ title: `Erro ao salvar portaria: ${msg}` });
     } finally {
       setSalvando(false);
     }

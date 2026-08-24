@@ -82,10 +82,6 @@ describe("mapearPayloadDesignacao", () => {
         // Regressão: mesmo bug do titular, agora para servidorIndicado — mas só
         // nos campos onde o backend aceita blank (CharField com default="",
         // allow_blank=True): nome_civil, cargo_sobreposto e local_servico.
-        // nome_servidor, cargo_base, lotacao e local_exercicio são obrigatórios
-        // no backend (sem allow_blank/default) e não recebem esse tratamento —
-        // se a SME mandar null neles, é falta de dado na origem, não um caso
-        // de mapeamento.
         const result = mapearPayloadDesignacao({
             ...formBase,
             servidorIndicado: {
@@ -99,6 +95,22 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.indicado_nome_civil).toBe("");
         expect(result?.indicado_cargo_sobreposto).toBe("");
         expect(result?.indicado_local_servico).toBe("");
+    });
+
+    it("repassa local_de_exercicio null do indicado sem transformar (backend aplica o default)", () => {
+        // Diferente dos demais campos opcionais, o backend rejeita blank ("")
+        // em indicado_local_exercicio (CharField blank=False), mas aceita
+        // null — nesse caso é o próprio backend que resolve para
+        // "Indisponível", então o mapper não deve inventar um valor aqui.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                local_de_exercicio: null,
+            } as unknown as typeof servidorIndicado,
+        });
+
+        expect(result?.indicado_local_exercicio).toBeNull();
     });
 
     it("mapeia os campos gerais do form corretamente", () => {
@@ -130,7 +142,8 @@ describe("mapearPayloadDesignacao", () => {
     it("converte campos null do titular (integração SME) para string vazia", () => {
         // Regressão: a integração SME pode retornar null nesses campos, mas o
         // backend usa CharField(blank=True, default="") sem allow_null=True,
-        // e rejeita null explícito com 400.
+        // local_de_exercicio é exceção: o
+        // backend aceita null nesse campo e resolve o default sozinho.
         const result = mapearPayloadDesignacao({
             ...formBase,
             dadosTitular: {
@@ -150,7 +163,7 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.titular_cargo_base).toBe("");
         expect(result?.titular_lotacao).toBe("");
         expect(result?.titular_cargo_sobreposto).toBe("");
-        expect(result?.titular_local_exercicio).toBe("");
+        expect(result?.titular_local_exercicio).toBeNull();
         expect(result?.titular_local_servico).toBe("");
     });
 

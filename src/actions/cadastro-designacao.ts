@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
@@ -13,6 +14,24 @@ type DesignacaoErrorResponse = {
 type DesignacaoResult =
     | { success: true; data: unknown }
     | { success: false; error: string; field?: string };
+
+// O backend retorna `detail` já formatado como "campo_snake_case: mensagem"
+// (várias ocorrências separadas por "; "). Aqui só humanizamos o nome do
+// campo (snake_case → "Primeira palavra minúsculas") para exibição na UI.
+function humanizarDetail(detail: string): string {
+    return detail
+        .split("; ")
+        .map((parte) => {
+            const match = parte.match(/^([a-z0-9_]+):\s*(.*)$/);
+            if (!match) return parte;
+
+            const [, campo, resto] = match;
+            const label = campo.replace(/_/g, " ");
+
+            return `${label.charAt(0).toUpperCase()}${label.slice(1)}: ${resto}`;
+        })
+        .join("; ");
+}
 
 export async function designacaoAction(
     formData: FormDesignacaoEServidorIndicado | null,
@@ -54,14 +73,14 @@ export async function designacaoAction(
           
         return { success: true,  data };
     } catch (err) {
-        const error = err as AxiosError<DesignacaoErrorResponse>;
+        const error = toAxiosError<DesignacaoErrorResponse>(err);
 
         let message = "Erro ao salvar designação";
 
         if (error.response?.status === 500) {
             message = "Erro interno no servidor";
         } else if (error.response?.data?.detail) {
-            message = error.response.data.detail;
+            message = humanizarDetail(error.response.data.detail);
         } else if (error.message) {
             message = error.message;
         }
