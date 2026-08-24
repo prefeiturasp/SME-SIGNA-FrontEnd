@@ -9,7 +9,13 @@ interface ITestResponse {
   readonly id: number;
 }
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, get: vi.fn(), post: vi.fn(), patch: vi.fn(), put: vi.fn(), delete: vi.fn() },
+  };
+});
 const mockedAxios = vi.mocked(axios, true);
 
 vi.mock("next/headers", () => ({
@@ -84,6 +90,7 @@ describe("lib/serverRequest", () => {
   it("retorna erro interno quando status é 500", async () => {
     mockCookies("token");
     mockedAxios.post.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status: 500, data: {} },
       message: "request failed",
     } as never);
@@ -99,6 +106,7 @@ describe("lib/serverRequest", () => {
   it("retorna detail e field quando presentes", async () => {
     mockCookies("token");
     mockedAxios.patch.mockRejectedValueOnce({
+      isAxiosError: true,
       response: {
         status: 422,
         data: { detail: "Valor inválido", field: "nome" },
@@ -118,6 +126,7 @@ describe("lib/serverRequest", () => {
   it("retorna a primeira mensagem de erro em array", async () => {
     mockCookies("token");
     mockedAxios.post.mockRejectedValueOnce({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { nome: ["Campo obrigatório", "Outra mensagem"] },
@@ -136,6 +145,7 @@ describe("lib/serverRequest", () => {
   it("retorna o primeiro valor truthy quando não há detail", async () => {
     mockCookies("token");
     mockedAxios.patch.mockRejectedValueOnce({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { descricao: "", nome: "Nome inválido" },
@@ -154,6 +164,7 @@ describe("lib/serverRequest", () => {
   it("usa error.message quando não há dados úteis na resposta", async () => {
     mockCookies("token");
     mockedAxios.post.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status: 404, data: {} },
       message: "Network Error",
     } as never);
@@ -169,6 +180,7 @@ describe("lib/serverRequest", () => {
   it("usa mensagem padrão quando error.message vem vazio", async () => {
     mockCookies("token");
     mockedAxios.patch.mockRejectedValueOnce({
+      isAxiosError: true,
       response: undefined,
       message: "",
     } as never);

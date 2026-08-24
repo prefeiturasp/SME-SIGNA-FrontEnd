@@ -12,7 +12,13 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import type { AtualizarSenhaRequest } from "@/types/atualizar-senha";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn() },
+    };
+});
 vi.mock("next/headers", () => ({
     cookies: vi.fn(),
 }));
@@ -78,6 +84,7 @@ describe("atualizarSenhaAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { status: 401 },
         });
 
@@ -95,6 +102,7 @@ describe("atualizarSenhaAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { status: 500 },
         });
 
@@ -112,6 +120,7 @@ describe("atualizarSenhaAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "Senha antiga incorreta" } },
         });
 
@@ -129,6 +138,7 @@ describe("atualizarSenhaAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             message: "Erro de rede",
         });
 
@@ -146,6 +156,7 @@ describe("atualizarSenhaAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: {
                 data: {
                     detail: "Senha antiga não pode ser igual à nova",

@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import {
     EsqueciSenhaRequest,
     EsqueciSenhaErrorResponse,
@@ -29,7 +30,7 @@ export async function esqueciSenhaAction(
         );
         return { success: true, message: data.detail };
     } catch (err) {
-        const error = err as AxiosError<EsqueciSenhaErrorResponse>;
+        const error = toAxiosError<EsqueciSenhaErrorResponse>(err);
         let message = "Erro ao recuperar senha";
         if (error.response?.status === 500) {
             message = "Erro interno no servidor";
