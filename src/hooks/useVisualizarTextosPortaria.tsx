@@ -19,9 +19,9 @@ export function useVisualizarTextosPortaria(defaultValues: CargosBaseFiltros = d
     next: null,
     previous: null,
     results: [
-      { id: 1, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 1", status: "ATIVO", atualizado_por: "Usuario 1", atualizado_em: "30/06/2026 08:05" },
-      { id: 2, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 2", status: "ATIVO", atualizado_por: "Usuario 2", atualizado_em: "28/06/2026 11:12" },
-      { id: 3, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 3", status: "INATIVO", atualizado_por: "Usuario 3", atualizado_em: "15/06/2026 06:30" },
+      { id: 1, tipo_portaria: "Portaria", nome_modelo: "Modelo 1", status: "ATIVO", criado_em: "2026-06-11T08:05:00", atualizado_em: "2026-06-11T10:00:00" },
+      { id: 2, tipo_portaria: "Portaria", nome_modelo: "Modelo 2", status: "ATIVO", criado_em: "2026-06-28T11:12:00", atualizado_em: "2026-06-28T11:40:00" },
+      { id: 3, tipo_portaria: "Portaria", nome_modelo: "Modelo 3", status: "INATIVO", criado_em: "2026-06-15T06:30:00", atualizado_em: "2026-06-15T06:50:00" },
     ],
   };
   const page = 1; 

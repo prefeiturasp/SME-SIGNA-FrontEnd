@@ -57,9 +57,9 @@ export interface CargosBaseCriarEditar extends CargosBaseCamposComuns {
 
 export interface TextosDePortariasResponse {
   id: number;
-  tipo_de_portaria: string;
-  nome_do_modelo: string;
+  tipo_portaria: string;
+  nome_modelo: string;
   status: string;
-  atualizado_por: string;
+  criado_em: string;
   atualizado_em: string;
 }

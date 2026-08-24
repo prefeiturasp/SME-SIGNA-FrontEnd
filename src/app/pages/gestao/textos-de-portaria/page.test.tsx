@@ -182,7 +182,7 @@ describe("Página Textos de Portaria", () => {
             tipo_de_portaria: "Portaria",
             nome_do_modelo: "Modelo 1",
             status: "ATIVO",
-            atualizado_por: "Usuario 1",
+            criado_em: "Usuario 1",
             atualizado_em: "30/06/2026 08:05",
           },
           {
@@ -190,7 +190,7 @@ describe("Página Textos de Portaria", () => {
             tipo_de_portaria: "Portaria",
             nome_do_modelo: "Modelo 2",
             status: "ATIVO",
-            atualizado_por: "Usuario 2",
+            criado_em: "Usuario 2",
             atualizado_em: "28/06/2026 11:12",
           },
           {
@@ -198,7 +198,7 @@ describe("Página Textos de Portaria", () => {
             tipo_de_portaria: "Portaria",
             nome_do_modelo: "Modelo 3",
             status: "INATIVO",
-            atualizado_por: "Usuario 3",
+            criado_em: "Usuario 3",
             atualizado_em: "15/06/2026 06:30",
           },
         ],

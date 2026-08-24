@@ -38,10 +38,10 @@ vi.mock("../ListagemDeCargos/ListagemDeCargos", () => ({
 
 const textoPortaria: TextosDePortariasResponse = {
   id: 10,
-  tipo_de_portaria: "Portaria",
-  nome_do_modelo: "Modelo de portaria",
+  tipo_portaria: "Portaria",
+  nome_modelo: "Modelo de portaria",
   status: StatusCargosBase.ATIVO,
-  atualizado_por: "Usuario 1",
+  criado_em: "Usuario 1",
   atualizado_em: "30/06/2026 08:05",
 };
 

@@ -47,7 +47,6 @@ export default function TextosDePortaria() {
           subtitle="Gerencie os modelos de textos utilizados na emissão de Portarias e configure as regras que definem sua composição."
         />
         <Tabs
-
           defaultActiveKey="1"
           type="card"
           size={"medium"}
