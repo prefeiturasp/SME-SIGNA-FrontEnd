@@ -7,7 +7,6 @@ import { Tabs } from "antd";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ListagemDeTextosDePortarias from "@/components/dashboard/Gestao/ListagemDeTextosDePortarias/ListagemDeTextosDePortarias";
-import { TextosDePortariasPaginada } from "@/types/gestao";
 import { FormProvider } from "react-hook-form";
 import { useVisualizarTextosPortaria } from "@/hooks/useVisualizarTextosPortaria";
 import FiltroDeTextosPortaria from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/FiltroDeTextosPortaria";

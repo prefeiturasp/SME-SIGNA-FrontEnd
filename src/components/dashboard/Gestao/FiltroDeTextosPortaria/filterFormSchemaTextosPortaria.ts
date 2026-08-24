@@ -2,8 +2,8 @@ import { z } from "zod";
  
 export const filterFormSchemaTextosPortaria = z
   .object({
-    tipo: z.string().optional(),
-    nome_do_modelo: z.string().optional(),
+    tipo_portaria: z.string().optional(),
+    nome_modelo: z.string().optional(),
     status: z.string().optional(),
    });
    

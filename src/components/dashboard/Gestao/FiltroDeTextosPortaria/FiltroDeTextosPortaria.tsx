@@ -8,36 +8,40 @@ import { AtosOpcoes, TipoAtoSelectField } from '../../Designacao/FiltroDeAtosAdm
 
 interface Props {
   onClear?: () => void;
-} 
+}
 
 export const StatusOpcoes = [
   { codigo: 'ATIVO', nome: 'Ativo' },
   { codigo: 'INATIVO', nome: 'Inativo' },
 ]
- 
+
 const FiltroDeTextosPortaria: React.FC<Props> = ({ onClear }) => {
   const { register, control, watch } = useFormContext();
   const watchedValues = watch([
-    "tipo",
-    "nome_do_modelo",
+    "tipo_portaria",
+    "nome_modelo",
     "status",
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
   return (
     <>
-    <div className="w-full flex gap-4">
+      <div className="w-full flex gap-4">
         <div className="w-[33%]">
-          <TipoAtoSelectField label={"Tipo de portaria"} AtosOpcoes={AtosOpcoes} />
+          <TipoAtoSelectField
+            label={"Tipo de portaria"}
+            name="tipo_portaria"
+            AtosOpcoes={AtosOpcoes}
+          />
         </div>
         <div className="w-[34%]">
           <InputField
             register={register}
             control={control}
-            name="nome_do_modelo"
+            name="nome_modelo"
             label="Nome do Modelo"
             placeholder="Digite o nome do modelo..."
-            data-testid="input-nome_do_modelo"
+            data-testid="input-nome_modelo"
             type="text"
           />
         </div>
@@ -45,7 +49,7 @@ const FiltroDeTextosPortaria: React.FC<Props> = ({ onClear }) => {
           <SelectField
             register={register}
             control={control}
-            name="status" 
+            name="status"
             label="Status"
             placeholder="Selecione"
             data-testid="input-status"

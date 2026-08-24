@@ -7,8 +7,8 @@ import filterFormSchemaTextosPortaria, { filterFormSchemaTextosPortariaData } fr
 
 
 const defaultValuesFilters: filterFormSchemaTextosPortariaData = {
-  tipo: "",
-  nome_do_modelo: "",
+  tipo_portaria: "",
+  nome_modelo: "",
   status: "",
 };
 
