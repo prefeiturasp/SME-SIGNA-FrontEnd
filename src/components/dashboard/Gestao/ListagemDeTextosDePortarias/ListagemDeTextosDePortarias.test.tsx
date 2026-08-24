@@ -38,11 +38,11 @@ vi.mock("../ListagemDeCargos/ListagemDeCargos", () => ({
 
 const textoPortaria: TextosDePortariasResponse = {
   id: 10,
-  tipo_de_portaria: "Portaria",
-  nome_do_modelo: "Modelo de portaria",
+  tipo_portaria: "Portaria",
+  nome_modelo: "Modelo de portaria",
   status: StatusCargosBase.ATIVO,
-  atualizado_por: "Usuario 1",
-  atualizado_em: "30/06/2026 08:05",
+  criado_em: "2026-06-11T08:05:00",
+  atualizado_em: "2026-06-11T10:00:00",
 };
 
 describe("ListagemDeTextosDePortarias", () => {
@@ -112,5 +112,17 @@ describe("ListagemDeTextosDePortarias", () => {
       }),
     ).toBe("disabled-row");
     expect((tableProps.rowClassName as (record: TextosDePortariasResponse) => string)(textoPortaria)).toBe("");
+  });
+
+  it("formata as colunas de data e hora", () => {
+    render(<ListagemDeTextosDePortarias data={[textoPortaria]} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<TextosDePortariasResponse>["columns"]>;
+    const renderCriadoEm = columns[3]?.render as ((text: string | null) => ReactNode) | undefined;
+    const renderAtualizadoEm = columns[4]?.render as ((text: string | null) => ReactNode) | undefined;
+
+    expect(renderCriadoEm?.(textoPortaria.criado_em)).toBe("11/06/2026 08:05");
+    expect(renderAtualizadoEm?.(textoPortaria.atualizado_em)).toBe("11/06/2026 10:00");
   });
 });

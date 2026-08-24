@@ -7,26 +7,27 @@ import { Tabs } from "antd";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ListagemDeTextosDePortarias from "@/components/dashboard/Gestao/ListagemDeTextosDePortarias/ListagemDeTextosDePortarias";
-import { TextosDePortariasPaginada } from "@/types/gestao";
+import { FormProvider } from "react-hook-form";
+import { useVisualizarTextosPortaria } from "@/hooks/useVisualizarTextosPortaria";
+import FiltroDeTextosPortaria from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/FiltroDeTextosPortaria";
 
 
 
 export default function TextosDePortaria() {
 
-  const isPending = false;
-  const resultado: TextosDePortariasPaginada = {
-    count: 0,
-    next: null,
-    previous: null,
-    results: [
-      {id: 1, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 1", status: "ATIVO", atualizado_por: "Usuario 1", atualizado_em: "30/06/2026 08:05"},
-      {id: 2, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 2", status: "ATIVO", atualizado_por: "Usuario 2", atualizado_em: "28/06/2026 11:12"},
-      {id: 3, tipo_de_portaria: "Portaria", nome_do_modelo: "Modelo 3", status: "INATIVO", atualizado_por: "Usuario 3", atualizado_em: "15/06/2026 06:30"},
-    ],
-  };
-  const onPageChange = () => { };
-  const page = 1;
 
+   const {
+    isPending,    
+    resultado,
+    onPageChange,
+    page,
+    filterForm,
+    onSubmitFilterForm,
+    handleClear,
+  } = useVisualizarTextosPortaria();
+
+
+    
   return (
     <>
       <PageHeader
@@ -47,7 +48,6 @@ export default function TextosDePortaria() {
           subtitle="Gerencie os modelos de textos utilizados na emissão de Portarias e configure as regras que definem sua composição."
         />
         <Tabs
-
           defaultActiveKey="1"
           type="card"
           size={"medium"}
@@ -74,11 +74,17 @@ export default function TextosDePortaria() {
                     }
                   />
 
+                  <FormProvider {...filterForm}>
+                    <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
+                      <FiltroDeTextosPortaria onClear={handleClear} />
+                    </form>
+                  </FormProvider>
+
                   <ListagemDeTextosDePortarias
                     onPageChange={onPageChange}
                     key={"lista-de-textos-de-portarias"}
-                    data={resultado.results}
-                    total={resultado.count}
+                    data={resultado?.results ?? []}
+                    total={resultado?.count ?? 0}
                     page={page}
                     isLoading={isPending}
                   />
