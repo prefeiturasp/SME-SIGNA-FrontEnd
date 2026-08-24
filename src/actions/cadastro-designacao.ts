@@ -22,11 +22,14 @@ function humanizarDetail(detail: string): string {
     return detail
         .split("; ")
         .map((parte) => {
-            const match = parte.match(/^([a-z0-9_]+):\s*(.*)$/);
-            if (!match) return parte;
+            const idx = parte.indexOf(":");
+            if (idx === -1) return parte;
 
-            const [, campo, resto] = match;
-            const label = campo.replace(/_/g, " ");
+            const campo = parte.slice(0, idx);
+            if (!/^[a-z0-9_]+$/.test(campo)) return parte;
+
+            const resto = parte.slice(idx + 1).trimStart();
+            const label = campo.replaceAll("_", " ");
 
             return `${label.charAt(0).toUpperCase()}${label.slice(1)}: ${resto}`;
         })
