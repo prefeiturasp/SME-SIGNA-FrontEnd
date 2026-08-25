@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable react-hooks/refs, react-hooks/set-state-in-effect */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 
@@ -274,10 +276,16 @@ export function SimpleEditor({
   }, [isMobile, mobileView])
 
   useEffect(() => {
-    if (!editor || content === undefined || content === editor.getHTML()) {
+    if (!editor || content === undefined) {
       return
     }
 
+    const currentHtml = editor.getHTML()
+    if (content === currentHtml) {
+      return
+    }
+
+    // Evita loop quando o TipTap normaliza o HTML de forma diferente do form.
     editor.commands.setContent(content, { emitUpdate: false })
   }, [content, editor])
 

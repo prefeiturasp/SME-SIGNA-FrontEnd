@@ -1,7 +1,7 @@
 import throttle from "lodash.throttle"
+import { useEffect, useMemo, useRef } from "react"
 
 import { useUnmount } from "@/hooks/use-unmount"
-import { useMemo } from "react"
 
 interface ThrottleSettings {
   leading?: boolean | undefined
@@ -12,6 +12,8 @@ const defaultOptions: ThrottleSettings = {
   leading: false,
   trailing: true,
 }
+
+const EMPTY_DEPS: React.DependencyList = []
 
 /**
  * A hook that returns a throttled callback function.
@@ -25,17 +27,29 @@ const defaultOptions: ThrottleSettings = {
 export function useThrottledCallback<T extends (...args: any[]) => any>(
   fn: T,
   wait = 250,
-  dependencies: React.DependencyList = [],
+  dependencies: React.DependencyList = EMPTY_DEPS,
   options: ThrottleSettings = defaultOptions
 ): {
   (this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T>
   cancel: () => void
   flush: () => void
 } {
+  const fnRef = useRef(fn)
+
+  useEffect(() => {
+    fnRef.current = fn
+  }, [fn])
+
   const handler = useMemo(
-    () => throttle<T>(fn, wait, options),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies
+    () =>
+      throttle(
+        ((...args: Parameters<T>) => fnRef.current(...args)) as T,
+        wait,
+        options
+      ),
+    // Caller supplies dynamic deps; react-hooks/use-memo requires a literal array.
+    // eslint-disable-next-line react-hooks/use-memo, react-hooks/exhaustive-deps
+    [wait, options, ...dependencies]
   )
 
   useUnmount(() => {

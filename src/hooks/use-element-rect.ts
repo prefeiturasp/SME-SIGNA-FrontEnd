@@ -36,8 +36,23 @@ const initialRect: RectState = {
   left: 0,
 }
 
+const THROTTLE_OPTIONS = {
+  leading: true,
+  trailing: true,
+} as const
+
 const isSSR = typeof window === "undefined"
 const hasResizeObserver = !isSSR && typeof ResizeObserver !== "undefined"
+
+const areRectsEqual = (a: RectState, b: RectState) =>
+  a.x === b.x &&
+  a.y === b.y &&
+  a.width === b.width &&
+  a.height === b.height &&
+  a.top === b.top &&
+  a.right === b.right &&
+  a.bottom === b.bottom &&
+  a.left === b.left
 
 /**
  * Helper function to check if code is running on client side
@@ -82,30 +97,31 @@ export function useElementRect({
 
       const targetElement = getTargetElement()
       if (!targetElement) {
-        setRect(initialRect)
+        setRect((prev) => (areRectsEqual(prev, initialRect) ? prev : initialRect))
         return
       }
 
-      const newRect = targetElement.getBoundingClientRect()
-      setRect({
-        x: newRect.x,
-        y: newRect.y,
-        width: newRect.width,
-        height: newRect.height,
-        top: newRect.top,
-        right: newRect.right,
-        bottom: newRect.bottom,
-        left: newRect.left,
-      })
+      const nextRect = targetElement.getBoundingClientRect()
+      const nextState: RectState = {
+        x: nextRect.x,
+        y: nextRect.y,
+        width: nextRect.width,
+        height: nextRect.height,
+        top: nextRect.top,
+        right: nextRect.right,
+        bottom: nextRect.bottom,
+        left: nextRect.left,
+      }
+
+      setRect((prev) => (areRectsEqual(prev, nextState) ? prev : nextState))
     },
     throttleMs,
     [enabled, getTargetElement],
-    { leading: true, trailing: true }
+    THROTTLE_OPTIONS
   )
 
   useEffect(() => {
     if (!enabled || !isClientSide()) {
-      setRect(initialRect)
       return
     }
 
@@ -130,13 +146,12 @@ export function useElementRect({
     window.addEventListener("resize", handleUpdate, true)
 
     cleanup.push(() => {
-      window.removeEventListener("scroll", handleUpdate)
-      window.removeEventListener("resize", handleUpdate)
+      window.removeEventListener("scroll", handleUpdate, true)
+      window.removeEventListener("resize", handleUpdate, true)
     })
 
     return () => {
       cleanup.forEach((fn) => fn())
-      setRect(initialRect)
     }
   }, [enabled, getTargetElement, updateRect, useResizeObserver])
 
