@@ -4,8 +4,8 @@ import { forwardRef, useCallback, useEffect, useRef, useState } from "react"
 import { Separator } from "@/components/ui/tiptap-ui-primitive/separator"
 import "@/components/ui/tiptap-ui-primitive/toolbar/toolbar.scss"
 import { cn } from "@/lib/tiptap-utils"
-import { useMenuNavigation } from "@/hooks/use-menu-navigation"
-import { useComposedRef } from "@/hooks/use-composed-ref"
+import { useMenuNavigation } from "../../tiptaphooks/use-menu-navigation"
+import { useComposedRef } from "../../tiptaphooks/use-composed-ref"
 
 type BaseProps = React.HTMLAttributes<HTMLDivElement>
 

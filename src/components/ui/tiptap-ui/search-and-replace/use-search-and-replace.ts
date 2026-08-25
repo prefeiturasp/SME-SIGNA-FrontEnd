@@ -6,7 +6,7 @@ import { useCurrentEditor } from "@tiptap/react"
 import type { FindAndReplaceStorage } from "@tiptap/extension-find-and-replace"
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 
 // --- Icons ---
 import { SearchIcon } from "@/components/ui/tiptap-icons/search-icon"
@@ -89,6 +89,22 @@ const EMPTY_EDITOR_STATE: SearchAndReplaceEditorState = {
   caseSensitive: false,
   wholeWord: false,
   useRegex: false,
+}
+
+function getSearchEditorState(
+  editor: Editor | null
+): SearchAndReplaceEditorState {
+  const storage = getFindAndReplaceStorage(editor)
+  if (!storage) return EMPTY_EDITOR_STATE
+
+  return {
+    total: storage.results.length,
+    currentIndex: storage.currentIndex,
+    appliedSearchTerm: storage.searchTerm,
+    caseSensitive: storage.caseSensitive,
+    wholeWord: storage.wholeWord,
+    useRegex: storage.useRegex,
+  }
 }
 
 /**
@@ -284,46 +300,36 @@ export function useSearchAndReplace(config?: UseSearchAndReplaceConfig) {
   // extension owns matching, navigation and replacement.
   const [searchTerm, setSearchTermState] = useState("")
   const [replaceTerm, setReplaceTermState] = useState("")
+  const [editorState, setEditorState] = useState<SearchAndReplaceEditorState>(
+    () => getSearchEditorState(editor)
+  )
+  const [prevEditor, setPrevEditor] = useState(editor)
 
   // Adopt terms configured on the extension (e.g. an initial `searchTerm`
-  // option) once the editor is available.
-  useEffect(() => {
-    const storage = getFindAndReplaceStorage(editor)
-    if (!storage) return
+  // option) and reset the snapshot when the resolved editor instance changes.
+  if (editor !== prevEditor) {
+    setPrevEditor(editor)
 
-    if (storage.searchTerm) {
+    const storage = getFindAndReplaceStorage(editor)
+    if (storage?.searchTerm) {
       setSearchTermState((previous) => previous || storage.searchTerm)
     }
-    if (storage.replaceTerm) {
+    if (storage?.replaceTerm) {
       setReplaceTermState((previous) => previous || storage.replaceTerm)
     }
-  }, [editor])
+
+    setEditorState(getSearchEditorState(editor))
+  }
 
   // Subscribe to extension transactions so count, current index and disabled
-  // states update immediately. Synced eagerly on subscribe: the extension may
-  // already hold results from a configured `searchTerm` before any
-  // transaction happens (e.g. on a freshly loaded page).
-  const [editorState, setEditorState] =
-    useState<SearchAndReplaceEditorState>(EMPTY_EDITOR_STATE)
-
+  // states update immediately.
   useEffect(() => {
     if (!editor || !isFindAndReplaceAvailable(editor)) {
-      setEditorState(EMPTY_EDITOR_STATE)
       return
     }
 
     const sync = () => {
-      const storage = getFindAndReplaceStorage(editor)
-      if (!storage) return
-
-      const next: SearchAndReplaceEditorState = {
-        total: storage.results.length,
-        currentIndex: storage.currentIndex,
-        appliedSearchTerm: storage.searchTerm,
-        caseSensitive: storage.caseSensitive,
-        wholeWord: storage.wholeWord,
-        useRegex: storage.useRegex,
-      }
+      const next = getSearchEditorState(editor)
 
       setEditorState((previous) =>
         previous.total === next.total &&
@@ -336,8 +342,6 @@ export function useSearchAndReplace(config?: UseSearchAndReplaceConfig) {
           : next
       )
     }
-
-    sync()
 
     editor.on("transaction", sync)
 

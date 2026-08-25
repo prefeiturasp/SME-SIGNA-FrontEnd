@@ -1,11 +1,11 @@
 "use client"
 
-import { forwardRef, useCallback, useEffect, useState } from "react"
+import { forwardRef, useCallback, useState } from "react"
 import type { Editor } from "@tiptap/react"
 
 // --- Hooks ---
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useIsBreakpoint } from "../../tiptaphooks/use-is-breakpoint"
+import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 
 // --- Icons ---
 import { CornerDownLeftIcon } from "@/components/ui/tiptap-icons/corner-down-left-icon"
@@ -245,6 +245,14 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
 
     const shouldAutoOpen =
       autoOpenOnLinkActive && !!editor?.isFocused && isActive
+    const [wasAutoOpen, setWasAutoOpen] = useState(false)
+
+    if (shouldAutoOpen !== wasAutoOpen) {
+      setWasAutoOpen(shouldAutoOpen)
+      if (shouldAutoOpen) {
+        setIsOpen(true)
+      }
+    }
 
     const handleOnOpenChange = useCallback(
       (nextIsOpen: boolean) => {
@@ -267,12 +275,6 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
       },
       [onClick, isOpen]
     )
-
-    useEffect(() => {
-      if (shouldAutoOpen) {
-        setIsOpen(true)
-      }
-    }, [shouldAutoOpen])
 
     if (!isVisible) {
       return null

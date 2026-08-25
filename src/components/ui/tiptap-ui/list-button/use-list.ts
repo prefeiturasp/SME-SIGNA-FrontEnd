@@ -5,7 +5,7 @@ import { type Editor } from "@tiptap/react"
 import { NodeSelection, TextSelection } from "@tiptap/pm/state"
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 
 // --- Icons ---
 import { ListIcon } from "@/components/ui/tiptap-icons/list-icon"

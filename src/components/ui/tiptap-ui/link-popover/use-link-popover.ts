@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import type { Editor } from "@tiptap/react"
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 
 // --- Icons ---
 import { LinkIcon } from "@/components/ui/tiptap-icons/link-icon"
@@ -111,16 +111,10 @@ export function useLinkHandler(props: LinkHandlerProps) {
   const { editor, onSetLink } = props
   const [url, setUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!editor) return
-
-    // Get URL immediately on mount
+  if (editor && isLinkActive(editor) && url === null) {
     const { href } = editor.getAttributes("link")
-
-    if (isLinkActive(editor) && url === null) {
-      setUrl(href || "")
-    }
-  }, [editor, url])
+    setUrl(href || "")
+  }
 
   useEffect(() => {
     if (!editor) return

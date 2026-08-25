@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import type { Editor } from "@tiptap/react"
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor" 
 
 // --- Icons ---
 import { ListIcon } from "@/components/ui/tiptap-icons/list-icon"

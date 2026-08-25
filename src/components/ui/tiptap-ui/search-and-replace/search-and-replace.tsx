@@ -4,15 +4,13 @@ import { forwardRef, useCallback, useEffect, useRef } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 
 // --- Hooks ---
-import { useComposedRef } from "@/hooks/use-composed-ref"
+import { useComposedRef } from "../../tiptaphooks/use-composed-ref"
 
 // --- Icons ---
-import { ArrowRightIcon } from "@/components/ui/tiptap-icons/arrow-right-icon"
 import { CaseSensitiveIcon } from "@/components/ui/tiptap-icons/case-sensitive-icon"
 import { ChevronDownIcon } from "@/components/ui/tiptap-icons/chevron-down-icon"
 import { ChevronUpIcon } from "@/components/ui/tiptap-icons/chevron-up-icon"
 import { CloseIcon } from "@/components/ui/tiptap-icons/close-icon"
-import { ExternalLinkIcon } from "@/components/ui/tiptap-icons/external-link-icon"
 import { SearchIcon } from "@/components/ui/tiptap-icons/search-icon"
 import { WholeWordIcon } from "@/components/ui/tiptap-icons/whole-word-icon"
 
@@ -44,7 +42,6 @@ import {
   InputGroupInput,
 } from "@/components/ui/tiptap-ui-primitive/input-group"
 import { Separator } from "@/components/ui/tiptap-ui-primitive/separator"
-import { Switch } from "@/components/ui/tiptap-ui-primitive/switch"
 
 // --- Styles ---
 import "@/components/ui/tiptap-ui/search-and-replace/search-and-replace.scss"
@@ -92,54 +89,6 @@ export type SearchAndReplaceContentProps = SearchAndReplaceProps
 
 function isModKey(event: React.KeyboardEvent): boolean {
   return event.metaKey || event.ctrlKey
-}
-
-const REGEX_DOCS_URL =
-  "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions"
-
-const REGEX_SEARCH_EXAMPLES = [
-  { label: "Any middle letter:", pattern: "c.t" },
-  { label: "Either term:", pattern: "cat|tiptap" },
-  { label: "Uppercase or lowercase C:", pattern: "[Cc]at" },
-]
-
-const REGEX_REPLACE_EXAMPLES = [
-  { pattern: "TipTap|tiptap|TIPTAP", replacement: "Tiptap" },
-  { pattern: "(cat|tiptap)", replacement: '"$1"' },
-]
-
-/**
- * Example row for the regex explanation box. Deliberately local to this
- * box — a small ghost-style button whose label mixes plain text with code
- * chips is too specific to become a shared primitive.
- */
-function RegexExampleButton({
-  pattern,
-  onApply,
-  children,
-}: {
-  pattern: string
-  onApply: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <ButtonGroup
-      className="tiptap-search-replace-regex-example-row"
-      orientation="horizontal"
-    >
-      <Button
-        type="button"
-        className="tiptap-search-replace-regex-example-button"
-        data-regex-example={pattern}
-        onClick={onApply}
-        variant="ghost"
-        size="small"
-      >
-        <span className="tiptap-button-text">{children}</span>
-        <ArrowRightIcon className="tiptap-button-icon" aria-hidden="true" />
-      </Button>
-    </ButtonGroup>
-  )
 }
 
 /**
@@ -212,7 +161,6 @@ export const SearchAndReplace = forwardRef<
       replaceTerm,
       caseSensitive,
       wholeWord,
-      useRegex,
       canSearch,
       canNavigate,
       canReplace,
@@ -221,7 +169,6 @@ export const SearchAndReplace = forwardRef<
       setReplaceTerm,
       toggleCaseSensitive,
       toggleWholeWord,
-      toggleUseRegex,
       goToNext,
       goToPrevious,
       replaceCurrent,
@@ -240,19 +187,6 @@ export const SearchAndReplace = forwardRef<
       input.focus()
       input.select()
     }, [])
-
-    // Example buttons fill the inputs so the pattern can be tested right
-    // away; the extension debounce then applies the search.
-    const applyRegexExample = useCallback(
-      (pattern: string, replacement?: string) => {
-        setSearchTerm(pattern)
-        if (replacement !== undefined) {
-          setReplaceTerm(replacement)
-        }
-        focusSearchInput()
-      },
-      [setSearchTerm, setReplaceTerm, focusSearchInput]
-    )
 
     // Built-in Mod+F: with a custom search present, the browser's
     // find-in-page is replaced everywhere on the page, no matter where
