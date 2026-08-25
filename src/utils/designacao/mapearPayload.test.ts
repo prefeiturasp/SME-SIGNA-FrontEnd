@@ -211,14 +211,22 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.data_fim).toBe("2024-06-01");
     });
 
-    it("retorna null para datas quando valor é null/undefined", () => {
+    it("retorna null (payload incompleto) quando a_partir_de está ausente", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             a_partir_de: null,
             designacao_data_final: undefined,
         } as unknown as FormDesignacaoEServidorIndicado);
 
-        expect(result?.data_inicio).toBeNull();
+        expect(result).toBeNull();
+    });
+
+    it("retorna null para data_fim quando designacao_data_final é undefined", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            designacao_data_final: undefined,
+        } as unknown as FormDesignacaoEServidorIndicado);
+
         expect(result?.data_fim).toBeNull();
     });
 

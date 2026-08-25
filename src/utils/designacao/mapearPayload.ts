@@ -43,7 +43,9 @@ export function mapearPayloadDesignacao(
 ) {
     if (!form) return null;
 
-    const servidorIndicado = form.servidorIndicado!;
+    const { servidorIndicado, a_partir_de, tipo_cargo } = form;
+    if (!servidorIndicado || !a_partir_de || !tipo_cargo) return null;
+
     const { dadosTitular } = form;
     const titular = dadosTitular ?? null;
 
@@ -88,7 +90,7 @@ export function mapearPayloadDesignacao(
         ano_vigente: form.ano,
         sei_numero: form.numero_sei,
         doc: form.doc,
-        data_inicio: formatarData(form.a_partir_de),
+        data_inicio: formatarData(a_partir_de),
         data_fim: formatarData(form.designacao_data_final),
 
         carater_excepcional: form.carater_especial === "sim",
@@ -98,7 +100,7 @@ export function mapearPayloadDesignacao(
         possui_pendencia: form.com_pendencia === "sim",
         pendencias: form.motivo_pendencia ?? null,
 
-        tipo_vaga: form.tipo_cargo?.toUpperCase(),
+        tipo_vaga: tipo_cargo.toUpperCase(),
         cargo_vaga: cargoVaga,
         informacoes_adicionais: form.informacoes_adicionais,
         detalhe_para_quadro_de_historico_por_ano: form.detalhe_para_quadro_de_historico_por_ano,

@@ -48,6 +48,12 @@ export async function designacaoAction(
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
     const payload = mapearPayloadDesignacao(formData);
+    if (!payload) {
+        return {
+            success: false,
+            error: "Dados do formulário incompletos: servidor indicado, data de início ou tipo de vaga não informados.",
+        };
+    }
      try {
          const headers = {
             "Content-Type": "application/json",

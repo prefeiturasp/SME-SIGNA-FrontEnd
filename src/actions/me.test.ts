@@ -12,7 +12,13 @@ import axios, { AxiosError, AxiosHeaders } from "axios";
 import { cookies } from "next/headers";
 import { User } from "@/stores/useUserStore";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, get: vi.fn() },
+    };
+});
 vi.mock("next/headers", () => ({
     cookies: vi.fn(),
 }));
@@ -105,7 +111,7 @@ describe("getMeAction", () => {
 
         expect(result).toEqual({
             success: false,
-            error: "Erro ao buscar os dados do usuário",
+            error: "Mensagem de erro da API",
         });
     });
 

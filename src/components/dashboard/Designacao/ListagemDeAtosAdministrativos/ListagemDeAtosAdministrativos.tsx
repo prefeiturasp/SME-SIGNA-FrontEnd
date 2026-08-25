@@ -70,17 +70,30 @@ const TagStatusAtosAdministrativos = (status: StatusAtosAdministrativos | undefi
   );
 };
 
-const getColumnContent = (content: unknown) => {
-  if (
-    content &&
-    typeof content === 'object' &&
-    'children' in content
-  ) {
-    return (content as { children?: React.ReactNode }).children ?? '-';
+interface CellWithChildren {
+  children?: React.ReactNode;
+}
+
+const hasChildrenProp = (content: unknown): content is CellWithChildren =>
+  typeof content === 'object' && content !== null && 'children' in content;
+
+// o `render` da Table do antd pode retornar um objeto de célula mesclada ({ children, props })
+// em vez de um nó comum; ReactNode em si não tem um formato checável em runtime,
+// então esse cast final é o limite aceitável para "o que quer que a função de render retorne".
+const getColumnContent = (content: unknown): React.ReactNode => {
+  if (hasChildrenProp(content)) {
+    return content.children ?? '-';
   }
 
   return (content as React.ReactNode) ?? '-';
 };
+
+const parseStatusAtosAdministrativos = (
+  status: string
+): StatusAtosAdministrativos | undefined =>
+  (Object.values(StatusAtosAdministrativos) as string[]).includes(status)
+    ? (status as StatusAtosAdministrativos)
+    : undefined;
 
 
 
@@ -312,7 +325,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     {
       title: 'Status', dataIndex: 'status_publicacao', key: 'status_publicacao', render: (_, record) => {
         return (
-          TagStatusAtosAdministrativos(record.status_publicacao as StatusAtosAdministrativos, String(record.id) + '_status')
+          TagStatusAtosAdministrativos(parseStatusAtosAdministrativos(record.status_publicacao), String(record.id) + '_status')
         );
       },
     },

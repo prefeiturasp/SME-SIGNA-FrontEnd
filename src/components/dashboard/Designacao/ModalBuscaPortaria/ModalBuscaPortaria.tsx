@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  useForm,
-  type Control,
-  type FieldValues,
-  type UseFormRegister,
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 
@@ -79,9 +74,6 @@ export default function ModalBuscaPortaria({
     }
   }, [open]);
 
-  const registerFieldValues = form.register as unknown as UseFormRegister<FieldValues>;
-  const controlFieldValues = form.control as unknown as Control<FieldValues>;
-
   const handleSubmit = (values: FormBuscaPortariaData) => {
     onSubmit(values.portaria, values.ano);
   };
@@ -104,8 +96,8 @@ export default function ModalBuscaPortaria({
             className="flex flex-col gap-4"
           >
             <InputField
-              register={registerFieldValues}
-              control={controlFieldValues}
+              register={form.register}
+              control={form.control}
               name="portaria"
               label={fieldLabel}
               placeholder="Digite o número da portaria"
@@ -114,7 +106,7 @@ export default function ModalBuscaPortaria({
             />
 
             <FormField
-              control={controlFieldValues}
+              control={form.control}
               name="ano"
               render={({ field }) => (
                 <FormItem>
