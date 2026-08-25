@@ -91,7 +91,7 @@ export const HeadingDropdownMenu = forwardRef<
             data-disabled={!canToggle}
             aria-label="Format text as heading"
             aria-pressed={isActive}
-            tooltip="Heading"
+            tooltip="Cabeçalho" 
             {...buttonProps}
             ref={ref}
           >
@@ -113,7 +113,7 @@ export const HeadingDropdownMenu = forwardRef<
                 <HeadingButton
                   editor={editor}
                   level={level}
-                  text={`Heading ${level}`}
+                  text={`Cabeçalho ${level}`}
                   showTooltip={false}
                 />
               </DropdownMenuItem>

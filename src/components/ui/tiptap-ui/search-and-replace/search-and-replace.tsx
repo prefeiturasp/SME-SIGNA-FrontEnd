@@ -158,8 +158,8 @@ export const SearchAndReplaceButton = forwardRef<
       variant="ghost"
       role="button"
       tabIndex={-1}
-      aria-label="Search and replace"
-      tooltip="Search and replace"
+      aria-label="Pesquisar e substituir"
+      tooltip="Pesquisar e substituir"
       shortcutKeys={SEARCH_AND_REPLACE_SHORTCUT_KEY}
       ref={ref}
       {...props}
@@ -503,7 +503,7 @@ export const SearchAndReplace = forwardRef<
               <InputGroup className="tiptap-search-replace-input-group">
                 <InputGroupInput
                   data-field="search-query"
-                  placeholder="Search"
+                  placeholder="Pesquisar"
                   aria-label="Search"
                   value={searchTerm}
                   autoFocus={open && autoFocusSearch}
@@ -533,7 +533,7 @@ export const SearchAndReplace = forwardRef<
                 <InputGroupInput
                   data-field="replace-query"
                   placeholder="Replace"
-                  aria-label="Replace"
+                  aria-label="Substituir"
                   value={replaceTerm}
                   autoComplete="off"
                   autoCorrect="off"
@@ -570,7 +570,7 @@ export const SearchAndReplace = forwardRef<
                   className="tiptap-button-icon"
                   aria-hidden="true"
                 />
-                <span className="tiptap-button-text">Match case</span>
+                <span className="tiptap-button-text">Correspondência de caso</span>
               </Button>
 
               <Button
@@ -585,94 +585,11 @@ export const SearchAndReplace = forwardRef<
                   className="tiptap-button-icon"
                   aria-hidden="true"
                 />
-                <span className="tiptap-button-text">Whole words</span>
+                <span className="tiptap-button-text">Palavras inteiras</span>
               </Button>
             </div>
           </div>
-
-          <Separator orientation="horizontal" />
-
-          <div className="tiptap-search-replace-regex-toggle">
-            <label
-              data-option="use-regex"
-              className="tiptap-search-replace-regex-toggle-row"
-            >
-              <span className="tiptap-search-replace-regex-toggle-label">
-                Use regular expression
-              </span>
-              <Switch
-                checked={useRegex}
-                onCheckedChange={toggleUseRegex}
-                disabled={!canSearch}
-              />
-            </label>
-
-            {useRegex && (
-              <div className="tiptap-search-replace-regex-help">
-                <div className="tiptap-search-replace-regex-help-section">
-                  <span className="tiptap-search-replace-regex-help-label">
-                    Try a search pattern
-                  </span>
-
-                  <ButtonGroup
-                    orientation="vertical"
-                    className="tiptap-search-replace-regex-example-list"
-                  >
-                    {REGEX_SEARCH_EXAMPLES.map(({ label, pattern }) => (
-                      <RegexExampleButton
-                        key={pattern}
-                        pattern={pattern}
-                        onApply={() => applyRegexExample(pattern)}
-                      >
-                        {label} <code>{pattern}</code>
-                      </RegexExampleButton>
-                    ))}
-                  </ButtonGroup>
-                </div>
-
-                <Separator
-                  orientation="horizontal"
-                  className="tiptap-search-replace-regex-help-separator"
-                />
-
-                <div className="tiptap-search-replace-regex-help-section">
-                  <span className="tiptap-search-replace-regex-help-label">
-                    Try search and replace
-                  </span>
-
-                  <ButtonGroup
-                    orientation="vertical"
-                    className="tiptap-search-replace-regex-example-list"
-                  >
-                    {REGEX_REPLACE_EXAMPLES.map(({ pattern, replacement }) => (
-                      <RegexExampleButton
-                        key={pattern}
-                        pattern={pattern}
-                        onApply={() => applyRegexExample(pattern, replacement)}
-                      >
-                        <code>{pattern}</code> to <code>{replacement}</code>
-                      </RegexExampleButton>
-                    ))}
-                  </ButtonGroup>
-
-                  <a
-                    className="tiptap-search-replace-regex-docs-link"
-                    data-search-replace-action="regex-docs"
-                    href={REGEX_DOCS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Learn about regular expressions
-                    <ExternalLinkIcon
-                      className="tiptap-search-replace-regex-docs-link-icon"
-                      aria-hidden="true"
-                    />
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-
+           
           <Separator orientation="horizontal" />
         </CardBody>
 
@@ -686,7 +603,7 @@ export const SearchAndReplace = forwardRef<
                 aria-label="Replace current result"
                 onClick={replaceCurrent}
               >
-                Replace
+                Substituir
               </Button>
             </ButtonGroup>
             <ButtonGroup>
@@ -697,7 +614,7 @@ export const SearchAndReplace = forwardRef<
                 aria-label="Replace all results"
                 onClick={replaceAll}
               >
-                Replace all
+                Substituir tudo
               </Button>
             </ButtonGroup>
           </ButtonGroup>

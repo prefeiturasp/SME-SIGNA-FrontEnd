@@ -130,7 +130,36 @@ export function shouldShowButton(props: {
  * Gets the formatted mark name
  */
 export function getFormattedMarkName(type: Mark): string {
-  return type.charAt(0).toUpperCase() + type.slice(1)
+  const formattedNames = {
+    bold: "Negrito",
+    italic: "Itálico",
+    strike: "Tachado",
+    underline: "Sublinhado",
+    code: "Código",
+    superscript: "Sobrescrito",
+    subscript: "Subscrito",
+    heading: "Cabeçalho",
+    list: "Lista",
+    listItem: "Item de Lista",
+    listOrdered: "Lista Ordenada",
+    listUnordered: "Lista de Pontos",
+    listTask: "Lista de Tarefas",
+    listTaskItem: "Item de Lista de Tarefas",
+    listTaskOrdered: "Lista Ordenada de Tarefas",
+    listTaskUnordered: "Lista de Pontos de Tarefas",
+    blockquote: "Citação",
+    codeBlock: "Bloco de Código",
+    horizontalRule: "Linha Horizontal",
+    image: "Imagem",
+    link: "Link",
+    table: "Tabela",
+    tableCell: "Célula de Tabela",
+    tableHeader: "Cabeçalho de Tabela",
+    tableRow: "Linha de Tabela",
+    highlight: "Destacado",
+  }
+  
+  return formattedNames[type] || type.charAt(0).toUpperCase() + type.slice(1)
 }
 
 /**

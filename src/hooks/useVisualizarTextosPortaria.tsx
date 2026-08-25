@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TextosDePortariasPaginada } from "@/types/gestao";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import FormSchemaCriarTextosPortaria, { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { fetchTextosPortaria } from "@/actions/textos-portaria";
 
 
@@ -11,7 +11,7 @@ const defaultValuesFilters: FormSchemaCriarTextosPortariaData = {
   tipo_portaria: "",
   nome_modelo: "",
   status: "",
-  texto_portaria: "<p>rererere  [[NOME_SERVIDOR]]</p>",
+  texto_portaria: "",
   variavel: [],
   tipo_cargo: "",
 };
@@ -34,7 +34,6 @@ export function useVisualizarTextosPortaria(defaultValues: FormSchemaCriarTextos
     mode: "onChange",
   });  
  
-
   const buscarTextos = useCallback(async (
     values: FormSchemaCriarTextosPortariaData,
     page?: number,
@@ -92,10 +91,7 @@ export function useVisualizarTextosPortaria(defaultValues: FormSchemaCriarTextos
     console.log(values, "variavelEstaValida",variavelEstaValida);
     
   };
-
-  useEffect(() => {
-    buscar(filterForm.getValues());        
-  }, [buscar, filterForm]);
+ 
 
   return {
     isPending,
