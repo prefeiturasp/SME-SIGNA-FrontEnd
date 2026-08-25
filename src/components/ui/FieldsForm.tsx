@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { DatePicker, Switch } from "antd";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 interface PropsField {
     register: UseFormRegister<FieldValues>;
@@ -89,7 +90,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
             control={control}
             name={name}
 
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
                 <FormItem >
                     <FormLabel className="required text-[#313131] font-bold">
                         {label}
@@ -106,6 +107,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             data-testid={dataTestId}
                             disabled={disabled}
                             maxLength={maxLength}
+                            className={cn(fieldState?.error && "!border-destructive")}
                         />
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
@@ -146,7 +148,7 @@ export const SelectField = ({
             {...register(name)}
             control={control}
             name={name}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
                 <FormItem>
                     <FormLabel className="text-[#313131] font-bold">{label}</FormLabel>
                     <FormControl>
@@ -155,7 +157,10 @@ export const SelectField = ({
                             onValueChange={(value) => field.onChange(value)}
                             disabled={disabled}
                         >
-                            <SelectTrigger data-testid={dataTestId}>
+                            <SelectTrigger
+                                data-testid={dataTestId}
+                                className={cn(fieldState?.error && "!border-destructive")}
+                            >
                                 <SelectValue placeholder={placeholder} />
                             </SelectTrigger>
                             <SelectContent>
@@ -166,6 +171,53 @@ export const SelectField = ({
                                 ))}
                             </SelectContent>
                         </Select>
+                    </FormControl>
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
+        />
+    );
+};
+
+export const MultiSelectField = ({
+    control,
+    name,
+    label,
+    placeholder,
+    dataTestId,
+    options,
+    disabled = false,
+    register,
+    showBlankSpace = true,
+}: {
+    control: Control<FieldValues>;
+    name: string;
+    label: string | ReactNode;
+    placeholder?: string;
+    dataTestId?: string;
+    options: SelectOption[];
+    disabled?: boolean;
+    register: UseFormRegister<FieldValues>;
+    showBlankSpace?: boolean;
+}) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field, fieldState }) => (
+                <FormItem>
+                    <FormLabel className="text-[#313131] font-bold">{label}</FormLabel>
+                    <FormControl>
+                        <MultiSelect
+                            value={Array.isArray(field.value) ? field.value : []}
+                            onChange={field.onChange}
+                            options={options}
+                            placeholder={placeholder}
+                            disabled={disabled}
+                            data-testid={dataTestId}
+                            className={cn(fieldState?.error && "!border-destructive")}
+                        />
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>

@@ -1,4 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");                                                                            
+@import '../styles/_variables.scss';                                       
+@import '../styles/_keyframe-animations.scss'; 
 
 @tailwind base;
 @tailwind components;
@@ -440,4 +442,10 @@ input[type="number"] {
 
 .ant-tabs-tab {
   font-weight: 700;
+}
+
+
+
+.ant-modal-container{
+  padding: 32px !important;
 }
