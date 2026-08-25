@@ -443,9 +443,3 @@ input[type="number"] {
 .ant-tabs-tab {
   font-weight: 700;
 }
-
-
-
-.ant-modal-container{
-  padding: 32px !important;
-}
