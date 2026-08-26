@@ -10,14 +10,16 @@ import ListagemDeTextosDePortarias from "@/components/dashboard/Gestao/ListagemD
 import { FormProvider } from "react-hook-form";
 import { useVisualizarTextosPortaria } from "@/hooks/useVisualizarTextosPortaria";
 import FiltroDeTextosPortaria from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/FiltroDeTextosPortaria";
+import { useState } from "react";
+import ModalSelecaoDeTipoDeTexto from "@/components/dashboard/Gestao/ModalSelecaoDeTipoDeTexto/ModalSelecaoDeTipoDeTexto";
 
 
 
 export default function TextosDePortaria() {
 
 
-   const {
-    isPending,    
+  const {
+    isPending,
     resultado,
     onPageChange,
     page,
@@ -27,7 +29,14 @@ export default function TextosDePortaria() {
   } = useVisualizarTextosPortaria();
 
 
-    
+  const [isModalCriarTextoPortariaOpen, setIsModalCriarTextoPortariaOpen] = useState(false);
+  const closeModalCriarTextoPortaria = () => {
+    setIsModalCriarTextoPortariaOpen(false);
+  }
+  const openModalCriarTextoPortaria = () => {
+    setIsModalCriarTextoPortariaOpen(true);
+  }
+
   return (
     <>
       <PageHeader
@@ -67,7 +76,7 @@ export default function TextosDePortaria() {
                         className="w-full flex items-center justify-center gap-2"
                         variant="destructive"
                         data-testid="botao-proximo"
-                        onClick={() => { }}
+                        onClick={() => { openModalCriarTextoPortaria() }}
                       >Cadastrar novo texto
                         <Plus />
                       </Button>
@@ -98,6 +107,11 @@ export default function TextosDePortaria() {
                 </>
             }
           ]}
+        />
+
+        <ModalSelecaoDeTipoDeTexto
+          isOpen={isModalCriarTextoPortariaOpen}
+          onClose={closeModalCriarTextoPortaria}
         />
 
       </ FundoBranco>
