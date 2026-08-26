@@ -94,7 +94,7 @@ function ListDropdownMenuImpl(
           disabled={!canToggle}
           data-disabled={!canToggle}
           aria-label="List options"
-          tooltip="List"
+          tooltip="Lista"
           {...props}
           ref={ref}
         >
