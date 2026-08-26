@@ -237,21 +237,22 @@ Then('o sistema exibe a Tela {string}', (tela) => {
       })
   }
   // Validação específica para tela de Visualizar/Editar Designação
-  // Confirmado por screenshot real (execução manual): tanto "Detalhar"
-  // quanto "Editar" abrem a MESMA tela somente leitura "Detalhes da
-  // designação" (título real da página, com botões "Voltar" e "Consultar
-  // histórico" — sem rádio "Cargo Disponível"/"Cargo Vago", sem campo "RF
-  // Titular", sem botão "Avançar"). Não existe hoje uma tela de edição
-  // própria; "Editar Designação"/"Visualizar Designação" nos nomes dos
-  // steps são só rótulos semânticos de qual ação disparou a navegação — o
-  // conteúdo real validado é sempre "Detalhes da designação".
+  // "Editar" (e "Detalhar", hoje unificado no mesmo item de menu) abre a
+  // MESMA tela do passo 2 do assistente de designação (/pages/designacoes/
+  // designacoes-passo-2?id={id}) — confirmado em execução real (log com
+  // navegação de sucesso para essa URL). Não existe uma tela somente-leitura
+  // separada "Detalhes da designação"; esse texto nunca aparece na página, só
+  // o título genérico "Designação" (h1), o mesmo usado no restante do
+  // assistente (ver designacao_steps.js, ex. linha 152/496). "Editar
+  // Designação"/"Visualizar Designação" nos nomes dos steps são só rótulos
+  // semânticos de qual ação disparou a navegação.
   else if (telaLower.includes('visualizar') || telaLower.includes('editar')) {
-    cy.log(`🔍 Validando tela de "${tela}" (Detalhes da designação)`)
+    cy.log(`🔍 Validando tela de "${tela}" (assistente de Designação, passo 2)`)
 
-    cy.url({ timeout: 15000 }).should('include', 'visualizar-designacao')
-    cy.log('✓ Navegação para visualizar-designacao confirmada')
+    cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-2')
+    cy.log('✓ Navegação para designacoes-passo-2 confirmada')
 
-    cy.contains(/Detalhes da designação/i, { timeout: 15000 }).should('be.visible')
+    cy.contains('h1', /Designação/i, { timeout: 15000 }).should('be.visible')
     cy.log(`✓ Tela "${tela}" carregada`)
   }
   // Validação específica para tela de Apostila

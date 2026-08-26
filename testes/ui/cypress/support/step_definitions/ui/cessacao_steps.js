@@ -88,15 +88,15 @@ Then('navega para a seção Action', () => {
 
 Then('clica e seleciona a opção {string}', (opcao) => {
   const MAX_TENTATIVAS = 4
-  // "Editar" passou a navegar para /visualizar-designacao/{id} — a mesma URL
-  // de "Detalhar" — confirmado em execução real (duas rodadas completas, 4
-  // designações distintas cada, sempre o mesmo destino). Antes da migração do
-  // menu era /designacoes-passo-2, uma rota própria; hoje URL não distingue
-  // mais editar de visualizar, então a validação de conteúdo em "o sistema
-  // exibe a Tela" (common_steps.js) é quem garante que é de fato o modo edição.
+  // "Editar" navega para /pages/designacoes/designacoes-passo-2?id={id} —
+  // confirmado em execução real (log com ids 159, 158, 157, 156). A
+  // suposição anterior (rota /visualizar-designacao/{id}) estava
+  // desatualizada: o polling nunca via essa URL, esgotava as 8 checagens em
+  // toda designação e acabava estourando as 4 tentativas mesmo com a
+  // navegação funcionando de verdade.
   const paginaEsperada = opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
     : opcao.toLowerCase().includes('apostil') ? 'apostila'
-    : opcao.toLowerCase().includes('editar') ? 'visualizar-designacao'
+    : opcao.toLowerCase().includes('editar') ? 'designacoes-passo-2'
     : 'cessacao'
   const chaveEnv = opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
     : opcao.toLowerCase().includes('apostil') ? 'apostilarTentadas'
