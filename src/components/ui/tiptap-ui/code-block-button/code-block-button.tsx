@@ -6,7 +6,7 @@ import { forwardRef, useCallback } from "react"
 import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 
 // --- Lib ---
-import { parseShortcutKeys } from "@/lib/tiptap-utils"
+import { parseShortcutKeys } from "@/components/ui/tiptaphooks/tiptap-utils"
 
 // --- Tiptap UI ---
 import type { UseCodeBlockConfig } from "@/components/ui/tiptap-ui/code-block-button"

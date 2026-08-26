@@ -1,7 +1,7 @@
 "use client"
 
 import "@/components/ui/tiptap-ui-primitive/separator/separator.scss"
-import { cn } from "@/lib/tiptap-utils"
+import { cn } from "@/components/ui/tiptaphooks/tiptap-utils"
 
 export type Orientation = "horizontal" | "vertical"
 

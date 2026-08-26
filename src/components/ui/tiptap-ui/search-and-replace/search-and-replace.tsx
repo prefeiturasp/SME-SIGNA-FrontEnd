@@ -15,7 +15,7 @@ import { SearchIcon } from "@/components/ui/tiptap-icons/search-icon"
 import { WholeWordIcon } from "@/components/ui/tiptap-icons/whole-word-icon"
 
 // --- Lib ---
-import { cn } from "@/lib/tiptap-utils"
+import { cn } from "@/components/ui/tiptaphooks/tiptap-utils"
 
 // --- Tiptap UI ---
 import type { UseSearchAndReplaceConfig } from "@/components/ui/tiptap-ui/search-and-replace"

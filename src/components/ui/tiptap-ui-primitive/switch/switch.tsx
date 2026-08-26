@@ -2,7 +2,7 @@
 
 import { Switch as SwitchPrimitive } from "@base-ui/react/switch"
 
-import { cn } from "@/lib/tiptap-utils"
+import { cn } from "@/components/ui/tiptaphooks/tiptap-utils"
 
 import "./switch.scss"
 

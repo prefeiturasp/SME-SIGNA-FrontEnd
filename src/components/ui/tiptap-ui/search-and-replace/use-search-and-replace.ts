@@ -12,7 +12,7 @@ import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 import { SearchIcon } from "@/components/ui/tiptap-icons/search-icon"
 
 // --- Lib ---
-import { isExtensionAvailable } from "@/lib/tiptap-utils"
+import { isExtensionAvailable } from "@/components/ui/tiptaphooks/tiptap-utils"
 
 export const SEARCH_AND_REPLACE_SHORTCUT_KEY = "mod+f"
 export const NEXT_RESULT_SHORTCUT_KEY = "mod+shift+f"

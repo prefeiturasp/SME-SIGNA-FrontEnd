@@ -7,7 +7,7 @@ import { type Editor } from "@tiptap/react"
 import { useTiptapEditor } from "../../tiptaphooks/use-tiptap-editor"
 
 // --- Lib ---
-import { isNodeTypeSelected } from "@/lib/tiptap-utils"
+import { isNodeTypeSelected } from "@/components/ui/tiptaphooks/tiptap-utils"
 
 // --- Icons ---
 import { Redo2Icon } from "@/components/ui/tiptap-icons/redo2-icon"

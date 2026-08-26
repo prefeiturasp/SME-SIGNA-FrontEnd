@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/lib/tiptap-utils"
+import { cn } from "@/components/ui/tiptaphooks/tiptap-utils"
 import "./textarea.scss"
 
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {

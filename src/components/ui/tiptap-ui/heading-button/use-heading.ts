@@ -15,7 +15,7 @@ import {
   isNodeTypeSelected,
   isValidPosition,
   selectionWithinConvertibleTypes,
-} from "@/lib/tiptap-utils"
+} from "@/components/ui/tiptaphooks/tiptap-utils"
 
 // --- Icons ---
 import { HeadingOneIcon } from "@/components/ui/tiptap-icons/heading-one-icon"

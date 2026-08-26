@@ -1,7 +1,7 @@
 "use client"
 
 import { forwardRef } from "react"
-import { cn } from "@/lib/tiptap-utils"
+import { cn } from "@/components/ui/tiptaphooks/tiptap-utils"
 import "@/components/ui/tiptap-ui-primitive/card/card.scss"
 
 const Card = forwardRef<HTMLDivElement, React.ComponentProps<"div">>(
