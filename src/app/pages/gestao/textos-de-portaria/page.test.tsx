@@ -45,9 +45,14 @@ interface FiltroMockProps {
   onClear?: () => void;
 }
 
+interface ModalSelecaoMockProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 interface HookMockReturn {
   isPending: boolean;
-  resultado: TextosDePortariasPaginada;
+  resultado: TextosDePortariasPaginada | null;
   onPageChange: (page: number) => void;
   page: number;
   filterForm: Partial<UseFormReturn<filterFormSchemaTextosPortariaData>> &
@@ -63,6 +68,7 @@ const simpleHeaderWithBorderSpy = vi.fn<(props: SimpleHeaderWithBorderMockProps)
 const tabsSpy = vi.fn<(props: TabsProps) => void>();
 const listagemSpy = vi.fn<(props: ListagemMockProps) => void>();
 const filtroSpy = vi.fn<(props: FiltroMockProps) => void>();
+const modalSelecaoSpy = vi.fn<(props: ModalSelecaoMockProps) => void>();
 const formProviderSpy = vi.fn();
 const useVisualizarTextosPortariaMock = vi.fn<() => HookMockReturn>();
 
@@ -209,6 +215,19 @@ vi.mock("@/components/dashboard/Gestao/ListagemDeTextosDePortarias/ListagemDeTex
   },
 }));
 
+vi.mock("@/components/dashboard/Gestao/ModalSelecaoDeTipoDeTexto/ModalSelecaoDeTipoDeTexto", () => ({
+  default: (props: ModalSelecaoMockProps) => {
+    modalSelecaoSpy(props);
+    return props.isOpen ? (
+      <div data-testid="modal-selecao-tipo-texto">
+        <button type="button" onClick={props.onClose}>
+          fechar modal
+        </button>
+      </div>
+    ) : null;
+  },
+}));
+
 describe("Página Textos de Portaria", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -296,7 +315,59 @@ describe("Página Textos de Portaria", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "mudar pagina" }));
     expect(onPageChangeMock).toHaveBeenCalledWith(4);
+  });
+
+  it("abre e fecha o modal de seleção de tipo de texto", () => {
+    render(<TextosDePortaria />);
+
+    expect(screen.queryByTestId("modal-selecao-tipo-texto")).not.toBeInTheDocument();
+    expect(modalSelecaoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isOpen: false,
+      }),
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar novo texto" }));
+
+    expect(screen.getByTestId("modal-selecao-tipo-texto")).toBeInTheDocument();
+    expect(modalSelecaoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isOpen: true,
+      }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "fechar modal" }));
+
+    expect(screen.queryByTestId("modal-selecao-tipo-texto")).not.toBeInTheDocument();
+    expect(modalSelecaoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isOpen: false,
+      }),
+    );
+  });
+
+  it("renderiza listagem vazia quando não há resultado", () => {
+    useVisualizarTextosPortariaMock.mockReturnValue({
+      isPending: false,
+      resultado: null,
+      onPageChange: onPageChangeMock,
+      page: 1,
+      filterForm: {
+        handleSubmit: handleSubmitMock as unknown as UseFormHandleSubmit<filterFormSchemaTextosPortariaData>,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
+    });
+
+    render(<TextosDePortaria />);
+
+    expect(listagemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [],
+        total: 0,
+        page: 1,
+        isLoading: false,
+      }),
+    );
   });
 });
