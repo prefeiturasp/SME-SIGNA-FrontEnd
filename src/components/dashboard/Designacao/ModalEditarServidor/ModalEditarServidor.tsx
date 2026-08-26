@@ -15,7 +15,7 @@ import { Card } from "antd";
 import type { Servidor } from "@/types/designacao-unidade";
 import { InputField } from "@/components/ui/FieldsForm";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type Control, type FieldValues, type UseFormRegister } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import formSchemaEditarServidor, { FormEditarServidorData } from "./schema";
 import { Form } from "@/components/ui/form";
 
@@ -61,8 +61,6 @@ export default function ModalEditarServidor({
         mode: "onChange",
     });
     const { register, control } = form;
-    const registerFieldValues = register as unknown as UseFormRegister<FieldValues>;
-    const controlFieldValues = control as unknown as Control<FieldValues>;
 
     const handleSubmitEditar = (data: FormEditarServidorData) => {
         handleSubmitEditarServidor(data);
@@ -99,8 +97,8 @@ export default function ModalEditarServidor({
                             <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-3 ">
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="nome_servidor"
                                         label="Nome servidor"
                                         placeholder="Digite o nome do servidor"
@@ -109,8 +107,8 @@ export default function ModalEditarServidor({
                                 </div>
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="nome_civil"
                                         label="Nome Social"
                                         placeholder="Digite o nome social"
@@ -119,8 +117,8 @@ export default function ModalEditarServidor({
                                 </div>
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="rf"
                                         label="RF"
                                         placeholder="Digite o RF"
@@ -135,8 +133,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="vinculo"
                                         label="Vínculo"
                                         placeholder="Vínculo"
@@ -147,8 +145,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="cargo_base"
                                         label="Cargo base"
                                         placeholder="Cargo base"
@@ -159,8 +157,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="categoria"
                                         label="Categoria"
                                         placeholder="Digite a categoria"
@@ -171,8 +169,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="lotacao"
                                         label="Lotação"
                                         placeholder="Lotação cargo sobreposto"
@@ -183,8 +181,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="cargo_sobreposto_funcao_atividade"
                                         label="Cargo sobreposto/Função atividade"
                                         placeholder="Cargo sobreposto"
@@ -195,8 +193,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="local_de_exercicio"
                                         label="Local de exercício"
                                         placeholder="Local de exercício"
@@ -207,8 +205,8 @@ export default function ModalEditarServidor({
 
                                 <div className="w-full">
                                     <InputField
-                                        register={registerFieldValues}
-                                        control={controlFieldValues}
+                                        register={register}
+                                        control={control}
                                         name="laudo_medico"
                                         label="Laudo médico"
                                         placeholder="Laudo médico"
@@ -220,8 +218,8 @@ export default function ModalEditarServidor({
                                 {showLocalDeServico && (
                                     <div className="w-full">
                                         <InputField
-                                            register={registerFieldValues}
-                                            control={controlFieldValues}
+                                            register={register}
+                                            control={control}
                                             name="local_de_servico"
                                             label="Local de serviço"
                                             placeholder="Local de serviço"

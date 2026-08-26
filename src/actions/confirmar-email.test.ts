@@ -12,7 +12,13 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import type { ConfirmarEmailRequest } from "@/types/confirmar-email";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, put: vi.fn() },
+    };
+});
 vi.mock("next/headers", () => ({
     cookies: vi.fn(),
 }));
@@ -77,7 +83,7 @@ describe("confirmarEmailAction", () => {
         cookiesMock.mockReturnValue({
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
-        axiosPutMock.mockRejectedValueOnce({ response: { status: 401 } });
+        axiosPutMock.mockRejectedValueOnce({ isAxiosError: true, response: { status: 401 } });
 
         const result = await confirmarEmailAction(dados);
 
@@ -93,7 +99,7 @@ describe("confirmarEmailAction", () => {
         cookiesMock.mockReturnValue({
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
-        axiosPutMock.mockRejectedValueOnce({ response: { status: 500 } });
+        axiosPutMock.mockRejectedValueOnce({ isAxiosError: true, response: { status: 500 } });
 
         const result = await confirmarEmailAction(dados);
 
@@ -110,6 +116,7 @@ describe("confirmarEmailAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPutMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "Token inválido" } },
         });
 
@@ -127,7 +134,7 @@ describe("confirmarEmailAction", () => {
         cookiesMock.mockReturnValue({
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
-        axiosPutMock.mockRejectedValueOnce({ message: "Erro desconhecido" });
+        axiosPutMock.mockRejectedValueOnce({ isAxiosError: true, message: "Erro desconhecido" });
 
         const result = await confirmarEmailAction(dados);
 
@@ -140,6 +147,7 @@ describe("confirmarEmailAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPutMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "Código inválido", field: "code" } },
         });
 

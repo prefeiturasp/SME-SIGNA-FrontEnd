@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import {
   LoginRequest,
@@ -38,7 +39,7 @@ export async function loginAction({
     return { success: true };
 
    } catch (err) {
-    const error = err as AxiosError<LoginErrorResponse>;
+    const error = toAxiosError<LoginErrorResponse>(err);
 
     let message = "Erro na autenticação";
 

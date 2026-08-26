@@ -1,8 +1,9 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { cookies } from "next/headers";
 import { IConcursoType } from "@/types/cursos-e-titulos";
+import { toAxiosError } from "@/lib/axios-error";
 
 type MeResult =
   | { success: true; data: IConcursoType }
@@ -30,36 +31,29 @@ export async function getCursosETitulosAction(): Promise<MeResult> {
 
     return { success: true, data };
   } catch (err) {
-    if (err instanceof AxiosError) {
-      const data = err.response?.data as {
-        code?: string;
-        detail?: string;
+    const error = toAxiosError<{ code?: string; detail?: string }>(err);
+    const data = error.response?.data;
+    const status = error.response?.status;
+
+    if (status === 500) {
+      return {
+        success: false,
+        error: "Erro interno no servidor",
       };
+    }
 
-      const status = err.response?.status;
+    if (data?.detail) {
+      return {
+        success: false,
+        error: data.detail,
+      };
+    }
 
-
-      if (status === 500) {
-        return {
-          success: false,
-          error: "Erro interno no servidor",
-        };
-      }
- 
-      if (err.message) {
-        return {
-          success: false,
-          error: err.message,
-        };
-      }
-
-
-      if (data?.detail) {
-        return {
-          success: false,
-          error: data.detail,
-        };
-      }
+    if (error.message) {
+      return {
+        success: false,
+        error: error.message,
+      };
     }
 
     return {

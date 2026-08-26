@@ -11,7 +11,13 @@ import { cadastroAction } from "./cadastro";
 import axios from "axios";
 import type { CadastroRequest } from "@/types/cadastro";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn() },
+    };
+});
 const axiosPostMock = axios.post as Mock;
 
 describe("cadastroAction", () => {
@@ -54,6 +60,7 @@ describe("cadastroAction", () => {
     it("deve retornar erro interno do servidor", async () => {
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { status: 500 },
             message: "Erro genérico",
         });
@@ -67,6 +74,7 @@ describe("cadastroAction", () => {
     it("deve retornar erro com detail da API", async () => {
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "E-mail já cadastrado" } },
             message: "Erro genérico",
         });
@@ -80,6 +88,7 @@ describe("cadastroAction", () => {
     it("deve retornar erro com message genérica", async () => {
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             message: "Erro desconhecido",
         });
         const result = await cadastroAction(dadosCadastro);
@@ -89,6 +98,7 @@ describe("cadastroAction", () => {
     it("deve retornar field quando a API envia o campo que causou erro", async () => {
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "CPF já cadastrado", field: "cpf" } },
         });
         const result = await cadastroAction(dadosCadastro);
@@ -102,6 +112,7 @@ describe("cadastroAction", () => {
     it("deve retornar field undefined quando não há campo específico no erro", async () => {
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "Erro desconhecido" } },
         });
         const result = await cadastroAction(dadosCadastro);

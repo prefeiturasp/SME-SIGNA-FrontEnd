@@ -245,7 +245,9 @@ describe("DesignacoesPasso3 - Testes", () => {
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(notificationErrorMock).toHaveBeenCalledWith({ title: "Erro teste" });
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro ao salvar portaria: Erro teste",
+      });
     });
   });
 
@@ -354,7 +356,7 @@ describe("DesignacoesPasso3 - Testes", () => {
 
     await waitFor(() => {
       expect(notificationErrorMock).toHaveBeenCalledWith({
-        title: "Dados do formulário não encontrados.",
+        title: "Erro ao salvar portaria: Dados do formulário não encontrados.",
       });
     });
     expect(designacaoAction).not.toHaveBeenCalled();

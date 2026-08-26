@@ -86,7 +86,7 @@ describe("insubsistenciaAction", () => {
 
   it("retorna erro genérico quando nenhuma condição específica bate", async () => {
     vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
-    vi.mocked(axios.post).mockRejectedValue({ response: undefined, message: "Network Error" });
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true, response: undefined, message: "Network Error" });
 
     const result = await insubsistenciaAction(payloadBase);
 
@@ -96,6 +96,7 @@ describe("insubsistenciaAction", () => {
   it("retorna 'Erro interno no servidor' quando status é 500", async () => {
     vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
     vi.mocked(axios.post).mockRejectedValue({
+      isAxiosError: true,
       response: { status: 500, data: {} },
     });
 
@@ -107,6 +108,7 @@ describe("insubsistenciaAction", () => {
   it("extrai mensagem quando detail contém 'string'", async () => {
     vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
     vi.mocked(axios.post).mockRejectedValue({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { detail: "valor inválido" },
@@ -121,6 +123,7 @@ describe("insubsistenciaAction", () => {
   it("retorna detail como mensagem quando não contém 'string'", async () => {
     vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
     vi.mocked(axios.post).mockRejectedValue({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { detail: "Designação não encontrada" },
@@ -135,6 +138,7 @@ describe("insubsistenciaAction", () => {
   it("inclui field quando a resposta de erro o retorna", async () => {
     vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
     vi.mocked(axios.post).mockRejectedValue({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { detail: "Campo inválido", field: "numero_portaria" },
@@ -152,7 +156,7 @@ describe("insubsistenciaAction", () => {
 
   it("usa mensagem padrão quando não há response nem message", async () => {
     vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
-    vi.mocked(axios.post).mockRejectedValue({});
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true });
 
     const result = await insubsistenciaAction(payloadBase);
 

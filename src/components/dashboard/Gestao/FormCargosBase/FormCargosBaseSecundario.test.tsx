@@ -2,11 +2,35 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FormCargosBaseSecundario from "./FormCargosBaseSecundario";
 
-const simpleTableHeaderSpy = vi.fn();
-const switchFieldSpy = vi.fn();
+const {
+  getValuesMock,
+  simpleTableHeaderSpy,
+  switchFieldSpy,
+  inputFieldSpy,
+} = vi.hoisted(() => ({
+  getValuesMock: vi.fn(),
+  simpleTableHeaderSpy: vi.fn(),
+  switchFieldSpy: vi.fn(),
+  inputFieldSpy: vi.fn(),
+}));
+
+vi.mock("@ant-design/icons", () => ({
+  InfoCircleOutlined: (props: { className?: string; style?: React.CSSProperties }) => (
+    <span data-testid="info-icon" className={props.className} style={props.style} />
+  ),
+}));
+
+vi.mock("antd", () => ({
+  Tooltip: (props: { children: React.ReactNode; title: string; placement: string }) => (
+    <span data-testid="tooltip" data-title={props.title} data-placement={props.placement}>
+      {props.children}
+    </span>
+  ),
+}));
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
+    getValues: getValuesMock,
     register: vi.fn(),
     control: {},
   }),
@@ -29,14 +53,19 @@ vi.mock("@/components/ui/FieldsForm", () => ({
     switchFieldSpy(props);
     return <div data-testid={props.dataTestId}>{props.label}</div>;
   },
+  InputField: (props: { label: React.ReactNode; dataTestId?: string }) => {
+    inputFieldSpy(props);
+    return <div data-testid={props.dataTestId}>{props.label}</div>;
+  },
 }));
 
 describe("FormCargosBaseSecundario", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getValuesMock.mockReturnValue(false);
   });
 
-  it("renderiza cabeçalho e os cinco toggles com as configurações esperadas", () => {
+  it("renderiza cabeçalho e todos os toggles com as configurações esperadas", () => {
     render(<FormCargosBaseSecundario />);
 
     expect(simpleTableHeaderSpy).toHaveBeenCalledWith({
@@ -49,8 +78,11 @@ describe("FormCargosBaseSecundario", () => {
     expect(screen.getByTestId("input-utilizado-para-ste")).toHaveTextContent("Utilizado para STE?");
     expect(screen.getByTestId("input-utilizado-para-permutas")).toHaveTextContent("Utilizado para permutas?");
     expect(screen.getByTestId("input-cargo-base-ficticio")).toHaveTextContent("Cargo Base fictício?");
+    expect(screen.getByTestId("input-testar-laudo")).toHaveTextContent("Testar laudo?");
+    expect(screen.getByTestId("input-pesquisar-licencas-no-sigpec")).toHaveTextContent("Pesquisar Licenças no SIGPEC");
+    expect(screen.queryByTestId("input-quantidade-maxima-de-dias-de-licenca")).not.toBeInTheDocument();
 
-    expect(switchFieldSpy).toHaveBeenCalledTimes(5);
+    expect(switchFieldSpy).toHaveBeenCalledTimes(7);
     expect(switchFieldSpy).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
@@ -59,11 +91,34 @@ describe("FormCargosBaseSecundario", () => {
       }),
     );
     expect(switchFieldSpy).toHaveBeenNthCalledWith(
-      5,
+      7,
       expect.objectContaining({
-        name: "cargo_base_ficticio",
+        name: "pesquisar_licencas_no_sigpec",
         showBlankSpace: false,
       }),
     );
+  });
+
+  it("renderiza campo de quantidade máxima quando pesquisa de licenças está ativa", () => {
+    getValuesMock.mockReturnValue(true);
+
+    render(<FormCargosBaseSecundario />);
+
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "quantidade_maxima_de_dias_de_licenca",
+        type: "number",
+        maxLength: 4,
+        showBlankSpace: false,
+      }),
+    );
+    expect(screen.getByTestId("input-quantidade-maxima-de-dias-de-licenca")).toHaveTextContent(
+      "Quantidade máxima de dias de licença*",
+    );
+    expect(screen.getByTestId("tooltip")).toHaveAttribute(
+      "data-title",
+      "Licenças maiores que esse período serão ignoradas.",
+    );
+    expect(screen.getByText("Informe o número máximo de dias que o servidor pode permanecer de licença.")).toBeInTheDocument();
   });
 });

@@ -2,7 +2,8 @@
 
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import { Servidor } from "@/types/designacao-unidade";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
  
  
@@ -36,7 +37,7 @@ export const getServidorDesignacaoAction = async (designacaoRequest: BuscaDesign
  
         return { success: true, data };
     } catch (err) {
-        const error = err as AxiosError<{ detail?: string }>;
+        const error = toAxiosError<{ detail?: string }>(err);
         let message = "Erro ao buscar as Servidor";
 
         if (error.response?.status === 401) {
