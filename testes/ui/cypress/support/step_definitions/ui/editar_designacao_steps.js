@@ -2,12 +2,15 @@
 // Este arquivo cobre o Cenário 1 (Editar) de consulta_atos_adminstra.feature.
 // O Cenário 2 (Visualizar) do mesmo arquivo — antigo visualiza_designação.feature,
 // mesclado aqui porque os dois fluxos convergem para a mesma tela de destino
-// (visualizar-designacao/{id}) — usa steps próprios em visualizar_steps.js.
+// (/pages/designacoes/designacoes-passo-2?id={id}) — usa steps próprios em
+// visualizar_steps.js.
 //
-// A tela real acessada via "Editar" é "Detalhes da designação" — a mesma
-// tela somente leitura do Cenário 2, sem rádio "Cargo Disponível"/"Cargo
-// Vago" nem campo "RF Titular" (confirmado por screenshot real). Por isso o
-// Cenário 1 reutiliza "valida a existencia da seção {string} quando
+// A tela real acessada via "Editar" é o passo 2 do assistente de designação
+// (mesma tela usada ao criar uma designação, título h1 "Designação") — não
+// uma tela somente leitura separada. Ela PODE conter rádio "Cargo
+// Disponível"/"Cargo Vago" e campo "RF Titular" dependendo do tipo de cargo
+// da designação selecionada (ver designacao_steps.js, seção "Passo 2"). Por
+// isso o Cenário 1 reutiliza "valida a existencia da seção {string} quando
 // aplicável a esta designação" (visualizar_steps.js) em vez de ter sua
 // própria variante condicionada a tipo de cargo.
 //

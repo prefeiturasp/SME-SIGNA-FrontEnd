@@ -1,5 +1,9 @@
 videos/
 
+# Python - cache de bytecode (scripts/gerar_dashboard_html.py)
+__pycache__/
+*.py[cod]
+
 # Dependências
 node_modules/
 package-lock.json
@@ -24,11 +28,6 @@ cypress/reports/*
 !cypress/reports/mochawesome/
 cypress/reports/mochawesome/*
 !cypress/reports/mochawesome/dashboard.html
-
-# Retestes/evidências avulsas de correção de bug — feature + steps + tudo
-# que essa pasta gerar (vídeo/screenshot já cobertos acima). Uso local sob
-# demanda, não faz parte da suíte de regressão versionada.
-cypress/e2e/ui/correcoes/
 
 # Relatórios de teste
 allure-results/
@@ -76,16 +75,16 @@ cypress/support/locators/unidade_proponente_locators.js
 cypress/e2e/ui/criaçao
 cypress/e2e/ui/criacao
 
-# Suíte extra/carga/stress do SIGNA — pausada (tag @skip), ainda não subida
-# ao repositório. Remova estas linhas quando decidir versionar/rodar de fato.
+# Step definitions do SIGNA ainda não subidas ao repositório. Remova estas
+# linhas quando decidir versionar de fato.
 cypress/support/step_definitions/ui/signa_extra_steps.js
 cypress/support/step_definitions/ui/signa_carga_steps.js
 cypress/support/step_definitions/ui/signa_stress_steps.js
 
 # Features legadas/retiradas do repositório a pedido (cessação, designação,
-# insubsistente, apostilar, altera D.O., signa extra/carga/stress) —
-# centralizadas em ui/nao_executar/, mantidas só localmente e excluídas da
-# execução (ver excludeSpecPattern em cypress.config.js).
+# insubsistente, apostilar, altera D.O., signa carga) — centralizadas em
+# ui/nao_executar/, mantidas só localmente e excluídas da execução (ver
+# excludeSpecPattern em cypress.config.js).
 cypress/e2e/ui/nao_executar/
 
 # Pasta plugins obsoleta (Cypress 10+ não usa)

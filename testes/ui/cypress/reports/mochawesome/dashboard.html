@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard de Automacao - SIGNA</title>
+<title>Dashboard de Automação - SIGNA</title>
 <style>
 :root{color-scheme:dark light}
 *{box-sizing:border-box}
@@ -11,11 +11,30 @@ body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:#121212
 header.topo{padding:24px 32px;border-bottom:1px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
 h1{margin:0;font-size:22px}
 .gerado-em{color:#999;font-size:13px}
+.comparacao{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid #2a2a2a;background:#1c1c1c;cursor:default;margin-left:auto}
+.delta{font-size:10px;font-weight:700;margin-left:5px;vertical-align:middle;cursor:default}
+.delta-up{color:#2E7D32}
+.delta-down{color:#C62828}
+.delta-eq{color:#999}
 .resumo{display:flex;gap:32px;padding:24px 32px;flex-wrap:wrap;align-items:center}
 .resumo-cards{display:flex;gap:16px;flex-wrap:wrap}
+.tendencia{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:14px 18px}
+.tendencia-titulo{display:block;color:#999;font-size:12px;margin-bottom:6px}
+.tendencia-legenda{display:flex;justify-content:space-between;color:#999;font-size:12px;margin-top:2px}
 .stat{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:16px 20px;min-width:140px}
 .stat .valor{font-size:26px;font-weight:700}
 .stat .rotulo{color:#999;font-size:13px}
+.stat-clicavel{cursor:pointer;transition:border-color .15s,transform .15s}
+.stat-clicavel:hover{border-color:#555;transform:translateY(-1px)}
+.stat-clicavel.ativo{border-color:#274D9B;box-shadow:0 0 0 1px #274D9B inset}
+.pr-container{display:inline-flex;align-items:center;gap:8px}
+.pr-info{display:inline-flex;align-items:center;gap:6px;color:#ccc;font-size:13px;text-decoration:none;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:20px;padding:6px 14px}
+.pr-info a{color:inherit;text-decoration:none}
+.pr-info a:hover{text-decoration:underline}
+.pr-vazio{color:#777;font-style:italic}
+.pr-refresh{cursor:pointer;background:#1c1c1c;border:1px solid #2a2a2a;color:#ccc;border-radius:50%;width:30px;height:30px;font-size:15px;line-height:1}
+.pr-refresh:hover{border-color:#555}
+.pr-refresh:disabled{opacity:.5;cursor:default}
 .donuts{display:flex;gap:24px;align-items:center}
 .donut-wrap{text-align:center}
 .donut-wrap span{display:block;font-size:13px;color:#999;margin-top:4px}
@@ -35,65 +54,116 @@ main{padding:0 32px 48px}
 .card-body{display:none;padding:0 18px 18px;border-top:1px solid #2a2a2a}
 .card-body.aberto{display:block}
 .lista-cenarios{list-style:none;padding:0;margin:14px 0}
-.lista-cenarios li{padding:6px 0;font-size:14px;display:flex;align-items:center;gap:10px}
+.lista-cenarios li{padding:6px 8px;font-size:14px;border-radius:6px}
+.lista-cenarios li.destaque{background:rgba(39,77,155,.18);outline:1px solid #274D9B}
+.cenario-linha{display:flex;align-items:center;gap:10px}
+.erro-msg{margin:6px 0 2px 66px;padding:6px 10px;font-size:12px;font-family:Consolas,Menlo,monospace;color:#e29a9a;background:rgba(198,40,40,.12);border-left:2px solid #C62828;border-radius:4px;white-space:pre-wrap;word-break:break-word}
 .badge{font-size:11px;font-weight:700;color:#fff;padding:2px 8px;border-radius:20px;min-width:56px;text-align:center}
+.duracao{color:#999;font-size:12px;min-width:44px}
 .evidencias-nota{font-size:12px;color:#999;margin:8px 0 4px}
 .evidencias-nota code{background:#2a2a2a;padding:1px 6px;border-radius:4px}
 .evidencias-lista{list-style:none;padding:0;margin:0 0 8px;font-size:12px;color:#ccc}
 .evidencias-lista li{padding:2px 0}
 .sem-evidencia{color:#666;font-size:13px;font-style:italic}
-.filtros{padding:0 32px 16px;display:flex;gap:10px}
+.filtros{padding:0 32px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .filtros button{background:#1c1c1c;border:1px solid #2a2a2a;color:#ccc;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px}
 .filtros button.ativo{background:#274D9B;border-color:#274D9B;color:#fff}
+.filtros select{background:#1c1c1c;border:1px solid #2a2a2a;color:#ccc;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px;max-width:280px}
+.filtros select.ativo{border-color:#274D9B;color:#fff}
+.rodape{padding:20px 32px 32px;color:#666;font-size:11px}
 @media (prefers-color-scheme: light){
   body{background:#f5f5f5;color:#222}
-  header.topo,.stat,.card,.filtros button{background:#fff;border-color:#ddd}
+  header.topo,.stat,.card,.filtros button,.filtros select,.pr-info,.pr-refresh,.comparacao,.tendencia{background:#fff;border-color:#ddd}
   .card-header:hover{background:#f0f0f0}
   .donut-label{fill:#222}
+  .pr-info{color:#333}
 }
 </style>
 </head>
 <body>
 <header class="topo">
-  <h1>Dashboard de Automacao - SIGNA</h1>
-  <span class="gerado-em">Gerado em 18/08/2026 10:11 - 23 features (11 UI / 12 API)</span>
+  <div>
+    <h1>Dashboard de Automação - SIGNA</h1>
+    <span class="gerado-em">Gerado em 26/08/2026 14:49 - 31 features (11 UI / 20 API)</span>
+  </div>
+  <div class="pr-container">
+    <span id="pr-badge" class="pr-info"><a href="https://github.com/prefeiturasp/SME-SIGNA-FrontEnd/pull/218" target="_blank" rel="noopener">PR #218 — Qa test — Aberto — Sem revisão</a></span>
+    <button id="pr-refresh-btn" class="pr-refresh" onclick="atualizarPR()" title="Consultar API do GitHub agora">↻</button>
+  </div>
 </header>
 
 <section class="resumo">
   <div class="donuts">
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="297.54 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="16.62 314.16" stroke-dashoffset="-297.54" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">95%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="307.70 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="6.46 314.16" stroke-dashoffset="-307.70" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">98%</text>
     </svg><span>Geral</span></div>
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="270.53 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="43.63 314.16" stroke-dashoffset="-270.53" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">86%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="302.52 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="11.64 314.16" stroke-dashoffset="-302.52" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">96%</text>
     </svg><span>UI</span></div>
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="314.16 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">100%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="310.28 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="3.88 314.16" stroke-dashoffset="-310.28" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">99%</text>
     </svg><span>API</span></div>
   </div>
   <div class="resumo-cards">
-    <div class="stat"><div class="valor">95%</div><div class="rotulo">Sucesso geral</div></div>
-    <div class="stat"><div class="valor">189</div><div class="rotulo">Cenarios executados</div></div>
-    <div class="stat"><div class="valor">179</div><div class="rotulo">Passaram</div></div>
-    <div class="stat"><div class="valor">10</div><div class="rotulo">Falharam</div></div>
+    <div class="stat"><div class="valor">98%</div><div class="rotulo">Sucesso geral</div></div>
+    <div class="stat"><div class="valor">243</div><div class="rotulo">Cenarios executados</div></div>
+    <div class="stat stat-clicavel" data-status="passed" onclick="filtrarStatus('passed')"><div class="valor">238</div><div class="rotulo">Passaram</div></div>
+    <div class="stat stat-clicavel" data-status="failed" onclick="filtrarStatus('failed')"><div class="valor">5</div><div class="rotulo">Falharam</div></div>
+    <div class="stat"><div class="valor">31m 47s</div><div class="rotulo">Tempo total</div></div>
   </div>
+  
 </section>
 
 <div class="filtros">
-  <button data-filtro="todos" class="ativo" onclick="filtrar('todos')">Todas (23)</button>
+  <button data-filtro="todos" class="ativo" onclick="filtrar('todos')">Todas (31)</button>
   <button data-filtro="UI" onclick="filtrar('UI')">UI (11)</button>
-  <button data-filtro="API" onclick="filtrar('API')">API (12)</button>
+  <button data-filtro="API" onclick="filtrar('API')">API (20)</button>
+  <select id="filtro-feature" onchange="filtrarFeature(this.value)">
+    <option value="todos">Todas as features</option>
+    <option value="api/api_abrangencia.feature">API — API EOL - Abrangencia</option>
+<option value="api/api_acessos.feature">API — API EOL - Acessos</option>
+<option value="api/api_autenticacao_sgp.feature">API — API EOL - AutenticacaoSGP</option>
+<option value="api/api_cargo.feature">API — API EOL - Cargos</option>
+<option value="api/api_cenarios_negativos.feature">API — API EOL - Cenários Negativos</option>
+<option value="api/api_dre_escola.feature">API — API EOL - DRE e Escola</option>
+<option value="api/api_diretoria_regional.feature">API — API EOL - DiretoriaRegionalEducacao</option>
+<option value="api/api_designacao_apostilas.feature">API — API SIGNA - Apostilas</option>
+<option value="api/api_designacao_atos_administrativos.feature">API — API SIGNA - Atos administrativos (visão consolidada)</option>
+<option value="api/api_designacao_servidor.feature">API — API SIGNA - Busca de servidor para designação</option>
+<option value="api/api_designacao_cessacoes.feature">API — API SIGNA - Cessações</option>
+<option value="api/api_designacao_designacoes.feature">API — API SIGNA - Designações</option>
+<option value="api/api_designacao_insubsistencias.feature">API — API SIGNA - Insubsistências</option>
+<option value="api/api_designacao_portarias.feature">API — API SIGNA - Portarias</option>
+<option value="api/api_designacao_unidade.feature">API — API SIGNA - Unidade</option>
+<option value="api/api_dre_codigo_dre.feature">API — Testes da API de Detalhes de DRE por Código</option>
+<option value="api/api_dre_escolas.feature">API — Testes da API de Escolas por DRE e Tipo</option>
+<option value="api/api_dre_supervisores.feature">API — Testes da API de Supervisores por DRE</option>
+<option value="api/api_dre_unidades_codigo_integracao.feature">API — Testes da API de Unidades com Código de Integração por DRE</option>
+<option value="api/api_dre_unidades.feature">API — Testes da API de Unidades por DRE</option>
+<option value="ui/alteracao_email.feature">UI — Alteração de e-mail</option>
+<option value="ui/alterar_senha.feature">UI — Alteração de senha</option>
+<option value="ui/login.feature">UI — Autenticação no Sistema SIGNA</option>
+<option value="ui/signa_carga.feature">UI — Carga e performance do sistema SIGNA</option>
+<option value="ui/atos_novos.feature">UI — Criação de atos administrativos</option>
+<option value="ui/consulta_atos_adminstra.feature">UI — Editar e visualizar designação de servidor</option>
+<option value="ui/esqueci_senha.feature">UI — Fluxo esqueci a senha no sistema SIGNA</option>
+<option value="ui/signa_extra.feature">UI — Fluxos avançados e casos de borda do sistema SIGNA</option>
+<option value="ui/gestao_base_filtros.feature">UI — Gestão de cargos base</option>
+<option value="ui/filtra_atos.feature">UI — Pesquisa de Atos Administrativos</option>
+<option value="ui/signa_stress.feature">UI — Stress e cenários de limite do sistema SIGNA</option>
+  </select>
+  <span class="comparacao delta-down" title="Desde 21/08/2026 10:32: 98% → 98% de sucesso (+1 cenários)">▼ 0%</span>
 </div>
 
 <main>
 
-    <article class="card" id="feature-0">
+    <article class="card" id="feature-0" data-estados="passed" data-feature="api/api_abrangencia.feature">
       <header class="card-header" onclick="toggle(0)">
         <div>
           <span class="tag tag-api">API</span>
@@ -102,23 +172,24 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
+          <span class="duracao">22.0s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-0">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Obter códigos de todas as DREs</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Obter nome e abreviação das DREs</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura de nome e abreviação das DREs</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Obter estrutura histórica da abrangência</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar abrangência sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da abrangência</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter códigos de todas as DREs</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter nome e abreviação das DREs</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura de nome e abreviação das DREs</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter estrutura histórica da abrangência</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar abrangência sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da abrangência</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-1">
+    <article class="card" id="feature-1" data-estados="passed" data-feature="api/api_acessos.feature">
       <header class="card-header" onclick="toggle(1)">
         <div>
           <span class="tag tag-api">API</span>
@@ -127,23 +198,24 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
+          <span class="duracao">15.7s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-1">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Verificar se funcionário está ativo pelo RF</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listar permissões disponíveis por grupos</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura de dados do funcionário ativo</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF inexistente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar endpoint de acessos sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da verificação de acesso</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Verificar se funcionário está ativo pelo RF</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar permissões disponíveis por grupos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura de dados do funcionário ativo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar endpoint de acessos sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da verificação de acesso</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-2">
+    <article class="card" id="feature-2" data-estados="passed" data-feature="api/api_autenticacao_sgp.feature">
       <header class="card-header" onclick="toggle(2)">
         <div>
           <span class="tag tag-api">API</span>
@@ -152,23 +224,24 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
+          <span class="duracao">17.3s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-2">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Obter dados do usuário SGP pelo RF</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios nos dados do usuário SGP</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Carregar perfis disponíveis para o login</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Obter resumo do usuário SGP</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tentar acessar dados SGP sem chave de API</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta dos dados SGP</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter dados do usuário SGP pelo RF</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios nos dados do usuário SGP</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Carregar perfis disponíveis para o login</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter resumo do usuário SGP</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentar acessar dados SGP sem chave de API</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta dos dados SGP</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-3">
+    <article class="card" id="feature-3" data-estados="passed" data-feature="api/api_cargo.feature">
       <header class="card-header" onclick="toggle(3)">
         <div>
           <span class="tag tag-api">API</span>
@@ -177,21 +250,22 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>4/4 cenarios</span>
+          <span class="duracao">12.3s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-3">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Listar todos os cargos</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios de cada cargo</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar cargos sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da listagem de cargos</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar todos os cargos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios de cada cargo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar cargos sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da listagem de cargos</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-4">
+    <article class="card" id="feature-4" data-estados="passed" data-feature="api/api_cenarios_negativos.feature">
       <header class="card-header" onclick="toggle(4)">
         <div>
           <span class="tag tag-api">API</span>
@@ -200,32 +274,33 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>15/15 cenarios</span>
+          <span class="duracao">33.2s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-4">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Acessar DREs sem nenhuma chave de autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar DREs com chave de API inválida</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar permissoes-grupos sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar abrangência com GUID de chave inexistente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF contendo apenas letras</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF excessivamente longo</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF zerado</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código inexistente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar rota inexistente na API</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar sub-recurso inválido de abrangência</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Enviar POST para endpoint somente GET de DREs</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Enviar DELETE para endpoint de permissões</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Enviar PUT para endpoint de abrangência</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de SQL injection no parâmetro RF</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de path traversal no parâmetro RF</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar DREs sem nenhuma chave de autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar DREs com chave de API inválida</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar permissoes-grupos sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar abrangência com GUID de chave inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF contendo apenas letras</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF excessivamente longo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Verificar funcionário com RF zerado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar rota inexistente na API</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar sub-recurso inválido de abrangência</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Enviar POST para endpoint somente GET de DREs</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Enviar DELETE para endpoint de permissões</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Enviar PUT para endpoint de abrangência</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de SQL injection no parâmetro RF</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de path traversal no parâmetro RF</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-5">
+    <article class="card" id="feature-5" data-estados="passed" data-feature="api/api_dre_escola.feature">
       <header class="card-header" onclick="toggle(5)">
         <div>
           <span class="tag tag-api">API</span>
@@ -234,24 +309,25 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>7/7 cenarios</span>
+          <span class="duracao">21.1s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-5">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Listar todas as DREs</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios de cada DRE</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listar tipos de unidade educacional</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listar modalidades de ensino</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listar tipos de escola</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar DREs sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da listagem de DREs</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar todas as DREs</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios de cada DRE</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar tipos de unidade educacional</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar modalidades de ensino</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar tipos de escola</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar DREs sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da listagem de DREs</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-6">
+    <article class="card" id="feature-6" data-estados="passed" data-feature="api/api_diretoria_regional.feature">
       <header class="card-header" onclick="toggle(6)">
         <div>
           <span class="tag tag-api">API</span>
@@ -260,47 +336,253 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>29/29 cenarios</span>
+          <span class="duracao">1m 20s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-6">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Listar todas as DREs disponíveis</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura de cada DRE na listagem</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos da DRE na listagem</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE BUTANTA pelo código 108100</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE CAMPO LIMPO pelo código 108200</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE IPIRANGA pelo código 108600</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios da DRE por código específico</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos da DRE individual</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE obtida dinamicamente da listagem</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código numérico inexistente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código vazio</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código em formato inválido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar listagem de DREs sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Acessar DRE por código sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da listagem de DREs</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da busca individual de DRE</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar uma DRE pelo código via POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar múltiplas DREs pelos códigos via POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura dos campos na resposta POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos na resposta POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar e validar DRE SÃO MATEUS (109200) via POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar que os códigos retornados correspondem aos enviados</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar DRE com código inexistente via POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Enviar POST com array vazio de códigos</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar DRE com código em formato inválido via POST</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Enviar POST sem autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>POST com mix de códigos válidos e inválidos</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta POST para um código</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta POST para múltiplos códigos</li></ul>
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar todas as DREs disponíveis</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura de cada DRE na listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos da DRE na listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE BUTANTA pelo código 108100</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE CAMPO LIMPO pelo código 108200</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE IPIRANGA pelo código 108600</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios da DRE por código específico</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos da DRE individual</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE obtida dinamicamente da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código numérico inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código vazio</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código em formato inválido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar listagem de DREs sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar DRE por código sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da listagem de DREs</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta da busca individual de DRE</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar uma DRE pelo código via POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar múltiplas DREs pelos códigos via POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura dos campos na resposta POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos na resposta POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar e validar DRE SÃO MATEUS (109200) via POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar que os códigos retornados correspondem aos enviados</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar DRE com código inexistente via POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Enviar POST com array vazio de códigos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar DRE com código em formato inválido via POST</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Enviar POST sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>POST com mix de códigos válidos e inválidos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta POST para um código</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tempo de resposta POST para múltiplos códigos</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-7">
+    <article class="card" id="feature-7" data-estados="passed" data-feature="api/api_designacao_apostilas.feature">
       <header class="card-header" onclick="toggle(7)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Apostilas</strong>
+          <span class="spec-path">api/api_designacao_apostilas.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>5/5 cenarios</span>
+          <span class="duracao">21.5s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-7">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar apostilas</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar apostilas sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar, consultar e excluir uma apostila</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar apostila sem informar o ato de origem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar apostila sem autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-8" data-estados="passed" data-feature="api/api_designacao_atos_administrativos.feature">
+      <header class="card-header" onclick="toggle(8)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Atos administrativos (visão consolidada)</strong>
+          <span class="spec-path">api/api_designacao_atos_administrativos.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>3/3 cenarios</span>
+          <span class="duracao">10.2s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-8">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar atos administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios de cada ato administrativo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar atos administrativos sem autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-9" data-estados="passed" data-feature="api/api_designacao_servidor.feature">
+      <header class="card-header" onclick="toggle(9)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Busca de servidor para designação</strong>
+          <span class="spec-path">api/api_designacao_servidor.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>5/5 cenarios</span>
+          <span class="duracao">17.5s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-9">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar servidor por RF válido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar campos obrigatórios do servidor retornado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Registrar quando o servidor não possui cargo sobreposto ou local de exercício</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar servidor com RF inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar servidor sem token de autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-10" data-estados="passed" data-feature="api/api_designacao_cessacoes.feature">
+      <header class="card-header" onclick="toggle(10)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Cessações</strong>
+          <span class="spec-path">api/api_designacao_cessacoes.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>7/7 cenarios</span>
+          <span class="duracao">24.3s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-10">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar cessações</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar cessações sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar cessação existente por portaria e ano</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar cessação por portaria inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar, consultar e excluir uma cessação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar cessação sem informar a designação de origem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar cessação sem autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-11" data-estados="failed,passed" data-feature="api/api_designacao_designacoes.feature">
+      <header class="card-header" onclick="toggle(11)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Designações</strong>
+          <span class="spec-path">api/api_designacao_designacoes.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>11/12 cenarios</span>
+          <span class="duracao">45.1s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:92%;background:#C62828"></div></div>
+          <span class="pct">92%</span><span class="delta delta-up" title="Era 91% na execução anterior">▲1</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-11">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar designações</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar designações sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar designação existente por portaria e ano</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar designação por portaria inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar listagens auxiliares de designação (example #1)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar listagens auxiliares de designação (example #2)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar listagens auxiliares de designação (example #3)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar, consultar, atualizar e excluir uma designação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Salvar designação sem cargo sobreposto do indicado</div></li>
+<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>BUG - Salvar designação para servidor sem local de exercício (RF 7936460)</div><div class="erro-msg">AssertionError: local de exercício deveria estar ausente (null) — se a QA mudou esse dado, escolha outro RF de referência: expected &#x27;Indisponível no EOL&#x27; to be one of [ null, undefined, &#x27;&#x27; ]</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar designação sem o RF do indicado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar designação sem autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/api/api_designacao_designacoes.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>API SIGNA - Designações -- BUG - Salvar designação para servidor sem local de exercício (RF 7936460) (failed) (attempt 2).png</li><li>API SIGNA - Designações -- BUG - Salvar designação para servidor sem local de exercício (RF 7936460) (failed).png</li><li>failed-BUG_-_Salvar_designação_para_servidor_sem_local_de_exercício_(RF_7936460) (attempt 2).png</li><li>failed-BUG_-_Salvar_designação_para_servidor_sem_local_de_exercício_(RF_7936460).png</li></ul>
+      </div>
+    </article>
+
+    <article class="card" id="feature-12" data-estados="passed" data-feature="api/api_designacao_insubsistencias.feature">
+      <header class="card-header" onclick="toggle(12)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Insubsistências</strong>
+          <span class="spec-path">api/api_designacao_insubsistencias.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>7/7 cenarios</span>
+          <span class="duracao">25.0s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-12">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar insubsistências</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar insubsistências sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar insubsistência existente por portaria e ano</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar insubsistência por portaria inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar, consultar e excluir uma insubsistência</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar insubsistência sem informar o ato de origem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar insubsistência sem autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-13" data-estados="passed" data-feature="api/api_designacao_portarias.feature">
+      <header class="card-header" onclick="toggle(13)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Portarias</strong>
+          <span class="spec-path">api/api_designacao_portarias.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>2/2 cenarios</span>
+          <span class="duracao">6.6s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-13">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar portarias</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar portarias sem autenticação</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-14" data-estados="failed,passed" data-feature="api/api_designacao_unidade.feature">
+      <header class="card-header" onclick="toggle(14)">
+        <div>
+          <span class="tag tag-api">API</span>
+          <strong>API SIGNA - Unidade</strong>
+          <span class="spec-path">api/api_designacao_unidade.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>3/4 cenarios</span>
+          <span class="duracao">17.0s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:75%;background:#C62828"></div></div>
+          <span class="pct">75%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-14">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar dados de uma unidade por código UE conhecido</div></li>
+<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Buscar dados de unidade com código UE inexistente</div><div class="erro-msg">AssertionError: status deveria ser 404 ou 400: expected 200 to be one of [ 404, 400 ]</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar dados de unidade sem autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar cargos possíveis de unidade</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/api/api_designacao_unidade.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>API SIGNA - Unidade -- Buscar dados de unidade com código UE inexistente (failed) (attempt 2).png</li><li>API SIGNA - Unidade -- Buscar dados de unidade com código UE inexistente (failed).png</li><li>failed-Buscar_dados_de_unidade_com_código_UE_inexistente (attempt 2).png</li><li>failed-Buscar_dados_de_unidade_com_código_UE_inexistente.png</li></ul>
+      </div>
+    </article>
+
+    <article class="card" id="feature-15" data-estados="passed" data-feature="api/api_dre_codigo_dre.feature">
+      <header class="card-header" onclick="toggle(15)">
         <div>
           <span class="tag tag-api">API</span>
           <strong>Testes da API de Detalhes de DRE por Código</strong>
@@ -308,24 +590,25 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
+          <span class="duracao">12.7s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-7">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Obter detalhes de uma DRE com código aleatório</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos da DRE com código aleatório</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar correspondência entre código e nome com DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Obter detalhes de uma DRE específica conhecida</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código inválido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE sem token de autenticação</li></ul>
+      <div class="card-body" id="body-15">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter detalhes de uma DRE com código aleatório</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos da DRE com código aleatório</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar correspondência entre código e nome com DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter detalhes de uma DRE específica conhecida</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE com código inválido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar DRE sem token de autenticação</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-8">
-      <header class="card-header" onclick="toggle(8)">
+    <article class="card" id="feature-16" data-estados="passed" data-feature="api/api_dre_escolas.feature">
+      <header class="card-header" onclick="toggle(16)">
         <div>
           <span class="tag tag-api">API</span>
           <strong>Testes da API de Escolas por DRE e Tipo</strong>
@@ -333,26 +616,27 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>8/8 cenarios</span>
+          <span class="duracao">16.2s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-8">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Listar escolas EMEF de uma DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos das escolas com DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listar escolas EMEF da DRE Butanta</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar correspondência entre DRE solicitada e DRE retornada nas escolas</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar quantidade mínima de escolas EMEF</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar escolas com tipo inválido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar escolas de DRE inexistente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar escolas sem token de autenticação</li></ul>
+      <div class="card-body" id="body-16">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar escolas EMEF de uma DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos das escolas com DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar escolas EMEF da DRE Butanta</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar correspondência entre DRE solicitada e DRE retornada nas escolas</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar quantidade mínima de escolas EMEF</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar escolas com tipo inválido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar escolas de DRE inexistente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar escolas sem token de autenticação</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-9">
-      <header class="card-header" onclick="toggle(9)">
+    <article class="card" id="feature-17" data-estados="passed" data-feature="api/api_dre_supervisores.feature">
+      <header class="card-header" onclick="toggle(17)">
         <div>
           <span class="tag tag-api">API</span>
           <strong>Testes da API de Supervisores por DRE</strong>
@@ -360,36 +644,37 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>18/18 cenarios</span>
+          <span class="duracao">31.3s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-9">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Listar supervisores de uma DRE conhecida</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos dos supervisores</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar supervisor específico na listagem</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar quantidade mínima de supervisores</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar supervisor de outra DRE (Campo Limpo)</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Obter DRE dinamicamente e buscar seus supervisores</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar supervisores com código inválido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar supervisores com código em formato inválido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar supervisores sem token de autenticação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar performance ao buscar supervisores</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar que códigos RF são únicos na listagem</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar que nomes de servidores não estão vazios</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listar supervisores de uma DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos de campos com DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar supervisores em múltiplas DREs aleatórias (3 iterações)</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar performance com DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar unicidade de códigos RF em DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar nomes não vazios em DRE aleatória</li></ul>
+      <div class="card-body" id="body-17">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar supervisores de uma DRE conhecida</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos dos supervisores</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar supervisor específico na listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar quantidade mínima de supervisores</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar supervisor de outra DRE (Campo Limpo)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Obter DRE dinamicamente e buscar seus supervisores</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar supervisores com código inválido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar supervisores com código em formato inválido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar supervisores sem token de autenticação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar performance ao buscar supervisores</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar que códigos RF são únicos na listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar que nomes de servidores não estão vazios</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar supervisores de uma DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos de campos com DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar supervisores em múltiplas DREs aleatórias (3 iterações)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar performance com DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar unicidade de códigos RF em DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar nomes não vazios em DRE aleatória</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-10">
-      <header class="card-header" onclick="toggle(10)">
+    <article class="card" id="feature-18" data-estados="passed" data-feature="api/api_dre_unidades_codigo_integracao.feature">
+      <header class="card-header" onclick="toggle(18)">
         <div>
           <span class="tag tag-api">API</span>
           <strong>Testes da API de Unidades com Código de Integração por DRE</strong>
@@ -397,24 +682,25 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
+          <span class="duracao">19.9s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-10">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Listar unidades com código de integração de DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos das unidades com DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar que codigoIntegracao pode ser nulo em DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar quantidade mínima de unidades na DRE Capela do Socorro</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar unidade específica conhecida na DRE 108300</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades com código de DRE inválido</li></ul>
+      <div class="card-body" id="body-18">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar unidades com código de integração de DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar tipos dos campos das unidades com DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar que codigoIntegracao pode ser nulo em DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar quantidade mínima de unidades na DRE Capela do Socorro</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar unidade específica conhecida na DRE 108300</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades com código de DRE inválido</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-11">
-      <header class="card-header" onclick="toggle(11)">
+    <article class="card" id="feature-19" data-estados="passed" data-feature="api/api_dre_unidades.feature">
+      <header class="card-header" onclick="toggle(19)">
         <div>
           <span class="tag tag-api">API</span>
           <strong>Testes da API de Unidades por DRE</strong>
@@ -422,24 +708,25 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
+          <span class="duracao">57.6s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-11">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Validar status 200 ao buscar unidades de DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar que a resposta é um array para DRE aleatória</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades de uma DRE específica conhecida</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validar status 200 em duas DREs aleatórias consecutivas</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades com código de DRE inválido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades sem token de autenticação</li></ul>
+      <div class="card-body" id="body-19">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar status 200 ao buscar unidades de DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar que a resposta é um array para DRE aleatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades de uma DRE específica conhecida</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar status 200 em duas DREs aleatórias consecutivas</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades com código de DRE inválido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar unidades sem token de autenticação</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-12">
-      <header class="card-header" onclick="toggle(12)">
+    <article class="card" id="feature-20" data-estados="passed" data-feature="ui/alteracao_email.feature">
+      <header class="card-header" onclick="toggle(20)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Alteração de e-mail</strong>
@@ -447,21 +734,22 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>3/3 cenarios</span>
+          <span class="duracao">1m 27s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-12">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Usuário valida as opções de alteração na seção Meus Dados</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Usuário acessa a alteração de e-mail via Meus Dados</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Usuário realiza a alteração do e-mail</li></ul>
+      <div class="card-body" id="body-20">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário valida as opções de alteração na seção Meus Dados</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário acessa a alteração de e-mail via Meus Dados</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário realiza a alteração do e-mail</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-13">
-      <header class="card-header" onclick="toggle(13)">
+    <article class="card" id="feature-21" data-estados="passed" data-feature="ui/alterar_senha.feature">
+      <header class="card-header" onclick="toggle(21)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Alteração de senha</strong>
@@ -469,22 +757,23 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>4/4 cenarios</span>
+          <span class="duracao">2m 38s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-13">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Usuário valida os campos obrigatórios no formulário de alteração de senha</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Usuário acessa o modal de alteração de senha e cancela sem preencher</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Usuário preenche os campos de senha e retorna para a página inicial sem salvar</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Usuário realiza a alteração da senha</li></ul>
+      <div class="card-body" id="body-21">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário valida os campos obrigatórios no formulário de alteração de senha</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário acessa o modal de alteração de senha e cancela sem preencher</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário preenche os campos de senha e retorna para a página inicial sem salvar</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Usuário realiza a alteração da senha</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-14">
-      <header class="card-header" onclick="toggle(14)">
+    <article class="card" id="feature-22" data-estados="passed" data-feature="ui/login.feature">
+      <header class="card-header" onclick="toggle(22)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Autenticação no Sistema SIGNA</strong>
@@ -492,22 +781,23 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>4/4 cenarios</span>
+          <span class="duracao">38.6s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-14">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Login com credenciais válidas</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de login com credenciais inválidas</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validação de campo senha obrigatório</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Validação de campo RF obrigatório</li></ul>
+      <div class="card-body" id="body-22">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login com credenciais válidas</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de login com credenciais inválidas</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validação de campo senha obrigatório</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validação de campo RF obrigatório</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-15">
-      <header class="card-header" onclick="toggle(15)">
+    <article class="card" id="feature-23" data-estados="passed" data-feature="ui/signa_carga.feature">
+      <header class="card-header" onclick="toggle(23)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Carga e performance do sistema SIGNA</strong>
@@ -515,68 +805,74 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>8/8 cenarios</span>
+          <span class="duracao">1m 21s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-15">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>5 acessos simultâneos autenticados à API não degradam o tempo de resposta</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>15 acessos simultâneos autenticados à API mantêm taxa de sucesso aceitável</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>30 acessos simultâneos autenticados à API mantêm taxa de sucesso mínima</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Requisições simultâneas a múltiplos endpoints da API EOL respondem com sucesso</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Listagem de Atos Administrativos sem filtro carrega volume completo em tempo aceitável</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Login em condição de banda larga (sem throttle) completa com sucesso</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Login em condição de rede 4G simulada completa com sucesso</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Login em condição de rede 3G simulada ainda completa com sucesso</li></ul>
+      <div class="card-body" id="body-23">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>5 acessos simultâneos autenticados à API não degradam o tempo de resposta</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>15 acessos simultâneos autenticados à API mantêm taxa de sucesso aceitável</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>30 acessos simultâneos autenticados à API mantêm taxa de sucesso mínima</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Requisições simultâneas a múltiplos endpoints da API EOL respondem com sucesso</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listagem de Atos Administrativos sem filtro carrega volume completo em tempo aceitável</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login em condição de banda larga (sem throttle) completa com sucesso</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login em condição de rede 4G simulada completa com sucesso</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login em condição de rede 3G simulada ainda completa com sucesso</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-16">
-      <header class="card-header" onclick="toggle(16)">
+    <article class="card" id="feature-24" data-estados="passed" data-feature="ui/atos_novos.feature">
+      <header class="card-header" onclick="toggle(24)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Criação de atos administrativos</strong>
           <span class="spec-path">ui/atos_novos.feature</span>
         </div>
         <div class="card-resumo">
-          <span>1/2 cenarios</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:50%;background:#C62828"></div></div>
-          <span class="pct">50%</span>
+          <span>5/5 cenarios</span>
+          <span class="duracao">5m 9s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-16">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova apostila através de Atos Administrativos</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Iniciar anulação de apostila através de Atos Administrativos</li></ul>
+      <div class="card-body" id="body-24">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova designação através de Atos Administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova cessação através de Atos Administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova insubsistência através de Atos Administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova apostila através de Atos Administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar anulação de apostila através de Atos Administrativos</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-17">
-      <header class="card-header" onclick="toggle(17)">
+    <article class="card" id="feature-25" data-estados="passed" data-feature="ui/consulta_atos_adminstra.feature">
+      <header class="card-header" onclick="toggle(25)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Editar e visualizar designação de servidor</strong>
           <span class="spec-path">ui/consulta_atos_adminstra.feature</span>
         </div>
         <div class="card-resumo">
-          <span>0/2 cenarios</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:0%;background:#C62828"></div></div>
-          <span class="pct">0%</span>
+          <span>2/2 cenarios</span>
+          <span class="duracao">1m 18s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-17">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#C62828">Falhou</span>Editar designação e validar todas as seções do formulário</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Visualizar designação existente e validar todos os dados</li></ul>
+      <div class="card-body" id="body-25">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar designação e validar todas as seções do formulário</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Visualizar designação existente e validar todos os dados</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-18">
-      <header class="card-header" onclick="toggle(18)">
+    <article class="card" id="feature-26" data-estados="passed" data-feature="ui/esqueci_senha.feature">
+      <header class="card-header" onclick="toggle(26)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Fluxo esqueci a senha no sistema SIGNA</strong>
@@ -584,56 +880,85 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>2/2 cenarios</span>
+          <span class="duracao">52.6s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-18">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF válido</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF inválido</li></ul>
+      <div class="card-body" id="body-26">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF válido</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF inválido</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-19">
-      <header class="card-header" onclick="toggle(19)">
+    <article class="card" id="feature-27" data-estados="failed,passed" data-feature="ui/signa_extra.feature">
+      <header class="card-header" onclick="toggle(27)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Fluxos avançados e casos de borda do sistema SIGNA</strong>
           <span class="spec-path">ui/signa_extra.feature</span>
         </div>
         <div class="card-resumo">
-          <span>12/17 cenarios</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:71%;background:#C62828"></div></div>
-          <span class="pct">71%</span>
+          <span>15/16 cenarios</span>
+          <span class="duracao">3m 49s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:94%;background:#C62828"></div></div>
+          <span class="pct">94%</span>
         </div>
       </header>
-      <div class="card-body" id="body-19">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Login seguido de logout retorna à tela de login</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Sessão permanece ativa após recarregar a página</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Acessar a URL de login estando autenticado não exibe o formulário novamente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Login com RF em formato inválido não autentica</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar Atos Administrativos com filtro contendo apenas espaços não quebra a tela</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Navegar entre Atos Administrativos e o menu lateral preservando a sessão</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Repetir pesquisa com filtros diferentes mantém integridade dos resultados</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Alternar menu lateral entre expandido e colapsado</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Corrigir credenciais após falha de login e conseguir autenticar</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tela de login é utilizável em viewport mobile</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tela de login é utilizável em viewport tablet</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Sistema permanece utilizável em viewport mobile após login</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tempo de carregamento da tela de login é aceitável</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Tempo entre o login e o redirecionamento é aceitável</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Payload XSS no campo de login não é executado</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Payload de SQL Injection no campo de login não autentica</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Sessão expirada redireciona para tela de login ao navegar</li></ul>
+      <div class="card-body" id="body-27">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login seguido de logout retorna à tela de login</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Sessão permanece ativa após recarregar a página</div></li>
+<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Acessar a URL de login estando autenticado não exibe o formulário novamente</div><div class="erro-msg">AssertionError: Timed out retrying after 10000ms: Expected &lt;input#_r_g_-form-item.flex.h-[40px].w-full.border.border-[#dadada].bg-background.px-3.py-2.text-sm.font-medium.ring-0.ring-offset-0.shadow-none.outline-none.focus:outline-none.focus:ring-0.focus:ring-offset-0.focus:shadow-none.focus:bg-[#E8…</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login com RF em formato inválido não autentica</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar Atos Administrativos com filtro contendo apenas espaços não quebra a tela</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Navegar entre Atos Administrativos e o menu lateral preservando a sessão</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Repetir pesquisa com filtros diferentes mantém integridade dos resultados</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Alternar menu lateral entre expandido e colapsado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Corrigir credenciais após falha de login e conseguir autenticar</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tela de login é utilizável em viewport mobile</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tela de login é utilizável em viewport tablet</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tempo de carregamento da tela de login é aceitável</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tempo entre o login e o redirecionamento é aceitável</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Payload XSS no campo de login não é executado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Payload de SQL Injection no campo de login não autentica</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Sessão expirada redireciona para tela de login ao navegar</div></li></ul>
         <h4>Evidencias</h4>
-        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_extra.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente.png</li><li>failed-Sessão_expirada_redireciona_para_tela_de_login_ao_navegar (attempt 2).png</li><li>failed-Sessão_expirada_redireciona_para_tela_de_login_ao_navegar.png</li><li>failed-Sessão_permanece_ativa_após_recarregar_a_página (attempt 2).png</li><li>failed-Sessão_permanece_ativa_após_recarregar_a_página.png</li></ul>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_extra.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (1).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (1).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente.png</li></ul>
       </div>
     </article>
 
-    <article class="card" id="feature-20">
-      <header class="card-header" onclick="toggle(20)">
+    <article class="card" id="feature-28" data-estados="passed" data-feature="ui/gestao_base_filtros.feature">
+      <header class="card-header" onclick="toggle(28)">
+        <div>
+          <span class="tag tag-ui">UI</span>
+          <strong>Gestão de cargos base</strong>
+          <span class="spec-path">ui/gestao_base_filtros.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>8/8 cenarios</span>
+          <span class="duracao">1m 59s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-28">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar título, campos de filtro, botões e lista de cargos base</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar cargos base combinando Grupamento, Descrição Resumida e Status</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros restaura a lista completa de cargos base</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar cargos base somente por Grupamento</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar cargos base somente por Descrição Resumida</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar cargos base somente por Descrição Completa</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar cargos base somente por Situação Funcional</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar cargos base somente por Status</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-29" data-estados="passed" data-feature="ui/filtra_atos.feature">
+      <header class="card-header" onclick="toggle(29)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Pesquisa de Atos Administrativos</strong>
@@ -641,46 +966,27 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>8/8 cenarios</span>
+          <span class="duracao">1m 40s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-20">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Tipo</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Nº SEI</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Publicado)</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Portaria de designação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Servidor</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Aguardando publicação)</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por período de publicação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros preenchidos</li></ul>
+      <div class="card-body" id="body-29">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Tipo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Nº SEI</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Publicado)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Portaria de designação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Servidor</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Aguardando publicação)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por período de publicação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros preenchidos</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-21">
-      <header class="card-header" onclick="toggle(21)">
-        <div>
-          <span class="tag tag-ui">UI</span>
-          <strong>Reteste de correção — indicador de carregamento e tela de erro</strong>
-          <span class="spec-path">ui/correcoes/retest_bug.feature</span>
-        </div>
-        <div class="card-resumo">
-          <span>1/1 cenarios</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
-          <span class="pct">100%</span>
-        </div>
-      </header>
-      <div class="card-body" id="body-21">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Exibir indicador de carregamento durante a troca de rota</li></ul>
-        <h4>Evidencias</h4>
-        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
-      </div>
-    </article>
-
-    <article class="card" id="feature-22">
-      <header class="card-header" onclick="toggle(22)">
+    <article class="card" id="feature-30" data-estados="failed,passed" data-feature="ui/signa_stress.feature">
+      <header class="card-header" onclick="toggle(30)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Stress e cenários de limite do sistema SIGNA</strong>
@@ -688,51 +994,178 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>19/21 cenarios</span>
+          <span class="duracao">2m 28s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:90%;background:#C62828"></div></div>
           <span class="pct">90%</span>
         </div>
       </header>
-      <div class="card-body" id="body-22">
-        <ul class="lista-cenarios"><li><span class="badge" style="background:#2E7D32">Passou</span>Rajada de requisições simultâneas acima da carga normal</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Oscilação de carga entre picos e vales de tráfego</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Requisição travada (hanging) não trava a interface indefinidamente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Cancelamento em massa de requisições pendentes pelo usuário</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Campo de filtro aceita ou rejeita graciosamente um payload gigante</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Campo de filtro aceita ou rejeita graciosamente caracteres unicode extremos</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Campo numérico aceita ou rejeita graciosamente um valor no limite superior</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Payload de API com JSON profundamente aninhado</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Falhas de rede repetidas durante uma requisição</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Latência extrema não trava a aplicação de forma irrecuperável</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Pool de conexões do banco de dados saturado</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Query lenta no backend não trava a aplicação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Registro com dados corrompidos ou inconsistentes retornado pela API</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Invalidação agressiva de cache entre requisições</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de cache poisoning via headers manipulados</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Dois usuários editando a mesma portaria simultaneamente</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Tela exibindo dados desatualizados (stale) após alteração concorrente</li>
-<li><span class="badge" style="background:#C62828">Falhou</span>Múltiplas tentativas de força bruta no login não concedem acesso</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Injeção via parâmetro de filtro não compromete a aplicação</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Failover de instância de backend é transparente para o usuário</li>
-<li><span class="badge" style="background:#2E7D32">Passou</span>Restart abrupto do backend durante uma operação do usuário</li></ul>
+      <div class="card-body" id="body-30">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Rajada de requisições simultâneas acima da carga normal</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Oscilação de carga entre picos e vales de tráfego</div></li>
+<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Requisição travada (hanging) não trava a interface indefinidamente</div><div class="erro-msg">CypressError: An invalid RouteMatcher was supplied to `cy.intercept()`. `resourceType` must be a string or a regular expression.
+
+You passed: {
+  &quot;url&quot;: &quot;**&quot;,
+  &quot;resourceType&quot;: [
+    &quot;xhr&quot;,
+    &quot;fetch&quot;
+  ]
+}
+
+https://on.cypress.io/intercept</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cancelamento em massa de requisições pendentes pelo usuário</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Campo de filtro aceita ou rejeita graciosamente um payload gigante</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Campo de filtro aceita ou rejeita graciosamente caracteres unicode extremos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Campo numérico aceita ou rejeita graciosamente um valor no limite superior</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Payload de API com JSON profundamente aninhado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Falhas de rede repetidas durante uma requisição</div></li>
+<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Latência extrema não trava a aplicação de forma irrecuperável</div><div class="erro-msg">CypressError: An invalid RouteMatcher was supplied to `cy.intercept()`. `resourceType` must be a string or a regular expression.
+
+You passed: {
+  &quot;url&quot;: &quot;**&quot;,
+  &quot;resourceType&quot;: [
+    &quot;xhr&quot;,
+    &quot;fetch&quot;
+  ]
+}
+
+https://on.cypress.io/intercept</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pool de conexões do banco de dados saturado</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Query lenta no backend não trava a aplicação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Registro com dados corrompidos ou inconsistentes retornado pela API</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Invalidação agressiva de cache entre requisições</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentativa de cache poisoning via headers manipulados</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Dois usuários editando a mesma portaria simultaneamente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tela exibindo dados desatualizados (stale) após alteração concorrente</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Múltiplas tentativas de força bruta no login não concedem acesso</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Injeção via parâmetro de filtro não compromete a aplicação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Failover de instância de backend é transparente para o usuário</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Restart abrupto do backend durante uma operação do usuário</div></li></ul>
         <h4>Evidencias</h4>
-        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_stress.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Múltiplas_tentativas_de_força_bruta_no_login_não_concedem_acesso (attempt 2).png</li><li>failed-Múltiplas_tentativas_de_força_bruta_no_login_não_concedem_acesso.png</li><li>failed-Requisição_travada_(hanging)_não_trava_a_interface_indefinidamente (attempt 2).png</li><li>failed-Requisição_travada_(hanging)_não_trava_a_interface_indefinidamente.png</li><li>Stress e cenários de limite do sistema SIGNA -- Múltiplas tentativas de força bruta no login não concedem acesso (failed) (attempt 2).png</li><li>Stress e cenários de limite do sistema SIGNA -- Múltiplas tentativas de força bruta no login não concedem acesso (failed).png</li></ul>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_stress.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável (1).png</li><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável (attempt 2) (1).png</li><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável (attempt 2).png</li><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável.png</li><li>failed-Múltiplas_tentativas_de_força_bruta_no_login_não_concedem_acesso (attempt 2).png</li><li>failed-Múltiplas_tentativas_de_força_bruta_no_login_não_concedem_acesso.png</li></ul>
       </div>
     </article>
 </main>
 
+<div class="rodape">Gerado por scripts/gerar_dashboard_html.py v1.1.0 - execucao 100% local, nao roda no CI/CD</div>
+
+<script type="application/json" id="dashboard-snapshot">{"gerado_em": "26/08/2026 14:49", "total_cenarios": 243, "total_passou": 238, "total_falhou": 5, "total_pendente": 0, "pct_geral": 97.9, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 11, "falhou": 1, "total": 12, "pct": 91.7}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 3, "falhou": 1, "total": 4, "pct": 75.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 15, "falhou": 1, "total": 16, "pct": 93.8}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 19, "falhou": 2, "total": 21, "pct": 90.5}}, "fonte_hash": "ac8fa09acea4dc93252004ebb76cedcc2a047299", "baseline": {"gerado_em": "21/08/2026 10:32", "total_cenarios": 242, "pct_geral": 97.9, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 10, "falhou": 1, "total": 11, "pct": 90.9}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 3, "falhou": 1, "total": 4, "pct": 75.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 15, "falhou": 1, "total": 16, "pct": 93.8}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 19, "falhou": 2, "total": 21, "pct": 90.5}}}, "versao_script": "1.1.0"}</script>
+
 <script>
+var PR_OWNER_REPO = "prefeiturasp/SME-SIGNA-FrontEnd";
+var PR_BRANCH = "qa_test";
+
+var filtroSistema = 'todos';
+var filtroStatus = 'todos';
+var filtroFeature = 'todos';
+
 function toggle(i){
   document.getElementById('body-' + i).classList.toggle('aberto');
 }
+
 function filtrar(sistema){
-  document.querySelectorAll('.card').forEach(function(card){
-    var mostra = sistema === 'todos' || card.querySelector('.tag').textContent === sistema;
-    card.style.display = mostra ? '' : 'none';
-  });
+  filtroSistema = sistema;
   document.querySelectorAll('.filtros button').forEach(function(b){
     b.classList.toggle('ativo', b.dataset.filtro === sistema);
   });
+  aplicarFiltros();
 }
+
+function filtrarStatus(status){
+  filtroStatus = (filtroStatus === status) ? 'todos' : status;
+  document.querySelectorAll('.stat-clicavel').forEach(function(s){
+    s.classList.toggle('ativo', s.dataset.status === filtroStatus);
+  });
+  aplicarFiltros();
+}
+
+function filtrarFeature(spec){
+  filtroFeature = spec || 'todos';
+  var select = document.getElementById('filtro-feature');
+  select.classList.toggle('ativo', filtroFeature !== 'todos');
+  aplicarFiltros();
+}
+
+function aplicarFiltros(){
+  document.querySelectorAll('.card').forEach(function(card){
+    var tagOk = filtroSistema === 'todos' || card.querySelector('.tag').textContent === filtroSistema;
+    var estados = (card.dataset.estados || '').split(',');
+    var statusOk = filtroStatus === 'todos' || estados.indexOf(filtroStatus) !== -1;
+    var featureOk = filtroFeature === 'todos' || card.dataset.feature === filtroFeature;
+    var mostra = tagOk && statusOk && featureOk;
+    card.style.display = mostra ? '' : 'none';
+
+    var indice = card.id.replace('feature-', '');
+    var corpo = document.getElementById('body-' + indice);
+    if (mostra && (filtroStatus !== 'todos' || filtroFeature !== 'todos')) {
+      corpo.classList.add('aberto');
+    }
+    corpo.querySelectorAll('li[data-estado]').forEach(function(li){
+      li.classList.toggle('destaque', filtroStatus !== 'todos' && li.dataset.estado === filtroStatus);
+    });
+  });
+}
+
+function escapeHtml(texto){
+  var div = document.createElement('div');
+  div.textContent = texto == null ? '' : texto;
+  return div.innerHTML;
+}
+
+// Mesma logica de obter_info_pr()/_decisao_revisao() do script Python,
+// reescrita em JS pra rodar ao vivo no navegador quando o botao "Atualizar
+// PR" e clicado (a API do GitHub libera CORS pra leitura publica).
+function atualizarPR(){
+  if (!PR_OWNER_REPO || !PR_BRANCH) return;
+  var btn = document.getElementById('pr-refresh-btn');
+  var badge = document.getElementById('pr-badge');
+  var owner = PR_OWNER_REPO.split('/')[0];
+  btn.disabled = true;
+  btn.textContent = '⏳';
+
+  fetch('https://api.github.com/repos/' + PR_OWNER_REPO + '/pulls?head=' + owner + ':' + PR_BRANCH + '&state=all', {
+    headers: {'Accept': 'application/vnd.github+json'}
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(pulls){
+    if (!pulls || !pulls.length) {
+      badge.innerHTML = '<span class="pr-vazio">Nenhum PR encontrado para esta branch</span>';
+      return null;
+    }
+    var pr = pulls.filter(function(p){ return p.state === 'open'; })[0] || pulls[0];
+    return fetch('https://api.github.com/repos/' + PR_OWNER_REPO + '/pulls/' + pr.number + '/reviews', {
+      headers: {'Accept': 'application/vnd.github+json'}
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(reviews){
+      reviews = reviews || [];
+      var estado = pr.merged_at ? 'Mesclado' : (pr.state === 'open' ? 'Aberto' : 'Fechado');
+
+      var ultimoPorAutor = {};
+      reviews.forEach(function(rv){
+        if (rv.state === 'APPROVED' || rv.state === 'CHANGES_REQUESTED') {
+          ultimoPorAutor[rv.user.login] = rv.state;
+        }
+      });
+      var estadosRevisao = Object.keys(ultimoPorAutor).map(function(k){ return ultimoPorAutor[k]; });
+      var revisao = 'Sem revisão';
+      if (estadosRevisao.indexOf('CHANGES_REQUESTED') !== -1) revisao = 'Alterações solicitadas';
+      else if (estadosRevisao.indexOf('APPROVED') !== -1) revisao = 'Aprovado';
+      else if (reviews.length) revisao = 'Revisão pendente';
+
+      badge.innerHTML = '<a href="' + escapeHtml(pr.html_url) + '" target="_blank" rel="noopener">PR #'
+        + pr.number + ' — ' + escapeHtml(pr.title) + ' — ' + estado + ' — ' + revisao + '</a>';
+    });
+  })
+  .catch(function(){
+    badge.innerHTML = '<span class="pr-vazio">Erro ao consultar a API do GitHub</span>';
+  })
+  .finally(function(){
+    btn.disabled = false;
+    btn.textContent = '↻';
+  });
+}
+
 </script>
 </body>
 </html>

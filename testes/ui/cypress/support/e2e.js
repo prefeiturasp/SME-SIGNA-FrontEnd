@@ -14,6 +14,9 @@ import './ui/commands/commands_slowmo';
 // Importar comandos de API EOL
 import './api/commands';
 
+// Importar comandos de API SIGNA (backend próprio, JWT)
+import './api/commands_signa';
+
 // Configurações globais
 Cypress.on('uncaught:exception', (err, runnable) => {
   // Retorna false para prevenir que erros não capturados falhem o teste
