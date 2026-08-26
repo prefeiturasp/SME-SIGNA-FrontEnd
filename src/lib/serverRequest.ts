@@ -2,6 +2,7 @@
 
 import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
+import { toAxiosError } from "@/lib/axios-error";
 
 type ErrorResponse = {
   detail?: string;
@@ -13,7 +14,10 @@ export type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; field?: string };
 
-function extractErrorMessage(error: AxiosError<ErrorResponse>, defaultMessage: string): ActionResult {
+function extractErrorMessage(
+  error: AxiosError<ErrorResponse>,
+  defaultMessage: string
+): Extract<ActionResult, { success: false }> {
   if (error.response?.status === 500) {
     return { success: false, error: "Erro interno no servidor" };
   }
@@ -42,7 +46,7 @@ export async function postWithAuth<TPayload, TResponse = unknown>(
   const authToken = cookieStore.get("auth_token")?.value;
 
   try {
-    const response = await axios.post(`${API_URL}${url}`, payload, {
+    const response = await axios.post<TResponse>(`${API_URL}${url}`, payload, {
       headers: {
         "Content-Type": "application/json",
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
@@ -51,8 +55,8 @@ export async function postWithAuth<TPayload, TResponse = unknown>(
 
     return { success: true, data: response.data };
   } catch (err) {
-    const error = err as AxiosError<ErrorResponse>;
-    return extractErrorMessage(error, defaultErrorMessage) as ActionResult<TResponse>;
+    const error = toAxiosError<ErrorResponse>(err);
+    return extractErrorMessage(error, defaultErrorMessage);
   }
 }
 export async function patchWithAuth<TPayload, TResponse = unknown>(
@@ -65,7 +69,7 @@ export async function patchWithAuth<TPayload, TResponse = unknown>(
   const authToken = cookieStore.get("auth_token")?.value;
 
   try {
-    const response = await axios.patch(`${API_URL}${url}`, payload, {
+    const response = await axios.patch<TResponse>(`${API_URL}${url}`, payload, {
       headers: {
         "Content-Type": "application/json",
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
@@ -74,7 +78,7 @@ export async function patchWithAuth<TPayload, TResponse = unknown>(
 
     return { success: true, data: response.data };
   } catch (err) {
-    const error = err as AxiosError<ErrorResponse>;
-    return extractErrorMessage(error, defaultErrorMessage) as ActionResult<TResponse>;
+    const error = toAxiosError<ErrorResponse>(err);
+    return extractErrorMessage(error, defaultErrorMessage);
   }
 }

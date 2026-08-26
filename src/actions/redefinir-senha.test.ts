@@ -2,7 +2,13 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { redefinirSenhaAction } from "./redefinir-senha";
 import axios from "axios";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn() },
+    };
+});
 const axiosPostMock = axios.post as unknown as ReturnType<typeof vi.fn>;
 
 describe("redefinirSenhaAction", () => {
@@ -27,6 +33,7 @@ describe("redefinirSenhaAction", () => {
 
     it("retorna erro customizado quando a API responde com non_field_errors", async () => {
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: {
                 data: {
                     errors: { non_field_errors: ["Senhas não conferem"] },
@@ -48,6 +55,7 @@ describe("redefinirSenhaAction", () => {
 
     it("retorna erro com detail quando presente", async () => {
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "Token inválido" } },
             message: "Erro customizado",
         });
@@ -62,6 +70,7 @@ describe("redefinirSenhaAction", () => {
 
     it("retorna erro 500 corretamente", async () => {
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { status: 500 },
             message: "Erro interno no servidor",
         });
@@ -79,6 +88,7 @@ describe("redefinirSenhaAction", () => {
 
     it("retorna erro genérico quando não há detail ou non_field_errors", async () => {
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             message: "Erro desconhecido",
         });
         const result = await redefinirSenhaAction({

@@ -3,7 +3,13 @@ import axios from "axios";
 
 // ── Mocks ────────────────────────────────────────
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, post: vi.fn(), patch: vi.fn() },
+  };
+});
 const mockedAxios = vi.mocked(axios, true);
 
 vi.mock("next/headers", () => ({

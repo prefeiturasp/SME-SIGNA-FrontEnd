@@ -3,7 +3,13 @@ import { cookies } from "next/headers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { excluirDesignacao, getDesignacaoByIdAction } from "./designacoes";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, get: vi.fn(), delete: vi.fn() },
+  };
+});
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
@@ -47,6 +53,7 @@ describe("getDesignacaoByIdAction", () => {
 
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosGet.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status, data: {} },
     } as never);
 
@@ -60,6 +67,7 @@ describe("getDesignacaoByIdAction", () => {
 
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosGet.mockRejectedValueOnce({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { detail: "Detalhe customizado da API" },
@@ -79,6 +87,7 @@ describe("getDesignacaoByIdAction", () => {
 
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosGet.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status: 418, data: {} },
       message: "Erro de rede",
     } as never);
@@ -92,7 +101,7 @@ describe("getDesignacaoByIdAction", () => {
     const getCookieMock = vi.fn().mockReturnValue(undefined);
 
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
-    mockedAxiosGet.mockRejectedValueOnce({} as never);
+    mockedAxiosGet.mockRejectedValueOnce({ isAxiosError: true } as never);
 
     const result = await getDesignacaoByIdAction(10);
 
@@ -147,6 +156,7 @@ describe("excluirDesignacao", () => {
     const getCookieMock = vi.fn().mockReturnValue({ value: "token-abc" });
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosDelete.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status, data: {} },
     } as never);
 
@@ -159,6 +169,7 @@ describe("excluirDesignacao", () => {
     const getCookieMock = vi.fn().mockReturnValue({ value: "token-abc" });
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosDelete.mockRejectedValueOnce({
+      isAxiosError: true,
       response: {
         status: 400,
         data: { detail: "Detalhe customizado da API" },
@@ -177,6 +188,7 @@ describe("excluirDesignacao", () => {
     const getCookieMock = vi.fn().mockReturnValue({ value: "token-abc" });
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
     mockedAxiosDelete.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status: 418, data: {} },
       message: "Erro de rede",
     } as never);
@@ -189,7 +201,7 @@ describe("excluirDesignacao", () => {
   it("mantém mensagem padrão quando erro não contém detalhes", async () => {
     const getCookieMock = vi.fn().mockReturnValue({ value: "token-abc" });
     mockedCookies.mockResolvedValueOnce({ get: getCookieMock } as never);
-    mockedAxiosDelete.mockRejectedValueOnce({} as never);
+    mockedAxiosDelete.mockRejectedValueOnce({ isAxiosError: true } as never);
 
     const result = await excluirDesignacao(21);
 

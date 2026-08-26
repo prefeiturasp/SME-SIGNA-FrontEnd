@@ -17,7 +17,11 @@ export const useSalvarApostila = () => {
       const atoPai =
         values.apostila.ato_apostilado === "cessacao" && cessacaoId
           ? cessacaoId
-          : (designacaoId as number);
+          : designacaoId;
+
+      if (atoPai === undefined) {
+        throw new Error("Ato de origem (designação ou cessação) não informado.");
+      }
 
       const payload: ApostilaBody = {
         ato_pai: atoPai,

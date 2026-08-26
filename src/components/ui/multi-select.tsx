@@ -58,7 +58,7 @@ export function MultiSelect({
 
     const selectedOptions = value
         .map((val) => options.find((opt) => opt.value === val))
-        .filter(Boolean) as Option[];
+        .filter((opt): opt is Option => opt !== undefined);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>

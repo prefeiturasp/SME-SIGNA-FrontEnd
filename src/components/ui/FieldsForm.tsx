@@ -4,7 +4,7 @@ import { InputBaseMask } from "@/components/ui/input-base";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
-import { FieldValues, UseFormRegister, Control } from "react-hook-form";
+import { FieldValues, UseFormRegister, Control, FieldPath } from "react-hook-form";
 import type { ReactNode } from "react";
 import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,10 +22,12 @@ import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-interface PropsField {
-    register: UseFormRegister<FieldValues>;
-    control: Control<FieldValues>;
-    name: string;
+const isDate = (value: unknown): value is Date => value instanceof Date;
+
+interface PropsField<TFieldValues extends FieldValues = FieldValues> {
+    register: UseFormRegister<TFieldValues>;
+    control: Control<TFieldValues>;
+    name: FieldPath<TFieldValues>;
     label: string | ReactNode;
     placeholder?: string;
     dataTestId?: string;
@@ -37,7 +39,7 @@ interface PropsField {
 }
 
 
-export const CheckboxField = ({ register, control, name, label, dataTestId, showBlankSpace }: PropsField) => {
+export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -83,7 +85,7 @@ export const CheckboxField = ({ register, control, name, label, dataTestId, show
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength, showBlankSpace = true }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
+export const InputField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength, showBlankSpace = true }: { register: UseFormRegister<TFieldValues>; control: Control<TFieldValues>; name: FieldPath<TFieldValues>; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
     return (
         <FormField
             {...register(name)}
@@ -122,7 +124,7 @@ interface SelectOption {
     label: string;
 }
 
-export const SelectField = ({
+export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     control,
     name,
     label,
@@ -133,14 +135,14 @@ export const SelectField = ({
     register,
     showBlankSpace = true,
 }: {
-    control: Control<FieldValues>;
-    name: string;
+    control: Control<TFieldValues>;
+    name: FieldPath<TFieldValues>;
     label: string | ReactNode;
     placeholder?: string;
     dataTestId?: string;
     options: SelectOption[];
     disabled?: boolean;
-    register: UseFormRegister<FieldValues>;
+    register: UseFormRegister<TFieldValues>;
     showBlankSpace?: boolean;
 }) => {
     return (
@@ -228,7 +230,7 @@ export const MultiSelectField = ({
 
 
 
-export const DateField = ({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -236,7 +238,7 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
             name={name}
             render={({ field }) => {
                 const value =
-                    field.value instanceof Date && isValid(field.value)
+                    isDate(field.value) && isValid(field.value)
                         ? dayjs(field.value)
                         : null;
 
@@ -275,7 +277,7 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
     );
 };
 
-export const DateRangeField = ({ register, control, name, label, placeholder, showBlankSpace = true }: PropsField) => {
+export const DateRangeField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -332,7 +334,7 @@ export const DateRangeField = ({ register, control, name, label, placeholder, sh
     );
 };
 
-export const DateRangePickerField = ({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField) => {
+export const DateRangePickerField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -340,10 +342,10 @@ export const DateRangePickerField = ({ register, control, name, label, placehold
             name={name}
             render={({ field }) => {
                 const value: [Dayjs | null, Dayjs | null] | null =
-                    field.value?.from instanceof Date && isValid(field.value?.from)
+                    isDate(field.value?.from) && isValid(field.value?.from)
                         ? [
                             dayjs(field.value.from),
-                            field.value?.to instanceof Date && isValid(field.value?.to)
+                            isDate(field.value?.to) && isValid(field.value?.to)
                                 ? dayjs(field.value.to)
                                 : null,
                         ]
@@ -396,7 +398,7 @@ export const DateRangePickerField = ({ register, control, name, label, placehold
 
 
 
-export const SwitchField = ({
+export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
     register,
     control,
     name,
@@ -405,7 +407,7 @@ export const SwitchField = ({
     disabled = false,
     showBlankSpace = true,
     description
-}: PropsField) => {
+}: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}

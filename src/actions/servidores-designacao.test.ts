@@ -4,7 +4,13 @@ import { cookies } from "next/headers";
 import { getServidorDesignacaoAction } from "./servidores-designacao";
 import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, post: vi.fn() },
+  };
+});
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
@@ -70,7 +76,7 @@ describe("getServidorDesignacaoAction", () => {
 
   it("retorna mensagem específica para status 401", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-    vi.mocked(axios.post).mockRejectedValue({ response: { status: 401 } });
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true, response: { status: 401 } });
 
     const result = await getServidorDesignacaoAction(sampleRequest);
 
@@ -82,7 +88,7 @@ describe("getServidorDesignacaoAction", () => {
 
   it("retorna mensagem específica para status 400", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-    vi.mocked(axios.post).mockRejectedValue({ response: { status: 400 } });
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true, response: { status: 400 } });
 
     const result = await getServidorDesignacaoAction(sampleRequest);
 
@@ -94,7 +100,7 @@ describe("getServidorDesignacaoAction", () => {
 
   it("retorna mensagem específica para status 500", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-    vi.mocked(axios.post).mockRejectedValue({ response: { status: 500 } });
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true, response: { status: 500 } });
 
     const result = await getServidorDesignacaoAction(sampleRequest);
 
@@ -106,7 +112,7 @@ describe("getServidorDesignacaoAction", () => {
 
   it("retorna mensagem padrão quando não há detalhes do erro", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-    vi.mocked(axios.post).mockRejectedValue({});
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true });
 
     const result = await getServidorDesignacaoAction(sampleRequest);
 
@@ -118,7 +124,7 @@ describe("getServidorDesignacaoAction", () => {
 
   it("retorna mensagem do erro quando disponível", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
-    vi.mocked(axios.post).mockRejectedValue({ message: "Falha inesperada" });
+    vi.mocked(axios.post).mockRejectedValue({ isAxiosError: true, message: "Falha inesperada" });
 
     const result = await getServidorDesignacaoAction(sampleRequest);
 
@@ -131,6 +137,7 @@ describe("getServidorDesignacaoAction", () => {
   it("prioriza mensagem vinda de detail quando presente", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
     vi.mocked(axios.post).mockRejectedValue({
+      isAxiosError: true,
       response: { data: { detail: "Erro específico" } },
       message: "Erro genérico",
     });
@@ -143,6 +150,7 @@ describe("getServidorDesignacaoAction", () => {
   it("Processa mensagem de erro específica para status 501", async () => {
     vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
     vi.mocked(axios.post).mockRejectedValue({
+      isAxiosError: true,
       response: { data: { detail: "Erro específico", status: 501 } },
       message: "Erro genérico",
     });

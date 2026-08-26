@@ -4,7 +4,13 @@ import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/De
 
 // ── Mocks ────────────────────────────────────────
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn(), patch: vi.fn() },
+    };
+});
 const mockedAxios = vi.mocked(axios, true);
 
 vi.mock("next/headers", () => ({
@@ -159,6 +165,32 @@ describe("designacaoAction", () => {
             success: false,
             error: "Valor inválido.",
             field: "indicado_rf",
+        });
+    });
+
+    it("humaniza o(s) nome(s) de campo no detail retornado pelo backend", async () => {
+        mockCookies("token");
+
+        const axiosError = {
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    detail:
+                        "numero_portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; indicado_local_exercicio: Este campo pode não estar em branco.",
+                },
+            },
+            message: "Request failed",
+        };
+        mockedAxios.post.mockRejectedValueOnce(axiosError);
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error:
+                "Numero portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; Indicado local exercicio: Este campo pode não estar em branco.",
+            field: undefined,
         });
     });
 
