@@ -123,7 +123,6 @@ When('clica no botão {string}', (btnText) => {
   
   if (textoNormalizado.includes('alterar senha')) {
     cy.get('body').then($body => {
-      // Tentar encontrar botão "Alterar senha"
       if ($body.find('button:contains("Alterar senha")').length > 0) {
         cy.contains('button', /alterar senha/i, { matchCase: false }).first().click({ force: true });
       } else {
@@ -137,7 +136,6 @@ When('clica no botão {string}', (btnText) => {
     cy.wait(1000);
   } else if (textoNormalizado.includes('alterar e-mail') || textoNormalizado.includes('alterar email')) {
     cy.get('body').then($body => {
-      // Tentar encontrar botão "Alterar e-mail"
       if ($body.find('button:contains("Alterar e-mail"), button:contains("Alterar email"), a:contains("Alterar e-mail")').length > 0) {
         cy.contains('button, a', /alterar.{0,2}e-?mail/i, { matchCase: false }).first().click({ force: true });
       } else {
@@ -205,7 +203,6 @@ When('o usuário valida a existencia do campo e preenche o campo Senha atual com
     .first()
     .should('exist')
     .then($input => {
-      // Se estiver desabilitado, tentar habilitar ou usar força
       if ($input.prop('disabled')) {
         cy.wrap($input).invoke('removeAttr', 'disabled');
       }

@@ -436,3 +436,8 @@ input[type="number"] {
   opacity: 0.5;
   pointer-events: none;
 }
+
+
+.ant-tabs-tab {
+  font-weight: 700;
+}

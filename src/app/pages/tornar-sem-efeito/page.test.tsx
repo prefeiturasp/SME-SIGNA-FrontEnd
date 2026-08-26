@@ -12,6 +12,8 @@ const getDadosPortariaMock = vi.fn((value?: unknown) => ({ origem: "designacao",
 const getDadosPortariaCessacaoMock = vi.fn((value?: unknown) => ({ origem: "cessacao", value }));
 const getDadosIndicadoMock = vi.fn((value?: unknown) => ({ origem: "indicado", value }));
 const formCardPropsMock = vi.fn();
+const formatarDataMock = vi.fn((value?: string) => `data-${value}`);
+const gerarHtmlPortariaMock = vi.fn((texto: string) => `HTML:${texto}`);
 
 type FormValues = {
   apostila_insubsistencia: {
@@ -97,6 +99,14 @@ vi.mock("@/utils/cessacao/getDadosPortaria", () => ({
 
 vi.mock("@/utils/ServidorIndicado/getDadosIndicado", () => ({
   getDadosIndicado: (value: unknown) => getDadosIndicadoMock(value),
+}));
+
+vi.mock("@/lib/utils", () => ({
+  formatarData: (value?: string) => formatarDataMock(value),
+}));
+
+vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
+  gerarHtmlPortaria: (texto: string) => gerarHtmlPortariaMock(texto),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -212,6 +222,7 @@ describe("AnularApostilaPage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("mostrar-editor")).toHaveTextContent("true");
     });
+    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
   });
 
   it("aplica negrito quando chave nome_indicado aparece no template", async () => {
@@ -229,8 +240,50 @@ describe("AnularApostilaPage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("mostrar-editor")).toHaveTextContent("true");
     });
+    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
 
     objectEntriesSpy.mockRestore();
+  });
+
+  it("usa doc da cessação ao gerar dados quando tipo_portaria for cessacao", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      cessacao: {
+        portaria: "777",
+        doc: "DOC-CESSACAO",
+      } as unknown as { portaria: string },
+    };
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    const texto = gerarHtmlPortariaMock.mock.calls.at(-1)?.[0] ?? "";
+    expect(texto).toContain("data-DOC-CESSACAO");
+  });
+
+  it("usa '-' para docs quando dados estão ausentes", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      doc: undefined,
+      designacao: {
+        ...createInsubsistencia().designacao,
+        doc: undefined,
+      },
+    } as unknown as InsubsistenciaMock;
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    const texto = gerarHtmlPortariaMock.mock.calls.at(-1)?.[0] ?? "";
+    expect(texto).toContain("-");
   });
 
   it("submete com sucesso e redireciona", async () => {

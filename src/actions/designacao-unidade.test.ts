@@ -11,10 +11,15 @@ import axios from "axios";
 import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
 import { cookies } from "next/headers";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, get: vi.fn() },
+  };
+});
 
 const axiosGetMock = axios.get as Mock;
-vi.mock("axios");
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
@@ -60,7 +65,7 @@ describe("getDesignacaoUnidadeAction", () => {
   });
 
   it("retorna erro interno para status 500", async () => {
-    axiosGetMock.mockRejectedValueOnce({ response: { status: 500 } });
+    axiosGetMock.mockRejectedValueOnce({ isAxiosError: true, response: { status: 500 } });
 
     const result = await getDesignacaoUnidadeAction("999999");
 
@@ -72,6 +77,7 @@ describe("getDesignacaoUnidadeAction", () => {
 
   it("retorna detail quando disponível no erro da API", async () => {
     axiosGetMock.mockRejectedValueOnce({
+      isAxiosError: true,
       response: { status: 400, data: { detail: "Unidade inválida" } },
       message: "Falha genérica",
     });
@@ -85,7 +91,7 @@ describe("getDesignacaoUnidadeAction", () => {
   });
 
   it("retorna message quando não há detail", async () => {
-    axiosGetMock.mockRejectedValueOnce({ message: "Falha de rede" });
+    axiosGetMock.mockRejectedValueOnce({ isAxiosError: true, message: "Falha de rede" });
 
     const result = await getDesignacaoUnidadeAction("999999");
 
@@ -96,7 +102,7 @@ describe("getDesignacaoUnidadeAction", () => {
   });
 
   it("retorna mensagem padrão quando erro não tem status/detail/message", async () => {
-    axiosGetMock.mockRejectedValueOnce({});
+    axiosGetMock.mockRejectedValueOnce({ isAxiosError: true });
 
     const result = await getDesignacaoUnidadeAction("999999");
 

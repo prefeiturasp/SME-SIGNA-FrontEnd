@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
@@ -14,6 +15,27 @@ type DesignacaoResult =
     | { success: true; data: unknown }
     | { success: false; error: string; field?: string };
 
+// O backend retorna `detail` já formatado como "campo_snake_case: mensagem"
+// (várias ocorrências separadas por "; "). Aqui só humanizamos o nome do
+// campo (snake_case → "Primeira palavra minúsculas") para exibição na UI.
+function humanizarDetail(detail: string): string {
+    return detail
+        .split("; ")
+        .map((parte) => {
+            const idx = parte.indexOf(":");
+            if (idx === -1) return parte;
+
+            const campo = parte.slice(0, idx);
+            if (!/^[a-z0-9_]+$/.test(campo)) return parte;
+
+            const resto = parte.slice(idx + 1).trimStart();
+            const label = campo.replaceAll("_", " ");
+
+            return `${label.charAt(0).toUpperCase()}${label.slice(1)}: ${resto}`;
+        })
+        .join("; ");
+}
+
 export async function designacaoAction(
     formData: FormDesignacaoEServidorIndicado | null,
     id: string | null
@@ -26,6 +48,12 @@ export async function designacaoAction(
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
     const payload = mapearPayloadDesignacao(formData);
+    if (!payload) {
+        return {
+            success: false,
+            error: "Dados do formulário incompletos: servidor indicado, data de início ou tipo de vaga não informados.",
+        };
+    }
      try {
          const headers = {
             "Content-Type": "application/json",
@@ -54,14 +82,14 @@ export async function designacaoAction(
           
         return { success: true,  data };
     } catch (err) {
-        const error = err as AxiosError<DesignacaoErrorResponse>;
+        const error = toAxiosError<DesignacaoErrorResponse>(err);
 
         let message = "Erro ao salvar designação";
 
         if (error.response?.status === 500) {
             message = "Erro interno no servidor";
         } else if (error.response?.data?.detail) {
-            message = error.response.data.detail;
+            message = humanizarDetail(error.response.data.detail);
         } else if (error.message) {
             message = error.message;
         }

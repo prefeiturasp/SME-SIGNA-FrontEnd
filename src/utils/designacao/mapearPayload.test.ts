@@ -78,6 +78,41 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.indicado_local_servico).toBe("DRE Centro");
     });
 
+    it("converte campos opcionais null do indicado (integração SME) para string vazia", () => {
+        // Regressão: mesmo bug do titular, agora para servidorIndicado — mas só
+        // nos campos onde o backend aceita blank (CharField com default="",
+        // allow_blank=True): nome_civil, cargo_sobreposto e local_servico.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                nome_civil: null,
+                cargo_sobreposto_funcao_atividade: null,
+                local_de_servico: null,
+            } as unknown as typeof servidorIndicado,
+        });
+
+        expect(result?.indicado_nome_civil).toBe("");
+        expect(result?.indicado_cargo_sobreposto).toBe("");
+        expect(result?.indicado_local_servico).toBe("");
+    });
+
+    it("repassa local_de_exercicio null do indicado sem transformar (backend aplica o default)", () => {
+        // Diferente dos demais campos opcionais, o backend rejeita blank ("")
+        // em indicado_local_exercicio (CharField blank=False), mas aceita
+        // null — nesse caso é o próprio backend que resolve para
+        // "Indisponível", então o mapper não deve inventar um valor aqui.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                local_de_exercicio: null,
+            } as unknown as typeof servidorIndicado,
+        });
+
+        expect(result?.indicado_local_exercicio).toBeNull();
+    });
+
     it("mapeia os campos gerais do form corretamente", () => {
         const result = mapearPayloadDesignacao({ ...formBase });
 
@@ -102,6 +137,34 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.titular_cargo_sobreposto).toBe("Vice-Diretor");
         expect(result?.titular_local_exercicio).toBe("Escola B");
         expect(result?.titular_local_servico).toBe("DRE Sul");
+    });
+
+    it("converte campos null do titular (integração SME) para string vazia", () => {
+        // Regressão: a integração SME pode retornar null nesses campos, mas o
+        // backend usa CharField(blank=True, default="") sem allow_null=True,
+        // local_de_exercicio é exceção: o
+        // backend aceita null nesse campo e resolve o default sozinho.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            dadosTitular: {
+                ...dadosTitular,
+                nome_civil: null,
+                nome_servidor: null,
+                cargo_base: null,
+                lotacao: null,
+                cargo_sobreposto_funcao_atividade: null,
+                local_de_exercicio: null,
+                local_de_servico: null,
+            } as unknown as typeof dadosTitular,
+        });
+
+        expect(result?.titular_nome_civil).toBe("");
+        expect(result?.titular_nome_servidor).toBe("");
+        expect(result?.titular_cargo_base).toBe("");
+        expect(result?.titular_lotacao).toBe("");
+        expect(result?.titular_cargo_sobreposto).toBe("");
+        expect(result?.titular_local_exercicio).toBeNull();
+        expect(result?.titular_local_servico).toBe("");
     });
 
     it("omite campos do titular quando dadosTitular é null/undefined", () => {
@@ -148,14 +211,22 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.data_fim).toBe("2024-06-01");
     });
 
-    it("retorna null para datas quando valor é null/undefined", () => {
+    it("retorna null (payload incompleto) quando a_partir_de está ausente", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             a_partir_de: null,
             designacao_data_final: undefined,
         } as unknown as FormDesignacaoEServidorIndicado);
 
-        expect(result?.data_inicio).toBeNull();
+        expect(result).toBeNull();
+    });
+
+    it("retorna null para data_fim quando designacao_data_final é undefined", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            designacao_data_final: undefined,
+        } as unknown as FormDesignacaoEServidorIndicado);
+
         expect(result?.data_fim).toBeNull();
     });
 

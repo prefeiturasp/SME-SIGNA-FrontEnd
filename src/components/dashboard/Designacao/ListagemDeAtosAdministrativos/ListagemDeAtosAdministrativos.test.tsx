@@ -11,14 +11,21 @@ import {
 const tableMock = vi.fn<(props: TableProps<ListagemAtosAdministrativosResponse>) => ReactNode>();
 const paginationMock = vi.fn();
 const dropdownMock = vi.fn();
-const formatarDataHoraMock = vi.fn((_value: string) => `01/06/2026, 12:00`);
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+const formatarDataHoraMock = vi.fn((value: string) => {
+  void value;
+  return `01/06/2026, 12:00`;
+});
 const pushMock = vi.fn();
 const modalConfirmMock = vi.fn();
 const notificationSuccessMock = vi.fn();
 const notificationErrorMock = vi.fn();
 const mutateAsyncMock = vi.fn();
 const domEventStopPropagationMock = vi.fn();
+
+type TestRowClickEvent = { target: { closest: (selector: string) => unknown } };
+type TestOnRow = (record: ListagemAtosAdministrativosResponse) => {
+  onClick: (event: TestRowClickEvent) => void;
+};
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -464,5 +471,239 @@ describe("ListagemDeAtosAdministrativos", () => {
 
     render(<>{actionRender?.({ ...rows[0], tipo: "OUTRO" })}</>);
     expect(screen.queryByTestId(/menu-item-/)).not.toBeInTheDocument();
+  });
+
+  it("não exibe item de tornar sem efeito para insubsistência sem tipo relacionado", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(<>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA", tipo_insubsistencia: null })}</>);
+    expect(screen.queryByTestId("menu-item-7")).not.toBeInTheDocument();
+  });
+
+  it("remove ações de apostila e sem efeito quando já há insubsistência", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    const { rerender } = render(
+      <>{actionRender?.({ ...rows[0], tipo: "APOSTILA", insubsistencia: { id: 1 } })}</>
+    );
+    expect(screen.queryByTestId("menu-item-6")).not.toBeInTheDocument();
+
+    rerender(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "INSUBSISTENCIA",
+          tipo_insubsistencia: "CESSACAO",
+          insubsistencia: { id: 2 },
+        })}
+      </>
+    );
+    expect(screen.queryByTestId("menu-item-7")).not.toBeInTheDocument();
+  });
+
+  it("notifica erro específico quando exclusão retorna success false", async () => {
+    mutateAsyncMock.mockResolvedValueOnce({ success: false, error: "Não foi possível excluir" });
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-5").click();
+    const confirmOptions = modalConfirmMock.mock.calls[0][0];
+    await confirmOptions.onOk();
+
+    expect(notificationErrorMock).toHaveBeenCalledWith({ title: "Não foi possível excluir" });
+  });
+
+  it("notifica erro genérico quando mutateAsync lança exceção", async () => {
+    mutateAsyncMock.mockRejectedValueOnce(new Error("Falha inesperada"));
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-5").click();
+    const confirmOptions = modalConfirmMock.mock.calls[0][0];
+    await confirmOptions.onOk();
+
+    expect(notificationErrorMock).toHaveBeenCalledWith({ title: "Erro ao excluir a designação" });
+  });
+
+  it("navega pelo clique da linha quando o tipo possui rota", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const onRow = tableProps.onRow as unknown as TestOnRow;
+    const rowClick = onRow({ ...rows[0], tipo: "CESSACAO" }).onClick;
+
+    rowClick({
+      target: {
+        closest: vi.fn(() => null),
+      },
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/pages//visualizar-cessacao/1");
+  });
+
+  it("não navega no clique da linha quando o clique vem de elemento com data-no-row-click", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const onRow = tableProps.onRow as unknown as TestOnRow;
+    const rowClick = onRow({ ...rows[0], tipo: "DESIGNACAO" }).onClick;
+
+    rowClick({
+      target: {
+        closest: vi.fn(() => ({})),
+      },
+    });
+
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("não navega no clique da linha quando o tipo não possui rota mapeada", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const onRow = tableProps.onRow as unknown as TestOnRow;
+    const rowClick = onRow({ ...rows[0], tipo: "OUTRO" }).onClick;
+
+    rowClick({
+      target: {
+        closest: vi.fn(() => null),
+      },
+    });
+
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("exibe tags de portaria e servidor indicado com título e subtítulo customizados", () => {
+    render(
+      <ListagemDeAtosAdministrativos
+        data={rows}
+        total={1}
+        page={1}
+        portaria="100/2026"
+        servidor_indicado="Servidor A"
+        titulo="Histórico de atos"
+        subtitulo="Subtítulo customizado"
+      />
+    );
+
+    expect(screen.getByText("Histórico de atos")).toBeInTheDocument();
+    expect(screen.getByText("Subtítulo customizado")).toBeInTheDocument();
+    expect(screen.getByText("Nº da portaria:")).toBeInTheDocument();
+    expect(screen.getByText("100/2026")).toBeInTheDocument();
+    expect(screen.getByText("Servidor indicado:")).toBeInTheDocument();
+    expect(screen.getByText("Servidor A")).toBeInTheDocument();
+  });
+
+  it("remove colunas extras quando showCamposExtras é falso", () => {
+    render(
+      <ListagemDeAtosAdministrativos data={rows} total={1} page={1} showCamposExtras={false} />
+    );
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const titulos = columns.map((coluna) => (coluna as { title?: string }).title);
+
+    expect(columns).toHaveLength(6);
+    expect(titulos).not.toContain("Portaria do ato");
+    expect(titulos).not.toContain("Servidor indicado");
+  });
+
+  it("extrai o conteúdo da célula quando o valor é um objeto com children", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const tipoRender = columns[0]?.render as
+      | ((value: unknown, record: ListagemAtosAdministrativosResponse, index: number) => ReactNode)
+      | undefined;
+
+    const { unmount } = render(
+      <>{tipoRender?.({ children: "Conteúdo da célula" }, rows[0], 0)}</>
+    );
+    expect(screen.getByText("Conteúdo da célula")).toBeInTheDocument();
+    unmount();
+
+    const semChildren = render(<>{tipoRender?.({ children: undefined }, rows[0], 0)}</>);
+    expect(screen.getByText("-")).toBeInTheDocument();
+    semChildren.unmount();
+
+    render(<>{tipoRender?.(null, rows[0], 0)}</>);
+    expect(screen.getByText("-")).toBeInTheDocument();
+  });
+
+  it("navega para tornar sem efeito ao acionar a ação de insubsistência", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>{actionRender?.({ ...rows[0], tipo: "INSUBSISTENCIA", tipo_insubsistencia: "DESIGNACAO" })}</>
+    );
+
+    screen.getByTestId("menu-item-7").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/tornar-sem-efeito?id=1");
+  });
+
+  it("exclui designação sem callback de atualização configurado", async () => {
+    mutateAsyncMock.mockResolvedValueOnce({ success: true });
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-5").click();
+    const confirmOptions = modalConfirmMock.mock.calls[0][0];
+    await confirmOptions.onOk();
+
+    expect(notificationSuccessMock).toHaveBeenCalledWith({
+      title: "Designação excluída com sucesso!",
+    });
   });
 });

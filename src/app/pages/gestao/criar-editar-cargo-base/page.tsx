@@ -23,6 +23,7 @@ export default function CriarEditarCargoBase() {
     isLoadingEditarCargosBase,
     isLoadingCargosBase,
   } = useCriarEditarCargosBase( id ? Number(id) : null);
+
   const router = useRouter(); 
 
   return (

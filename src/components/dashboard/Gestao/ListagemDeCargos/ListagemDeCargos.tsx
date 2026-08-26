@@ -1,8 +1,7 @@
 'use client'
 
-import { MoreOutlined } from '@ant-design/icons';
 import { itemRender, MostrarRegistros } from '@/components/pagination/utils';
-import { Badge, Dropdown, Pagination, Table } from 'antd';
+import { Badge, Pagination, Table } from 'antd';
 import type { TableProps } from 'antd';
 import Editar from '@/assets/icons/Editar';
 import { useRouter } from 'next/navigation';
@@ -29,7 +28,7 @@ const NameColorStatusCargosBase = {
   },  
 }; 
 
-const BadgeStatusCargosBase = (status: StatusCargosBase, key: string) => {
+export const BadgeStatusCargosBase = (status: StatusCargosBase, key: string) => {
   
   const config = NameColorStatusCargosBase[status];
   return (
@@ -113,24 +112,14 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
       key: 'action',
       width: 50,
       render: (record: CargosBaseResponse) => (
-        <Dropdown
-          menu={{
-            items: [{
-              key: '4',
-              label: 'Editar',
-              icon: <Editar width={20} height={20} color="#9CA3B9" />,
-              onClick: () => {
-                router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
-              },
-            }],
+        <Editar        
+          data-testid="edit-icon-button"
+          className='w-4 h-4 fill-[#000000] cursor-pointer'                          
+          onClick={() => {
+            router.push(`/pages/gestao/criar-editar-cargo-base?id=${record.id}`,);
           }}
-          trigger={['click']}
         >
-          <div >
-            <MoreOutlined color='#000000' />
-          </div>
-        </Dropdown>
-
+         </Editar>
       ),
     },
   ];

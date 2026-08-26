@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
+import type { ImgHTMLAttributes, ReactNode } from "react";
 
 import {
     AppNewSidebar,
@@ -13,10 +14,18 @@ import {
     MenuEnum,
     menus,
 } from "./app-new-sidebar";
+import type { MenuItemSMEProps } from "./app-new-sidebar";
+
+interface SiderMockProps {
+    onClick: (item: MenuItemSMEProps) => void;
+    styleSider: { zIndex: number };
+    items: MenuItemSMEProps[];
+    logoMenu: ReactNode;
+}
 
 const pushMock = vi.fn();
 const prefetchMock = vi.fn();
-const siderSpy = vi.fn();
+const siderSpy = vi.fn<(props: SiderMockProps) => void>();
 
 vi.mock("next/navigation", () => ({
     useRouter: () => ({
@@ -26,7 +35,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/image", () => ({
-    default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+    default: (props: ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
 }));
 
 vi.mock("@/assets/images/logo-signa-completo-branco.png", () => ({
@@ -34,12 +43,7 @@ vi.mock("@/assets/images/logo-signa-completo-branco.png", () => ({
 }));
 
 vi.mock("../Sider", () => ({
-    default: (props: {
-        onClick: (item: { key: string; title: string; url?: string }) => void;
-        styleSider: { zIndex: number };
-        items: unknown[];
-        logoMenu: React.ReactNode;
-    }) => {
+    default: (props: SiderMockProps) => {
         siderSpy(props);
         return (
             <div>
@@ -102,15 +106,15 @@ describe("app-new-sidebar", () => {
         render(<AppNewSidebar />);
 
         expect(siderSpy).toHaveBeenCalledTimes(1);
-        const firstCallProps = siderSpy.mock.calls[0][0] as {
-            styleSider: { zIndex: number };
-            items: unknown[];
-        };
+        const firstCallProps = siderSpy.mock.calls[0][0];
 
         expect(firstCallProps.styleSider).toEqual({ zIndex: 12 });
         expect(firstCallProps.items).toBe(menus);
         expect(screen.getByAltText("Logo Signa")).toBeInTheDocument();
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/atos-administrativos");
         expect(prefetchMock).toHaveBeenCalledWith("/pages/meus-dados");
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/gestao/cargos-base");
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/gestao/textos-de-portaria");
 
         fireEvent.click(screen.getByTestId("trigger-item-with-url"));
         expect(pushMock).toHaveBeenCalledWith("/pages/meus-dados");
