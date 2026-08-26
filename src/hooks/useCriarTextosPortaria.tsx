@@ -34,13 +34,8 @@ export function useCriarTextosPortaria(defaultValues: FormSchemaCriarTextosPorta
 
 
   const onSubmitFilterForm = (values: FormSchemaCriarTextosPortariaData) => { 
-    const variavelEstaValida = values.variavel.reduce((acc, item) => {
-      if (!values.texto_portaria.includes(`[[${item}]]`)) {        
-          return acc && false;              
-      }
-      return acc;
-    }, true);
-    
+
+    const variavelEstaValida = values.variavel.every(item => values.texto_portaria.includes(`[[${item}]]`))        
     if (!variavelEstaValida) {
       setIsModalOpen(true);      
       return;
