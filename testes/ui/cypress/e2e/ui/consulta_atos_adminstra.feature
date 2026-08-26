@@ -8,25 +8,13 @@ Funcionalidade: Editar e visualizar designação de servidor
 
   Regra: A edição deve ser realizada apenas em designações ativas.
 
-  # Editar e Visualizar foram unificadas neste arquivo porque os dois fluxos
-  # levam à mesma tela de destino: "Detalhes da designação"
-  # (/pages/listagem-designacoes/visualizar-designacao/{id}). Não existe mais
-  # um ícone/ação "Detalhar" separado na tabela — o dropdown de ações (coluna
-  # Action) só tem "Editar, Apostilar, Cessar, Tornar insubsistente, Excluir" —
-  # então os dois cenários navegam pelo mesmo caminho (dropdown → "Editar") e
-  # diferem só na profundidade da validação de conteúdo: o Cenário 1 confere a
-  # presença das seções, o Cenário 2 valida campo a campo.
-
   Contexto:
     Dado que o usuário está autenticado no sistema
-    # Após o login o sistema já cai direto em "Lista de atos administrativos"
-    # (/pages/atos-administrativos) — não é mais necessário navegar pelo menu
-    # lateral (ver também comentário em "seleciona o submenu" no common_steps.js).
 
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 1 — Editar designação (fluxo completo)            [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @editar-fluxo-completo @smoke @skip
+  @editar-fluxo-completo @smoke
   Cenário: Editar designação e validar todas as seções do formulário
 
     Dado que o usuário está na página do dashboard
@@ -36,36 +24,26 @@ Funcionalidade: Editar e visualizar designação de servidor
     E Seleciona uma das Designação de forma aleatoria para editar
     E navega para a seção Action
     E clica e seleciona a opção "Editar"
-    Então o sistema exibe a Tela "Detalhes da designação"
+    Então o sistema exibe a Tela "Editar Designação"
 
     E valida a existencia das seguintes seções:
       | Unidade Proponente         |
       | Portarias de designação    |
       | Dados do servidor indicado |
 
-    # Tela real acessada via "Editar" é "Detalhes da designação" (somente
-    # leitura) — não existe rádio "Cargo Disponível"/"Cargo Vago" nem campo
-    # "RF Titular" nela (confirmado por screenshot real). A seção "Dados do
-    # Servidor Titular" só existe quando a designação tem titular vinculado,
-    # então a validação abaixo pula graciosamente quando não aplicável —
-    # mesmo critério do Cenário 2 (Visualizar).
     E valida a existencia da seção "Dados do Servidor Titular" quando aplicável a esta designação
 
-    E valida a existencia dos botões de edição "Voltar" e "Consultar histórico"
-    Quando clica em "Voltar"
+    E valida a existencia dos botões de edição "Voltar" e "Avançar"
+    E clica em "Avançar"
+    E clica em "Salvar"
     Então o sistema direciona para a tela "Atos administrativos"
 
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 2 — Visualizar designação (somente leitura)       [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  @visualizar-fluxo-completo @smoke @skip
+  @visualizar-fluxo-completo @smoke
   Cenário: Visualizar designação existente e validar todos os dados
 
-    # Não existe mais um ícone/ação "Detalhar" separado na tabela — o dropdown
-    # de ações (coluna Action) só tem "Editar, Apostilar, Cessar, Tornar
-    # insubsistente, Excluir" (confirmado em execução real). Hoje a única
-    # forma de chegar em "Detalhes da designação" é o mesmo caminho do
-    # Cenário 1: abrir o dropdown e selecionar "Editar".
     Dado que o usuário está na página do dashboard
     Então valida a existencia do Texto "Lista de atos administrativos"
     E Valida a existencia da Tabela
@@ -107,11 +85,6 @@ Funcionalidade: Editar e visualizar designação de servidor
       Laudo médico
       """
 
-    # Só existe quando a designação selecionada tem um servidor titular
-    # vinculado (tipo "Cargo Vago"). Designações "Cargo Disponível" não
-    # exibem esta seção — por isso a validação abaixo pula graciosamente
-    # quando não aplicável, em vez de assumir que toda designação tem
-    # titular (ver comentário em visualizar_steps.js).
     E valida a existencia da seção "Dados do Servidor Titular" quando aplicável a esta designação
     E valida a existencia dos Titulos
       """
@@ -124,7 +97,7 @@ Funcionalidade: Editar e visualizar designação de servidor
       Laudo médico
       """
 
-    E valida a existencia do Texto "PORTARIA"
-
-    E clico no botão "Voltar"
+    E valida a existencia dos botões de edição "Voltar" e "Avançar"
+    E clica em "Avançar"
+    E clica em "Salvar"
     Então o sistema direciona para a tela "Atos administrativos"

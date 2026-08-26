@@ -780,10 +780,21 @@ When('valida a existencia do campo Cargo Vago', () => {
 });
 
 When('valida a existencia do botao de selecao de cargo vago', () => {
-  cy.get(designacaoLocators.botaoDropdownCargoVago, { timeout: 15000 })
+  // Antes usava um seletor CSS absoluto (nth-child, convertido de XPath) que
+  // quebra com qualquer mudança minima na estrutura do DOM — nunca tinha sido
+  // exercitado de verdade porque a feature de origem estava excluida da
+  // execucao. Troca pelo mesmo padrao robusto ja usado mais adiante neste
+  // mesmo fluxo (ver "clica no campo ... e seleciona a primeira opcao
+  // disponivel" abaixo): o botao do combobox tem o proprio id terminado em
+  // "-form-item", entao filtra por button visivel dentro desse seletor
+  // dinamico em vez de depender da posicao exata na arvore.
+  cy.get(designacaoLocators.campoCargoVago, { timeout: 15000 })
+    .filter('button')
+    .filter(':visible')
+    .should('have.length.greaterThan', 0)
+    .last()
     .scrollIntoView()
-    .should('exist')
-    .and('be.visible');
+    .should('be.visible');
 });
 
 When('clica no campo Cargo Vago e seleciona aleatoriamente', () => {
