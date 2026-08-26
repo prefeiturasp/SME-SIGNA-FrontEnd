@@ -1,4 +1,44 @@
 :root {
+
+  --tt-color-highlight-yellow: #fef9c3;
+  --tt-color-highlight-green: #dcfce7;
+  --tt-color-highlight-blue: #e0f2fe;
+  --tt-color-highlight-purple: #f3e8ff;
+  --tt-color-highlight-red: #ffe4e6;
+  --tt-color-highlight-gray: rgb(248, 248, 247);
+  --tt-color-highlight-brown: rgb(244, 238, 238);
+  --tt-color-highlight-orange: rgb(251, 236, 221);
+  --tt-color-highlight-pink: rgb(252, 241, 246);
+
+  --tt-color-highlight-yellow-contrast: #fbe604;
+  --tt-color-highlight-green-contrast: #c7fad8;
+  --tt-color-highlight-blue-contrast: #ceeafd;
+  --tt-color-highlight-purple-contrast: #e4ccff;
+  --tt-color-highlight-red-contrast: #ffccd0;
+  --tt-color-highlight-gray-contrast: rgba(84, 72, 49, 0.15);
+  --tt-color-highlight-brown-contrast: rgba(210, 162, 141, 0.35);
+  --tt-color-highlight-orange-contrast: rgba(224, 124, 57, 0.27);
+  --tt-color-highlight-pink-contrast: rgba(225, 136, 179, 0.27);
+
+  --tt-color-text-gray: hsl(45, 2%, 46%);
+  --tt-color-text-brown: hsl(19, 31%, 47%);
+  --tt-color-text-orange: hsl(30, 89%, 45%);
+  --tt-color-text-yellow: hsl(38, 62%, 49%);
+  --tt-color-text-green: hsl(148, 32%, 39%);
+  --tt-color-text-blue: hsl(202, 54%, 43%);
+  --tt-color-text-purple: hsl(274, 32%, 54%);
+  --tt-color-text-pink: hsl(328, 49%, 53%);
+  --tt-color-text-red: hsl(2, 62%, 55%);
+
+  --tt-color-text-gray-contrast: hsla(39, 26%, 26%, 0.15);
+  --tt-color-text-brown-contrast: hsla(18, 43%, 69%, 0.35);
+  --tt-color-text-orange-contrast: hsla(24, 73%, 55%, 0.27);
+  --tt-color-text-yellow-contrast: hsla(44, 82%, 59%, 0.39);
+  --tt-color-text-green-contrast: hsla(126, 29%, 60%, 0.27);
+  --tt-color-text-blue-contrast: hsla(202, 54%, 59%, 0.27);
+  --tt-color-text-purple-contrast: hsla(274, 37%, 64%, 0.27);
+  --tt-color-text-pink-contrast: hsla(331, 60%, 71%, 0.27);
+  --tt-color-text-red-contrast: hsla(8, 79%, 79%, 0.4);
   /****************** 
   Basics
   ******************/
@@ -171,10 +211,8 @@
     transition: none var(--tt-transition-duration-default)
       var(--tt-transition-easing-default);
   }
-}
 
-:root {
-  /************************************************** 
+   /************************************************** 
       Global colors 
   **************************************************/
 
@@ -189,6 +227,10 @@
   --tt-card-bg-color: var(--white);
   --tt-card-border-color: var(--tt-gray-light-a-100);
 }
+
+
+
+ 
 
 /* Global colors - Dark mode */
 .dark {
@@ -205,32 +247,7 @@
   --tt-shadow-elevated-md:
     0px 16px 48px 0px rgba(0, 0, 0, 0.5), 0px 12px 24px 0px rgba(0, 0, 0, 0.24),
     0px 6px 8px 0px rgba(0, 0, 0, 0.22), 0px 2px 3px 0px rgba(0, 0, 0, 0.12);
-}
-
-/* Text colors */
-:root {
-  --tt-color-text-gray: hsl(45, 2%, 46%);
-  --tt-color-text-brown: hsl(19, 31%, 47%);
-  --tt-color-text-orange: hsl(30, 89%, 45%);
-  --tt-color-text-yellow: hsl(38, 62%, 49%);
-  --tt-color-text-green: hsl(148, 32%, 39%);
-  --tt-color-text-blue: hsl(202, 54%, 43%);
-  --tt-color-text-purple: hsl(274, 32%, 54%);
-  --tt-color-text-pink: hsl(328, 49%, 53%);
-  --tt-color-text-red: hsl(2, 62%, 55%);
-
-  --tt-color-text-gray-contrast: hsla(39, 26%, 26%, 0.15);
-  --tt-color-text-brown-contrast: hsla(18, 43%, 69%, 0.35);
-  --tt-color-text-orange-contrast: hsla(24, 73%, 55%, 0.27);
-  --tt-color-text-yellow-contrast: hsla(44, 82%, 59%, 0.39);
-  --tt-color-text-green-contrast: hsla(126, 29%, 60%, 0.27);
-  --tt-color-text-blue-contrast: hsla(202, 54%, 59%, 0.27);
-  --tt-color-text-purple-contrast: hsla(274, 37%, 64%, 0.27);
-  --tt-color-text-pink-contrast: hsla(331, 60%, 71%, 0.27);
-  --tt-color-text-red-contrast: hsla(8, 79%, 79%, 0.4);
-}
-
-.dark {
+ 
   --tt-color-text-gray: hsl(0, 0%, 61%);
   --tt-color-text-brown: hsl(18, 35%, 58%);
   --tt-color-text-orange: hsl(25, 53%, 53%);
@@ -250,32 +267,7 @@
   --tt-color-text-purple-contrast: hsla(271, 56%, 60%, 0.18);
   --tt-color-text-pink-contrast: hsla(331, 67%, 58%, 0.22);
   --tt-color-text-red-contrast: hsla(0, 67%, 60%, 0.25);
-}
-
-/* Highlight colors */
-:root {
-  --tt-color-highlight-yellow: #fef9c3;
-  --tt-color-highlight-green: #dcfce7;
-  --tt-color-highlight-blue: #e0f2fe;
-  --tt-color-highlight-purple: #f3e8ff;
-  --tt-color-highlight-red: #ffe4e6;
-  --tt-color-highlight-gray: rgb(248, 248, 247);
-  --tt-color-highlight-brown: rgb(244, 238, 238);
-  --tt-color-highlight-orange: rgb(251, 236, 221);
-  --tt-color-highlight-pink: rgb(252, 241, 246);
-
-  --tt-color-highlight-yellow-contrast: #fbe604;
-  --tt-color-highlight-green-contrast: #c7fad8;
-  --tt-color-highlight-blue-contrast: #ceeafd;
-  --tt-color-highlight-purple-contrast: #e4ccff;
-  --tt-color-highlight-red-contrast: #ffccd0;
-  --tt-color-highlight-gray-contrast: rgba(84, 72, 49, 0.15);
-  --tt-color-highlight-brown-contrast: rgba(210, 162, 141, 0.35);
-  --tt-color-highlight-orange-contrast: rgba(224, 124, 57, 0.27);
-  --tt-color-highlight-pink-contrast: rgba(225, 136, 179, 0.27);
-}
-
-.dark {
+ 
   --tt-color-highlight-yellow: #6b6524;
   --tt-color-highlight-green: #509568;
   --tt-color-highlight-blue: #6e92aa;
