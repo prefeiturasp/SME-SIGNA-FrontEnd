@@ -1,9 +1,9 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UseFormReturn } from "react-hook-form";
-import FormSchemaCriarTextosPortaria, {
-  FormSchemaCriarTextosPortariaData,
-} from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
+import filterFormSchemaTextosPortaria, {
+  filterFormSchemaTextosPortariaData,
+} from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/filterFormSchemaTextosPortaria";
 import { TextosDePortariasPaginada } from "@/types/gestao";
 import { useVisualizarTextosPortaria } from "./useVisualizarTextosPortaria";
 
@@ -43,22 +43,16 @@ vi.mock("@/actions/textos-portaria", () => ({
   fetchTextosPortaria: fetchTextosPortariaMock,
 }));
 
-const defaultValues: FormSchemaCriarTextosPortariaData = {
+const defaultValues: filterFormSchemaTextosPortariaData = {
   tipo_portaria: "",
   nome_modelo: "",
   status: "",
-  texto_portaria: "<p>rererere  [[NOME_SERVIDOR]]</p>",
-  variavel: [],
-  tipo_cargo: "",
 };
 
-const filteredValues: FormSchemaCriarTextosPortariaData = {
+const filteredValues: filterFormSchemaTextosPortariaData = {
   tipo_portaria: "Portaria",
   nome_modelo: "Modelo 1",
   status: "ATIVO",
-  texto_portaria: "<p>texto [[PORTARIA]]</p>",
-  variavel: ["PORTARIA"],
-  tipo_cargo: "EFETIVO",
 };
 
 const resultado: TextosDePortariasPaginada = {
@@ -107,13 +101,13 @@ describe("useVisualizarTextosPortaria", () => {
       getValues: formGetValuesMock,
       reset: formResetMock,
       mockedForm: true,
-    } as Partial<UseFormReturn<FormSchemaCriarTextosPortariaData>>);
+    } as Partial<UseFormReturn<filterFormSchemaTextosPortariaData>>);
   });
 
   it("inicializa formulário e busca dados iniciais", async () => {
     const { result } = await renderHookAndWaitInitialFetch();
 
-    expect(zodResolverMock).toHaveBeenCalledWith(FormSchemaCriarTextosPortaria);
+    expect(zodResolverMock).toHaveBeenCalledWith(filterFormSchemaTextosPortaria);
     expect(useFormMock).toHaveBeenCalledWith({
       resolver: "resolver-mock",
       defaultValues,

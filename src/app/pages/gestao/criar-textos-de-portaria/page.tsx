@@ -8,7 +8,6 @@ import { Alert } from "antd";
 import { Button } from "@/components/ui/button";
 import { TriangleAlert } from "lucide-react";
 import { FormProvider } from "react-hook-form";
-import { useVisualizarTextosPortaria } from "@/hooks/useVisualizarTextosPortaria";
 import { useRouter } from "next/navigation";
 import FormCriarTextosPortaria from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormCriarTextosPortaria";
 
@@ -16,6 +15,7 @@ import FormCriarTextosPortaria from "@/components/dashboard/Gestao/FormCriarText
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { useCriarTextosPortaria } from "@/hooks/useCriarTextosPortaria";
 
 
 
@@ -78,7 +78,7 @@ export default function CriarTextosDePortaria() {
     isModalOpen,
     onSubmitFilterForm,
     handleCancel
-  } = useVisualizarTextosPortaria();
+  } = useCriarTextosPortaria();
 
 
   const router = useRouter();

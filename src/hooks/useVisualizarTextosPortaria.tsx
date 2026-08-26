@@ -2,40 +2,33 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextosDePortariasPaginada } from "@/types/gestao";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
-import FormSchemaCriarTextosPortaria, { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
-import { useCallback, useState, useTransition } from "react";
+import filterFormSchemaTextosPortaria, { filterFormSchemaTextosPortariaData } from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/filterFormSchemaTextosPortaria";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { fetchTextosPortaria } from "@/actions/textos-portaria";
 
 
-const defaultValuesFilters: FormSchemaCriarTextosPortariaData = {
+const defaultValuesFilters: filterFormSchemaTextosPortariaData = {
   tipo_portaria: "",
   nome_modelo: "",
   status: "",
-  texto_portaria: "",
-  variavel: [],
-  tipo_cargo: "",
 };
 
-export function useVisualizarTextosPortaria(defaultValues: FormSchemaCriarTextosPortariaData = defaultValuesFilters) {
+export function useVisualizarTextosPortaria(defaultValues: filterFormSchemaTextosPortariaData = defaultValuesFilters) {
   const [resultado, setResultado] = useState<TextosDePortariasPaginada | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
- 
   
   const { error: notifyError } = useAppNotification();
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
   
-   const filterForm = useForm<FormSchemaCriarTextosPortariaData>({
-    resolver: zodResolver(FormSchemaCriarTextosPortaria),
+   const filterForm = useForm<filterFormSchemaTextosPortariaData>({
+    resolver: zodResolver(filterFormSchemaTextosPortaria),
     defaultValues: { ...defaultValues },
     mode: "onChange",
   });  
  
+
   const buscarTextos = useCallback(async (
-    values: FormSchemaCriarTextosPortariaData,
+    values: filterFormSchemaTextosPortariaData,
     page?: number,
   ) => {
     const filtros = {
@@ -45,7 +38,7 @@ export function useVisualizarTextosPortaria(defaultValues: FormSchemaCriarTextos
     return fetchTextosPortaria(filtros, page);
   }, []);
 
-  const buscar = useCallback((values: FormSchemaCriarTextosPortariaData, page?: number) => {
+  const buscar = useCallback((values: filterFormSchemaTextosPortariaData, page?: number) => {
     startTransition(async () => {
       const response = await buscarTextos(values, page);
       if (response.success) {        
@@ -76,22 +69,13 @@ export function useVisualizarTextosPortaria(defaultValues: FormSchemaCriarTextos
   };
 
 
-  const onSubmitFilterForm = (values: FormSchemaCriarTextosPortariaData) => {
-    
-    const variavelEstaValida = values.variavel.reduce((acc, item) => {
-      if (!values.texto_portaria.includes(`[[${item}]]`)) {        
-          return acc && false;              
-      }
-      return acc;
-    }, true);
-    
-    if (!variavelEstaValida) {
-      setIsModalOpen(true);      
-    }
-    console.log(values, "variavelEstaValida",variavelEstaValida);
-    
+  const onSubmitFilterForm = (values: filterFormSchemaTextosPortariaData) => {
+    buscar(values, 1);
   };
- 
+
+  useEffect(() => {
+    buscar(filterForm.getValues());        
+  }, [buscar, filterForm]);
 
   return {
     isPending,
@@ -101,7 +85,5 @@ export function useVisualizarTextosPortaria(defaultValues: FormSchemaCriarTextos
     onPageChange,    
     handleClear,    
     onSubmitFilterForm,    
-    isModalOpen,
-    handleCancel,
   };
 } 
