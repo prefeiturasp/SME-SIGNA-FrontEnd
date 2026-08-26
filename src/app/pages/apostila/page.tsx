@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, message, Tooltip } from "antd";
+import { Card, Tooltip } from "antd";
 import { Loader2 } from "lucide-react";
 
 import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
@@ -32,6 +32,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -40,6 +41,7 @@ export default function ApostilaPage() {
   const atoApostiladoPadrao = origem === "cessacao" ? "cessacao" : "designacao";
   const salvarApostila = useSalvarApostila();
   const router = useRouter();
+  const notification = useAppNotification();
 
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
   const form = useForm<formSchemaApostilaData>({
@@ -141,11 +143,11 @@ export default function ApostilaPage() {
         designacaoId: designacaoId,
         cessacaoId: designacao?.cessacao?.id,
       });
-      message.success("Apostila salva com sucesso!");
+      notification.success({ title: "Apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      message.error(msg);
+      notification.error({ title: msg });
     }
   };
 

@@ -45,21 +45,21 @@ vi.mock("antd", () => ({
         <button
           type="button"
           data-testid="select-first-row"
-          onClick={() => props.rowSelection?.onChange?.([], [rows[0]])}
+          onClick={() => props.rowSelection?.onChange?.([], [rows[0]], { type: "single" })}
         >
           select-first-row
         </button>
         <button
           type="button"
           data-testid="select-all-rows"
-          onClick={() => props.rowSelection?.onChange?.([], rows)}
+          onClick={() => props.rowSelection?.onChange?.([], rows, { type: "all" })}
         >
           select-all-rows
         </button>
         <button
           type="button"
           data-testid="select-cessacao-match-row"
-          onClick={() => props.rowSelection?.onChange?.([], [rowWithCessacaoMatch])}
+          onClick={() => props.rowSelection?.onChange?.([], [rowWithCessacaoMatch], { type: "single" })}
         >
           select-cessacao-match-row
         </button>
@@ -108,38 +108,38 @@ vi.mock("antd", () => ({
 const rows: ListagemPortariasResponse[] = [
   {
     id: 1,
-    portaria: "100",
-    doc: null,
+    numero_portaria: "100",
+    doc: "",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",
     cargo: "Diretor",
     data_designacao: "",
     data_cessacao: "",
-    numero_sei: "SEI-1",
+    sei_numero: "SEI-1",
   },
   {
     id: 2,
-    portaria: "101",
+    numero_portaria: "101",
     doc: "2026-05-10",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor B",
     cargo: "Coordenador",
     data_designacao: "2026-05-10",
     data_cessacao: "2026-05-10",
-    numero_sei: "SEI-2",
+    sei_numero: "SEI-2",
   },
 ];
 
 const rowWithCessacaoMatch: ListagemPortariasResponse = {
   id: 3,
-  portaria: "102",
+  numero_portaria: "102",
   doc: "2026-05-10",
   tipo_de_ato: "DESIGNACAO_CESSACAO",
   nome: "Servidor C",
   cargo: "Coordenador",
   data_designacao: "2026-04-01",
   data_cessacao: "2026-05-10",
-  numero_sei: "SEI-3",
+  sei_numero: "SEI-3",
 };
 
 
@@ -266,7 +266,7 @@ describe("ListagemDeDo", () => {
     );
 
     const props = tableMock.mock.calls[0][0];
-    const col = props.columns?.find((c: { key?: string }) => c.key === "doc") as
+    const col = props.columns?.find((c) => c.key === "doc") as
       | { render?: (text: string) => string }
       | undefined;
 
@@ -282,7 +282,7 @@ describe("ListagemDeDo", () => {
     );
 
     const props = tableMock.mock.calls[0][0];
-    const col = props.columns?.find((c: { key?: string }) => c.key === "data_designacao") as
+    const col = props.columns?.find((c) => c.key === "data_designacao") as
       | { render?: (text: string) => string }
       | undefined;
 
@@ -298,7 +298,7 @@ describe("ListagemDeDo", () => {
     );
 
     const props = tableMock.mock.calls[0][0];
-    const col = props.columns?.find((c: { key?: string }) => c.key === "data_designacao") as
+    const col = props.columns?.find((c) => c.key === "data_designacao") as
       | { render?: (text: string) => string }
       | undefined;
 
@@ -314,7 +314,7 @@ describe("ListagemDeDo", () => {
     );
 
     const props = tableMock.mock.calls[0][0];
-    const col = props.columns?.find((c: { key?: string }) => c.key === "data_cessacao") as
+    const col = props.columns?.find((c) => c.key === "data_cessacao") as
       | { render?: (text: string) => string }
       | undefined;
 
@@ -330,7 +330,7 @@ describe("ListagemDeDo", () => {
     );
 
     const props = tableMock.mock.calls[0][0];
-    const col = props.columns?.find((c: { key?: string }) => c.key === "data_cessacao") as
+    const col = props.columns?.find((c) => c.key === "data_cessacao") as
       | { render?: (text: string) => string }
       | undefined;
 

@@ -5,6 +5,7 @@ import {
     AppNewSidebar,
     MENU_APOIO_ADMINISTRATIVO,
     MENU_DESIGNACAO,
+    MENU_GESTAO,
     MENU_INICIO,
     MENU_MEUS_DADOS,
     MENU_NOMEACAO,
@@ -84,6 +85,7 @@ describe("app-new-sidebar", () => {
         expect(MENU_NOMEACAO.key).toBe(MenuEnum.Nomeacao);
         expect(MENU_PROTOCOLO.key).toBe(MenuEnum.Protocolo);
         expect(MENU_APOIO_ADMINISTRATIVO.key).toBe(MenuEnum.ApoioAdministrativo);
+        expect(MENU_GESTAO.key).toBe(MenuEnum.Gestao);
 
         expect(menus).toEqual([
             MENU_INICIO,
@@ -92,6 +94,7 @@ describe("app-new-sidebar", () => {
             MENU_NOMEACAO,
             MENU_PROTOCOLO,
             MENU_APOIO_ADMINISTRATIVO,
+            MENU_GESTAO,
         ]);
     });
 

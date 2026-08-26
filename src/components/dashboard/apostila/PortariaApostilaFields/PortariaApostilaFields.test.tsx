@@ -21,7 +21,11 @@ vi.mock("@/components/ui/SelectAnoField", () => ({
 }));
 
 vi.mock("@/components/ui/textarea", () => ({
-  Textarea: ({ value, onChange, ...props }: any) => (
+  Textarea: ({ value, onChange, ...props }: {
+    value?: string;
+    onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
+    [key: string]: unknown;
+  }) => (
     <textarea data-testid="input-observacao" value={value} onChange={onChange} {...props} />
   ),
 }));
