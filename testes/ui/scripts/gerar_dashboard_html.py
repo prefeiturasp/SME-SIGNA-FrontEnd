@@ -211,8 +211,15 @@ def carregar_features() -> list[Feature]:
 
 def _git_saida(*args: str) -> str | None:
     try:
+        # encoding="utf-8" explicito: no Windows o default do subprocess em
+        # modo texto e o codepage do locale (ex.: cp1252), que quebra ao
+        # decodificar saida do git com acentuacao (UTF-8) — ver mesmo motivo
+        # em _historico_execucoes. errors="replace" evita crash mesmo se
+        # algum byte realmente invalido aparecer (essa integracao e opcional,
+        # nunca deve derrubar a geracao do dashboard).
         resultado = subprocess.run(
-            ["git", *args], cwd=BASE_DIR, capture_output=True, text=True, timeout=5
+            ["git", *args], cwd=BASE_DIR, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=5,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return None
@@ -589,11 +596,14 @@ def _historico_execucoes(limite: int = 20) -> list[dict]:
     pontos = []
     for commit_hash in reversed(saida.splitlines()[:limite]):
         try:
+            # encoding/errors explicitos — ver comentario em _git_saida.
             resultado = subprocess.run(
                 ["git", "show", f"{commit_hash}:./{CAMINHO_DASHBOARD_RELATIVO}"],
                 cwd=BASE_DIR,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=5,
             )
         except (FileNotFoundError, subprocess.TimeoutExpired):
