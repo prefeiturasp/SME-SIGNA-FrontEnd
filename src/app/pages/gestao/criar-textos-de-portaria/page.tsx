@@ -76,6 +76,7 @@ export default function CriarTextosDePortaria() {
   const {
     filterForm,
     isModalOpen,
+    variaveisOpcoes,
     onSubmitFilterForm,
     handleCancel
   } = useCriarTextosPortaria();
@@ -167,7 +168,7 @@ export default function CriarTextosDePortaria() {
         />
 
         <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-          <FormCriarTextosPortaria />
+          <FormCriarTextosPortaria variaveisOpcoes={variaveisOpcoes} />
         </form>
 
       </ FundoBranco>

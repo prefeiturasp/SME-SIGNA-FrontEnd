@@ -1,11 +1,13 @@
 "use server";
 import { filterFormSchemaTextosPortariaData } from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/filterFormSchemaTextosPortaria";
 import { fetchWithClient } from "./http";
-import { TextosDePortariasPaginada } from "@/types/gestao";
+import { TextosDePortariasPaginada, Variavel } from "@/types/gestao";
 import { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
 import { postWithAuth } from "@/lib/serverRequest";
 
   
+
+
 
 export const fetchTextosPortaria = async (
   filtros: filterFormSchemaTextosPortariaData,
@@ -30,3 +32,16 @@ export const cadastrarTextosPortariaAction = async (payload: FormSchemaCriarText
   );
 };
 
+
+
+export const fetchVariavelAction = async (
+): Promise<
+  | { success: true; data: Variavel[] }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<Variavel[]>(
+    "/gestao/modelos-portaria/variaveis/",
+    {},
+    "Erro ao buscar as variáveis"
+  );
+};

@@ -5,8 +5,28 @@ import { useAppNotification } from "@/components/providers/NotificationProvider"
 import FormSchemaCriarTextosPortaria, { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { cadastrarTextosPortariaAction } from "@/actions/textos-portaria";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { cadastrarTextosPortariaAction,fetchVariavelAction } from "@/actions/textos-portaria";
+
+
+
+
+export function useBuscarVariavel() {
+  return useQuery({
+      queryKey: ["get-variavel"],
+      queryFn: async () => {
+          const response = await fetchVariavelAction();
+          if (!response.success) {
+              throw new Error(response.error);
+          }
+          return response.data;
+      },
+      refetchOnWindowFocus: false,
+      staleTime: 0,
+      gcTime: 0,
+  });
+}
+
 
 export const useCadastrarTextosPortaria = () => {
   return useMutation({
@@ -41,6 +61,8 @@ export function useCriarTextosPortaria(defaultValues: FormSchemaCriarTextosPorta
     setIsModalOpen(false);
   };
  
+  const { data: variaveisOpcoes = [], isLoading: isLoadingVariavel } = useBuscarVariavel();
+
   
   const notification = useAppNotification();
   const isPending = false;
@@ -84,6 +106,8 @@ export function useCriarTextosPortaria(defaultValues: FormSchemaCriarTextosPorta
 
   return {
     isPending,
+    variaveisOpcoes,
+    isLoadingVariavel,
     filterForm,
     onSubmitFilterForm,    
     isModalOpen,

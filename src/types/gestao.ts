@@ -63,3 +63,9 @@ export interface TextosDePortariasResponse {
   criado_em: string;
   atualizado_em: string;
 }
+
+
+export interface Variavel {  
+  display_name: string;
+  value: string;
+}
