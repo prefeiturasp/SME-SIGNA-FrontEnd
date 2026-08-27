@@ -1,10 +1,31 @@
+"use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import FormSchemaCriarTextosPortaria, { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
 import { useState } from "react";
-import router from "next/router";
- 
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { cadastrarTextosPortariaAction } from "@/actions/textos-portaria";
+
+export const useCadastrarTextosPortaria = () => {
+  return useMutation({
+    mutationFn: async ({
+      values
+    }: {
+      values: FormSchemaCriarTextosPortariaData;
+    }) => {
+      const response = await cadastrarTextosPortariaAction(values);
+
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+  });
+};
+
+
 const defaultValuesFilters: FormSchemaCriarTextosPortariaData = {
   tipo_portaria: "",
   nome_modelo: "",
@@ -30,25 +51,34 @@ export function useCriarTextosPortaria(defaultValues: FormSchemaCriarTextosPorta
     mode: "onChange",
   });  
  
- 
+  const cadastrarTextosPortaria = useCadastrarTextosPortaria();
+
+  const router = useRouter();
 
 
-  const onSubmitFilterForm = (values: FormSchemaCriarTextosPortariaData) => { 
+  const onSubmitFilterForm = async(values: FormSchemaCriarTextosPortariaData) => { 
 
     const variavelEstaValida = values.variavel.every(item => values.texto_portaria.includes(`[[${item}]]`))        
     if (!variavelEstaValida) {
       setIsModalOpen(true);      
       return;
     }
-    // futura integração aqui com o backend
-    
-    notification.success({
-      title: "Tudo certo por aqui!",
-      description: "Texto de portaria encontrado com sucesso!",
-    });
 
-    router.push("/pages/gestao/cargos-base");   
-    
+    try {      
+      await cadastrarTextosPortaria.mutateAsync({
+        values,
+      });
+      notification.success({
+        title: "Tudo certo por aqui!",
+        description: "O texto da portaria foi cadastrado.",
+      });
+      router.push("/pages/gestao/textos-de-portaria");   
+    } catch {
+      notification.error({
+        title: "Erro!",
+        description: "Não conseguimos cadastrar o texto da portarias. Por favor, tente novamente.",
+      });
+    }    
   };
  
 
