@@ -38,11 +38,17 @@ vi.mock("../ListagemDeCargos/ListagemDeCargos", () => ({
 
 const textoPortaria: TextosDePortariasResponse = {
   id: 10,
+  tipo_ato_pai: "Portaria",
   tipo_portaria: "Portaria",
+  tipo_de_ato: "Portaria",
   nome_modelo: "Modelo de portaria",
   status: StatusCargosBase.ATIVO,
   criado_em: "2026-06-11T08:05:00",
   atualizado_em: "2026-06-11T10:00:00",
+  texto_portaria: "Texto 1",
+  variaveis: ["VARIAVEL 1"],
+  tipo_cargo: "CARGO 1",
+  observacoes: "Observações 1",
 };
 
 describe("ListagemDeTextosDePortarias", () => {

@@ -40,7 +40,8 @@ export default function RootLayout({
                   colorWarningBorder:"#fffbe6",                  
                 },
                 Tabs: {                  
-                  horizontalMargin: "0 0 32px 0",                  
+                  horizontalMargin: "0 0 32px 0",    
+                  cardBg: '#F1F5F9',			              
                 },
                 Notification: {
                   colorSuccessBg: "#333638",  

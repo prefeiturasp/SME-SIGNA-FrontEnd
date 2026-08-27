@@ -8,6 +8,7 @@ import { AtosOpcoes, TipoAtoSelectField } from '../../Designacao/FiltroDeAtosAdm
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip } from 'antd';
+import { Variavel } from '@/types/gestao';
 
 
 export const StatusOpcoes = [
@@ -20,14 +21,8 @@ export const TipoCargoOpcoes = [
   { codigo: 'CARGO_DISPONIVEL', nome: 'Cargo disponível' },
 ]
 
-export const variaveisOpcoes = [
-  { codigo: 'PORTARIA', nome: 'Portaria' },
-  { codigo: 'NUMERO_SEI', nome: 'Nº SEI' },
-  { codigo: 'NOME_SERVIDOR', nome: 'Nome do servidor' },
-  { codigo: 'NUMERO_RF', nome: 'Nº do RF' },
-]
-
-const FormCriarTextosPortaria: React.FC = () => {
+const FormCriarTextosPortaria: React.FC<{ variaveisOpcoes: Variavel[] }> = ( { variaveisOpcoes } ) => {
+  
   const { register, control } = useFormContext();
 
   return (
@@ -91,7 +86,7 @@ const FormCriarTextosPortaria: React.FC = () => {
       <MultiSelectField
         register={register}
         control={control}
-        name="variavel"
+        name="variaveis"
         label={<>
           <span className='required'>Variavel*</span>
           <Tooltip title="Utilize as variáveis para incluir informações que serão preenchidas automaticamente pelo sistema na geração da Portaria." placement="right">
@@ -102,8 +97,8 @@ const FormCriarTextosPortaria: React.FC = () => {
         placeholder="Selecione"
         data-testid="input-status"
         options={variaveisOpcoes.map((item) => ({
-          value: item.codigo,
-          label: item.nome,
+          value: item.value,
+          label: item.display_name,
         }))}
       />
 

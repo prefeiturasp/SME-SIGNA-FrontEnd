@@ -28,7 +28,6 @@ export default function TextosDePortaria() {
     handleClear,
   } = useVisualizarTextosPortaria();
 
-
   const [isModalCriarTextoPortariaOpen, setIsModalCriarTextoPortariaOpen] = useState(false);
   const closeModalCriarTextoPortaria = () => {
     setIsModalCriarTextoPortariaOpen(false);

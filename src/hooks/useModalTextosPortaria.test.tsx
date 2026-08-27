@@ -75,13 +75,19 @@ const resultado: TextosDePortariasPaginada = {
   next: null,
   previous: null,
   results: [
-    {
+      {
       id: 42,
       tipo_portaria: "CESSACAO",
       nome_modelo: "Modelo 1",
       status: "ATIVO",
       criado_em: "2026-06-11T08:05:00",
       atualizado_em: "2026-06-11T10:00:00",
+      tipo_ato_pai: "Portaria",
+      texto_portaria: "Texto 1",
+      variaveis: ["VARIAVEL 1"],
+      tipo_cargo: "CARGO 1",
+      observacoes: "Observações 1",
+      tipo_de_ato: "Portaria",
     },
   ],
 };
@@ -141,7 +147,15 @@ describe("useModalTextosPortaria", () => {
     });
 
     await waitFor(() => {
-      expect(fetchTextosPortariaMock).toHaveBeenCalledWith({ tipo_portaria: "CESSACAO" }, 1);
+      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(
+        {
+          tipo_ato_pai: undefined,
+          tipo_portaria: "CESSACAO",
+          nome_modelo: undefined,
+          status: undefined,
+        },
+        1,
+      );
       expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-textos-de-portaria?id=42");
     });
     expect(errorNotificationMock).not.toHaveBeenCalled();
