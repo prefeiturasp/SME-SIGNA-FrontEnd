@@ -43,7 +43,7 @@ const defaultValues: FormSchemaCriarTextosPortariaData = {
   nome_modelo: "",
   status: "",
   texto_portaria: "",
-  variavel: [],
+  variaveis: [],
   tipo_cargo: "",
 };
 
@@ -52,7 +52,7 @@ const validValues: FormSchemaCriarTextosPortariaData = {
   nome_modelo: "Modelo 1",
   status: "ATIVO",
   texto_portaria: "Servidor [[NOME_SERVIDOR]] portaria [[PORTARIA]].",
-  variavel: ["NOME_SERVIDOR", "PORTARIA"],
+  variaveis: ["NOME_SERVIDOR", "PORTARIA"],
   tipo_cargo: "CARGO_VAGO",
   observacoes: "Obs",
 };
@@ -75,12 +75,12 @@ describe("useCriarTextosPortaria", () => {
       mode: "onChange",
     });
     expect(result.current.filterForm).toMatchObject({ mockedForm: true });
-    expect(result.current.isPending).toBe(false);
+    expect(result.current.isLoadingCadastrarTextoPortaria).toBe(false);
     expect(result.current.isModalOpen).toBe(false);
   });
 
   it("permite sobrescrever valores padrão do formulário", () => {
-    renderHook(() => useCriarTextosPortaria(validValues));
+    renderHook(() => useCriarTextosPortaria(1));
 
     expect(useFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -110,7 +110,7 @@ describe("useCriarTextosPortaria", () => {
     act(() => {
       result.current.onSubmitFilterForm({
         ...validValues,
-        variavel: [],
+        variaveis: [],
         texto_portaria: "Texto sem tokens",
       });
     });

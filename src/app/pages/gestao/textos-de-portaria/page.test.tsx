@@ -80,14 +80,24 @@ const textos: TextosDePortariasResponse[] = [
     status: "ATIVO",
     criado_em: "2026-06-11T08:05:00",
     atualizado_em: "2026-06-11T10:00:00",
+    tipo_ato_pai: "Portaria",
+    texto_portaria: "Texto 1",
+    variaveis: ["VARIAVEL 1"],
+    tipo_cargo: "CARGO 1",
+    observacoes: "Observações 1",
   },
-  {
+    {
     id: 2,
     tipo_portaria: "Portaria",
     nome_modelo: "Modelo 2",
     status: "INATIVO",
     criado_em: "2026-06-28T11:12:00",
     atualizado_em: "2026-06-28T11:40:00",
+    tipo_ato_pai: "Portaria",
+    texto_portaria: "Texto 2",
+    variaveis: ["VARIAVEL 2"],
+    tipo_cargo: "CARGO 2",
+    observacoes: "Observações 2",
   },
 ];
 

@@ -86,7 +86,7 @@ const FormCriarTextosPortaria: React.FC<{ variaveisOpcoes: Variavel[] }> = ( { v
       <MultiSelectField
         register={register}
         control={control}
-        name="variavel"
+        name="variaveis"
         label={<>
           <span className='required'>Variavel*</span>
           <Tooltip title="Utilize as variáveis para incluir informações que serão preenchidas automaticamente pelo sistema na geração da Portaria." placement="right">

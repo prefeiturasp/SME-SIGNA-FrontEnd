@@ -105,7 +105,7 @@ const submittedValues: FormSchemaCriarTextosPortariaData = {
   nome_modelo: "Modelo 1",
   status: "ATIVO",
   texto_portaria: "<p>Texto</p>",
-  variavel: ["PORTARIA"],
+  variaveis: ["PORTARIA"],
   tipo_cargo: "CARGO_VAGO",
 };
 

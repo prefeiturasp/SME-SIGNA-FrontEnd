@@ -1,7 +1,7 @@
 "use server";
 import { filterFormSchemaTextosPortariaData } from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/filterFormSchemaTextosPortaria";
 import { fetchWithClient } from "./http";
-import { TextosDePortariasPaginada, Variavel } from "@/types/gestao";
+import { TextosDePortariasPaginada, TextosDePortariasResponse, Variavel } from "@/types/gestao";
 import { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
 import { postWithAuth } from "@/lib/serverRequest";
 
@@ -45,3 +45,13 @@ export const fetchVariavelAction = async (
     "Erro ao buscar as variáveis"
   );
 };
+
+
+
+export async function fetchTextoPortariaByIdAction(id: number) {
+  return fetchWithClient<TextosDePortariasResponse>(
+    `/gestao/modelos-portaria/${id}/`,
+    {},
+    "Erro ao buscar o cargo base"
+  );
+}

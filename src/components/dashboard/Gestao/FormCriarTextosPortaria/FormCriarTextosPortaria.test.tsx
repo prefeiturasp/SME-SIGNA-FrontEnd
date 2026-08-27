@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import FormCriarTextosPortaria, {
   StatusOpcoes,
   TipoCargoOpcoes,
-  variaveisOpcoes,
 } from "./FormCriarTextosPortaria";
 
 interface FieldOption {
@@ -156,16 +155,15 @@ describe("FormCriarTextosPortaria", () => {
       { codigo: "CARGO_VAGO", nome: "Cargo vago" },
       { codigo: "CARGO_DISPONIVEL", nome: "Cargo disponível" },
     ]);
-    expect(variaveisOpcoes).toEqual([
-      { codigo: "PORTARIA", nome: "Portaria" },
-      { codigo: "NUMERO_SEI", nome: "Nº SEI" },
-      { codigo: "NOME_SERVIDOR", nome: "Nome do servidor" },
-      { codigo: "NUMERO_RF", nome: "Nº do RF" },
-    ]);
   });
 
   it("renderiza campos, tooltips e opções mapeadas", () => {
-    render(<FormCriarTextosPortaria />);
+    render(<FormCriarTextosPortaria variaveisOpcoes={[
+      { value: "PORTARIA", display_name: "Portaria" },
+      { value: "NUMERO_SEI", display_name: "Nº SEI" },
+      { value: "NOME_SERVIDOR", display_name: "Nome do servidor" },
+      { value: "DESPACHO", display_name: "Despacho" },
+    ]} />);
 
     expect(screen.getByTestId("tipo-ato-tipo_portaria")).toHaveTextContent("Tipo de portaria");
     expect(tipoAtoSelectFieldSpy).toHaveBeenCalledWith(
@@ -204,7 +202,7 @@ describe("FormCriarTextosPortaria", () => {
     );
     expect(multiSelectFieldSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: "variavel",
+        name: "variaveis",
         options: [
           { value: "PORTARIA", label: "Portaria" },
           { value: "NUMERO_SEI", label: "Nº SEI" },
@@ -216,7 +214,7 @@ describe("FormCriarTextosPortaria", () => {
 
     expect(screen.getByTestId("select-item-status-ATIVO")).toHaveTextContent("Ativo");
     expect(screen.getByTestId("select-item-tipo_cargo-CARGO_VAGO")).toHaveTextContent("Cargo vago");
-    expect(screen.getByTestId("multi-item-variavel-NUMERO_SEI")).toHaveTextContent("Nº SEI");
+    expect(screen.getByTestId("multi-item-variaveis-NUMERO_SEI")).toHaveTextContent("Nº SEI");
     expect(screen.getAllByTestId("tooltip")).toHaveLength(2);
     expect(screen.getAllByTestId("tooltip")[0]).toHaveAttribute(
       "data-title",
@@ -231,7 +229,12 @@ describe("FormCriarTextosPortaria", () => {
   });
 
   it("repassa alteração do textarea de observações", () => {
-    render(<FormCriarTextosPortaria />);
+    render(<FormCriarTextosPortaria variaveisOpcoes={[
+      { value: "PORTARIA", display_name: "Portaria" },
+      { value: "NUMERO_SEI", display_name: "Nº SEI" },
+      { value: "NOME_SERVIDOR", display_name: "Nome do servidor" },
+      { value: "OBSERVACOES", display_name: "nova obs" },
+    ]} />);
 
     fireEvent.change(screen.getByTestId("input-observacoes"), { target: { value: "nova obs" } });
     expect(fieldOnChangeMock).toHaveBeenCalledWith("nova obs");

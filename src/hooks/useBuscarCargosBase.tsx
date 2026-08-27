@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchCargosBaseAction, fetchCargosBaseActionByIdAction } from "@/actions/cargos-base";
+import { fetchTextoPortariaByIdAction } from "@/actions/textos-portaria";
 
 
  
@@ -23,6 +24,9 @@ export function useBuscarCargosBase() {
         gcTime: 0,
     });
 }
+
+
+
 
 
 

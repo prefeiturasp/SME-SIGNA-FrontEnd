@@ -6,8 +6,9 @@ export const FormSchemaCriarTextosPortaria = z
     nome_modelo: z.string().min(1, { message: "Campo obrigatório." }),
     status: z.string().min(1, { message: "Campo obrigatório." }),
     texto_portaria: z.string().min(2, { message: "Campo obrigatório." }),
-    variavel: z.array(z.string()).min(1, { message: "Campo obrigatório." }),
+    variaveis: z.array(z.string()).min(1, { message: "Campo obrigatório." }),
     tipo_cargo: z.string().min(1, { message: "Campo obrigatório." }),
+    tipo_ato_pai: z.string().optional(),
     observacoes: z.string().optional(),
    });
    

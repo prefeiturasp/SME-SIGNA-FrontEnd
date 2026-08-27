@@ -82,6 +82,11 @@ const resultado: TextosDePortariasPaginada = {
       status: "ATIVO",
       criado_em: "2026-06-11T08:05:00",
       atualizado_em: "2026-06-11T10:00:00",
+      tipo_ato_pai: "Portaria",
+      texto_portaria: "Texto 1",
+      variaveis: ["VARIAVEL 1"],
+      tipo_cargo: "CARGO 1",
+      observacoes: "Observações 1",
     },
   ],
 };

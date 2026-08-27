@@ -9,7 +9,7 @@ const validPayload: FormSchemaCriarTextosPortariaData = {
   nome_modelo: "Modelo 1",
   status: "ATIVO",
   texto_portaria: "ab",
-  variavel: ["NOME_SERVIDOR"],
+  variaveis: ["NOME_SERVIDOR"],
   tipo_cargo: "CARGO_VAGO",
   observacoes: "Observação opcional",
 };
@@ -41,7 +41,7 @@ describe("FormSchemaCriarTextosPortaria", () => {
       nome_modelo: "",
       status: "",
       texto_portaria: "",
-      variavel: [],
+      variaveis: [],
       tipo_cargo: "",
     });
 
@@ -52,7 +52,7 @@ describe("FormSchemaCriarTextosPortaria", () => {
         expect.objectContaining({ path: ["nome_modelo"], message: "Campo obrigatório." }),
         expect.objectContaining({ path: ["status"], message: "Campo obrigatório." }),
         expect.objectContaining({ path: ["texto_portaria"], message: "Campo obrigatório." }),
-        expect.objectContaining({ path: ["variavel"], message: "Campo obrigatório." }),
+        expect.objectContaining({ path: ["variaveis"], message: "Campo obrigatório." }),
         expect.objectContaining({ path: ["tipo_cargo"], message: "Campo obrigatório." }),
       ]),
     );
@@ -76,13 +76,13 @@ describe("FormSchemaCriarTextosPortaria", () => {
   it("rejeita lista de variáveis vazia", () => {
     const result = FormSchemaCriarTextosPortaria.safeParse({
       ...validPayload,
-      variavel: [],
+      variaveis: [],
     });
 
     expect(result.success).toBe(false);
     expect(result.error?.issues).toEqual([
       expect.objectContaining({
-        path: ["variavel"],
+        path: ["variaveis"],
         message: "Campo obrigatório.",
       }),
     ]);
@@ -91,7 +91,7 @@ describe("FormSchemaCriarTextosPortaria", () => {
   it("falha quando algum campo não tem o tipo esperado", () => {
     const result = FormSchemaCriarTextosPortaria.safeParse({
       ...validPayload,
-      variavel: "PORTARIA",
+      variaveis: "PORTARIA",
     });
 
     expect(result.success).toBe(false);
