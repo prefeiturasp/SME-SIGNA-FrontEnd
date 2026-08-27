@@ -79,11 +79,19 @@ interface FilterFormMock {
   control: Control<FormSchemaCriarTextosPortariaData>;
 }
 
+interface FormCriarMockProps {
+  variaveisOpcoes: Array<{ value: string; display_name: string }>;
+}
+
 interface HookMockReturn {
   filterForm: FilterFormMock;
   isModalOpen: boolean;
   onSubmitFilterForm: SubmitHandler<FormSchemaCriarTextosPortariaData>;
   handleCancel: () => void;
+  variaveisOpcoes: Array<{ value: string; display_name: string }>;
+  isLoadingVariavel: boolean;
+  isLoadingBuscarTextoPortaria: boolean;
+  isLoadingCadastrarTextoPortaria: boolean;
 }
 
 const pushMock = vi.fn();
@@ -91,11 +99,12 @@ const pageHeaderSpy = vi.fn<(props: PageHeaderMockProps) => void>();
 const fundoBrancoSpy = vi.fn<(props: FundoBrancoMockProps) => void>();
 const simpleTableHeaderSpy = vi.fn<(props: SimpleTableHeaderMockProps) => void>();
 const formProviderSpy = vi.fn();
-const formCriarSpy = vi.fn();
+const formCriarSpy = vi.fn<(props: FormCriarMockProps) => void>();
 const editorOnChangeMock = vi.fn();
 const handleCancelMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
-const useCriarTextosPortariaMock = vi.fn<() => HookMockReturn>();
+const getSearchParamMock = vi.fn<(key: string) => string | null>();
+const useCriarTextosPortariaMock = vi.fn<(id?: number | null) => HookMockReturn>();
 const watchMock = vi.fn<() => string[] | undefined>();
 const getValuesMock = vi.fn<(name?: string) => string | undefined>();
 const setValueMock = vi.fn();
@@ -109,6 +118,11 @@ const submittedValues: FormSchemaCriarTextosPortariaData = {
   tipo_cargo: "CARGO_VAGO",
 };
 
+const variaveisOpcoes = [
+  { value: "PORTARIA", display_name: "Portaria" },
+  { value: "NOME_SERVIDOR", display_name: "Nome do servidor" },
+];
+
 const handleSubmitMock = vi.fn(
   (callback: SubmitHandler<FormSchemaCriarTextosPortariaData>) => async (event?: BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -120,15 +134,21 @@ let watchedVariavel: string[] | undefined = [];
 let textoPortaria = "";
 let isModalOpen = false;
 let fieldError: { message: string } | undefined;
+let isLoadingVariavel = false;
+let isLoadingBuscarTextoPortaria = false;
+let isLoadingCadastrarTextoPortaria = false;
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: pushMock,
   }),
+  useSearchParams: () => ({
+    get: getSearchParamMock,
+  }),
 }));
 
 vi.mock("@/hooks/useCriarTextosPortaria", () => ({
-  useCriarTextosPortaria: () => useCriarTextosPortariaMock(),
+  useCriarTextosPortaria: (id?: number | null) => useCriarTextosPortariaMock(id),
 }));
 
 vi.mock("react-hook-form", () => ({
@@ -191,8 +211,8 @@ vi.mock("lucide-react", () => ({
 }));
 
 vi.mock("@/components/dashboard/Gestao/FormCriarTextosPortaria/FormCriarTextosPortaria", () => ({
-  default: () => {
-    formCriarSpy();
+  default: (props: FormCriarMockProps) => {
+    formCriarSpy(props);
     return <div data-testid="form-criar-textos">form criar</div>;
   },
 }));
@@ -255,6 +275,10 @@ describe("Página Cadastrar texto de portaria", () => {
     textoPortaria = "";
     isModalOpen = false;
     fieldError = undefined;
+    isLoadingVariavel = false;
+    isLoadingBuscarTextoPortaria = false;
+    isLoadingCadastrarTextoPortaria = false;
+    getSearchParamMock.mockReturnValue(null);
     watchMock.mockImplementation(() => watchedVariavel);
     getValuesMock.mockImplementation(() => textoPortaria);
     useCriarTextosPortariaMock.mockImplementation(() => ({
@@ -262,6 +286,10 @@ describe("Página Cadastrar texto de portaria", () => {
       isModalOpen,
       onSubmitFilterForm: onSubmitFilterFormMock,
       handleCancel: handleCancelMock,
+      variaveisOpcoes,
+      isLoadingVariavel,
+      isLoadingBuscarTextoPortaria,
+      isLoadingCadastrarTextoPortaria,
     }));
   });
 
@@ -272,11 +300,12 @@ describe("Página Cadastrar texto de portaria", () => {
     expect(screen.getByTestId("btn-voltar")).toHaveTextContent("Cancelar");
     expect(screen.getByTestId("botao-proximo")).toHaveTextContent("Cadastrar texto");
     expect(screen.getByTestId("form-criar-textos")).toBeInTheDocument();
-    expect(screen.getAllByTestId("fundo-branco")).toHaveLength(2);
+    expect(screen.getAllByTestId("fundo-branco")).toHaveLength(1);
     expect(screen.getByTestId("alert")).toHaveAttribute("data-type", "warning");
     expect(screen.getByTestId("icon-alert")).toBeInTheDocument();
     expect(screen.getByTestId("form-message")).toHaveAttribute("data-blank", "true");
     expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
+    expect(screen.getByTestId("botao-proximo")).not.toBeDisabled();
 
     const pageHeaderProps = pageHeaderSpy.mock.calls[0][0];
     expect(pageHeaderProps.showBackButton).toBe(false);
@@ -286,15 +315,34 @@ describe("Página Cadastrar texto de portaria", () => {
       { title: "Textos de portaria", href: "textos-de-portaria" },
       { title: "Cadastrar texto de portaria", href: "" },
     ]);
-    expect(simpleTableHeaderSpy).toHaveBeenNthCalledWith(1, {
+    expect(simpleTableHeaderSpy).toHaveBeenCalledWith({
       title: "Informações gerais",
       subtitle: "Preencha as informações do modelo e o texto que será utilizado na emissão da portaria.",
     });
-    expect(simpleTableHeaderSpy).toHaveBeenNthCalledWith(2, {
-      title: "Texto da portaria",
-      subtitle: "Digite o texto da portaria e utilize as ferramentas de formatação para organizar o conteúdo.",
-    });
-    expect(formCriarSpy).toHaveBeenCalledTimes(1);
+    expect(formCriarSpy).toHaveBeenCalledWith({ variaveisOpcoes });
+    expect(useCriarTextosPortariaMock).toHaveBeenCalledWith(null);
+  });
+
+  it("passa o id da query string para o hook e desabilita o cadastro enquanto carrega", () => {
+    getSearchParamMock.mockReturnValue("12");
+    isLoadingCadastrarTextoPortaria = true;
+
+    render(<CriarTextosDePortaria />);
+
+    expect(useCriarTextosPortariaMock).toHaveBeenCalledWith(12);
+    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
+  });
+
+  it("desabilita o cadastro enquanto busca o texto ou as variáveis", () => {
+    isLoadingVariavel = true;
+    const { unmount } = render(<CriarTextosDePortaria />);
+    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
+    unmount();
+
+    isLoadingVariavel = false;
+    isLoadingBuscarTextoPortaria = true;
+    render(<CriarTextosDePortaria />);
+    expect(screen.getByTestId("botao-proximo")).toBeDisabled();
   });
 
   it("cancela, submete o cadastro e dispara o editor", () => {

@@ -59,6 +59,7 @@ export interface TextosDePortariasResponse {
   id: number;
   tipo_ato_pai: string;
   tipo_portaria: string;
+  tipo_de_ato: string;
   nome_modelo: string;
   status: string;
   criado_em: string;

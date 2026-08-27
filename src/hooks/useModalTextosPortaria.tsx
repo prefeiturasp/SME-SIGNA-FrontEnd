@@ -25,7 +25,6 @@ export function useModalTextosPortaria( ) {
       router.push(`/pages/gestao/criar-textos-de-portaria`);
     } else {
       startTransition(async () => {
-        //adicionar o atualizado_em no filtro para buscar o último texto cadastrado
         const response = await buscarTextosPortaria({ tipo_portaria: values.tipo_portaria }, 1);
         if (response.success && response.data?.results?.[0]?.id) {         
           router.push(`/pages/gestao/criar-textos-de-portaria?id=${response.data?.results?.[0]?.id}`);

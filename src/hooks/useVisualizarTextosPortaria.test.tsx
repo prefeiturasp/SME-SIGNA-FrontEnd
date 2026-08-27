@@ -5,7 +5,7 @@ import filterFormSchemaTextosPortaria, {
   filterFormSchemaTextosPortariaData,
 } from "@/components/dashboard/Gestao/FiltroDeTextosPortaria/filterFormSchemaTextosPortaria";
 import { TextosDePortariasPaginada } from "@/types/gestao";
-import { useVisualizarTextosPortaria } from "./useVisualizarTextosPortaria";
+import { buscarTextosPortaria, useVisualizarTextosPortaria } from "./useVisualizarTextosPortaria";
 
 const {
   useFormMock,
@@ -45,6 +45,7 @@ vi.mock("@/actions/textos-portaria", () => ({
 
 const defaultValues: filterFormSchemaTextosPortariaData = {
   tipo_portaria: "",
+  tipo_ato_pai: "",
   nome_modelo: "",
   status: "",
 };
@@ -53,6 +54,20 @@ const filteredValues: filterFormSchemaTextosPortariaData = {
   tipo_portaria: "Portaria",
   nome_modelo: "Modelo 1",
   status: "ATIVO",
+};
+
+const expectedFilteredFetch = {
+  tipo_ato_pai: undefined,
+  tipo_portaria: "Portaria",
+  nome_modelo: "Modelo 1",
+  status: "ATIVO",
+};
+
+const expectedDefaultFetch = {
+  tipo_ato_pai: undefined,
+  tipo_portaria: "",
+  nome_modelo: "",
+  status: "",
 };
 
 const resultado: TextosDePortariasPaginada = {
@@ -72,8 +87,9 @@ const resultado: TextosDePortariasPaginada = {
       variaveis: ["VARIAVEL 1"],
       tipo_cargo: "CARGO 1",
       observacoes: "Observações 1",
+      tipo_de_ato: "Portaria",
     },
-      {
+        {
       id: 2,
       tipo_portaria: "Portaria",
       nome_modelo: "Modelo 2",
@@ -85,6 +101,7 @@ const resultado: TextosDePortariasPaginada = {
       variaveis: ["VARIAVEL 2"],
       tipo_cargo: "CARGO 2",
       observacoes: "Observações 2",
+      tipo_de_ato: "Portaria",
     },
   ],
 };
@@ -93,7 +110,7 @@ const renderHookAndWaitInitialFetch = async () => {
   const hook = renderHook(() => useVisualizarTextosPortaria());
 
   await waitFor(() => {
-    expect(fetchTextosPortariaMock).toHaveBeenCalledWith(filteredValues, undefined);
+    expect(fetchTextosPortariaMock).toHaveBeenCalledWith(expectedFilteredFetch, undefined);
   });
 
   return hook;
@@ -150,7 +167,7 @@ describe("useVisualizarTextosPortaria", () => {
     });
 
     await waitFor(() => {
-      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(filteredValues, 4);
+      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(expectedFilteredFetch, 4);
       expect(result.current.page).toBe(4);
       expect(result.current.resultado).toEqual(resultado);
     });
@@ -166,7 +183,7 @@ describe("useVisualizarTextosPortaria", () => {
 
     expect(formResetMock).toHaveBeenCalledWith(defaultValues);
     await waitFor(() => {
-      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(defaultValues, undefined);
+      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(expectedDefaultFetch, undefined);
       expect(result.current.page).toBe(1);
     });
   });
@@ -180,9 +197,23 @@ describe("useVisualizarTextosPortaria", () => {
     });
 
     await waitFor(() => {
-      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(filteredValues, 1);
+      expect(fetchTextosPortariaMock).toHaveBeenCalledWith(expectedFilteredFetch, 1);
       expect(result.current.page).toBe(1);
     });
+  });
+
+  it("separa tipo composto ao buscar textos de portaria", async () => {
+    await buscarTextosPortaria({ tipo_portaria: "INSUBSISTENCIA_DESIGNACAO" }, 2);
+
+    expect(fetchTextosPortariaMock).toHaveBeenCalledWith(
+      {
+        tipo_ato_pai: "DESIGNACAO",
+        tipo_portaria: "INSUBSISTENCIA",
+        nome_modelo: undefined,
+        status: undefined,
+      },
+      2,
+    );
   });
 
   it("notifica erro quando a busca falha", async () => {

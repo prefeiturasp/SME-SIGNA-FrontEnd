@@ -40,6 +40,7 @@ const textoPortaria: TextosDePortariasResponse = {
   id: 10,
   tipo_ato_pai: "Portaria",
   tipo_portaria: "Portaria",
+  tipo_de_ato: "Portaria",
   nome_modelo: "Modelo de portaria",
   status: StatusCargosBase.ATIVO,
   criado_em: "2026-06-11T08:05:00",

@@ -84,7 +84,8 @@ const textos: TextosDePortariasResponse[] = [
     texto_portaria: "Texto 1",
     variaveis: ["VARIAVEL 1"],
     tipo_cargo: "CARGO 1",
-    observacoes: "Observações 1",
+    observacoes: "Observações 1", 
+    tipo_de_ato: "Portaria",
   },
     {
     id: 2,
@@ -98,6 +99,7 @@ const textos: TextosDePortariasResponse[] = [
     variaveis: ["VARIAVEL 2"],
     tipo_cargo: "CARGO 2",
     observacoes: "Observações 2",
+    tipo_de_ato: "Portaria",
   },
 ];
 

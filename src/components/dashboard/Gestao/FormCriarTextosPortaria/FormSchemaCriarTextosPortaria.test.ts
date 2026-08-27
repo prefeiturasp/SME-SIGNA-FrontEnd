@@ -35,6 +35,18 @@ describe("FormSchemaCriarTextosPortaria", () => {
     expect(result.success).toBe(true);
   });
 
+  it("permite incluir tipo_ato_pai opcional", () => {
+    const result = FormSchemaCriarTextosPortaria.safeParse({
+      ...validPayload,
+      tipo_ato_pai: "DESIGNACAO",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tipo_ato_pai).toBe("DESIGNACAO");
+    }
+  });
+
   it("exige campos obrigatórios", () => {
     const result = FormSchemaCriarTextosPortaria.safeParse({
       tipo_portaria: "",
