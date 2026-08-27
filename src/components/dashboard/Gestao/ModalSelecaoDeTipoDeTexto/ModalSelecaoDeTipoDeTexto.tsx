@@ -27,8 +27,8 @@ interface ModalSelecaoDeTipoDeTextoProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-export default function ModalSelecaoDeTipoDeTexto({ isOpen, onClose }: ModalSelecaoDeTipoDeTextoProps) {
+  
+export default function ModalSelecaoDeTipoDeTexto({ isOpen, onClose }: Readonly<ModalSelecaoDeTipoDeTextoProps>) {
 
   const { filterForm, onSubmitFilterForm, tipo_de_texto, isPending } = useModalTextosPortaria();
  
