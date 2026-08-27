@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
 import { FieldValues, UseFormRegister, Control, FieldPath } from "react-hook-form";
 import type { ReactNode } from "react";
-import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
+import { FormControl, FormField, FormLabel, FormMessage, FormItem, FormDescription } from "./form";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
@@ -38,6 +38,59 @@ interface PropsField<TFieldValues extends FieldValues = FieldValues> {
     description?: string | ReactNode;
 }
 
+interface FieldSecondary {
+    label: string; subtitle: string; value: string;
+}
+
+interface PropsFieldSecondary  {
+    fields: FieldSecondary[];
+}
+
+
+export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, showBlankSpace, fields }: PropsField<TFieldValues> & PropsFieldSecondary) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FormItem>
+
+                    <FormControl>
+                        <RadioGroup
+                            value={field.value}
+                            onValueChange={field.onChange}
+
+                            className="w-fit "
+                        >
+                            <div className="flex flex-col  mt-4 gap-3">
+                                {fields.map((field) => (
+                                    <Field orientation="horizontal" key={field.value} className="flex items-start">
+                                        <RadioGroupItem
+                                            value={field.value}
+                                            id={field.value}
+                                            aria-label={field.value}
+                                        />
+                                        <div className="flex flex-col items-start ">
+                                            <p className=" text-[#313131]">
+                                                {field.label}
+                                            </p>
+                                            <p className="text-[12px] text-[#9CA3B9]">
+                                                {field.subtitle}
+                                            </p>
+                                        </div>
+                                    </Field>
+                                ))}
+                            </div>
+                        </RadioGroup>
+                    </FormControl>
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
+        ></FormField>
+
+    );
+};
 
 export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues>) => {
     return (
@@ -424,7 +477,7 @@ export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
                                 {description}
                             </p>
                         </div>
-                        
+
                         <FormControl className="min-w-[22px]">
                             <Switch
                                 checked={!!field.value}
@@ -433,7 +486,7 @@ export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
                                 data-testid={dataTestId}
                                 checkedChildren="Sim" unCheckedChildren="Não"
                             />
-                        </FormControl>                      
+                        </FormControl>
                     </div>
 
                     <FormMessage showBlankSpace={showBlankSpace} />

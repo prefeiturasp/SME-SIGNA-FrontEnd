@@ -215,7 +215,7 @@ export default function CriarTextosDePortaria() {
       </FundoBranco>
 
       <Dialog open={isModalOpen}>
-        <DialogContent className="max-w-[560px] p-8 rounded-none rounded-0 overflow-y-auto max-h-[90vh]" closeButton={false}>
+        <DialogContent className="max-w-[560px] p-8 overflow-y-auto max-h-[90vh]" closeButton={false}>
           <DialogHeader>
             <DialogTitle className="text-[20px] font-bold">Revise as variáveis do texto</DialogTitle>
             <DialogDescription className="sr-only">

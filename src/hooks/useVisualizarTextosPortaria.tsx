@@ -15,7 +15,7 @@ const defaultValuesFilters: filterFormSchemaTextosPortariaData = {
 
 export function useVisualizarTextosPortaria(defaultValues: filterFormSchemaTextosPortariaData = defaultValuesFilters) {
   const [resultado, setResultado] = useState<TextosDePortariasPaginada | null>(null);
-  
+    
   const { error: notifyError } = useAppNotification();
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
@@ -85,5 +85,7 @@ export function useVisualizarTextosPortaria(defaultValues: filterFormSchemaTexto
     onPageChange,    
     handleClear,    
     onSubmitFilterForm,    
+    buscar,
+    buscarTextos,
   };
 } 
