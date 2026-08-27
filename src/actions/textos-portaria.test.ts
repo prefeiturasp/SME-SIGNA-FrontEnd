@@ -52,7 +52,8 @@ const textoPorId: TextosDePortariasResponse = {
   criado_em: "2026-06-11T08:05:00",
   atualizado_em: "2026-06-11T10:00:00",
   texto_portaria: "Texto",
-  variaveis: ["NOME_SERVIDOR"],
+  variaveis: ["NOME_SERVIDOR"], 
+  tipo_de_ato: "Portaria",
   tipo_cargo: "CARGO_VAGO",
   observacoes: "Obs",
 };
