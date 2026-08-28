@@ -35,6 +35,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
 import { Servidor } from "@/types/designacao-unidade";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
+import { useFetchCargos } from "@/hooks/useCargos";
+import { encontrarCargoPorNome, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
+
+function obterErrorCargoTitular(
+  cargoTitularInvalido: boolean,
+  nomeCargoTitular: string | null | undefined
+): string | null {
+  if (!cargoTitularInvalido) return null;
+
+  if (!nomeCargoTitular) {
+    return "Não foi possível identificar o cargo de gestão do titular. Não é possível prosseguir com esta designação.";
+  }
+
+  return `O cargo do titular ("${nomeCargoTitular}") não corresponde a nenhum cargo de gestão disponível para designação. Não é possível prosseguir.`;
+}
 
 export default function DesignacoesPasso2() {
   const searchParams = useSearchParams();
@@ -183,6 +198,13 @@ export default function DesignacoesPasso2() {
   const tipoCargo = form.watch("tipo_cargo");
   const cargoVago = form.watch("cargo_vago_selecionado");
   const rfTitular = form.watch("rf_titular");
+
+  const { data: cargosData = [], isLoading: isLoadingCargos } = useFetchCargos();
+  const nomeCargoTitular = obterNomeCargoTitular(dadosTitular);
+  const cargoTitularCorrespondente = encontrarCargoPorNome(nomeCargoTitular, cargosData);
+  const cargoTitularInvalido =
+    tipoCargo !== "vago" && !!dadosTitular && !isLoadingCargos && !cargoTitularCorrespondente;
+  const errorCargoTitular = obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular);
   const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
     const response = await mutateAsync(values);
     if (response.success) {
@@ -204,7 +226,7 @@ export default function DesignacoesPasso2() {
     Object.keys(form.formState.errors).length === 0 &&
     (tipoCargo === "vago"
       ? !!cargoVago?.id
-      : (!!dadosTitular && !!rfTitular));
+      : (!!dadosTitular && !!rfTitular && !cargoTitularInvalido));
 
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
     if (values.tipo_cargo.toLowerCase() === "vago") {
@@ -368,6 +390,7 @@ export default function DesignacoesPasso2() {
               tipoCargo={tipoCargo}
               dadosTitular={dadosTitular}
               errorBusca={errorBusca}
+              errorCargoTitular={errorCargoTitular}
               onBuscaTitular={onBuscaTitular}
               setDadosTitular={setDadosTitular}
               setErrorBusca={setErrorBusca}

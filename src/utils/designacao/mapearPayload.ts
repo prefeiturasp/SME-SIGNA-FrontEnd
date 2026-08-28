@@ -1,4 +1,6 @@
 import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
+import type { ICargoType } from "@/types/cargos";
+import type { Servidor } from "@/types/designacao-unidade";
 
 // `a_partir_de`/`designacao_data_final` são `Date` no schema, mas o formulário é
 // persistido em localStorage via JSON.stringify/parse (DesignacaoContext), o que
@@ -16,12 +18,39 @@ function formatarData(valor: unknown): string | null {
     return null;
 }
 
-function getCargoVaga(form: FormDesignacaoEServidorIndicado): number | undefined {
+// `cd_cargo_sobreposto_funcao_atividade` do titular vem da busca por RF
+// (/designacao/servidor) e é o código de cargo do EOL, não um dos códigos
+// fixos aceitos por `cargo_vaga`. É preciso resolver pelo nome do cargo
+// contra a lista fixa (/designacao/unidade/cargos/) para obter o código correto.
+export function encontrarCargoPorNome(
+    nomeCargo: string | null | undefined,
+    cargosDisponiveis: ICargoType[]
+): ICargoType | undefined {
+    if (!nomeCargo) return undefined;
+    return cargosDisponiveis.find((cargo) => cargo.nomeCargo === nomeCargo);
+}
+
+// A integração SME pode retornar `cargo_sobreposto_funcao_atividade` nulo para
+// o titular; nesse caso usamos `cargo_base` (que a integração sempre preenche)
+// como fallback para resolver o cargo de vaga.
+export function obterNomeCargoTitular(
+    titular: Pick<Servidor, "cargo_sobreposto_funcao_atividade" | "cargo_base"> | null | undefined
+): string | null | undefined {
+    return titular?.cargo_sobreposto_funcao_atividade ?? titular?.cargo_base;
+}
+
+function getCargoVaga(
+    form: FormDesignacaoEServidorIndicado,
+    cargosDisponiveis: ICargoType[]
+): number | undefined {
     const tipo = form.tipo_cargo?.toLowerCase();
 
     if (tipo === "disponivel") {
-        const codigo = form.dadosTitular?.cd_cargo_sobreposto_funcao_atividade;
-        return codigo ? Number(codigo) : undefined;
+        const cargoCorrespondente = encontrarCargoPorNome(
+            obterNomeCargoTitular(form.dadosTitular),
+            cargosDisponiveis
+        );
+        return cargoCorrespondente?.codigoCargo;
     }
 
     if (tipo === "vago") {
@@ -39,7 +68,8 @@ function getCargoVaga(form: FormDesignacaoEServidorIndicado): number | undefined
 }
 
 export function mapearPayloadDesignacao(
-    form: FormDesignacaoEServidorIndicado | null | undefined
+    form: FormDesignacaoEServidorIndicado | null | undefined,
+    cargosDisponiveis: ICargoType[] = []
 ) {
     if (!form) return null;
 
@@ -49,7 +79,7 @@ export function mapearPayloadDesignacao(
     const { dadosTitular } = form;
     const titular = dadosTitular ?? null;
 
-    const cargoVaga = getCargoVaga(form);
+    const cargoVaga = getCargoVaga(form, cargosDisponiveis);
 
     return {
         dre_nome: form.dre_nome,

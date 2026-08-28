@@ -30,6 +30,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
       name: "apostila.observacao",
       label: "Observações",
       placeholder: "Texto",
+      required: false,
     },
   ];
 

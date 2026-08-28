@@ -338,35 +338,62 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.cargo_vaga).toBeUndefined();
     });
 
-    it("usa cd_cargo_sobreposto_funcao_atividade do titular quando tipo_cargo é 'disponivel'", () => {
+    it("resolve cargo_vaga pelo nome do cargo do titular na lista fixa de cargos, quando tipo_cargo é 'disponivel'", () => {
+        // cd_cargo_sobreposto_funcao_atividade do titular vem da busca por RF
+        // (código do EOL, ex: 77) e não corresponde aos códigos aceitos por
+        // cargo_vaga — a resolução correta é por nome contra a lista fixa de
+        // cargos de gestão (/designacao/unidade/cargos/).
+        const result = mapearPayloadDesignacao(
+            { ...formBase, tipo_cargo: "disponivel", dadosTitular },
+            [{ codigoCargo: 5, nomeCargo: "Vice-Diretor" }]
+        );
+
+        expect(result?.cargo_vaga).toBe(5);
+    });
+
+    it("usa cargo_base do titular como fallback quando cargo_sobreposto_funcao_atividade é nulo", () => {
+        // A integração SME pode retornar cargo_sobreposto_funcao_atividade nulo;
+        // cargo_base é sempre preenchido, então serve de fallback para resolver
+        // o cargo de vaga.
+        const result = mapearPayloadDesignacao(
+            {
+                ...formBase,
+                tipo_cargo: "disponivel",
+                dadosTitular: {
+                    ...dadosTitular,
+                    cargo_sobreposto_funcao_atividade: null,
+                } as unknown as typeof dadosTitular,
+            },
+            [{ codigoCargo: 5, nomeCargo: "Coordenador" }]
+        );
+
+        expect(result?.cargo_vaga).toBe(5);
+    });
+
+    it("retorna undefined quando tipo_cargo é 'disponivel' mas o cargo do titular não está na lista fixa de cargos", () => {
+        const result = mapearPayloadDesignacao(
+            { ...formBase, tipo_cargo: "disponivel", dadosTitular },
+            [{ codigoCargo: 1, nomeCargo: "Diretor de Escola" }]
+        );
+
+        expect(result?.cargo_vaga).toBeUndefined();
+    });
+
+    it("retorna undefined quando tipo_cargo é 'disponivel' e nenhuma lista de cargos é informada", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "disponivel",
             dadosTitular,
         });
 
-        expect(result?.cargo_vaga).toBe(77);
-    });
-
-    it("retorna undefined quando tipo_cargo é 'disponivel' mas dadosTitular não tem cd_cargo_sobreposto", () => {
-        const result = mapearPayloadDesignacao({
-            ...formBase,
-            tipo_cargo: "disponivel",
-            dadosTitular: {
-                ...dadosTitular,
-                cd_cargo_sobreposto_funcao_atividade: undefined,
-            } as unknown as typeof dadosTitular,
-        });
-
         expect(result?.cargo_vaga).toBeUndefined();
     });
 
     it("retorna undefined quando tipo_cargo é 'disponivel' e dadosTitular é null", () => {
-        const result = mapearPayloadDesignacao({
-            ...formBase,
-            tipo_cargo: "disponivel",
-            dadosTitular: null,
-        });
+        const result = mapearPayloadDesignacao(
+            { ...formBase, tipo_cargo: "disponivel", dadosTitular: null },
+            [{ codigoCargo: 5, nomeCargo: "Vice-Diretor" }]
+        );
 
         expect(result?.cargo_vaga).toBeUndefined();
     });

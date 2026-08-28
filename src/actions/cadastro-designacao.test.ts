@@ -21,6 +21,10 @@ vi.mock("@/utils/designacao/mapearPayload", () => ({
     mapearPayloadDesignacao: vi.fn(() => ({ dre: "dre-1" })),
 }));
 
+vi.mock("@/actions/cargos", () => ({
+    getCargos: vi.fn(() => Promise.resolve([])),
+}));
+
 // ── Helpers ──────────────────────────────────────
 
 const { cookies } = await import("next/headers");
@@ -240,6 +244,21 @@ describe("designacaoAction", () => {
 
         await designacaoAction(formDataMock, null);
 
-        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock);
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
+    });
+
+    it("usa lista de cargos vazia quando getCargos falha", async () => {
+        mockCookies("token");
+        mockedAxios.post.mockResolvedValueOnce({ data: {} });
+
+        const { getCargos } = await import("@/actions/cargos");
+        vi.mocked(getCargos).mockRejectedValueOnce(new Error("falha ao buscar cargos"));
+
+        const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({ success: true, data: {} });
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
     });
 });

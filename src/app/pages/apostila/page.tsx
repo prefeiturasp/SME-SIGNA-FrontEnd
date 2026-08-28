@@ -7,7 +7,7 @@ import { Card, Tooltip } from "antd";
 import { Loader2 } from "lucide-react";
 
 import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
-import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
+import { nameToCamelCase, nameToCamelCaseUe, formatarRF, formatarDataPtBr } from "@/utils/portarias/formatadores";
 import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
 import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
 import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado"
@@ -104,7 +104,7 @@ export default function ApostilaPage() {
         
         portaria_designacao: fonteDados?.numero_portaria ?? "-",
         ano: fonteDados?.ano_vigente ?? "-",
-        doc_designacao: fonteDados?.doc ?? "-",
+        doc_designacao: formatarDataPtBr(fonteDados?.doc),
         sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
         
         nome_indicado: designacao?.indicado_nome_servidor ?? "-",
