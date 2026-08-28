@@ -200,24 +200,35 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ]
 
-  const cessacaoItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
-    {
-      key: '1',
-      label: 'Apostilar',
-      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        router.push(`/pages/apostila?id=${record.ato_pai_id}&origem=cessacao`);
+  const cessacaoItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    const navegarParaAtoPai = (destino: string) => {
+      const atoPaiId = record.ato_pai_id;
+      if (!atoPaiId) {
+        notification.error({ title: 'Não foi possível identificar a designação de origem desta cessação.' });
+        return;
+      }
+      router.push(`/pages/${destino}?id=${atoPaiId}&origem=cessacao`);
+    };
+
+    return [
+      {
+        key: '1',
+        label: 'Apostilar',
+        icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          navegarParaAtoPai('apostila');
+        },
       },
-    },
-    {
-      key: '3',
-      label: 'Tornar insubsistente',
-      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        router.push(`/pages/insubsistencia?id=${record.ato_pai_id}&origem=cessacao`);
+      {
+        key: '3',
+        label: 'Tornar insubsistente',
+        icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          navegarParaAtoPai('insubsistencia');
+        },
       },
-    },
-  ]
+    ];
+  }
 
 
   const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
