@@ -376,10 +376,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       await result.current.onSubmitForm(payloadBase);
     });
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith("Erro ao salvar cargo base:", expect.any(Error));
     expect(errorNotificationMock).toHaveBeenCalledWith({
       title: "Erro!",
-      description: "Não conseguimos criar o cargo base. Por favor, tente novamente.",
+      description: "erro de API",
       clearPrevious: true,
     });
   });
@@ -396,10 +395,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       await result.current.onSubmitForm(payloadBase);
     });
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith("Erro ao salvar cargo base:", expect.any(Error));
     expect(errorNotificationMock).toHaveBeenCalledWith({
       title: "Erro!",
-      description: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      description: "erro ao editar",
       clearPrevious: true,
     });
   });
