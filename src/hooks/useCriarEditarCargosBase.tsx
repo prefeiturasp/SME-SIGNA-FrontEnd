@@ -123,17 +123,24 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
       router.push("/pages/gestao/cargos-base");
 
-    } catch (error: unknown) {
-      console.error("Erro ao salvar cargo base:", error);
+    } catch (error) {
+      console.log("error: ", error);
       let message = "Não conseguimos criar o cargo base. Por favor, tente novamente.";
+      
       if (id) {
         message = "Não conseguimos salvar as alterações. Por favor, tente novamente.";
-      }
+      }      
+      
+      if(error instanceof Error) {
+        message = error.message;
+      }      
+      
       notification.error({
         title: "Erro!",
         description: message,
         clearPrevious: true,
       });
+     
     }
   };
 
