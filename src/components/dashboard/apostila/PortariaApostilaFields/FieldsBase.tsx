@@ -20,6 +20,7 @@ export interface TextareaFieldType {
   name: string;
   label: string;
   placeholder: string;
+  required?: boolean;
 }
 interface Props {
   isLoading?: boolean;
@@ -75,7 +76,7 @@ const FieldsBase = ({ isLoading, inputFields, textareaFields, dateFields=[] }: P
                 name={item.name}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="required text-[#313131] font-bold">
+                    <FormLabel className={`${item.required === false ? "" : "required"} text-[#313131] font-bold`}>
                       {item.label}
                     </FormLabel>
                     <FormControl>

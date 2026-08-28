@@ -13,8 +13,8 @@ const buttonVariants = cva(
                     "text-primary-foreground hover:bg-primary/90 text-[#B22B2A]  font-[700] border border-[#B22B2A]",
                 destructive:
                     "bg-[#B22B2A]  text-destructive-foreground hover:bg-destructive/90 disabled: border border-[#B22B2A] disabled:text-[#B22B2A]",
-                    outline:
-                    " border border-[#B22B2A] text-[#B22B2A] bg-background hover:bg-accent hover:text-accent-foreground",                  
+                outline:
+                    " border border-[#B22B2A] text-[#B22B2A] bg-background hover:bg-accent hover:text-accent-foreground",
                 customOutline:
                     "flex items-center  text-[14px] font-[700] border  bg-white hover:text-[#B22B2A] hover:border-[#B22B2A] hover:bg-white",
                 submit: "text-center rounded-lg text-[14px] font-[700] bg-[#D85975] text-white ",
@@ -46,7 +46,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-        VariantProps<typeof buttonVariants> {
+    VariantProps<typeof buttonVariants> {
     asChild?: boolean;
     loading?: boolean;
 }
@@ -82,7 +82,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 {...props}
             >
                 {loading ? (
-                    <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
+                    <>
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
+                        {children}
+                    </>
                 ) : (
                     children
                 )}

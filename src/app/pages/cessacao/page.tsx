@@ -31,7 +31,7 @@ import Designacao from "@/assets/icons/Designacao";
 
 import EditorSEI, { adicionarNegrito, gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
-import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
+import { nameToCamelCase, nameToCamelCaseUe, formatarRF, formatarDataPtBr } from "@/utils/portarias/formatadores";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 
@@ -141,7 +141,7 @@ export default function CessacaoPage() {
     tipo_cessacao:
       values.cessacao.a_pedido === "sim" ? "a pedido" : "de ofício",
     portaria_designacao: designacao?.numero_portaria ?? "-",
-    doc_designacao: designacao?.doc ?? "-",
+    doc_designacao: formatarDataPtBr(designacao?.doc),
     sei_designacao: designacao?.sei_numero ?? "-",
     nome_indicado: designacao?.indicado_nome_servidor ?? "-",
     rf: formatarRF(designacao?.indicado_rf ?? "-"),

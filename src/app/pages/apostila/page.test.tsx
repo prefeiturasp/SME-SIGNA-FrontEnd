@@ -86,6 +86,7 @@ vi.mock("@/utils/portarias/formatadores", () => ({
   nameToCamelCase: (v: string) => v,
   nameToCamelCaseUe: (v: string) => v,
   formatarRF: (v: string) => v,
+  formatarDataPtBr: (v: string) => v,
 }));
 
 vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({

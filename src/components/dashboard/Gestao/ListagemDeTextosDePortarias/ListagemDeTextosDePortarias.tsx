@@ -28,8 +28,8 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
 
 
   const columnsBase: TableProps<TextosDePortariasResponse>['columns'] = [
-    { title: 'Tipo de portaria', dataIndex: 'tipo_portaria', key: 'tipo_portaria', },
-    { title: 'Nome do modelo', dataIndex: 'nome_modelo', key: 'nome_modelo', },
+    { title: 'Tipo de portaria', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato',width: '27%' },
+    { title: 'Nome do modelo', dataIndex: 'nome_modelo', key: 'nome_modelo',width: '27%' },
     {
       title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: TextosDePortariasResponse) => {
         return (

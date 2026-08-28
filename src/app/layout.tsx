@@ -33,9 +33,15 @@ export default function RootLayout({
           <ConfigProvider
             locale={ptBR}
             theme={{
-              components: {
+              components: {                 
+                Alert: {
+                  withDescriptionPadding:"8px 12px",
+                  colorTextHeading: "#B7A100",
+                  colorWarningBorder:"#fffbe6",                  
+                },
                 Tabs: {                  
-                  horizontalMargin: "0 0 32px 0",                  
+                  horizontalMargin: "0 0 32px 0",    
+                  cardBg: '#F1F5F9',			              
                 },
                 Notification: {
                   colorSuccessBg: "#333638",  
