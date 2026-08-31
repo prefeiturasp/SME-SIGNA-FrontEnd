@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dropdown } from "antd";
 
@@ -76,7 +76,12 @@ export default function AtosAdministrativos() {
 
   const { buscar, isLoading, errorMessage, limparErro } = useNovoAto();
   const [tipoModalAberto, setTipoModalAberto] = useState<TipoNovoAto | null>(null);
+  const tipoModalAbertoRef = useRef(tipoModalAberto);
   const router = useRouter();
+
+  useEffect(() => {
+    tipoModalAbertoRef.current = tipoModalAberto;
+  }, [tipoModalAberto]);
 
   const handleOpenChangeModal = (open: boolean) => {
     if (!open) {
@@ -86,8 +91,8 @@ export default function AtosAdministrativos() {
   };
 
   const handleBuscarPortaria = async (portaria: string, ano: string) => {
-    if (!tipoModalAberto) return;
-    await buscar(tipoModalAberto, portaria, ano);
+    if (!tipoModalAbertoRef.current) return;
+    await buscar(tipoModalAbertoRef.current, portaria, ano);
   };
 
   const handleAtoExcluido = () => {

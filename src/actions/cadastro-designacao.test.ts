@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
 import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
+import type { ICargoType } from "@/types/cargos";
 
 // ── Mocks ────────────────────────────────────────
 
@@ -260,5 +261,63 @@ describe("designacaoAction", () => {
 
         expect(result).toEqual({ success: true, data: {} });
         expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
+    });
+
+    it("retorna erro quando o payload mapeado é nulo", async () => {
+        mockCookies("token");
+        const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
+        vi.mocked(mapearPayloadDesignacao).mockReturnValueOnce(null);
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error:
+                "Dados do formulário incompletos: servidor indicado, data de início ou tipo de vaga não informados.",
+        });
+        expect(mockedAxios.post).not.toHaveBeenCalled();
+    });
+
+    it("repassa os cargos encontrados para o mapeamento do payload", async () => {
+        mockCookies("token");
+        mockedAxios.post.mockResolvedValueOnce({ data: { id: 2 } });
+
+        const { getCargos } = await import("@/actions/cargos");
+        const cargos: ICargoType[] = [{ codigoCargo: 10, nomeCargo: "Professor" }];
+        vi.mocked(getCargos).mockResolvedValueOnce(cargos);
+
+        const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
+        vi.mocked(mapearPayloadDesignacao).mockReturnValueOnce({
+            dre: "dre-1",
+        } as NonNullable<ReturnType<typeof mapearPayloadDesignacao>>);
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({ success: true, data: { id: 2 } });
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, cargos);
+    });
+
+    it("mantém o detail sem dois-pontos e o prefixo que não é snake_case", async () => {
+        mockCookies("token");
+
+        const axiosError = {
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    detail: "Erro genérico; Campo inválido: valor; outro_campo: restante",
+                },
+            },
+            message: "Request failed",
+        };
+        mockedAxios.post.mockRejectedValueOnce(axiosError);
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro genérico; Campo inválido: valor; Outro campo: restante",
+            field: undefined,
+        });
     });
 });

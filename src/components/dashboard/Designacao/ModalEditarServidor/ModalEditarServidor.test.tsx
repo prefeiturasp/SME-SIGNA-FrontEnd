@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
@@ -206,17 +206,60 @@ describe("ModalEditarServidor", () => {
     });
   });
 
-  it("exibe erro ao deixar Nome Servidor vazio", async () => {
+  it("exibe local de serviço quando showLocalDeServico é true", () => {
+    renderModal({ showLocalDeServico: true });
+
+    const localDeServico = screen.getByRole("textbox", { name: /local de serviço/i });
+    expect(localDeServico).toBeInTheDocument();
+    expect(localDeServico).toBeDisabled();
+  });
+
+  it("usa categoria vazia quando o servidor não possui categoria", () => {
+    const servidor: Servidor = { ...defaultServidor, categoria: undefined };
+
+    renderModal({ defaultValues: servidor });
+
+    expect(screen.getByRole("textbox", { name: /categoria/i })).toHaveValue("");
+  });
+
+  it("impede salvar categoria com letras", async () => {
     const user = userEvent.setup();
     renderModal();
 
-    const input = screen.getByRole("textbox", { name: /nome servidor/i });
+    const categoria = screen.getByRole("textbox", { name: /categoria/i });
+    await user.clear(categoria);
+    await user.type(categoria, "12");
+    await user.click(screen.getByTestId("botao-salvar"));
 
-    await user.clear(input);
+    await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          categoria: "12",
+        }),
+      );
+    });
+
+    handleSubmitEditarServidor.mockClear();
+    await user.clear(categoria);
+    await user.type(categoria, "ab");
     await user.click(screen.getByTestId("botao-salvar"));
 
     expect(
-      await screen.findByText(/digite o nome do servidor/i)
+      await screen.findByText(/apenas números são permitidos/i),
     ).toBeInTheDocument();
+    expect(handleSubmitEditarServidor).not.toHaveBeenCalled();
+  });
+
+  it("impede salvar categoria com mais de 2 dígitos", async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    fireEvent.change(screen.getByRole("textbox", { name: /categoria/i }), {
+      target: { value: "123" },
+    });
+    await user.click(screen.getByTestId("botao-salvar"));
+
+    expect(await screen.findByText(/máximo 2 dígitos/i)).toBeInTheDocument();
+    expect(handleSubmitEditarServidor).not.toHaveBeenCalled();
   });
 });

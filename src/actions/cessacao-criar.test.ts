@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
+import { mapearPayloadCessacao } from "@/utils/cessacao/mapearPayloadCessacao";
 
 // ── Mocks ────────────────────────────────────────
 
@@ -28,7 +29,7 @@ const mockCookies = (token: string | undefined) => {
   } as unknown as Awaited<ReturnType<typeof cookies>>);
 };
 
-const payloadMock = {
+const payloadMock: ReturnType<typeof mapearPayloadCessacao> = {
   ato_pai: 10,
   numero_portaria: "123",
   ano_vigente: "2026",
@@ -203,6 +204,75 @@ describe("cessacaoAction", () => {
       success: false,
       error: "Erro ao salvar cessação",
       field: undefined,
+    });
+  });
+
+  it("usa o primeiro item do array de erro quando não há detail", async () => {
+    mockCookies("token");
+
+    const axiosError = {
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: { numero_portaria: ["Número inválido."] },
+      },
+      message: "Request failed",
+    };
+
+    mockedAxios.post.mockRejectedValueOnce(axiosError);
+
+    const result = await cessacaoAction(payloadMock, null);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Número inválido.",
+      field: undefined,
+    });
+  });
+
+  it("converte o primeiro valor de erro em string quando não é array", async () => {
+    mockCookies("token");
+
+    const axiosError = {
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: { numero_portaria: "Portaria obrigatória." },
+      },
+      message: "Request failed",
+    };
+
+    mockedAxios.post.mockRejectedValueOnce(axiosError);
+
+    const result = await cessacaoAction(payloadMock, null);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Portaria obrigatória.",
+      field: undefined,
+    });
+  });
+
+  it("ignora payload de erro só com valores vazios e usa a mensagem do axios", async () => {
+    mockCookies("token");
+
+    const axiosError = {
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: { detail: "", field: "" },
+      },
+      message: "Falha de validação",
+    };
+
+    mockedAxios.post.mockRejectedValueOnce(axiosError);
+
+    const result = await cessacaoAction(payloadMock, null);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Falha de validação",
+      field: "",
     });
   });
 });

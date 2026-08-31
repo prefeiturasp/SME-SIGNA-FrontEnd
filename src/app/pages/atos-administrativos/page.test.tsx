@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AtosAdministrativos from "./page";
 
@@ -9,7 +9,6 @@ const hookSpy = vi.fn();
 const novoAtoHookSpy = vi.fn();
 const modalBuscaPortariaSpy = vi.fn();
 const filtroSpy = vi.fn();
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
 const onPageChangeMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
@@ -38,23 +37,41 @@ vi.mock("@/hooks/useNovoAto", () => ({
   useNovoAto: () => novoAtoHookSpy(),
 }));
 
+interface ModalBuscaPortariaMockProps {
+  title: React.ReactNode;
+  fieldLabel: React.ReactNode;
+  anoFieldLabel: React.ReactNode;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (portaria: string, ano: string) => void | Promise<void>;
+}
+
 vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria", () => ({
-  default: (props: GenericProps) => {
+  default: (props: ModalBuscaPortariaMockProps) => {
     modalBuscaPortariaSpy(props);
     return (
       <div data-testid="modal-busca-portaria">
-        <span data-testid="modal-title">{props.title as React.ReactNode}</span>
-        <span data-testid="modal-field-label">{props.fieldLabel as React.ReactNode}</span>
-        <span data-testid="modal-ano-field-label">{props.anoFieldLabel as React.ReactNode}</span>
+        <span data-testid="modal-title">{props.title}</span>
+        <span data-testid="modal-field-label">{props.fieldLabel}</span>
+        <span data-testid="modal-ano-field-label">{props.anoFieldLabel}</span>
         <button
           data-testid="modal-fechar"
-          onClick={() => (props.onOpenChange as (open: boolean) => void)(false)}
+          onClick={() => props.onOpenChange(false)}
         >
           fechar
         </button>
         <button
+          data-testid="modal-manter-aberto"
+          onClick={() => props.onOpenChange(true)}
+        >
+          manter
+        </button>
+        <button
           data-testid="modal-buscar"
-          onClick={() => (props.onSubmit as (portaria: string, ano: string) => void)("100/2026", "2026")}
+          onClick={() => {
+            void props.onSubmit("100/2026", "2026");
+          }}
         >
           buscar
         </button>
@@ -111,7 +128,14 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/Listage
 vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeAtosAdministrativos", () => ({
   default: ({ onClear }: { onClear: () => void }) => {
     filtroSpy({ onClear });
-    return <button onClick={onClear}>limpar filtro</button>;
+    return (
+      <div>
+        <button type="button" onClick={onClear}>
+          limpar filtro
+        </button>
+        <button type="submit">buscar filtro</button>
+      </div>
+    );
   },
 }));
 
@@ -301,8 +325,54 @@ describe("Página de atos administrativos", () => {
     render(<AtosAdministrativos />);
     fireEvent.click(screen.getByTestId("menu-item-2"));
 
-    const props = modalBuscaPortariaSpy.mock.calls[0][0];
+    const props = modalBuscaPortariaSpy.mock.calls[0][0] as ModalBuscaPortariaMockProps;
     expect(props.isLoading).toBe(true);
     expect(props.errorMessage).toBe("Nenhum registro foi encontrado para essa portaria.");
+  });
+
+  it("submete os filtros e limpa os campos", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByRole("button", { name: "buscar filtro" }));
+    expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitFilterFormMock);
+
+    fireEvent.click(screen.getByRole("button", { name: "limpar filtro" }));
+    expect(handleClearMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("mantém o modal aberto quando onOpenChange recebe true", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-3"));
+    fireEvent.click(screen.getByTestId("modal-manter-aberto"));
+
+    expect(screen.getByTestId("modal-busca-portaria")).toBeInTheDocument();
+    expect(limparErroMock).not.toHaveBeenCalled();
+  });
+
+  it("busca portaria para tornar sem efeito com o tipo correspondente", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-6"));
+    fireEvent.click(screen.getByTestId("modal-buscar"));
+
+    expect(buscarMock).toHaveBeenCalledWith("tornar-sem-efeito", "100/2026", "2026");
+  });
+
+  it("não busca portaria quando o tipo do modal já foi limpo", async () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-3"));
+    const props = modalBuscaPortariaSpy.mock.calls[0][0] as ModalBuscaPortariaMockProps;
+    const onSubmit = props.onSubmit;
+
+    fireEvent.click(screen.getByTestId("modal-fechar"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
+    });
+
+    await onSubmit("100/2026", "2026");
+
+    expect(buscarMock).not.toHaveBeenCalled();
   });
 });

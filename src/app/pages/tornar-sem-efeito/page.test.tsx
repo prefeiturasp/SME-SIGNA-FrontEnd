@@ -27,18 +27,20 @@ type FormValues = {
 
 type InsubsistenciaMock = {
   id?: number;
+  doc?: string;
+  sei_numero?: string;
   designacao: {
-    dre_nome: string;
+    dre_nome?: string;
     numero_portaria: string;
     ano_vigente: string;
-    doc: string;
+    doc?: string;
     numero_sei: string;
     indicado_nome_servidor: string;
     indicado_nome_civil: string;
     indicado_rf: string;
     indicado_vinculo: string;
-  };
-  cessacao: { portaria: string } | null;
+  } | null;
+  cessacao: { portaria: string; doc?: string } | null;
 };
 
 type FormCardPropsMock = {
@@ -136,19 +138,21 @@ vi.mock("lucide-react", () => ({
   Loader2: ({ className }: { className?: string }) => <div data-testid="loading" className={className} />,
 }));
 
-const createInsubsistencia = () => ({
+const createDesignacaoMock = (): NonNullable<InsubsistenciaMock["designacao"]> => ({
+  dre_nome: "DRE TESTE",
+  numero_portaria: "123",
+  ano_vigente: "2024",
+  doc: "DOC-DES",
+  numero_sei: "SEI-DES",
+  indicado_nome_servidor: "Maria Silva",
+  indicado_nome_civil: "Nome Civil",
+  indicado_rf: "1234567",
+  indicado_vinculo: "Efetivo",
+});
+
+const createInsubsistencia = (): InsubsistenciaMock => ({
   id: 10,
-  designacao: {
-    dre_nome: "DRE TESTE",
-    numero_portaria: "123",
-    ano_vigente: "2024",
-    doc: "DOC-DES",
-    numero_sei: "SEI-DES",
-    indicado_nome_servidor: "Maria Silva",
-    indicado_nome_civil: "Nome Civil",
-    indicado_rf: "1234567",
-    indicado_vinculo: "Efetivo",
-  },
+  designacao: createDesignacaoMock(),
   cessacao: null,
 });
 
@@ -251,7 +255,7 @@ describe("AnularApostilaPage", () => {
       cessacao: {
         portaria: "777",
         doc: "DOC-CESSACAO",
-      } as unknown as { portaria: string },
+      },
     };
 
     render(<AnularApostilaPage />);
@@ -270,10 +274,10 @@ describe("AnularApostilaPage", () => {
       ...createInsubsistencia(),
       doc: undefined,
       designacao: {
-        ...createInsubsistencia().designacao,
+        ...createDesignacaoMock(),
         doc: undefined,
       },
-    } as unknown as InsubsistenciaMock;
+    };
 
     render(<AnularApostilaPage />);
     fireEvent.click(screen.getByText("Gerar texto SEI"));
@@ -347,5 +351,76 @@ describe("AnularApostilaPage", () => {
         atoPai: 0,
       });
     });
+  });
+
+  it("preenche docs e SEI da insubsistência quando os dados existem", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      doc: "DOC-INSUB",
+      sei_numero: "SEI-INSUB",
+    };
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    const texto = gerarHtmlPortariaMock.mock.calls.at(-1)?.[0] ?? "";
+    expect(texto).toContain("data-DOC-INSUB");
+    expect(texto).toContain("SEI-INSUB");
+    expect(texto).toContain("DRE TESTE");
+  });
+
+  it("usa '-' para dre e doc da cessação quando os campos estão ausentes", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      designacao: {
+        ...createDesignacaoMock(),
+        dre_nome: undefined,
+      },
+      cessacao: {
+        portaria: "777",
+      },
+    };
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    const texto = gerarHtmlPortariaMock.mock.calls.at(-1)?.[0] ?? "";
+    expect(texto).toContain("-");
+  });
+
+  it("substitui valor nulo por string vazia ao gerar o texto", async () => {
+    const objectEntriesSpy = vi
+      .spyOn(Object, "entries")
+      .mockImplementationOnce(() => [
+        ["portaria", null],
+        ["ano", "2026"],
+      ]);
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    objectEntriesSpy.mockRestore();
+  });
+
+  it("renderiza o formulário de designação quando a insubsistência não existe", () => {
+    mockInsubsistencia = null;
+
+    render(<AnularApostilaPage />);
+
+    expect(screen.getByTestId("tipo-portaria")).toHaveTextContent("designacao");
+    expect(getDadosPortariaMock).toHaveBeenCalledWith(undefined);
+    expect(getDadosIndicadoMock).toHaveBeenCalledWith(undefined);
   });
 });

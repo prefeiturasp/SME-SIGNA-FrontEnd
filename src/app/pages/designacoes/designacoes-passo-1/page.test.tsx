@@ -1,10 +1,12 @@
 import React, { type SVGProps } from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import DesignacoesPasso1 from "./page";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
 import type { FormDesignacaoEServidorIndicado } from "../DesignacaoContext";
+import type { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
+import type { DesignacaoUnidadeResponse, Servidor } from "@/types/designacao-unidade";
 
 /* -------------------------------------------------------------------------- */
 /*                                  MOCKS                                     */
@@ -16,7 +18,31 @@ const mockClearFormDesignacaoData = vi.fn();
 let mockRfParam: string | null = null;
 let mockIdParam: string | null = null;
 let initialContextData: FormDesignacaoEServidorIndicado | null = {};
+let mockChamarUpdaterComEstadoNulo = false;
 const mockAccordionValueChange = vi.fn();
+
+const servidorIndicadoMock: Servidor = {
+  nome_servidor: "Servidor Teste",
+  rf: "123",
+  vinculo: 1,
+  cd_cargo_base: 1,
+  cargo_base: "Professor",
+  cd_cargo_sobreposto_funcao_atividade: 2,
+  cargo_sobreposto_funcao_atividade: "Docente",
+  cursos_titulos: "Licenciatura",
+  lotacao: "Escola X",
+  laudo_medico: "Não",
+  local_de_servico: "Local de serviço",
+  local_de_exercicio: "Local de exercício",
+};
+
+const designacaoUnidadeMock: DesignacaoUnidadeResponse = {
+  codigo_hierarquico: "1",
+  funcionarios_unidade: {},
+  cargos: [],
+  turmas: { total: 0, turnos: [] },
+  spi: { tipo: "spi", total: 0, turnos: [] },
+};
 
 const mockResponse = {
   nome: "Servidor Teste",
@@ -76,13 +102,22 @@ vi.mock("../DesignacaoContext", async () => {
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
       React.useState<FormDesignacaoEServidorIndicado | null>(initialContextData);
-    
+
+    const atualizarFormulario: React.Dispatch<
+      React.SetStateAction<FormDesignacaoEServidorIndicado | null>
+    > = (action) => {
+      if (mockChamarUpdaterComEstadoNulo && typeof action === "function") {
+        action(null);
+        return;
+      }
+      setFormDesignacaoData(action);
+    };
 
     return (
       <DesignacaoContext.Provider
         value={{
           formDesignacaoData,
-          setFormDesignacaoData,
+          setFormDesignacaoData: atualizarFormulario,
           clearFormDesignacaoData: mockClearFormDesignacaoData,
         }}
       >
@@ -198,11 +233,11 @@ vi.mock(
   () => ({
     __esModule: true,
     default: (props: {
-      defaultValues?: { nome?: string };
-      onSubmitEditarServidor?: (data: { nome_servidor: string; nome_civil: string }) => void;
+      defaultValues?: { nome?: string; nome_servidor?: string };
+      onSubmitEditarServidor?: (data: FormEditarServidorData) => void;
     }) => (
       <div data-testid="resumo-designacao">
-        {props.defaultValues?.nome}
+        {props.defaultValues?.nome_servidor ?? props.defaultValues?.nome}
         <button
           type="button"
           data-testid="editar-servidor-indicado"
@@ -210,10 +245,23 @@ vi.mock(
             props.onSubmitEditarServidor?.({
               nome_servidor: "Servidor Editado",
               nome_civil: "Civil Editado",
+              categoria: "A",
             })
           }
         >
           Editar
+        </button>
+        <button
+          type="button"
+          data-testid="editar-servidor-sem-categoria"
+          onClick={() =>
+            props.onSubmitEditarServidor?.({
+              nome_servidor: "Servidor Sem Categoria",
+              nome_civil: "Civil Sem Categoria",
+            })
+          }
+        >
+          Editar sem categoria
         </button>
       </div>
     ),
@@ -310,6 +358,13 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
       >
         Próximo
       </button>
+      <button
+        type="button"
+        data-testid="botao-proximo-forcar"
+        onClick={onProximo}
+      >
+        Forçar próximo
+      </button>
     </div>
   ),
 }));
@@ -324,6 +379,7 @@ describe("DesignacoesPasso1", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetValuesVazio = false;
+    mockChamarUpdaterComEstadoNulo = false;
     mockRfParam = null;
     mockIdParam = null;
     initialContextData = {};
@@ -362,7 +418,7 @@ describe("DesignacoesPasso1", () => {
   });
 
   it("inicia com próximo habilitado quando já existe designação de unidade", () => {
-    initialContextData = { designacaoUnidade: { id: "1" } } as unknown as FormDesignacaoEServidorIndicado;
+    initialContextData = { designacaoUnidade: designacaoUnidadeMock };
     renderWithProvider();
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
   });
@@ -514,4 +570,74 @@ describe("DesignacoesPasso1", () => {
     expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
+  it("não navega no próximo quando não há servidor indicado", () => {
+    renderWithProvider();
+
+    fireEvent.click(screen.getByTestId("botao-proximo-forcar"));
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it("salva a unidade ao fechar o acordeon mesmo com contexto nulo", async () => {
+    initialContextData = null;
+    renderWithProvider();
+
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+    await userEvent.click(screen.getByTestId("accordion-toggle-unidade"));
+
+    expect(mockAccordionValueChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("não altera o estado ao fechar o acordeon sem valores no formulário", async () => {
+    mockGetValuesVazio = true;
+    renderWithProvider();
+
+    await userEvent.click(screen.getByTestId("accordion-toggle-unidade"));
+
+    expect(mockAccordionValueChange).toHaveBeenCalledTimes(1);
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it("atualiza o servidor indicado com e sem categoria", async () => {
+    initialContextData = null;
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByTestId("editar-servidor-indicado"));
+    expect(screen.getByTestId("resumo-designacao")).toHaveTextContent("Servidor Editado");
+
+    await userEvent.click(screen.getByTestId("editar-servidor-sem-categoria"));
+    expect(screen.getByTestId("resumo-designacao")).toHaveTextContent("Servidor Sem Categoria");
+  });
+
+  it("usa objeto vazio quando o estado anterior é nulo ao editar o servidor", async () => {
+    initialContextData = { servidorIndicado: servidorIndicadoMock };
+    mockChamarUpdaterComEstadoNulo = true;
+    renderWithProvider();
+
+    await userEvent.click(screen.getByTestId("editar-servidor-indicado"));
+
+    expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+  });
+
+  it("usa objeto vazio quando o estado anterior é nulo ao avançar", async () => {
+    initialContextData = { servidorIndicado: servidorIndicadoMock };
+    mockChamarUpdaterComEstadoNulo = true;
+    renderWithProvider();
+
+    await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+    await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+    await userEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2",
+    );
+  });
 });
