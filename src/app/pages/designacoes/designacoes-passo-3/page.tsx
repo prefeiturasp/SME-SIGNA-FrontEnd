@@ -163,24 +163,28 @@ export default function DesignacoesPasso3() {
       >
         <div className="card-designacao">
 
-          <InformacoesAdicionais
-            form={form}
-            onChangeDescricao={
-              (value) => {
-                setFormDesignacaoData({
-                  ...formDesignacaoData,
-                  informacoes_adicionais: value,
-                });
-              }}
-            onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {
-              const booleanValue = value === "true";
-              setFormDesignacaoData({
-                ...formDesignacaoData,
-                detalhe_para_quadro_de_historico_por_ano: booleanValue,
-              });
-            }}
-            disableFields={false}
-          />
+          <FormProvider {...form}>
+            <form >
+              <InformacoesAdicionais
+                form={form}
+                onChangeDescricao={
+                  (value) => {
+                    setFormDesignacaoData({
+                      ...formDesignacaoData,
+                      informacoes_adicionais: value,
+                    });
+                  }}
+                onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {
+                  const booleanValue = value === "true";
+                  setFormDesignacaoData({
+                    ...formDesignacaoData,
+                    detalhe_para_quadro_de_historico_por_ano: booleanValue,
+                  });
+                }}
+                disableFields={false}
+              />
+            </form>
+          </FormProvider>
         </div>
       </Card>
 

@@ -1,45 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useState } from "react";
+import { useForm, FormProvider, FieldValues, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, Tooltip } from "antd";
+import { Card } from "antd";
 import { Loader2 } from "lucide-react";
 
 import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
 import { nameToCamelCase, nameToCamelCaseUe, formatarRF, formatarDataPtBr } from "@/utils/portarias/formatadores";
-import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
-import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
-import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado"
 
-
-import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-import BlocosDesignacao from "@/components/dashboard/Designacao/ResumoDesignacao/BlocosDesignacao";
 
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import { Servidor } from "@/types/designacao-unidade";
 import Designacao from "@/assets/icons/Designacao";
-import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
-import { FormControl, FormField, FormLabel, FormItem } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
-import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
+import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const origem = searchParams.get("origem");
   const atoApostiladoPadrao = origem === "cessacao" ? "cessacao" : "designacao";
-  const salvarApostila = useSalvarApostila();
   const router = useRouter();
   const notification = useAppNotification();
 
@@ -47,75 +35,50 @@ export default function ApostilaPage() {
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
-      apostila: {
-        numero_sei: "",
-        doc: "",
-        observacao: "",
-        ato_apostilado: atoApostiladoPadrao,
-      },
+      numero_sei: "1",
+      doc: "",
+      observacao: "",
+      ato_apostilado: atoApostiladoPadrao,
+      informacoes_adicionais: "",
+      detalhe_para_quadro_de_historico_por_ano: false,
     },
+    mode: "onChange",
   });
 
-  const dadosPortaria = useMemo(
-    () => getDadosPortaria(designacao),
-    [designacao]
-  );
 
-  const dadosPortariaCessacao = useMemo(
-    () => getDadosPortariaCessacao(designacao),
-    [designacao]
-  );
 
-  const dadosIndicado: Servidor | null = useMemo(
-    () => getDadosIndicado(designacao),
-    [designacao]
-  );
 
-  const desabilita_radio =
-    !!(designacao?.cessacao?.apostilas?.some((a) => a.status === "ativo")) ||
-    !dadosPortariaCessacao;
 
-  useEffect(() => {
-    if (!designacao) return;
-    form.reset({
-      apostila: {
-        numero_sei: "",
-        doc: "",
-        ato_apostilado: atoApostiladoPadrao,
-        observacao: "",
-      },
-    });
-  }, [designacao, form, atoApostiladoPadrao]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
   const gerarDados = (values: formSchemaApostilaData) => {
-      const isCessacao = values.apostila.ato_apostilado === "cessacao";
-      
-      const fonteDados = isCessacao ? designacao?.cessacao : designacao;
+    const isCessacao = values.ato_apostilado === "cessacao";
 
-      return {
-        sei: values.apostila.numero_sei,
-        dre: designacao?.dre_nome ?? "-",
-        eh: designacao?.codigo_hierarquico ?? "-",
-        doc: values.apostila.doc,
-        ato_apostilado: values.apostila.ato_apostilado,
-        
-        portaria_designacao: fonteDados?.numero_portaria ?? "-",
-        ano: fonteDados?.ano_vigente ?? "-",
-        doc_designacao: formatarDataPtBr(fonteDados?.doc),
-        sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
-        
-        nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-        rf: formatarRF(designacao?.indicado_rf ?? "-"),
-        vinculo: designacao?.indicado_vinculo ?? "-",
-        cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
-        cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-        ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
-        observacao: values.apostila.observacao ?? "",
-      };
+    const fonteDados = isCessacao ? designacao?.cessacao : designacao;
+
+    return {
+      sei: values.numero_sei,
+      dre: designacao?.dre_nome ?? "-",
+      eh: designacao?.codigo_hierarquico ?? "-",
+      doc: values.doc,
+      ato_apostilado: values.ato_apostilado,
+
+      portaria_designacao: fonteDados?.numero_portaria ?? "-",
+      ano: fonteDados?.ano_vigente ?? "-",
+      doc_designacao: formatarDataPtBr(fonteDados?.doc),
+      sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
+
+      nome_indicado: designacao?.indicado_nome_servidor ?? "-",
+      rf: formatarRF(designacao?.indicado_rf ?? "-"),
+      vinculo: designacao?.indicado_vinculo ?? "-",
+      cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+      cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
+      ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
+      observacao: values.observacao ?? "",
     };
+  };
 
   const handleGerarPortaria = () => {
     const values = form.getValues();
@@ -137,12 +100,7 @@ export default function ApostilaPage() {
 
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
-      const designacaoId = Number(id);
-      await salvarApostila.mutateAsync({
-        values,
-        designacaoId: designacaoId,
-        cessacaoId: designacao?.cessacao?.id,
-      });
+      console.log(values);
       notification.success({ title: "Apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
@@ -175,85 +133,43 @@ export default function ApostilaPage() {
       ) : (
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Card className="mt-4">
-              <Accordion
-                type="multiple"
-                defaultValue={[
-                  "servidor-indicado",
-                  "portaria-designacao",
-                  "portarias-cessacao",
-                  "portaria-apostila",
-                ]}
-              >
-                <BlocosDesignacao
-                  dadosIndicado={dadosIndicado}
-                  dadosPortaria={dadosPortaria}
-                  dadosPortariaCessacao={dadosPortariaCessacao}
-                  onSubmitEditarServidor={() => {}}
+
+
+            <Card
+              
+              className="mt-4 m-0"
+            >
+              <div className="card-designacao">
+              <span className="text-[#333] text-[14px] font-bold pb-4">Informações adicionais</span>
+                <InformacoesAdicionais
+                  form={form as unknown as UseFormReturn<FieldValues>}
+                  onChangeDescricao={
+                    (value) => {
+                      console.log(value);
+                    }}
+                  onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {
+                    console.log(value);
+                  }}
+                  disableFields={true}
                 />
+              </div>
 
-                <div className="p-4 pt-4 border-t mt-4 mb-8">
-                  <div className="flex flex-col gap-6">
-                    <FormField
-                      control={form.control}
-                      name="apostila.ato_apostilado"
-                      render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel className="font-bold text-[#313131] text-lg">
-                            Selecione o tipo de Apostila:
-                          </FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              className="flex flex-row gap-8"
-                              disabled={desabilita_radio}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="designacao" id="designacao" />
-                                <Label htmlFor="designacao" className="font-normal cursor-pointer">
-                                  Designação
-                                </Label>
-                              </div>
-                              <Tooltip 
-                                placement="topLeft"
-                                title={desabilita_radio ? 'A cessação já possui uma apostila Ativa ou não foi encontrada.' : ''}
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="cessacao" id="cessacao" />
-                                  <Label htmlFor="cessacao" className="font-normal cursor-pointer">
-                                    Cessação
-                                  </Label>
-                                </div>
-                              </Tooltip>
-                            </RadioGroup>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              <div className="w-full flex justify-end pt-[2rem]">
+                <div className="w-[200px]">
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="w-full flex items-center justify-center gap-6"
+                    variant="destructive"
+                    onClick={async () => {
+                      const isValid = await form.trigger();
+                      if (!isValid) return;
+                      handleGerarPortaria();
+                    }}>
+                    Gerar texto SEI
+                  </Button>
                 </div>
-
-                <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
-                  <PortariaApostilaFields />
-                  <div className="w-full flex justify-end pt-[2rem]">
-                    <div className="w-[200px]">
-                      <Button
-                        type="button"
-                        size="lg"
-                        className="w-full flex items-center justify-center gap-6"
-                        variant="destructive"
-                        onClick={async () => {
-                          const isValid = await form.trigger("apostila");
-                          if (!isValid) return;
-                          handleGerarPortaria();
-                        }}>
-                        Trechos para o SEI
-                      </Button>
-                    </div>
-                  </div>
-                </CustomAccordionItem>
-              </Accordion>
+              </div>
 
               {mostrarEditor && (
                 <EditorSEI
