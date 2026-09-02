@@ -17,21 +17,22 @@ interface InformacoesAdicionaisProps {
   onChangeDescricao: (value: string) => void;
   onValueChangeDetalheParaQuadroDeHistoricoPorAno: (value: string) => void;
   disableFields: boolean;
+  className?: string;
 }
 
 
-export default function InformacoesAdicionais({ disableFields = false, form, onChangeDescricao, onValueChangeDetalheParaQuadroDeHistoricoPorAno }: Readonly<InformacoesAdicionaisProps>) {
+export default function InformacoesAdicionais({ className = "", disableFields = false, form, onChangeDescricao, onValueChangeDetalheParaQuadroDeHistoricoPorAno }: Readonly<InformacoesAdicionaisProps>) {
 
   return (
     <>
-      <div className="w-full ">
+        <div className={`w-full ${className}`}>
         <FormField
           {...form.register("informacoes_adicionais")}
           control={form.control}
           name="informacoes_adicionais"
           render={({ field }) => (
             <FormItem className="mb-0">
-              <div className="mb-4">
+              <div className="mb-4 mt-4">
                 <FormLabel className="required font-[400]">
                   Insira informações que considerar importante no processo da designação. Este é um campo opcional.
                 </FormLabel>

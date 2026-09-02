@@ -17,30 +17,29 @@ import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTexto
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import Designacao from "@/assets/icons/Designacao";
 
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
+import TextoPraApostila from "@/components/dashboard/Designacao/TextoPraApostila/TextoPraApostila";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const origem = searchParams.get("origem");
-  const atoApostiladoPadrao = origem === "cessacao" ? "cessacao" : "designacao";
+  const atoApostiladoPadrao = origem === "cessacao" ? "cessação" : "designação";
   const router = useRouter();
   const notification = useAppNotification();
 
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
+  
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
-    defaultValues: {
-      numero_sei: "1",
-      doc: "",
-      observacao: "",
-      ato_apostilado: atoApostiladoPadrao,
+    defaultValues: {      
       informacoes_adicionais: "",
       detalhe_para_quadro_de_historico_por_ano: false,
+      texto_para_apostila: "",
+      ato_apostilado: atoApostiladoPadrao,
     },
     mode: "onChange",
   });
@@ -54,16 +53,16 @@ export default function ApostilaPage() {
   const [htmlPortaria, setHtmlPortaria] = useState("");
 
   const gerarDados = (values: formSchemaApostilaData) => {
-    const isCessacao = values.ato_apostilado === "cessacao";
+    const isCessacao = values.ato_apostilado === "cessação";
 
     const fonteDados = isCessacao ? designacao?.cessacao : designacao;
 
     return {
-      sei: values.numero_sei,
+      sei: "",
       dre: designacao?.dre_nome ?? "-",
       eh: designacao?.codigo_hierarquico ?? "-",
-      doc: values.doc,
-      ato_apostilado: values.ato_apostilado,
+      doc: "",
+      ato_apostilado: "",
 
       portaria_designacao: fonteDados?.numero_portaria ?? "-",
       ano: fonteDados?.ano_vigente ?? "-",
@@ -76,7 +75,7 @@ export default function ApostilaPage() {
       cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
       cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
       ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
-      observacao: values.observacao ?? "",
+      observacao:  "",
     };
   };
 
@@ -109,22 +108,15 @@ export default function ApostilaPage() {
     }
   };
 
-  const title = (
-    <span>
-      Apostila - Servidor indicado -{" "}
-      <span className="text-[#B22B2A] font-semibold">
-        {designacao?.indicado_nome_servidor ?? "-"}
-      </span>
-    </span>
-  );
+ 
 
   return (
     <>
       <PageHeader
-        title={title}
-        breadcrumbs={[{ title: "Início", href: "/" }, { title: "Atos Administrativos", href: "/pages/atos-administrativos" }, { title: "Apostila" }]}
-        icon={<Designacao width={24} height={24} fill="#B22B2A" />}
-        showBackButton={false}
+        title={`Apostila de ${atoApostiladoPadrao}`} 
+        breadcrumbs={[{ title: "Início", href: "/" },
+        { title: `Apostila de ${atoApostiladoPadrao}` }]}
+        showBackButton={true}
       />
       {isLoading ? (
         <div className="flex justify-center items-center h-[60vh]">
@@ -133,14 +125,17 @@ export default function ApostilaPage() {
       ) : (
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-
-
             <Card
-              
               className="mt-4 m-0"
             >
               <div className="card-designacao">
-              <span className="text-[#333] text-[14px] font-bold pb-4">Informações adicionais</span>
+                <span className="text-[#333] text-[14px] font-bold">Texto para a apostila</span>
+                <TextoPraApostila
+                  form={form as unknown as UseFormReturn<FieldValues>}
+                  disableFields={false}
+                />
+
+                <span className="text-[#333] text-[14px] font-bold">Informações adicionais</span>
                 <InformacoesAdicionais
                   form={form as unknown as UseFormReturn<FieldValues>}
                   onChangeDescricao={
@@ -150,7 +145,7 @@ export default function ApostilaPage() {
                   onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {
                     console.log(value);
                   }}
-                  disableFields={true}
+                  disableFields={false}
                 />
               </div>
 

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { FormProvider, useForm, type FieldValues, type UseFormReturn } from "react-hook-form";
+import { FormProvider, useForm, type FieldValues } from "react-hook-form";
 import type { ReactNode } from "react";
 import InformacoesAdicionais from "./InformacoesAdicionais";
 
@@ -35,13 +35,16 @@ vi.mock("@/components/ui/select", () => ({
   SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
 }));
 
-function renderComFormulario(options: {
-  disableFields?: boolean;
-  defaultDescricao?: string;
-  defaultDetalhe?: boolean | undefined;
-  onChangeDescricao?: (value: string) => void;
-  onValueChangeDetalheParaQuadroDeHistoricoPorAno?: (value: string) => void;
-} = {}) {
+function renderComFormulario(
+  options: {
+    disableFields?: boolean;
+    className?: string;
+    defaultDescricao?: string;
+    defaultDetalhe?: boolean | undefined;
+    onChangeDescricao?: (value: string) => void;
+    onValueChangeDetalheParaQuadroDeHistoricoPorAno?: (value: string) => void;
+  } = {},
+) {
   const disableFields = options.disableFields ?? false;
   const defaultDescricao = options.defaultDescricao ?? "";
   const defaultDetalhe = Object.prototype.hasOwnProperty.call(options, "defaultDetalhe")
@@ -52,7 +55,7 @@ function renderComFormulario(options: {
     options.onValueChangeDetalheParaQuadroDeHistoricoPorAno ?? vi.fn();
 
   function TestComponent() {
-    const form = useForm({
+    const form = useForm<FieldValues>({
       defaultValues: {
         informacoes_adicionais: defaultDescricao,
         detalhe_para_quadro_de_historico_por_ano: defaultDetalhe,
@@ -60,17 +63,18 @@ function renderComFormulario(options: {
     });
 
     return (
-      <FormProvider {...form}>   
-       <form >
-      <InformacoesAdicionais
-        disableFields={disableFields}
-        form={form as unknown as UseFormReturn<FieldValues>}
-        onChangeDescricao={onChangeDescricao}
-        onValueChangeDetalheParaQuadroDeHistoricoPorAno={
-          onValueChangeDetalheParaQuadroDeHistoricoPorAno
-        }
-      />
-      </form>
+      <FormProvider {...form}>
+        <form>
+          <InformacoesAdicionais
+            disableFields={disableFields}
+            className={options.className}
+            form={form}
+            onChangeDescricao={onChangeDescricao}
+            onValueChangeDetalheParaQuadroDeHistoricoPorAno={
+              onValueChangeDetalheParaQuadroDeHistoricoPorAno
+            }
+          />
+        </form>
       </FormProvider>
     );
   }
@@ -130,5 +134,11 @@ describe("InformacoesAdicionais", () => {
     renderComFormulario({ defaultDetalhe: undefined });
 
     expect(screen.getByTestId("select-value")).toBeEmptyDOMElement();
+  });
+
+  it("aplica className extra no container da descrição", () => {
+    const { container } = renderComFormulario({ className: "mt-8" });
+
+    expect(container.querySelector(".w-full.mt-8")).toBeInTheDocument();
   });
 });

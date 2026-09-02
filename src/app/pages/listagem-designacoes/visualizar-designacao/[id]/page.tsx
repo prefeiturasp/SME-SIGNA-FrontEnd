@@ -241,7 +241,7 @@ export default function VisualizarDesignacaoPage() {
         />
 
         <div className="mt-8">
-          <div className="mb-8">
+          <div>
             <span className="text-[#333] text-[16px] font-bold ">Informações adicionais</span>
           </div>
           <FormProvider {...form}>
