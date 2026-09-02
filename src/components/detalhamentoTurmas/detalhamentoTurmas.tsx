@@ -47,6 +47,10 @@ interface TdProps {
   colSpan?: number
 }
 
+interface TurnoRowTrProps {
+  row: TurnoRow
+}
+
 export default function DetalhamentoTurmasModal({
   open,
   onOpenChange,
@@ -107,22 +111,7 @@ export default function DetalhamentoTurmasModal({
 
                 <tbody>
                   {rows.map((row) => (
-                    <tr key={row.turno} className="border-b border-gray-100">
-                      <Td className="font-medium">{row.turno}</Td>
-                      <Td className="text-center">{row.cicloAlfabetizacao}</Td>
-                      <Td className="text-center">{row.cicloInterdisciplinar}</Td>
-                      <Td className="text-center">{row.cicloAutoral}</Td>
-                      <Td className="text-center">{row.semCiclo}</Td>
-                      <Td className="text-center">{row.cicloBasicoEja}</Td>
-                      <Td className="text-center">{row.cicloComplementarEja}</Td>
-                      <Td className="text-center">{row.cicloFinalEja}</Td>
-                      <Td className="text-center">{row.cicloBercarioI}</Td>
-                      <Td className="text-center">{row.cicloBercarioII}</Td>
-                      <Td className="text-center">{row.cicloMiniGrupoI}</Td>
-                      <Td className="text-center">{row.cicloMiniGrupoII}</Td>
-                      <Td className="text-center">{row.cicloInfantil}</Td>
-                      <Td className="text-right font-semibold">{row.total}</Td>
-                    </tr>
+                    <TurnoRowTr key={row.turno} row={row} />
                   ))}
 
                   <tr className="border-b border-gray-100 bg-gray-50">
@@ -137,22 +126,7 @@ export default function DetalhamentoTurmasModal({
                   {spi?.trim() && spiRows && spiRows.length > 0 && (
                     <>
                       {spiRows.map((row) => (
-                        <tr key={`spi-${row.turno}`} className="border-b border-gray-100">
-                          <Td className="font-medium">{row.turno}</Td>
-                          <Td className="text-center">{row.cicloAlfabetizacao}</Td>
-                          <Td className="text-center">{row.cicloInterdisciplinar}</Td>
-                          <Td className="text-center">{row.cicloAutoral}</Td>
-                          <Td className="text-center">{row.semCiclo}</Td>
-                          <Td className="text-center">{row.cicloBasicoEja}</Td>
-                          <Td className="text-center">{row.cicloComplementarEja}</Td>
-                          <Td className="text-center">{row.cicloFinalEja}</Td>
-                          <Td className="text-center">{row.cicloBercarioI}</Td>
-                          <Td className="text-center">{row.cicloBercarioII}</Td>
-                          <Td className="text-center">{row.cicloMiniGrupoI}</Td>
-                          <Td className="text-center">{row.cicloMiniGrupoII}</Td>
-                          <Td className="text-center">{row.cicloInfantil}</Td>
-                          <Td className="text-right font-semibold">{row.total}</Td>
-                        </tr>
+                        <TurnoRowTr key={`spi-${row.turno}`} row={row} />
                       ))}
                     </>
                   )}
@@ -197,5 +171,26 @@ function Td({ children, className = '', colSpan }: Readonly<TdProps>) {
     <td colSpan={colSpan} className={`px-4 py-3 text-sm text-gray-900 ${className}`}>
       {children}
     </td>
+  )
+}
+
+function TurnoRowTr({ row }: Readonly<TurnoRowTrProps>) {
+  return (
+    <tr className="border-b border-gray-100">
+      <Td className="font-medium">{row.turno}</Td>
+      <Td className="text-center">{row.cicloAlfabetizacao}</Td>
+      <Td className="text-center">{row.cicloInterdisciplinar}</Td>
+      <Td className="text-center">{row.cicloAutoral}</Td>
+      <Td className="text-center">{row.semCiclo}</Td>
+      <Td className="text-center">{row.cicloBasicoEja}</Td>
+      <Td className="text-center">{row.cicloComplementarEja}</Td>
+      <Td className="text-center">{row.cicloFinalEja}</Td>
+      <Td className="text-center">{row.cicloBercarioI}</Td>
+      <Td className="text-center">{row.cicloBercarioII}</Td>
+      <Td className="text-center">{row.cicloMiniGrupoI}</Td>
+      <Td className="text-center">{row.cicloMiniGrupoII}</Td>
+      <Td className="text-center">{row.cicloInfantil}</Td>
+      <Td className="text-right font-semibold">{row.total}</Td>
+    </tr>
   )
 }
