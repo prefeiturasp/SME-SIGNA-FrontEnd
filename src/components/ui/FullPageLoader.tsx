@@ -6,7 +6,7 @@ const FullPageLoader = () => {
             className="
                 fixed inset-0 z-50  // Cobre a tela inteira e fica acima de tudo (z-index: 50)
                 flex items-center justify-center // Centraliza o conteúdo (o spinner)
-                bg-background/80 backdrop-blur-sm // Fundo semi-transparente com desfoque
+                bg-background/80 backdrop-blur-xs // Fundo semi-transparente com desfoque
             "
         >
             <Loader2

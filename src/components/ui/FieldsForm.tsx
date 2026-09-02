@@ -162,7 +162,7 @@ export const InputField = <TFieldValues extends FieldValues = FieldValues,>({ re
                             data-testid={dataTestId}
                             disabled={disabled}
                             maxLength={maxLength}
-                            className={cn(fieldState?.error && "!border-destructive")}
+                            className={cn(fieldState?.error && "border-destructive!")}
                         />
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
@@ -214,7 +214,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
                         >
                             <SelectTrigger
                                 data-testid={dataTestId}
-                                className={cn(fieldState?.error && "!border-destructive")}
+                                className={cn(fieldState?.error && "border-destructive!")}
                             >
                                 <SelectValue placeholder={placeholder} />
                             </SelectTrigger>
@@ -271,7 +271,7 @@ export const MultiSelectField = ({
                             placeholder={placeholder}
                             disabled={disabled}
                             data-testid={dataTestId}
-                            className={cn(fieldState?.error && "!border-destructive")}
+                            className={cn(fieldState?.error && "border-destructive!")}
                         />
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />

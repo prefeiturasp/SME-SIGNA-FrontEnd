@@ -34,7 +34,7 @@ export default function InformacoesAdicionais({ disableFields = false, form, onC
                 render={({ field }) => (
                   <FormItem className="mb-0">
                     <div className="mb-4">
-                      <FormLabel className="required font-[400]">
+                      <FormLabel className="required font-normal">
                         Insira informações que considerar importante no processo da designação. Este é um campo opcional.
                       </FormLabel>
                     </div>

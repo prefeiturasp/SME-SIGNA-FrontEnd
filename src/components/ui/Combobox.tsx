@@ -50,7 +50,7 @@ export function Combobox({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        "w-full justify-between text-[14px] text-[#313131] font-[400]",
+                        "w-full justify-between text-[14px] text-[#313131] font-normal",
                         className
                     )}
                     disabled={disabled}
@@ -68,7 +68,7 @@ export function Combobox({
             <PopoverContent
                 align="start"
                 sideOffset={4}
-                className="w-[var(--radix-popover-trigger-width)] p-0 min-w-[200px]"
+                className="w-(--radix-popover-trigger-width) p-0 min-w-[200px]"
             >
                 <Command>
                     <CommandInput placeholder="Buscar..." />
@@ -87,7 +87,7 @@ export function Combobox({
                                     value === opt.value
                                         ? "bg-[#B22B2A] text-white"
                                         : "",
-                                    "data-[highlighted]:bg-[#B22B2A] data-[highlighted]:text-white"
+                                    "data-highlighted:bg-[#B22B2A] data-highlighted:text-white"
                                 )}
                             >
                                 {opt.label}

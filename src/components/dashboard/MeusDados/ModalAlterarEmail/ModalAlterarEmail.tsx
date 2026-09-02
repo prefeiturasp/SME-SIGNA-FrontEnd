@@ -103,7 +103,7 @@ export default function ModalAlterarEmail({
                                 render={({ field }) => (
                                     <FormItem className="mb-4 mt-2">
                                         <FormLabel
-                                            className={`required text-[14px] font-[700] ${
+                                            className={`required text-[14px] font-bold ${
                                                 updateSuccess
                                                     ? "text-[#b0b0b0]"
                                                     : "text-[#313131]"
@@ -118,7 +118,7 @@ export default function ModalAlterarEmail({
                                                 placeholder="Digite o seu e-mail corporativo"
                                                 className={`font-normal ${
                                                     updateSuccess
-                                                        ? "text-[#dadada] bg-[#fff] border border-[#dadada]"
+                                                        ? "text-[#dadada] bg-white border border-[#dadada]"
                                                         : ""
                                                 }`}
                                                 data-testid="input-email"
@@ -161,7 +161,7 @@ export default function ModalAlterarEmail({
                             {updateSuccess ? (
                                 <Button
                                     size="sm"
-                                    className="text-center rounded-md text-[14px] font-[700] bg-[#B22B2A] text-white hover:bg-[#B22B2A]"
+                                    className="text-center rounded-md text-[14px] font-bold bg-[#B22B2A] text-white hover:bg-[#B22B2A]"
                                     onClick={() => handleOpenChange(false)}
                                 >
                                     Fechar
@@ -180,7 +180,7 @@ export default function ModalAlterarEmail({
                                     <Button
                                         type="submit"
                                         size="sm"
-                                        className="text-center rounded-md text-[14px] font-[700] bg-[#B22B2A] text-white hover:bg-[#B22B2A] min-w-[103px]"
+                                        className="text-center rounded-md text-[14px] font-bold bg-[#B22B2A] text-white hover:bg-[#B22B2A] min-w-[103px]"
                                         disabled={
                                             !form.formState.isValid ||
                                             form.getValues("email") ===

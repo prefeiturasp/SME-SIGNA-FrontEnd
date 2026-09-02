@@ -236,7 +236,7 @@ export default function ApostilaPage() {
 
                 <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
                   <PortariaApostilaFields />
-                  <div className="w-full flex justify-end pt-[2rem]">
+                  <div className="w-full flex justify-end pt-8">
                     <div className="w-[200px]">
                       <Button
                         type="button"
