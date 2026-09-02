@@ -9,6 +9,14 @@ interface TurnoRow {
   cicloInterdisciplinar: number
   cicloAutoral: number
   semCiclo: number
+  cicloBasicoEja: number
+  cicloComplementarEja: number
+  cicloFinalEja: number
+  cicloBercarioI: number
+  cicloBercarioII: number
+  cicloMiniGrupoI: number
+  cicloMiniGrupoII: number
+  cicloInfantil: number
   total: number
 }
 
@@ -76,55 +84,81 @@ export default function DetalhamentoTurmasModal({
           </div>
 
           <div className="px-6 py-4">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <Th className="text-left">TURNO</Th>
-                  <Th className="text-center">CICLO ALFABETIZAÇÃO</Th>
-                  <Th className="text-center">CICLO INTERDISCIPLINAR</Th>
-                  <Th className="text-center">CICLO AUTORAL</Th>
-                  <Th className="text-center">SEM CICLO</Th>
-                  <Th className="text-right">TOTAL</Th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.turno} className="border-b border-gray-100">
-                    <Td className="font-medium">{row.turno}</Td>
-                    <Td className="text-center">{row.cicloAlfabetizacao}</Td>
-                    <Td className="text-center">{row.cicloInterdisciplinar}</Td>
-                    <Td className="text-center">{row.cicloAutoral}</Td>
-                    <Td className="text-center">{row.semCiclo}</Td>
-                    <Td className="text-right font-semibold">{row.total}</Td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1400px] border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <Th className="text-left">TURNO</Th>
+                    <Th className="text-center">CICLO ALFABETIZAÇÃO</Th>
+                    <Th className="text-center">CICLO INTERDISCIPLINAR</Th>
+                    <Th className="text-center">CICLO AUTORAL</Th>
+                    <Th className="text-center">SEM CICLO</Th>
+                    <Th className="text-center">CICLO BÁSICO EJA</Th>
+                    <Th className="text-center">CICLO COMPLEMENTAR EJA</Th>
+                    <Th className="text-center">CICLO FINAL EJA</Th>
+                    <Th className="text-center">BERÇÁRIO I</Th>
+                    <Th className="text-center">BERÇÁRIO II</Th>
+                    <Th className="text-center">MINI GRUPO I</Th>
+                    <Th className="text-center">MINI GRUPO II</Th>
+                    <Th className="text-center">INFANTIL</Th>
+                    <Th className="text-right">TOTAL</Th>
                   </tr>
-                ))}
+                </thead>
 
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <Td colSpan={5} className="font-semibold">
-                    TOTAL GERAL DE TURMAS
-                  </Td>
-                  <Td className="text-right font-semibold">
-                    {qtdTotalTurmas}
-                  </Td>
-                </tr>
+                <tbody>
+                  {rows.map((row) => (
+                    <tr key={row.turno} className="border-b border-gray-100">
+                      <Td className="font-medium">{row.turno}</Td>
+                      <Td className="text-center">{row.cicloAlfabetizacao}</Td>
+                      <Td className="text-center">{row.cicloInterdisciplinar}</Td>
+                      <Td className="text-center">{row.cicloAutoral}</Td>
+                      <Td className="text-center">{row.semCiclo}</Td>
+                      <Td className="text-center">{row.cicloBasicoEja}</Td>
+                      <Td className="text-center">{row.cicloComplementarEja}</Td>
+                      <Td className="text-center">{row.cicloFinalEja}</Td>
+                      <Td className="text-center">{row.cicloBercarioI}</Td>
+                      <Td className="text-center">{row.cicloBercarioII}</Td>
+                      <Td className="text-center">{row.cicloMiniGrupoI}</Td>
+                      <Td className="text-center">{row.cicloMiniGrupoII}</Td>
+                      <Td className="text-center">{row.cicloInfantil}</Td>
+                      <Td className="text-right font-semibold">{row.total}</Td>
+                    </tr>
+                  ))}
 
-                {spi?.trim() && spiRows && spiRows.length > 0 && (
-                  <>
-                    {spiRows.map((row) => (
-                      <tr key={`spi-${row.turno}`} className="border-b border-gray-100">
-                        <Td className="font-medium">{row.turno}</Td>
-                        <Td className="text-center">{row.cicloAlfabetizacao}</Td>
-                        <Td className="text-center">{row.cicloInterdisciplinar}</Td>
-                        <Td className="text-center">{row.cicloAutoral}</Td>
-                        <Td className="text-center">{row.semCiclo}</Td>
-                        <Td className="text-right font-semibold">{row.total}</Td>
-                      </tr>
-                    ))}
-                  </>
-                )}
-              </tbody>
-            </table>
+                  <tr className="border-b border-gray-100 bg-gray-50">
+                    <Td colSpan={13} className="font-semibold">
+                      TOTAL GERAL DE TURMAS
+                    </Td>
+                    <Td className="text-right font-semibold">
+                      {qtdTotalTurmas}
+                    </Td>
+                  </tr>
+
+                  {spi?.trim() && spiRows && spiRows.length > 0 && (
+                    <>
+                      {spiRows.map((row) => (
+                        <tr key={`spi-${row.turno}`} className="border-b border-gray-100">
+                          <Td className="font-medium">{row.turno}</Td>
+                          <Td className="text-center">{row.cicloAlfabetizacao}</Td>
+                          <Td className="text-center">{row.cicloInterdisciplinar}</Td>
+                          <Td className="text-center">{row.cicloAutoral}</Td>
+                          <Td className="text-center">{row.semCiclo}</Td>
+                          <Td className="text-center">{row.cicloBasicoEja}</Td>
+                          <Td className="text-center">{row.cicloComplementarEja}</Td>
+                          <Td className="text-center">{row.cicloFinalEja}</Td>
+                          <Td className="text-center">{row.cicloBercarioI}</Td>
+                          <Td className="text-center">{row.cicloBercarioII}</Td>
+                          <Td className="text-center">{row.cicloMiniGrupoI}</Td>
+                          <Td className="text-center">{row.cicloMiniGrupoII}</Td>
+                          <Td className="text-center">{row.cicloInfantil}</Td>
+                          <Td className="text-right font-semibold">{row.total}</Td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="flex justify-end border-t border-gray-200 px-6 py-4">

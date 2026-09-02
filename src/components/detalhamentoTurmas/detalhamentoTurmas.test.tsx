@@ -20,6 +20,14 @@ describe('DetalhamentoTurmasModal', () => {
                 cicloInterdisciplinar: 2,
                 cicloAutoral: 1,
                 semCiclo: 0,
+                cicloBasicoEja: 0,
+                cicloComplementarEja: 0,
+                cicloFinalEja: 0,
+                cicloBercarioI: 0,
+                cicloBercarioII: 0,
+                cicloMiniGrupoI: 0,
+                cicloMiniGrupoII: 0,
+                cicloInfantil: 0,
                 total: 6,
             },
             {
@@ -28,7 +36,31 @@ describe('DetalhamentoTurmasModal', () => {
                 cicloInterdisciplinar: 3,
                 cicloAutoral: 1,
                 semCiclo: 1,
+                cicloBasicoEja: 0,
+                cicloComplementarEja: 0,
+                cicloFinalEja: 0,
+                cicloBercarioI: 0,
+                cicloBercarioII: 0,
+                cicloMiniGrupoI: 0,
+                cicloMiniGrupoII: 0,
+                cicloInfantil: 0,
                 total: 9,
+            },
+            {
+                turno: 'Noite',
+                cicloAlfabetizacao: 0,
+                cicloInterdisciplinar: 0,
+                cicloAutoral: 0,
+                semCiclo: 0,
+                cicloBasicoEja: 2,
+                cicloComplementarEja: 2,
+                cicloFinalEja: 4,
+                cicloBercarioI: 0,
+                cicloBercarioII: 0,
+                cicloMiniGrupoI: 0,
+                cicloMiniGrupoII: 0,
+                cicloInfantil: 0,
+                total: 8,
             },
         ],
         spiRows: [
@@ -38,6 +70,14 @@ describe('DetalhamentoTurmasModal', () => {
                 cicloInterdisciplinar: 1,
                 cicloAutoral: 1,
                 semCiclo: 0,
+                cicloBasicoEja: 0,
+                cicloComplementarEja: 0,
+                cicloFinalEja: 0,
+                cicloBercarioI: 0,
+                cicloBercarioII: 0,
+                cicloMiniGrupoI: 0,
+                cicloMiniGrupoII: 0,
+                cicloInfantil: 0,
                 total: 3,
             },
         ],
@@ -76,7 +116,26 @@ describe('DetalhamentoTurmasModal', () => {
         expect(screen.getByText('CICLO INTERDISCIPLINAR')).toBeInTheDocument()
         expect(screen.getByText('CICLO AUTORAL')).toBeInTheDocument()
         expect(screen.getByText('SEM CICLO')).toBeInTheDocument()
+        expect(screen.getByText('CICLO BÁSICO EJA')).toBeInTheDocument()
+        expect(screen.getByText('CICLO COMPLEMENTAR EJA')).toBeInTheDocument()
+        expect(screen.getByText('CICLO FINAL EJA')).toBeInTheDocument()
+        expect(screen.getByText('BERÇÁRIO I')).toBeInTheDocument()
+        expect(screen.getByText('BERÇÁRIO II')).toBeInTheDocument()
+        expect(screen.getByText('MINI GRUPO I')).toBeInTheDocument()
+        expect(screen.getByText('MINI GRUPO II')).toBeInTheDocument()
+        expect(screen.getByText('INFANTIL')).toBeInTheDocument()
         expect(screen.getByText('TOTAL')).toBeInTheDocument()
+    })
+
+    it('deve exibir as colunas de EJA preenchidas para turnos com ciclos EJA', () => {
+        render(<DetalhamentoTurmasModal {...defaultProps} />)
+
+        const noiteLabel = screen.getByText('Noite')
+        const row = noiteLabel.closest('tr')!
+        const utils = within(row)
+
+        expect(utils.getAllByText('2').length).toBeGreaterThan(0)
+        expect(utils.getAllByText('4').length).toBeGreaterThan(0)
     })
 
     it('deve renderizar todas as linhas de turnos', () => {
