@@ -3,6 +3,11 @@ import formSchemaApostila, { type formSchemaApostilaData } from "./schema";
 
 const payloadValido: formSchemaApostilaData = {
   ato_apostilado: "designação",
+  dre: "",
+  dre_nome: "",
+  ue: "",
+  ue_nome: "",
+  codigo_hierarquico: "",
   informacoes_adicionais: "Observação",
   detalhe_para_quadro_de_historico_por_ano: true,
   texto_para_apostila: "Texto para apostilar",

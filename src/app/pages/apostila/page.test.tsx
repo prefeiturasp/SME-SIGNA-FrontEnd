@@ -57,6 +57,11 @@ let mockDesignacaoAtual: DesignacaoMock = designacaoPadrao;
 
 const valoresPadrao: formSchemaApostilaData = {
   ato_apostilado: "designação",
+  dre: "",
+  dre_nome: "",
+  ue: "",
+  ue_nome: "",
+  codigo_hierarquico: "",
   informacoes_adicionais: "",
   detalhe_para_quadro_de_historico_por_ano: false,
   texto_para_apostila: "",
@@ -89,7 +94,12 @@ const {
   resetMock,
 } = vi.hoisted(() => {
   const getValuesMock = vi.fn((): formSchemaApostilaData => ({
-    ato_apostilado: "designação",
+    ato_apostilado: "designação", 
+    dre: "",
+    dre_nome: "",
+    ue: "",
+    ue_nome: "",
+    codigo_hierarquico: "",
     informacoes_adicionais: "",
     detalhe_para_quadro_de_historico_por_ano: false,
     texto_para_apostila: "",

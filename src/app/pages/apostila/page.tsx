@@ -88,6 +88,13 @@ export default function ApostilaPage() {
         com_pendencia: designacao?.pendencias ? "sim" : "nao",
         motivo_pendencia: designacao?.pendencias,
 
+        
+        dre: designacao?.dre ?? '-',
+        dre_nome: designacao?.dre_nome,
+        ue: designacao?.ue ?? '-',
+        ue_nome:designacao?.unidade_proponente,                
+        codigo_hierarquico: designacao?.codigo_hierarquico,
+        
       },);
 
     }
@@ -185,7 +192,7 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "servidor-indicado"]}
+                  defaultValue={["portarias-designacao", "unidade-proponente"]}
                 >
                   <CustomAccordionItem
                     title="Portarias de designação"
@@ -201,7 +208,6 @@ export default function ApostilaPage() {
                     title="Unidade Proponente"
                     color="blue"
                     value="unidade-proponente"
-                    className="mb-0"
                   >
                     <CamposPesquisaUnidade
                       form={form as unknown as UseFormReturn<formSchemaApostilaData>}
