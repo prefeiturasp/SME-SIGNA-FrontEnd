@@ -22,6 +22,13 @@ type DesignacaoMock = {
   indicado_local_exercicio?: string;
   dre_nome?: string;
   codigo_hierarquico?: string;
+  data_inicio?: string;
+  data_fim?: string | null;
+  carater_excepcional?: boolean;
+  impedimento_substituicao?: string | null;
+  com_afastamento?: boolean;
+  motivo_afastamento?: string;
+  pendencias?: string;
   cessacao?: {
     numero_portaria?: string;
     ano_vigente?: string;
@@ -53,6 +60,16 @@ const valoresPadrao: formSchemaApostilaData = {
   informacoes_adicionais: "",
   detalhe_para_quadro_de_historico_por_ano: false,
   texto_para_apostila: "",
+  portaria_designacao: "",
+  numero_sei: "",
+  a_partir_de: new Date(),
+  ano: "",
+  carater_especial: "",
+  com_afastamento: "",
+  motivo_afastamento: "",
+  impedimento_label: "",  
+  com_pendencia: "",
+  motivo_pendencia: "",
 };
 
 const {
@@ -64,14 +81,28 @@ const {
   notificationErrorMock,
   gerarHtmlPortariaMock,
   pageHeaderSpy,
+  accordionSpy,
+  customAccordionItemSpy,
+  portariaDesignacaoFieldsSpy,
   informacoesAdicionaisSpy,
   textoPraApostilaSpy,
+  resetMock,
 } = vi.hoisted(() => {
   const getValuesMock = vi.fn((): formSchemaApostilaData => ({
     ato_apostilado: "designação",
     informacoes_adicionais: "",
     detalhe_para_quadro_de_historico_por_ano: false,
     texto_para_apostila: "",
+    portaria_designacao: "",
+    numero_sei: "",
+    a_partir_de: new Date(),
+    ano: "",
+    carater_especial: "",
+    com_afastamento: "",
+    motivo_afastamento: "",
+    impedimento_label: "",
+    com_pendencia: "",
+    motivo_pendencia: "",
   }));
 
   return {
@@ -89,8 +120,12 @@ const {
     notificationErrorMock: vi.fn(),
     gerarHtmlPortariaMock: vi.fn((texto: string) => `HTML:${texto}`),
     pageHeaderSpy: vi.fn(),
+    accordionSpy: vi.fn(),
+    customAccordionItemSpy: vi.fn(),
+    portariaDesignacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
     textoPraApostilaSpy: vi.fn(),
+    resetMock: vi.fn(),
   };
 });
 
@@ -151,6 +186,36 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   },
 }));
 
+vi.mock("@/components/ui/accordion", () => ({
+  Accordion: (props: {
+    children: ReactNode;
+    type?: string;
+    defaultValue?: string[];
+  }) => {
+    accordionSpy(props);
+    return <div data-testid="accordion">{props.children}</div>;
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
+  CustomAccordionItem: (props: {
+    title: string;
+    color?: string;
+    value: string;
+    children: ReactNode;
+  }) => {
+    customAccordionItemSpy(props);
+    return <section data-testid="custom-accordion-item">{props.children}</section>;
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields", () => ({
+  default: (props: { isLoading: boolean }) => {
+    portariaDesignacaoFieldsSpy(props);
+    return <div data-testid="portaria-designacao-fields" />;
+  },
+}));
+
 vi.mock("@/components/dashboard/Designacao/TextoPraApostila/TextoPraApostila", () => ({
   default: (props: { disableFields: boolean }) => {
     textoPraApostilaSpy(props);
@@ -207,7 +272,7 @@ vi.mock("react-hook-form", async () => {
       trigger: triggerMock,
       getValues: getValuesMock,
       register: vi.fn(),
-      reset: vi.fn(),
+      reset: resetMock,
     }),
     FormProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   };
@@ -241,6 +306,9 @@ describe("ApostilaPage", () => {
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de designação");
     expect(screen.getByText("Texto para a apostila")).toBeInTheDocument();
     expect(screen.getByText("Informações adicionais")).toBeInTheDocument();
+    expect(screen.getByTestId("accordion")).toBeInTheDocument();
+    expect(screen.getByTestId("custom-accordion-item")).toBeInTheDocument();
+    expect(screen.getByTestId("portaria-designacao-fields")).toBeInTheDocument();
     expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
     expect(screen.getByTestId("informacoes-adicionais")).toBeInTheDocument();
     expect(pageHeaderSpy).toHaveBeenCalledWith(
@@ -258,6 +326,20 @@ describe("ApostilaPage", () => {
     expect(informacoesAdicionaisSpy).toHaveBeenCalledWith(
       expect.objectContaining({ disableFields: false }),
     );
+    expect(accordionSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "multiple",
+        defaultValue: ["portarias-designacao", "servidor-indicado"],
+      }),
+    );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portarias de designação",
+        color: "purple",
+        value: "portarias-designacao",
+      }),
+    );
+    expect(portariaDesignacaoFieldsSpy).toHaveBeenCalledWith({ isLoading: false });
   });
 
   it("renderiza o título de apostila de cessação quando a origem é cessacao", () => {
@@ -411,6 +493,68 @@ describe("ApostilaPage", () => {
 
     expect(screen.getByTestId("page-header")).toBeInTheDocument();
     expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
+  });
+
+  it("reseta o formulário com dados completos da designação", () => {
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      data_inicio: "2026-01-10",
+      data_fim: "2026-12-20",
+      carater_excepcional: true,
+      impedimento_substituicao: "LICENCA",
+      com_afastamento: true,
+      motivo_afastamento: "Afastamento",
+      pendencias: "Pendência",
+    };
+
+    render(<ApostilaPage />);
+
+    expect(resetMock).toHaveBeenCalledWith({
+      portaria_designacao: "123",
+      ano: "2024",
+      numero_sei: "999",
+      doc: "DOC",
+      a_partir_de: new Date("2026/01/10"),
+      designacao_data_final: new Date("2026/12/20"),
+      carater_especial: "sim",
+      impedimento_substituicao: "sim",
+      com_afastamento: "sim",
+      motivo_afastamento: "Afastamento",
+      com_pendencia: "sim",
+      motivo_pendencia: "Pendência",
+    });
+  });
+
+  it("reseta o formulário com fallbacks quando a designação vem incompleta", () => {
+    mockDesignacaoAtual = {
+      cessacao: null,
+      data_inicio: undefined,
+      data_fim: undefined,
+      carater_excepcional: false,
+      impedimento_substituicao: null,
+      com_afastamento: false,
+      motivo_afastamento: "",
+      pendencias: "",
+    };
+
+    render(<ApostilaPage />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        portaria_designacao: "",
+        ano: undefined,
+        numero_sei: "",
+        doc: "",
+        designacao_data_final: null,
+        carater_especial: "nao",
+        impedimento_substituicao: "nao",
+        com_afastamento: "nao",
+        motivo_afastamento: "",
+        com_pendencia: "nao",
+        motivo_pendencia: "",
+      }),
+    );
+    expect(resetMock.mock.calls[0][0].a_partir_de).toBeInstanceOf(Date);
   });
 
   it("executa os callbacks de informações adicionais", () => {

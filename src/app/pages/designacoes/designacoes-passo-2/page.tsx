@@ -95,8 +95,8 @@ export default function DesignacoesPasso2() {
     form.setValue("cargo_vago_selecionado", { id: d.cargo_vaga, label: d.cargo_vaga_display });
     form.setValue("portaria_designacao", d.numero_portaria);
     form.setValue("numero_sei", d.sei_numero);
-    form.setValue("a_partir_de", new Date(d.data_inicio.replace(/-/g, '/')));
-    form.setValue("designacao_data_final", d.data_fim ? new Date(d.data_fim.replace(/-/g, '/')) : null);
+    form.setValue("a_partir_de", new Date(d.data_inicio.replaceAll("-", '/')));
+    form.setValue("designacao_data_final", d.data_fim ? new Date(d.data_fim.replaceAll("-", '/')) : null);
     form.setValue("ano", d.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
     form.setValue("doc", d.doc ?? "");
     form.setValue("impedimento_substituicao", d.impedimento_substituicao);
