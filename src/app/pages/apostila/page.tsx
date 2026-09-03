@@ -25,6 +25,7 @@ import TextoPraApostila from "@/components/dashboard/Designacao/TextoPraApostila
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
+import CamposPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -39,6 +40,12 @@ export default function ApostilaPage() {
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
+      dre: "",
+      dre_nome: "",
+      ue: "",
+      ue_nome: "",
+      codigo_hierarquico: "",
+      
       informacoes_adicionais: "",
       detalhe_para_quadro_de_historico_por_ano: false,
       texto_para_apostila: "",
@@ -180,10 +187,6 @@ export default function ApostilaPage() {
                   type="multiple"
                   defaultValue={["portarias-designacao", "servidor-indicado"]}
                 >
-
-
-
-
                   <CustomAccordionItem
                     title="Portarias de designação"
                     color="purple"
@@ -194,6 +197,16 @@ export default function ApostilaPage() {
                     />
                   </CustomAccordionItem>
 
+                  <CustomAccordionItem
+                    title="Unidade Proponente"
+                    color="blue"
+                    value="unidade-proponente"
+                    className="mb-0"
+                  >
+                    <CamposPesquisaUnidade
+                      form={form as unknown as UseFormReturn<formSchemaApostilaData>}
+                    />
+                  </CustomAccordionItem>
                 </Accordion>
 
 
