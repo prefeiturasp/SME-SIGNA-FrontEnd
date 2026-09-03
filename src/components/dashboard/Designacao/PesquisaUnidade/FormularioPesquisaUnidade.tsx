@@ -27,7 +27,8 @@ import formSchemaDesignacao, { FormDesignacaoData } from "./schema";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
-import { Loader2, Search } from "lucide-react";
+import { FormActionSlot } from "@/components/ui/form-action-slot";
+import { Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
@@ -198,7 +199,7 @@ const FormularioPesquisaUnidade = forwardRef<
           >
             <div className="flex flex-col md:flex-row gap-5 justify-items-center">
               <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
-                <FormField               
+                <FormField
                   control={form.control}
                   name="dre"
                   render={({ field }) => (
@@ -299,7 +300,7 @@ const FormularioPesquisaUnidade = forwardRef<
                 />
               </div>
 
-              <div className="mt-[30px]">
+              <FormActionSlot>
                 <SearchButton
                   type="submit"
                   isLoading={isLoadingDesiganaçãoUnidade}
@@ -307,7 +308,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   onClick={form.handleSubmit(onSubmit)}
                   data-testid="botao-pesquisar-unidade"
                 />
-              </div>
+              </FormActionSlot>
             </div>
 
             {errorMessage && (

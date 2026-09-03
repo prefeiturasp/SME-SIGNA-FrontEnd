@@ -3,9 +3,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search, Loader2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { InputBase } from "@/components/ui/input-base";
+import { FormActionSlot } from "@/components/ui/form-action-slot";
 import { buscaDesignacaoSchema } from "./schema";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import SearchButton from "../../SearchButton/SearchButton";
@@ -78,8 +77,7 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
                 )}
               />
             </div>
-            <div className="mt-[30px]">
-
+            <FormActionSlot>
               <SearchButton
                 type="button"
                 isLoading={isLoading}
@@ -87,7 +85,7 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
                 onClick={form.handleSubmit(onSubmit)}
                 data-testid="botao-pesquisar-servidor"
               />
-            </div>
+            </FormActionSlot>
           </div>
         </div>
       </Form>

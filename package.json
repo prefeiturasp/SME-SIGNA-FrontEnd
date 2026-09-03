@@ -13,6 +13,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^2.1.2",
     "@floating-ui/react": "^0.27.20",
     "@hookform/resolvers": "^5.2.2",
     "@mona-health/react-input-mask": "^3.0.3",
