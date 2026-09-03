@@ -210,7 +210,6 @@ export default function ApostilaPage() {
                     value="unidade-proponente"
                   >
                     <CamposPesquisaUnidade
-                      form={form as unknown as UseFormReturn<formSchemaApostilaData>}
                     />
                   </CustomAccordionItem>
                 </Accordion>

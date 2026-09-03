@@ -1,6 +1,6 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 import {
   FormControl,
@@ -25,55 +25,59 @@ import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 import { Loader2 } from "lucide-react";
 
  
-import { formSchemaApostilaData } from "@/app/pages/apostila/schema";
 import { InputField } from "@/components/ui/FieldsForm";
 
 
-interface Props {
-  form: UseFormReturn<formSchemaApostilaData>;
-}
-
 const CamposPesquisaUnidade = (
-  { form }: Props,
+  
 ) => {
+  
+  const { register, control, watch, setValue, clearErrors } = useFormContext();
 
-  const { data: dreOptions = [] } = useFetchDREs();
-  const values = form.watch();
+  const { data: dreOptions = [],  isLoading: isLoadingDREs } = useFetchDREs();
+  const values = watch();
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
-    values.dre,
+    values?.dre ?? "",
   );
 
   return (
       <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
         <div className="w-full">
           <FormField
-            control={form.control}
+            control={control}
             name="dre"
             render={({ field }) => (
-
               <FormItem >
                 <FormLabel className="required text-[#313131] font-bold">
                   DRE
                 </FormLabel>
                 <FormControl>
+                {isLoadingDREs ? (
+                  <div className="flex h-10 items-center justify-center">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary " />
+                  </div>
+                ) : (
                   <Select
+                    key={field.value}
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value);
-                      form.clearErrors();
-                      form.setValue("ue", "");
-                      form.setValue("ue_nome", "");
+                      clearErrors();
+                      setValue("ue", "");
+                      setValue("ue_nome", "");
                       const dreSelecionada = dreOptions.find(
                         (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) =>
-                          dre.codigoDRE === value
+                          String(dre.codigoDRE) === value
                       );
-                      form.setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
+                      setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
 
                     }}
                   >
-                    <SelectTrigger data-testid="select-dre">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
+                      <SelectTrigger data-testid="select-dre">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                  
+
 
                     <SelectContent>
                       {dreOptions.map(
@@ -91,8 +95,9 @@ const CamposPesquisaUnidade = (
                         ),
                       )}
                     </SelectContent>
-                  </Select>
-                </FormControl>
+                  </Select>   
+                  )}
+                  </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -101,7 +106,7 @@ const CamposPesquisaUnidade = (
 
         <div className="w-full">
           <FormField
-            control={form.control}
+            control={control}
             name="ue"
             render={({ field }) => (
               <FormItem>
@@ -125,13 +130,13 @@ const CamposPesquisaUnidade = (
                       value={field.value}
                       onChange={(value) => {
                         field.onChange(value);
-                        form.clearErrors();
+                        clearErrors();
                         const ueSelecionada = ueOptions.find(
                           (ue: { codigoEscola: string; nomeEscola: string; siglaTipoEscola: string }) =>
                             ue.codigoEscola === value
                         );
-                        form.setValue("ue_nome", ueSelecionada ? `${ueSelecionada.siglaTipoEscola} - ${ueSelecionada.nomeEscola}` : "");
-                      }}
+                        setValue("ue_nome", ueSelecionada ? `${ueSelecionada.siglaTipoEscola} - ${ueSelecionada.nomeEscola}` : "");
+                      }}  
                       placeholder="Digite o nome da UE"
                       disabled={!values.dre}
                       data-testid="select-ue"
@@ -146,8 +151,8 @@ const CamposPesquisaUnidade = (
 
         <div className="w-full">
           <InputField
-            register={form.register}
-            control={form.control}
+            register={register}
+            control={control}
             name="codigo_hierarquico"
             label="Código Estrutura Hierárquica"
             placeholder="Exemplo: 1234567890"
