@@ -43,6 +43,14 @@ type TurnoTurma = {
   cicloInterdisciplinar: number;
   cicloAutoral: number;
   semCiclo: number;
+  cicloBasicoEja: number;
+  cicloComplementarEja: number;
+  cicloFinalEja: number;
+  cicloBercarioI: number;
+  cicloBercarioII: number;
+  cicloMiniGrupoI: number;
+  cicloMiniGrupoII: number;
+  cicloInfantil: number;
 };
 
 export type DesignacaoUnidadeResponse = {
