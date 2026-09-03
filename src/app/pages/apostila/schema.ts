@@ -8,22 +8,24 @@ const formSchemaApostila = z.object({
 
 
     // Designacao
-    portaria_designacao: z
-        .string()
-        .min(1, "Selecione uma Portaria de Designação")
-        .max(20, "A Portaria de Designação deve ter no máximo 20 caracteres"),
-    numero_sei: z.string().min(1, "Digite o número do SEI"),
+    
+    motivo_pendencia: z.string(),
+    
     a_partir_de: z.date(),
-    designacao_data_final: z.date().optional().nullable(),
+    designacao_data_final: z.date().optional().nullable(),       
+    impedimento_substituicao: z.string().optional().nullable(),    
+    carater_especial: z.string().min(1, "selecione se possui carater especial "),
+    com_afastamento: z.string().min(1, "selecione se possui afastamento"),    
+    com_pendencia: z.string().min(1, "Selecione se possui pendêcia"),
+    numero_sei: z.string().min(1, "Digite o número do SEI"),
+    motivo_afastamento: z.string(),
     ano: z.string().min(1, "Selecione o ano"),
     doc: z.string().optional(),
-    impedimento_substituicao: z.string().optional().nullable(),
     impedimento_label: z.string().optional(),
-    carater_especial: z.string().min(1, "selecione se possui carater especial "),
-    com_afastamento: z.string().min(1, "selecione se possui afastamento"),
-    motivo_afastamento: z.string(),
-    com_pendencia: z.string().min(1, "Selecione se possui pendêcia"),
-    motivo_pendencia: z.string(),
+    portaria_designacao: z
+    .string()
+    .min(1, "Selecione uma Portaria de Designação")
+    .max(20, "A Portaria de Designação deve ter no máximo 20 caracteres"),
 
 });
 
