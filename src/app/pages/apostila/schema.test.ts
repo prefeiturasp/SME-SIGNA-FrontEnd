@@ -62,13 +62,13 @@ describe("formSchemaApostila", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
-        "Campo obrigatório",
-        "Selecione uma Portaria de Designação",
-        "Digite o número do SEI",
-        "Selecione o ano",
+        "Campo obrigatório",                      
         "selecione se possui carater especial ",
         "selecione se possui afastamento",
         "Selecione se possui pendêcia",
+        "Digite o número do SEI",
+        "Selecione o ano",
+        "Selecione uma Portaria de Designação",
       ]);
     }
   });
