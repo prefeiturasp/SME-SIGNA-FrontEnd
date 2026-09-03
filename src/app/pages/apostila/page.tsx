@@ -72,8 +72,8 @@ export default function ApostilaPage() {
         numero_sei: designacao?.sei_numero ?? "",
 
         doc: designacao?.doc ?? "",
-        a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replace(/-/g, '/')) : new Date(),
-        designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replace(/-/g, '/')) : null,
+        a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
+        designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
         carater_especial: designacao?.carater_excepcional ? "sim" : "nao",
         impedimento_substituicao: designacao?.impedimento_substituicao ? "sim" : "nao",
         com_afastamento: designacao?.com_afastamento ? "sim" : "nao",
