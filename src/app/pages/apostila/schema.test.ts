@@ -3,11 +3,11 @@ import formSchemaApostila, { type formSchemaApostilaData } from "./schema";
 
 const payloadValido: formSchemaApostilaData = {
   ato_apostilado: "designação",
-  dre: "",
-  dre_nome: "",
-  ue: "",
-  ue_nome: "",
-  codigo_hierarquico: "",
+  dre: "108200",
+  dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
+  ue: "123456",
+  ue_nome: "EMEF - Unidade Teste",
+  codigo_hierarquico: "EH-123",
   informacoes_adicionais: "Observação",
   detalhe_para_quadro_de_historico_por_ano: true,
   texto_para_apostila: "Texto para apostilar",
@@ -47,6 +47,11 @@ describe("formSchemaApostila", () => {
       motivo_afastamento: "",
       com_pendencia: "nao",
       motivo_pendencia: "",
+      dre: "108200",
+      dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
+      ue: "123456",
+      ue_nome: "EMEF - Unidade Teste",
+      codigo_hierarquico: "EH-123",
     });
 
     expect(result.success).toBe(true);
@@ -62,6 +67,11 @@ describe("formSchemaApostila", () => {
       carater_especial: "",
       com_afastamento: "",
       com_pendencia: "",
+      dre: "",
+      dre_nome: "",
+      ue: "",
+      ue_nome: "",
+      codigo_hierarquico: "",
     });
 
     expect(result.success).toBe(false);
@@ -74,6 +84,11 @@ describe("formSchemaApostila", () => {
         "Digite o número do SEI",
         "Selecione o ano",
         "Selecione uma Portaria de Designação",
+        "Selecione uma DRE",
+        "Selecione uma DRE",
+        "Selecione uma Unidade",
+        "Selecione uma Unidade",
+        "Selecione um Código Hierárquico",
       ]);
     }
   });

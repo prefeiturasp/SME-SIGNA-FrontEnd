@@ -20,7 +20,10 @@ type DesignacaoMock = {
   indicado_cargo_base?: string;
   indicado_cargo_sobreposto?: string;
   indicado_local_exercicio?: string;
+  dre?: string;
   dre_nome?: string;
+  ue?: string;
+  unidade_proponente?: string;
   codigo_hierarquico?: string;
   data_inicio?: string;
   data_fim?: string | null;
@@ -48,7 +51,10 @@ const designacaoPadrao: NonNullable<DesignacaoMock> = {
   indicado_cargo_base: "PROFESSOR",
   indicado_cargo_sobreposto: "COORDENADOR",
   indicado_local_exercicio: "ESCOLA",
+  dre: "108200",
   dre_nome: "DRE",
+  ue: "UE-1",
+  unidade_proponente: "UE Teste",
   codigo_hierarquico: "EH",
   cessacao: null,
 };
@@ -91,6 +97,7 @@ const {
   portariaDesignacaoFieldsSpy,
   informacoesAdicionaisSpy,
   textoPraApostilaSpy,
+  camposPesquisaUnidadeSpy,
   resetMock,
 } = vi.hoisted(() => {
   const getValuesMock = vi.fn((): formSchemaApostilaData => ({
@@ -135,6 +142,7 @@ const {
     portariaDesignacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
     textoPraApostilaSpy: vi.fn(),
+    camposPesquisaUnidadeSpy: vi.fn(),
     resetMock: vi.fn(),
   };
 });
@@ -223,6 +231,13 @@ vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesig
   default: (props: { isLoading: boolean }) => {
     portariaDesignacaoFieldsSpy(props);
     return <div data-testid="portaria-designacao-fields" />;
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade", () => ({
+  default: () => {
+    camposPesquisaUnidadeSpy();
+    return <div data-testid="campos-pesquisa-unidade" />;
   },
 }));
 
@@ -317,8 +332,9 @@ describe("ApostilaPage", () => {
     expect(screen.getByText("Texto para a apostila")).toBeInTheDocument();
     expect(screen.getByText("Informações adicionais")).toBeInTheDocument();
     expect(screen.getByTestId("accordion")).toBeInTheDocument();
-    expect(screen.getByTestId("custom-accordion-item")).toBeInTheDocument();
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(2);
     expect(screen.getByTestId("portaria-designacao-fields")).toBeInTheDocument();
+    expect(screen.getByTestId("campos-pesquisa-unidade")).toBeInTheDocument();
     expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
     expect(screen.getByTestId("informacoes-adicionais")).toBeInTheDocument();
     expect(pageHeaderSpy).toHaveBeenCalledWith(
@@ -339,7 +355,7 @@ describe("ApostilaPage", () => {
     expect(accordionSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         type: "multiple",
-        defaultValue: ["portarias-designacao", "servidor-indicado"],
+        defaultValue: ["portarias-designacao", "unidade-proponente"],
       }),
     );
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
@@ -532,6 +548,11 @@ describe("ApostilaPage", () => {
       motivo_afastamento: "Afastamento",
       com_pendencia: "sim",
       motivo_pendencia: "Pendência",
+      dre: "108200",
+      dre_nome: "DRE",
+      ue: "UE-1",
+      ue_nome: "UE Teste",
+      codigo_hierarquico: "EH",
     });
   });
 
