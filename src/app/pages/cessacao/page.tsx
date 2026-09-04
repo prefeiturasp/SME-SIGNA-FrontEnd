@@ -254,7 +254,7 @@ export default function CessacaoPage() {
 
             <CustomAccordionItem title="Portaria de cessação" value="4" color="silver">
               <PortariaCessacaoFields />
-              <div className="w-full flex justify-end pt-[2rem]">
+              <div className="w-full flex justify-end pt-8">
                 <div className="w-[200px]">
                   <Button
                     type="button"

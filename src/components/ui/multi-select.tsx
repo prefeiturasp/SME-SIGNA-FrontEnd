@@ -71,7 +71,7 @@ export function MultiSelect({
                     data-testid={dataTestId}
                     className={cn(
                         "flex min-h-10 w-full items-start justify-between gap-2 rounded-lg border border-[#dadada] bg-background px-3 py-2 text-sm ring-offset-background",
-                        "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                        "focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2",
                         disabled && "cursor-not-allowed opacity-50 disabled:bg-[#9CA3B9]",
                         !disabled && "cursor-pointer",
                         className
@@ -79,7 +79,7 @@ export function MultiSelect({
                 >
                     <div className="flex flex-wrap gap-1 w-full pointer-events-none">
                         {value.length === 0 ? (
-                            <span className="text-muted-foreground text-[14px] text-[#313131] font-[400]">
+                            <span className="text-muted-foreground text-[14px] text-[#313131] font-normal">
                                 {placeholder}
                             </span>
                         ) : (
@@ -112,7 +112,7 @@ export function MultiSelect({
             <PopoverContent
                 align="start"
                 sideOffset={4}
-                className="w-[var(--radix-popover-trigger-width)] p-0 min-w-[200px]"
+                className="w-(--radix-popover-trigger-width) p-0 min-w-[200px]"
             >
                 <Command>
                     <CommandInput placeholder="Buscar..." />

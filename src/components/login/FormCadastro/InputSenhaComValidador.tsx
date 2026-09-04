@@ -54,7 +54,7 @@ export default function InputSenhaComValidador({
 
     return (
         <div className="mb-6">
-            <FormLabel className="required text-[#313131] text-[14px] font-[700] mb-2 block">
+            <FormLabel className="required text-[#313131] text-[14px] font-bold mb-2 block">
                 Nova senha
             </FormLabel>
             <FormControl>
@@ -78,7 +78,7 @@ export default function InputSenhaComValidador({
                 </div>
             </FormControl>
             <div className="mt-4 mb-4 flex flex-col bg-[#F5F5F5] rounded-[4px] p-4 gap-4 ">
-                <span className="text-[14px] font-[700] text-[#313131] leading-[1.2]">
+                <span className="text-[14px] font-bold text-[#313131] leading-[1.2]">
                     Por questões de segurança, a senha deve seguir os seguintes
                     critérios:
                 </span>
@@ -105,7 +105,7 @@ export default function InputSenhaComValidador({
                     })}
                 </div>
             </div>
-            <FormLabel className="required text-[#313131] text-[14px] font-[700] mt-4 mb-2 block">
+            <FormLabel className="required text-[#313131] text-[14px] font-bold mt-4 mb-2 block">
                 Confirmação da nova senha
             </FormLabel>
             <FormControl>

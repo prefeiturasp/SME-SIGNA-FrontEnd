@@ -31,7 +31,6 @@ export default defineConfig({
         "src/app/api/*",
         "*/types/*",
         "next.config.mjs",
-        "tailwind.config.js",
         "postcss.config.mjs",
         "src/lib/zod-i18n.ts",
         "next-env.d.ts",

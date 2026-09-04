@@ -37,7 +37,7 @@ function OptionRadioCard({
             {description}
           </p>
           {optionValue === PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA && checked && (
-            <div className="mt-4 w-[100%] flex flex-col gap-2">
+            <div className="mt-4 w-full flex flex-col gap-2">
               <DateField
                 register={register}
                 control={control}
@@ -99,7 +99,7 @@ const MainDOForm: React.FC<Props> = ({ onClear }) => {
         control={control}
         render={({ field }) => (
           <div className="w-full flex gap-4">
-            <div className="w-[100%] flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-2">
               <OptionRadioCard
                 checked={field.value === PORTARIAS_SEM_DATA_DE_PUBLICACAO}
                 optionValue={PORTARIAS_SEM_DATA_DE_PUBLICACAO}

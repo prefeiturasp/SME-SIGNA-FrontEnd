@@ -171,7 +171,7 @@ export const InputField = <TFieldValues extends FieldValues = FieldValues,>({
                             data-testid={dataTestId}
                             disabled={disabled}
                             maxLength={maxLength}
-                            className={cn(fieldState?.error && "!border-destructive")}
+                            className={cn(fieldState?.error && "border-destructive!")}
                         />
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
@@ -216,7 +216,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
             {...register(name)}
             control={control}
             name={name}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
                 <FormItem >
                     <FormLabel className="required text-[#313131] font-bold">
                         {label}
@@ -235,9 +235,11 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
                                     onValueChange?.(value);
                                 }}
                                 disabled={disabled}
-
                             >
-                                <SelectTrigger data-testid={dataTestId}>
+                                <SelectTrigger
+                                    data-testid={dataTestId}
+                                    className={cn(fieldState?.error && "border-destructive!")}
+                                >
                                     <SelectValue placeholder={placeholder} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -295,7 +297,7 @@ export const MultiSelectField = ({
                             placeholder={placeholder}
                             disabled={disabled}
                             data-testid={dataTestId}
-                            className={cn(fieldState?.error && "!border-destructive")}
+                            className={cn(fieldState?.error && "border-destructive!")}
                         />
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
