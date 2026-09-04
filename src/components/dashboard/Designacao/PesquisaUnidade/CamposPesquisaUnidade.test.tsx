@@ -28,22 +28,27 @@ vi.mock("lucide-react", () => ({
   Loader2: () => <div data-testid="loader" />,
 }));
 
-vi.mock("@/components/ui/FieldsForm", () => ({
-  InputField: ({
-    name,
-    label,
-    dataTestId,
-  }: {
-    name: string;
-    label: ReactNode;
-    dataTestId?: string;
-  }) => (
-    <label>
-      {label}
-      <input data-testid={dataTestId ?? name} name={name} />
-    </label>
-  ),
-}));
+vi.mock("@/components/ui/FieldsForm", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/ui/FieldsForm")>();
+
+  return {
+    ...actual,
+    InputField: ({
+      name,
+      label,
+      dataTestId,
+    }: {
+      name: string;
+      label: ReactNode;
+      dataTestId?: string;
+    }) => (
+      <label>
+        {label}
+        <input data-testid={dataTestId ?? name} name={name} />
+      </label>
+    ),
+  };
+});
 
 vi.mock("@/components/ui/select", async () => {
   const React = await import("react");

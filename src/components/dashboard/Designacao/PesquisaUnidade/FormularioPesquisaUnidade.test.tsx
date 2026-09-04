@@ -981,6 +981,7 @@ describe("FormularioPesquisaUnidade", () => {
               });
             },
         control: {},
+        register: vi.fn(() => ({})),
         clearErrors: vi.fn(),
         setValue: vi.fn(),
         getValues: vi.fn(() => ({})),
@@ -1225,6 +1226,7 @@ describe("FormularioPesquisaUnidade", () => {
             });
           },
         control: {},
+        register: vi.fn(() => ({})),
         clearErrors: vi.fn(),
         setValue: setValueSpy,
         getValues: vi.fn(() => ({})),
