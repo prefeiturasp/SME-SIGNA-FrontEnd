@@ -27,7 +27,7 @@ import formSchemaDesignacao, { FormDesignacaoData } from "./schema";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
-import { Loader2, Search } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
@@ -39,6 +39,8 @@ import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 import { CargoAPI, CargoSelect } from "@/types/designacao";
 import SearchButton from "../../SearchButton/SearchButton";
+import { SelectField } from "@/components/ui/FieldsForm";
+
 
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
@@ -58,7 +60,8 @@ const FormularioPesquisaUnidade = forwardRef<
   { setDisableProximo, isLoading, defaultValues }: Props,
   ref,
 ) {
- 
+
+
   const { data: dreOptions = [] } = useFetchDREs();
 
 
@@ -79,6 +82,7 @@ const FormularioPesquisaUnidade = forwardRef<
     },
     mode: "onChange",
   });
+  const { register, control } = form;
   const values = form.watch();
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
     values.dre,
@@ -198,58 +202,35 @@ const FormularioPesquisaUnidade = forwardRef<
           >
             <div className="flex flex-col md:flex-row gap-5 justify-items-center">
               <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
-                <FormField               
-                  control={form.control}
+                <SelectField
+                  key="dre"
+                  placeholder="Selecione a DRE"
+                  dataTestId="select-dre"
+                  register={register}
+                  control={control}
                   name="dre"
-                  render={({ field }) => (
-                    
-                    <FormItem >
-                      <FormLabel className="required text-[#313131] font-bold">
-                        DRE
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            form.clearErrors();
-                            form.setValue("ue", "");
-                            form.setValue("ue_nome", "");
-                            const dreSelecionada = dreOptions.find(
-                              (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) =>
-                                dre.codigoDRE === value
-                            );
-                            form.setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
-
-                            setFuncionariosOptions([]);
-                          }}
-                        >
-                          <SelectTrigger data-testid="select-dre">
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-
-                          <SelectContent>
-                            {dreOptions.map(
-                              (dre: {
-                                codigoDRE: string;
-                                nomeDRE: string;
-                                siglaDRE: string;
-                              }) => (
-                                <SelectItem
-                                  key={dre.siglaDRE}
-                                  value={dre.codigoDRE}
-                                >
-                                  {dre.nomeDRE}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                  label="DRE"
+                  disabled={isLoadingDesiganaçãoUnidade}
+                  options={dreOptions.map(
+                    (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => ({
+                      label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
+                      value: dre.codigoDRE,
+                    })
                   )}
+                  onValueChange={(value: string) => {
+                    form.clearErrors();
+                    form.setValue("ue", "");
+                    form.setValue("ue_nome", "");
+                    const dreSelecionada = dreOptions.find(
+                      (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) =>
+                        dre.codigoDRE === value
+                    );
+                    form.setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
+
+                    setFuncionariosOptions([]);
+                  }}
                 />
+
               </div>
 
               <div className="w-full">
@@ -319,103 +300,103 @@ const FormularioPesquisaUnidade = forwardRef<
             )}
 
             {funcionariosOptions.length > 0 && (
-                <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+              <div className="flex flex-col md:flex-row gap-5 justify-items-center">
                 <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
-                                      <InfoItem
-                      label="Código Estrutura hierárquica"
-                      value={codigoEstrutura && codigoEstrutura.trim() !== "" ? codigoEstrutura : "-"}
-                    />
-                  </div>
-
-                  <div className="w-full">
-                    <FormField
-
-                      control={form.control}
-                      name="funcionarios_da_unidade"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="required text-[#313131] font-bold">
-                            Funcionários da unidade
-                          </FormLabel>
-                          <FormControl>
-                            <div className="flex flex-row gap-2">
-                              <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                  const cargoSobreposto =
-                                    designacaoUnidade?.funcionarios_unidade[value]
-                                      ?.servidores[0]?.cargo_sobreposto_funcao_atividade ?? "-";
-                                  const modulo =
-                                    designacaoUnidade?.funcionarios_unidade[value]
-                                      ?.modulo ?? "";
-
-                                  form.setValue("cargo_sobreposto", cargoSobreposto);
-                                  form.setValue("modulos", modulo);
-                                  setDisableProximo(false);
-                                }}
-                              >
-                                <SelectTrigger data-testid="select-funcionarios">
-                                  <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                  {funcionariosOptions.map(
-                                    (funcionario: {
-                                      codigo: string;
-                                      cargo: string;
-                                    }) => (
-                                      <SelectItem
-                                        key={funcionario.cargo}
-                                        value={funcionario.codigo}
-                                      >
-                                        {funcionario.cargo}
-                                      </SelectItem>
-                                    ),
-                                  )}
-                                </SelectContent>
-                              </Select>
-
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled={!field.value || !designacaoUnidade?.funcionarios_unidade[field.value]?.servidores[0]}
-                                onClick={() => setOpenModalResumoServidor(true)}
-                                data-testid="btn-visualizar-servidor"
-                              >
-                                <Eye width={16} height={16} className='fill-[#6058A2]' />
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <InfoItem
-                      className="w-[160px]"
-                      label="Qtd. Turmas"
-                      value={form.watch("quantidade_turmas")}
-                      icon={
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setOpenModal(true)}
-                          data-testid="btn-visualizar-turmas"
-                        >
-                          <Eye width={16} height={16} className='fill-[#6058A2]' />
-                        </Button>
-                      }
-                    />
-                  </div>
+                  <InfoItem
+                    label="Código Estrutura hierárquica"
+                    value={codigoEstrutura && codigoEstrutura.trim() !== "" ? codigoEstrutura : "-"}
+                  />
                 </div>
+
+                <div className="w-full">
+                  <FormField
+
+                    control={form.control}
+                    name="funcionarios_da_unidade"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="required text-[#313131] font-bold">
+                          Funcionários da unidade
+                        </FormLabel>
+                        <FormControl>
+                          <div className="flex flex-row gap-2">
+                            <Select
+                              value={field.value}
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                const cargoSobreposto =
+                                  designacaoUnidade?.funcionarios_unidade[value]
+                                    ?.servidores[0]?.cargo_sobreposto_funcao_atividade ?? "-";
+                                const modulo =
+                                  designacaoUnidade?.funcionarios_unidade[value]
+                                    ?.modulo ?? "";
+
+                                form.setValue("cargo_sobreposto", cargoSobreposto);
+                                form.setValue("modulos", modulo);
+                                setDisableProximo(false);
+                              }}
+                            >
+                              <SelectTrigger data-testid="select-funcionarios">
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+
+                              <SelectContent>
+                                {funcionariosOptions.map(
+                                  (funcionario: {
+                                    codigo: string;
+                                    cargo: string;
+                                  }) => (
+                                    <SelectItem
+                                      key={funcionario.cargo}
+                                      value={funcionario.codigo}
+                                    >
+                                      {funcionario.cargo}
+                                    </SelectItem>
+                                  ),
+                                )}
+                              </SelectContent>
+                            </Select>
+
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={!field.value || !designacaoUnidade?.funcionarios_unidade[field.value]?.servidores[0]}
+                              onClick={() => setOpenModalResumoServidor(true)}
+                              data-testid="btn-visualizar-servidor"
+                            >
+                              <Eye width={16} height={16} className='fill-[#6058A2]' />
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <InfoItem
+                    className="w-[160px]"
+                    label="Qtd. Turmas"
+                    value={form.watch("quantidade_turmas")}
+                    icon={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setOpenModal(true)}
+                        data-testid="btn-visualizar-turmas"
+                      >
+                        <Eye width={16} height={16} className='fill-[#6058A2]' />
+                      </Button>
+                    }
+                  />
+                </div>
+              </div>
             )}
 
             {funcionariosOptions.length > 0 && (
-            <div className="flex flex-col md:flex-row gap-5 justify-items-center">
-                             
+              <div className="flex flex-col md:flex-row gap-5 justify-items-center">
+
                 <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
                   <InfoItem
                     label="Cargo sobreposto"
@@ -425,7 +406,7 @@ const FormularioPesquisaUnidade = forwardRef<
 
                 <div className="w-full mr-[160px]">
                   <InfoItem label="Módulos" value={form.watch("modulos")} />
-                </div>                
+                </div>
               </div>
             )}
           </form>
