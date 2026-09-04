@@ -15,7 +15,7 @@ export function FormActionSlot({ children }: FormActionSlotProps) {
   return (
     <div className="space-y-2">
       <Label className="invisible" aria-hidden="true">
-        {" "}
+        {" "}
       </Label>
       {children}
     </div>
