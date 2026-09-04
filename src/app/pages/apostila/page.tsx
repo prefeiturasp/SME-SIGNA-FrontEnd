@@ -25,6 +25,7 @@ import TextoPraApostila from "@/components/dashboard/Designacao/TextoPraApostila
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
+import CamposPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -39,6 +40,12 @@ export default function ApostilaPage() {
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
+      dre: "",
+      dre_nome: "",
+      ue: "",
+      ue_nome: "",
+      codigo_hierarquico: "",
+      
       informacoes_adicionais: "",
       detalhe_para_quadro_de_historico_por_ano: false,
       texto_para_apostila: "",
@@ -81,6 +88,13 @@ export default function ApostilaPage() {
         com_pendencia: designacao?.pendencias ? "sim" : "nao",
         motivo_pendencia: designacao?.pendencias,
 
+        
+        dre: designacao?.dre ?? '-',
+        dre_nome: designacao?.dre_nome,
+        ue: designacao?.ue ?? '-',
+        ue_nome:designacao?.unidade_proponente,                
+        codigo_hierarquico: designacao?.codigo_hierarquico,
+        
       },);
 
     }
@@ -178,12 +192,8 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "servidor-indicado"]}
+                  defaultValue={["portarias-designacao", "unidade-proponente"]}
                 >
-
-
-
-
                   <CustomAccordionItem
                     title="Portarias de designação"
                     color="purple"
@@ -194,6 +204,14 @@ export default function ApostilaPage() {
                     />
                   </CustomAccordionItem>
 
+                  <CustomAccordionItem
+                    title="Unidade Proponente"
+                    color="blue"
+                    value="unidade-proponente"
+                  >
+                    <CamposPesquisaUnidade
+                    />
+                  </CustomAccordionItem>
                 </Accordion>
 
 

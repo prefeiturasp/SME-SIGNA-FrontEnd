@@ -27,6 +27,12 @@ const formSchemaApostila = z.object({
     .min(1, "Selecione uma Portaria de Designação")
     .max(20, "A Portaria de Designação deve ter no máximo 20 caracteres"),
 
+    dre: z.string().min(1, "Selecione uma DRE"),
+    dre_nome: z.string().min(1, "Selecione uma DRE"),
+    ue: z.string().min(1, "Selecione uma Unidade"),
+    ue_nome: z.string().min(1, "Selecione uma Unidade"),
+    codigo_hierarquico: z.string().min(1, "Selecione um Código Hierárquico"),
+
 });
 
 
