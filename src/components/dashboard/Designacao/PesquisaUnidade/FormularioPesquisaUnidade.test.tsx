@@ -127,7 +127,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   async function selectDreAndUe(
     user: ReturnType<typeof userEvent.setup>,
-    dreName = "DRE Sul",
+    dreName = "DRE1 - DRE Sul",
     ueName = "UE 1 da DRE Selecionada",
     siglaTipoEscola = "EMEI"
   ) {
@@ -241,7 +241,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     const dreSelect = screen.getByTestId("select-dre");
     await user.click(dreSelect);
-    await clickSelectOption(user, "DRE Sul");
+    await clickSelectOption(user, "DRE1 - DRE Sul");
 
 
     await waitFor(() => {
@@ -272,7 +272,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     const dreSelect = screen.getByTestId("select-dre");
     await user.click(dreSelect);
-    await clickSelectOption(user, "DRE Sul");
+    await clickSelectOption(user, "DRE1 - DRE Sul");
 
     expect(container.querySelector(".animate-spin")).toBeInTheDocument();
     expect(screen.queryByTestId("select-ue")).not.toBeInTheDocument();
@@ -620,7 +620,7 @@ describe("FormularioPesquisaUnidade", () => {
 
 
 
-    await selectDreAndUe(user, "DRE Norte", "UE 2 da DRE Selecionada", "EMEF");
+    await selectDreAndUe(user, "DRE2 - DRE Norte", "UE 2 da DRE Selecionada", "EMEF");
 
 
     expect(screen.queryByText("Cargo sobreposto")).not.toBeInTheDocument();
@@ -789,7 +789,7 @@ describe("FormularioPesquisaUnidade", () => {
     // troca DRE -> deve limpar UE e também sumir com a seção de funcionários
     const dreSelect = screen.getByTestId("select-dre");
     await user.click(dreSelect);
-    await clickSelectOption(user, "DRE Norte");
+    await clickSelectOption(user, "DRE2 - DRE Norte");
 
     await waitFor(() => {
       expect(screen.queryByTestId("select-funcionarios")).not.toBeInTheDocument();
@@ -1109,7 +1109,7 @@ describe("FormularioPesquisaUnidade", () => {
 
     vi.doMock("@/hooks/useUnidades", () => ({
       useFetchDREs: () => ({
-        data: [{ codigoDRE: "dre-1", nomeDRE: "DRE Sul", siglaDRE: "DRE1" }],
+        data: [{ codigoDRE: "dre-1", nomeDRE: "DRE1 - DRE Sul", siglaDRE: "DRE1" }],
       }),
       useFetchUEs: () => ({
         data: [

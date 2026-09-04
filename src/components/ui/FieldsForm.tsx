@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
 import { FieldValues, UseFormRegister, Control, FieldPath } from "react-hook-form";
 import type { ReactNode } from "react";
-import { FormControl, FormField, FormLabel, FormMessage, FormItem, FormDescription } from "./form";
+import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
@@ -42,16 +42,8 @@ interface FieldSecondary {
     label: string; subtitle: string; value: string;
 }
 
-interface PropsSelectDRE  {
-    isLoading: boolean;
-    dreOptions: {
-        codigoDRE: string;
-        nomeDRE: string;
-        siglaDRE: string;
-    }[];
-    onValueChange: (value: string) => void;
-}
-interface PropsFieldSecondary  {
+
+interface PropsFieldSecondary {
     fields: FieldSecondary[];
 }
 
@@ -103,61 +95,8 @@ export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldV
 
 
 
-export const CampoSelectDRE = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, isLoading,dreOptions, onValueChange }: Omit<PropsField<TFieldValues>, "label"> & PropsSelectDRE) => {
-    return (
-      <FormField
-      {...register(name)}
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem >
-          <FormLabel className="required text-[#313131] font-bold">
-            DRE
-          </FormLabel>
-          <FormControl>
-          {isLoading ? (
-            <div className="flex h-10 items-center justify-center">
-              <Loader2 className="w-4 h-4 animate-spin text-primary " />
-            </div>
-          ) : (
-            <Select
-              key={field.value}
-              value={field.value}
-              onValueChange={(value) => {    
-                field.onChange(value);          
-                onValueChange(value);
-              }}
-            >
-                <SelectTrigger data-testid="select-dre">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-              <SelectContent>
-                {dreOptions.map(
-                  (dre: {
-                    codigoDRE: string;
-                    nomeDRE: string;
-                    siglaDRE: string;
-                  }) => (
-                    <SelectItem
-                      key={dre.siglaDRE}
-                      value={dre.codigoDRE}
-                    >
-                      {dre.nomeDRE}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>   
-            )}
-            </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-    );
-  };
-  
-  
+
+
 
 export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues>) => {
     return (
@@ -206,9 +145,9 @@ export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({
     );
 };
 export const InputField = <TFieldValues extends FieldValues = FieldValues,>({
-     register, control, name, label, placeholder, dataTestId, type = "text",
-      disabled = false, mask, maxLength, showBlankSpace = true }: 
-      { register: UseFormRegister<TFieldValues>; control: Control<TFieldValues>; name: FieldPath<TFieldValues>; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
+    register, control, name, label, placeholder, dataTestId, type = "text",
+    disabled = false, mask, maxLength, showBlankSpace = true }:
+    { register: UseFormRegister<TFieldValues>; control: Control<TFieldValues>; name: FieldPath<TFieldValues>; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
     return (
         <FormField
             {...register(name)}
@@ -257,6 +196,8 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     disabled = false,
     register,
     showBlankSpace = true,
+    onValueChange,
+    isLoading = false,
 }: {
     control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
@@ -267,37 +208,50 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     disabled?: boolean;
     register: UseFormRegister<TFieldValues>;
     showBlankSpace?: boolean;
+    onValueChange?: (value: string) => void;
+    isLoading?: boolean;
 }) => {
     return (
         <FormField
             {...register(name)}
             control={control}
             name={name}
-            render={({ field, fieldState }) => (
-                <FormItem>
-                    <FormLabel className="text-[#313131] font-bold">{label}</FormLabel>
+            render={({ field }) => (
+                <FormItem >
+                    <FormLabel className="required text-[#313131] font-bold">
+                        {label}
+                    </FormLabel>
                     <FormControl>
-                        <Select
-                            value={field.value}
-                            onValueChange={(value) => field.onChange(value)}
-                            disabled={disabled}
-                        >
-                            <SelectTrigger
-                                data-testid={dataTestId}
-                                className={cn(fieldState?.error && "!border-destructive")}
+                        {isLoading ? (
+                            <div className="flex h-10 items-center justify-center">
+                                <Loader2 className="w-4 h-4 animate-spin text-primary " />
+                            </div>
+                        ) : (
+                            <Select
+                                key={field.value}
+                                value={field.value}
+                                onValueChange={(value) => {
+                                    field.onChange(value);
+                                    onValueChange?.(value);
+                                }}
+                                disabled={disabled}
+
                             >
-                                <SelectValue placeholder={placeholder} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {options.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                                <SelectTrigger data-testid={dataTestId}>
+                                    <SelectValue placeholder={placeholder} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {options.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
+                    
                 </FormItem>
             )}
         />

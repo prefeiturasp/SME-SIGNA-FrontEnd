@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Control, FieldValues, useForm, UseFormRegister } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import {
   Form,
@@ -27,7 +27,7 @@ import formSchemaDesignacao, { FormDesignacaoData } from "./schema";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
-import { Loader2, Search } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
@@ -39,7 +39,7 @@ import ModalResumoServidor from "../ModalResumoServidor/ModalResumoServidor";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 import { CargoAPI, CargoSelect } from "@/types/designacao";
 import SearchButton from "../../SearchButton/SearchButton";
-import { CampoSelectDRE } from "@/components/ui/FieldsForm";
+import { SelectField } from "@/components/ui/FieldsForm";
 
 
 export interface FormularioPesquisaUnidadeRef {
@@ -61,7 +61,7 @@ const FormularioPesquisaUnidade = forwardRef<
   ref,
 ) {
 
-  
+
   const { data: dreOptions = [] } = useFetchDREs();
 
 
@@ -202,13 +202,21 @@ const FormularioPesquisaUnidade = forwardRef<
           >
             <div className="flex flex-col md:flex-row gap-5 justify-items-center">
               <div className="sm:w-full lg:w-[300px] 2xl:w-[390px]">
-
-                <CampoSelectDRE
+                <SelectField
+                  key="dre"
+                  placeholder="Selecione a DRE"
+                  dataTestId="select-dre"
                   register={register}
                   control={control}
                   name="dre"
-                  dreOptions={dreOptions}
-                  isLoading={false}
+                  label="DRE"
+                  disabled={isLoadingDesiganaçãoUnidade}
+                  options={dreOptions.map(
+                    (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => ({
+                      label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
+                      value: dre.codigoDRE,
+                    })
+                  )}
                   onValueChange={(value: string) => {
                     form.clearErrors();
                     form.setValue("ue", "");
@@ -222,6 +230,7 @@ const FormularioPesquisaUnidade = forwardRef<
                     setFuncionariosOptions([]);
                   }}
                 />
+
               </div>
 
               <div className="w-full">
