@@ -14,7 +14,7 @@ import ResumoPortariaEServidorIndicado from "@/components/dashboard/Designacao/R
 
 import { useParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-import {  History, Loader2 } from "lucide-react";
+import { History, Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import EditorSEI, {
   gerarHtmlPortaria,
@@ -24,7 +24,7 @@ import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
 import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
 import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
 import type { DesignacaoData } from "@/types/designacao";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { formSchemaDesignacaoPasso3Data } from "@/app/pages/designacoes/designacoes-passo-3/schema";
 
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
@@ -128,18 +128,18 @@ export default function VisualizarDesignacaoPage() {
         { title: "Detalhes da designação" }]}
         showBackButton={true}
         createButton={
-            <Button
-              className="gap-2 px-4"
-              type="button"
-              variant="destructive"
-              size="lg"
-              onClick={() =>
-                router.push(`/pages/historico-ato-administrativo?id=${id}&tipo_display=da designação&numero_portaria=${designacao?.numero_portaria}&servidor_indicado=${designacao?.indicado_nome_servidor}`)
-              }
-            >
-              <span className="font-bold">Consultar histórico</span>
-              <History width={15} height={15} />
-            </Button>
+          <Button
+            className="gap-2 px-4"
+            type="button"
+            variant="destructive"
+            size="lg"
+            onClick={() =>
+              router.push(`/pages/historico-ato-administrativo?id=${id}&tipo_display=da designação&numero_portaria=${designacao?.numero_portaria}&servidor_indicado=${designacao?.indicado_nome_servidor}`)
+            }
+          >
+            <span className="font-bold">Consultar histórico</span>
+            <History width={15} height={15} />
+          </Button>
         }
 
       />
@@ -241,15 +241,19 @@ export default function VisualizarDesignacaoPage() {
         />
 
         <div className="mt-8">
-          <div className="mb-8">
-          <span className="text-[#333] text-[16px] font-bold ">Informações adicionais</span>
+          <div>
+            <span className="text-[#333] text-[16px] font-bold ">Informações adicionais</span>
           </div>
-          <InformacoesAdicionais
-            disableFields={true}
-            form={form}
-            onChangeDescricao={console.log}
-            onValueChangeDetalheParaQuadroDeHistoricoPorAno={console.log}
-          />
+          <FormProvider {...form}>
+            <form >
+              <InformacoesAdicionais
+                disableFields={true}
+                form={form}
+                onChangeDescricao={console.log}
+                onValueChangeDetalheParaQuadroDeHistoricoPorAno={console.log}
+              />
+            </form>
+          </FormProvider>
         </div>
 
       </Card>
