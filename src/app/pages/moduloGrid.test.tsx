@@ -114,7 +114,7 @@ describe("ModuleGrid", () => {
 
         // Verifica se o card do módulo existe
         const moduleCard = screen.getByText("Designação").closest("div");
-        expect(moduleCard).toHaveClass("bg-white", "rounded-xl", "shadow-sm");
+        expect(moduleCard).toHaveClass("bg-white", "rounded-xl", "shadow-xs");
 
         // Verifica se o ícone está dentro de um container circular
         const iconContainer = screen.getByTestId("mock-icon").closest("div");

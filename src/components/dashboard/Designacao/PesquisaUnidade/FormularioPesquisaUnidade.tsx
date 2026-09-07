@@ -27,6 +27,7 @@ import formSchemaDesignacao, { FormDesignacaoData } from "./schema";
 import { useFetchDREs, useFetchUEs } from "@/hooks/useUnidades";
 
 import { Button } from "@/components/ui/button";
+import { FormActionSlot } from "@/components/ui/form-action-slot";
 import { Loader2 } from "lucide-react";
 import { InfoItem } from "@/components/ui/info-item";
 import Eye from "@/assets/icons/Eye";
@@ -280,7 +281,7 @@ const FormularioPesquisaUnidade = forwardRef<
                 />
               </div>
 
-              <div className="mt-[30px]">
+              <FormActionSlot>
                 <SearchButton
                   type="submit"
                   isLoading={isLoadingDesiganaçãoUnidade}
@@ -288,7 +289,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   onClick={form.handleSubmit(onSubmit)}
                   data-testid="botao-pesquisar-unidade"
                 />
-              </div>
+              </FormActionSlot>
             </div>
 
             {errorMessage && (

@@ -317,7 +317,7 @@ export default function InsubsistenciaPage() {
                 </div>
                 <CustomAccordionItem title="Portaria de Insubsistência" value="portaria-insubsistencia" color="purple">
                   <PortariaInsubsistenciaFields />
-                  <div className="w-full flex justify-end pt-[2rem]">
+                  <div className="w-full flex justify-end pt-8">
                     <div className="w-[200px]">
                       <Button
                         type="button"
