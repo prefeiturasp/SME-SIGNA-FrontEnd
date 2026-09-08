@@ -90,7 +90,7 @@ export default function ApostilaPage() {
     if (designacao && !form.formState.isDirty) {
 
       form.reset({
-        texto_portaria: "É a presente portaria apostilada,",
+        texto_portaria: "A presente portaria apostilada,",
         ato_apostilado: atoApostiladoPadrao,
 
         // campos portaria de designacao
