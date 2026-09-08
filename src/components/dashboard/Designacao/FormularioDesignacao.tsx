@@ -77,7 +77,7 @@ const FormularioDesignacao: React.FC<{
                       {...field}
                       placeholder="Nome da unidade"
                       id="nome_da_unidade"
-                      className="bg-[#fff]"
+                      className="bg-white"
                     />
                   </FormControl>
                   <FormMessage />
@@ -98,7 +98,7 @@ const FormularioDesignacao: React.FC<{
                       {...field}
                       placeholder="Entre com a estrutura hierárquica"
                       id="estrutura_hierarquica"
-                      className="bg-[#fff]"
+                      className="bg-white"
                     />
                   </FormControl>
                   <FormMessage />
@@ -117,7 +117,7 @@ const FormularioDesignacao: React.FC<{
                       {...field}
                       placeholder="Turmas"
                       id="turmas"
-                      className="bg-[#fff]"
+                      className="bg-white"
                     />
                   </FormControl>
                   <FormMessage />
@@ -137,7 +137,7 @@ const FormularioDesignacao: React.FC<{
                     <InputBase
                       {...field}
                       id="funcionarios_da_unidade"
-                      className="bg-[#fff]"
+                      className="bg-white"
                       placeholder="Servidor escolar"
                     />
                   </FormControl>
@@ -158,7 +158,7 @@ const FormularioDesignacao: React.FC<{
                     <InputBase
                       {...field}
                       id="assistente_de_diretor_escolar"
-                      className="bg-[#fff]"
+                      className="bg-white"
                       placeholder="Entre com assistente de diretor escolar"
                     />
                   </FormControl>
@@ -179,7 +179,7 @@ const FormularioDesignacao: React.FC<{
                     <InputBase
                       {...field}
                       id="secretario_da_escola"
-                      className="bg-[#fff]"
+                      className="bg-white"
                       placeholder="Entre com secretário da escola"
                     />
                   </FormControl>
@@ -200,7 +200,7 @@ const FormularioDesignacao: React.FC<{
                     <InputBase
                       {...field}
                       id="funcao_atividade"
-                      className="bg-[#fff]"
+                      className="bg-white"
                       placeholder="Entre com função/atividade"
                     />
                   </FormControl>
@@ -221,7 +221,7 @@ const FormularioDesignacao: React.FC<{
                     <InputBase
                       {...field}
                       id="cargo_sobreposto"
-                      className="bg-[#fff]"
+                      className="bg-white"
                       placeholder="Entre com cargo sobreposto"
                     />
                   </FormControl>
@@ -240,7 +240,7 @@ const FormularioDesignacao: React.FC<{
                     <InputBase
                       {...field}
                       id="modulos"
-                      className="bg-[#fff]"
+                      className="bg-white"
                       placeholder="Entre com módulos"
                     />
                   </FormControl>
