@@ -10,10 +10,6 @@
 !.yarn/releases
 !.yarn/versions
 
-# lockfiles: yarn.lock e o unico autoritativo (test/homolog/prod rodam yarn).
-# npm reescreve o yarn.lock, entao o package-lock.json nao e versionado.
-package-lock.json
-
 # testing
 /coverage
 
