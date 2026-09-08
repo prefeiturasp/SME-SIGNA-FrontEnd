@@ -26,6 +26,7 @@ import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAcc
 import { Accordion } from "@/components/ui/accordion";
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
 import CamposPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade";
+import CamposEditarServidor from "@/components/dashboard/Designacao/ModalEditarServidor/CamposEditarServidor";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -192,7 +193,7 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "unidade-proponente"]}
+                defaultValue={["portarias-designacao", "unidade-proponente", "servidor-indicado"]}
                 >
                   <CustomAccordionItem
                     title="Portarias de designação"
@@ -211,6 +212,15 @@ export default function ApostilaPage() {
                   >
                     <CamposPesquisaUnidade
                     />
+                  </CustomAccordionItem>
+
+                  <CustomAccordionItem
+                    title="Servidor Indicado"
+                    color="gold"
+                    value="servidor-indicado"
+                  >
+                    <CamposEditarServidor
+                    />                  
                   </CustomAccordionItem>
                 </Accordion>
 
