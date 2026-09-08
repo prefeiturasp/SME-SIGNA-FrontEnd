@@ -201,7 +201,7 @@ export default function CriarTextosDePortaria() {
                   <FormLabel className="required text-[#313131] font-bold">
                     Texto da portaria*
                   </FormLabel>
-                  <FormControl>
+                  <FormControl className="mt-[50px]">
                     <SimpleEditor
                       hasError={!!fieldState.error}
                       onChange={field.onChange}

@@ -10,7 +10,9 @@ const payloadValido: formSchemaApostilaData = {
   codigo_hierarquico: "EH-123",
   informacoes_adicionais: "Observação",
   detalhe_para_quadro_de_historico_por_ano: true,
-  texto_para_apostila: "Texto para apostilar",
+  texto_portaria: "Texto para portaria apostilada",
+  nome_servidor: "João da Silva",
+  
   portaria_designacao: "123",
   numero_sei: "SEI-123",
   a_partir_de: new Date("2026-01-10"),
