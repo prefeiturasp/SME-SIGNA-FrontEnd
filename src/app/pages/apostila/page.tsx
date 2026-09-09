@@ -19,9 +19,10 @@ import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaD
 import CamposPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade";
 import CamposEditarServidor from "@/components/dashboard/Designacao/ModalEditarServidor/CamposEditarServidor";
 import { useFetchCargos } from "@/hooks/useCargos";
-import { SelectField } from "@/components/ui/FieldsForm";
+import { SelectField,EnumCheckbox } from "@/components/ui/FieldsForm";
 import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/components/ui/form";
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
+import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -60,11 +61,11 @@ export default function ApostilaPage() {
       doc: "",
       a_partir_de: new Date(),
       designacao_data_final: null,
-      carater_especial: "nao",
-      impedimento_substituicao: "nao",
-      com_afastamento: "nao",
+      carater_especial: EnumCheckbox.NAO,
+      impedimento_substituicao: EnumCheckbox.NAO,
+      com_afastamento: EnumCheckbox.NAO,
       motivo_afastamento: "",
-      com_pendencia: "nao",
+      com_pendencia: EnumCheckbox.NAO,
       motivo_pendencia: "",
 
       // campos cargo disponível
@@ -80,6 +81,19 @@ export default function ApostilaPage() {
       cursos_titulos: "",
       laudo_medico: "",
       cd_cargo_base: "",
+
+
+      cessacao: {
+        numero_portaria: "",
+        ano: new Date().getFullYear().toString(),
+        numero_sei: "",
+        a_pedido: EnumCheckbox.NAO,
+        data_inicio: new Date(),
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
+        doc: "",
+      },
+
     },
     mode: "onChange",
   });
@@ -88,6 +102,18 @@ export default function ApostilaPage() {
 
   useEffect(() => {
     if (designacao && !form.formState.isDirty) {
+
+
+      const cessacaoFieldsValues = {
+        numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
+        ano: designacao?.cessacao?.ano_vigente ?? "",
+        numero_sei: designacao?.cessacao?.sei_numero ?? "",
+        a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
+        remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        doc: designacao?.cessacao?.doc ?? "",
+      };
 
       form.reset({
         texto_portaria: "A presente portaria apostilada,",
@@ -100,11 +126,11 @@ export default function ApostilaPage() {
         doc: designacao?.doc ?? "",
         a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
         designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
-        carater_especial: designacao?.carater_excepcional ? "sim" : "nao",
-        impedimento_substituicao: designacao?.impedimento_substituicao ? "sim" : "nao",
-        com_afastamento: designacao?.com_afastamento ? "sim" : "nao",
+        carater_especial: EnumCheckbox.NAO,
+        impedimento_substituicao: designacao?.impedimento_substituicao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_afastamento: designacao?.motivo_afastamento,
-        com_pendencia: designacao?.pendencias ? "sim" : "nao",
+        com_pendencia: designacao?.pendencias ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_pendencia: designacao?.pendencias,
 
         // campos unidade proponente
@@ -129,6 +155,10 @@ export default function ApostilaPage() {
         categoria: designacao?.indicado_categoria ?? "-",
         cursos_titulos: "-",
         laudo_medico: "Indisponível",
+
+
+        // campos portaria de cessação
+        cessacao: cessacaoFieldsValues,
       },);
 
     }
@@ -185,7 +215,7 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel"]}
+                  defaultValue={["portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "portarias-cessacao"]}
                 >
                   <CustomAccordionItem
                     title="Portarias de designação"
@@ -202,8 +232,7 @@ export default function ApostilaPage() {
                     color="blue"
                     value="unidade-proponente"
                   >
-                    <CamposPesquisaUnidade
-                    />
+                    <CamposPesquisaUnidade />
                   </CustomAccordionItem>
 
                   <CustomAccordionItem
@@ -214,8 +243,6 @@ export default function ApostilaPage() {
                     <CamposEditarServidor
                     />
                   </CustomAccordionItem>
-
-
 
                   <CustomAccordionItem
                     title="Cargo disponível"
@@ -236,6 +263,13 @@ export default function ApostilaPage() {
                       />
                     </div>
                   </CustomAccordionItem>
+
+                  {atoApostiladoPadrao === "cessação" && (
+                    <CustomAccordionItem title="Portaria de cessação" value="portarias-cessacao" color="silver">
+                      <PortariaCessacaoFields />
+                    </CustomAccordionItem>
+                  )}
+
                 </Accordion>
 
                 <span className="text-[#333] text-[14px] font-bold">Informações adicionais</span>
@@ -269,6 +303,7 @@ export default function ApostilaPage() {
                   </Button>
                 </div>
               </div>
+
 
               {mostrarEditor && (
                 <div className="mb-2 mt-4">
@@ -306,7 +341,7 @@ export default function ApostilaPage() {
                         variant="destructive"
                         data-testid="button-salvar-portaria-apostila"
                         disabled={!form.formState.isValid}
-                        
+
                       >
                         <p className="text-[16px] font-bold">Salvar</p>
                       </Button>

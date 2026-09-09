@@ -19,10 +19,11 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import ResumoTitular from "@/components/dashboard/Designacao/ResumoTitular";
 
-import formSchemaCessacao, {
+import formSchemaCessacao, {  
   formSchemaCessacaoData,
 } from "./schema";
 
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
@@ -53,10 +54,10 @@ export default function CessacaoPage() {
         numero_portaria: "",
         ano: new Date().getFullYear().toString(),
         numero_sei: "",
-        a_pedido: "nao",
+        a_pedido: EnumCheckbox.NAO,
         data_inicio: new Date(),
-        remocao: "nao",
-        aposentadoria: "nao",
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
         doc: "",
       },
     },
@@ -120,12 +121,12 @@ export default function CessacaoPage() {
       cessacao: {
         numero_portaria: "",
         numero_sei: "",
-        ano: new Date().getFullYear().toString(),
+        ano: "",
         doc: "",
         data_inicio: new Date(),
-        a_pedido: "nao",
-        remocao: "nao",
-        aposentadoria: "nao",
+        a_pedido: EnumCheckbox.NAO,
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
       },
     });
   }, [designacao, form]);

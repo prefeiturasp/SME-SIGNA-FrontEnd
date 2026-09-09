@@ -521,3 +521,9 @@ export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
         />
     );
 };
+
+
+export enum EnumCheckbox {
+    SIM = "sim",
+    NAO = "nao",
+  }
