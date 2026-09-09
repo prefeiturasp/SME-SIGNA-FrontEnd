@@ -54,6 +54,7 @@ describe("formSchemaApostila", () => {
       ue: "123456",
       ue_nome: "EMEF - Unidade Teste",
       codigo_hierarquico: "EH-123",
+      nome_servidor: "João da Silva",
     });
 
     expect(result.success).toBe(true);
@@ -79,7 +80,7 @@ describe("formSchemaApostila", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
-        "Campo obrigatório",                      
+        "Selecione um ato apostilado",
         "selecione se possui carater especial ",
         "selecione se possui afastamento",
         "Selecione se possui pendêcia",
