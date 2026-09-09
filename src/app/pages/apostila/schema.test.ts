@@ -2,6 +2,17 @@ import { describe, expect, it } from "vitest";
 import formSchemaApostila, { type formSchemaApostilaData } from "./schema";
 import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
+const cessacaoValida: formSchemaApostilaData["cessacao"] = {
+  numero_portaria: "456",
+  ano: "2026",
+  numero_sei: "SEI-CESSACAO",
+  doc: "DOC-CESSACAO",
+  a_pedido: EnumCheckbox.NAO,
+  data_inicio: new Date("2026-02-10"),
+  remocao: EnumCheckbox.NAO,
+  aposentadoria: EnumCheckbox.NAO,
+};
+
 const payloadValido: formSchemaApostilaData = {
   ato_apostilado: "designação",
   dre: "108200",
@@ -27,16 +38,7 @@ const payloadValido: formSchemaApostilaData = {
   motivo_afastamento: "",
   com_pendencia: EnumCheckbox.NAO,
   motivo_pendencia: "",
-  cessacao: {
-    numero_portaria: "",
-    ano: "",
-    numero_sei: "",
-    doc: "",
-    a_pedido: EnumCheckbox.NAO,
-    data_inicio: new Date(),
-    remocao: EnumCheckbox.NAO,
-    aposentadoria: EnumCheckbox.NAO,
-  },
+  cessacao: cessacaoValida,
 };
 
 describe("formSchemaApostila", () => {
@@ -66,7 +68,7 @@ describe("formSchemaApostila", () => {
       ue_nome: "EMEF - Unidade Teste",
       codigo_hierarquico: "EH-123",
       nome_servidor: "João da Silva",
-      cessacao: null,
+      cessacao: cessacaoValida,
     });
 
     expect(result.success).toBe(true);
@@ -87,25 +89,13 @@ describe("formSchemaApostila", () => {
       ue: "",
       ue_nome: "",
       codigo_hierarquico: "",
-      cessacao: {
-        numero_portaria: "",
-        ano: "",
-        numero_sei: "",
-        doc: "",
-        a_pedido: EnumCheckbox.NAO,
-        data_inicio: new Date(),
-        remocao: EnumCheckbox.NAO,
-        aposentadoria: EnumCheckbox.NAO,
-      },
+      cessacao: cessacaoValida,
     });
 
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
         "Selecione um ato apostilado",
-        "selecione se possui carater especial ",
-        "selecione se possui afastamento",
-        "Selecione se possui pendêcia",
         "Digite o número do SEI",
         "Selecione o ano",
         "Selecione uma Portaria de Designação",
@@ -145,6 +135,32 @@ describe("formSchemaApostila", () => {
       expect(result.error.issues.map((issue) => issue.path.join("."))).toEqual([
         "a_partir_de",
         "designacao_data_final",
+      ]);
+    }
+  });
+
+  it("retorna erros dos campos obrigatórios de cessação quando vazios", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      cessacao: {
+        ...cessacaoValida,
+        numero_portaria: "",
+        ano: "",
+        numero_sei: "",
+      },
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.path.join("."))).toEqual([
+        "cessacao.numero_portaria",
+        "cessacao.ano",
+        "cessacao.numero_sei",
+      ]);
+      expect(result.error.issues.map((issue) => issue.message)).toEqual([
+        "Campo obrigatório",
+        "Campo obrigatório",
+        "Campo obrigatório",
       ]);
     }
   });

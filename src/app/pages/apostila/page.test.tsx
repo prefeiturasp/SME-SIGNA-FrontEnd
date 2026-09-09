@@ -43,6 +43,10 @@ type DesignacaoMock = {
     ano_vigente?: string;
     sei_numero?: string;
     doc?: string;
+    a_pedido?: boolean;
+    data_cessacao?: string;
+    remocao?: boolean;
+    aposentadoria?: boolean;
   } | null;
 } | null;
 
@@ -111,6 +115,7 @@ const {
   accordionSpy,
   customAccordionItemSpy,
   portariaDesignacaoFieldsSpy,
+  portariaCessacaoFieldsSpy,
   informacoesAdicionaisSpy,
   camposPesquisaUnidadeSpy,
   camposEditarServidorSpy,
@@ -169,6 +174,7 @@ const {
     accordionSpy: vi.fn(),
     customAccordionItemSpy: vi.fn(),
     portariaDesignacaoFieldsSpy: vi.fn(),
+    portariaCessacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
     camposPesquisaUnidadeSpy: vi.fn(),
     camposEditarServidorSpy: vi.fn(),
@@ -263,6 +269,13 @@ vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesig
   },
 }));
 
+vi.mock("@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields", () => ({
+  default: () => {
+    portariaCessacaoFieldsSpy();
+    return <div data-testid="portaria-cessacao-fields" />;
+  },
+}));
+
 vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade", () => ({
   default: () => {
     camposPesquisaUnidadeSpy();
@@ -321,6 +334,10 @@ vi.mock("@/components/ui/button", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
+  EnumCheckbox: {
+    SIM: "sim",
+    NAO: "nao",
+  },
   SelectField: (props: {
     name: string;
     label: string;
@@ -451,6 +468,7 @@ describe("ApostilaPage", () => {
           "unidade-proponente",
           "servidor-indicado",
           "cargo-disponivel",
+          "portarias-cessacao",
         ],
       }),
     );
@@ -501,6 +519,16 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de cessação");
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(5);
+    expect(screen.getByTestId("portaria-cessacao-fields")).toBeInTheDocument();
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portaria de cessação",
+        color: "silver",
+        value: "portarias-cessacao",
+      }),
+    );
+    expect(portariaCessacaoFieldsSpy).toHaveBeenCalledTimes(1);
     expect(pageHeaderSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         breadcrumbs: [
@@ -595,6 +623,16 @@ describe("ApostilaPage", () => {
       com_afastamento: true,
       motivo_afastamento: "Afastamento",
       pendencias: "Pendência",
+      cessacao: {
+        numero_portaria: "987",
+        ano_vigente: "2025",
+        sei_numero: "SEI-CESS",
+        doc: "DOC-CESS",
+        a_pedido: true,
+        data_cessacao: "2026-03-15",
+        remocao: true,
+        aposentadoria: true,
+      },
     };
 
     render(<ApostilaPage />);
@@ -608,7 +646,7 @@ describe("ApostilaPage", () => {
       doc: "DOC",
       a_partir_de: new Date("2026/01/10"),
       designacao_data_final: new Date("2026/12/20"),
-      carater_especial: "sim",
+      carater_especial: "nao",
       impedimento_substituicao: "sim",
       com_afastamento: "sim",
       motivo_afastamento: "Afastamento",
@@ -631,6 +669,16 @@ describe("ApostilaPage", () => {
       categoria: "-",
       cursos_titulos: "-",
       laudo_medico: "Indisponível",
+      cessacao: {
+        numero_portaria: "987",
+        ano: "2025",
+        numero_sei: "SEI-CESS",
+        a_pedido: "sim",
+        data_inicio: new Date("2026/03/15"),
+        remocao: "sim",
+        aposentadoria: "sim",
+        doc: "DOC-CESS",
+      },
     });
   });
 
@@ -673,6 +721,16 @@ describe("ApostilaPage", () => {
         local_de_exercicio: "-",
         lotacao: "-",
         categoria: "-",
+        cessacao: {
+          numero_portaria: "",
+          ano: "",
+          numero_sei: "",
+          a_pedido: "nao",
+          data_inicio: undefined,
+          remocao: "nao",
+          aposentadoria: "nao",
+          doc: "",
+        },
       }),
     );
     expect(resetMock.mock.calls[0][0].a_partir_de).toBeInstanceOf(Date);
