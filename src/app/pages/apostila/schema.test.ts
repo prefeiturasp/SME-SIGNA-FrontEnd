@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import formSchemaApostila, { type formSchemaApostilaData } from "./schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 const payloadValido: formSchemaApostilaData = {
   ato_apostilado: "designação",
@@ -21,11 +22,21 @@ const payloadValido: formSchemaApostilaData = {
   doc: "DOC-123",
   impedimento_substituicao: null,
   impedimento_label: "Sem impedimento",
-  carater_especial: "nao",
-  com_afastamento: "nao",
+  carater_especial: EnumCheckbox.NAO,
+  com_afastamento: EnumCheckbox.NAO,
   motivo_afastamento: "",
-  com_pendencia: "nao",
+  com_pendencia: EnumCheckbox.NAO,
   motivo_pendencia: "",
+  cessacao: {
+    numero_portaria: "",
+    ano: "",
+    numero_sei: "",
+    doc: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: new Date(),
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+  },
 };
 
 describe("formSchemaApostila", () => {
@@ -44,10 +55,10 @@ describe("formSchemaApostila", () => {
       designacao_data_final: null,
       ano: "2026",
       impedimento_substituicao: null,
-      carater_especial: "nao",
-      com_afastamento: "nao",
+      carater_especial: EnumCheckbox.NAO,
+      com_afastamento: EnumCheckbox.NAO,
       motivo_afastamento: "",
-      com_pendencia: "nao",
+      com_pendencia: EnumCheckbox.NAO,
       motivo_pendencia: "",
       dre: "108200",
       dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
@@ -55,6 +66,7 @@ describe("formSchemaApostila", () => {
       ue_nome: "EMEF - Unidade Teste",
       codigo_hierarquico: "EH-123",
       nome_servidor: "João da Silva",
+      cessacao: null,
     });
 
     expect(result.success).toBe(true);
@@ -67,14 +79,24 @@ describe("formSchemaApostila", () => {
       portaria_designacao: "",
       numero_sei: "",
       ano: "",
-      carater_especial: "",
-      com_afastamento: "",
-      com_pendencia: "",
+      carater_especial: EnumCheckbox.NAO,
+      com_afastamento: EnumCheckbox.NAO,
+      com_pendencia: EnumCheckbox.NAO,
       dre: "",
       dre_nome: "",
       ue: "",
       ue_nome: "",
       codigo_hierarquico: "",
+      cessacao: {
+        numero_portaria: "",
+        ano: "",
+        numero_sei: "",
+        doc: "",
+        a_pedido: EnumCheckbox.NAO,
+        data_inicio: new Date(),
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
+      },
     });
 
     expect(result.success).toBe(false);

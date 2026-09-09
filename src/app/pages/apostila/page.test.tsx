@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApostilaPage from "./page";
 import type { formSchemaApostilaData } from "./schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 let mockIsLoading = false;
 let mockId: string | null = "1";
@@ -81,12 +82,22 @@ const valoresPadrao: formSchemaApostilaData = {
   numero_sei: "",
   a_partir_de: new Date(),
   ano: "",
-  carater_especial: "",
-  com_afastamento: "",
+  carater_especial: EnumCheckbox.NAO,
+  com_afastamento: EnumCheckbox.NAO,
+  com_pendencia: EnumCheckbox.NAO,
   motivo_afastamento: "",
   impedimento_label: "",
-  com_pendencia: "",
   motivo_pendencia: "",
+  cessacao: {
+    numero_portaria: "",
+    ano: "",
+    numero_sei: "",
+    doc: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: new Date(),
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+  },  
 };
 
 const {
@@ -123,12 +134,22 @@ const {
     numero_sei: "",
     a_partir_de: new Date(),
     ano: "",
-    carater_especial: "",
-    com_afastamento: "",
+    carater_especial: EnumCheckbox.NAO,
+    com_afastamento: EnumCheckbox.NAO,
+    com_pendencia: EnumCheckbox.NAO,
     motivo_afastamento: "",
     impedimento_label: "",
-    com_pendencia: "",
     motivo_pendencia: "",
+    cessacao: {
+      numero_portaria: "",
+      ano: "",
+      numero_sei: "",
+      doc: "",
+      a_pedido: EnumCheckbox.NAO,
+      data_inicio: new Date(),
+      remocao: EnumCheckbox.NAO,
+      aposentadoria: EnumCheckbox.NAO,
+    },
   }));
 
   return {

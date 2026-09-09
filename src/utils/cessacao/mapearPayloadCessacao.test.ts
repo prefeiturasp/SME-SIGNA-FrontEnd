@@ -1,5 +1,6 @@
 import { mapearPayloadCessacao } from "./mapearPayloadCessacao";
 import type { formSchemaCessacaoData } from "@/app/pages/cessacao/schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 describe("mapearPayloadCessacao", () => {
   it("deve mapear corretamente os dados da cessação", () => {
@@ -10,9 +11,9 @@ describe("mapearPayloadCessacao", () => {
         numero_sei: "999999",
         doc: "DOC123",
         data_inicio: new Date("2026-04-13T10:00:00Z"),
-        a_pedido: "sim",
-        remocao: "nao",
-        aposentadoria: "nao",
+        a_pedido: EnumCheckbox.SIM,
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
       },
     };
 
@@ -39,9 +40,9 @@ describe("mapearPayloadCessacao", () => {
         numero_sei: "123",
         doc: "DOC",
         data_inicio: new Date("2025-01-01"),
-        a_pedido: "nao",
-        remocao: "sim",
-        aposentadoria: "sim",
+        a_pedido: EnumCheckbox.NAO,
+        remocao: EnumCheckbox.SIM,
+        aposentadoria: EnumCheckbox.SIM,
       },
     };
 
@@ -60,9 +61,9 @@ describe("mapearPayloadCessacao", () => {
         numero_sei: "123",
         doc: "DOC",
         data_inicio: new Date("2025-12-25T15:30:00Z"),
-        a_pedido: "nao",
-        remocao: "nao",
-        aposentadoria: "nao",
+        a_pedido: EnumCheckbox.NAO,
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
       },
     };
 
@@ -79,9 +80,9 @@ describe("mapearPayloadCessacao", () => {
         numero_sei: "123",
         doc: "",
         data_inicio: new Date("2025-01-01"),
-        a_pedido: "nao",
-        remocao: "nao",
-        aposentadoria: "nao",
+        a_pedido: EnumCheckbox.NAO,
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
       },
     };
 

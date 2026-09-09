@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useSalvarCessacao } from "./useSalvarCessacao";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 // ── Mocks ────────────────────────────────────────
 
@@ -42,10 +43,10 @@ const valuesMock = {
     numero_portaria: "123",
     ano: "2026",
     numero_sei: "SEI-123",
-    a_pedido: "nao" as const,
+    a_pedido: EnumCheckbox.NAO,
     data_inicio: new Date("2026-01-01"),
-    remocao: "nao" as const,
-    aposentadoria: "nao" as const,
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
   },
 };
 
