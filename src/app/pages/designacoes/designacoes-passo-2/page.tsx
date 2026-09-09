@@ -279,14 +279,18 @@ export default function DesignacoesPasso2() {
   }, [tipoCargo]);
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
-    setFormDesignacaoData({
-      ...formDesignacaoData!,
-      servidorIndicado: {
-        ...formDesignacaoData!.servidorIndicado!,
-        nome_servidor: data.nome_servidor,
-        nome_civil: data.nome_civil,
-        categoria: data.categoria ?? "",
-      },
+    setFormDesignacaoData((prevState) => {
+      if (!prevState?.servidorIndicado) return prevState;
+
+      return {
+        ...prevState,
+        servidorIndicado: {
+          ...prevState.servidorIndicado,
+          nome_servidor: data.nome_servidor,
+          nome_civil: data.nome_civil,
+          categoria: data.categoria ?? "",
+        },
+      };
     });
   }
 
