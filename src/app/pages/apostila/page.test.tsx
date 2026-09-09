@@ -1,4 +1,3 @@
-import React from "react";
 import type { ReactNode } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,6 +7,8 @@ import type { formSchemaApostilaData } from "./schema";
 let mockIsLoading = false;
 let mockId: string | null = "1";
 let mockOrigem: string | null = null;
+let mockIsDirty = false;
+let mockIsValid = true;
 
 type DesignacaoMock = {
   numero_portaria?: string;
@@ -20,6 +21,10 @@ type DesignacaoMock = {
   indicado_cargo_base?: string;
   indicado_cargo_sobreposto?: string;
   indicado_local_exercicio?: string;
+  indicado_nome_civil?: string;
+  indicado_lotacao?: string;
+  indicado_categoria?: string;
+  cargo_vaga?: number | null;
   dre?: string;
   dre_nome?: string;
   ue?: string;
@@ -70,7 +75,8 @@ const valoresPadrao: formSchemaApostilaData = {
   codigo_hierarquico: "",
   informacoes_adicionais: "",
   detalhe_para_quadro_de_historico_por_ano: false,
-  texto_para_apostila: "",
+  texto_portaria: "",
+  nome_servidor: "",
   portaria_designacao: "",
   numero_sei: "",
   a_partir_de: new Date(),
@@ -78,7 +84,7 @@ const valoresPadrao: formSchemaApostilaData = {
   carater_especial: "",
   com_afastamento: "",
   motivo_afastamento: "",
-  impedimento_label: "",  
+  impedimento_label: "",
   com_pendencia: "",
   motivo_pendencia: "",
 };
@@ -90,18 +96,20 @@ const {
   handleSubmitMock,
   notificationSuccessMock,
   notificationErrorMock,
-  gerarHtmlPortariaMock,
   pageHeaderSpy,
   accordionSpy,
   customAccordionItemSpy,
   portariaDesignacaoFieldsSpy,
   informacoesAdicionaisSpy,
-  textoPraApostilaSpy,
   camposPesquisaUnidadeSpy,
+  camposEditarServidorSpy,
+  selectFieldSpy,
+  simpleEditorSpy,
+  editorOnChangeMock,
   resetMock,
 } = vi.hoisted(() => {
   const getValuesMock = vi.fn((): formSchemaApostilaData => ({
-    ato_apostilado: "designação", 
+    ato_apostilado: "designação",
     dre: "",
     dre_nome: "",
     ue: "",
@@ -109,7 +117,8 @@ const {
     codigo_hierarquico: "",
     informacoes_adicionais: "",
     detalhe_para_quadro_de_historico_por_ano: false,
-    texto_para_apostila: "",
+    texto_portaria: "",
+    nome_servidor: "",
     portaria_designacao: "",
     numero_sei: "",
     a_partir_de: new Date(),
@@ -135,14 +144,16 @@ const {
     ),
     notificationSuccessMock: vi.fn(),
     notificationErrorMock: vi.fn(),
-    gerarHtmlPortariaMock: vi.fn((texto: string) => `HTML:${texto}`),
     pageHeaderSpy: vi.fn(),
     accordionSpy: vi.fn(),
     customAccordionItemSpy: vi.fn(),
     portariaDesignacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
-    textoPraApostilaSpy: vi.fn(),
     camposPesquisaUnidadeSpy: vi.fn(),
+    camposEditarServidorSpy: vi.fn(),
+    selectFieldSpy: vi.fn(),
+    simpleEditorSpy: vi.fn(),
+    editorOnChangeMock: vi.fn(),
     resetMock: vi.fn(),
   };
 });
@@ -176,21 +187,18 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
   }),
 }));
 
-vi.mock("@/utils/portarias/templates", () => ({
-  TEMPLATE_APOSTILA: "TEMPLATE {{nome_indicado}} {{portaria_designacao}} {{sei_designacao}}",
+vi.mock("@/hooks/useCargos", () => ({
+  useFetchCargos: () => ({
+    data: [
+      { codigoCargo: 10, nomeCargo: "Professor" },
+      { codigoCargo: 20, nomeCargo: "Coordenador" },
+    ],
+  }),
 }));
 
 vi.mock("@/utils/portarias/formatadores", () => ({
   nameToCamelCase: (valor: string) => valor,
-  nameToCamelCaseUe: (valor: string) => valor,
   formatarRF: (valor: string) => valor,
-  formatarDataPtBr: (valor?: string) => valor ?? "-",
-}));
-
-vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
-  __esModule: true,
-  default: ({ html }: { html: string }) => <div data-testid="editor">{html}</div>,
-  gerarHtmlPortaria: (texto: string) => gerarHtmlPortariaMock(texto),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -241,10 +249,10 @@ vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/TextoPraApostila/TextoPraApostila", () => ({
-  default: (props: { disableFields: boolean }) => {
-    textoPraApostilaSpy(props);
-    return <div data-testid="texto-pra-apostila" />;
+vi.mock("@/components/dashboard/Designacao/ModalEditarServidor/CamposEditarServidor", () => ({
+  default: () => {
+    camposEditarServidorSpy();
+    return <div data-testid="campos-editar-servidor" />;
   },
 }));
 
@@ -272,9 +280,72 @@ vi.mock("@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdic
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
-    <button {...props}>{children}</button>
+  Button: ({
+    children,
+    type,
+    onClick,
+    disabled,
+    "data-testid": dataTestId,
+  }: {
+    children: ReactNode;
+    type?: "button" | "submit" | "reset";
+    onClick?: () => void | Promise<void>;
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => (
+    <button type={type} onClick={() => void onClick?.()} disabled={disabled} data-testid={dataTestId}>
+      {children}
+    </button>
   ),
+}));
+
+vi.mock("@/components/ui/FieldsForm", () => ({
+  SelectField: (props: {
+    name: string;
+    label: string;
+    options: Array<{ value: string; label: string }>;
+    disabled?: boolean;
+  }) => {
+    selectFieldSpy(props);
+    return <div data-testid="select-codigo-cargo-eol">{props.label}</div>;
+  },
+}));
+
+vi.mock("@/components/ui/form", () => ({
+  FormField: ({
+    render,
+  }: {
+    render: (args: {
+      field: { value: string; onChange: (value: string) => void };
+      fieldState: { error?: { message: string } };
+    }) => ReactNode;
+  }) =>
+    render({
+      field: {
+        value: "Texto SEI inicial",
+        onChange: editorOnChangeMock,
+      },
+      fieldState: {},
+    }),
+  FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
+  FormMessage: () => <div data-testid="form-message" />,
+}));
+
+vi.mock("@/components/ui/tiptap-templates/simple/simple-editor", () => ({
+  SimpleEditor: (props: {
+    hasError: boolean;
+    content: string;
+    onChange: (value: string) => void;
+  }) => {
+    simpleEditorSpy(props);
+    return (
+      <button type="button" data-testid="simple-editor" onClick={() => props.onChange("Texto editado")}>
+        {props.content}
+      </button>
+    );
+  },
 }));
 
 vi.mock("antd", () => ({
@@ -293,7 +364,7 @@ vi.mock("react-hook-form", async () => {
     useForm: () => ({
       handleSubmit: handleSubmitMock,
       control: {},
-      formState: { errors: {} },
+      formState: { errors: {}, isDirty: mockIsDirty, isValid: mockIsValid },
       trigger: triggerMock,
       getValues: getValuesMock,
       register: vi.fn(),
@@ -309,6 +380,8 @@ describe("ApostilaPage", () => {
     mockIsLoading = false;
     mockId = "1";
     mockOrigem = null;
+    mockIsDirty = false;
+    mockIsValid = true;
     mockDesignacaoAtual = designacaoPadrao;
     triggerMock.mockResolvedValue(true);
     getValuesMock.mockReturnValue({ ...valoresPadrao });
@@ -322,20 +395,20 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("loading")).toBeInTheDocument();
-    expect(screen.queryByTestId("texto-pra-apostila")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
   });
 
   it("renderiza o título de apostila de designação por padrão", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de designação");
-    expect(screen.getByText("Texto para a apostila")).toBeInTheDocument();
     expect(screen.getByText("Informações adicionais")).toBeInTheDocument();
     expect(screen.getByTestId("accordion")).toBeInTheDocument();
-    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(2);
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(4);
     expect(screen.getByTestId("portaria-designacao-fields")).toBeInTheDocument();
     expect(screen.getByTestId("campos-pesquisa-unidade")).toBeInTheDocument();
-    expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
+    expect(screen.getByTestId("campos-editar-servidor")).toBeInTheDocument();
+    expect(screen.getByTestId("select-codigo-cargo-eol")).toBeInTheDocument();
     expect(screen.getByTestId("informacoes-adicionais")).toBeInTheDocument();
     expect(pageHeaderSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -346,16 +419,18 @@ describe("ApostilaPage", () => {
         ],
       }),
     );
-    expect(textoPraApostilaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ disableFields: false }),
-    );
     expect(informacoesAdicionaisSpy).toHaveBeenCalledWith(
       expect.objectContaining({ disableFields: false }),
     );
     expect(accordionSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         type: "multiple",
-        defaultValue: ["portarias-designacao", "unidade-proponente"],
+        defaultValue: [
+          "portarias-designacao",
+          "unidade-proponente",
+          "servidor-indicado",
+          "cargo-disponivel",
+        ],
       }),
     );
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
@@ -366,6 +441,37 @@ describe("ApostilaPage", () => {
       }),
     );
     expect(portariaDesignacaoFieldsSpy).toHaveBeenCalledWith({ isLoading: false });
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Unidade Proponente",
+        color: "blue",
+        value: "unidade-proponente",
+      }),
+    );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Servidor Indicado",
+        color: "gold",
+        value: "servidor-indicado",
+      }),
+    );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Cargo disponível",
+        color: "green",
+        value: "cargo-disponivel",
+      }),
+    );
+    expect(selectFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "cd_cargo_base",
+        label: "Cargo",
+        options: [
+          { value: "10", label: "Professor" },
+          { value: "20", label: "Coordenador" },
+        ],
+      }),
+    );
   });
 
   it("renderiza o título de apostila de cessação quando a origem é cessacao", () => {
@@ -424,17 +530,17 @@ describe("ApostilaPage", () => {
     });
   });
 
-  it("gera o texto SEI e mostra o editor", async () => {
+  it("gera o texto SEI e mostra o SimpleEditor", async () => {
     render(<ApostilaPage />);
 
     fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("editor")).toBeInTheDocument();
+      expect(screen.getByTestId("simple-editor")).toBeInTheDocument();
     });
-    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("<strong>João</strong>");
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("123");
+    expect(screen.getByText("Texto SEI*")).toBeInTheDocument();
+    expect(screen.getByTestId("simple-editor")).toHaveTextContent("Texto SEI inicial");
+    expect(screen.getByTestId("button-salvar-portaria-apostila")).toBeEnabled();
   });
 
   it("não gera o texto SEI se o formulário for inválido", async () => {
@@ -446,70 +552,7 @@ describe("ApostilaPage", () => {
     await waitFor(() => {
       expect(triggerMock).toHaveBeenCalled();
     });
-    expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
-  });
-
-  it("usa dados da cessação ao gerar o texto quando o ato é cessação", async () => {
-    mockOrigem = "cessacao";
-    mockDesignacaoAtual = {
-      ...designacaoPadrao,
-      cessacao: {
-        numero_portaria: "999",
-        ano_vigente: "2025",
-        sei_numero: "888",
-        doc: "DOC_CESSACAO",
-      },
-    };
-    getValuesMock.mockReturnValue({
-      ...valoresPadrao,
-      ato_apostilado: "cessação",
-    });
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    const texto = gerarHtmlPortariaMock.mock.calls[0][0];
-    expect(texto).toContain("999");
-    expect(texto).toContain("888");
-  });
-
-  it("usa fallback '-' quando os dados da designação estão ausentes", async () => {
-    mockDesignacaoAtual = {
-      cessacao: null,
-    };
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("-");
-  });
-
-  it("usa fallback quando o tipo é cessação mas não existe cessação", async () => {
-    getValuesMock.mockReturnValue({
-      ...valoresPadrao,
-      ato_apostilado: "cessação",
-    });
-    mockDesignacaoAtual = {
-      ...designacaoPadrao,
-      cessacao: null,
-    };
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("-");
+    expect(screen.queryByTestId("simple-editor")).not.toBeInTheDocument();
   });
 
   it("não quebra quando a designação é nula", () => {
@@ -518,7 +561,7 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toBeInTheDocument();
-    expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
+    expect(resetMock).not.toHaveBeenCalled();
   });
 
   it("reseta o formulário com dados completos da designação", () => {
@@ -536,6 +579,8 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(resetMock).toHaveBeenCalledWith({
+      texto_portaria: "A presente portaria apostilada,",
+      ato_apostilado: "designação",
       portaria_designacao: "123",
       ano: "2024",
       numero_sei: "999",
@@ -553,6 +598,18 @@ describe("ApostilaPage", () => {
       ue: "UE-1",
       ue_nome: "UE Teste",
       codigo_hierarquico: "EH",
+      nome_civil: "",
+      nome_servidor: "João",
+      rf: "123456",
+      vinculo: "CLT",
+      cargo_base: "PROFESSOR",
+      cd_cargo_base: "",
+      cargo_sobreposto_funcao_atividade: "COORDENADOR",
+      local_de_exercicio: "ESCOLA",
+      lotacao: "-",
+      categoria: "-",
+      cursos_titulos: "-",
+      laudo_medico: "Indisponível",
     });
   });
 
@@ -583,9 +640,56 @@ describe("ApostilaPage", () => {
         motivo_afastamento: "",
         com_pendencia: "nao",
         motivo_pendencia: "",
+        dre: "-",
+        ue: "-",
+        nome_civil: "",
+        nome_servidor: "-",
+        rf: "-",
+        vinculo: "-",
+        cargo_base: "-",
+        cd_cargo_base: "",
+        cargo_sobreposto_funcao_atividade: "-",
+        local_de_exercicio: "-",
+        lotacao: "-",
+        categoria: "-",
       }),
     );
     expect(resetMock.mock.calls[0][0].a_partir_de).toBeInstanceOf(Date);
+  });
+
+  it("não reseta dados carregados quando o formulário está sujo", () => {
+    mockIsDirty = true;
+
+    render(<ApostilaPage />);
+
+    expect(resetMock).not.toHaveBeenCalled();
+  });
+
+  it("desabilita os botões de gerar e salvar quando o formulário é inválido", async () => {
+    mockIsValid = false;
+
+    render(<ApostilaPage />);
+
+    expect(screen.getByRole("button", { name: "Gerar texto SEI" })).toBeDisabled();
+  });
+
+  it("propaga alteração do editor de texto SEI", async () => {
+    render(<ApostilaPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simple-editor")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("simple-editor"));
+
+    expect(editorOnChangeMock).toHaveBeenCalledWith("Texto editado");
+    expect(simpleEditorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hasError: false,
+        content: "Texto SEI inicial",
+      }),
+    );
   });
 
   it("executa os callbacks de informações adicionais", () => {
@@ -600,19 +704,4 @@ describe("ApostilaPage", () => {
     consoleLogSpy.mockRestore();
   });
 
-  it("substitui valor nulo por string vazia ao gerar o texto", async () => {
-    const objectEntriesSpy = vi.spyOn(Object, "entries").mockImplementationOnce(() => [
-      ["nome_indicado", "Servidor"],
-      ["portaria_designacao", null],
-    ]);
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    objectEntriesSpy.mockRestore();
-  });
 });

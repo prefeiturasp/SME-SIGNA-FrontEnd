@@ -10,7 +10,9 @@ const payloadValido: formSchemaApostilaData = {
   codigo_hierarquico: "EH-123",
   informacoes_adicionais: "Observação",
   detalhe_para_quadro_de_historico_por_ano: true,
-  texto_para_apostila: "Texto para apostilar",
+  texto_portaria: "Texto para portaria apostilada",
+  nome_servidor: "João da Silva",
+  
   portaria_designacao: "123",
   numero_sei: "SEI-123",
   a_partir_de: new Date("2026-01-10"),
@@ -52,6 +54,7 @@ describe("formSchemaApostila", () => {
       ue: "123456",
       ue_nome: "EMEF - Unidade Teste",
       codigo_hierarquico: "EH-123",
+      nome_servidor: "João da Silva",
     });
 
     expect(result.success).toBe(true);
@@ -77,7 +80,7 @@ describe("formSchemaApostila", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
-        "Campo obrigatório",                      
+        "Selecione um ato apostilado",
         "selecione se possui carater especial ",
         "selecione se possui afastamento",
         "Selecione se possui pendêcia",
