@@ -19,7 +19,7 @@ import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaD
 import CamposPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade";
 import CamposEditarServidor from "@/components/dashboard/Designacao/ModalEditarServidor/CamposEditarServidor";
 import { useFetchCargos } from "@/hooks/useCargos";
-import { SelectField,EnumCheckbox } from "@/components/ui/FieldsForm";
+import { SelectField, EnumCheckbox, InputField } from "@/components/ui/FieldsForm";
 import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/components/ui/form";
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
@@ -28,7 +28,7 @@ export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const origem = searchParams.get("origem");
-  const atoApostiladoPadrao = origem === "cessacao" ? "cessação" : "designação";
+  const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
   const router = useRouter();
   const notification = useAppNotification();
 
@@ -44,6 +44,7 @@ export default function ApostilaPage() {
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
+      
       dre: "",
       dre_nome: "",
       ue: "",
@@ -52,7 +53,7 @@ export default function ApostilaPage() {
 
       informacoes_adicionais: "",
       detalhe_para_quadro_de_historico_por_ano: false,
-      ato_apostilado: atoApostiladoPadrao,
+      ato_apostilado: origem ?? "",
 
 
       portaria_designacao: "",
@@ -81,6 +82,7 @@ export default function ApostilaPage() {
       cursos_titulos: "",
       laudo_medico: "",
       cd_cargo_base: "",
+      titular_cargo_sobreposto: "",
 
 
       cessacao: {
@@ -117,7 +119,7 @@ export default function ApostilaPage() {
 
       form.reset({
         texto_portaria: "A presente portaria apostilada,",
-        ato_apostilado: atoApostiladoPadrao,
+        ato_apostilado: origem ?? "",
 
         // campos portaria de designacao
         portaria_designacao: designacao?.numero_portaria ?? "",
@@ -156,6 +158,9 @@ export default function ApostilaPage() {
         cursos_titulos: "-",
         laudo_medico: "Indisponível",
 
+        // campos servidor titular
+        titular_cargo_sobreposto: nameToCamelCase(designacao?.titular_cargo_sobreposto ?? "-"),
+
 
         // campos portaria de cessação
         cessacao: cessacaoFieldsValues,
@@ -189,9 +194,9 @@ export default function ApostilaPage() {
   return (
     <>
       <PageHeader
-        title={`Apostila de ${atoApostiladoPadrao}`}
+        title={`Apostila de ${atoApostiladoDisplay}`}
         breadcrumbs={[{ title: "Início", href: "/" },
-        { title: `Apostila de ${atoApostiladoPadrao}` }]}
+        { title: `Apostila de ${atoApostiladoDisplay}` }]}
         showBackButton={true}
       />
       <FormProvider {...form}>
@@ -207,7 +212,7 @@ export default function ApostilaPage() {
               className="mt-4 m-0"
               title={
                 <div className="flex justify-between items-center">
-                  <span className="text-[#333] text-[14px] font-bold">{nameToCamelCase(atoApostiladoPadrao)}</span>
+                  <span className="text-[#333] text-[14px] font-bold">{nameToCamelCase(atoApostiladoDisplay)}</span>
                 </div>
               }
             >
@@ -215,7 +220,7 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "portarias-cessacao"]}
+                  defaultValue={["portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
                 >
                   <CustomAccordionItem
                     title="Portarias de designação"
@@ -244,10 +249,11 @@ export default function ApostilaPage() {
                     />
                   </CustomAccordionItem>
 
+                  {designacao?.tipo_vaga === "VAGO" && (
                   <CustomAccordionItem
-                    title="Cargo disponível"
+                    title="Cargo vago"
                     color="green"
-                    value="cargo-disponivel"
+                    value="cargo-vago"
                   >
                     <div className="grid grid-cols-4 " >
                       <SelectField
@@ -263,8 +269,29 @@ export default function ApostilaPage() {
                       />
                     </div>
                   </CustomAccordionItem>
+                  )}
 
-                  {atoApostiladoPadrao === "cessação" && (
+                  {designacao?.tipo_vaga === "DISPONIVEL" && (
+                    <CustomAccordionItem
+                      title="Cargo disponível"
+                      color="green"
+                      value="cargo-disponivel"
+                    >
+                      <div className="grid grid-cols-4 " >
+                        <InputField
+                          register={form.register}
+                          control={form.control}
+                          name="titular_cargo_sobreposto"
+                          label="Cargo"                          
+                          data-testid="input-cargo-base"                          
+                          disabled
+                        />
+                      </div>
+                    </CustomAccordionItem>
+                  )}
+
+
+                  {origem === "cessacao" && (
                     <CustomAccordionItem title="Portaria de cessação" value="portarias-cessacao" color="silver">
                       <PortariaCessacaoFields />
                     </CustomAccordionItem>
@@ -286,14 +313,14 @@ export default function ApostilaPage() {
                 />
               </div>
 
-              <div className="w-full flex justify-end pt-[2rem]">
-                <div className="w-[200px]">
+              <div className="w-full flex justify-end pt-8">
+                <div className="w-50">
                   <Button
                     type="button"
                     size="lg"
                     className="w-full flex items-center justify-center gap-6"
                     variant="destructive"
-                    disabled={!form.formState.isValid}
+                     disabled={!form.formState.isValid}
                     onClick={async () => {
                       const isValid = await form.trigger();
                       if (!isValid) return;
@@ -317,7 +344,7 @@ export default function ApostilaPage() {
                           <FormLabel className="required text-[#313131] font-bold">
                             Texto SEI*
                           </FormLabel>
-                          <FormLabel className="required font-[400]">
+                          <FormLabel className="required font-normal">
                             Digite o texto SEI que será publicado no Diário Oficial (D.O).
                           </FormLabel>
                         </div>

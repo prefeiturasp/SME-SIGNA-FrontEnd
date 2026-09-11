@@ -3,6 +3,7 @@ import formSchemaApostila, { type formSchemaApostilaData } from "./schema";
 import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 const cessacaoValida: formSchemaApostilaData["cessacao"] = {
+  origem: "cessacao",
   numero_portaria: "456",
   ano: "2026",
   numero_sei: "SEI-CESSACAO",
@@ -14,7 +15,7 @@ const cessacaoValida: formSchemaApostilaData["cessacao"] = {
 };
 
 const payloadValido: formSchemaApostilaData = {
-  ato_apostilado: "designação",
+  ato_apostilado: "designacao",
   dre: "108200",
   dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
   ue: "123456",
@@ -50,7 +51,7 @@ describe("formSchemaApostila", () => {
 
   it("aceita campos opcionais ausentes ou nulos", () => {
     const result = formSchemaApostila.safeParse({
-      ato_apostilado: "designação",
+      ato_apostilado: "designacao",
       portaria_designacao: "123",
       numero_sei: "SEI-123",
       a_partir_de: new Date("2026-01-10"),
