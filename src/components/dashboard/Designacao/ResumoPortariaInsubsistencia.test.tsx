@@ -28,6 +28,8 @@ describe("ResumoPortariaInsubsistencia", () => {
           ato_apostilado_display: "",
           tipo_insubsistencia: "",
           tipo: "",
+          texto_sei: "",
+          modelo_portaria: null,
         }}
       />
     );
@@ -63,6 +65,8 @@ describe("ResumoPortariaInsubsistencia", () => {
           ato_apostilado_display: "",
           tipo_insubsistencia: "",
           tipo: "",
+          texto_sei: "",
+          modelo_portaria: null,
         }}
       />
     );

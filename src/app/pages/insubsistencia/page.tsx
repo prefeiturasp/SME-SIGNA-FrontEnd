@@ -29,43 +29,47 @@ import { Label } from "@/components/ui/label";
 import formSchemaInsubsistencia, { formSchemaInsubsistenciaData } from "./schema";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import { montarDadosTextoSeiInsubsistencia } from "@/utils/insubsistencia/montarDadosTextoSei";
+import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
+import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
-import {  TEMPLATE_INSUBSISTENCIA_CESSACAO, TEMPLATE_INSUBSISTENCIA_DESIGNACAO } from "@/utils/portarias/templates";
 import { formatarData } from "@/lib/utils";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 import { Cessacao, DesignacaoResponse } from "@/types/designacao";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 
-
-
+// Mantida (e anida exportada) pois `visualizar-insubsistencia/[id]/page.tsx`
+// a importa para regerar o texto localmente de registros antigos, que
+// ainda não têm `texto_sei` salvo no banco. O fluxo de criação abaixo não usa
+// mais essa função — chama o backend via `gerarPreviewTextoSeiAction`.
 export const gerarDadosInsubsistencia = (values: formSchemaInsubsistenciaData, designacao: DesignacaoResponse | undefined, cessacao: Cessacao | null | undefined) => {
   let periodo_insubsistencia = "";
-   
-  
+
+
 
   if(designacao?.data_fim){
     periodo_insubsistencia = " no período de "+formatarData(designacao?.data_inicio ?? "")+" a "+formatarData(designacao?.data_fim ?? "");
   } else {
     periodo_insubsistencia = " a partir de "+formatarData(designacao?.data_inicio ?? "");
   }
-  
-  
+
+
   return  {
 
   doc: values.insubsistencia.doc,
   portaria: values.insubsistencia.numero_portaria,
   ano: values.insubsistencia.ano,
   sei: values.insubsistencia.numero_sei,
-  dre: designacao?.dre_nome ?? "-",    
+  dre: designacao?.dre_nome ?? "-",
   portaria_designacao: designacao?.numero_portaria ?? "-",
-  
+
   doc_designacao: formatarData(designacao?.doc ?? ""),
   sei_designacao: designacao?.sei_numero ?? "-",
 
   portaria_cessacao: cessacao?.numero_portaria ?? "-",
   doc_cessacao: formatarData(cessacao?.doc ?? ""),
   sei_cessacao: cessacao?.sei_numero ?? "-",
-  
+
   nome_indicado: designacao?.indicado_nome_servidor ?? "-",
   rf: formatarRF(designacao?.indicado_rf ?? "-"),
   vinculo: designacao?.indicado_vinculo ?? "-",
@@ -80,8 +84,6 @@ export const gerarDadosInsubsistencia = (values: formSchemaInsubsistenciaData, d
   trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
 };
 }
-
-
 
 export default function InsubsistenciaPage() {
   const searchParams = useSearchParams();
@@ -157,31 +159,32 @@ export default function InsubsistenciaPage() {
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
+  const [textoSei, setTextoSei] = useState("");
+  const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
+  const [gerandoPreview, setGerandoPreview] = useState(false);
 
-
-  const handleGerarPortaria = () => {
+  const handleGerarPortaria = async () => {
     const values = form.getValues();
-    let texto = TEMPLATE_INSUBSISTENCIA_DESIGNACAO;
+    const dados = montarDadosTextoSeiInsubsistencia(designacao, values.insubsistencia);
+    const tipoAtoPai = tipo_insubsistencia === "cessacao" ? "CESSACAO" : "DESIGNACAO";
 
- 
-    if(tipo_insubsistencia === "cessacao"){            
-      texto = TEMPLATE_INSUBSISTENCIA_CESSACAO;
-    }
-  
-    const dados = gerarDadosInsubsistencia(values,designacao,designacao?.cessacao);
-       
-
-    Object.entries(dados).forEach(([key, value]) => {
-      let val = String(value ?? "");
-
-      if (["nome_indicado"].includes(key)) {
-        val = `<strong>${val}</strong>`;
-      }
-
-      texto = texto.replaceAll(`{{${key}}}`, val);
+    setGerandoPreview(true);
+    const result = await gerarPreviewTextoSeiAction({
+      tipo_portaria: "INSUBSISTENCIA",
+      tipo_ato_pai: tipoAtoPai,
+      tipo_cargo: mapTipoVagaParaTipoCargo(designacao?.tipo_vaga),
+      dados,
     });
+    setGerandoPreview(false);
 
-    setHtmlPortaria(gerarHtmlPortaria(texto));
+    if (!result.success) {
+      notification.error({ title: `Erro ao gerar o texto da portaria: ${result.error}` });
+      return;
+    }
+
+    setTextoSei(result.data.texto);
+    setModeloPortariaId(result.data.modelo_portaria_id);
+    setHtmlPortaria(gerarHtmlPortaria(result.data.texto));
     setMostrarEditor(true);
   };
 
@@ -194,6 +197,8 @@ export default function InsubsistenciaPage() {
         values,
         designacaoId: designacaoId,
         cessacaoId: designacao?.cessacao?.id,
+        textoSei,
+        modeloPortaria: modeloPortariaId,
       });
 
       notification.success({ title: "Insubsistência salva com sucesso!" });
@@ -324,12 +329,13 @@ export default function InsubsistenciaPage() {
                         size="lg"
                         className="w-full flex items-center justify-center gap-6"
                         variant="destructive"
+                        disabled={gerandoPreview}
                         onClick={async () => {
                           const isValid = await form.trigger("insubsistencia");
 
                           if (!isValid) return;
 
-                          handleGerarPortaria();
+                          await handleGerarPortaria();
                         }}>
                         Trechos para o SEI
                       </Button>
