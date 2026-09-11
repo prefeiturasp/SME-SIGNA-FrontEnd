@@ -29,7 +29,34 @@ describe("mapearPayloadCessacao", () => {
       a_pedido: true,
       remocao: false,
       aposentadoria: false,
+      texto_sei: "",
+      modelo_portaria: null,
     });
+  });
+
+  it("repassa texto_sei e modelo_portaria quando informados", () => {
+    const mockValues: formSchemaCessacaoData = {
+      cessacao: {
+        numero_portaria: "123",
+        ano: "2026",
+        numero_sei: "999999",
+        doc: "DOC123",
+        data_inicio: new Date("2026-04-13T10:00:00Z"),
+        a_pedido: EnumCheckbox.SIM,
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
+      },
+    };
+
+    const result = mapearPayloadCessacao(
+      mockValues,
+      10,
+      "Texto gerado pelo back.",
+      7
+    );
+
+    expect(result.texto_sei).toBe("Texto gerado pelo back.");
+    expect(result.modelo_portaria).toBe(7);
   });
 
   it("deve converter corretamente os booleanos", () => {

@@ -60,6 +60,8 @@ const payloadMock = {
   a_pedido: false,
   remocao: false,
   aposentadoria: false,
+  texto_sei: "",
+  modelo_portaria: null,
 };
 
 // ── Testes ───────────────────────────────────────
@@ -88,7 +90,41 @@ describe("useSalvarCessacao", () => {
       });
     });
 
-    expect(mapearPayloadCessacao).toHaveBeenCalledWith(valuesMock, 10);
+    expect(mapearPayloadCessacao).toHaveBeenCalledWith(
+      valuesMock,
+      10,
+      undefined,
+      undefined
+    );
+  });
+
+  it("repassa textoSei e modeloPortaria para mapearPayloadCessacao", async () => {
+    vi.mocked(mapearPayloadCessacao).mockReturnValue(payloadMock);
+    vi.mocked(cessacaoAction).mockResolvedValue({
+      success: true,
+      data: { id: 1 },
+    });
+
+    const { result } = renderHook(() => useSalvarCessacao(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesMock,
+        designacaoId: 10,
+        id: null,
+        textoSei: "Texto gerado pelo back.",
+        modeloPortaria: 7,
+      });
+    });
+
+    expect(mapearPayloadCessacao).toHaveBeenCalledWith(
+      valuesMock,
+      10,
+      "Texto gerado pelo back.",
+      7
+    );
   });
 
   it("chama cessacaoAction com payload e id corretos", async () => {

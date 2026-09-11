@@ -134,5 +134,8 @@ export function mapearPayloadDesignacao(
         cargo_vaga: cargoVaga,
         informacoes_adicionais: form.informacoes_adicionais,
         detalhe_para_quadro_de_historico_por_ano: form.detalhe_para_quadro_de_historico_por_ano,
+
+        texto_sei: form.texto_sei ?? "",
+        modelo_portaria: form.modelo_portaria ?? null,
     };
 }

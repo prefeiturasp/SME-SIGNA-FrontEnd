@@ -23,6 +23,8 @@ export type FormDesignacaoEServidorIndicado =
     designacaoUnidade?: DesignacaoUnidadeResponse;
     informacoes_adicionais?: string;
     detalhe_para_quadro_de_historico_por_ano?: boolean;
+    texto_sei?: string;
+    modelo_portaria?: number | null;
   };
 
 type DesignacaoContextValue = {

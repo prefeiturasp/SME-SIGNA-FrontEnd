@@ -66,7 +66,33 @@ describe("useSalvarInsubsistencia", () => {
       sei_numero: "6016.2026/0001-1",
       doc: "DOC-01",
       observacoes: "obs teste",
+      texto_sei: "",
+      modelo_portaria: null,
     });
+  });
+
+  it("repassa textoSei e modeloPortaria quando informados", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: { id: 1 } });
+
+    const { result } = renderHook(() => useSalvarInsubsistencia(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesMock,
+        designacaoId: 10,
+        textoSei: "Texto gerado pelo back.",
+        modeloPortaria: 7,
+      });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        texto_sei: "Texto gerado pelo back.",
+        modelo_portaria: 7,
+      })
+    );
   });
 
   it("usa cessacaoId como ato_pai quando tipo_insubsistencia é cessacao", async () => {
