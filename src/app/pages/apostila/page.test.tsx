@@ -26,6 +26,8 @@ type DesignacaoMock = {
   indicado_lotacao?: string;
   indicado_categoria?: string;
   cargo_vaga?: number | null;
+  tipo_vaga?: "VAGO" | "DISPONIVEL" | string;
+  titular_cargo_sobreposto?: string;
   dre?: string;
   dre_nome?: string;
   ue?: string;
@@ -66,6 +68,7 @@ const designacaoPadrao: NonNullable<DesignacaoMock> = {
   ue: "UE-1",
   unidade_proponente: "UE Teste",
   codigo_hierarquico: "EH",
+  tipo_vaga: "VAGO",
   cessacao: null,
 };
 
@@ -120,6 +123,7 @@ const {
   camposPesquisaUnidadeSpy,
   camposEditarServidorSpy,
   selectFieldSpy,
+  inputFieldSpy,
   simpleEditorSpy,
   editorOnChangeMock,
   resetMock,
@@ -179,6 +183,7 @@ const {
     camposPesquisaUnidadeSpy: vi.fn(),
     camposEditarServidorSpy: vi.fn(),
     selectFieldSpy: vi.fn(),
+    inputFieldSpy: vi.fn(),
     simpleEditorSpy: vi.fn(),
     editorOnChangeMock: vi.fn(),
     resetMock: vi.fn(),
@@ -347,6 +352,15 @@ vi.mock("@/components/ui/FieldsForm", () => ({
     selectFieldSpy(props);
     return <div data-testid="select-codigo-cargo-eol">{props.label}</div>;
   },
+  InputField: (props: {
+    name: string;
+    label: string;
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => {
+    inputFieldSpy(props);
+    return <input aria-label={props.label} data-testid={props["data-testid"]} disabled={props.disabled} />;
+  },
 }));
 
 vi.mock("@/components/ui/form", () => ({
@@ -468,6 +482,7 @@ describe("ApostilaPage", () => {
           "unidade-proponente",
           "servidor-indicado",
           "cargo-disponivel",
+          "cargo-vago",
           "portarias-cessacao",
         ],
       }),
@@ -496,9 +511,9 @@ describe("ApostilaPage", () => {
     );
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Cargo disponível",
+        title: "Cargo vago",
         color: "green",
-        value: "cargo-disponivel",
+        value: "cargo-vago",
       }),
     );
     expect(selectFieldSpy).toHaveBeenCalledWith(
@@ -535,6 +550,33 @@ describe("ApostilaPage", () => {
           { title: "Início", href: "/" },
           { title: "Apostila de cessação" },
         ],
+      }),
+    );
+  });
+
+  it("renderiza cargo disponível como campo desabilitado quando tipo_vaga é DISPONIVEL", () => {
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      tipo_vaga: "DISPONIVEL",
+      titular_cargo_sobreposto: "Diretor",
+    };
+
+    render(<ApostilaPage />);
+
+    expect(screen.queryByTestId("select-codigo-cargo-eol")).not.toBeInTheDocument();
+    expect(screen.getByTestId("input-cargo-base")).toBeDisabled();
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Cargo disponível",
+        color: "green",
+        value: "cargo-disponivel",
+      }),
+    );
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "titular_cargo_sobreposto",
+        label: "Cargo",
+        disabled: true,
       }),
     );
   });
@@ -623,6 +665,11 @@ describe("ApostilaPage", () => {
       com_afastamento: true,
       motivo_afastamento: "Afastamento",
       pendencias: "Pendência",
+      cargo_vaga: 20,
+      indicado_nome_civil: "Maria Civil",
+      indicado_lotacao: "Lotação",
+      indicado_categoria: "A",
+      titular_cargo_sobreposto: "SUPERVISOR",
       cessacao: {
         numero_portaria: "987",
         ano_vigente: "2025",
@@ -639,7 +686,7 @@ describe("ApostilaPage", () => {
 
     expect(resetMock).toHaveBeenCalledWith({
       texto_portaria: "A presente portaria apostilada,",
-      ato_apostilado: "designação",
+      ato_apostilado: "",
       portaria_designacao: "123",
       ano: "2024",
       numero_sei: "999",
@@ -657,18 +704,19 @@ describe("ApostilaPage", () => {
       ue: "UE-1",
       ue_nome: "UE Teste",
       codigo_hierarquico: "EH",
-      nome_civil: "",
+      nome_civil: "Maria Civil",
       nome_servidor: "João",
       rf: "123456",
       vinculo: "CLT",
       cargo_base: "PROFESSOR",
-      cd_cargo_base: "",
+      cd_cargo_base: "20",
       cargo_sobreposto_funcao_atividade: "COORDENADOR",
       local_de_exercicio: "ESCOLA",
-      lotacao: "-",
-      categoria: "-",
+      lotacao: "Lotação",
+      categoria: "A",
       cursos_titulos: "-",
       laudo_medico: "Indisponível",
+      titular_cargo_sobreposto: "SUPERVISOR",
       cessacao: {
         numero_portaria: "987",
         ano: "2025",
@@ -721,6 +769,7 @@ describe("ApostilaPage", () => {
         local_de_exercicio: "-",
         lotacao: "-",
         categoria: "-",
+        titular_cargo_sobreposto: "-",
         cessacao: {
           numero_portaria: "",
           ano: "",

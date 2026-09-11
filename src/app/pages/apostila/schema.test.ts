@@ -143,6 +143,7 @@ describe("formSchemaApostila", () => {
   it("retorna erros dos campos obrigatórios de cessação quando vazios", () => {
     const result = formSchemaApostila.safeParse({
       ...payloadValido,
+      ato_apostilado: "cessacao",
       cessacao: {
         ...cessacaoValida,
         numero_portaria: "",
@@ -163,6 +164,34 @@ describe("formSchemaApostila", () => {
         "Campo obrigatório",
         "Campo obrigatório",
       ]);
+    }
+  });
+
+  it("aceita cessação nula quando o ato apostilado é designação", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      ato_apostilado: "designacao",
+      cessacao: null,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("exige dados de cessação quando o ato apostilado é cessacao", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      ato_apostilado: "cessacao",
+      cessacao: null,
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]).toEqual(
+        expect.objectContaining({
+          path: ["cessacao"],
+          message: "Invalid input: expected object, received null",
+        }),
+      );
     }
   });
 });
