@@ -24,6 +24,8 @@ import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/comp
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
 import { DesignacaoResponse } from "@/types/designacao";
+import { useSalvarApostila } from "@/hooks/useSalvarApostila";
+import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
 
 
 export default function ApostilaPage() {
@@ -33,7 +35,7 @@ export default function ApostilaPage() {
   const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
   const router = useRouter();
   const notification = useAppNotification();
-
+  const salvarApostila = useSalvarApostila();
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
   const { data: cargosData = [] } = useFetchCargos();
   const cargos = cargosData.map(cargo => ({
@@ -46,7 +48,7 @@ export default function ApostilaPage() {
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
-      
+
       dre: "",
       dre_nome: "",
       ue: "",
@@ -65,7 +67,8 @@ export default function ApostilaPage() {
       a_partir_de: new Date(),
       designacao_data_final: null,
       carater_especial: EnumCheckbox.NAO,
-      impedimento_substituicao: EnumCheckbox.NAO,
+      impedimento_substituicao: "",
+      impedimento_label: "",
       com_afastamento: EnumCheckbox.NAO,
       motivo_afastamento: "",
       com_pendencia: EnumCheckbox.NAO,
@@ -102,9 +105,91 @@ export default function ApostilaPage() {
     mode: "onChange",
   });
 
- const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
-  if (designacao) {
-    return  {
+
+
+
+
+  const [mostrarEditor, setMostrarEditor] = useState(false);
+
+
+  const handleGerarPortaria = () => {
+    setMostrarEditor(true);
+  };
+
+  const gerarAlteracoes = (values: formSchemaApostilaData) => {
+    const alteracoes: ApostilaAlteracoes[] = [];
+    Object.keys(form.formState.dirtyFields).forEach(field => {
+
+      const campoAlterado = values[field as keyof formSchemaApostilaData];
+
+      // remove campos vazios, undefined ou null
+      if(["", undefined, null].includes(campoAlterado)){
+        return;
+      }
+
+      // campos da portaria de cessação
+      if(field.includes("cessacao")){       
+  
+        return Object.keys(values['cessacao']).forEach(cessacaoField => {    
+          if(["", undefined, null].includes(values['cessacao'][cessacaoField])){
+            return;
+          }
+    
+           alteracoes.push({
+            "campo_alterado": cessacaoField,
+            "valor_novo": values['cessacao'][cessacaoField],              
+          });
+        });
+      }
+
+      // campos da portaria de designação na apostila de cessação
+      if(origem === "cessacao" && !field.includes("cessacao")){
+        return alteracoes.push({
+          "campo_alterado": field,
+          "valor_novo": values[field as keyof formSchemaApostilaData],
+          "tipo_ato_alvo": "DESIGNACAO"
+        });
+
+      }
+
+      // campos default
+      alteracoes.push({
+          "campo_alterado": field,
+          "valor_novo": values[field as keyof formSchemaApostilaData]
+        });        
+      
+    });
+
+    return alteracoes;
+  }
+  const onSubmit = async (values: formSchemaApostilaData) => {
+    try {
+      console.log(values);
+      // console.log('form modificado', form.formState.touchedFields, form.formState.dirtyFields);
+
+     const alteracoes = gerarAlteracoes(values);
+      
+      const body: ApostilaBody = {
+        ato_pai: Number(id),
+        sei_numero: "123",
+        doc: "2026-01-01",
+        observacao: "123",
+        alteracoes: alteracoes,
+        texto_sei: values.texto_portaria,
+        numero_portaria: "123",
+      };
+      console.log('body', body);
+      await salvarApostila.mutateAsync({body});
+      notification.success({ title: "Apostila salva com sucesso!" });
+      // router.push("/pages/atos-administrativos");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Erro ao salvar";
+      notification.error({ title: msg });
+    }
+  };
+
+  const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
+    return {
       numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
       ano: designacao?.cessacao?.ano_vigente ?? "",
       numero_sei: designacao?.cessacao?.sei_numero ?? "",
@@ -114,25 +199,15 @@ export default function ApostilaPage() {
       aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
       doc: designacao?.cessacao?.doc ?? "",
     };
-  }
-  return {
-    numero_portaria: "",
-    ano: "",
-    numero_sei: "",
-    a_pedido: EnumCheckbox.NAO,
-    data_inicio: undefined,
-    remocao: EnumCheckbox.NAO,
-    aposentadoria: EnumCheckbox.NAO,
-    doc: "",
   };
- };
 
   useEffect(() => {
     if (designacao && !form.formState.isDirty) {
 
 
       const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
-
+      console.log(cessacaoFieldsValues);
+      console.log('designacao', designacao);
       form.reset({
         texto_portaria: "A presente portaria apostilada,",
         ato_apostilado: origem ?? "",
@@ -145,7 +220,7 @@ export default function ApostilaPage() {
         a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
         designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
         carater_especial: EnumCheckbox.NAO,
-        impedimento_substituicao: designacao?.impedimento_substituicao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        impedimento_substituicao: designacao?.impedimento_substituicao ?? "",
         com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_afastamento: designacao?.motivo_afastamento,
         com_pendencia: designacao?.pendencias ? EnumCheckbox.SIM : EnumCheckbox.NAO,
@@ -175,37 +250,16 @@ export default function ApostilaPage() {
         laudo_medico: "Indisponível",
 
         // campos servidor titular
-        titular_cargo_sobreposto: nameToCamelCase(designacao?.titular_cargo_sobreposto ?? "-"),
+        titular_cargo_sobreposto: nameToCamelCase(designacao.titular_cargo_sobreposto ? designacao.titular_cargo_sobreposto : designacao.titular_cargo_base),
 
 
         // campos portaria de cessação
         cessacao: cessacaoFieldsValues,
       },);
+      
 
     }
-  }, [designacao, form, gerarFormValuesCessacao]);
-
-
-
-  const [mostrarEditor, setMostrarEditor] = useState(false);
-
-
-  const handleGerarPortaria = () => {
-    setMostrarEditor(true);
-  };
-
-  const onSubmit = async (values: formSchemaApostilaData) => {
-    try {
-      console.log(values);
-      notification.success({ title: "Apostila salva com sucesso!" });
-      router.push("/pages/atos-administrativos");
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      notification.error({ title: msg });
-    }
-  };
-
-
+  }, [designacao, form]);
 
   return (
     <>
@@ -266,25 +320,25 @@ export default function ApostilaPage() {
                   </CustomAccordionItem>
 
                   {designacao?.tipo_vaga === "VAGO" && (
-                  <CustomAccordionItem
-                    title="Cargo vago"
-                    color="green"
-                    value="cargo-vago"
-                  >
-                    <div className="grid grid-cols-4 " >
-                      <SelectField
-                        register={form.register}
-                        control={form.control}
-                        name="cd_cargo_base"
-                        label="Cargo"
-                        placeholder="Selecione"
-                        data-testid="select-codigo-cargo-eol"
-                        options={cargos}
-                        showBlankSpace={false}
-                        disabled={false}
-                      />
-                    </div>
-                  </CustomAccordionItem>
+                    <CustomAccordionItem
+                      title="Cargo vago"
+                      color="green"
+                      value="cargo-vago"
+                    >
+                      <div className="grid grid-cols-4 " >
+                        <SelectField
+                          register={form.register}
+                          control={form.control}
+                          name="cd_cargo_base"
+                          label="Cargo"
+                          placeholder="Selecione"
+                          data-testid="select-codigo-cargo-eol"
+                          options={cargos}
+                          showBlankSpace={false}
+                          disabled={false}
+                        />
+                      </div>
+                    </CustomAccordionItem>
                   )}
 
                   {designacao?.tipo_vaga === "DISPONIVEL" && (
@@ -298,8 +352,8 @@ export default function ApostilaPage() {
                           register={form.register}
                           control={form.control}
                           name="titular_cargo_sobreposto"
-                          label="Cargo"                          
-                          data-testid="input-cargo-base"                          
+                          label="Cargo"
+                          data-testid="input-cargo-base"
                           disabled
                         />
                       </div>
@@ -336,7 +390,7 @@ export default function ApostilaPage() {
                     size="lg"
                     className="w-full flex items-center justify-center gap-6"
                     variant="destructive"
-                     disabled={!form.formState.isValid}
+                    disabled={!form.formState.isValid}
                     onClick={async () => {
                       const isValid = await form.trigger();
                       if (!isValid) return;

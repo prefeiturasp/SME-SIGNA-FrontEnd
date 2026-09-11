@@ -1,14 +1,21 @@
 import { Cessacao, DesignacaoResponse } from "./designacao";
 
+
+
+export interface ApostilaAlteracoes {
+    campo_alterado: string;
+    valor_novo: string; 
+    tipo_ato_alvo?: string; 
+}
+
 export interface ApostilaBody {
     ato_pai: number;
     sei_numero: string;
     doc?: string;
     observacao?: string;
-    alteracoes?: {
-        campo_alterado: string;
-        valor_novo: string;
-    }[];
+    alteracoes?: ApostilaAlteracoes[];
+    texto_sei?: string;
+    numero_portaria?: string;
 }
 
  
