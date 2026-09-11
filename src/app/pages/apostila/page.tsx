@@ -26,6 +26,7 @@ import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCess
 import { DesignacaoResponse } from "@/types/designacao";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
+import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
 
 
 export default function ApostilaPage() {
@@ -44,64 +45,71 @@ export default function ApostilaPage() {
   }));
 
 
+  const defaultValues = {
 
-  const form = useForm<formSchemaApostilaData>({
-    resolver: zodResolver(formSchemaApostila),
-    defaultValues: {
-
-      dre: "",
-      dre_nome: "",
-      ue: "",
-      ue_nome: "",
-      codigo_hierarquico: "",
-
-      informacoes_adicionais: "",
-      detalhe_para_quadro_de_historico_por_ano: false,
-      ato_apostilado: origem ?? "",
-
-
-      portaria_designacao: "",
-      ano: "",
+    apostila: {
       numero_sei: "",
       doc: "",
-      a_partir_de: new Date(),
-      designacao_data_final: null,
-      carater_especial: EnumCheckbox.NAO,
-      impedimento_substituicao: "",
-      impedimento_label: "",
-      com_afastamento: EnumCheckbox.NAO,
-      motivo_afastamento: "",
-      com_pendencia: EnumCheckbox.NAO,
-      motivo_pendencia: "",
-
-      // campos cargo disponível
-      nome_civil: "",
-      nome_servidor: "",
-      rf: "",
-      vinculo: 0,
-      cargo_base: "",
-      cargo_sobreposto_funcao_atividade: "",
-      local_de_exercicio: "",
-      lotacao: "",
-      categoria: "",
-      cursos_titulos: "",
-      laudo_medico: "",
-      cd_cargo_base: "",
-      titular_cargo_sobreposto: "",
-
-
-      cessacao: {
-        numero_portaria: "",
-        ano: new Date().getFullYear().toString(),
-        numero_sei: "",
-        a_pedido: EnumCheckbox.NAO,
-        data_inicio: new Date(),
-        remocao: EnumCheckbox.NAO,
-        aposentadoria: EnumCheckbox.NAO,
-        doc: "",
-      },
-
+      observacao: "",
+      numero_portaria: "",
     },
+
+    dre: "",
+    dre_nome: "",
+    ue: "",
+    ue_nome: "",
+    codigo_hierarquico: "",
+
+    informacoes_adicionais: "",
+    detalhe_para_quadro_de_historico_por_ano: false,
+    ato_apostilado: origem ?? "",
+
+
+    portaria_designacao: "",
+    ano: "",
+    numero_sei: "",
+    doc: "",
+    a_partir_de: new Date(),
+    designacao_data_final: null,
+    carater_especial: EnumCheckbox.NAO,
+    impedimento_substituicao: "",
+    impedimento_label: "",
+    com_afastamento: EnumCheckbox.NAO,
+    motivo_afastamento: "",
+    com_pendencia: EnumCheckbox.NAO,
+    motivo_pendencia: "",
+
+    // campos cargo disponível
+    nome_civil: "",
+    nome_servidor: "",
+    rf: "",
+    vinculo: 0,
+    cargo_base: "",
+    cargo_sobreposto_funcao_atividade: "",
+    local_de_exercicio: "",
+    lotacao: "",
+    categoria: "",
+    cursos_titulos: "",
+    laudo_medico: "",
+    cd_cargo_base: "",
+    titular_cargo_sobreposto: "",
+
+
+    cessacao: {
+      numero_portaria: "",
+      ano: new Date().getFullYear().toString(),
+      numero_sei: "",
+      a_pedido: EnumCheckbox.NAO,
+      data_inicio: new Date(),
+      remocao: EnumCheckbox.NAO,
+      aposentadoria: EnumCheckbox.NAO,
+      doc: "",
+    },
+
+  };
+  const form = useForm<formSchemaApostilaData>({
+    resolver: zodResolver(formSchemaApostila),
+    defaultValues: defaultValues,
     mode: "onChange",
   });
 
@@ -122,8 +130,8 @@ export default function ApostilaPage() {
 
       const campoAlterado = values[field as keyof formSchemaApostilaData];
 
-      // remove campos vazios, undefined ou null
-      if(["", undefined, null].includes(campoAlterado)){
+      // remove campos vazios, undefined ou null ou campos da apostila
+      if(["", undefined, null].includes(campoAlterado) || field.includes("apostila")){
         return;
       }
 
@@ -151,6 +159,7 @@ export default function ApostilaPage() {
         });
 
       }
+      
 
       // campos default
       alteracoes.push({
@@ -164,19 +173,17 @@ export default function ApostilaPage() {
   }
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
-      console.log(values);
-      // console.log('form modificado', form.formState.touchedFields, form.formState.dirtyFields);
-
      const alteracoes = gerarAlteracoes(values);
       
       const body: ApostilaBody = {
         ato_pai: Number(id),
-        sei_numero: "123",
-        doc: "2026-01-01",
-        observacao: "123",
+        sei_numero: values.apostila.numero_sei,
+        numero_portaria: values.apostila.numero_portaria,
+        doc: values.apostila.doc,
+        observacao: values.apostila.observacao,
         alteracoes: alteracoes,
         texto_sei: values.texto_portaria,
-        numero_portaria: "123",
+        
       };
       console.log('body', body);
       await salvarApostila.mutateAsync({body});
@@ -209,6 +216,7 @@ export default function ApostilaPage() {
       console.log(cessacaoFieldsValues);
       console.log('designacao', designacao);
       form.reset({
+        ...defaultValues,
         texto_portaria: "A presente portaria apostilada,",
         ato_apostilado: origem ?? "",
 
@@ -290,8 +298,13 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
+                defaultValue={["portaria-apostila","portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
                 >
+
+                <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
+                  <PortariaApostilaFields />              
+                </CustomAccordionItem>
+
                   <CustomAccordionItem
                     title="Portarias de designação"
                     color="purple"

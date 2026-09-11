@@ -16,6 +16,12 @@ const cessacaoValida: formSchemaApostilaData["cessacao"] = {
 
 const payloadValido: formSchemaApostilaData = {
   ato_apostilado: "designacao",
+  apostila: {
+    numero_sei: "SEI-123",
+    numero_portaria: "123",
+    doc: "DOC-123",
+    observacao: "Observação",
+  },
   dre: "108200",
   dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
   ue: "123456",
