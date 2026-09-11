@@ -23,6 +23,8 @@ import { SelectField, EnumCheckbox, InputField } from "@/components/ui/FieldsFor
 import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/components/ui/form";
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
+import { DesignacaoResponse } from "@/types/designacao";
+
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -100,22 +102,36 @@ export default function ApostilaPage() {
     mode: "onChange",
   });
 
-
+ const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
+  if (designacao) {
+    return  {
+      numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
+      ano: designacao?.cessacao?.ano_vigente ?? "",
+      numero_sei: designacao?.cessacao?.sei_numero ?? "",
+      a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+      data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
+      remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+      aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+      doc: designacao?.cessacao?.doc ?? "",
+    };
+  }
+  return {
+    numero_portaria: "",
+    ano: "",
+    numero_sei: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: undefined,
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+    doc: "",
+  };
+ };
 
   useEffect(() => {
     if (designacao && !form.formState.isDirty) {
 
 
-      const cessacaoFieldsValues = {
-        numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
-        ano: designacao?.cessacao?.ano_vigente ?? "",
-        numero_sei: designacao?.cessacao?.sei_numero ?? "",
-        a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-        data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
-        remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-        aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-        doc: designacao?.cessacao?.doc ?? "",
-      };
+      const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
 
       form.reset({
         texto_portaria: "A presente portaria apostilada,",
@@ -167,7 +183,7 @@ export default function ApostilaPage() {
       },);
 
     }
-  }, [designacao, form]);
+  }, [designacao, form, gerarFormValuesCessacao]);
 
 
 
