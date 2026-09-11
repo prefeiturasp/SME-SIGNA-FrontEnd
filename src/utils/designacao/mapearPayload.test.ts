@@ -125,6 +125,24 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.doc).toBe("DOC-001");
     });
 
+    it("repassa texto_sei e modelo_portaria quando presentes", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            texto_sei: "Texto gerado pelo back.",
+            modelo_portaria: 7,
+        });
+
+        expect(result?.texto_sei).toBe("Texto gerado pelo back.");
+        expect(result?.modelo_portaria).toBe(7);
+    });
+
+    it("usa string vazia e null como default para texto_sei e modelo_portaria", () => {
+        const result = mapearPayloadDesignacao({ ...formBase });
+
+        expect(result?.texto_sei).toBe("");
+        expect(result?.modelo_portaria).toBeNull();
+    });
+
     it("inclui campos do titular quando dadosTitular está presente", () => {
         const result = mapearPayloadDesignacao({ ...formBase, dadosTitular });
 
