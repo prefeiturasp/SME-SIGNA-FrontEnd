@@ -53,7 +53,7 @@ vi.mock("@/components/dashboard/Designacao/ResumoPortariaCessacao", () => ({
 const baseProps = {
   dadosIndicado: { nome_servidor: "Servidor" } as unknown as Servidor,
   dadosPortaria: {
-    numero_portaria: "100",
+    numero_portaria: 100,
     ano_vigente: "2026",
     sei_numero: "SEI-100",
     doc: "DOC-100",
@@ -66,7 +66,7 @@ const baseProps = {
   },
   dadosPortariaCessacao: {
     id: 1,
-    numero_portaria: "200",
+    numero_portaria: 200,
     ano_vigente: "2026",
     sei_numero: "SEI-200",
     a_pedido: false,

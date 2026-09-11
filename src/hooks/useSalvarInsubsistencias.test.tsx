@@ -60,7 +60,7 @@ describe("useSalvarInsubsistencias", () => {
 
     expect(insubsistenciaAction).toHaveBeenCalledWith({
       ato_pai: 10,
-      numero_portaria: "001",
+      numero_portaria: 1,
       ano_vigente: "2026",
       sei_numero: "6016.2026/0001-1",
       doc: "2026-03-02",

@@ -181,7 +181,7 @@ describe("designacaoAction", () => {
                 status: 400,
                 data: {
                     detail:
-                        "numero_portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; indicado_local_exercicio: Este campo pode não estar em branco.",
+                        "numero_portaria: Certifique-se de que este valor seja menor ou igual a 2147483647.; indicado_local_exercicio: Este campo pode não estar em branco.",
                 },
             },
             message: "Request failed",
@@ -193,7 +193,7 @@ describe("designacaoAction", () => {
         expect(result).toEqual({
             success: false,
             error:
-                "Numero portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; Indicado local exercicio: Este campo pode não estar em branco.",
+                "Numero portaria: Certifique-se de que este valor seja menor ou igual a 2147483647.; Indicado local exercicio: Este campo pode não estar em branco.",
             field: undefined,
         });
     });

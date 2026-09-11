@@ -138,7 +138,7 @@ export default function ApostilaPage() {
         ato_apostilado: origem ?? "",
 
         // campos portaria de designacao
-        portaria_designacao: designacao?.numero_portaria ?? "",
+        portaria_designacao: String(designacao?.numero_portaria ?? ""),
         ano: designacao?.ano_vigente,
         numero_sei: designacao?.sei_numero ?? "",
         doc: designacao?.doc ?? "",

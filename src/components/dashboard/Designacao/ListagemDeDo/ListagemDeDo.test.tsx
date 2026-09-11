@@ -108,7 +108,7 @@ vi.mock("antd", () => ({
 const rows: ListagemPortariasResponse[] = [
   {
     id: 1,
-    numero_portaria: "100",
+    numero_portaria: 100,
     doc: "",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",
@@ -119,7 +119,7 @@ const rows: ListagemPortariasResponse[] = [
   },
   {
     id: 2,
-    numero_portaria: "101",
+    numero_portaria: 101,
     doc: "2026-05-10",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor B",
@@ -132,7 +132,7 @@ const rows: ListagemPortariasResponse[] = [
 
 const rowWithCessacaoMatch: ListagemPortariasResponse = {
   id: 3,
-  numero_portaria: "102",
+  numero_portaria: 102,
   doc: "2026-05-10",
   tipo_de_ato: "DESIGNACAO_CESSACAO",
   nome: "Servidor C",

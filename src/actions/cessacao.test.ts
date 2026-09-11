@@ -19,7 +19,7 @@ describe("insubsistenciaAction", () => {
   it("delegates para postWithAuth com endpoint e mensagem corretos", async () => {
     const payload = {
       ato_pai: 10,
-      numero_portaria: "001",
+      numero_portaria: 1,
       ano_vigente: "2026",
       sei_numero: "6016.2026/0001-1",
       doc: "DOC-01",

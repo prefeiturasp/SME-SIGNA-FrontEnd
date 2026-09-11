@@ -1,5 +1,6 @@
 "use client";
 import FieldsBase, {  InputFieldType, TextareaFieldType } from "./FieldsBase";
+import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 interface Props {
   isLoading?: boolean;
@@ -14,9 +15,10 @@ const PortariaAnularApostilaFields = ({ isLoading, tipo_portaria, showTextoParaA
     {
       name: "apostila_insubsistencia.portaria",
       label: labelPortaria ?? "Portaria da apostila da "+tipo_portaria,
-      placeholder: "0000",
+      placeholder: "Exemplo: 1234",
       type: "number",
       disabled: false,
+      maxLength: NUMERO_PORTARIA_MAX_DIGITOS,
      },
     {
       name: "apostila_insubsistencia.ano",

@@ -91,7 +91,7 @@ export interface ListagemDesignacoesResponse {
   indicado_rf: string;
   titular_nome_servidor: string;
   titular_rf: string;
-  numero_portaria: string;
+  numero_portaria: number;
   ano_vigente: string;
   sei_numero: string;
   data_inicio: string;
@@ -127,7 +127,7 @@ export interface ListagemAtosAdministrativosResponse {
   rf: string | null;
   numero_sei: string;
   observacoes: string | null;
-  numero_portaria: string;
+  numero_portaria: number | null;
   status_publicacao: string;
   tipo: string;
   tipo_insubsistencia: string | null;
@@ -139,7 +139,7 @@ export interface ListagemAtosAdministrativosResponse {
 }
 export interface ListagemPortariasResponse {
   id: number;
-  numero_portaria: string;
+  numero_portaria: number | null;
   tipo_de_ato: string;
   nome: string;
   cargo: string;
@@ -205,7 +205,7 @@ export interface DesignacaoPaginada {
 
 export interface Cessacao {
   id: number;
-  numero_portaria: string;
+  numero_portaria: number | null;
   ano_vigente: string;
   sei_numero: string;
   a_pedido: boolean;
@@ -269,7 +269,7 @@ export interface DesignacaoResponse {
   titular_codigo_cargo_sobreposto: number;
   titular_local_exercicio: string;
   titular_local_servico: string;
-  numero_portaria: string;
+  numero_portaria: number;
   ano_vigente: string;
   sei_numero: string;
   portaria?: string;//campo temporario, remover após refatoração
