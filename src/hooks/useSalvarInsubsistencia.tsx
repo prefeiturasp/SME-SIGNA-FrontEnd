@@ -17,7 +17,11 @@ export const useSalvarInsubsistencia = () => {
       const atoPai =
         values.insubsistencia.tipo_insubsistencia === "cessacao" && cessacaoId
           ? cessacaoId
-          : (designacaoId as number);
+          : designacaoId;
+
+      if (atoPai === undefined) {
+        throw new Error("Ato de origem (designação ou cessação) não informado.");
+      }
 
       const payload: InsubsistenciaBody = {
         ato_pai: atoPai,

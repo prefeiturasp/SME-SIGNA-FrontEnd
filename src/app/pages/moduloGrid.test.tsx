@@ -38,8 +38,8 @@ describe("ModuleGrid", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         // Mock do window.location
-        delete (window as any).location;
-        window.location = { href: "" } as any;
+        delete (window as unknown as { location?: Location }).location;
+        window.location = { href: "" } as unknown as string & Location;
     });
 
     it("renderiza todos os módulos fornecidos", () => {

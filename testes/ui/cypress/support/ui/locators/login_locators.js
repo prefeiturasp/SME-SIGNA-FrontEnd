@@ -12,7 +12,12 @@ export const loginLocators = {
   botaoOcultarSenha: '[data-testid="btn-ocultar-senha"], .toggle-password, .hide-password',
   
   // Links
-  linkEsqueciSenha: '[data-testid="link-esqueci-senha"], a:contains("Esqueci"), a[href*="recuperar"]',
+  // A tela real renderiza "Esqueci minha senha" como <button type="button"
+  // variant="link"> (shadcn/Button), não como uma tag <a> — confirmado no
+  // componente LoginForm (src/components/login/LoginForm/index.tsx) e no
+  // HTML servido pelo ambiente de QA. Os seletores de <a> ficam como
+  // fallback caso a implementação volte a usar um link real no futuro.
+  linkEsqueciSenha: '[data-testid="link-esqueci-senha"], button:contains("Esqueci"), a:contains("Esqueci"), a[href*="recuperar"]',
   
   // Elementos visuais
   logoSistema: '[data-testid="logo-sistema"], .logo, img[alt*="SIGNA"]',
@@ -24,9 +29,15 @@ export const loginLocators = {
   mensagemCampoObrigatorio: '.campo-obrigatorio, .error-text, .invalid-feedback',
   
   // Menu após login
-  menuPrincipal: '[data-testid="menu-principal"], .menu-principal, nav',
-  menuUsuario: '[data-testid="menu-usuario"], .user-menu, .dropdown-user',
-  opcaoSair: '[data-testid="opcao-sair"], a:contains("Sair"), .logout',
+  // Não existe <nav>, data-testid="menu-principal" nem ".menu-principal" na
+  // aplicação real — o layout autenticado (src/app/pages/layout.tsx) sempre
+  // renderiza <main> (conteúdo) e o <aside> do menu lateral (Sider), então
+  // esses dois elementos servem como indicador confiável de "autenticado".
+  menuPrincipal: '[data-testid="menu-principal"], .menu-principal, main, aside',
+  // Não existe menu/dropdown de usuário na Navbar (src/components/dashboard/
+  // Navbar/Navbar.tsx) — o botão "Sair" (SignOutButton.tsx) fica sempre
+  // visível diretamente no header, sem precisar abrir nada antes.
+  opcaoSair: '[data-testid="opcao-sair"], button:contains("Sair"), a:contains("Sair"), .logout',
   
   // Container
   containerLogin: '[data-testid="container-login"], .login-container, .auth-wrapper',

@@ -5,7 +5,7 @@ import { vi } from "vitest";
 import BotoesDeNavegacao from "./BotoesDeNavegacao";
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Button: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <button {...props}>{children}</button>,
 }));
 
 describe("BotoesDeNavegacao", () => {

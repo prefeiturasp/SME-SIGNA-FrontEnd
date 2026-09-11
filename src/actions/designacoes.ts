@@ -2,6 +2,7 @@
 
 import { DesignacaoResponse } from "@/types/designacao";
 import axios, { AxiosError } from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 
 
@@ -40,7 +41,7 @@ export async function getDesignacaoByIdAction(id: number) {
 
     } catch (err) {
 
-        const error = err as AxiosError<{ detail?: string }>;
+        const error = toAxiosError<{ detail?: string }>(err);
 
         return { success: false, error: getMessage(error) };
     }
@@ -71,7 +72,7 @@ export const excluirDesignacao = async (
 
         return { success: true };
     } catch (err) {
-        const error = err as AxiosError<{ detail?: string }>;
+        const error = toAxiosError<{ detail?: string }>(err);
         return { success: false, error: getMessage(error) };
 
     }

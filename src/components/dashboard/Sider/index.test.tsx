@@ -16,6 +16,34 @@ vi.mock("lucide-react", () => ({
   X: (props: React.SVGProps<SVGSVGElement>) => <svg data-testid="close-icon" {...props} />,
 }));
 
+type MockMenuItem = {
+  key: React.Key;
+  className?: string;
+  label: React.ReactNode;
+  children?: MockMenuItem[];
+};
+
+const renderMockMenuItems = (
+  items: MockMenuItem[],
+  onClick?: (info: { key: string }) => void,
+): React.ReactNode =>
+  items.map((item) =>
+    item.children ? (
+      <div key={item.key} data-testid="submenu" data-classname={item.className}>
+        <div>{item.label}</div>
+        <div>{renderMockMenuItems(item.children, onClick)}</div>
+      </div>
+    ) : (
+      <button
+        key={item.key}
+        data-testid={`menu-item-${String(item.key)}`}
+        onClick={() => onClick?.({ key: String(item.key) })}
+      >
+        {item.label}
+      </button>
+    ),
+  );
+
 vi.mock("antd", () => ({
   Button: ({
     icon,
@@ -63,15 +91,17 @@ vi.mock("antd", () => ({
     ),
   },
   Menu: ({
+    items,
     openKeys,
     selectedKeys,
     onOpenChange,
-    children,
+    onClick,
   }: {
+    items?: MockMenuItem[];
     openKeys?: string[];
     selectedKeys?: string[];
     onOpenChange?: (newOpenKeys: string[]) => void;
-    children: React.ReactNode;
+    onClick?: (info: { key: string }) => void;
   }) => (
     <div
       data-testid="menu-root"
@@ -81,40 +111,7 @@ vi.mock("antd", () => ({
       <button data-testid="trigger-open-change" onClick={() => onOpenChange?.(["root-2"])}>
         open-change
       </button>
-      {children}
-    </div>
-  ),
-}));
-
-vi.mock("antd/es/menu/MenuItem", () => ({
-  default: ({
-    id,
-    onClick,
-    children,
-  }: {
-    id?: string;
-    onClick?: () => void;
-    children: React.ReactNode;
-  }) => (
-    <button data-testid={`menu-item-${id ?? "unknown"}`} onClick={onClick}>
-      {children}
-    </button>
-  ),
-}));
-
-vi.mock("antd/es/menu/SubMenu", () => ({
-  default: ({
-    className,
-    title,
-    children,
-  }: {
-    className?: string;
-    title: React.ReactNode;
-    children: React.ReactNode;
-  }) => (
-    <div data-testid="submenu" data-classname={className}>
-      <div>{title}</div>
-      <div>{children}</div>
+      {renderMockMenuItems(items ?? [], onClick)}
     </div>
   ),
 }));

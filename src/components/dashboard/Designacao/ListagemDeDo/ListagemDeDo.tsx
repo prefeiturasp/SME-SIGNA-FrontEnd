@@ -126,7 +126,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
                 onClick={handleAlterarDataDo}
                 data-testid="botao-proximo"
               >
-                <p className="text-[16px] font-bold">Alterar data</p>
+                <p className="text-[16px] font-bold">Salvar data</p>
                 <SimpleCheck className="text-[16px] font-bold" />
               </Button>:
               <Dropdown  menu={{

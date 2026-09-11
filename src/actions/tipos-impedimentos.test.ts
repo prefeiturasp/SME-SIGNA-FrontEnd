@@ -4,7 +4,13 @@ import { cookies } from "next/headers";
 
 import { getImpedimentosAction } from "./tipos-impedimentos";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, get: vi.fn() },
+  };
+});
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
@@ -73,6 +79,7 @@ describe("getImpedimentosAction", () => {
     });
 
     axiosMock.get.mockRejectedValue({
+      isAxiosError: true,
       response: {
         status: 401,
       },
@@ -92,6 +99,7 @@ describe("getImpedimentosAction", () => {
     });
 
     axiosMock.get.mockRejectedValue({
+      isAxiosError: true,
       response: {
         status: 500,
       },
@@ -111,6 +119,7 @@ describe("getImpedimentosAction", () => {
     });
 
     axiosMock.get.mockRejectedValue({
+      isAxiosError: true,
       response: {
         status: 400,
         data: {

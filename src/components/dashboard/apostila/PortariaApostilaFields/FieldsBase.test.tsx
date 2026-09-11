@@ -16,11 +16,11 @@ vi.mock("lucide-react", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
-  InputField: (props: any) => {
+  InputField: (props: { name: string; label: ReactNode }) => {
     inputFieldSpy(props);
     return <div data-testid={`input-field-${props.name}`}>{props.label}</div>;
   },
-  DateField: (props: any) => {
+  DateField: (props: { name: string; label: ReactNode }) => {
     dateFieldSpy(props);
     return <div data-testid={`date-field-${props.name}`}>{props.label}</div>;
   },
@@ -42,7 +42,9 @@ vi.mock("@/components/ui/form", () => ({
     </div>
   ),
   FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
+  FormLabel: ({ children, className }: { children: ReactNode; className?: string }) => (
+    <label className={className}>{children}</label>
+  ),
   FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   FormMessage: () => <span data-testid="form-message" />,
 }));
@@ -139,6 +141,26 @@ describe("FieldsBase", () => {
       "Descreva"
     );
     expect(screen.getByTestId("form-message")).toBeInTheDocument();
+  });
+
+  it("marca a label como obrigatória por padrão (required indefinido)", () => {
+    useFormContextMock.mockReturnValue({ register: vi.fn(), control: {} });
+
+    render(<FieldsBase inputFields={inputFields} textareaFields={textareaFields} />);
+
+    expect(screen.getByText("Observação")).toHaveClass("required");
+  });
+
+  it("não marca a label como obrigatória quando required é false", () => {
+    useFormContextMock.mockReturnValue({ register: vi.fn(), control: {} });
+
+    const opcional: TextareaFieldType[] = [
+      { name: "apostila.observacao", label: "Observação", placeholder: "Descreva", required: false },
+    ];
+
+    render(<FieldsBase inputFields={inputFields} textareaFields={opcional} />);
+
+    expect(screen.getByText("Observação")).not.toHaveClass("required");
   });
 
   it("renderiza DateField com type date e allowClear desabilitado", () => {

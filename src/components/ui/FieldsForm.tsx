@@ -4,8 +4,9 @@ import { InputBaseMask } from "@/components/ui/input-base";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
-import { FieldValues, UseFormRegister, Control } from "react-hook-form";
-import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
+import { FieldValues, UseFormRegister, Control, FieldPath } from "react-hook-form";
+import type { ReactNode } from "react";
+import { FormControl, FormField, FormLabel, FormMessage, FormItem, FormDescription } from "./form";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
@@ -16,23 +17,82 @@ import {
 import { format, isValid } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DatePicker } from "antd";
+import { DatePicker, Switch } from "antd";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
-interface PropsField {
-    register: UseFormRegister<FieldValues>;
-    control: Control<FieldValues>;
-    name: string;
-    label: string;
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+const isDate = (value: unknown): value is Date => value instanceof Date;
+
+interface PropsField<TFieldValues extends FieldValues = FieldValues> {
+    register: UseFormRegister<TFieldValues>;
+    control: Control<TFieldValues>;
+    name: FieldPath<TFieldValues>;
+    label: string | ReactNode;
     placeholder?: string;
     dataTestId?: string;
     type?: string;
     disabled?: boolean;
     allowClear?: boolean;
+    showBlankSpace?: boolean;
+    description?: string | ReactNode;
+}
+
+interface FieldSecondary {
+    label: string; subtitle: string; value: string;
+}
+
+interface PropsFieldSecondary  {
+    fields: FieldSecondary[];
 }
 
 
-export const CheckboxField = ({ register, control, name, label, dataTestId }: PropsField) => {
+export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, showBlankSpace, fields }: PropsField<TFieldValues> & PropsFieldSecondary) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FormItem>
+
+                    <FormControl>
+                        <RadioGroup
+                            value={field.value}
+                            onValueChange={field.onChange}
+
+                            className="w-fit "
+                        >
+                            <div className="flex flex-col  mt-4 gap-3">
+                                {fields.map((field) => (
+                                    <Field orientation="horizontal" key={field.value} className="flex items-start">
+                                        <RadioGroupItem
+                                            value={field.value}
+                                            id={field.value}
+                                            aria-label={field.value}
+                                        />
+                                        <div className="flex flex-col items-start ">
+                                            <p className=" text-[#313131]">
+                                                {field.label}
+                                            </p>
+                                            <p className="text-[12px] text-[#9CA3B9]">
+                                                {field.subtitle}
+                                            </p>
+                                        </div>
+                                    </Field>
+                                ))}
+                            </div>
+                        </RadioGroup>
+                    </FormControl>
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
+        ></FormField>
+
+    );
+};
+
+export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -69,23 +129,23 @@ export const CheckboxField = ({ register, control, name, label, dataTestId }: Pr
                                     <Label htmlFor="doc-nao">Não</Label>
                                 </Field>
                             </div>
-                        </RadioGroup>                        
+                        </RadioGroup>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         ></FormField>
 
     );
 };
-export const InputField = ({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength }: { register: UseFormRegister<FieldValues>; control: Control<FieldValues>; name: string; label: string; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number }) => {
+export const InputField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, dataTestId, type = "text", disabled = false, mask, maxLength, showBlankSpace = true }: { register: UseFormRegister<TFieldValues>; control: Control<TFieldValues>; name: FieldPath<TFieldValues>; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
     return (
         <FormField
             {...register(name)}
             control={control}
             name={name}
 
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
                 <FormItem >
                     <FormLabel className="required text-[#313131] font-bold">
                         {label}
@@ -102,9 +162,119 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
                             data-testid={dataTestId}
                             disabled={disabled}
                             maxLength={maxLength}
+                            className={cn(fieldState?.error && "!border-destructive")}
                         />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
+        />
+    );
+};
+
+interface SelectOption {
+    value: string;
+    label: string;
+}
+
+export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
+    control,
+    name,
+    label,
+    placeholder,
+    dataTestId,
+    options,
+    disabled = false,
+    register,
+    showBlankSpace = true,
+}: {
+    control: Control<TFieldValues>;
+    name: FieldPath<TFieldValues>;
+    label: string | ReactNode;
+    placeholder?: string;
+    dataTestId?: string;
+    options: SelectOption[];
+    disabled?: boolean;
+    register: UseFormRegister<TFieldValues>;
+    showBlankSpace?: boolean;
+}) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field, fieldState }) => (
+                <FormItem>
+                    <FormLabel className="text-[#313131] font-bold">{label}</FormLabel>
+                    <FormControl>
+                        <Select
+                            value={field.value}
+                            onValueChange={(value) => field.onChange(value)}
+                            disabled={disabled}
+                        >
+                            <SelectTrigger
+                                data-testid={dataTestId}
+                                className={cn(fieldState?.error && "!border-destructive")}
+                            >
+                                <SelectValue placeholder={placeholder} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {options.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </FormControl>
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
+        />
+    );
+};
+
+export const MultiSelectField = ({
+    control,
+    name,
+    label,
+    placeholder,
+    dataTestId,
+    options,
+    disabled = false,
+    register,
+    showBlankSpace = true,
+}: {
+    control: Control<FieldValues>;
+    name: string;
+    label: string | ReactNode;
+    placeholder?: string;
+    dataTestId?: string;
+    options: SelectOption[];
+    disabled?: boolean;
+    register: UseFormRegister<FieldValues>;
+    showBlankSpace?: boolean;
+}) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field, fieldState }) => (
+                <FormItem>
+                    <FormLabel className="text-[#313131] font-bold">{label}</FormLabel>
+                    <FormControl>
+                        <MultiSelect
+                            value={Array.isArray(field.value) ? field.value : []}
+                            onChange={field.onChange}
+                            options={options}
+                            placeholder={placeholder}
+                            disabled={disabled}
+                            data-testid={dataTestId}
+                            className={cn(fieldState?.error && "!border-destructive")}
+                        />
+                    </FormControl>
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         />
@@ -113,7 +283,7 @@ export const InputField = ({ register, control, name, label, placeholder, dataTe
 
 
 
-export const DateField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -121,7 +291,7 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
             name={name}
             render={({ field }) => {
                 const value =
-                    field.value instanceof Date && isValid(field.value)
+                    isDate(field.value) && isValid(field.value)
                         ? dayjs(field.value)
                         : null;
 
@@ -132,27 +302,27 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
                         </FormLabel>
 
                         <FormControl>
-                                <DatePicker
-                                    allowClear={allowClear}
-                                    format="DD/MM/YYYY"
-                                    size="large"
-                                    value={value}
-                                    placeholder={placeholder ?? "Selecione a data"}
-                                    onKeyDown={(event) => {
-                                        if (event.key === "Enter") {
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                        }
-                                    }}
-                                    onChange={(date) => {
-                                        field.onChange(date ? date.toDate() : null);
-                                    }}
-                                    onBlur={field.onBlur}
-                                    style={{ width: "100%" }}
-                                />
-                         </FormControl>
+                            <DatePicker
+                                allowClear={allowClear}
+                                format="DD/MM/YYYY"
+                                size="large"
+                                value={value}
+                                placeholder={placeholder ?? "Selecione a data"}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                }}
+                                onChange={(date) => {
+                                    field.onChange(date ? date.toDate() : null);
+                                }}
+                                onBlur={field.onBlur}
+                                style={{ width: "100%" }}
+                            />
+                        </FormControl>
 
-                        <FormMessage />
+                        <FormMessage showBlankSpace={showBlankSpace} />
                     </FormItem>
                 );
             }}
@@ -160,7 +330,7 @@ export const DateField = ({ register, control, name, label, placeholder, allowCl
     );
 };
 
-export const DateRangeField = ({ register, control, name, label, placeholder }: PropsField) => {
+export const DateRangeField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -210,14 +380,14 @@ export const DateRangeField = ({ register, control, name, label, placeholder }: 
                         </PopoverContent>
                     </Popover>
 
-                    <FormMessage />
+                    <FormMessage showBlankSpace={showBlankSpace} />
                 </FormItem>
             )}
         />
     );
 };
 
-export const DateRangePickerField = ({ register, control, name, label, placeholder, allowClear = true }: PropsField) => {
+export const DateRangePickerField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
             {...register(name)}
@@ -225,10 +395,10 @@ export const DateRangePickerField = ({ register, control, name, label, placehold
             name={name}
             render={({ field }) => {
                 const value: [Dayjs | null, Dayjs | null] | null =
-                    field.value?.from instanceof Date && isValid(field.value?.from)
+                    isDate(field.value?.from) && isValid(field.value?.from)
                         ? [
                             dayjs(field.value.from),
-                            field.value?.to instanceof Date && isValid(field.value?.to)
+                            isDate(field.value?.to) && isValid(field.value?.to)
                                 ? dayjs(field.value.to)
                                 : null,
                         ]
@@ -271,10 +441,57 @@ export const DateRangePickerField = ({ register, control, name, label, placehold
                             />
                         </FormControl>
 
-                        <FormMessage />
+                        <FormMessage showBlankSpace={showBlankSpace} />
                     </FormItem>
                 );
             }}
+        />
+    );
+};
+
+
+
+export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
+    register,
+    control,
+    name,
+    label,
+    dataTestId,
+    disabled = false,
+    showBlankSpace = true,
+    description
+}: PropsField<TFieldValues>) => {
+    return (
+        <FormField
+            {...register(name)}
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FormItem>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <FormLabel className="text-[#313131] font-bold">
+                                {label}
+                            </FormLabel>
+                            <p className="text-sm max-w-[511px]">
+                                {description}
+                            </p>
+                        </div>
+
+                        <FormControl className="min-w-[22px]">
+                            <Switch
+                                checked={!!field.value}
+                                onChange={(checked) => field.onChange(checked)}
+                                disabled={disabled}
+                                data-testid={dataTestId}
+                                checkedChildren="Sim" unCheckedChildren="Não"
+                            />
+                        </FormControl>
+                    </div>
+
+                    <FormMessage showBlankSpace={showBlankSpace} />
+                </FormItem>
+            )}
         />
     );
 };

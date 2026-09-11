@@ -5,7 +5,7 @@
 export const meusDadosPack = {
 
   // ===============================
-  // 🌐 PÁGINA / CONTEXTO
+  // PÁGINA / CONTEXTO
   // ===============================
   pagina: {
     principal: () =>
@@ -13,7 +13,7 @@ export const meusDadosPack = {
   },
 
   // ===============================
-  // 🧭 MENU / ACESSO
+  // MENU / ACESSO
   // ===============================
   menu: {
     // Ant Design Menu — estrutura: <li><span class="ant-menu-title-content">Meus dados</span></li>
@@ -26,7 +26,7 @@ export const meusDadosPack = {
   },
 
   // ===============================
-  // 🧾 TÍTULOS / TEXTOS
+  // TÍTULOS / TEXTOS
   // ===============================
   textos: {
     tituloMeusDados: () =>
@@ -37,7 +37,7 @@ export const meusDadosPack = {
   },
 
   // ===============================
-  // 🔘 BOTÕES
+  // BOTÕES
   // ===============================
   botoes: {
     alterarEmail: () =>
@@ -51,7 +51,7 @@ export const meusDadosPack = {
   },
 
   // ===============================
-  // 📧 CAMPO E-MAIL
+  // CAMPO E-MAIL
   // ===============================
   campos: {
     email: () =>
@@ -61,7 +61,7 @@ export const meusDadosPack = {
   },
 
   // ===============================
-  // 💬 MENSAGENS / ALERTAS
+  // MENSAGENS / ALERTAS
   // ===============================
   mensagens: {
     alerta: () =>

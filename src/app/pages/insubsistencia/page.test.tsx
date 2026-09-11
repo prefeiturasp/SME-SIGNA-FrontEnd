@@ -2,9 +2,9 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import InsubsistenciaPage from "./page";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
-import { message } from "antd";
 
 const testControls = vi.hoisted(() => ({
   routerPush: vi.fn(),
@@ -24,7 +24,11 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual,
     useForm: (...args: unknown[]) => {
-      const form = (actual.useForm as (...callArgs: unknown[]) => any)(...args);
+      const form = (actual.useForm as (...callArgs: unknown[]) => UseFormReturn<FieldValues>)(...args) as
+        Omit<UseFormReturn<FieldValues>, "trigger" | "getValues"> & {
+          trigger: (...args: unknown[]) => unknown;
+          getValues: (...args: unknown[]) => unknown;
+        };
       const originalTrigger = form.trigger.bind(form);
       const originalGetValues = form.getValues.bind(form);
 
@@ -73,11 +77,16 @@ vi.mock("antd", () => ({
   Card: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card">{children}</div>
   ),
-  message: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+const notificationMocks = vi.hoisted(() => ({
+  success: vi.fn(),
+  error: vi.fn(),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => notificationMocks,
 }));
 
 vi.mock("lucide-react", () => ({
@@ -359,7 +368,7 @@ describe("InsubsistenciaPage", () => {
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
-      expect(message.success).toHaveBeenCalledWith("Insubsistência salva com sucesso!");
+      expect(notificationMocks.success).toHaveBeenCalledWith({ title: "Insubsistência salva com sucesso!" });
       expect(testControls.routerPush).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
@@ -382,7 +391,7 @@ describe("InsubsistenciaPage", () => {
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalled();
-      expect(message.error).toHaveBeenCalledWith("Falha na API");
+      expect(notificationMocks.error).toHaveBeenCalledWith({ title: "Falha na API" });
     });
   });
 

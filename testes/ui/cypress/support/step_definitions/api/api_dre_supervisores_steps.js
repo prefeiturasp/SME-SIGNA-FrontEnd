@@ -1,6 +1,5 @@
 import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 
-// Função auxiliar local
 function obterDREAleatoria(dres) {
   return dres[Math.floor(Math.random() * dres.length)]
 }

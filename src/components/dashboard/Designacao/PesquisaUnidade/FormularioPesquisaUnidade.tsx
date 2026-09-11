@@ -148,7 +148,7 @@ const FormularioPesquisaUnidade = forwardRef<
   useEffect(() => {
     if (defaultValues?.ue) {
       (async () => {
-        await onSubmit(defaultValues as FormDesignacaoData);
+        await onSubmit({ ...form.getValues(), ...defaultValues });
         setDisableProximo(false);
       })();
     }

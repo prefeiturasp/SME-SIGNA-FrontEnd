@@ -4,6 +4,8 @@ import { describe, it, expect } from "vitest";
 import { Accordion } from "@/components/ui/accordion";
 import { CustomAccordionItem } from "./CustomAccordionItem";
 
+type ColorVariant = "gold" | "purple" | "green" | "blue" | "silver" | "gray";
+
 const renderWithAccordion = (ui: React.ReactNode) => {
   return render(
     <Accordion type="single" collapsible defaultValue="">
@@ -87,4 +89,37 @@ describe("CustomAccordionItem", () => {
 
     expect(screen.getByTestId("child")).toBeInTheDocument();
   });
+
+  it("aplica className extra no AccordionItem", () => {
+    renderWithAccordion(
+      <CustomAccordionItem title="Classe" value="item-1" className="classe-extra">
+        Conteúdo
+      </CustomAccordionItem>,
+    );
+
+    expect(document.querySelector(".classe-extra")).toBeInTheDocument();
+  });
+
+  it.each([
+    ["green", "text-green-600", "border-l-green-500"],
+    ["blue", "text-[#274D9B]", "border-l-[#6F8CC7]"],
+    ["silver", "text-silver", "border-l-[#565656]"],
+    ["gray", "text-gray", "border-l-[#565656]"],
+  ] satisfies Array<[ColorVariant, string, string]>)(
+    "aplica variante %s corretamente",
+    (color, textClass, borderClass) => {
+      renderWithAccordion(
+        <CustomAccordionItem title={`Variante ${color}`} value="item-1" color={color}>
+          Conteúdo
+        </CustomAccordionItem>,
+      );
+
+      const title = screen.getByText(`Variante ${color}`);
+      const trigger = screen.getByRole("button", { name: new RegExp(`variante ${color}`, "i") });
+
+      expect(title).toHaveClass(textClass);
+      expect(trigger).toHaveClass(borderClass);
+      expect(trigger).toHaveClass("bg-[#F9F9F9]");
+    },
+  );
 });

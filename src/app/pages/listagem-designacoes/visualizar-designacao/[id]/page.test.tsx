@@ -434,18 +434,28 @@ describe("VisualizarDesignacao page", () => {
       }),
     );
 
-    const chamadasResumoServidor = resumoServidorSpy.mock.calls.map(([props]) => props);
+    type ResumoServidorProps = {
+      defaultValues?: {
+        rf?: string;
+        cd_cargo_base?: number;
+        cd_cargo_sobreposto_funcao_atividade?: number;
+      };
+    };
+
+    const chamadasResumoServidor = resumoServidorSpy.mock.calls.map(
+      ([props]) => props as ResumoServidorProps,
+    );
     const indicado = chamadasResumoServidor.find(
-      (props: any) => props?.defaultValues?.rf === designacaoMock.indicado_rf,
+      (props) => props?.defaultValues?.rf === designacaoMock.indicado_rf,
     );
     const titular = chamadasResumoServidor.find(
-      (props: any) => props?.defaultValues?.rf === "",
+      (props) => props?.defaultValues?.rf === "",
     );
 
-    expect(indicado.defaultValues.cd_cargo_base).toBe(0);
-    expect(indicado.defaultValues.cd_cargo_sobreposto_funcao_atividade).toBe(0);
-    expect(titular.defaultValues.cd_cargo_base).toBe(0);
-    expect(titular.defaultValues.cd_cargo_sobreposto_funcao_atividade).toBe(0);
+    expect(indicado?.defaultValues?.cd_cargo_base).toBe(0);
+    expect(indicado?.defaultValues?.cd_cargo_sobreposto_funcao_atividade).toBe(0);
+    expect(titular?.defaultValues?.cd_cargo_base).toBe(0);
+    expect(titular?.defaultValues?.cd_cargo_sobreposto_funcao_atividade).toBe(0);
   });
 
   it("converte impedimento_substituicao para string no mapeamento da portaria", () => {

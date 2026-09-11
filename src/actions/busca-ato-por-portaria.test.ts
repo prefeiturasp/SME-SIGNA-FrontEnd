@@ -29,7 +29,7 @@ const mockAxiosInstance = {
 beforeEach(() => {
   vi.clearAllMocks();
   process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
-  vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as any);
+  vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
   vi.mocked(cookies).mockResolvedValue(makeCookieStore("token-123"));
 });
 

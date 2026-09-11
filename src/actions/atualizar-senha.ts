@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import type {
     AtualizarSenhaRequest,
@@ -32,7 +33,7 @@ export async function atualizarSenhaAction(
 
         return { success: true };
     } catch (err) {
-        const error = err as AxiosError<AtualizarSenhaErrorResponse>;
+        const error = toAxiosError<AtualizarSenhaErrorResponse>(err);
 
         let message = "Ocorreu um erro ao tentar atualizar sua senha.";
         let field: string | undefined;

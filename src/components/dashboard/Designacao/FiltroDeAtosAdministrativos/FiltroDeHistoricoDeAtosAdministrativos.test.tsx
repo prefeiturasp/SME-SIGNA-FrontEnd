@@ -32,6 +32,26 @@ vi.mock("@/components/ui/FieldsForm", () => ({
   DateRangePickerField: ({ name, label }: { name: string; label: string }) => (
     <div data-testid={`date-range-${name}`}>{label}</div>
   ),
+  SelectField: ({
+    name,
+    label,
+    dataTestId,
+    options,
+  }: {
+    name: string;
+    label: string;
+    dataTestId?: string;
+    options: { value: string; label: string }[];
+  }) => (
+    <div data-testid={dataTestId ?? `select-${name}`}>
+      {label}
+      {options.map((option) => (
+        <div key={option.value} data-testid={`select-item-${option.value}`}>
+          {option.label}
+        </div>
+      ))}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/ui/form", () => ({
@@ -99,7 +119,7 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
   });
 
-  it("renderiza campos e envia hasFilters=false ao FiltroAcoes", () => {
+it("renderiza campos e envia hasFilters=false ao FiltroAcoes", () => {
     render(<FiltroDeHistoricoDeAtosAdministrativos />);
 
     expect(screen.getByText("Filtros")).toBeInTheDocument();
@@ -107,6 +127,7 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     expect(screen.getByTestId("date-range-periodo")).toBeInTheDocument();
     expect(screen.getByTestId("input-observacao")).toBeInTheDocument();
     expect(screen.getByTestId("select-status-publicacao")).toBeInTheDocument();
+    expect(screen.getByTestId("select-item-TODOS")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-DESIGNACAO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-PUBLICADO")).toBeInTheDocument();
 
@@ -117,13 +138,12 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     );
   });
 
-  it("propaga alterações dos selects para o react-hook-form", () => {
+  it("propaga alteracoes do select de status para o react-hook-form", () => {
     render(<FiltroDeHistoricoDeAtosAdministrativos />);
 
     const triggers = screen.getAllByRole("button", { name: "trigger-select" });
     triggers.forEach((button) => fireEvent.click(button));
 
-    expect(onChangeByField.tipo).toHaveBeenCalledWith("mock-value");
     expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
   });
 

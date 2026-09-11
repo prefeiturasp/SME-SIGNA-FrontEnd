@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useSalvarInsubsistencias } from "./useSalvarInsubsistencias";
 import { insubsistenciaAction } from "@/actions/insubsistencia-criar";
+import type { formSchemaAnularApostilaTornarSemEfeitoData } from "@/app/pages/anular-apostila/schema";
 
 vi.mock("@/actions/insubsistencia-criar", () => ({
   insubsistenciaAction: vi.fn(),
@@ -24,7 +25,7 @@ const createWrapper = () => {
   return Wrapper;
 };
 
-const valuesMock = {
+const valuesMock: formSchemaAnularApostilaTornarSemEfeitoData = {
   apostila_insubsistencia: {
     portaria: "001",
     ano: "2026",
@@ -52,7 +53,7 @@ describe("useSalvarInsubsistencias", () => {
 
     await act(async () => {
       await result.current.mutateAsync({
-        values: valuesMock as any,
+        values: valuesMock,
         atoPai: 10,
       });
     });
@@ -80,12 +81,14 @@ describe("useSalvarInsubsistencias", () => {
 
     await act(async () => {
       await result.current.mutateAsync({
+        // doc é obrigatório no schema, mas testamos aqui o estado antes do
+        // preenchimento do campo — daí o cast.
         values: {
           apostila_insubsistencia: {
             ...valuesMock.apostila_insubsistencia,
             doc: undefined,
           },
-        } as any,
+        } as unknown as formSchemaAnularApostilaTornarSemEfeitoData,
         atoPai: 3,
       });
     });
@@ -112,7 +115,7 @@ describe("useSalvarInsubsistencias", () => {
 
     await act(async () => {
       response = await result.current.mutateAsync({
-        values: valuesMock as any,
+        values: valuesMock,
         atoPai: 20,
       });
     });
@@ -132,7 +135,7 @@ describe("useSalvarInsubsistencias", () => {
 
     await expect(
       result.current.mutateAsync({
-        values: valuesMock as any,
+        values: valuesMock,
         atoPai: 20,
       })
     ).rejects.toThrow("Erro ao salvar");
@@ -152,7 +155,7 @@ describe("useSalvarInsubsistencias", () => {
     await act(async () => {
       try {
         await result.current.mutateAsync({
-          values: valuesMock as any,
+          values: valuesMock,
           atoPai: 8,
         });
       } catch {}

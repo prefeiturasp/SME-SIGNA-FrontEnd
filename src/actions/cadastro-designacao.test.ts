@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
+import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 
 // ── Mocks ────────────────────────────────────────
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn(), patch: vi.fn() },
+    };
+});
 const mockedAxios = vi.mocked(axios, true);
 
 vi.mock("next/headers", () => ({
@@ -12,6 +19,10 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@/utils/designacao/mapearPayload", () => ({
     mapearPayloadDesignacao: vi.fn(() => ({ dre: "dre-1" })),
+}));
+
+vi.mock("@/actions/cargos", () => ({
+    getCargos: vi.fn(() => Promise.resolve([])),
 }));
 
 // ── Helpers ──────────────────────────────────────
@@ -23,13 +34,13 @@ const mockCookies = (token: string | undefined) => {
     vi.mocked(cookies).mockResolvedValue({
         get: (key: string) =>
             key === "auth_token" && token ? { value: token } : undefined,
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof cookies>>);
 };
 
 const formDataMock = {
     dre: "dre-1",
     ue: "ue-1",
-} as any;
+} as unknown as FormDesignacaoEServidorIndicado;
 
 // ── Testes ───────────────────────────────────────
 
@@ -40,7 +51,7 @@ describe("designacaoAction", () => {
     });
 
     it("retorna erro se formData for null", async () => {
-        const result = await designacaoAction(null);
+        const result = await designacaoAction(null, null);
 
         expect(result).toEqual({
             success: false,
@@ -52,14 +63,14 @@ describe("designacaoAction", () => {
         mockCookies("token-abc");
         mockedAxios.post.mockResolvedValueOnce({ data: { id: 1 } });
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({ success: true, data: { id: 1 } });
     });
 
     it("retorna sucesso quando axios.patch resolve para edição", async () => {
         mockCookies("token-abc");
-        mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } } as any);
+        mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } });
 
         const result = await designacaoAction(formDataMock, "99");
 
@@ -75,7 +86,7 @@ describe("designacaoAction", () => {
         mockCookies("meu-token");
         mockedAxios.post.mockResolvedValueOnce({ data: {} });
 
-        await designacaoAction(formDataMock);
+        await designacaoAction(formDataMock, null);
 
         expect(mockedAxios.post).toHaveBeenCalledWith(
             "https://api.example.com/designacao/designacoes/",
@@ -92,7 +103,7 @@ describe("designacaoAction", () => {
         mockCookies(undefined);
         mockedAxios.post.mockResolvedValueOnce({ data: {} });
 
-        await designacaoAction(formDataMock);
+        await designacaoAction(formDataMock, null);
 
         const callHeaders = mockedAxios.post.mock.calls[0][2]?.headers as Record<string, string>;
         expect(callHeaders).not.toHaveProperty("Authorization");
@@ -108,7 +119,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -130,7 +141,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -152,12 +163,38 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
             error: "Valor inválido.",
             field: "indicado_rf",
+        });
+    });
+
+    it("humaniza o(s) nome(s) de campo no detail retornado pelo backend", async () => {
+        mockCookies("token");
+
+        const axiosError = {
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    detail:
+                        "numero_portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; indicado_local_exercicio: Este campo pode não estar em branco.",
+                },
+            },
+            message: "Request failed",
+        };
+        mockedAxios.post.mockRejectedValueOnce(axiosError);
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error:
+                "Numero portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; Indicado local exercicio: Este campo pode não estar em branco.",
+            field: undefined,
         });
     });
 
@@ -171,7 +208,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -190,7 +227,7 @@ describe("designacaoAction", () => {
         };
         mockedAxios.post.mockRejectedValueOnce(axiosError);
 
-        const result = await designacaoAction(formDataMock);
+        const result = await designacaoAction(formDataMock, null);
 
         expect(result).toEqual({
             success: false,
@@ -205,8 +242,23 @@ describe("designacaoAction", () => {
 
         const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
 
-        await designacaoAction(formDataMock);
+        await designacaoAction(formDataMock, null);
 
-        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock);
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
+    });
+
+    it("usa lista de cargos vazia quando getCargos falha", async () => {
+        mockCookies("token");
+        mockedAxios.post.mockResolvedValueOnce({ data: {} });
+
+        const { getCargos } = await import("@/actions/cargos");
+        vi.mocked(getCargos).mockRejectedValueOnce(new Error("falha ao buscar cargos"));
+
+        const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({ success: true, data: {} });
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
     });
 });

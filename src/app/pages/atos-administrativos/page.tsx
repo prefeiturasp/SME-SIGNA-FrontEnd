@@ -71,6 +71,7 @@ export default function AtosAdministrativos() {
     filterForm,
     onSubmitFilterForm,
     handleClear,
+    buscar: buscarAtosAdministrativos,
   } = useAtosAdministrativos();
 
   const { buscar, isLoading, errorMessage, limparErro } = useNovoAto();
@@ -87,6 +88,10 @@ export default function AtosAdministrativos() {
   const handleBuscarPortaria = async (portaria: string, ano: string) => {
     if (!tipoModalAberto) return;
     await buscar(tipoModalAberto, portaria, ano);
+  };
+
+  const handleAtoExcluido = () => {
+    buscarAtosAdministrativos(filterForm.getValues(), page);
   };
 
   return (
@@ -182,6 +187,7 @@ export default function AtosAdministrativos() {
           total={resultado?.count ?? 0}
           page={page}
           isLoading={isPending}
+          onAtoExcluido={handleAtoExcluido}
         />
 
       </ FundoBranco>

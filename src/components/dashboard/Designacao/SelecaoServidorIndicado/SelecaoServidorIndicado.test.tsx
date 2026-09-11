@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import SelecaoServidorIndicado from "./SelecaoServidorIndicado";
 import { Servidor } from "@/types/designacao-unidade";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
 import { FormEditarServidorData } from "../ModalEditarServidor/schema";
+import type { formSchemaDesignacaoPasso2Data } from "@/app/pages/designacoes/designacoes-passo-2/schema";
 
 const testSchema = z.object({
   tipo_cargo: z.string(),
@@ -84,7 +85,7 @@ const TestWrapper = ({
   children,
   tipoCargoInicial = "vago",
 }: {
-  children: (form: any) => React.ReactNode;
+  children: (form: UseFormReturn<formSchemaDesignacaoPasso2Data>) => React.ReactNode;
   tipoCargoInicial?: string;
 }) => {
   const form = useForm({
@@ -99,7 +100,11 @@ const TestWrapper = ({
     },
   });
 
-  return <FormProvider {...form}>{children(form)}</FormProvider>;
+  return (
+    <FormProvider {...form}>
+      {children(form as unknown as UseFormReturn<formSchemaDesignacaoPasso2Data>)}
+    </FormProvider>
+  );
 };
 
 describe("SelecaoServidorIndicado", () => {
@@ -128,6 +133,8 @@ describe("SelecaoServidorIndicado", () => {
     setErrorBusca: mockSetErrorBusca,
     errorBusca: null,
     dadosTitular: null,
+    isLoading: false,
+    rf_default: "",
   };
 
   const mockDadosSucesso: Servidor = {
@@ -135,8 +142,10 @@ describe("SelecaoServidorIndicado", () => {
     nome_civil: "Jose Civil",
     rf: "1234567",
     vinculo: 1,
+    cd_cargo_base: 1,
     cargo_base: "Diretor",
     lotacao: "Escola A",
+    cd_cargo_sobreposto_funcao_atividade: 2,
     cargo_sobreposto_funcao_atividade: "Diretor Escolar",
     local_de_exercicio: "DRE Norte",
     laudo_medico: "Não possui",

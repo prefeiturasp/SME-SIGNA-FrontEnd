@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, message, Tooltip } from "antd";
+import { Card, Tooltip } from "antd";
 import { Loader2 } from "lucide-react";
 
 import { Accordion } from "@/components/ui/accordion";
@@ -34,6 +34,7 @@ import {  TEMPLATE_INSUBSISTENCIA_CESSACAO, TEMPLATE_INSUBSISTENCIA_DESIGNACAO }
 import { formatarData } from "@/lib/utils";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 import { Cessacao, DesignacaoResponse } from "@/types/designacao";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 
 
@@ -89,6 +90,7 @@ export default function InsubsistenciaPage() {
   const tipoInsubsistenciaPadrao = origem === "cessacao" ? "cessacao" : "designacao";
   const salvarInsubsistencia = useSalvarInsubsistencia();
   const router = useRouter();
+  const notification = useAppNotification();
 
 
   const { data: designacao, isLoading } =
@@ -194,13 +196,13 @@ export default function InsubsistenciaPage() {
         cessacaoId: designacao?.cessacao?.id,
       });
 
-      message.success("Insubsistência salva com sucesso!");
+      notification.success({ title: "Insubsistência salva com sucesso!" });
 
       router.push("/pages/atos-administrativos");
 
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      message.error(msg);
+      notification.error({ title: msg });
     }
   };
 

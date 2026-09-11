@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi, describe, it, beforeEach } from "vitest";
 import useServidorDesignacao from "./useServidorDesignacao";
 import { getServidorDesignacaoAction } from "@/actions/servidores-designacao";
-import { BuscaServidorDesignacaoBody } from "@/types/busca-servidor-designacao";
+import { Servidor } from "@/types/designacao-unidade";
 
 vi.mock("@/actions/servidores-designacao", () => ({
   getServidorDesignacaoAction: vi.fn(),
@@ -12,19 +12,19 @@ vi.mock("@/actions/servidores-designacao", () => ({
 const sampleRequest = { rf: "123" };
 
 
-const mockData: BuscaServidorDesignacaoBody = {
-  nome: "Servidor Teste",
+const mockData: Servidor = {
+  nome_servidor: "Servidor Teste",
   rf: "123",
-  vinculo_cargo_sobreposto: "Ativo",
-  lotacao_cargo_sobreposto: "Escola X",
+  vinculo: 1,
+  lotacao: "Escola X",
+  cd_cargo_base: 1,
   cargo_base: "Professor",
-  aulas_atribuidas: "20",
-  funcao_atividade: "Docente",
-  cargo_sobreposto: "Nenhum",
+  cd_cargo_sobreposto_funcao_atividade: 2,
+  cargo_sobreposto_funcao_atividade: "Nenhum",
   cursos_titulos: "Licenciatura",
-  estagio_probatorio: "Sim",
-  aprovado_em_concurso: "Sim",
   laudo_medico: "Não",
+  local_de_servico: "Escola X",
+  local_de_exercicio: "Escola X",
 };
 const sampleResponse = {
   success: true as const,

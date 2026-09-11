@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { DesignacaoUnidadeResponse, DesignacaoUnidadeResult } from "@/types/designacao-unidade"; 
 import { ErrorResponse } from "@/types/generic";
 import { cookies } from "next/headers";
@@ -21,7 +22,7 @@ export async function getDesignacaoUnidadeAction(codigo_ue:string): Promise<Desi
         return { success: true, data: data };
 
     } catch (err) {
-        const error = err as AxiosError<ErrorResponse>;
+        const error = toAxiosError<ErrorResponse>(err);
     
         let message = "Erro na autenticação";
     

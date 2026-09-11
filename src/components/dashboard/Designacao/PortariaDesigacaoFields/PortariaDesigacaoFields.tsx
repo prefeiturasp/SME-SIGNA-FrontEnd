@@ -81,6 +81,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 placeholder="Nº da portaria"
                 data-testid="input-portaria-designacao"
                 type="number"
+                maxLength={20}
               />
             </div>
 

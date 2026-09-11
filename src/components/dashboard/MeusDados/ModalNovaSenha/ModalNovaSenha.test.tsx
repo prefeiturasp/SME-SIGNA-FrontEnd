@@ -5,7 +5,7 @@ import ModalNovaSenha from "./ModalNovaSenha";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import * as useAtualizarSenhaModule from "@/hooks/useAtualizarSenha";
-import * as headlessToastModule from "@/components/ui/headless-toast";
+import * as notificationModule from "@/components/providers/NotificationProvider";
 
 vi.mock("@/hooks/useAtualizarSenha", () => {
     const __mutateAsync = vi.fn();
@@ -18,11 +18,11 @@ vi.mock("@/hooks/useAtualizarSenha", () => {
     };
 });
 
-vi.mock("@/components/ui/headless-toast", () => {
-    const __toast = vi.fn();
+vi.mock("@/components/providers/NotificationProvider", () => {
+    const __success = vi.fn();
     return {
-        toast: __toast,
-        __toast,
+        useAppNotification: () => ({ success: __success }),
+        __success,
     };
 });
 
@@ -31,7 +31,9 @@ const mockMutateAsync = (
         __mutateAsync: Mock;
     }
 ).__mutateAsync;
-const toastMock = (headlessToastModule as unknown as { __toast: Mock }).__toast;
+const notificationSuccessMock = (
+    notificationModule as unknown as { __success: Mock }
+).__success;
 
 function renderWithQueryProvider(ui: React.ReactElement) {
     const queryClient = new QueryClient();
@@ -194,9 +196,8 @@ describe("ModalNovaSenha", () => {
                 confirmacao_nova_senha: senhaValida,
             });
             expect(mockOnOpenChange).toHaveBeenCalledWith(false);
-            expect(toastMock).toHaveBeenCalledWith(
+            expect(notificationSuccessMock).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    variant: "success",
                     title: "Tudo certo por aqui!",
                     description: "Sua senha foi atualizada.",
                 })

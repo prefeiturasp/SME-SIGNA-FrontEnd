@@ -12,11 +12,10 @@ export const useSalvarPortariasDo = () => {
       data_publicacao: string;
     }) => {
 
-      const payload = {
-         ids: values.map((row) => row.id),
-         data_publicacao: data_publicacao,
-       
-        } as PortariasDOBody;
+      const payload: PortariasDOBody = {
+        ids: values.map((row) => row.id),
+        data_publicacao: data_publicacao,
+      };
       
 
       const response = await PortariaDOAction(payload);

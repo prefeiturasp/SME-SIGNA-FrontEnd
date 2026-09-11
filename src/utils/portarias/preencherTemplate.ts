@@ -1,6 +1,6 @@
 export function preencherTemplate(
     template: string,
-    dados: Record<string, any>
+    dados: Record<string, unknown>
 ): string {
     return template.replaceAll(/{{([^{}]*)}}/g, (_, chave: string) => {
         const valor = dados[chave.trim()];

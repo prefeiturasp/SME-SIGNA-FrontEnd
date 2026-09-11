@@ -12,7 +12,13 @@ import axios from "axios";
 import { AxiosError, type AxiosResponse } from "axios";
 
 // ✅ mock do axios
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn() },
+    };
+});
 
 // Mock do cookies() do Next.js
 const mockCookieSet = vi.fn();
@@ -88,7 +94,7 @@ describe("loginAction", () => {
     });
 
     it("retorna erro genérico se não houver mensagem de erro no response", async () => {
-        const axiosError = new AxiosError("Erro desconhecido");
+        const axiosError = new AxiosError();
 
         axiosPostMock.mockRejectedValueOnce(axiosError);
 

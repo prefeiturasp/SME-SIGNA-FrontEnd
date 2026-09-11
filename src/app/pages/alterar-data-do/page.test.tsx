@@ -8,8 +8,6 @@ import * as usePortariasDOHook from "@/hooks/usePortariasDO";
 const pushMock = vi.fn();
 const fetchPortariasDOMock = vi.fn();
 const mutateAsyncMock = vi.fn();
-const messageLoadingMock = vi.fn();
-const messageDestroyMock = vi.fn();
 const filterResetMock = vi.fn();
 const filterTriggerMock = vi.fn().mockResolvedValue(true);
 
@@ -60,7 +58,7 @@ vi.mock("@hookform/resolvers/zod", () => ({
 }));
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
 
   return {
     ...actual,
@@ -151,10 +149,6 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
 }));
 
 vi.mock("antd", () => ({
-  message: {
-    loading: (...args: unknown[]) => messageLoadingMock(...args),
-    destroy: (...args: unknown[]) => messageDestroyMock(...args),
-  },
   Modal: ({
     open,
     children,
@@ -255,11 +249,6 @@ describe("AlterarDataDo page", () => {
       values: selectedRowsMock,
       data_publicacao: "2026-05-19",
     });
-    expect(messageLoadingMock).toHaveBeenCalledWith({
-      content: "Salvando portaria...",
-      duration: 0,
-    });
-    expect(messageDestroyMock).toHaveBeenCalled();
     expect(screen.getByText("Tudo certo por aqui!")).toBeInTheDocument();
 
     await act(async () => {
@@ -283,7 +272,6 @@ describe("AlterarDataDo page", () => {
       expect(screen.getByText("Ocorreu um erro!")).toBeInTheDocument();
     });
 
-    expect(messageDestroyMock).toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
     expect(consoleErrorSpy).toHaveBeenCalled();
   });
@@ -332,7 +320,7 @@ describe("AlterarDataDo page", () => {
       tabelaKey: 0,
       setTabelaKey: vi.fn(),
       buscarPortarias: vi.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof usePortariasDOHook.usePortariasDO>);
 
     render(<AlterarDataDoPage />);
     expect(screen.getByTestId("listagem-data-length")).toHaveTextContent("0");

@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import type {
     ConfirmarEmailRequest,
@@ -36,7 +37,7 @@ export async function confirmarEmailAction(
 
         return { success: true, new_mail: response.data.email };
     } catch (err) {
-        const error = err as AxiosError<ConfirmarEmailErrorResponse>;
+        const error = toAxiosError<ConfirmarEmailErrorResponse>(err);
 
         let message = "Ocorreu um erro ao tentar confirmar seu Email.";
         let field: string | undefined;

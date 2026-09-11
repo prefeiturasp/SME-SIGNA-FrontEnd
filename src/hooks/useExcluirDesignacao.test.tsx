@@ -27,7 +27,7 @@ describe("useExcluirDesignacao", () => {
     const mutationConfig = vi.mocked(useMutation).mock.calls[0][0];
     expect(typeof mutationConfig.mutationFn).toBe("function");
 
-    const response = await mutationConfig.mutationFn(44);
+    const response = await mutationConfig.mutationFn!(44, {} as never);
     expect(excluirDesignacao).toHaveBeenCalledWith(44);
     expect(response).toEqual({ success: true });
     expect(result).toBe(mutationReturn);

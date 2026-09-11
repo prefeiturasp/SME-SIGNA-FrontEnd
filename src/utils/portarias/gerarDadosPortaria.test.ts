@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { gerarDadosPortaria, montarTrechoUnidade } from "./gerarDadosPortaria";
 import * as regrasPortaria from "./regrasPortaria";
+import type { DesignacaoData } from "@/types/designacao";
 
 vi.mock("./regrasPortaria", () => ({
     montarAutoridade: vi.fn(),
@@ -16,7 +17,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Trecho Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "vago",
             cargo_vago_selecionado: "Diretor",
             portaria_designacao: "123",
@@ -34,7 +35,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado).toEqual({
             portaria: "123/2025",
@@ -63,7 +64,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Trecho Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "vago",
             cargo_vago_selecionado: "Diretor",
             portaria_designacao: "123",
@@ -81,7 +82,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado).toEqual({
             portaria: "123/2025",
@@ -110,7 +111,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "titular",
             dadosTitular: {
                 cargo_base: "Coordenador",
@@ -124,7 +125,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_indicado).toBe("Coordenador");
     });
@@ -135,7 +136,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "disponivel",
             portaria_designacao: "100",
             ano: "2026",
@@ -153,7 +154,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_base).toBe("Professor de Educação Infantil - Categoria 3");
     });
@@ -164,7 +165,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "disponivel",
             portaria_designacao: "101",
             ano: "2026",
@@ -181,7 +182,7 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_base).toBe("Professor de Educação Infantil");
     });
@@ -192,7 +193,7 @@ describe("gerarDadosPortaria", () => {
         vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
         vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
 
-        const data: any = {
+        const data = {
             tipo_cargo: "vago",
             cargo_vago_selecionado: { label: "Vice-Diretor", value: "vice_diretor" },
             portaria_designacao: "456",
@@ -210,9 +211,86 @@ describe("gerarDadosPortaria", () => {
             },
         };
 
-        const resultado = gerarDadosPortaria(data);
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
 
         expect(resultado.cargo_indicado).toBe("Vice-diretor");
+    });
+
+    it("usa nome_servidor quando nome_civil estiver vazio e mantém maiúsculas", () => {
+        vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
+        vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
+        vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
+
+        const data = {
+            tipo_cargo: "vago",
+            cargo_vago_selecionado: "Diretor",
+            servidorIndicado: {
+                nome_civil: "   ",
+                nome_servidor: "José da Silva",
+                rf: "123",
+                vinculo: 1,
+                cargo_base: "Professor",
+                lotacao: "Escola A",
+            },
+            ue_nome: "Escola A",
+            dre_nome: "DRE Oeste",
+        };
+
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
+        expect(resultado.nome_indicado).toBe("JOSÉ DA SILVA");
+    });
+
+    it("retorna string vazia para cargo_indicado quando vago sem cargo selecionado", () => {
+        vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
+        vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("Substituição");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
+        vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("Final");
+
+        const data = {
+            tipo_cargo: "vago",
+            servidorIndicado: {
+                nome_civil: "Teste",
+                rf: "123",
+                vinculo: 1,
+                cargo_base: "Professor",
+                lotacao: "Escola A",
+            },
+            ue_nome: "Escola A",
+            dre_nome: "DRE Oeste",
+        };
+
+        const resultado = gerarDadosPortaria(data as unknown as DesignacaoData);
+        expect(resultado.cargo_indicado).toBe("");
+    });
+
+    it("aplica fallbacks vazios quando não recebe nenhum dado", () => {
+        vi.mocked(regrasPortaria.montarAutoridade).mockReturnValue("Autoridade");
+        vi.mocked(regrasPortaria.montarTrechoSubstituicao).mockReturnValue("");
+        vi.mocked(regrasPortaria.montarTrechoAfastamento).mockReturnValue("");
+        vi.mocked(regrasPortaria.montarTrechoFinal).mockReturnValue("");
+
+        const resultado = gerarDadosPortaria(undefined as unknown as DesignacaoData);
+
+        expect(resultado).toEqual({
+            portaria: "undefined/undefined",
+            ano: undefined,
+            sei: undefined,
+            dre: undefined,
+            autoridade: "Autoridade",
+            nome_indicado: undefined,
+            rf: "",
+            vinculo: undefined,
+            cargo_base: "",
+            lotacao_indicado: "",
+            cargo_indicado: "",
+            ue: "",
+            eh: undefined,
+            trecho_substituicao: "",
+            trecho_afastamento: "",
+            trecho_final: "",
+            trecho_unidade: "na referida Unidade",
+        });
     });
 });
 
@@ -230,5 +308,37 @@ describe("montarTrechoUnidade", () => {
     it("retorna o nome da unidade e DRE quando lotação é diferente da unidade proponente", () => {
         const resultado = montarTrechoUnidade("EMEF Origem", "CEU EMEF Destino", "DRE Leste");
         expect(resultado).toBe("na CEU EMEF Destino, da DRE Leste");
+    });
+
+    it("usa fallback de DRE quando não informado", () => {
+        const resultado = montarTrechoUnidade("Origem", "Destino", "");
+        expect(resultado).toBe("na Destino, da ");
+    });
+
+    it("usa '____' quando a DRE vem indefinida", () => {
+        const resultado = montarTrechoUnidade(
+            "Origem",
+            "Destino",
+            undefined as unknown as string,
+        );
+        expect(resultado).toBe("na Destino, da ____");
+    });
+
+    it("usa unidade proponente vazia quando ela vem indefinida", () => {
+        const resultado = montarTrechoUnidade(
+            "Origem",
+            undefined as unknown as string,
+            "DRE Norte",
+        );
+        expect(resultado).toBe("na , da DRE Norte");
+    });
+
+    it("considera lotação e unidade indefinidas como a mesma unidade", () => {
+        const resultado = montarTrechoUnidade(
+            undefined as unknown as string,
+            undefined as unknown as string,
+            "DRE Norte",
+        );
+        expect(resultado).toBe("na referida Unidade");
     });
 });

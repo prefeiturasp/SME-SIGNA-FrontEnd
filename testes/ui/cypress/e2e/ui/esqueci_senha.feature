@@ -2,6 +2,9 @@
 
 Funcionalidade: Fluxo esqueci a senha no sistema SIGNA
   
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Esqueci a senha com RF válido                [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   Cenário: Fluxo esqueci a senha com RF válido
     Dado que eu acesso o sistema SIGNA
     E valido a existência do link "Esqueci minha senha"
@@ -16,6 +19,9 @@ Funcionalidade: Fluxo esqueci a senha no sistema SIGNA
     Então o sistema deve exibir a mensagem de confirmação
     E clico no botão continuar para voltar
 
+  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Esqueci a senha com RF inválido               [ATIVO]
+  # ══════════════════════════════════════════════════════════════
   Cenário: Fluxo esqueci a senha com RF inválido
     Dado que eu acesso o sistema SIGNA
     E valido a existência do link "Esqueci minha senha"

@@ -3,7 +3,13 @@ import axios from "axios";
 
 // ── Mocks ────────────────────────────────────────
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, post: vi.fn(), patch: vi.fn() },
+  };
+});
 const mockedAxios = vi.mocked(axios, true);
 
 vi.mock("next/headers", () => ({
@@ -19,12 +25,19 @@ const mockCookies = (token: string | undefined) => {
   vi.mocked(cookies).mockResolvedValue({
     get: (key: string) =>
       key === "auth_token" && token ? { value: token } : undefined,
-  } as any);
+  } as unknown as Awaited<ReturnType<typeof cookies>>);
 };
 
 const payloadMock = {
+  ato_pai: 10,
   numero_portaria: "123",
   ano_vigente: "2026",
+  sei_numero: "SEI-123",
+  doc: "DOC-123",
+  data_cessacao: "2026-01-01",
+  a_pedido: false,
+  remocao: false,
+  aposentadoria: false,
 };
 
 
@@ -45,7 +58,7 @@ describe("cessacaoAction", () => {
 
   it("retorna sucesso quando axios.patch resolve para edição", async () => {
     mockCookies("token-abc");
-    mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } } as any);
+    mockedAxios.patch.mockResolvedValueOnce({ data: { id: 99 } });
 
     const result = await cessacaoAction(payloadMock, "99");
 

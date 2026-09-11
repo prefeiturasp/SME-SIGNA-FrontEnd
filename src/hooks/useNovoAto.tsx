@@ -33,6 +33,8 @@ const MENSAGEM_NAO_ENCONTRADO =
   "Nenhum registro foi encontrado para essa portaria.";
 const MENSAGEM_APOSTILA_NAO_ENCONTRADA =
   "Essa portaria não possui apostila vinculada para anular.";
+const MENSAGEM_APOSTILA_JA_EXISTE =
+  "Essa portaria já possui uma apostila vinculada.";
 
 const DESTINO_POR_TIPO: Record<"insubsistencia" | "apostila", string> = {
   insubsistencia: "insubsistencia",
@@ -91,6 +93,14 @@ export function useNovoAto() {
   ): Promise<boolean> => {
     const encontrado = await buscarDesignacaoOuCessacao(portaria, ano);
     if (!encontrado) {
+      setErrorMessage(MENSAGEM_NAO_ENCONTRADO);
+      return false;
+    }
+    if (tipo === "apostila" && encontrado.apostilas?.some((a) => a.status === "ativo")) {
+      setErrorMessage(MENSAGEM_APOSTILA_JA_EXISTE);
+      return false;
+    }
+    if (!encontrado.id) {
       setErrorMessage(MENSAGEM_NAO_ENCONTRADO);
       return false;
     }

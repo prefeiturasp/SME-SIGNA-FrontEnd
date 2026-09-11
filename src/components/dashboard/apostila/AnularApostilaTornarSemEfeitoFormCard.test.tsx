@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 
 import AnularApostilaTornarSemEfeitoFormCard from "./AnularApostilaTornarSemEfeitoFormCard";
 
@@ -12,7 +13,7 @@ const blocosPropsMock = vi.fn();
 const editorPropsMock = vi.fn();
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
   return {
     ...actual,
     FormProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -66,7 +67,7 @@ vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => <button {...props}>{children}</button>,
 }));
 
 const createFormMock = () =>
@@ -76,7 +77,7 @@ const createFormMock = () =>
       return fn({ any: "value" });
     },
     trigger: (...args: unknown[]) => triggerMock(...args),
-  }) as any;
+  }) as unknown as UseFormReturn<FieldValues>;
 
 describe("AnularApostilaTornarSemEfeitoFormCard", () => {
   beforeEach(() => {
@@ -92,10 +93,10 @@ describe("AnularApostilaTornarSemEfeitoFormCard", () => {
         form={form}
         onSubmit={onSubmitMock}
         tipoPortaria="designacao"
-        dadosIndicado={{} as any}
-        dadosPortaria={{} as any}
-        dadosPortariaCessacao={{} as any}
-        triggerField={"apostila_insubsistencia" as any}
+        dadosIndicado={null}
+        dadosPortaria={null}
+        dadosPortariaCessacao={null}
+        triggerField="apostila_insubsistencia"
         onGerarPortaria={onGerarPortariaMock}
         mostrarEditor={false}
         htmlPortaria="<p>html</p>"
@@ -133,10 +134,10 @@ describe("AnularApostilaTornarSemEfeitoFormCard", () => {
         form={createFormMock()}
         onSubmit={onSubmitMock}
         tipoPortaria="cessacao"
-        dadosIndicado={{} as any}
-        dadosPortaria={{} as any}
+        dadosIndicado={null}
+        dadosPortaria={null}
         dadosPortariaCessacao={null}
-        triggerField={"apostila_insubsistencia" as any}
+        triggerField="apostila_insubsistencia"
         onGerarPortaria={onGerarPortariaMock}
         mostrarEditor={false}
         htmlPortaria="<p>html</p>"
@@ -165,10 +166,10 @@ describe("AnularApostilaTornarSemEfeitoFormCard", () => {
         form={createFormMock()}
         onSubmit={onSubmitMock}
         tipoPortaria="designacao"
-        dadosIndicado={{} as any}
-        dadosPortaria={{} as any}
-        dadosPortariaCessacao={{} as any}
-        triggerField={"apostila_insubsistencia" as any}
+        dadosIndicado={null}
+        dadosPortaria={null}
+        dadosPortariaCessacao={null}
+        triggerField="apostila_insubsistencia"
         onGerarPortaria={onGerarPortariaMock}
         mostrarEditor
         htmlPortaria="<p>texto gerado</p>"
