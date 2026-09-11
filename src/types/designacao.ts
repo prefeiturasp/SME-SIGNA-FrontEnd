@@ -219,6 +219,8 @@ export interface Cessacao {
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
   portaria?: string;
+  texto_sei: string;
+  modelo_portaria: number | null;
 }
 
 export interface CessacaoByIdResponse extends Cessacao {
@@ -287,6 +289,8 @@ export interface DesignacaoResponse {
   cessacao: Cessacao | null;
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaRead | null;
+  texto_sei: string;
+  modelo_portaria: number | null;
 }
 
 export type CargoAPI = {

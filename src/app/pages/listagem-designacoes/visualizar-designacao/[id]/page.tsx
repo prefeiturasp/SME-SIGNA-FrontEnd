@@ -20,20 +20,10 @@ import EditorSEI, {
   gerarHtmlPortaria,
   EditorSEIHandle,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
-import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
-import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
-import type { DesignacaoData } from "@/types/designacao";
 import { FormProvider, useForm } from "react-hook-form";
 import { formSchemaDesignacaoPasso3Data } from "@/app/pages/designacoes/designacoes-passo-3/schema";
 
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
-
-const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
-
-function escapeHtml(s: string) {
-  return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
-}
 
 export default function VisualizarDesignacaoPage() {
 
@@ -47,60 +37,9 @@ export default function VisualizarDesignacaoPage() {
   );
 
   const htmlInicial = useMemo(() => {
-    if (!designacao) return "";
+    if (!designacao?.texto_sei) return "";
 
-    const dadosMapeados: DesignacaoData = {
-      portaria_designacao: designacao.numero_portaria,
-      ano: designacao.ano_vigente,
-      numero_sei: designacao.sei_numero,
-      doc: designacao.doc,
-      dre_nome: designacao.dre_nome,
-      codigo_hierarquico: designacao.codigo_hierarquico,
-      a_partir_de: designacao.data_inicio,
-      designacao_data_final: designacao.data_fim ?? undefined,
-      impedimento_substituicao: designacao.impedimento_substituicao === null
-        ? undefined
-        : String(designacao.impedimento_substituicao),
-      impedimento_label: designacao.impedimento_substituicao !== null ? designacao.impedimento_display : undefined,
-      com_afastamento: designacao.com_afastamento,
-      motivo_afastamento: designacao.motivo_afastamento,
-      tipo_cargo: designacao.tipo_vaga === "VAGO" ? "vago" : "substituicao",
-      ue_nome: designacao.unidade_proponente,
-      cargo_vago_selecionado: designacao.cargo_vaga_display,
-      servidorIndicado: {
-        nome_servidor: designacao.indicado_nome_servidor,
-        nome_civil: designacao.indicado_nome_civil,
-        rf: designacao.indicado_rf,
-        vinculo: designacao.indicado_vinculo,
-        cargo_base: designacao.indicado_cargo_base,
-        lotacao: designacao.indicado_lotacao,
-        categoria: designacao.indicado_categoria ?? undefined,
-      },
-      dadosTitular: designacao.titular_rf
-        ? {
-          nome_servidor: designacao.titular_nome_servidor,
-          nome_civil: designacao.titular_nome_civil,
-          rf: designacao.titular_rf,
-          vinculo: designacao.titular_vinculo,
-          cargo_base: designacao.titular_cargo_base,
-        }
-        : null,
-    };
-
-    const dadosPuros = gerarDadosPortaria(dadosMapeados);
-
-    const dadosEscapados: Record<string, string> = {};
-    for (const [k, v] of Object.entries(dadosPuros)) {
-      if (v === undefined || v === null) continue;
-      dadosEscapados[k] = escapeHtml(String(v));
-    }
-
-    for (const campo of CAMPOS_NEGRITO) {
-      const val = dadosEscapados[campo];
-      if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
-    }
-
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapados));
+    return gerarHtmlPortaria(designacao.texto_sei);
   }, [designacao]);
 
 

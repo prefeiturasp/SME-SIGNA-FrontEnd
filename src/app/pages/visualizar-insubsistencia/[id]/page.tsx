@@ -36,6 +36,10 @@ export default function VisualizarInsubsistenciaPage() {
   const designacao = insubsistencia?.designacao;
 
   const htmlInicial = useMemo(() => {
+    if (insubsistencia?.texto_sei) {
+      return gerarHtmlPortaria(insubsistencia.texto_sei);
+    }
+
     const values = {
       insubsistencia: {
         numero_portaria: insubsistencia?.numero_portaria ?? "",

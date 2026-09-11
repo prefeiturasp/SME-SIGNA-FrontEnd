@@ -9,10 +9,14 @@ export const useSalvarInsubsistencia = () => {
       values,
       designacaoId,
       cessacaoId,
+      textoSei,
+      modeloPortaria,
     }: {
       values: formSchemaInsubsistenciaData;
       designacaoId?: number;
       cessacaoId?: number;
+      textoSei?: string;
+      modeloPortaria?: number | null;
     }) => {
       const atoPai =
         values.insubsistencia.tipo_insubsistencia === "cessacao" && cessacaoId
@@ -30,6 +34,8 @@ export const useSalvarInsubsistencia = () => {
         sei_numero: values.insubsistencia.numero_sei,
         doc: values.insubsistencia.doc !== "" ? values.insubsistencia.doc : undefined,
         observacoes: values.insubsistencia.observacoes,
+        texto_sei: textoSei ?? "",
+        modelo_portaria: modeloPortaria ?? null,
       };
 
       const response = await insubsistenciaAction(payload);
