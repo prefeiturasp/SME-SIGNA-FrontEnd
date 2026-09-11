@@ -29,9 +29,9 @@ export function montarDadosTextoSeiCessacao(
         NOME_SERVIDOR: designacao?.indicado_nome_servidor ?? "",
         NUMERO_RF: formatarRF(designacao?.indicado_rf ?? ""),
         VINCULO:
-            designacao?.indicado_vinculo != null
-                ? String(designacao.indicado_vinculo)
-                : "",
+            designacao?.indicado_vinculo == null
+                ? ""
+                : String(designacao.indicado_vinculo),
         CARGO: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? ""),
         CARGO_DESIGNACAO: nameToCamelCase(
             designacao?.indicado_cargo_sobreposto ?? ""

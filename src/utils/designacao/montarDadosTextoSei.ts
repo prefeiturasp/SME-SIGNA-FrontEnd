@@ -49,9 +49,9 @@ export function montarDadosTextoSeiDesignacao(
         NOME_SERVIDOR: (nomeIndicado ?? "").toUpperCase(),
         NUMERO_RF: formatarRF(data?.servidorIndicado?.rf ?? ""),
         VINCULO:
-            data?.servidorIndicado?.vinculo != null
-                ? String(data.servidorIndicado.vinculo)
-                : "",
+            data?.servidorIndicado?.vinculo == null
+                ? ""
+                : String(data.servidorIndicado.vinculo),
         CARGO: cargoIndicado,
         CARGO_DESIGNACAO: cargoIndicado,
         CATEGORIA: data?.servidorIndicado?.categoria ?? "",
