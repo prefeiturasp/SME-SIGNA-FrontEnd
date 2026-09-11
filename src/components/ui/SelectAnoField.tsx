@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Popconfirm } from "antd";
 import {
   Select,
@@ -25,11 +25,20 @@ interface SelectAnoFieldProps {
 }
 
 export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAnoFieldProps) => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+  const valorSelecionado = useWatch({ control, name });
   const [pendingValue, setPendingValue] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
 
   const currentYear = new Date().getFullYear().toString();
+
+  // O select exibe o ano atual quando o formulário está vazio; grava esse
+  // mesmo valor para que o que aparece na tela e o que é validado coincidam.
+  useEffect(() => {
+    if (!opcoes && !valorSelecionado) {
+      setValue(name, currentYear);
+    }
+  }, [opcoes, valorSelecionado, name, currentYear, setValue]);
 
   const anosDefault = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },

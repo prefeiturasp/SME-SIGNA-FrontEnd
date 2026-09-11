@@ -183,11 +183,12 @@ describe("PortariaCessacaoFields", () => {
       </FormWrapper>
     );
 
+    const currentYear = `${new Date().getFullYear()}`;
     const otherYear = `${new Date().getFullYear() - 1}`;
 
     fireEvent.click(screen.getByTestId(`select-item-${otherYear}`));
     fireEvent.click(screen.getByTestId("cancel"));
 
-    expect(methods.getValues("cessacao.ano")).toBe("");
+    expect(methods.getValues("cessacao.ano")).toBe(currentYear);
   });
 });
