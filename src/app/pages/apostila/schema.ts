@@ -1,6 +1,8 @@
 import { z } from "zod";
+import formSchemaCessacao from "../cessacao/schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
-const formSchemaApostila = z.object({
+const formSchemaApostila = z.object({    
     // campos apostila
     ato_apostilado: z.string().min(1, "Selecione um ato apostilado"),
     informacoes_adicionais: z.string().optional(),
@@ -14,9 +16,9 @@ const formSchemaApostila = z.object({
     a_partir_de: z.date(),
     designacao_data_final: z.date().optional().nullable(),
     impedimento_substituicao: z.string().optional().nullable(),
-    carater_especial: z.string().min(1, "selecione se possui carater especial "),
-    com_afastamento: z.string().min(1, "selecione se possui afastamento"),
-    com_pendencia: z.string().min(1, "Selecione se possui pendêcia"),
+    carater_especial: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
+    com_afastamento: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
+    com_pendencia: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
     numero_sei: z.string().min(1, "Digite o número do SEI"),
     motivo_afastamento: z.string(),
     ano: z.string().min(1, "Selecione o ano"),
@@ -53,10 +55,28 @@ const formSchemaApostila = z.object({
     cursos_titulos: z.string().optional(),    
     texto_portaria: z.string().optional(),
     
+    // campos servidor titular
+    titular_cargo_sobreposto: z.string().optional(),
 
+    // campos portaria de cessação
+    cessacao: z.any().optional().nullable(),
+})
+.superRefine((data, ctx) => {
+  if (data.ato_apostilado === "cessacao") {
+    const cessacaoValidation = formSchemaCessacao.shape.cessacao.safeParse(data.cessacao);
+
+    if (!cessacaoValidation.success) {
+      cessacaoValidation.error.issues.forEach((issue) => {
+        ctx.addIssue({
+          ...issue,
+          path: ["cessacao", ...issue.path],
+        });
+      });
+    }
+  }
 });
 
-
+    
 
 
 export type formSchemaApostilaData = z.infer<typeof formSchemaApostila>;

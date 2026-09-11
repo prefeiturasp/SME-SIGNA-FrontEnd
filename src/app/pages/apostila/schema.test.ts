@@ -1,8 +1,21 @@
 import { describe, expect, it } from "vitest";
 import formSchemaApostila, { type formSchemaApostilaData } from "./schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
+
+const cessacaoValida: formSchemaApostilaData["cessacao"] = {
+  origem: "cessacao",
+  numero_portaria: "456",
+  ano: "2026",
+  numero_sei: "SEI-CESSACAO",
+  doc: "DOC-CESSACAO",
+  a_pedido: EnumCheckbox.NAO,
+  data_inicio: new Date("2026-02-10"),
+  remocao: EnumCheckbox.NAO,
+  aposentadoria: EnumCheckbox.NAO,
+};
 
 const payloadValido: formSchemaApostilaData = {
-  ato_apostilado: "designação",
+  ato_apostilado: "designacao",
   dre: "108200",
   dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
   ue: "123456",
@@ -21,11 +34,12 @@ const payloadValido: formSchemaApostilaData = {
   doc: "DOC-123",
   impedimento_substituicao: null,
   impedimento_label: "Sem impedimento",
-  carater_especial: "nao",
-  com_afastamento: "nao",
+  carater_especial: EnumCheckbox.NAO,
+  com_afastamento: EnumCheckbox.NAO,
   motivo_afastamento: "",
-  com_pendencia: "nao",
+  com_pendencia: EnumCheckbox.NAO,
   motivo_pendencia: "",
+  cessacao: cessacaoValida,
 };
 
 describe("formSchemaApostila", () => {
@@ -37,17 +51,17 @@ describe("formSchemaApostila", () => {
 
   it("aceita campos opcionais ausentes ou nulos", () => {
     const result = formSchemaApostila.safeParse({
-      ato_apostilado: "designação",
+      ato_apostilado: "designacao",
       portaria_designacao: "123",
       numero_sei: "SEI-123",
       a_partir_de: new Date("2026-01-10"),
       designacao_data_final: null,
       ano: "2026",
       impedimento_substituicao: null,
-      carater_especial: "nao",
-      com_afastamento: "nao",
+      carater_especial: EnumCheckbox.NAO,
+      com_afastamento: EnumCheckbox.NAO,
       motivo_afastamento: "",
-      com_pendencia: "nao",
+      com_pendencia: EnumCheckbox.NAO,
       motivo_pendencia: "",
       dre: "108200",
       dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
@@ -55,6 +69,7 @@ describe("formSchemaApostila", () => {
       ue_nome: "EMEF - Unidade Teste",
       codigo_hierarquico: "EH-123",
       nome_servidor: "João da Silva",
+      cessacao: cessacaoValida,
     });
 
     expect(result.success).toBe(true);
@@ -67,23 +82,21 @@ describe("formSchemaApostila", () => {
       portaria_designacao: "",
       numero_sei: "",
       ano: "",
-      carater_especial: "",
-      com_afastamento: "",
-      com_pendencia: "",
+      carater_especial: EnumCheckbox.NAO,
+      com_afastamento: EnumCheckbox.NAO,
+      com_pendencia: EnumCheckbox.NAO,
       dre: "",
       dre_nome: "",
       ue: "",
       ue_nome: "",
       codigo_hierarquico: "",
+      cessacao: cessacaoValida,
     });
 
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
         "Selecione um ato apostilado",
-        "selecione se possui carater especial ",
-        "selecione se possui afastamento",
-        "Selecione se possui pendêcia",
         "Digite o número do SEI",
         "Selecione o ano",
         "Selecione uma Portaria de Designação",
@@ -124,6 +137,61 @@ describe("formSchemaApostila", () => {
         "a_partir_de",
         "designacao_data_final",
       ]);
+    }
+  });
+
+  it("retorna erros dos campos obrigatórios de cessação quando vazios", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      ato_apostilado: "cessacao",
+      cessacao: {
+        ...cessacaoValida,
+        numero_portaria: "",
+        ano: "",
+        numero_sei: "",
+      },
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.path.join("."))).toEqual([
+        "cessacao.numero_portaria",
+        "cessacao.ano",
+        "cessacao.numero_sei",
+      ]);
+      expect(result.error.issues.map((issue) => issue.message)).toEqual([
+        "Campo obrigatório",
+        "Campo obrigatório",
+        "Campo obrigatório",
+      ]);
+    }
+  });
+
+  it("aceita cessação nula quando o ato apostilado é designação", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      ato_apostilado: "designacao",
+      cessacao: null,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("exige dados de cessação quando o ato apostilado é cessacao", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      ato_apostilado: "cessacao",
+      cessacao: null,
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]).toEqual(
+        expect.objectContaining({
+          path: ["cessacao"],
+          message: "Invalid input: expected object, received null",
+        }),
+      );
     }
   });
 });

@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApostilaPage from "./page";
 import type { formSchemaApostilaData } from "./schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 let mockIsLoading = false;
 let mockId: string | null = "1";
@@ -25,6 +26,8 @@ type DesignacaoMock = {
   indicado_lotacao?: string;
   indicado_categoria?: string;
   cargo_vaga?: number | null;
+  tipo_vaga?: "VAGO" | "DISPONIVEL" | string;
+  titular_cargo_sobreposto?: string;
   dre?: string;
   dre_nome?: string;
   ue?: string;
@@ -42,6 +45,10 @@ type DesignacaoMock = {
     ano_vigente?: string;
     sei_numero?: string;
     doc?: string;
+    a_pedido?: boolean;
+    data_cessacao?: string;
+    remocao?: boolean;
+    aposentadoria?: boolean;
   } | null;
 } | null;
 
@@ -61,6 +68,7 @@ const designacaoPadrao: NonNullable<DesignacaoMock> = {
   ue: "UE-1",
   unidade_proponente: "UE Teste",
   codigo_hierarquico: "EH",
+  tipo_vaga: "VAGO",
   cessacao: null,
 };
 
@@ -81,12 +89,22 @@ const valoresPadrao: formSchemaApostilaData = {
   numero_sei: "",
   a_partir_de: new Date(),
   ano: "",
-  carater_especial: "",
-  com_afastamento: "",
+  carater_especial: EnumCheckbox.NAO,
+  com_afastamento: EnumCheckbox.NAO,
+  com_pendencia: EnumCheckbox.NAO,
   motivo_afastamento: "",
   impedimento_label: "",
-  com_pendencia: "",
   motivo_pendencia: "",
+  cessacao: {
+    numero_portaria: "",
+    ano: "",
+    numero_sei: "",
+    doc: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: new Date(),
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+  },  
 };
 
 const {
@@ -100,10 +118,12 @@ const {
   accordionSpy,
   customAccordionItemSpy,
   portariaDesignacaoFieldsSpy,
+  portariaCessacaoFieldsSpy,
   informacoesAdicionaisSpy,
   camposPesquisaUnidadeSpy,
   camposEditarServidorSpy,
   selectFieldSpy,
+  inputFieldSpy,
   simpleEditorSpy,
   editorOnChangeMock,
   resetMock,
@@ -123,12 +143,22 @@ const {
     numero_sei: "",
     a_partir_de: new Date(),
     ano: "",
-    carater_especial: "",
-    com_afastamento: "",
+    carater_especial: EnumCheckbox.NAO,
+    com_afastamento: EnumCheckbox.NAO,
+    com_pendencia: EnumCheckbox.NAO,
     motivo_afastamento: "",
     impedimento_label: "",
-    com_pendencia: "",
     motivo_pendencia: "",
+    cessacao: {
+      numero_portaria: "",
+      ano: "",
+      numero_sei: "",
+      doc: "",
+      a_pedido: EnumCheckbox.NAO,
+      data_inicio: new Date(),
+      remocao: EnumCheckbox.NAO,
+      aposentadoria: EnumCheckbox.NAO,
+    },
   }));
 
   return {
@@ -148,10 +178,12 @@ const {
     accordionSpy: vi.fn(),
     customAccordionItemSpy: vi.fn(),
     portariaDesignacaoFieldsSpy: vi.fn(),
+    portariaCessacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
     camposPesquisaUnidadeSpy: vi.fn(),
     camposEditarServidorSpy: vi.fn(),
     selectFieldSpy: vi.fn(),
+    inputFieldSpy: vi.fn(),
     simpleEditorSpy: vi.fn(),
     editorOnChangeMock: vi.fn(),
     resetMock: vi.fn(),
@@ -242,6 +274,13 @@ vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesig
   },
 }));
 
+vi.mock("@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields", () => ({
+  default: () => {
+    portariaCessacaoFieldsSpy();
+    return <div data-testid="portaria-cessacao-fields" />;
+  },
+}));
+
 vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade", () => ({
   default: () => {
     camposPesquisaUnidadeSpy();
@@ -300,6 +339,10 @@ vi.mock("@/components/ui/button", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
+  EnumCheckbox: {
+    SIM: "sim",
+    NAO: "nao",
+  },
   SelectField: (props: {
     name: string;
     label: string;
@@ -308,6 +351,15 @@ vi.mock("@/components/ui/FieldsForm", () => ({
   }) => {
     selectFieldSpy(props);
     return <div data-testid="select-codigo-cargo-eol">{props.label}</div>;
+  },
+  InputField: (props: {
+    name: string;
+    label: string;
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => {
+    inputFieldSpy(props);
+    return <input aria-label={props.label} data-testid={props["data-testid"]} disabled={props.disabled} />;
   },
 }));
 
@@ -430,6 +482,8 @@ describe("ApostilaPage", () => {
           "unidade-proponente",
           "servidor-indicado",
           "cargo-disponivel",
+          "cargo-vago",
+          "portarias-cessacao",
         ],
       }),
     );
@@ -457,9 +511,9 @@ describe("ApostilaPage", () => {
     );
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Cargo disponível",
+        title: "Cargo vago",
         color: "green",
-        value: "cargo-disponivel",
+        value: "cargo-vago",
       }),
     );
     expect(selectFieldSpy).toHaveBeenCalledWith(
@@ -480,12 +534,49 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de cessação");
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(5);
+    expect(screen.getByTestId("portaria-cessacao-fields")).toBeInTheDocument();
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portaria de cessação",
+        color: "silver",
+        value: "portarias-cessacao",
+      }),
+    );
+    expect(portariaCessacaoFieldsSpy).toHaveBeenCalledTimes(1);
     expect(pageHeaderSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         breadcrumbs: [
           { title: "Início", href: "/" },
           { title: "Apostila de cessação" },
         ],
+      }),
+    );
+  });
+
+  it("renderiza cargo disponível como campo desabilitado quando tipo_vaga é DISPONIVEL", () => {
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      tipo_vaga: "DISPONIVEL",
+      titular_cargo_sobreposto: "Diretor",
+    };
+
+    render(<ApostilaPage />);
+
+    expect(screen.queryByTestId("select-codigo-cargo-eol")).not.toBeInTheDocument();
+    expect(screen.getByTestId("input-cargo-base")).toBeDisabled();
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Cargo disponível",
+        color: "green",
+        value: "cargo-disponivel",
+      }),
+    );
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "titular_cargo_sobreposto",
+        label: "Cargo",
+        disabled: true,
       }),
     );
   });
@@ -574,20 +665,35 @@ describe("ApostilaPage", () => {
       com_afastamento: true,
       motivo_afastamento: "Afastamento",
       pendencias: "Pendência",
+      cargo_vaga: 20,
+      indicado_nome_civil: "Maria Civil",
+      indicado_lotacao: "Lotação",
+      indicado_categoria: "A",
+      titular_cargo_sobreposto: "SUPERVISOR",
+      cessacao: {
+        numero_portaria: "987",
+        ano_vigente: "2025",
+        sei_numero: "SEI-CESS",
+        doc: "DOC-CESS",
+        a_pedido: true,
+        data_cessacao: "2026-03-15",
+        remocao: true,
+        aposentadoria: true,
+      },
     };
 
     render(<ApostilaPage />);
 
     expect(resetMock).toHaveBeenCalledWith({
       texto_portaria: "A presente portaria apostilada,",
-      ato_apostilado: "designação",
+      ato_apostilado: "",
       portaria_designacao: "123",
       ano: "2024",
       numero_sei: "999",
       doc: "DOC",
       a_partir_de: new Date("2026/01/10"),
       designacao_data_final: new Date("2026/12/20"),
-      carater_especial: "sim",
+      carater_especial: "nao",
       impedimento_substituicao: "sim",
       com_afastamento: "sim",
       motivo_afastamento: "Afastamento",
@@ -598,18 +704,29 @@ describe("ApostilaPage", () => {
       ue: "UE-1",
       ue_nome: "UE Teste",
       codigo_hierarquico: "EH",
-      nome_civil: "",
+      nome_civil: "Maria Civil",
       nome_servidor: "João",
       rf: "123456",
       vinculo: "CLT",
       cargo_base: "PROFESSOR",
-      cd_cargo_base: "",
+      cd_cargo_base: "20",
       cargo_sobreposto_funcao_atividade: "COORDENADOR",
       local_de_exercicio: "ESCOLA",
-      lotacao: "-",
-      categoria: "-",
+      lotacao: "Lotação",
+      categoria: "A",
       cursos_titulos: "-",
       laudo_medico: "Indisponível",
+      titular_cargo_sobreposto: "SUPERVISOR",
+      cessacao: {
+        numero_portaria: "987",
+        ano: "2025",
+        numero_sei: "SEI-CESS",
+        a_pedido: "sim",
+        data_inicio: new Date("2026/03/15"),
+        remocao: "sim",
+        aposentadoria: "sim",
+        doc: "DOC-CESS",
+      },
     });
   });
 
@@ -652,6 +769,17 @@ describe("ApostilaPage", () => {
         local_de_exercicio: "-",
         lotacao: "-",
         categoria: "-",
+        titular_cargo_sobreposto: "-",
+        cessacao: {
+          numero_portaria: "",
+          ano: "",
+          numero_sei: "",
+          a_pedido: "nao",
+          data_inicio: undefined,
+          remocao: "nao",
+          aposentadoria: "nao",
+          doc: "",
+        },
       }),
     );
     expect(resetMock.mock.calls[0][0].a_partir_de).toBeInstanceOf(Date);
