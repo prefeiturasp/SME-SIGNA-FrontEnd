@@ -21,7 +21,7 @@ describe("mapearPayloadCessacao", () => {
 
     expect(result).toEqual({
       ato_pai: 10,
-      numero_portaria: "123",
+      numero_portaria: 123,
       ano_vigente: "2026",
       sei_numero: "999999",
       doc: "DOC123",

@@ -116,7 +116,7 @@ export function mapearPayloadDesignacao(
             titular_local_servico: titular.local_de_servico ?? "",
         }),
 
-        numero_portaria: form.portaria_designacao,
+        numero_portaria: Number(form.portaria_designacao),
         ano_vigente: form.ano,
         sei_numero: form.numero_sei,
         doc: form.doc,

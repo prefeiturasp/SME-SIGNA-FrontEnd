@@ -17,7 +17,7 @@ export const useSalvarInsubsistencias = () => {
       
       const payload: InsubsistenciaBody = {
         ato_pai: atoPai,
-        numero_portaria: values.apostila_insubsistencia.portaria,
+        numero_portaria: Number(values.apostila_insubsistencia.portaria),
         ano_vigente: values.apostila_insubsistencia.ano,
         sei_numero: values.apostila_insubsistencia.numero_sei,
         doc: values.apostila_insubsistencia.doc ? format(values.apostila_insubsistencia.doc, "yyyy-MM-dd") : undefined,

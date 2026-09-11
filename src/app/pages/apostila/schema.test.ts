@@ -118,9 +118,32 @@ describe("formSchemaApostila", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toBe(
-        "A Portaria de Designação deve ter no máximo 20 caracteres",
+        "A Portaria de Designação deve ter no máximo 10 dígitos",
       );
     }
+  });
+
+  it("recusa portaria acima do teto do integer", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      portaria_designacao: "9999999999",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.message)).toEqual([
+        "A Portaria de Designação deve ser no máximo 2.147.483.647",
+      ]);
+    }
+  });
+
+  it("aceita portaria no limite do integer", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      portaria_designacao: "2147483647",
+    });
+
+    expect(result.success).toBe(true);
   });
 
   it("rejeita datas inválidas", () => {

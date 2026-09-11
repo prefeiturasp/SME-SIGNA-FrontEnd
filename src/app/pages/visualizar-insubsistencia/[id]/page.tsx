@@ -38,7 +38,7 @@ export default function VisualizarInsubsistenciaPage() {
   const htmlInicial = useMemo(() => {
     const values = {
       insubsistencia: {
-        numero_portaria: insubsistencia?.numero_portaria ?? "",
+        numero_portaria: String(insubsistencia?.numero_portaria ?? ""),
         ano: insubsistencia?.ano_vigente ?? "",
         numero_sei: insubsistencia?.sei_numero ?? "",
         doc: insubsistencia?.doc ?? "",

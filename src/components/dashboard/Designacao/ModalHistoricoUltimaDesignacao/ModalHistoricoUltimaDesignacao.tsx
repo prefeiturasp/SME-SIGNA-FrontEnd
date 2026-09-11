@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Servidor } from "@/types/designacao-unidade";
 
 type PortariaCessacao = {
-    numero_portaria: string;
+    numero_portaria: number;
     ano: string;
     numero_sei: string;
     doc: string;
@@ -119,7 +119,7 @@ export default function ModalUltimaDesignacao({
                             <div className="grid grid-cols-4 gap-4">
                                 <CampoInfo
                                     label="Nº Portaria da designação"
-                                    value={portariaCessacao.numero_portaria}
+                                    value={String(portariaCessacao.numero_portaria)}
                                 />
                                 <CampoInfo
                                     label="Ano"

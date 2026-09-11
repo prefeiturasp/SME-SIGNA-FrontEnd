@@ -4,7 +4,10 @@ export const filterFormSchemaFiltroAtosAdministrativos = z
   .object({
     numero_sei: z.string().optional(),
     tipo: z.string().optional(),
-    portaria: z.string().optional(),
+    portaria: z
+      .string()
+      .regex(/^\d*$/, "A Portaria deve conter apenas números")
+      .optional(),
     nome_titular_e_indicado: z.string().optional(),
     status_publicacao: z.string().optional(), 
     observacao: z.string().optional(),

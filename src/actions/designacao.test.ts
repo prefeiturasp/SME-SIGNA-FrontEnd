@@ -37,7 +37,7 @@ const samplePortariasFiltros: PortariasDOFiltros = {
 const samplePortariasResponse: ListagemPortariasResponse[] = [
     {
         id: 1,
-        numero_portaria: "100",
+        numero_portaria: 100,
         doc: "DOC-1",
         tipo_de_ato: "DESIGNACAO_CESSACAO",
         nome: "Servidor Teste",
@@ -147,7 +147,7 @@ const sampleAtosResponse: AtosAdministrativosPaginada = {
             rf: "1234567",
             numero_sei: "SEI-2026-1",
             observacoes: null,
-            numero_portaria: "123/2026",
+            numero_portaria: 123,
             status_publicacao: "PUBLICADO",
             tipo: "DESIGNACAO",
             tipo_insubsistencia: null,

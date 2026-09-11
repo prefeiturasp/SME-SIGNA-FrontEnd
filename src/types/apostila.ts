@@ -14,7 +14,7 @@ export interface ApostilaBody {
  
 export interface ApostilaInsubsistenciasBody {
     ato_pai: number;
-    numero_portaria: string;
+    numero_portaria: number;
     sei_numero: string;
     doc?: string;
     ano_vigente?: string;
@@ -35,7 +35,7 @@ export interface ApostilaRead {
 
 export interface ApostilaDetailRead {
     id: number;    
-    numero_portaria: string;
+    numero_portaria: number | null;
     tipo: string;
     ato_apostilado: string;
     ato_apostilado_display: string;

@@ -5,7 +5,7 @@ import { Cessacao } from "@/types/designacao";
 
 const cessacaoBase: Cessacao = {
   id: 1,
-  numero_portaria: "050",
+  numero_portaria: 50,
   ano_vigente: "2025",
   sei_numero: "6016.2025/0002-0",
   doc: "2025-10-10",
@@ -25,7 +25,7 @@ describe("ResumoPortariaCessacao", () => {
     render(<ResumoPortariaCessacao defaultValues={cessacaoBase} />);
 
     expect(screen.getByText("Nº Portaria de Cessação")).toBeInTheDocument();
-    expect(screen.getByText("050")).toBeInTheDocument();
+    expect(screen.getByText("50")).toBeInTheDocument();
     expect(screen.getByText("Ano da Cessação")).toBeInTheDocument();
     expect(screen.getByText("2025")).toBeInTheDocument();
     expect(screen.getByText("Nº SEI")).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("ResumoPortariaCessacao", () => {
   it("usa campo portaria como fallback e mostra campos extras formatados", () => {
     const cessacaoSemNumero = {
       ...cessacaoBase,
-      numero_portaria: "",
+      numero_portaria: null,
       portaria: "PORT-FALLBACK",
       data_cessacao: "2025-12-30",
       a_pedido: true,

@@ -119,7 +119,7 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.dre_nome).toBe("DRE Centro");
         expect(result?.unidade_proponente).toBe("EMEF Teste");
         expect(result?.codigo_hierarquico).toBe("001");
-        expect(result?.numero_portaria).toBe("42");
+        expect(result?.numero_portaria).toBe(42);
         expect(result?.ano_vigente).toBe("2024");
         expect(result?.sei_numero).toBe("SEI-001");
         expect(result?.doc).toBe("DOC-001");

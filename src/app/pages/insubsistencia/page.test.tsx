@@ -248,7 +248,7 @@ const designacaoMock = {
 
 const cessacaoMock = {
   id: 1,
-  numero_portaria: "050",
+  numero_portaria: 50,
   ano_vigente: "2025",
   sei_numero: "SEI-050",
   doc: "DOC-50",

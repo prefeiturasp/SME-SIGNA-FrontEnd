@@ -25,7 +25,7 @@ const createWrapper = () => {
 const valuesMock: ListagemPortariasResponse[] = [
   {
     id: 10,
-    numero_portaria: "10",
+    numero_portaria: 10,
     doc: "DOC",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor",
@@ -36,7 +36,7 @@ const valuesMock: ListagemPortariasResponse[] = [
   },
   {
     id: 20,
-    numero_portaria: "20",
+    numero_portaria: 20,
     doc: "DOC2",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor 2",

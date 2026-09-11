@@ -162,7 +162,7 @@ describe("VisualizarInsubsistenciaPage", () => {
       doc: "2025-01-01",
     },
     cessacao: {
-      numero_portaria: "050",
+      numero_portaria: 50,
       ano_vigente: "2024",
       sei_numero: "SEI-CES",
       doc: "2024-01-01",
@@ -320,6 +320,6 @@ describe("VisualizarInsubsistenciaPage", () => {
 
     const html = screen.getByTestId("editor-sei").textContent ?? "";
     expect(html).toContain("<strong>Servidor Teste</strong>");
-    expect(html).toContain("050");
+    expect(html).toContain("50");
   });
 });

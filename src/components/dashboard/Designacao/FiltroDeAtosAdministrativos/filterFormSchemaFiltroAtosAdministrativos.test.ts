@@ -11,7 +11,7 @@ describe("filterFormSchemaFiltroAtosAdministrativos", () => {
     const result = filterFormSchemaFiltroAtosAdministrativos.safeParse({
       numero_sei: "1234.5678/9012345-6",
       tipo: "DESIGNACAO",
-      portaria: "100/2026",
+      portaria: "100",
       nome_titular_e_indicado: "Joao da Silva",
       status_publicacao: "PUBLICADO",
       periodo_after: "2026-01-01",

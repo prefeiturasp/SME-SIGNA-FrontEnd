@@ -25,7 +25,7 @@ export const useSalvarInsubsistencia = () => {
 
       const payload: InsubsistenciaBody = {
         ato_pai: atoPai,
-        numero_portaria: values.insubsistencia.numero_portaria,
+        numero_portaria: Number(values.insubsistencia.numero_portaria),
         ano_vigente: values.insubsistencia.ano,
         sei_numero: values.insubsistencia.numero_sei,
         doc: values.insubsistencia.doc !== "" ? values.insubsistencia.doc : undefined,
