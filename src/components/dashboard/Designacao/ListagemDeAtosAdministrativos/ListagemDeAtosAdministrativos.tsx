@@ -265,7 +265,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
 
     let items: ItemType[] = [];
-    console.log('record', record);
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
       items.push(...designacaoPublicadaItems(record));
     }
