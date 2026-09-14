@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { nameToCamelCase, formatarRF } from "@/utils/portarias/formatadores";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams,useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
@@ -32,10 +32,10 @@ import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApos
 const defaultValues = {
 
   apostila: {
-    numero_sei: "22",
+    numero_sei: "",
     doc: "",
     observacao: "",
-    numero_portaria: "222",
+    numero_portaria: "",
   },
 
   dre: "",
@@ -101,6 +101,7 @@ export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const origem = searchParams.get("origem");
+  const router = useRouter();
   const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
   const notification = useAppNotification();
   const salvarApostila = useSalvarApostila();
@@ -178,7 +179,7 @@ export default function ApostilaPage() {
   };
   const gerarAlteracoes = (formValues: formSchemaApostilaData) => {
     delete formValues.impedimento_label;
-    console.log('formValues', formValues);
+    
     const values = {
       ...formValues,
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
@@ -253,7 +254,6 @@ export default function ApostilaPage() {
     try {
       const alteracoes = gerarAlteracoes(values);
 
-      console.log('values', values);
 
       const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
       const body: ApostilaBody = {
@@ -266,10 +266,9 @@ export default function ApostilaPage() {
         texto_sei: values.texto_portaria,
 
       };
-      console.log('body', body);
       await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
-      // router.push("/pages/atos-administrativos");
+      router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
       notification.error({ title: msg });
@@ -294,8 +293,7 @@ export default function ApostilaPage() {
 
 
       const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
-      console.log(cessacaoFieldsValues);
-      console.log('designacao', designacao.detalhe_para_quadro_de_historico_por_ano);
+      
       form.reset({
         ...defaultValues,
         texto_portaria: "A presente portaria apostilada,",
@@ -387,7 +385,7 @@ export default function ApostilaPage() {
                   defaultValue={["portaria-apostila", "portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
                 >
 
-                  <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
+                  <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="silver">
                     <PortariaApostilaFields />
                   </CustomAccordionItem>
 

@@ -3,9 +3,7 @@
 import { useFormContext } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { InputField } from "@/components/ui/FieldsForm";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-
+ 
 interface Props {
   isLoading?: boolean;
 }
@@ -32,17 +30,11 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
       name: "apostila.doc",
       label: "D.O",
       placeholder: "D.O",
-      disabled: false,
+      disabled: true,
     },
   ];
 
-  const textareaFields = [
-    {
-      name: "apostila.observacao",
-      label: "Observações",
-      placeholder: "Texto",
-    },
-  ];
+
 
   return (
     <>
@@ -51,7 +43,6 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
           <Loader2 className="h-16 w-16 text-primary animate-spin" />
         </div>
       ) : (
-        <>
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
             {inputFields.map((field) =>
                 <InputField
@@ -66,33 +57,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
                   mask={field.mask}
                 />
             )}
-          </div>
-
-          {textareaFields.map((item) => (
-            <div className="w-full pt-4" key={item.name}>
-              <FormField
-                control={control}
-                name={item.name}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-[#313131] font-bold">
-                      {item.label}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        rows={4}
-                        placeholder={item.placeholder}
-                        data-testid={`input-${item.name}`}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          ))}
-        </>
+          </div>                 
       )}
     </>
   );
