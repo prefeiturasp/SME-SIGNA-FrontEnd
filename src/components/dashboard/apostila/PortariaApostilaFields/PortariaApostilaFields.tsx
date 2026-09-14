@@ -9,7 +9,7 @@ interface Props {
 }
 
 const PortariaApostilaFields = ({ isLoading }: Props) => {
-  const { register, control } = useFormContext();
+  const { control } = useFormContext();
 
   const inputFields = [
     
@@ -47,7 +47,6 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
             {inputFields.map((field) =>
                 <InputField
                   key={field.name}
-                  register={register}
                   control={control}
                   name={field.name}
                   label={field.label}

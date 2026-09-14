@@ -501,7 +501,6 @@ export default function ApostilaPage() {
               {mostrarEditor && (
                 <div className="mb-2 mt-4">
                   <FormField
-                    {...form.register('texto_portaria')}
                     control={form.control}
                     name="texto_portaria"
                     render={({ field, fieldState }) => (

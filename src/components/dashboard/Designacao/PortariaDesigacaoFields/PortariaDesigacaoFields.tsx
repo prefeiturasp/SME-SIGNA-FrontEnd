@@ -55,7 +55,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
 
   useEffect(() => {
     mutate();
-  }, []);
+  }, [mutate]);
 
   return (
     <>
@@ -219,7 +219,6 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             {watch("com_afastamento") === "sim" && (
               <div className="w-full pt-1">
                 <FormField
-                  {...register("motivo_afastamento")}
                   control={control}
                   name="motivo_afastamento"
                   render={({ field }) => (
@@ -258,7 +257,6 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             {watch("com_pendencia") === "sim" && (
               <div className="w-full pt-1">
                 <FormField
-                  {...register("motivo_pendencia")}
                   control={control}
                   name="motivo_pendencia"
                   render={({ field }) => (
