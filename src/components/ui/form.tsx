@@ -147,14 +147,14 @@ FormDescription.displayName = "FormDescription";
 
 const FormMessage = React.forwardRef<
     HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
+    React.HTMLAttributes<HTMLParagraphElement> & { showBlankSpace?: boolean }
+>(({ className, children, showBlankSpace = true, ...props }, ref) => {
     const { error, formMessageId } = useFormField();
     const body = error ? String(error?.message) : children;
 
     if (!body) {
-        return <div className="h-[20px]">                        
-         </div>          
+        return showBlankSpace ? <div className="h-[20px]">                        
+         </div> : <></>;          
     }
 
     return (

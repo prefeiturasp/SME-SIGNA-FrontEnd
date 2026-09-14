@@ -97,7 +97,6 @@ export default function VisualizarCessacaoPage() {
 
   const router = useRouter();
 
-  console.log(cessacao);
   return (
     <>
       <PageHeader

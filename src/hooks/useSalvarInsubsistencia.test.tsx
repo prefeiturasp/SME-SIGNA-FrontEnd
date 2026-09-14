@@ -145,19 +145,15 @@ describe("useSalvarInsubsistencia", () => {
     });
   });
 
-  it("funciona sem designacaoId (undefined)", async () => {
-    vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: {} });
-
+  it("lança erro quando não há designacaoId nem cessacaoId", async () => {
     const { result } = renderHook(() => useSalvarInsubsistencia(), {
       wrapper: createWrapper(),
     });
 
-    await act(async () => {
-      await result.current.mutateAsync({ values: valuesMock });
-    });
+    await expect(
+      result.current.mutateAsync({ values: valuesMock })
+    ).rejects.toThrow("Ato de origem (designação ou cessação) não informado.");
 
-    expect(insubsistenciaAction).toHaveBeenCalledWith(
-      expect.objectContaining({ ato_pai: undefined })
-    );
+    expect(insubsistenciaAction).not.toHaveBeenCalled();
   });
 });

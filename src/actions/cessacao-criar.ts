@@ -2,6 +2,8 @@
 
 import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
+import { mapearPayloadCessacao } from "@/utils/cessacao/mapearPayloadCessacao";
+import { toAxiosError } from "@/lib/axios-error";
 
 type CessacaoErrorResponse = {
   detail?: string;
@@ -30,7 +32,7 @@ function extractErrorMessage(error: AxiosError<CessacaoErrorResponse>): string {
 }
 
 export async function cessacaoAction(
-  payload: any,
+  payload: ReturnType<typeof mapearPayloadCessacao>,
   id: string | null
 ): Promise<CessacaoResult> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -51,7 +53,7 @@ export async function cessacaoAction(
     const { data } = await request;
     return { success: true, data };
   } catch (err) {
-    const error = err as AxiosError<CessacaoErrorResponse>;
+    const error = toAxiosError<CessacaoErrorResponse>(err);
 
 
     return { success: false, error: extractErrorMessage(error), field: error.response?.data?.field };

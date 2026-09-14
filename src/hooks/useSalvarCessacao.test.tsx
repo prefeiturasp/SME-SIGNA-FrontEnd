@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useSalvarCessacao } from "./useSalvarCessacao";
@@ -25,7 +26,7 @@ const { mapearPayloadCessacao } = await import(
 const createWrapper = () => {
     const queryClient = new QueryClient();
 
-    const Wrapper = ({ children }: any) => (
+    const Wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>
@@ -39,11 +40,25 @@ const createWrapper = () => {
 const valuesMock = {
   cessacao: {
     numero_portaria: "123",
+    ano: "2026",
+    numero_sei: "SEI-123",
+    a_pedido: "nao" as const,
+    data_inicio: new Date("2026-01-01"),
+    remocao: "nao" as const,
+    aposentadoria: "nao" as const,
   },
 };
 
 const payloadMock = {
+  ato_pai: 10,
   numero_portaria: "123",
+  ano_vigente: "2026",
+  sei_numero: "SEI-123",
+  doc: "DOC-123",
+  data_cessacao: "2026-01-01",
+  a_pedido: false,
+  remocao: false,
+  aposentadoria: false,
 };
 
 // ── Testes ───────────────────────────────────────

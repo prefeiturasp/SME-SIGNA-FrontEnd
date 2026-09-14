@@ -132,6 +132,7 @@ export interface ListagemAtosAdministrativosResponse {
   tipo: string;
   tipo_insubsistencia: string | null;
   tipo_de_ato: string;
+  ato_pai_id?: number | null;
   cessacao?: Partial<Cessacao> | null;
   insubsistencia?: Partial<InsubsistenciaRead>;
   apostilas?: Partial<ApostilaRead>[];  

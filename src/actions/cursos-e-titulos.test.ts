@@ -12,7 +12,13 @@ import axios, { AxiosError, AxiosHeaders } from "axios";
 import { cookies } from "next/headers";
 import { IConcursoType } from "@/types/cursos-e-titulos";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, get: vi.fn() },
+    };
+});
 vi.mock("next/headers", () => ({
     cookies: vi.fn(),
 }));
@@ -82,7 +88,7 @@ describe("getCursosETitulosAction", () => {
 
         expect(result).toEqual({
             success: false,
-            error: "Erro ao buscar os cursos e títulos",
+            error: "Mensagem de erro da API",
         });
     });
 
@@ -161,7 +167,7 @@ describe("getCursosETitulosAction", () => {
 
          
 
-    it("deve retornar erro genérico quando o erro não é um AxiosError", async () => {
+    it("retorna a mensagem do erro original quando ele não é um AxiosError", async () => {
         const getMock = vi.fn().mockReturnValue({ value: "fake-auth-token" });
         cookiesMock.mockReturnValue({ get: getMock });
 
@@ -172,7 +178,7 @@ describe("getCursosETitulosAction", () => {
 
         expect(result).toEqual({
             success: false,
-            error: "Erro ao buscar os cursos e títulos",
+            error: "Erro genérico",
         });
     });
 });

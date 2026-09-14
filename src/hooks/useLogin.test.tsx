@@ -38,8 +38,8 @@ describe("useLogin", () => {
         const { result } = renderHook(() => useLogin(), { wrapper });
 
         result.current.mutate({
-            username: "a@b.com",
-            password: "1234",
+            seu_rf: "a@b.com",
+            senha: "1234",
         });
 
         await waitFor(() => {
@@ -60,8 +60,8 @@ describe("useLogin", () => {
         const { result } = renderHook(() => useLogin(), { wrapper });
 
         result.current.mutate({
-            username: "x@y.com",
-            password: "abcd",
+            seu_rf: "x@y.com",
+            senha: "abcd",
         });
 
         await waitFor(() => {
@@ -79,8 +79,8 @@ describe("useLogin", () => {
         const { result } = renderHook(() => useLogin(), { wrapper });
 
         result.current.mutate({
-            username: "erro@teste.com",
-            password: "1234",
+            seu_rf: "erro@teste.com",
+            senha: "1234",
         });
 
         await waitFor(() => {

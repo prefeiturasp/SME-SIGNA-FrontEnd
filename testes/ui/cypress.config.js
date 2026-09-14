@@ -9,13 +9,46 @@ const path = require("path");
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 module.exports = defineConfig({
+  // cypress-mochawesome-reporter roda só localmente (fora do CI): gera 1
+  // relatório HTML consolidado (com screenshots embutidos) ao final da run,
+  // em cypress/reports/mochawesome/index.html — útil para inspecionar uma
+  // execução local. No Jenkins (CI=true) o pipeline já roda com
+  // --reporter mocha-allure-reporter (ver Jenkinsfile_qa) e arquiva o
+  // relatório Allure; gerar mochawesome também na esteira seria relatório
+  // duplicado e desnecessário, por isso reporter/reporterOptions ficam
+  // condicionados a !process.env.CI (sem eles, Cypress usa o reporter
+  // "spec" padrão em CI).
+  ...(process.env.CI
+    ? {}
+    : {
+        reporter: "cypress-mochawesome-reporter",
+        reporterOptions: {
+          reportDir: "cypress/reports/mochawesome",
+          reportFilename: "[status]_[datetime]-relatorio-signa",
+          reportPageTitle: "Relatório de Testes — SIGNA",
+          charts: true,
+          embeddedScreenshots: true,
+          inlineAssets: true,
+          saveAllAttempts: false,
+          overwrite: false,
+        },
+      }),
+
   e2e: {
     baseUrl: "https://qa-signa.sme.prefeitura.sp.gov.br",
 
     specPattern: process.env.CI
       ? ["cypress/e2e/**/*.feature", "!cypress/e2e/ui/*.feature"]
       : "cypress/e2e/**/*.feature",
-    excludeSpecPattern: ["cypress/e2e/ui/consulta_rf.feature"],
+    excludeSpecPattern: [
+      "cypress/e2e/ui/consulta_rf.feature",
+      // Retiradas do repositório (mantidas só localmente) — não executar.
+      "cypress/e2e/ui/cessacao.feature",
+      "cypress/e2e/ui/designacao.feature",
+      "cypress/e2e/ui/insubsistente.feature",
+      "cypress/e2e/ui/apostilar.feature",
+      "cypress/e2e/ui/altera_DO.feature",
+    ],
 
     supportFile: "cypress/support/e2e.js",
 
@@ -44,9 +77,12 @@ module.exports = defineConfig({
 
     experimentalMemoryManagement: true,
     // 0 no CI para economizar memória em execuções longas (Jenkins);
-    // no modo local/interativo (cypress open) mantém snapshots suficientes
+    // no modo local/interativo (cypress open) mantém snapshots de mais testes
     // para o time-travel debugging (clicar num comando passado no Command Log).
-    numTestsKeptInMemory: process.env.CI ? 0 : 10,
+    // 10 era baixo demais: só o filtra_atos.feature já gera 12 testes (8
+    // exemplos do Esquema do Cenário + 4 cenários), então os snapshots dos
+    // primeiros testes eram descartados antes de dar tempo de revisá-los.
+    numTestsKeptInMemory: process.env.CI ? 0 : 50,
     watchForFileChanges: false,
 
     retries: {
@@ -79,8 +115,18 @@ module.exports = defineConfig({
     async setupNodeEvents(on, config) {
       allureWriter(on, config);
 
+      // Mochawesome: registra os hooks (before:run/after:run/after:spec) que
+      // mesclam os resultados de todos os specs num único relatório HTML ao
+      // final da execução. Só localmente — ver comentário em "reporter" no
+      // topo do arquivo; sem esse guard, os hooks rodariam (e escreveriam
+      // arquivos em cypress/reports/mochawesome) mesmo no Jenkins, mesmo com
+      // o reporter/reporterOptions do config já desativados lá em cima.
+      if (!process.env.CI) {
+        require("cypress-mochawesome-reporter/plugin")(on);
+      }
+
       // =========================
-      // 1️⃣ CUCUMBER
+      // CUCUMBER
       // =========================
       await preprocessor.addCucumberPreprocessorPlugin(on, config);
 
@@ -92,7 +138,7 @@ module.exports = defineConfig({
       );
 
       // =========================
-      // 3️⃣ TASKS
+      // TASKS
       // =========================
       on("task", {
         log(message) {
@@ -121,7 +167,7 @@ module.exports = defineConfig({
       });
 
       // =========================
-      // 4️⃣ FIREFOX
+      // FIREFOX
       // =========================
       on("before:browser:launch", (browser, launchOptions) => {
         if (browser.family === "firefox") {

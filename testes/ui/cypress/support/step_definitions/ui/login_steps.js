@@ -49,15 +49,11 @@ Then('devo visualizar a página principal do sistema', () => {
 });
 
 Then('devo visualizar mensagem de erro de autenticação', () => {
-  // Verificar se não foi redirecionado (permanece na mesma página)
   cy.url().should('include', Cypress.config('baseUrl'));
-  // Aguardar possível mensagem de erro aparecer
   cy.wait(1000);
-  // Verificar se há alguma mensagem de erro visível na página
   cy.get('body').then($body => {
     const hasError = $body.find('[class*="erro"], [class*="error"], [class*="alert"], [class*="danger"]').length > 0;
     if (!hasError) {
-      // Se não houver elemento de erro, apenas garantir que não foi redirecionado
       cy.url().should('not.include', '/dashboard');
       cy.url().should('not.include', '/home');
     }
@@ -65,14 +61,11 @@ Then('devo visualizar mensagem de erro de autenticação', () => {
 });
 
 Then('devo visualizar validação de senha obrigatória', () => {
-  // Verificar se não foi redirecionado
   cy.url().should('include', Cypress.config('baseUrl'));
   cy.wait(1000);
-  // Aceitar se o campo senha está destacado ou se não foi redirecionado
   cy.get('body').then($body => {
     const hasValidation = $body.find('[class*="invalid"], [class*="error"], input[aria-invalid="true"]').length > 0;
     if (!hasValidation) {
-      // Se não houver validação visual, garantir que não avançou
       cy.url().should('not.include', '/dashboard');
       cy.url().should('not.include', '/home');
     }
@@ -80,14 +73,11 @@ Then('devo visualizar validação de senha obrigatória', () => {
 });
 
 Then('devo visualizar validação de RF obrigatório', () => {
-  // Verificar se não foi redirecionado
   cy.url().should('include', Cypress.config('baseUrl'));
   cy.wait(1000);
-  // Aceitar se o campo RF está destacado ou se não foi redirecionado
   cy.get('body').then($body => {
     const hasValidation = $body.find('[class*="invalid"], [class*="error"], input[aria-invalid="true"]').length > 0;
     if (!hasValidation) {
-      // Se não houver validação visual, garantir que não avançou
       cy.url().should('not.include', '/dashboard');
       cy.url().should('not.include', '/home');
     }

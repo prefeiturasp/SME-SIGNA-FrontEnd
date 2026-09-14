@@ -3,14 +3,14 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { InputBase, DocumentInputBase } from "@/components/ui/input-base";
-import { User, useUserStore } from "@/stores/useUserStore";
+import { useUserStore } from "@/stores/useUserStore";
 import ModalNovaSenha from "./ModalNovaSenha/ModalNovaSenha";
 import ModalAlterarEmail from "./ModalAlterarEmail/ModalAlterarEmail";
 
 const FormDados: React.FC = () => {
     const [openModalNovaSenha, setOpenModalNovaSenha] = useState(false);
     const [openModalAlterarEmail, setOpenModalAlterarEmail] = useState(false);
-    const user = useUserStore((state) => state.user) as User;
+    const user = useUserStore((state) => state.user);
 
     const dados = {
         nome: user?.name || "",

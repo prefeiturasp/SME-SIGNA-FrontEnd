@@ -1,6 +1,6 @@
 import type { ColumnsType } from "antd/es/table";
 
-type RowData = object;
+type RowData = Record<string, unknown>;
 
 const serializeCSVValue = (value: unknown): string => {
   if (value == null) return "";
@@ -42,7 +42,7 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
 
   for (const row of data) {
     const values = columns.map((header) => {
-      const value = (row as Record<string, unknown>)[String(header.key)];
+      const value = row[String(header.key)];
  
       const escaped = serializeCSVValue(value).replace(/"/g, '\\"');
       return `"${escaped}"`;

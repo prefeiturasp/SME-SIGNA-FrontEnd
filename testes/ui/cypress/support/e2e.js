@@ -4,6 +4,7 @@
 // Importar comandos do Cypress
 import './commands';
 import '@shelex/cypress-allure-plugin';
+import 'cypress-mochawesome-reporter/register';
 
 // Importar comandos personalizados
 import './ui/commands/commands_globais';
@@ -12,6 +13,9 @@ import './ui/commands/commands_slowmo';
 
 // Importar comandos de API EOL
 import './api/commands';
+
+// Importar comandos de API SIGNA (backend próprio, JWT)
+import './api/commands_signa';
 
 // Configurações globais
 Cypress.on('uncaught:exception', (err, runnable) => {
@@ -22,13 +26,11 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 // Before hook global - executa antes de cada teste
 beforeEach(() => {
-  // Configurar viewport padrão
   cy.viewport(1920, 1080);
 });
 
 // After hook global - executa após cada teste
 afterEach(function() {
-  // Capturar screenshot em caso de falha
   // capture: 'fullPage' evita o erro "height greater than zero" quando o teste
   // falha dentro de um within() ou com viewport não renderizado
   if (this.currentTest.state === 'failed') {

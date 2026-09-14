@@ -4,14 +4,16 @@ import type { ReactNode } from "react";
 import AnularApostilaPage from "./page";
 
 const pushMock = vi.fn();
-const messageSuccessMock = vi.fn();
-const messageErrorMock = vi.fn();
+const notificationSuccessMock = vi.fn();
+const notificationErrorMock = vi.fn();
 const fetchByIdMock = vi.fn();
 const mutateAsyncMock = vi.fn();
 const getDadosPortariaMock = vi.fn((value?: unknown) => ({ origem: "designacao", value }));
 const getDadosPortariaCessacaoMock = vi.fn((value?: unknown) => ({ origem: "cessacao", value }));
 const getDadosIndicadoMock = vi.fn((value?: unknown) => ({ origem: "indicado", value }));
 const formCardPropsMock = vi.fn();
+const formatarDataMock = vi.fn((value?: string) => `data-${value}`);
+const gerarHtmlPortariaMock = vi.fn((texto: string) => `HTML:${texto}`);
 
 type FormValues = {
   apostila_insubsistencia: {
@@ -80,6 +82,13 @@ vi.mock("@/hooks/useSalvarInsubsistencias", () => ({
   }),
 }));
 
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: notificationSuccessMock,
+    error: notificationErrorMock,
+  }),
+}));
+
 vi.mock("@/utils/designacao/getDadosPortaria", () => ({
   getDadosPortaria: (value: unknown) => getDadosPortariaMock(value),
 }));
@@ -90,6 +99,14 @@ vi.mock("@/utils/cessacao/getDadosPortaria", () => ({
 
 vi.mock("@/utils/ServidorIndicado/getDadosIndicado", () => ({
   getDadosIndicado: (value: unknown) => getDadosIndicadoMock(value),
+}));
+
+vi.mock("@/lib/utils", () => ({
+  formatarData: (value?: string) => formatarDataMock(value),
+}));
+
+vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
+  gerarHtmlPortaria: (texto: string) => gerarHtmlPortariaMock(texto),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -112,13 +129,6 @@ vi.mock("@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard",
         </button>
       </div>
     );
-  },
-}));
-
-vi.mock("antd", () => ({
-  message: {
-    success: (value: string) => messageSuccessMock(value),
-    error: (value: string) => messageErrorMock(value),
   },
 }));
 
@@ -212,6 +222,7 @@ describe("AnularApostilaPage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("mostrar-editor")).toHaveTextContent("true");
     });
+    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
   });
 
   it("aplica negrito quando chave nome_indicado aparece no template", async () => {
@@ -229,8 +240,50 @@ describe("AnularApostilaPage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("mostrar-editor")).toHaveTextContent("true");
     });
+    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
 
     objectEntriesSpy.mockRestore();
+  });
+
+  it("usa doc da cessação ao gerar dados quando tipo_portaria for cessacao", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      cessacao: {
+        portaria: "777",
+        doc: "DOC-CESSACAO",
+      } as unknown as { portaria: string },
+    };
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    const texto = gerarHtmlPortariaMock.mock.calls.at(-1)?.[0] ?? "";
+    expect(texto).toContain("data-DOC-CESSACAO");
+  });
+
+  it("usa '-' para docs quando dados estão ausentes", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      doc: undefined,
+      designacao: {
+        ...createInsubsistencia().designacao,
+        doc: undefined,
+      },
+    } as unknown as InsubsistenciaMock;
+
+    render(<AnularApostilaPage />);
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => {
+      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
+    });
+
+    const texto = gerarHtmlPortariaMock.mock.calls.at(-1)?.[0] ?? "";
+    expect(texto).toContain("-");
   });
 
   it("submete com sucesso e redireciona", async () => {
@@ -243,7 +296,10 @@ describe("AnularApostilaPage", () => {
         values: formValues,
         atoPai: 10,
       });
-      expect(messageSuccessMock).toHaveBeenCalledWith("Ato foi tornado sem efeito com sucesso!");
+      expect(notificationSuccessMock).toHaveBeenCalledWith({
+        title: "Tudo certo por aqui!",
+        description: "O ato de tornar uma insubsistência sem efeito foi concluído.",
+      });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
   });
@@ -255,7 +311,10 @@ describe("AnularApostilaPage", () => {
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("falha ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro!",
+        description: "Não conseguimos concluir a ação. Por favor, tente novamente.",
+      });
     });
   });
 
@@ -266,7 +325,10 @@ describe("AnularApostilaPage", () => {
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(messageErrorMock).toHaveBeenCalledWith("Erro ao salvar");
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro!",
+        description: "Não conseguimos concluir a ação. Por favor, tente novamente.",
+      });
     });
   });
 

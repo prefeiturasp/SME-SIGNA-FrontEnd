@@ -12,7 +12,7 @@ import {
     CommandEmpty,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 
 interface Option {
     label: string;
@@ -26,6 +26,7 @@ interface MultiSelectProps {
     placeholder?: string;
     disabled?: boolean;
     className?: string;
+    "data-testid"?: string;
 }
 
 export function MultiSelect({
@@ -35,6 +36,7 @@ export function MultiSelect({
     placeholder = "Selecione...",
     disabled = false,
     className,
+    "data-testid": dataTestId,
 }: Readonly<MultiSelectProps>) {
     const [open, setOpen] = React.useState(false);
 
@@ -56,7 +58,7 @@ export function MultiSelect({
 
     const selectedOptions = value
         .map((val) => options.find((opt) => opt.value === val))
-        .filter(Boolean) as Option[];
+        .filter((opt): opt is Option => opt !== undefined);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -66,10 +68,11 @@ export function MultiSelect({
                     aria-expanded={open}
                     aria-haspopup="listbox"
                     disabled={disabled}
+                    data-testid={dataTestId}
                     className={cn(
-                        "flex w-full min-h-[40px] items-start rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                        disabled && "cursor-not-allowed opacity-50",
+                        "flex min-h-10 w-full items-start justify-between gap-2 rounded-lg border border-[#dadada] bg-background px-3 py-2 text-sm ring-offset-background",
+                        "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                        disabled && "cursor-not-allowed opacity-50 disabled:bg-[#9CA3B9]",
                         !disabled && "cursor-pointer",
                         className
                     )}
@@ -83,7 +86,7 @@ export function MultiSelect({
                             selectedOptions.map((opt) => (
                                 <span
                                     key={opt.value}
-                                    className="inline-flex items-center gap-1 bg-[#FFFFFF] border border-[#DADADA] text-[#313131] rounded px-2 py-1 text-xs"
+                                    className="inline-flex items-center gap-1 bg-[#F1F5F9] border border-[#DADADA] text-[#313131] rounded px-2 py-1 text-xs"
                                 >
                                     {opt.label}
                                     <input
@@ -103,6 +106,7 @@ export function MultiSelect({
                             ))
                         )}
                     </div>
+                    <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 opacity-50" />
                 </button>
             </PopoverTrigger>
             <PopoverContent

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mapearPayloadDesignacao } from "./mapearPayload";
+import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 
 // ── Helpers ──────────────────────────────────────
 
@@ -7,10 +8,14 @@ const servidorIndicado = {
     nome_civil: "João Silva",
     nome_servidor: "SILVA, JOÃO",
     rf: "123456",
-    vinculo: "Efetivo",
+    vinculo: 1,
     cargo_base: "Professor",
+    cd_cargo_base: 10,
     lotacao: "EMEF Teste",
     cargo_sobreposto_funcao_atividade: "Diretor",
+    cd_cargo_sobreposto_funcao_atividade: 20,
+    cursos_titulos: "-",
+    laudo_medico: "-",
     local_de_exercicio: "Escola A",
     local_de_servico: "DRE Centro",
 };
@@ -19,16 +24,19 @@ const dadosTitular = {
     nome_civil: "Maria Souza",
     nome_servidor: "SOUZA, MARIA",
     rf: "654321",
-    vinculo: "Efetivo",
+    vinculo: 1,
     cargo_base: "Coordenador",
+    cd_cargo_base: 11,
     lotacao: "EMEF Outra",
     cargo_sobreposto_funcao_atividade: "Vice-Diretor",
-    cd_cargo_sobreposto_funcao_atividade: "77",
+    cd_cargo_sobreposto_funcao_atividade: 77,
+    cursos_titulos: "-",
+    laudo_medico: "-",
     local_de_exercicio: "Escola B",
     local_de_servico: "DRE Sul",
 };
 
-const formBase = {
+const formBase: FormDesignacaoEServidorIndicado = {
     dre_nome: "DRE Centro",
     ue_nome: "EMEF Teste",
     codigo_hierarquico: "001",
@@ -37,14 +45,14 @@ const formBase = {
     ano: "2024",
     numero_sei: "SEI-001",
     doc: "DOC-001",
-    a_partir_de: "2024-01-15T00:00:00",
-    designacao_data_final: "2024-12-31T00:00:00",
+    a_partir_de: new Date("2024-01-15T00:00:00"),
+    designacao_data_final: new Date("2024-12-31T00:00:00"),
     carater_especial: "sim",
     com_afastamento: "nao",
-    motivo_afastamento: null,
+    motivo_afastamento: "",
     com_pendencia: "nao",
-    motivo_pendencia: null,
-    tipo_cargo: "substituto",
+    motivo_pendencia: "",
+    tipo_cargo: "vago",
     cargo_vago_selecionado: null,
 };
 
@@ -62,12 +70,47 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.indicado_nome_civil).toBe("João Silva");
         expect(result?.indicado_nome_servidor).toBe("SILVA, JOÃO");
         expect(result?.indicado_rf).toBe("123456");
-        expect(result?.indicado_vinculo).toBe("Efetivo");
+        expect(result?.indicado_vinculo).toBe(1);
         expect(result?.indicado_cargo_base).toBe("Professor");
         expect(result?.indicado_lotacao).toBe("EMEF Teste");
         expect(result?.indicado_cargo_sobreposto).toBe("Diretor");
         expect(result?.indicado_local_exercicio).toBe("Escola A");
         expect(result?.indicado_local_servico).toBe("DRE Centro");
+    });
+
+    it("converte campos opcionais null do indicado (integração SME) para string vazia", () => {
+        // Regressão: mesmo bug do titular, agora para servidorIndicado — mas só
+        // nos campos onde o backend aceita blank (CharField com default="",
+        // allow_blank=True): nome_civil, cargo_sobreposto e local_servico.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                nome_civil: null,
+                cargo_sobreposto_funcao_atividade: null,
+                local_de_servico: null,
+            } as unknown as typeof servidorIndicado,
+        });
+
+        expect(result?.indicado_nome_civil).toBe("");
+        expect(result?.indicado_cargo_sobreposto).toBe("");
+        expect(result?.indicado_local_servico).toBe("");
+    });
+
+    it("repassa local_de_exercicio null do indicado sem transformar (backend aplica o default)", () => {
+        // Diferente dos demais campos opcionais, o backend rejeita blank ("")
+        // em indicado_local_exercicio (CharField blank=False), mas aceita
+        // null — nesse caso é o próprio backend que resolve para
+        // "Indisponível", então o mapper não deve inventar um valor aqui.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                local_de_exercicio: null,
+            } as unknown as typeof servidorIndicado,
+        });
+
+        expect(result?.indicado_local_exercicio).toBeNull();
     });
 
     it("mapeia os campos gerais do form corretamente", () => {
@@ -88,12 +131,40 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.titular_nome_civil).toBe("Maria Souza");
         expect(result?.titular_nome_servidor).toBe("SOUZA, MARIA");
         expect(result?.titular_rf).toBe("654321");
-        expect(result?.titular_vinculo).toBe("Efetivo");
+        expect(result?.titular_vinculo).toBe(1);
         expect(result?.titular_cargo_base).toBe("Coordenador");
         expect(result?.titular_lotacao).toBe("EMEF Outra");
         expect(result?.titular_cargo_sobreposto).toBe("Vice-Diretor");
         expect(result?.titular_local_exercicio).toBe("Escola B");
         expect(result?.titular_local_servico).toBe("DRE Sul");
+    });
+
+    it("converte campos null do titular (integração SME) para string vazia", () => {
+        // Regressão: a integração SME pode retornar null nesses campos, mas o
+        // backend usa CharField(blank=True, default="") sem allow_null=True,
+        // local_de_exercicio é exceção: o
+        // backend aceita null nesse campo e resolve o default sozinho.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            dadosTitular: {
+                ...dadosTitular,
+                nome_civil: null,
+                nome_servidor: null,
+                cargo_base: null,
+                lotacao: null,
+                cargo_sobreposto_funcao_atividade: null,
+                local_de_exercicio: null,
+                local_de_servico: null,
+            } as unknown as typeof dadosTitular,
+        });
+
+        expect(result?.titular_nome_civil).toBe("");
+        expect(result?.titular_nome_servidor).toBe("");
+        expect(result?.titular_cargo_base).toBe("");
+        expect(result?.titular_lotacao).toBe("");
+        expect(result?.titular_cargo_sobreposto).toBe("");
+        expect(result?.titular_local_exercicio).toBeNull();
+        expect(result?.titular_local_servico).toBe("");
     });
 
     it("omite campos do titular quando dadosTitular é null/undefined", () => {
@@ -104,22 +175,27 @@ describe("mapearPayloadDesignacao", () => {
         expect(result).not.toHaveProperty("titular_lotacao");
     });
 
-    it("formata data_inicio e data_fim a partir de string ISO", () => {
+    it("formata data_inicio e data_fim a partir de objeto Date", () => {
         const result = mapearPayloadDesignacao({ ...formBase });
 
         expect(result?.data_inicio).toBe("2024-01-15");
         expect(result?.data_fim).toBe("2024-12-31");
     });
 
-    it("formata data a partir de objeto Date", () => {
+    // As datas do formulário são persistidas em localStorage (DesignacaoContext) via
+    // JSON.stringify/parse, o que desfaz `Date` em string — por isso `formatarData`
+    // aceita `unknown` e os casos abaixo simulam esse valor "corrompido" pela
+    // serialização, fora do que o schema declara.
+
+    it("formata data a partir de string ISO (valor reidratado do localStorage)", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
-            a_partir_de: new Date("2024-03-10T00:00:00Z"),
-            designacao_data_final: new Date("2024-11-20T00:00:00Z"),
-        });
+            a_partir_de: "2024-01-15T00:00:00",
+            designacao_data_final: "2024-12-31T00:00:00",
+        } as unknown as FormDesignacaoEServidorIndicado);
 
-        expect(result?.data_inicio).toBe("2024-03-10");
-        expect(result?.data_fim).toBe("2024-11-20");
+        expect(result?.data_inicio).toBe("2024-01-15");
+        expect(result?.data_fim).toBe("2024-12-31");
     });
 
     it("formata data a partir de objeto com método .format() (dayjs/moment)", () => {
@@ -129,20 +205,28 @@ describe("mapearPayloadDesignacao", () => {
             ...formBase,
             a_partir_de: mockDayjs,
             designacao_data_final: mockDayjs,
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.data_inicio).toBe("2024-06-01");
         expect(result?.data_fim).toBe("2024-06-01");
     });
 
-    it("retorna null para datas quando valor é null/undefined", () => {
+    it("retorna null (payload incompleto) quando a_partir_de está ausente", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             a_partir_de: null,
             designacao_data_final: undefined,
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
-        expect(result?.data_inicio).toBeNull();
+        expect(result).toBeNull();
+    });
+
+    it("retorna null para data_fim quando designacao_data_final é undefined", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            designacao_data_final: undefined,
+        } as unknown as FormDesignacaoEServidorIndicado);
+
         expect(result?.data_fim).toBeNull();
     });
 
@@ -151,7 +235,7 @@ describe("mapearPayloadDesignacao", () => {
             ...formBase,
             a_partir_de: 12345,
             designacao_data_final: { value: "2024-01-01" },
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.data_inicio).toBeNull();
         expect(result?.data_fim).toBeNull();
@@ -193,22 +277,31 @@ describe("mapearPayloadDesignacao", () => {
     });
 
     it("retorna null para motivo_afastamento e pendencias quando ausentes", () => {
-        const result = mapearPayloadDesignacao({ ...formBase });
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            motivo_afastamento: undefined,
+            motivo_pendencia: undefined,
+        });
 
         expect(result?.motivo_afastamento).toBeNull();
         expect(result?.pendencias).toBeNull();
     });
 
     it("converte tipo_vaga para uppercase", () => {
-        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "substituto" });
+        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "vago" });
 
-        expect(result?.tipo_vaga).toBe("SUBSTITUTO");
+        expect(result?.tipo_vaga).toBe("VAGO");
     });
 
     // ── getCargoVaga ──────────────────────────────
 
     it("retorna cargo_vaga undefined quando tipo_cargo não é 'vago' nem 'disponivel'", () => {
-        const result = mapearPayloadDesignacao({ ...formBase, tipo_cargo: "substituto" });
+        // Valor fora do enum atual: cenário de dado legado/corrompido vindo do
+        // localStorage, que a função trata defensivamente.
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            tipo_cargo: "substituto",
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.cargo_vaga).toBeUndefined();
     });
@@ -217,18 +310,20 @@ describe("mapearPayloadDesignacao", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "vago",
-            cargo_vago_selecionado: { id: 99 },
+            cargo_vago_selecionado: { id: 99, label: "Cargo 99" },
         });
 
         expect(result?.cargo_vaga).toBe(99);
     });
 
     it("usa Number(cargo_vago_selecionado) quando tipo_cargo é 'vago' e é string", () => {
+        // Formato legado do campo (antes de virar { id, label }), mantido como
+        // fallback defensivo em getCargoVaga.
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "vago",
             cargo_vago_selecionado: "99",
-        });
+        } as unknown as FormDesignacaoEServidorIndicado);
 
         expect(result?.cargo_vaga).toBe(99);
     });
@@ -243,32 +338,62 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.cargo_vaga).toBeUndefined();
     });
 
-    it("usa cd_cargo_sobreposto_funcao_atividade do titular quando tipo_cargo é 'disponivel'", () => {
+    it("resolve cargo_vaga pelo nome do cargo do titular na lista fixa de cargos, quando tipo_cargo é 'disponivel'", () => {
+        // cd_cargo_sobreposto_funcao_atividade do titular vem da busca por RF
+        // (código do EOL, ex: 77) e não corresponde aos códigos aceitos por
+        // cargo_vaga — a resolução correta é por nome contra a lista fixa de
+        // cargos de gestão (/designacao/unidade/cargos/).
+        const result = mapearPayloadDesignacao(
+            { ...formBase, tipo_cargo: "disponivel", dadosTitular },
+            [{ codigoCargo: 5, nomeCargo: "Vice-Diretor" }]
+        );
+
+        expect(result?.cargo_vaga).toBe(5);
+    });
+
+    it("usa cargo_base do titular como fallback quando cargo_sobreposto_funcao_atividade é nulo", () => {
+        // A integração SME pode retornar cargo_sobreposto_funcao_atividade nulo;
+        // cargo_base é sempre preenchido, então serve de fallback para resolver
+        // o cargo de vaga.
+        const result = mapearPayloadDesignacao(
+            {
+                ...formBase,
+                tipo_cargo: "disponivel",
+                dadosTitular: {
+                    ...dadosTitular,
+                    cargo_sobreposto_funcao_atividade: null,
+                } as unknown as typeof dadosTitular,
+            },
+            [{ codigoCargo: 5, nomeCargo: "Coordenador" }]
+        );
+
+        expect(result?.cargo_vaga).toBe(5);
+    });
+
+    it("retorna undefined quando tipo_cargo é 'disponivel' mas o cargo do titular não está na lista fixa de cargos", () => {
+        const result = mapearPayloadDesignacao(
+            { ...formBase, tipo_cargo: "disponivel", dadosTitular },
+            [{ codigoCargo: 1, nomeCargo: "Diretor de Escola" }]
+        );
+
+        expect(result?.cargo_vaga).toBeUndefined();
+    });
+
+    it("retorna undefined quando tipo_cargo é 'disponivel' e nenhuma lista de cargos é informada", () => {
         const result = mapearPayloadDesignacao({
             ...formBase,
             tipo_cargo: "disponivel",
             dadosTitular,
         });
 
-        expect(result?.cargo_vaga).toBe(77);
-    });
-
-    it("retorna undefined quando tipo_cargo é 'disponivel' mas dadosTitular não tem cd_cargo_sobreposto", () => {
-        const result = mapearPayloadDesignacao({
-            ...formBase,
-            tipo_cargo: "disponivel",
-            dadosTitular: { ...dadosTitular, cd_cargo_sobreposto_funcao_atividade: undefined },
-        });
-
         expect(result?.cargo_vaga).toBeUndefined();
     });
 
     it("retorna undefined quando tipo_cargo é 'disponivel' e dadosTitular é null", () => {
-        const result = mapearPayloadDesignacao({
-            ...formBase,
-            tipo_cargo: "disponivel",
-            dadosTitular: null,
-        });
+        const result = mapearPayloadDesignacao(
+            { ...formBase, tipo_cargo: "disponivel", dadosTitular: null },
+            [{ codigoCargo: 5, nomeCargo: "Vice-Diretor" }]
+        );
 
         expect(result?.cargo_vaga).toBeUndefined();
     });

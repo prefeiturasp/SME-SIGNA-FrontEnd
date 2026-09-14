@@ -1,10 +1,10 @@
-import { AxiosError } from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 
 export function handleApiError(
     err: unknown,
     defaultMessage: string
 ): string {
-    const error = err as AxiosError<{ detail?: string }>;
+    const error = toAxiosError<{ detail?: string }>(err);
 
     if (error.response?.status === 401) {
         return "Não autorizado. Faça login novamente.";

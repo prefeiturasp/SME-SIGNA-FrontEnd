@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import DesignacoesPasso1 from "./page";
 import { FormDesignacaoData } from "@/components/dashboard/Designacao/PesquisaUnidade/schema";
+import type { FormDesignacaoEServidorIndicado } from "../DesignacaoContext";
 
 /* -------------------------------------------------------------------------- */
 /*                                  MOCKS                                     */
@@ -14,7 +15,7 @@ const mockRouterPush = vi.fn();
 const mockClearFormDesignacaoData = vi.fn();
 let mockRfParam: string | null = null;
 let mockIdParam: string | null = null;
-let initialContextData: any = {};
+let initialContextData: FormDesignacaoEServidorIndicado | null = {};
 const mockAccordionValueChange = vi.fn();
 
 const mockResponse = {
@@ -66,11 +67,15 @@ vi.mock("@/hooks/useServidorDesignacao", () => ({
 vi.mock("../DesignacaoContext", async () => {
   const React = await import("react");
 
-  const DesignacaoContext = React.createContext<any>(null);
+  const DesignacaoContext = React.createContext<{
+    formDesignacaoData: FormDesignacaoEServidorIndicado | null;
+    setFormDesignacaoData: React.Dispatch<React.SetStateAction<FormDesignacaoEServidorIndicado | null>>;
+    clearFormDesignacaoData: () => void;
+  } | null>(null);
 
   const DesignacaoProvider = ({ children }: { children: React.ReactNode }) => {
     const [formDesignacaoData, setFormDesignacaoData] =
-      React.useState<any>(initialContextData);
+      React.useState<FormDesignacaoEServidorIndicado | null>(initialContextData);
     
 
     return (
@@ -178,7 +183,7 @@ vi.mock("@/components/ui/accordion", () => ({
 }));
 
 vi.mock("antd", () => ({
-  Card: ({ children, title }: any) => (
+  Card: ({ children, title }: { children: React.ReactNode; title?: React.ReactNode }) => (
     <div data-testid="card">
       {title}
       {children}
@@ -192,7 +197,10 @@ vi.mock(
   "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado",
   () => ({
     __esModule: true,
-    default: (props: any) => (
+    default: (props: {
+      defaultValues?: { nome?: string };
+      onSubmitEditarServidor?: (data: { nome_servidor: string; nome_civil: string }) => void;
+    }) => (
       <div data-testid="resumo-designacao">
         {props.defaultValues?.nome}
         <button
@@ -286,7 +294,11 @@ vi.mock("@/components/dashboard/Designacao/BotoesDeNavegacao", () => ({
     disableAnterior,
     disableProximo,
     onProximo,
-  }: any) => (
+  }: {
+    disableAnterior?: boolean;
+    disableProximo?: boolean;
+    onProximo?: () => void;
+  }) => (
     <div>
       <button data-testid="botao-anterior" disabled={disableAnterior}>
         Anterior
@@ -350,7 +362,7 @@ describe("DesignacoesPasso1", () => {
   });
 
   it("inicia com próximo habilitado quando já existe designação de unidade", () => {
-    initialContextData = { designacaoUnidade: { id: "1" } };
+    initialContextData = { designacaoUnidade: { id: "1" } } as unknown as FormDesignacaoEServidorIndicado;
     renderWithProvider();
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
   });

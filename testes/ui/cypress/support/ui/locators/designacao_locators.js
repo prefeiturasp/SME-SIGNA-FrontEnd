@@ -84,8 +84,6 @@ export const designacaoLocators = {
   // Usa seletor dinâmico: [id*="form-item"] busca qualquer ID que contenha "form-item"
   // Fallback: navega pela label 'Cargo Vago' se ID dinâmico não funcionar
   campoCargoVago:    '[id$="-form-item"]', // Seletor dinâmico: qualquer ID terminado em "-form-item"
-  // XPath: /html/body/div[2]/div/div/div/main/form/div[2]/div[2]/div/div[2]/div/div[2]/div/div/button
-  botaoDropdownCargoVago: 'html > body > div:nth-child(2) > div > div > div > main > form > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(2) > div > div:nth-child(2) > div > div > button',
   campoCargoVagoTrigger: '[id$="-form-item"] button[role="combobox"], [id$="-form-item"] [role="combobox"], [id$="-form-item"] .ant-select-selector, [id$="-form-item"] input, button[role="combobox"]',
   opcoesCargoVago:   'body [role="option"], body div[role="option"], body [role="listbox"] [role="option"], .ant-select-item, .ant-select-item-option, [class*="select-item"]',
 };

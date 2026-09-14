@@ -268,7 +268,9 @@ describe("ModalResumoServidor", () => {
       tipo_cargo: "disponivel",
     });
     expect(writeTextMock).toHaveBeenCalledWith("123");
-    expect(mockNotificationSuccess).toHaveBeenCalledWith("RF copiado!");
+    expect(mockNotificationSuccess).toHaveBeenCalledWith({
+      title: "RF copiado!",
+    });
 
     clipboardSpy.mockRestore();
   });

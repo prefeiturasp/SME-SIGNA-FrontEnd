@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import type {
     CadastroRequest,
     CadastroErrorResponse,
@@ -18,7 +19,7 @@ export async function cadastroAction(
 
         return { success: true };
     } catch (err) {
-        const error = err as AxiosError<CadastroErrorResponse>;
+        const error = toAxiosError<CadastroErrorResponse>(err);
 
         let message = "Erro na autenticação";
         let field: string | undefined;

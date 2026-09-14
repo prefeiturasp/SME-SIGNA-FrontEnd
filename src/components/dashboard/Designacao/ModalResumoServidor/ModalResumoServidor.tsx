@@ -54,7 +54,9 @@ export default function ModalResumoServidor({
 
 
         notification.success(
-            "RF copiado!"
+            {
+                title: "RF copiado!",
+            }
           );
         
     }

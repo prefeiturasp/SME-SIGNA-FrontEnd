@@ -19,7 +19,7 @@ import {
     DialogFooter,
     DialogDescription,
 } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/headless-toast";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { Button } from "@/components/ui/button";
 import InputSenhaComToggle from "../../../InputSenhaComToggle/InputSenhaComToggle";
 import { cn } from "@/lib/utils";
@@ -53,6 +53,7 @@ export default function ModalNovaSenha({
     });
 
     const { mutateAsync, isPending } = useAtualizarSenha();
+    const notification = useAppNotification();
 
     const { watch, formState } = form;
     const password = watch("password");
@@ -132,8 +133,7 @@ export default function ModalNovaSenha({
         });
 
         if (response.success) {
-            toast({
-                variant: "success",
+            notification.success({
                 title: "Tudo certo por aqui!",
                 description: "Sua senha foi atualizada.",
             });

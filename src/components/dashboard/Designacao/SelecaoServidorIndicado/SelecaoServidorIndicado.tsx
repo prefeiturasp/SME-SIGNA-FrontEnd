@@ -35,6 +35,7 @@ interface SelecaoTipoCargoProps {
   readonly tipoCargo: string;
   readonly dadosTitular: Servidor | null;
   readonly errorBusca: string | null;
+  readonly errorCargoTitular?: string | null;
   readonly isLoading: boolean;
   readonly onBuscaTitular: (values: BuscaDesignacaoRequest) => Promise<void>;
   readonly setDadosTitular: (val: Servidor | null) => void;
@@ -47,6 +48,7 @@ export default function SelecaoServidorIndicado({
   tipoCargo,
   dadosTitular,
   errorBusca,
+  errorCargoTitular,
   isLoading = false,
   onBuscaTitular,
   setDadosTitular,
@@ -187,6 +189,12 @@ export default function SelecaoServidorIndicado({
                         />
                       </CustomAccordionItem>
                     </Accordion>
+                  </div>
+                )}
+
+                {errorCargoTitular && (
+                  <div className="text-red-500 text-sm animate-in shake-1">
+                    {errorCargoTitular}
                   </div>
                 )}
               </div>

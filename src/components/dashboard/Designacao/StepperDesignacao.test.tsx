@@ -3,15 +3,21 @@ import { render } from "@testing-library/react";
 import { vi } from "vitest";
 import StepperDesignacao from "./StepperDesignacao";
 
-const stepsMock = vi.fn((props: any) => <div data-testid="steps" {...props} />);
+type StepsProps = {
+  orientation: string;
+  current: number;
+  items: { title: string }[];
+};
+
+const stepsMock = vi.fn((_props: StepsProps) => <div data-testid="steps" />);
 
 vi.mock("antd", () => ({
-  Flex: ({ children, className }: any) => (
+  Flex: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div data-testid="flex" className={className}>
       {children}
     </div>
   ),
-  Steps: (props: any) => stepsMock(props),
+  Steps: (props: StepsProps) => stepsMock(props),
 }));
 
 describe("StepperDesignacao", () => {
@@ -29,7 +35,7 @@ describe("StepperDesignacao", () => {
     expect(calledWith.orientation).toBe("horizontal");
     expect(calledWith.current).toBe(1);
     expect(calledWith.items).toHaveLength(3);
-    expect(calledWith.items.map((i: any) => i.title)).toEqual([
+    expect(calledWith.items.map((i: { title: string }) => i.title)).toEqual([
       "Servidor indicado",
       "Designação",
       "Portaria",

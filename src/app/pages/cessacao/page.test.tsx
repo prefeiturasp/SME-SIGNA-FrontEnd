@@ -1,4 +1,5 @@
 import React from "react";
+import type { ReactNode } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -65,30 +66,36 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("antd", () => ({
-  Card: ({ children }: any) => <div>{children}</div>,
-  message: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
+  Card: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+
+const mockNotificationSuccess = vi.fn();
+const mockNotificationError = vi.fn();
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    success: mockNotificationSuccess,
+    error: mockNotificationError,
+  }),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
-  default: ({ title }: any) => <div data-testid="page-header">{title}</div>,
+  default: ({ title }: { title: ReactNode }) => <div data-testid="page-header">{title}</div>,
 }));
 
 vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
-  CustomAccordionItem: ({ children }: any) => (
+  CustomAccordionItem: ({ children }: { children: ReactNode }) => (
     <div data-testid="accordion-item">{children}</div>
   ),
 }));
 
 vi.mock("@/components/ui/accordion", () => ({
-  Accordion: ({ children }: any) => <div>{children}</div>,
+  Accordion: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => (
+  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
     <button {...props}>{children}</button>
   ),
 }));
@@ -105,7 +112,7 @@ vi.mock("@/components/dashboard/Designacao/ResumoPortariaDesigacao", () => ({
 vi.mock(
   "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado",
   () => ({
-    default: ({ onSubmitEditarServidor }: any) => {
+    default: ({ onSubmitEditarServidor }: { onSubmitEditarServidor?: () => void }) => {
       onSubmitEditarServidor?.();
       return <div data-testid="resumo-indicado" />;
     },
@@ -113,7 +120,7 @@ vi.mock(
 );
 
 vi.mock("@/components/dashboard/Designacao/ResumoTitular", () => ({
-  default: ({ onSubmitEditarServidor }: any) => {
+  default: ({ onSubmitEditarServidor }: { onSubmitEditarServidor?: () => void }) => {
     onSubmitEditarServidor?.();
     return <div data-testid="resumo-titular" />;
   },
@@ -130,19 +137,19 @@ const mockTrigger = vi.fn();
 const mockGetValues = vi.fn();
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
 
   return {
     ...actual,
     useForm: () => ({
       register: vi.fn(),
-      handleSubmit: (fn: any) => (e: any) => fn(e),
+      handleSubmit: (fn: (values: unknown) => unknown) => (e: unknown) => fn(e),
       reset: vi.fn(),
       getValues: mockGetValues,
       trigger: mockTrigger,
       control: {},
     }),
-    FormProvider: ({ children }: any) => children,
+    FormProvider: ({ children }: { children: ReactNode }) => children,
   };
 });
 
@@ -294,7 +301,6 @@ describe("CessacaoPage", () => {
   });
 
   it("exibe mensagem de erro quando salvar falha", async () => {
-    const { message } = await import("antd");
     mockTrigger.mockResolvedValue(true);
     mockMutateAsync.mockRejectedValueOnce(new Error("Erro de rede"));
 
@@ -305,7 +311,7 @@ describe("CessacaoPage", () => {
     await userEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(message.error).toHaveBeenCalledWith("Erro de rede");
+      expect(mockNotificationError).toHaveBeenCalledWith({ title: "Erro de rede" });
     });
   });
 

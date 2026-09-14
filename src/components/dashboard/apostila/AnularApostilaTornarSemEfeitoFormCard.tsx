@@ -68,7 +68,7 @@ export default function AnularApostilaTornarSemEfeitoFormCard<TFieldValues exten
               showCursosTitulos
               showLotacao
               showCategoria={false}
-              showCessacao={dadosPortariaCessacao}
+              showCessacao={!!dadosPortariaCessacao}
               showCessacaoExtraFields
             />
 

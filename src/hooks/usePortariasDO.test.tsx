@@ -23,7 +23,7 @@ vi.mock("@hookform/resolvers/zod", () => ({
 }));
 
 vi.mock("react-hook-form", async () => {
-  const actual = await vi.importActual<any>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
 
   return {
     ...actual,

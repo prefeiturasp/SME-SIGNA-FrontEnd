@@ -37,7 +37,7 @@ const samplePortariasFiltros: PortariasDOFiltros = {
 const samplePortariasResponse: ListagemPortariasResponse[] = [
     {
         id: 1,
-        portaria: "100",
+        numero_portaria: "100",
         doc: "DOC-1",
         tipo_de_ato: "DESIGNACAO_CESSACAO",
         nome: "Servidor Teste",
@@ -45,7 +45,7 @@ const samplePortariasResponse: ListagemPortariasResponse[] = [
 
         data_designacao: "2026-01-15",
         data_cessacao: "",
-        numero_sei: "SEI-100",
+        sei_numero: "SEI-100",
     },
 ];
 
@@ -55,7 +55,7 @@ describe("fetchPortariasDO", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
-        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as any);
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
     });
 
     it("retorna erro quando getApiClient retorna null", async () => {
@@ -142,12 +142,15 @@ const sampleAtosResponse: AtosAdministrativosPaginada = {
             id: 77,
             ano_vigente: "2026",
             criado_em: "2026-06-01T12:00:00.000Z",
+            criado_por_nome: "Usuário Teste",
             nome: "Servidor Teste",
+            rf: "1234567",
             numero_sei: "SEI-2026-1",
             observacoes: null,
-            portaria: "123/2026",
+            numero_portaria: "123/2026",
             status_publicacao: "PUBLICADO",
             tipo: "DESIGNACAO",
+            tipo_insubsistencia: null,
             tipo_de_ato: "Designação",
         },
     ],
@@ -159,7 +162,7 @@ describe("fetchAtosAdministrativos", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
-        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as any);
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
     });
 
     it("retorna erro quando getApiClient retorna null", async () => {

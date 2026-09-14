@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { cessacaoAction } from "@/actions/cessacao-criar";
 import { mapearPayloadCessacao } from "@/utils/cessacao/mapearPayloadCessacao";
+import { formSchemaCessacaoData } from "@/app/pages/cessacao/schema";
 
 export const useSalvarCessacao = () => {
   return useMutation({
@@ -9,7 +10,7 @@ export const useSalvarCessacao = () => {
       designacaoId,
       id,
     }: {
-      values: any;
+      values: formSchemaCessacaoData;
       designacaoId: number;
       id: string | null;
     }) => {

@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 
 import { EsqueciSenhaPayload } from "@/types/recuperarSenha";
 import { ErrorResponse } from "@/types/generic";
@@ -20,7 +21,7 @@ export async function useRecuperarSenhaAction(payload: EsqueciSenhaPayload) {
 
     return { success: true, message: resp.data.detail };
   } catch (err  ) {
-    const error = err as AxiosError<ErrorResponse>;
+    const error = toAxiosError<ErrorResponse>(err);
     let message = "";
     
     if (error.response?.data?.detail) {

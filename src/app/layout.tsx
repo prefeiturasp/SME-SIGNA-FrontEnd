@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
-import { Toaster } from "sonner";
 import { ConfigProvider } from "antd";
 import ptBR from "antd/locale/pt_BR";
 const geistSans = Geist({
@@ -34,7 +33,16 @@ export default function RootLayout({
           <ConfigProvider
             locale={ptBR}
             theme={{
-              components: {
+              components: {                 
+                Alert: {
+                  withDescriptionPadding:"8px 12px",
+                  colorTextHeading: "#B7A100",
+                  colorWarningBorder:"#fffbe6",                  
+                },
+                Tabs: {                  
+                  horizontalMargin: "0 0 32px 0",    
+                  cardBg: '#F1F5F9',			              
+                },
                 Notification: {
                   colorSuccessBg: "#333638",  
                   colorInfoBg: "#333638",  
@@ -42,6 +50,9 @@ export default function RootLayout({
                   colorWarningBg: "#333638",
                   colorText: "#FFFFFF",
                   colorTextHeading: "#FFFFFF",
+                },
+                Badge: {
+                  statusSize: 10,
                 },
               },
               token: {
@@ -57,7 +68,6 @@ export default function RootLayout({
             {children}
           </ConfigProvider>
         </ReactQueryProvider>
-        <Toaster position="top-right" closeButton />
       </body>
     </html>
   );

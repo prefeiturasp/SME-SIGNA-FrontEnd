@@ -52,31 +52,33 @@ describe("use DesignacaoUnidade", () => {
 
     it("deve buscar os dados da unidade em caso de sucesso", async () => {
         const fakeFuncionario: DesignacaoUnidadeResponse = {
+            codigo_hierarquico: "109300013692",
             "funcionarios_unidade": {
                 "3360": {
                     "codigo_cargo": 3360,
                     "nome_cargo": "DIRETOR DE ESCOLA",
-                    "modulo": "1",  
+                    "modulo": "1",
                     "servidores": [
                         {
                             "rf": "7726694",
-                            "nome": "DANIELA MARIA FIGUEIREDO PADOVAN",
-                            "esta_afastado": false,
-                            "cargo_sobreposto": "COORDENADOR PEDAGOGICO - v1",
-                            "vinculo_cargo_sobreposto": "1",
-                            "lotacao_cargo_sobreposto": "JOSE BORGES ANDRADE",
+                            "nome_servidor": "DANIELA MARIA FIGUEIREDO PADOVAN",
+                            "vinculo": 1,
+                            "lotacao": "JOSE BORGES ANDRADE",
+                            "cd_cargo_base": 1,
                             "cargo_base": "AUXILIAR TECNICO DE EDUCACAO - v1",
-                            "funcao_atividade": "string",
+                            "cd_cargo_sobreposto_funcao_atividade": 2,
+                            "cargo_sobreposto_funcao_atividade": "COORDENADOR PEDAGOGICO - v1",
                             "cursos_titulos": "string",
-                            "dre": "109300",
-                            "unidade": "013692",
-                            "codigo": "123456",
+                            "laudo_medico": "Não possui",
+                            "local_de_servico": "013692",
+                            "local_de_exercicio": "013692",
                         }
                     ]
                 }
             },
             cargos: [{ nomeCargo: "Professor", codigoCargo: "123" } ],
-            turmas: [{ por_turno: { integral: "10", manha: "10", tarde: "10", noite: "10", vespertino: "10" }, total: 10 }],
+            turmas: { total: 10, turnos: [] },
+            spi: { tipo: "", total: 0, turnos: [] },
         };
 
         getDesignacaoUnidadeActionMock.mockResolvedValue({ success: true, data: fakeFuncionario });

@@ -23,7 +23,7 @@ const useMutationMock = vi.fn((opts) => ({
 
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => useQueryClientMock(),
-  useMutation: (opts) => useMutationMock(opts),
+  useMutation: (opts: unknown) => useMutationMock(opts),
 }));
 
 describe("useRecuperarSenha (hook)", () => {

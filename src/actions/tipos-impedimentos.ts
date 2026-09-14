@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import { Impedimento } from "@/types/impedimento";
 
@@ -29,7 +30,7 @@ export const getImpedimentosAction = async (): Promise<
 
     return { success: true, data };
   } catch (err) {
-    const error = err as AxiosError<{ detail?: string }>;
+    const error = toAxiosError<{ detail?: string }>(err);
 
     let message = "Erro ao buscar impedimentos";
 

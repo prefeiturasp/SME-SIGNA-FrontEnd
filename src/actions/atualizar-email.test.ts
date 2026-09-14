@@ -12,7 +12,13 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import type { AtualizarEmailRequest } from "@/types/atualizar-email";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("axios")>();
+    return {
+        ...actual,
+        default: { ...actual.default, post: vi.fn() },
+    };
+});
 vi.mock("next/headers", () => ({
     cookies: vi.fn(),
 }));
@@ -76,7 +82,7 @@ describe("atualizarEmailAction", () => {
         cookiesMock.mockReturnValue({
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
-        axiosPostMock.mockRejectedValueOnce({ response: { status: 401 } });
+        axiosPostMock.mockRejectedValueOnce({ isAxiosError: true, response: { status: 401 } });
 
         const result = await atualizarEmailAction(dados);
 
@@ -92,7 +98,7 @@ describe("atualizarEmailAction", () => {
         cookiesMock.mockReturnValue({
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
-        axiosPostMock.mockRejectedValueOnce({ response: { status: 500 } });
+        axiosPostMock.mockRejectedValueOnce({ isAxiosError: true, response: { status: 500 } });
 
         const result = await atualizarEmailAction(dados);
 
@@ -109,6 +115,7 @@ describe("atualizarEmailAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "E-mail já cadastrado" } },
         });
 
@@ -126,7 +133,7 @@ describe("atualizarEmailAction", () => {
         cookiesMock.mockReturnValue({
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
-        axiosPostMock.mockRejectedValueOnce({ message: "Erro desconhecido" });
+        axiosPostMock.mockRejectedValueOnce({ isAxiosError: true, message: "Erro desconhecido" });
 
         const result = await atualizarEmailAction(dados);
 
@@ -139,6 +146,7 @@ describe("atualizarEmailAction", () => {
             get: vi.fn().mockReturnValue({ value: mockAuthToken }),
         });
         axiosPostMock.mockRejectedValueOnce({
+            isAxiosError: true,
             response: { data: { detail: "E-mail inválido", field: "email" } },
         });
 

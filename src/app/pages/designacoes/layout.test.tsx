@@ -69,13 +69,20 @@ describe("DesignacoesLayout", () => {
                 funcionarios_da_unidade: "func",
                 quantidade_turmas: "10",
                 cargo_sobreposto: "cargo",
-                modulos: 2,
+                modulos: "2",
                 servidorIndicado: {
                   nome_servidor: "test-nome",
                   rf: "123",
                   vinculo: 1,
+                  cd_cargo_base: 1,
                   cargo_base: "Professor",
+                  cd_cargo_sobreposto_funcao_atividade: 2,
+                  cargo_sobreposto_funcao_atividade: "Docente",
+                  cursos_titulos: "Licenciatura",
                   lotacao: "Unidade X",
+                  laudo_medico: "Laudo",
+                  local_de_servico: "Local do serviço",
+                  local_de_exercicio: "Local de exercício",
                 },
               })
             }

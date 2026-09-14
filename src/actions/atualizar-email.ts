@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import type {
     AtualizarEmailRequest,
@@ -32,7 +33,7 @@ export async function atualizarEmailAction(
 
         return { success: true };
     } catch (err) {
-        const error = err as AxiosError<AtualizarEmailErrorResponse>;
+        const error = toAxiosError<AtualizarEmailErrorResponse>(err);
 
         let message = "Ocorreu um erro ao tentar atualizar seu Email.";
         let field: string | undefined;

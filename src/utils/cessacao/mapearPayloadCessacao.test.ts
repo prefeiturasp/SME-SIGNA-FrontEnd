@@ -1,8 +1,9 @@
 import { mapearPayloadCessacao } from "./mapearPayloadCessacao";
+import type { formSchemaCessacaoData } from "@/app/pages/cessacao/schema";
 
 describe("mapearPayloadCessacao", () => {
   it("deve mapear corretamente os dados da cessação", () => {
-    const mockValues: any = {
+    const mockValues: formSchemaCessacaoData = {
       cessacao: {
         numero_portaria: "123",
         ano: "2026",
@@ -31,7 +32,7 @@ describe("mapearPayloadCessacao", () => {
   });
 
   it("deve converter corretamente os booleanos", () => {
-    const mockValues: any = {
+    const mockValues: formSchemaCessacaoData = {
       cessacao: {
         numero_portaria: "1",
         ano: "2025",
@@ -52,7 +53,7 @@ describe("mapearPayloadCessacao", () => {
   });
 
   it("deve formatar corretamente a data", () => {
-    const mockValues: any = {
+    const mockValues: formSchemaCessacaoData = {
       cessacao: {
         numero_portaria: "1",
         ano: "2025",
@@ -71,7 +72,7 @@ describe("mapearPayloadCessacao", () => {
   });
 
   it("deve omitir o campo doc quando estiver vazio", () => {
-    const mockValues: any = {
+    const mockValues: formSchemaCessacaoData = {
       cessacao: {
         numero_portaria: "1",
         ano: "2025",
@@ -90,7 +91,9 @@ describe("mapearPayloadCessacao", () => {
   });
 
   it("deve lidar com data_inicio undefined", () => {
-    const mockValues: any = {
+    // data_inicio é obrigatório no schema, mas o form pode chamar a função antes
+    // da validação — daí o cast para simular esse estado transitório.
+    const mockValues = {
       cessacao: {
         numero_portaria: "1",
         ano: "2025",
@@ -101,7 +104,7 @@ describe("mapearPayloadCessacao", () => {
         remocao: "nao",
         aposentadoria: "nao",
       },
-    };
+    } as unknown as formSchemaCessacaoData;
 
     const result = mapearPayloadCessacao(mockValues, 1);
 

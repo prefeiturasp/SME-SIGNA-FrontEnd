@@ -1,8 +1,9 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { cookies } from "next/headers";
 import { User } from "@/stores/useUserStore";
+import { toAxiosError } from "@/lib/axios-error";
 
 type MeResult =
   | { success: true; data: User }
@@ -30,38 +31,34 @@ export async function getMeAction(): Promise<MeResult> {
 
     return { success: true, data };
   } catch (err) {
-    if (err instanceof AxiosError) {
-      const status = err.response?.status;
-      const data = err.response?.data as {
-        code?: string;
-        detail?: string;
+    const error = toAxiosError<{ code?: string; detail?: string }>(err);
+    const status = error.response?.status;
+    const data = error.response?.data;
+
+    if (status === 401 || data?.code === "token_not_valid") {
+      const cookieStore = await cookies();
+      cookieStore.delete("auth_token");
+    }
+
+    if (status === 500) {
+      return {
+        success: false,
+        error: "Erro interno no servidor",
       };
+    }
 
-      if (status === 401 || data?.code === "token_not_valid") {
-        const cookieStore = await cookies();
-        cookieStore.delete("auth_token");
-      }
+    if (data?.detail) {
+      return {
+        success: false,
+        error: data.detail,
+      };
+    }
 
-      if (status === 500) {
-        return {
-          success: false,
-          error: "Erro interno no servidor",
-        };
-      }
-
-      if (data?.detail) {
-        return {
-          success: false,
-          error: data.detail,
-        };
-      }
-
-      if (err.message) {
-        return {
-          success: false,
-          error: err.message,
-        };
-      }
+    if (error.message) {
+      return {
+        success: false,
+        error: error.message,
+      };
     }
 
     return {

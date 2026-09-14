@@ -5,8 +5,7 @@ import BaseInputMask from "@mona-health/react-input-mask";
 // Tipagem genérica e compatível com qualquer versão da lib
 type BaseInputMaskProps = React.ComponentProps<typeof BaseInputMask>;
 
-export interface InputBaseProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+export type InputBaseProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 const InputBase = React.forwardRef<HTMLInputElement, InputBaseProps>(
   ({ className, type, ...props }, ref) => {
@@ -41,7 +40,7 @@ const InputBaseMask = React.forwardRef<HTMLInputElement, InputBaseMaskProps>(
 );
 InputBaseMask.displayName = "InputBaseMask";
 
-export interface CurrencyInputBaseProps extends InputBaseProps {}
+export type CurrencyInputBaseProps = InputBaseProps;
 
 const CurrencyInputBase = React.forwardRef<HTMLInputElement, CurrencyInputBaseProps>(
   ({ onChange, ...props }, ref) => {

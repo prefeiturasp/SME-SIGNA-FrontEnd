@@ -1,6 +1,5 @@
 import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 
-// Função auxiliar para selecionar DRE aleatória
 function obterDREAleatoria(dres) {
   const indiceAleatorio = Math.floor(Math.random() * dres.length)
   return dres[indiceAleatorio]

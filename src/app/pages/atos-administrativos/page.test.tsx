@@ -15,6 +15,8 @@ const onPageChangeMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
 const handleClearMock = vi.fn();
 const buscarMock = vi.fn();
+const buscarAtosAdministrativosMock = vi.fn();
+const getValuesMock = vi.fn(() => ({ tipo: "DESIGNACAO" }));
 const limparErroMock = vi.fn();
 const pushMock = vi.fn();
 const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => unknown) => (event?: Event) => {
@@ -91,6 +93,7 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/Listage
     const page = props.page as React.ReactNode;
     const isLoading = props.isLoading as boolean;
     const onPageChange = props.onPageChange as ((page: number) => void) | undefined;
+    const onAtoExcluido = props.onAtoExcluido as (() => void) | undefined;
 
     return (
       <div>
@@ -99,6 +102,7 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/Listage
         <span data-testid="list-page">{page}</span>
         <span data-testid="list-loading">{String(isLoading)}</span>
         <button onClick={() => onPageChange?.(9)}>mudar pagina</button>
+        <button onClick={() => onAtoExcluido?.()}>excluir ato</button>
       </div>
     );
   },
@@ -159,9 +163,11 @@ describe("Página de atos administrativos", () => {
       page: 1,
       filterForm: {
         handleSubmit: handleSubmitMock,
+        getValues: getValuesMock,
       },
       onSubmitFilterForm: onSubmitFilterFormMock,
       handleClear: handleClearMock,
+      buscar: buscarAtosAdministrativosMock,
     });
     novoAtoHookSpy.mockReturnValue({
       buscar: buscarMock,
@@ -202,9 +208,11 @@ describe("Página de atos administrativos", () => {
       page: 4,
       filterForm: {
         handleSubmit: handleSubmitMock,
+        getValues: getValuesMock,
       },
       onSubmitFilterForm: onSubmitFilterFormMock,
       handleClear: handleClearMock,
+      buscar: buscarAtosAdministrativosMock,
     });
 
     render(<AtosAdministrativos />);
@@ -218,6 +226,15 @@ describe("Página de atos administrativos", () => {
     expect(onPageChangeMock).toHaveBeenCalledWith(9);
 
     expect(listagemSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("rebusca os atos administrativos ao excluir uma designação", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByText("excluir ato"));
+
+    expect(getValuesMock).toHaveBeenCalled();
+    expect(buscarAtosAdministrativosMock).toHaveBeenCalledWith({ tipo: "DESIGNACAO" }, 1);
   });
 
   it("não exibe o modal de busca por padrão", () => {

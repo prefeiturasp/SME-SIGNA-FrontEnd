@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { message } from "antd";
 import { Loader2 } from "lucide-react";
 
 import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
@@ -24,6 +23,7 @@ import { TEMPLATE_ANULAR_APOSTILA } from "@/utils/portarias/templates";
 import { formatarRF } from "@/utils/portarias/formatadores";
 import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
 import { formatarData } from "@/lib/utils";
+import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 
 const defaultValues = {
@@ -40,6 +40,7 @@ export default function AnularApostilaPage() {
   const id = searchParams.get("id");
   const router = useRouter();
   const salvarInsubsistencias = useSalvarInsubsistencias();
+  const notification = useAppNotification();
 
   const { data: apostila, isLoading } = useFetchApostilasById(Number(id));
   const tipo_portaria = apostila?.cessacao ? "cessacao" : "designacao";
@@ -132,12 +133,11 @@ export default function AnularApostilaPage() {
         atoPai: ato_pai ?? 0,
       });
 
-      message.success("Anulação de apostila salva com sucesso!");
+      notification.success({ title: "Anulação de apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      console.log('msg', msg);
-      message.error(msg);
+      notification.error({ title: msg });
     }
   };
 

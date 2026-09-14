@@ -22,7 +22,6 @@ Then('os tipos dos campos do cargo devem estar corretos', () => {
   cy.get('@response').then((res) => {
     expect(res.body).to.be.an('array').and.have.length.greaterThan(0)
     res.body.forEach((cargo, i) => {
-      // Log para inspecionar o valor real de nomeCargo
       Cypress.log({ name: 'Debug', message: `Item[${i}] codigoCargo: ${cargo.codigoCargo}, nomeCargo: ${JSON.stringify(cargo.nomeCargo)}` })
       expect(typeof cargo.codigoCargo, `Item[${i}].codigoCargo deve ser number`).to.equal('number')
       expect(typeof cargo.nomeCargo, `Item[${i}].nomeCargo deve ser string`).to.equal('string')
@@ -35,7 +34,6 @@ Then('os tipos dos campos do cargo devem estar corretos', () => {
 Then('o cargo com código {int} deve estar na lista com nome {string}', (codigo, nome) => {
   cy.get('@response').then((res) => {
     expect(res.body).to.be.an('array')
-    // Logar todos os códigos e nomes retornados
     res.body.forEach((c, i) => {
       Cypress.log({ name: 'Debug', message: `Item[${i}] codigoCargo: ${c.codigoCargo}, nomeCargo: ${JSON.stringify(c.nomeCargo)}` })
     })

@@ -10,7 +10,13 @@ import {
 import axios, { AxiosError, AxiosHeaders } from "axios";
 import { useRecuperarSenhaAction } from "@/actions/recuperarSenha";
 
-vi.mock("axios");
+vi.mock("axios", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("axios")>();
+  return {
+    ...actual,
+    default: { ...actual.default, post: vi.fn() },
+  };
+});
 
 const axiosPostMock = axios.post as Mock;
 

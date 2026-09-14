@@ -1,7 +1,5 @@
 
-import { DateRangePickerField, InputField } from '@/components/ui/FieldsForm';
-import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DateRangePickerField, InputField, SelectField } from '@/components/ui/FieldsForm';
 
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -31,33 +29,21 @@ export const StatusPublicacaoOpcoes = [
   { codigo: StatusAtosAdministrativos.PUBLICADO, nome: 'Publicado' },
 ]
 
-export const TipoAtoSelectField: React.FC<{ AtosOpcoes: { codigo: string, nome: string }[] }> = ({ AtosOpcoes }) => {
-  const { control } = useFormContext();
+export const TipoAtoSelectField: React.FC<{ label?: string, name?: string, AtosOpcoes: { codigo: string, nome: string }[] }> = ({ label= "Tipo", name="tipo", AtosOpcoes }) => { 
+  const { register, control } = useFormContext();
 
   return (
-    <FormField
+    <SelectField
+      register={register}
       control={control}
-      name="tipo"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-[#313131] font-bold">Tipo</FormLabel>
-          <FormControl>
-            <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-              <SelectTrigger data-testid="select-listar-para">
-                <SelectValue placeholder="Selecione um tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                {AtosOpcoes.map((item) => (
-                  <SelectItem key={item.codigo} value={item.codigo}>
-                    {item.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
+      name={name}
+      label={label}
+      placeholder="Selecione um tipo"
+      dataTestId="select-listar-para"
+      options={AtosOpcoes.map((item) => ({
+        value: item.codigo,
+        label: item.nome,
+      }))}
     />
   );
 };

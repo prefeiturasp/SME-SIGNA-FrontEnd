@@ -1,4 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { useIsMobile } from "./use-mobile";
 
 type MediaQueryListEvent = { matches: boolean };
@@ -62,5 +63,16 @@ describe("useIsMobile", () => {
             setWindowWidth(900);
         });
         expect(result.current).toBe(false);
+    });
+
+    it("usa getServerSnapshot (false) ao renderizar no servidor", () => {
+        function Wrapper() {
+            const isMobile = useIsMobile();
+            return <span>{String(isMobile)}</span>;
+        }
+
+        const html = renderToString(<Wrapper />);
+
+        expect(html).toContain("false");
     });
 });

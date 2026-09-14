@@ -6,10 +6,12 @@ import FormularioPesquisaUnidade from "./FormularioPesquisaUnidade";
 import * as unidadesActions from "@/actions/unidades";
 import * as designacaoActions from "@/actions/designacao-unidade";
 import { createRef } from "react";
+import type { ReactNode } from "react";
 import type { FormularioPesquisaUnidadeRef } from "./FormularioPesquisaUnidade";
+import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 
 const designacaoContextMock = vi.hoisted(() => ({
-  formDesignacaoData: null as any,
+  formDesignacaoData: null as FormDesignacaoEServidorIndicado | null,
   setFormDesignacaoData: vi.fn(),
 }));
 
@@ -890,7 +892,14 @@ describe("FormularioPesquisaUnidade", () => {
 
     vi.doMock("@/components/detalhamentoTurmas/detalhamentoTurmas", () => ({
       __esModule: true,
-      default: (props: any) => {
+      default: (props: {
+        dre: string;
+        unidadeEscolar: string;
+        qtdTotalTurmas: number;
+        spi: string;
+        rows: unknown[];
+        spiRows: unknown[];
+      }) => {
         const {
           dre,
           unidadeEscolar,
@@ -909,21 +918,21 @@ describe("FormularioPesquisaUnidade", () => {
     }));
 
     vi.doMock("@/components/ui/form", () => ({
-      Form: ({ children }: any) => <div>{children}</div>,
-      FormControl: ({ children }: any) => <div>{children}</div>,
-      FormField: ({ render }: any) =>
+      Form: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormField: ({ render }: { render: (args: { field: { value: string; onChange: (v: unknown) => void } }) => ReactNode }) =>
         render({ field: { value: "", onChange: vi.fn() } }),
-      FormItem: ({ children }: any) => <div>{children}</div>,
-      FormLabel: ({ children }: any) => <div>{children}</div>,
+      FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormLabel: ({ children }: { children: ReactNode }) => <div>{children}</div>,
       FormMessage: () => null,
     }));
 
     vi.doMock("@/components/ui/select", () => ({
-      Select: ({ children }: any) => <div>{children}</div>,
-      SelectTrigger: ({ children }: any) => <button>{children}</button>,
-      SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
-      SelectContent: ({ children }: any) => <div>{children}</div>,
-      SelectItem: ({ children }: any) => <div>{children}</div>,
+      Select: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      SelectTrigger: ({ children }: { children: ReactNode }) => <button>{children}</button>,
+      SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
+      SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      SelectItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
     }));
 
     vi.doMock("@/components/ui/Combobox", () => ({
@@ -931,7 +940,7 @@ describe("FormularioPesquisaUnidade", () => {
     }));
 
     vi.doMock("@/components/ui/button", () => ({
-      Button: ({ children, ...rest }: any) => (
+      Button: ({ children, ...rest }: { children: ReactNode; [key: string]: unknown }) => (
         <button {...rest}>{children}</button>
       ),
     }));
@@ -958,8 +967,8 @@ describe("FormularioPesquisaUnidade", () => {
           modulos: "",
         }),
         handleSubmit:
-          (fn: any) =>
-            (e?: any) => {
+          (fn: (values: Record<string, unknown>) => unknown) =>
+            (e?: { preventDefault?: () => void }) => {
               e?.preventDefault?.();
               return fn({
                 dre: undefined,
@@ -1119,17 +1128,17 @@ describe("FormularioPesquisaUnidade", () => {
     }));
 
     vi.doMock("@/components/ui/form", () => ({
-      Form: ({ children }: any) => <div>{children}</div>,
-      FormControl: ({ children }: any) => <div>{children}</div>,
-      FormField: ({ render }: any) =>
+      Form: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormField: ({ render }: { render: (args: { field: { value: string; onChange: (v: unknown) => void } }) => ReactNode }) =>
         render({ field: { value: "", onChange: vi.fn() } }),
-      FormItem: ({ children }: any) => <div>{children}</div>,
-      FormLabel: ({ children }: any) => <div>{children}</div>,
+      FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      FormLabel: ({ children }: { children: ReactNode }) => <div>{children}</div>,
       FormMessage: () => null,
     }));
 
     vi.doMock("@/components/ui/select", () => ({
-      Select: ({ children, onValueChange }: any) => (
+      Select: ({ children, onValueChange }: { children: ReactNode; onValueChange?: (value: string) => void }) => (
         <div>
           <button
             type="button"
@@ -1141,14 +1150,14 @@ describe("FormularioPesquisaUnidade", () => {
           {children}
         </div>
       ),
-      SelectTrigger: ({ children }: any) => <div>{children}</div>,
-      SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
-      SelectContent: ({ children }: any) => <div>{children}</div>,
-      SelectItem: ({ children }: any) => <div>{children}</div>,
+      SelectTrigger: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
+      SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      SelectItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
     }));
 
     vi.doMock("@/components/ui/Combobox", () => ({
-      Combobox: ({ onChange }: any) => (
+      Combobox: ({ onChange }: { onChange: (value: string) => void }) => (
         <button
           type="button"
           data-testid="mock-combobox-trigger"
@@ -1160,13 +1169,13 @@ describe("FormularioPesquisaUnidade", () => {
     }));
 
     vi.doMock("@/components/ui/button", () => ({
-      Button: ({ children, ...rest }: any) => (
+      Button: ({ children, ...rest }: { children: ReactNode; [key: string]: unknown }) => (
         <button {...rest}>{children}</button>
       ),
     }));
 
     vi.doMock("@/components/ui/info-item", () => ({
-      InfoItem: ({ label, value }: any) => (
+      InfoItem: ({ label, value }: { label: string; value: unknown }) => (
         <div data-testid={`info-${label}`}>{`${label}:${String(value)}`}</div>
       ),
     }));
@@ -1202,8 +1211,8 @@ describe("FormularioPesquisaUnidade", () => {
           };
         },
         handleSubmit:
-          (fn: any) =>
-          (e?: any) => {
+          (fn: (values: Record<string, unknown>) => unknown) =>
+          (e?: { preventDefault?: () => void }) => {
             e?.preventDefault?.();
             return fn({
               dre: "",

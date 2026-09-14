@@ -1,6 +1,7 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import { toAxiosError } from "@/lib/axios-error";
 import type {
     RedefinirSenhaRequest,
     RedefinirSenhaErrorResponse,
@@ -21,7 +22,7 @@ export async function redefinirSenhaAction(
         await axios.post(`${API_URL}/usuario/redefinir-senha`, formData);
         return { success: true };
     } catch (err) {
-        const error = err as AxiosError<RedefinirSenhaErrorResponse>;
+        const error = toAxiosError<RedefinirSenhaErrorResponse>(err);
         let message = "Erro ao redefinir senha";
 
         const data = error.response?.data;

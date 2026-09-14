@@ -3,7 +3,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import ArrowLeft from "@/assets/icons/ArrowLeft";
-import Link from "next/link";
 
 import {
     Breadcrumb,
@@ -75,8 +74,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
 
             </div>
-            <div className="flex items-center justify-between w-full mb-4">
-                <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center content-center justify-between w-full mb-4">
+                <div className="flex items-center gap-2">
                     {icon && (
                         <div className="w-6 h-6 ">
                             {icon}

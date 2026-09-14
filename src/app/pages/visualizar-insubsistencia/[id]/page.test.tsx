@@ -114,12 +114,12 @@ vi.mock(
   "@/components/dashboard/EditorTextoSEI/EditorTextoSEI",
   () => ({
     __esModule: true,
-    default: React.forwardRef(
-      (
-        props: { html: string; titulo: string; mostrarBotao: boolean },
-        _ref,
-      ) => <div data-testid="editor-sei">{props.html}</div>,
-    ),
+    default: React.forwardRef(function EditorTextoSEIMock(
+      props: { html: string; titulo: string; mostrarBotao: boolean },
+      _ref,
+    ) {
+      return <div data-testid="editor-sei">{props.html}</div>;
+    }),
     gerarHtmlPortaria: (texto: string) => gerarHtmlPortariaSpy(texto),
   }),
 );
