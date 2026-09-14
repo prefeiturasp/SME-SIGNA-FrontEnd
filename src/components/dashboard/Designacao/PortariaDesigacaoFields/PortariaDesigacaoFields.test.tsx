@@ -84,6 +84,12 @@ vi.mock("@/components/ui/select", async () => {
     }) => (
       <SelectContext.Provider value={{ value, onValueChange }}>
         <div data-testid="mock-select" data-value={value ?? ""}>
+          <button type="button" data-testid="select-empty" onClick={() => onValueChange("")}>
+            limpar seleção
+          </button>
+          <button type="button" data-testid="select-unknown" onClick={() => onValueChange("999")}>
+            selecionar desconhecido
+          </button>
           {children}
         </div>
       </SelectContext.Provider>
@@ -120,18 +126,29 @@ vi.mock("@/components/ui/select", async () => {
 vi.mock("antd", () => ({
   DatePicker: ({
     onChange,
+    onClear,
     placeholder,
+    allowClear,
   }: {
     onChange?: (d: { toDate: () => Date } | null) => void;
+    onClear?: () => void;
     placeholder?: string;
+    allowClear?: boolean;
   }) => (
-    <button
-      type="button"
-      data-testid={`mock-datepicker-${placeholder ?? "sem-placeholder"}`}
-      onClick={() => onChange?.({ toDate: () => new Date(2024, 0, 2) })}
-    >
-      Selecionar data
-    </button>
+    <div>
+      <button
+        type="button"
+        data-testid={`mock-datepicker-${placeholder ?? "sem-placeholder"}`}
+        onClick={() => onChange?.({ toDate: () => new Date(2024, 0, 2) })}
+      >
+        Selecionar data
+      </button>
+      {allowClear && (
+        <button type="button" data-testid="mock-datepicker-clear" onClick={() => onClear?.()}>
+          Limpar data
+        </button>
+      )}
+    </div>
   ),
   Popconfirm: ({
     open,
@@ -343,6 +360,67 @@ describe("PortariaDesigacaoFields", () => {
     expect(screen.queryByTestId("input-motivo-afastamento")).not.toBeInTheDocument();
   });
 
+  it("limpa impedimento ao limpar a data final", () => {
+    let methods!: UseFormReturn<FieldValues>;
+    render(
+      <FormWrapper
+        onMethods={(m) => (methods = m)}
+        defaultValues={{
+          designacao_data_final: new Date("2026-01-10"),
+          impedimento_substituicao: "1",
+        }}
+      >
+        <PortariaDesigacaoFields isLoading={false} />
+      </FormWrapper>,
+    );
+
+    fireEvent.click(screen.getByTestId("mock-datepicker-clear"));
+
+    expect(methods.getValues("impedimento_substituicao")).toBeNull();
+  });
+
+  it("ignora valor vazio ao alterar impedimento", () => {
+    let methods!: UseFormReturn<FieldValues>;
+    render(
+      <FormWrapper
+        onMethods={(m) => (methods = m)}
+        defaultValues={{
+          designacao_data_final: new Date("2026-01-10"),
+          impedimento_substituicao: "1",
+          impedimento_label: "Licença médica",
+        }}
+      >
+        <PortariaDesigacaoFields isLoading={false} />
+      </FormWrapper>,
+    );
+
+    fireEvent.click(screen.getAllByTestId("select-empty").at(-1)!);
+
+    expect(methods.getValues("impedimento_substituicao")).toBe("1");
+    expect(methods.getValues("impedimento_label")).toBe("Licença médica");
+  });
+
+  it("usa label vazio quando impedimento selecionado não está na lista", () => {
+    let methods!: UseFormReturn<FieldValues>;
+    render(
+      <FormWrapper
+        onMethods={(m) => (methods = m)}
+        defaultValues={{
+          designacao_data_final: new Date("2026-01-10"),
+          impedimento_substituicao: "",
+          impedimento_label: "valor anterior",
+        }}
+      >
+        <PortariaDesigacaoFields isLoading={false} />
+      </FormWrapper>,
+    );
+
+    fireEvent.click(screen.getAllByTestId("select-unknown").at(-1)!);
+
+    expect(methods.getValues("impedimento_substituicao")).toBe("999");
+    expect(methods.getValues("impedimento_label")).toBe("");
+  });
+
   it("controla o campo condicional de pendência (mostra/esconde textarea e atualiza valor)", () => {
     let methods!: UseFormReturn<FieldValues>;
     render(
@@ -396,7 +474,7 @@ describe("PortariaDesigacaoFields", () => {
 
     expect(hooksState.mutate).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("select-item-1")).not.toBeInTheDocument();
-    expect(screen.getByText("Preencha a data 'Até' primeiro")).toBeInTheDocument();
+    expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
   });
 });
 

@@ -309,7 +309,7 @@ export const MultiSelectField = ({
 
 
 
-export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear }: PropsField<TFieldValues> & { onClear?: () => void }) => {
     return (
         <FormField
             {...register(name)}
@@ -323,7 +323,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ reg
 
                 return (
                     <FormItem className="flex flex-col">
-                        <FormLabel className="required text-[#313131] font-bold">
+                        <FormLabel className="required text-[#313131] font-bold mb-0">
                             {label}
                         </FormLabel>
 
@@ -345,6 +345,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ reg
                                 }}
                                 onBlur={field.onBlur}
                                 style={{ width: "100%" }}
+                                onClear={onClear}
                             />
                         </FormControl>
 
@@ -364,7 +365,7 @@ export const DateRangeField = <TFieldValues extends FieldValues = FieldValues,>(
             name={name}
             render={({ field }) => (
                 <FormItem className="flex flex-col">
-                    <FormLabel className="required text-[#313131] font-bold">
+                    <FormLabel className="required text-[#313131] font-bold mb-0">
                         {label}
                     </FormLabel>
 
@@ -432,7 +433,7 @@ export const DateRangePickerField = <TFieldValues extends FieldValues = FieldVal
 
                 return (
                     <FormItem className="flex flex-col">
-                        <FormLabel className="required text-[#313131] font-bold">
+                        <FormLabel className="required text-[#313131] font-bold mb-0">
                             {label}
                         </FormLabel>
 

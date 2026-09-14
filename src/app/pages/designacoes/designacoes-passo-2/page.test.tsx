@@ -207,7 +207,7 @@ describe("DesignacoesPasso2", () => {
     tipo_vaga: "VAGO",
     cargo_vaga: 321,
     cargo_vaga_display: "Diretor",
-    numero_portaria: "100/2026",
+    numero_portaria: "100",
     sei_numero: "6016.2026/000001",
     data_inicio: "2026-01-10",
     data_fim: "2026-12-20",

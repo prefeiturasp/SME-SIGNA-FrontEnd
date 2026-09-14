@@ -11,7 +11,7 @@ describe("ResumoPortariaInsubsistencia", () => {
         titulo_portaria="Portaria de Insubsistência"
         defaultValues={{
           id: 1,
-          numero_portaria: "100",
+          numero_portaria: 100,
           ano_vigente: "2026",
           sei_numero: "SEI-100",
           doc: "2026-01-31",
@@ -48,7 +48,7 @@ describe("ResumoPortariaInsubsistencia", () => {
         titulo_portaria="Portaria"
         defaultValues={{
           id: 2,
-          numero_portaria: "200",
+          numero_portaria: 200,
           ano_vigente: "2027",
           sei_numero: "SEI-200",
           doc: "" as never,

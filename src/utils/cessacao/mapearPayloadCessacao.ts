@@ -8,7 +8,7 @@ export function mapearPayloadCessacao(
 ) {
   return {
     ato_pai: designacaoId,
-    numero_portaria: values.cessacao.numero_portaria,
+    numero_portaria: Number(values.cessacao.numero_portaria),
     ano_vigente: values.cessacao.ano,
     sei_numero: values.cessacao.numero_sei,
     doc: values.cessacao.doc !== "" ? values.cessacao.doc : undefined,

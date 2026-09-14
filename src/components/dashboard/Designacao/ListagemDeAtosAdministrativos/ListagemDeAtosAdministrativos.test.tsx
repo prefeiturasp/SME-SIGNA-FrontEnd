@@ -145,7 +145,7 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     rf: "1234567",
     numero_sei: "SEI-1",
     observacoes: "obs 1",
-    numero_portaria: "100/2026",
+    numero_portaria: 100,
     status_publicacao: StatusAtosAdministrativos.PUBLICADO,
     tipo: "DESIGNACAO",
     tipo_insubsistencia: null,
@@ -613,7 +613,7 @@ describe("ListagemDeAtosAdministrativos", () => {
         data={rows}
         total={1}
         page={1}
-        portaria="100/2026"
+        portaria="100"
         servidor_indicado="Servidor A"
         titulo="Histórico de atos"
         subtitulo="Subtítulo customizado"
@@ -623,7 +623,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByText("Histórico de atos")).toBeInTheDocument();
     expect(screen.getByText("Subtítulo customizado")).toBeInTheDocument();
     expect(screen.getByText("Nº da portaria:")).toBeInTheDocument();
-    expect(screen.getByText("100/2026")).toBeInTheDocument();
+    expect(screen.getByText("100")).toBeInTheDocument();
     expect(screen.getByText("Servidor indicado:")).toBeInTheDocument();
     expect(screen.getByText("Servidor A")).toBeInTheDocument();
   });

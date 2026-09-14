@@ -1,20 +1,27 @@
 import { Cessacao, DesignacaoResponse } from "./designacao";
 
+
+
+export interface ApostilaAlteracoes {
+    campo_alterado: string;
+    valor_novo: string; 
+    tipo_ato_alvo?: string; 
+}
+
 export interface ApostilaBody {
     ato_pai: number;
     sei_numero: string;
     doc?: string;
     observacao?: string;
-    alteracoes?: {
-        campo_alterado: string;
-        valor_novo: string;
-    }[];
+    alteracoes?: ApostilaAlteracoes[];
+    texto_sei?: string;
+    numero_portaria?: string;
 }
 
  
 export interface ApostilaInsubsistenciasBody {
     ato_pai: number;
-    numero_portaria: string;
+    numero_portaria: number;
     sei_numero: string;
     doc?: string;
     ano_vigente?: string;
@@ -35,7 +42,7 @@ export interface ApostilaRead {
 
 export interface ApostilaDetailRead {
     id: number;    
-    numero_portaria: string;
+    numero_portaria: number | null;
     tipo: string;
     ato_apostilado: string;
     ato_apostilado_display: string;

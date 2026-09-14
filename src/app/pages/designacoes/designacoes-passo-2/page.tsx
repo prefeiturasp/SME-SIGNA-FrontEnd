@@ -93,7 +93,7 @@ export default function DesignacoesPasso2() {
   const popularCamposFormulario = (d: DesignacaoResponse) => {
     form.setValue("tipo_cargo", d.tipo_vaga.toLowerCase() as "vago" | "disponivel");
     form.setValue("cargo_vago_selecionado", { id: d.cargo_vaga, label: d.cargo_vaga_display });
-    form.setValue("portaria_designacao", d.numero_portaria);
+    form.setValue("portaria_designacao", String(d.numero_portaria));
     form.setValue("numero_sei", d.sei_numero);
     form.setValue("a_partir_de", new Date(d.data_inicio.replaceAll("-", '/')));
     form.setValue("designacao_data_final", d.data_fim ? new Date(d.data_fim.replaceAll("-", '/')) : null);
@@ -152,7 +152,7 @@ export default function DesignacoesPasso2() {
       codigo_hierarquico: formDesignacaoData?.codigo_hierarquico ?? d.codigo_hierarquico,
       cargo_sobreposto: formDesignacaoData?.cargo_sobreposto ?? d.titular_cargo_sobreposto,
       modulos: formDesignacaoData?.modulos ?? "1",
-      portaria_designacao: d.numero_portaria,
+      portaria_designacao: String(d.numero_portaria),
       numero_sei: d.sei_numero,
       ano: d.ano_vigente,
       a_partir_de: d.data_inicio ? new Date(d.data_inicio.replace(/-/g, '/')) : new Date(),
@@ -428,7 +428,7 @@ export default function DesignacoesPasso2() {
         ultimoServidor={formDesignacaoData?.servidorIndicado ?? null}
         // to-do: quando houver api com os dados remover mock
         portariaCessacao={{
-          numero_portaria: "000123",
+          numero_portaria: 123,
           ano: "2026",
           numero_sei: "0012345",
           doc: "0098765",

@@ -52,7 +52,7 @@ const valuesMock = {
 
 const payloadMock = {
   ato_pai: 10,
-  numero_portaria: "123",
+  numero_portaria: 123,
   ano_vigente: "2026",
   sei_numero: "SEI-123",
   doc: "DOC-123",

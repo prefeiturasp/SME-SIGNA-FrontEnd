@@ -12,6 +12,7 @@ import {
 import {SelectAnoField} from "@/components/ui/SelectAnoField"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 interface Props {
   isLoading?: boolean;
@@ -26,6 +27,7 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
       label: "Portaria de insubsistência",
       placeholder: "Nº da portaria",
       type: "number",
+      maxLength: NUMERO_PORTARIA_MAX_DIGITOS,
     },
     
     {
@@ -76,6 +78,7 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
                     type={field.type}
                     disabled={field.disabled}
                     mask={field.mask}
+                    maxLength={field.maxLength}
                   />
                 )               
               ))}              
