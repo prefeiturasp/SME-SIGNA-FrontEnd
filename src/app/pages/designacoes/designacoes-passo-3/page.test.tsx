@@ -168,9 +168,11 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
       expect.objectContaining({ tipo_portaria: "DESIGNACAO" })
     );
-    expect(editor).toHaveTextContent("PORTARIA Nº");
-    expect(editor).toHaveTextContent("EXPEDE:");
-    expect(editor).toHaveTextContent("SEI Nº");
+    await waitFor(() => {
+      expect(editor).toHaveTextContent("PORTARIA Nº");
+      expect(editor).toHaveTextContent("EXPEDE:");
+      expect(editor).toHaveTextContent("SEI Nº");
+    });
 
     const strongs = editor.querySelectorAll("strong");
     expect(strongs.length).toBeGreaterThan(0);
