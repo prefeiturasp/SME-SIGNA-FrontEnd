@@ -58,6 +58,10 @@ describe("formSchemaApostila", () => {
   it("aceita campos opcionais ausentes ou nulos", () => {
     const result = formSchemaApostila.safeParse({
       ato_apostilado: "designacao",
+      apostila: {
+        numero_sei: "SEI-123",
+        numero_portaria: "123",
+      },
       portaria_designacao: "123",
       numero_sei: "SEI-123",
       a_partir_de: new Date("2026-01-10"),
@@ -139,6 +143,42 @@ describe("formSchemaApostila", () => {
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
         "A Portaria de Designação deve ser no máximo 2.147.483.647",
+      ]);
+    }
+  });
+
+  it("recusa caracteres não numéricos na portaria de designação", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      portaria_designacao: "12A",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.message)).toContain(
+        "A Portaria de Designação deve conter apenas números",
+      );
+    }
+  });
+
+  it("retorna erros dos campos obrigatórios de apostila", () => {
+    const result = formSchemaApostila.safeParse({
+      ...payloadValido,
+      apostila: {
+        numero_sei: "",
+        numero_portaria: "",
+      },
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.path.join("."))).toEqual([
+        "apostila.numero_sei",
+        "apostila.numero_portaria",
+      ]);
+      expect(result.error.issues.map((issue) => issue.message)).toEqual([
+        "Digite o número do SEI",
+        "Digite o número da Portaria",
       ]);
     }
   });

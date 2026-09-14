@@ -10,6 +10,7 @@ let mockId: string | null = "1";
 let mockOrigem: string | null = null;
 let mockIsDirty = false;
 let mockIsValid = true;
+let mockDirtyFields: Record<string, unknown> = {};
 
 type DesignacaoMock = {
   numero_portaria?: string;
@@ -39,7 +40,11 @@ type DesignacaoMock = {
   impedimento_substituicao?: string | null;
   com_afastamento?: boolean;
   motivo_afastamento?: string;
+  possui_pendencia?: boolean;
   pendencias?: string;
+  informacoes_adicionais?: string;
+  detalhe_para_quadro_de_historico_por_ano?: boolean | string;
+  titular_cargo_base?: string;
   cessacao?: {
     numero_portaria?: string;
     ano_vigente?: string;
@@ -49,6 +54,7 @@ type DesignacaoMock = {
     data_cessacao?: string;
     remocao?: boolean;
     aposentadoria?: boolean;
+    id?: number;
   } | null;
 } | null;
 
@@ -123,6 +129,7 @@ const {
   pageHeaderSpy,
   accordionSpy,
   customAccordionItemSpy,
+  portariaApostilaFieldsSpy,
   portariaDesignacaoFieldsSpy,
   portariaCessacaoFieldsSpy,
   informacoesAdicionaisSpy,
@@ -133,6 +140,7 @@ const {
   simpleEditorSpy,
   editorOnChangeMock,
   resetMock,
+  salvarApostilaMutateAsyncMock,
 } = vi.hoisted(() => {
   const getValuesMock = vi.fn((): formSchemaApostilaData => ( 
     {
@@ -190,6 +198,7 @@ const {
     pageHeaderSpy: vi.fn(),
     accordionSpy: vi.fn(),
     customAccordionItemSpy: vi.fn(),
+    portariaApostilaFieldsSpy: vi.fn(),
     portariaDesignacaoFieldsSpy: vi.fn(),
     portariaCessacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
@@ -200,6 +209,7 @@ const {
     simpleEditorSpy: vi.fn(),
     editorOnChangeMock: vi.fn(),
     resetMock: vi.fn(),
+    salvarApostilaMutateAsyncMock: vi.fn(),
   };
 });
 
@@ -241,6 +251,12 @@ vi.mock("@/hooks/useCargos", () => ({
   }),
 }));
 
+vi.mock("@/hooks/useSalvarApostila", () => ({
+  useSalvarApostila: () => ({
+    mutateAsync: salvarApostilaMutateAsyncMock,
+  }),
+}));
+
 vi.mock("@/utils/portarias/formatadores", () => ({
   nameToCamelCase: (valor: string) => valor,
   formatarRF: (valor: string) => valor,
@@ -277,6 +293,13 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
   }) => {
     customAccordionItemSpy(props);
     return <section data-testid="custom-accordion-item">{props.children}</section>;
+  },
+}));
+
+vi.mock("@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields", () => ({
+  default: () => {
+    portariaApostilaFieldsSpy();
+    return <div data-testid="portaria-apostila-fields" />;
   },
 }));
 
@@ -429,7 +452,12 @@ vi.mock("react-hook-form", async () => {
     useForm: () => ({
       handleSubmit: handleSubmitMock,
       control: {},
-      formState: { errors: {}, isDirty: mockIsDirty, isValid: mockIsValid },
+      formState: {
+        errors: {},
+        isDirty: mockIsDirty,
+        isValid: mockIsValid,
+        dirtyFields: mockDirtyFields,
+      },
       trigger: triggerMock,
       getValues: getValuesMock,
       register: vi.fn(),
@@ -447,9 +475,11 @@ describe("ApostilaPage", () => {
     mockOrigem = null;
     mockIsDirty = false;
     mockIsValid = true;
+    mockDirtyFields = {};
     mockDesignacaoAtual = designacaoPadrao;
     triggerMock.mockResolvedValue(true);
     getValuesMock.mockReturnValue({ ...valoresPadrao });
+    salvarApostilaMutateAsyncMock.mockResolvedValue({ id: 1 });
     notificationSuccessMock.mockReset();
     notificationErrorMock.mockReset();
   });
@@ -469,7 +499,8 @@ describe("ApostilaPage", () => {
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de designação");
     expect(screen.getByText("Informações adicionais")).toBeInTheDocument();
     expect(screen.getByTestId("accordion")).toBeInTheDocument();
-    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(4);
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(5);
+    expect(screen.getByTestId("portaria-apostila-fields")).toBeInTheDocument();
     expect(screen.getByTestId("portaria-designacao-fields")).toBeInTheDocument();
     expect(screen.getByTestId("campos-pesquisa-unidade")).toBeInTheDocument();
     expect(screen.getByTestId("campos-editar-servidor")).toBeInTheDocument();
@@ -491,6 +522,7 @@ describe("ApostilaPage", () => {
       expect.objectContaining({
         type: "multiple",
         defaultValue: [
+          "portaria-apostila",
           "portarias-designacao",
           "unidade-proponente",
           "servidor-indicado",
@@ -500,6 +532,14 @@ describe("ApostilaPage", () => {
         ],
       }),
     );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portaria de Apostila",
+        color: "silver",
+        value: "portaria-apostila",
+      }),
+    );
+    expect(portariaApostilaFieldsSpy).toHaveBeenCalledTimes(1);
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Portarias de designação",
@@ -547,7 +587,7 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de cessação");
-    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(5);
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(6);
     expect(screen.getByTestId("portaria-cessacao-fields")).toBeInTheDocument();
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -604,6 +644,190 @@ describe("ApostilaPage", () => {
         title: "Apostila salva com sucesso!",
       });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
+    });
+  });
+
+  it("envia payload de apostila de designação com alterações mapeadas", async () => {
+    mockId = "42";
+    mockOrigem = "designacao";
+    mockDirtyFields = {
+      apostila: { numero_sei: true },
+      portaria_designacao: true,
+      com_afastamento: true,
+      detalhe_para_quadro_de_historico_por_ano: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "DOC-APOSTILA",
+        observacao: "Observação apostila",
+      },
+      portaria_designacao: "654",
+      com_afastamento: EnumCheckbox.SIM,
+      detalhe_para_quadro_de_historico_por_ano: false,
+      texto_portaria: "Texto SEI apostila",
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: {
+          ato_pai: 42,
+          sei_numero: "SEI-APOSTILA",
+          numero_portaria: "321",
+          doc: "DOC-APOSTILA",
+          observacao: "Observação apostila",
+          texto_sei: "Texto SEI apostila",
+          alteracoes: [
+            {
+              campo_alterado: "numero_portaria",
+              valor_novo: "654",
+            },
+            {
+              campo_alterado: "com_afastamento",
+              valor_novo: "True",
+            },
+            {
+              campo_alterado: "detalhe_para_quadro_de_historico_por_ano",
+              valor_novo: "False",
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  it("mapeia datas e flags positivas nas alterações da designação", async () => {
+    mockId = "42";
+    mockOrigem = "designacao";
+    mockDirtyFields = {
+      a_partir_de: true,
+      designacao_data_final: true,
+      carater_especial: true,
+      com_pendencia: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "",
+        observacao: "",
+      },
+      a_partir_de: new Date("2026-04-05"),
+      designacao_data_final: new Date("2026-05-06"),
+      detalhe_para_quadro_de_historico_por_ano: true,
+      carater_especial: EnumCheckbox.SIM,
+      com_pendencia: EnumCheckbox.SIM,
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: expect.objectContaining({
+          alteracoes: [
+            {
+              campo_alterado: "data_inicio",
+              valor_novo: "2026-04-05",
+            },
+            {
+              campo_alterado: "data_fim",
+              valor_novo: "2026-05-06",
+            },
+            {
+              campo_alterado: "carater_excepcional",
+              valor_novo: "True",
+            },
+            {
+              campo_alterado: "possui_pendencia",
+              valor_novo: "True",
+            },
+          ],
+        }),
+      });
+    });
+  });
+
+  it("envia payload de apostila de cessação com alterações do ato pai e da designação", async () => {
+    mockOrigem = "cessacao";
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      cessacao: {
+        id: 77,
+        numero_portaria: "987",
+        ano_vigente: "2025",
+        sei_numero: "SEI-CESS",
+      },
+    };
+    mockDirtyFields = {
+      cessacao: true,
+      numero_sei: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA-CESS",
+        numero_portaria: "998",
+        doc: "",
+        observacao: "",
+      },
+      numero_sei: "SEI-DESIGNACAO-NOVO",
+      cessacao: {
+        numero_portaria: "456",
+        ano: "2026",
+        numero_sei: "SEI-CESS-NOVO",
+        doc: "",
+        a_pedido: EnumCheckbox.SIM,
+        data_inicio: new Date("2026-02-10"),
+        remocao: EnumCheckbox.SIM,
+        aposentadoria: EnumCheckbox.SIM,
+      },
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: expect.objectContaining({
+          ato_pai: 77,
+          sei_numero: "SEI-APOSTILA-CESS",
+          numero_portaria: "998",
+          alteracoes: expect.arrayContaining([
+            {
+              campo_alterado: "numero_portaria",
+              valor_novo: "456",
+            },
+            {
+              campo_alterado: "ano_vigente",
+              valor_novo: "2026",
+            },
+            {
+              campo_alterado: "sei_numero",
+              valor_novo: "SEI-CESS-NOVO",
+            },
+            {
+              campo_alterado: "data_cessacao",
+              valor_novo: "2026-02-10",
+            },
+            {
+              campo_alterado: "remocao",
+              valor_novo: "True",
+            },
+            {
+              campo_alterado: "sei_numero",
+              tipo_ato_alvo: "DESIGNACAO",
+              valor_novo: "SEI-DESIGNACAO-NOVO",
+            },
+          ]),
+        }),
+      });
     });
   });
 
@@ -677,7 +901,10 @@ describe("ApostilaPage", () => {
       impedimento_substituicao: "LICENCA",
       com_afastamento: true,
       motivo_afastamento: "Afastamento",
+      possui_pendencia: true,
       pendencias: "Pendência",
+      informacoes_adicionais: "Info",
+      detalhe_para_quadro_de_historico_por_ano: "false",
       cargo_vaga: 20,
       indicado_nome_civil: "Maria Civil",
       indicado_lotacao: "Lotação",
@@ -697,7 +924,7 @@ describe("ApostilaPage", () => {
 
     render(<ApostilaPage />);
 
-    expect(resetMock).toHaveBeenCalledWith({
+    expect(resetMock).toHaveBeenCalledWith(expect.objectContaining({
       texto_portaria: "A presente portaria apostilada,",
       ato_apostilado: "",
       portaria_designacao: "123",
@@ -706,12 +933,14 @@ describe("ApostilaPage", () => {
       doc: "DOC",
       a_partir_de: new Date("2026/01/10"),
       designacao_data_final: new Date("2026/12/20"),
-      carater_especial: "nao",
-      impedimento_substituicao: "sim",
+      carater_especial: "sim",
+      impedimento_substituicao: "LICENCA",
       com_afastamento: "sim",
       motivo_afastamento: "Afastamento",
       com_pendencia: "sim",
       motivo_pendencia: "Pendência",
+      informacoes_adicionais: "Info",
+      detalhe_para_quadro_de_historico_por_ano: false,
       dre: "108200",
       dre_nome: "DRE",
       ue: "UE-1",
@@ -740,7 +969,7 @@ describe("ApostilaPage", () => {
         aposentadoria: "sim",
         doc: "DOC-CESS",
       },
-    });
+    }));
   });
 
   it("reseta o formulário com fallbacks quando a designação vem incompleta", () => {
@@ -752,7 +981,10 @@ describe("ApostilaPage", () => {
       impedimento_substituicao: null,
       com_afastamento: false,
       motivo_afastamento: "",
+      possui_pendencia: false,
       pendencias: "",
+      detalhe_para_quadro_de_historico_por_ano: undefined,
+      titular_cargo_base: "BASE",
     };
 
     render(<ApostilaPage />);
@@ -765,7 +997,7 @@ describe("ApostilaPage", () => {
         doc: "",
         designacao_data_final: null,
         carater_especial: "nao",
-        impedimento_substituicao: "nao",
+        impedimento_substituicao: null,
         com_afastamento: "nao",
         motivo_afastamento: "",
         com_pendencia: "nao",
@@ -782,7 +1014,7 @@ describe("ApostilaPage", () => {
         local_de_exercicio: "-",
         lotacao: "-",
         categoria: "-",
-        titular_cargo_sobreposto: "-",
+        titular_cargo_sobreposto: "BASE",
         cessacao: {
           numero_portaria: "",
           ano: "",
@@ -796,6 +1028,21 @@ describe("ApostilaPage", () => {
       }),
     );
     expect(resetMock.mock.calls[0][0].a_partir_de).toBeInstanceOf(Date);
+  });
+
+  it("normaliza detalhe booleano ao resetar dados carregados", () => {
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      detalhe_para_quadro_de_historico_por_ano: false,
+    };
+
+    render(<ApostilaPage />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detalhe_para_quadro_de_historico_por_ano: false,
+      }),
+    );
   });
 
   it("não reseta dados carregados quando o formulário está sujo", () => {
