@@ -347,7 +347,6 @@ export default function ApostilaPage() {
         cessacao: cessacaoFieldsValues,
       },);
 
-      // form.setValue('detalhe_para_quadro_de_historico_por_ano', 'true');
 
 
     }
