@@ -8,7 +8,7 @@ import { Alert } from "antd";
 import { Button } from "@/components/ui/button";
 import { TriangleAlert } from "lucide-react";
 import { FormProvider } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import FormCriarTextosPortaria from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormCriarTextosPortaria";
 
 
@@ -72,17 +72,24 @@ const sincronizarVariaveisTokens = (
 
 export default function CriarTextosDePortaria() {
 
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
 
   const {
+    isLoadingBuscarTextoPortaria,
+    isLoadingCadastrarTextoPortaria,
+    isLoadingVariavel,
     filterForm,
     isModalOpen,
+    variaveisOpcoes,
     onSubmitFilterForm,
     handleCancel
-  } = useCriarTextosPortaria();
+  } = useCriarTextosPortaria(id ? Number(id) : null);
 
 
   const router = useRouter();
-  const watchedVariables = filterForm.watch("variavel");
+  const watchedVariables = filterForm.watch("variaveis");
   const selectedVariablesKey = Array.isArray(watchedVariables)
     ? watchedVariables.join("|")
     : "";
@@ -153,12 +160,15 @@ export default function CriarTextosDePortaria() {
               variant="destructive"
               data-testid="botao-proximo"
               onClick={filterForm.handleSubmit(onSubmitFilterForm)}
+              disabled={isLoadingCadastrarTextoPortaria || isLoadingBuscarTextoPortaria || isLoadingVariavel}
             >
               Cadastrar texto
             </Button>
           </>
         }
       />
+
+
 
       <FundoBranco className="mb-4 mt-8">
         <SimpleTableHeader
@@ -167,17 +177,11 @@ export default function CriarTextosDePortaria() {
         />
 
         <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-          <FormCriarTextosPortaria />
+
+          <FormCriarTextosPortaria variaveisOpcoes={variaveisOpcoes} />
+
         </form>
 
-      </ FundoBranco>
-
-
-      <FundoBranco className="mb-4 mt-8">
-        <SimpleTableHeader
-          title="Texto da portaria"
-          subtitle="Digite o texto da portaria e utilize as ferramentas de formatação para organizar o conteúdo."
-        />
 
         <Alert
           title={<span className="font-bold text-[14px] ">Atenção ao editar o texto!</span>}
@@ -185,37 +189,34 @@ export default function CriarTextosDePortaria() {
           type="warning"
           showIcon
           icon={<TriangleAlert style={{ color: "#B7A100" }} className="w-[20px] h-[20px]" />}
-        />
+        /> 
+          <div className="mb-2 mt-4">
+            <FormField
+              {...filterForm.register('texto_portaria')}
+              control={filterForm.control}
+              name="texto_portaria"
 
-
-        <div className="mb-2 mt-4">
-          <FormField
-            {...filterForm.register('texto_portaria')}
-            control={filterForm.control}
-            name="texto_portaria"
-
-            render={({ field, fieldState }) => (
-              <FormItem >
-                <FormLabel className="required text-[#313131] font-bold">
-                  Texto da portaria*
-                </FormLabel>
-                <FormControl>
-                  <SimpleEditor
-                    hasError={!!fieldState.error}
-                    onChange={field.onChange}
-                    content={field.value}
-                  />
-                </FormControl>
-                <FormMessage showBlankSpace />
-              </FormItem>
-            )}
-          />
-
-        </div>
+              render={({ field, fieldState }) => (
+                <FormItem >
+                  <FormLabel className="required text-[#313131] font-bold">
+                    Texto da portaria*
+                  </FormLabel>
+                  <FormControl className="mt-[50px]">
+                    <SimpleEditor
+                      hasError={!!fieldState.error}
+                      onChange={field.onChange}
+                      content={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage showBlankSpace />
+                </FormItem>
+              )}
+            />
+          </div> 
       </FundoBranco>
 
       <Dialog open={isModalOpen}>
-        <DialogContent className="max-w-[560px] p-8 rounded-none rounded-0 overflow-y-auto max-h-[90vh]" closeButton={false}>
+        <DialogContent className="max-w-[560px] p-8 overflow-y-auto max-h-[90vh]" closeButton={false}>
           <DialogHeader>
             <DialogTitle className="text-[20px] font-bold">Revise as variáveis do texto</DialogTitle>
             <DialogDescription className="sr-only">
@@ -238,8 +239,11 @@ export default function CriarTextosDePortaria() {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>      
-    </FormProvider>
+      </Dialog>
+
+
+    </FormProvider >
+
 
   );
 }

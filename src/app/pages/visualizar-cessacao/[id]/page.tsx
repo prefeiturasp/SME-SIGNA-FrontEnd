@@ -16,21 +16,9 @@ import EditorSEI, {
   gerarHtmlPortaria,
   EditorSEIHandle,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
-import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
-import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
-import type { CessacaoByIdResponse } from "@/types/designacao";
 
 import { useFetchCessacaoById } from "@/hooks/useVisualizarCessacao";
 import ResumoPortariaCessacao from "@/components/dashboard/Designacao/ResumoPortariaCessacao";
-import { formatarRF, nameToCamelCaseUe, nameToCamelCase } from "@/utils/portarias/formatadores";
-import { formatDate } from "@/utils/formatDate";
-
-const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei", "ano"] as const;
-
-function escapeHtml(s: string) {
-  return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
-}
 
 export default function VisualizarCessacaoPage() {
 
@@ -44,55 +32,11 @@ export default function VisualizarCessacaoPage() {
   );
   const designacao = cessacao?.designacao;
 
-
-
-
   const htmlInicial = useMemo(() => {
-    const gerarDados = (cessacao: CessacaoByIdResponse) => ({
-      portaria: cessacao.numero_portaria,
-      ano: cessacao.ano_vigente,
-      sei: cessacao.sei_numero,
-      dre: designacao?.dre_nome ?? "-",
-      tipo_cessacao:
-        cessacao.a_pedido ? "a pedido" : "de ofício",
-      portaria_designacao: designacao?.numero_portaria ?? "-",
-      doc_designacao: designacao?.doc ? formatDate(designacao.doc) : "-",
-      sei_designacao: designacao?.sei_numero ?? "-",
-      nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-      rf: formatarRF(designacao?.indicado_rf ?? "-"),
-      vinculo: designacao?.indicado_vinculo ?? "-",
-      cargo_base: (() => {
-        const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
-        const cat = designacao?.indicado_categoria;
-        return cat ? `${base} - Categoria ${cat}` : base;
-      })(),
-      cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-      ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-      data_inicio: formatDate(cessacao.data_cessacao),
-      trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
-      trecho_afastamento: designacao?.com_afastamento && designacao?.motivo_afastamento
-        ? `, ${designacao.motivo_afastamento}`
-        : "",
-    });
+    if (!cessacao?.texto_sei) return "";
 
-    if (!designacao || !cessacao) return "";
-
-    const dadosPuros = gerarDados(cessacao);
- 
-
-    const dadosEscapados: Record<string, string> = {};
-    for (const [k, v] of Object.entries(dadosPuros)) {
-      if (v === undefined || v === null) continue;
-      dadosEscapados[k] = escapeHtml(String(v));
-    }
-
-    for (const campo of CAMPOS_NEGRITO) {
-      const val = dadosEscapados[campo];
-      if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
-    }
-
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_CESSACAO, dadosEscapados));
-  }, [designacao, cessacao]);
+    return gerarHtmlPortaria(cessacao.texto_sei);
+  }, [cessacao]);
 
 
   const router = useRouter();

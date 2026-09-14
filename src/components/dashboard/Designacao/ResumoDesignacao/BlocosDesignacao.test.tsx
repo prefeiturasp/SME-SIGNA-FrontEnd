@@ -79,6 +79,8 @@ const baseProps = {
     ato_pai_id: 1,
     apostilas: [],
     insubsistencia: null,
+    texto_sei: "",
+    modelo_portaria: null,
   },
 };
 

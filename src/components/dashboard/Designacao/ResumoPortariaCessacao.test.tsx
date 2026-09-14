@@ -18,6 +18,8 @@ const cessacaoBase: Cessacao = {
   ato_pai_id: 10,
   apostilas: [],
   insubsistencia: null,
+  texto_sei: "",
+  modelo_portaria: null,
 };
 
 describe("ResumoPortariaCessacao", () => {

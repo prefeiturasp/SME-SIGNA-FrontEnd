@@ -7,6 +7,7 @@ import { StatusCargosBase, TextosDePortariasResponse } from '@/types/gestao';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { BadgeStatusCargosBase } from '../ListagemDeCargos/ListagemDeCargos';
 import { formatDateAndHour } from '@/utils/formatDate';
+import { useRouter } from 'next/navigation';
 
 interface ListagemDeTextosDePortariasProps {
   data: TextosDePortariasResponse[];
@@ -25,11 +26,12 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
   isLoading = false,
   onPageChange,
 }) => {
+  const router = useRouter();
 
 
   const columnsBase: TableProps<TextosDePortariasResponse>['columns'] = [
-    { title: 'Tipo de portaria', dataIndex: 'tipo_portaria', key: 'tipo_portaria', },
-    { title: 'Nome do modelo', dataIndex: 'nome_modelo', key: 'nome_modelo', },
+    { title: 'Tipo de portaria', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato',width: '27%' },
+    { title: 'Nome do modelo', dataIndex: 'nome_modelo', key: 'nome_modelo',width: '27%' },
     {
       title: 'Status', dataIndex: 'status', key: 'status', render: (status: StatusCargosBase, record: TextosDePortariasResponse) => {
         return (
@@ -44,6 +46,9 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
 
 
 
+  const handleRowClick = (record: TextosDePortariasResponse) => {    
+      router.push(`/pages/gestao/criar-textos-de-portaria?id=${record.id}`);    
+  };
 
 
   return (
@@ -64,6 +69,13 @@ const ListagemDeTextosDePortarias: React.FC<ListagemDeTextosDePortariasProps> = 
           rowKey={(record) => record.id.toString()}
           pagination={false}
           rowClassName={(record: TextosDePortariasResponse) => record.status === StatusCargosBase.INATIVO ? "disabled-row" : ""}
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                handleRowClick(record);
+              },
+            };
+          }}
         />
         <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
           <MostrarRegistros page={page} total={total} />

@@ -22,7 +22,7 @@ export default function DashboardLayout({
                             <div className="flex min-h-screen flex-col">
                                 <Navbar />
 
-                                <main className="flex-grow bg-muted p-4 px-8">
+                                <main className="grow bg-muted p-4 px-8">
                                     {children}
                                 </main>
 

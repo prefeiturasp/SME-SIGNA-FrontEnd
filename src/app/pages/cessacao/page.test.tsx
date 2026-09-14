@@ -4,6 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import CessacaoPage from "./page";
+import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
@@ -44,6 +45,8 @@ const mockDesignacao = {
   indicado_local_servico: "Escola B",
 };
 
+const textoPreviewPadrao = "PORTARIA Nº 001/2026\nSEI Nº SEI-CESSACAO\nFAZER CESSAR ...";
+
 vi.mock("@/hooks/useSalvarCessacao", () => ({
   useSalvarCessacao: () => ({
     mutateAsync: mockMutateAsync,
@@ -54,6 +57,10 @@ const mockUseFetch = vi.fn();
 
 vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
   useFetchDesignacoesById: () => mockUseFetch(),
+}));
+
+vi.mock("@/actions/textos-sei", () => ({
+  gerarPreviewTextoSeiAction: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -171,6 +178,10 @@ describe("CessacaoPage", () => {
       isLoading: false,
     });
     mockGetValues.mockImplementation(defaultGetValues);
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValue({
+      success: true,
+      data: { modelo_portaria_id: 9, texto: textoPreviewPadrao },
+    });
   });
 
   it("renderiza página corretamente", () => {
@@ -183,7 +194,58 @@ describe("CessacaoPage", () => {
     expect(screen.getByTestId("cessacao-fields")).toBeInTheDocument();
   });
 
-  it("abre editor e permite salvar", async () => {
+  it("busca a prévia do texto SEI no back ao gerar o trecho", async () => {
+    mockTrigger.mockResolvedValue(true);
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await screen.findByTestId("editor-sei");
+
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tipo_portaria: "CESSACAO",
+        tipo_ato_pai: "DESIGNACAO",
+      })
+    );
+  });
+
+  it("envia tipo_cargo=CARGO_VAGO quando a designação de origem tem tipo_vaga VAGO", async () => {
+    mockTrigger.mockResolvedValue(true);
+    mockUseFetch.mockReturnValue({
+      data: { ...mockDesignacao, tipo_vaga: "VAGO" },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+    await screen.findByTestId("editor-sei");
+
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo_cargo: "CARGO_VAGO" })
+    );
+  });
+
+  it("envia tipo_cargo=CARGO_DISPONIVEL quando a designação de origem tem tipo_vaga DISPONIVEL", async () => {
+    mockTrigger.mockResolvedValue(true);
+    mockUseFetch.mockReturnValue({
+      data: { ...mockDesignacao, tipo_vaga: "DISPONIVEL" },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+    await screen.findByTestId("editor-sei");
+
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo_cargo: "CARGO_DISPONIVEL" })
+    );
+  });
+
+  it("abre editor e permite salvar incluindo o texto e o modelo gerados", async () => {
     mockTrigger.mockResolvedValue(true);
     mockMutateAsync.mockResolvedValueOnce({});
 
@@ -191,12 +253,17 @@ describe("CessacaoPage", () => {
 
     await userEvent.click(screen.getByText("Trechos para o SEI"));
 
-    await screen.findByText("PORTARIA");
+    await screen.findByTestId("editor-sei");
 
     await userEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
-      expect(mockMutateAsync).toHaveBeenCalled();
+      expect(mockMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          textoSei: textoPreviewPadrao,
+          modeloPortaria: 9,
+        })
+      );
       expect(mockRouterPush).toHaveBeenCalled();
     });
   });
@@ -211,9 +278,29 @@ describe("CessacaoPage", () => {
     await waitFor(() => {
       expect(screen.queryByText("PORTARIA")).not.toBeInTheDocument();
     });
+    expect(gerarPreviewTextoSeiAction).not.toHaveBeenCalled();
   });
 
-  it("gera conteúdo da portaria corretamente", async () => {
+  it("exibe notificação de erro quando a prévia falha e não mostra o editor", async () => {
+    mockTrigger.mockResolvedValue(true);
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValueOnce({
+      success: false,
+      error: "Não há modelo de portaria ativo cadastrado para este tipo de ato.",
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(mockNotificationError).toHaveBeenCalledWith({
+        title: "Erro ao gerar o texto da portaria: Não há modelo de portaria ativo cadastrado para este tipo de ato.",
+      });
+    });
+    expect(screen.queryByText("PORTARIA")).not.toBeInTheDocument();
+  });
+
+  it("gera conteúdo da portaria a partir do texto retornado pelo back", async () => {
     mockTrigger.mockResolvedValue(true);
 
     render(<CessacaoPage />);
@@ -223,73 +310,6 @@ describe("CessacaoPage", () => {
     const editor = await screen.findByTestId("editor-sei");
 
     expect(editor).toHaveTextContent("PORTARIA");
-  });
-
-  it("gera portaria cobrindo transformação completa", async () => {
-    mockTrigger.mockResolvedValue(true);
-
-    mockUseFetch.mockReturnValue({
-      data: {
-        ...mockDesignacao,
-        indicado_nome_servidor: "Maria Silva",
-      },
-      isLoading: false,
-    });
-
-    render(<CessacaoPage />);
-
-    await userEvent.click(screen.getByText("Trechos para o SEI"));
-
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toHaveTextContent("Maria Silva");
-  });
-
-  it("cobre todos os branches da geração de portaria", async () => {
-    mockTrigger.mockResolvedValue(true);
-
-    mockUseFetch.mockReturnValue({
-      data: {
-        ...mockDesignacao,
-        indicado_nome_servidor: "Maria Silva",
-        indicado_rf: null,
-        indicado_cargo_base: undefined,
-      },
-      isLoading: false,
-    });
-
-    render(<CessacaoPage />);
-
-    await userEvent.click(screen.getByText("Trechos para o SEI"));
-
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toHaveTextContent("Maria Silva");
-    expect(editor).not.toHaveTextContent("{{");
-    expect(editor).not.toHaveTextContent("null");
-    expect(editor).not.toHaveTextContent("undefined");
-  });
-
-  it("garante que todas as chaves do template são processadas", async () => {
-    mockTrigger.mockResolvedValue(true);
-
-    mockUseFetch.mockReturnValue({
-      data: {
-        ...mockDesignacao,
-        indicado_nome_servidor: "Teste Completo",
-        indicado_rf: null,
-        indicado_cargo_base: null,
-      },
-      isLoading: false,
-    });
-
-    render(<CessacaoPage />);
-
-    await userEvent.click(screen.getByText("Trechos para o SEI"));
-
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).not.toHaveTextContent("{{");
   });
 
   it("exibe loader quando isLoading é true", () => {
@@ -307,7 +327,7 @@ describe("CessacaoPage", () => {
     render(<CessacaoPage />);
 
     await userEvent.click(screen.getByText("Trechos para o SEI"));
-    await screen.findByText("PORTARIA");
+    await screen.findByTestId("editor-sei");
     await userEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
@@ -385,49 +405,6 @@ describe("CessacaoPage", () => {
     expect(screen.queryByTestId("resumo-titular")).not.toBeInTheDocument();
   });
 
-  it("gera portaria com tipo_cessacao 'a pedido' quando a_pedido é sim", async () => {
-    mockTrigger.mockResolvedValue(true);
-    mockGetValues.mockReturnValue({
-      cessacao: {
-        numero_portaria: "456",
-        ano: "2026",
-        numero_sei: "SEI-002",
-        data_inicio: new Date("2026-03-01"),
-        a_pedido: "sim",
-      },
-    });
-
-    render(<CessacaoPage />);
-
-    await userEvent.click(screen.getByText("Trechos para o SEI"));
-
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toBeInTheDocument();
-  });
-
-  it("gera portaria com data_inicio indefinida cobrindo branch de optional chaining", async () => {
-    mockTrigger.mockResolvedValue(true);
-    mockGetValues.mockReturnValue({
-      cessacao: {
-        numero_portaria: "789",
-        ano: "2026",
-        numero_sei: "SEI-003",
-        data_inicio: undefined,
-        a_pedido: "nao",
-      },
-    });
-
-    render(<CessacaoPage />);
-
-    await userEvent.click(screen.getByText("Trechos para o SEI"));
-
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toBeInTheDocument();
-    expect(editor).not.toHaveTextContent("{{");
-  });
-
   it("constrói dadosTitular com titular_codigo_cargo_sobreposto nulo usando fallback 0", () => {
     mockUseFetch.mockReturnValue({
       data: {
@@ -440,36 +417,5 @@ describe("CessacaoPage", () => {
     render(<CessacaoPage />);
 
     expect(screen.getByTestId("resumo-titular")).toBeInTheDocument();
-  });
-
-  it("gera portaria com campos opcionais nulos no designacao", async () => {
-    mockTrigger.mockResolvedValue(true);
-
-    mockUseFetch.mockReturnValue({
-      data: {
-        ...mockDesignacao,
-        dre_nome: null,
-        numero_portaria: null,
-        doc: null,
-        sei_numero: null,
-        indicado_nome_servidor: null,
-        indicado_rf: null,
-        indicado_vinculo: null,
-        indicado_cargo_base: null,
-        indicado_cargo_sobreposto: null,
-        indicado_local_exercicio: null,
-      },
-      isLoading: false,
-    });
-
-    render(<CessacaoPage />);
-
-    await userEvent.click(screen.getByText("Trechos para o SEI"));
-
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toBeInTheDocument();
-    expect(editor).not.toHaveTextContent("{{");
-    expect(editor).not.toHaveTextContent("null");
   });
 });

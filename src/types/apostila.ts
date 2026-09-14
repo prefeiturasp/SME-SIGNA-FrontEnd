@@ -4,7 +4,7 @@ export interface ApostilaBody {
     ato_pai: number;
     sei_numero: string;
     doc?: string;
-    observacao: string;
+    observacao?: string;
     alteracoes?: {
         campo_alterado: string;
         valor_novo: string;

@@ -38,6 +38,8 @@ const payloadMock = {
   a_pedido: false,
   remocao: false,
   aposentadoria: false,
+  texto_sei: "",
+  modelo_portaria: null,
 };
 
 

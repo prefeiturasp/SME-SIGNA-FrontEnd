@@ -5,6 +5,7 @@ import { toAxiosError } from "@/lib/axios-error";
 import { cookies } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
+import { getCargos } from "@/actions/cargos";
 
 type DesignacaoErrorResponse = {
     detail?: string;
@@ -47,7 +48,15 @@ export async function designacaoAction(
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
-    const payload = mapearPayloadDesignacao(formData);
+
+    let cargosDisponiveis: Awaited<ReturnType<typeof getCargos>> = [];
+    try {
+        cargosDisponiveis = await getCargos();
+    } catch {
+        cargosDisponiveis = [];
+    }
+
+    const payload = mapearPayloadDesignacao(formData, cargosDisponiveis);
     if (!payload) {
         return {
             success: false,

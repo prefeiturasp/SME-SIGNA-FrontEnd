@@ -10,6 +10,8 @@ export interface InsubsistenciaBody {
     doc?: string;
     observacoes?: string;
     texto_apostila?: string;
+    texto_sei?: string;
+    modelo_portaria?: number | null;
 }
 
 
@@ -36,6 +38,8 @@ export interface InsubsistenciaRead extends InsubsistenciaBaseRead {
     ato_apostilado_display: string;
     tipo_insubsistencia: string;
     tipo: string;
+    texto_sei: string;
+    modelo_portaria: number | null;
 }
  
 

@@ -136,7 +136,7 @@ export default function LoginForm() {
                 )}
               />
 
-              <div className="mt-8">
+              <div className="mt-4">
                 <Button
                   type="submit"
                   variant="secondary"

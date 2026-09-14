@@ -29,7 +29,7 @@ export const StatusPublicacaoOpcoes = [
   { codigo: StatusAtosAdministrativos.PUBLICADO, nome: 'Publicado' },
 ]
 
-export const TipoAtoSelectField: React.FC<{ label?: string, name?: string, AtosOpcoes: { codigo: string, nome: string }[] }> = ({ label= "Tipo", name="tipo", AtosOpcoes }) => {
+export const TipoAtoSelectField: React.FC<{ label?: string, name?: string, AtosOpcoes: { codigo: string, nome: string }[] }> = ({ label= "Tipo", name="tipo", AtosOpcoes }) => { 
   const { register, control } = useFormContext();
 
   return (

@@ -57,6 +57,21 @@ export const nameToCamelCaseUe = (text: string) => {
         .join(" ");
 };
 
+export const formatarDataPtBr = (data?: string | Date | null): string => {
+    if (!data) return "-";
+
+    let date: Date;
+    if (typeof data === "string") {
+        date = new Date(data.length === 10 ? `${data}T00:00:00` : data);
+    } else {
+        date = data;
+    }
+
+    if (Number.isNaN(date.getTime())) return "-";
+
+    return date.toLocaleDateString("pt-BR");
+};
+
 export const formatarRF = (rf: string) => {
     if (!rf) return "";
 

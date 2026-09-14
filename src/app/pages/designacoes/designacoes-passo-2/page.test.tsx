@@ -33,6 +33,8 @@ const h = vi.hoisted(() => ({
   setFormDesignacaoData: vi.fn(),
   clearFormDesignacaoData: vi.fn(),
   push: vi.fn(),
+  cargosData: [{ codigoCargo: 1, nomeCargo: "Diretor de Escola" }] as { codigoCargo: number; nomeCargo: string }[],
+  isLoadingCargos: false,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -64,6 +66,13 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
   useFetchDesignacoesById: () => ({
     data: h.designacao,
     isLoading: h.isLoadingDesignacao,
+  }),
+}));
+
+vi.mock("@/hooks/useCargos", () => ({
+  useFetchCargos: () => ({
+    data: h.cargosData,
+    isLoading: h.isLoadingCargos,
   }),
 }));
 
@@ -130,13 +139,15 @@ vi.mock("@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado", ()
 }));
 
 vi.mock("@/components/dashboard/Designacao/SelecaoServidorIndicado/SelecaoServidorIndicado", () => ({
-  default: ({ onBuscaTitular, form, rf_default }: {
+  default: ({ onBuscaTitular, form, rf_default, errorCargoTitular }: {
     onBuscaTitular: (values: { rf: string }) => void;
     form: { setValue: (name: string, value: unknown) => void };
     rf_default?: string;
+    errorCargoTitular?: string | null;
   }) => (
     <div>
       <span data-testid="rf-default">{rf_default}</span>
+      {errorCargoTitular && <span data-testid="error-cargo-titular">{errorCargoTitular}</span>}
       <button data-testid="buscar-titular" onClick={() => onBuscaTitular({ rf: "1234567" })}>
         Buscar titular
       </button>
@@ -240,7 +251,12 @@ describe("DesignacoesPasso2", () => {
     h.designacao = null;
     h.formDesignacaoData = null;
     h.isLoadingDesignacao = false;
-    h.mutateAsync.mockResolvedValue({ success: true, data: { rf: "1234567" } });
+    h.cargosData = [{ codigoCargo: 1, nomeCargo: "Diretor de Escola" }];
+    h.isLoadingCargos = false;
+    h.mutateAsync.mockResolvedValue({
+      success: true,
+      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: "Diretor de Escola" },
+    });
   });
 
   it("renderiza e executa fluxo sem id", async () => {
@@ -447,6 +463,103 @@ describe("DesignacoesPasso2", () => {
         })
       )
     );
+  });
+
+  it("mantém próximo desabilitado e exibe aviso quando cargo do titular não corresponde a nenhum cargo de gestão", async () => {
+    // designacao populada para que form.clearErrors() rode e o botão só fique
+    // desabilitado pela validação de cargo do titular, não por erros residuais
+    // do schema (ver teste de fallback abaixo para o cenário sem essa população).
+    h.designacao = { ...designacaoCompleta, tipo_vaga: "DISPONIVEL" } as unknown as DesignacaoResponse;
+    h.mutateAsync.mockResolvedValueOnce({
+      success: true,
+      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: "Professor" },
+    });
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    await waitFor(() => expect(screen.getByTestId("error-cargo-titular")).toBeInTheDocument());
+    expect(screen.getByTestId("proximo")).toBeDisabled();
+  });
+
+  it("exibe mensagem específica quando cargo do titular vem nulo (integração SME) e não há cargo_base para fallback", async () => {
+    h.designacao = { ...designacaoCompleta, tipo_vaga: "DISPONIVEL" } as unknown as DesignacaoResponse;
+    h.mutateAsync.mockResolvedValueOnce({
+      success: true,
+      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: null, cargo_base: null },
+    });
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("error-cargo-titular")).toHaveTextContent(
+        "Não foi possível identificar o cargo de gestão do titular. Não é possível prosseguir com esta designação."
+      )
+    );
+    expect(screen.getByTestId("proximo")).toBeDisabled();
+  });
+
+  it("usa cargo_base do titular como fallback e permite avançar quando cargo_sobreposto_funcao_atividade vem nulo", async () => {
+    h.designacao = { ...designacaoCompleta, tipo_vaga: "DISPONIVEL" } as unknown as DesignacaoResponse;
+    h.mutateAsync.mockResolvedValueOnce({
+      success: true,
+      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: null, cargo_base: "Diretor de Escola" },
+    });
+    h.formDesignacaoData = {
+      servidorIndicado: {
+        nome_servidor: "Servidor Inicial",
+        nome_civil: "Civil Inicial",
+        rf: "1111111",
+        vinculo: 1,
+        cargo_base: "Cargo",
+        lotacao: "Lotacao",
+        cargo_sobreposto_funcao_atividade: "Sobreposto",
+        local_de_exercicio: "LE",
+        laudo_medico: "Sem",
+        local_de_servico: "LS",
+      },
+    };
+
+    render(<DesignacoesPasso2 />);
+
+    fireEvent.click(screen.getByTestId("buscar-titular"));
+    await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+
+    await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+    expect(screen.queryByTestId("error-cargo-titular")).not.toBeInTheDocument();
   });
 
   it("usa fallback de rf_default quando rf_titular fica indefinido", async () => {

@@ -5,6 +5,7 @@ import InsubsistenciaPage from "./page";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
+import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 
 const testControls = vi.hoisted(() => ({
   routerPush: vi.fn(),
@@ -71,6 +72,10 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
 
 vi.mock("@/hooks/useSalvarInsubsistencia", () => ({
   useSalvarInsubsistencia: vi.fn(),
+}));
+
+vi.mock("@/actions/textos-sei", () => ({
+  gerarPreviewTextoSeiAction: vi.fn(),
 }));
 
 vi.mock("antd", () => ({
@@ -265,6 +270,8 @@ const cessacaoMock = {
 
 // ── Testes ────────────────────────────────────────────────────────────────────
 
+const textoPreviewPadrao = "PORTARIA Nº 100/2026\nSEI Nº SEI-INSUB\nTORNAR INSUBSISTENTE ...";
+
 describe("InsubsistenciaPage", () => {
   const mutateAsyncMock = vi.fn();
 
@@ -279,6 +286,11 @@ describe("InsubsistenciaPage", () => {
       isError: false,
       error: null,
     } as never);
+
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValue({
+      success: true,
+      data: { modelo_portaria_id: 11, texto: textoPreviewPadrao },
+    });
   });
 
   it("exibe loader enquanto dados estão carregando", () => {
@@ -350,7 +362,7 @@ describe("InsubsistenciaPage", () => {
     });
   });
 
-  it("salva insubsistência com sucesso e redireciona", async () => {
+  it("salva insubsistência com sucesso e redireciona, incluindo o texto e o modelo gerados", async () => {
     mutateAsyncMock.mockResolvedValue({ id: 1 });
 
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
@@ -367,7 +379,12 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByTestId("botao-proximo"));
 
     await waitFor(() => {
-      expect(mutateAsyncMock).toHaveBeenCalled();
+      expect(mutateAsyncMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          textoSei: textoPreviewPadrao,
+          modeloPortaria: 11,
+        })
+      );
       expect(notificationMocks.success).toHaveBeenCalledWith({ title: "Insubsistência salva com sucesso!" });
       expect(testControls.routerPush).toHaveBeenCalledWith("/pages/atos-administrativos");
     });
@@ -395,7 +412,7 @@ describe("InsubsistenciaPage", () => {
     });
   });
 
-  it("gera texto de cessação com período fechado ao trocar o radio", async () => {
+  it("envia tipo_ato_pai=CESSACAO ao trocar o radio para cessação", async () => {
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
       data: {
         ...designacaoMock,
@@ -412,12 +429,50 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Trechos para o SEI"));
 
     await waitFor(() => {
-      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tipo_portaria: "INSUBSISTENCIA",
+          tipo_ato_pai: "CESSACAO",
+        })
+      );
     });
 
-    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
-    expect(textoGerado).toContain("no período de 01/01/2026 a 31/01/2026");
-    expect(textoGerado).toContain("<strong>SERVIDOR TESTE</strong>");
+    const chamada = vi.mocked(gerarPreviewTextoSeiAction).mock.calls.at(-1)?.[0];
+    expect(chamada?.dados.NOME_SERVIDOR).toBe("SERVIDOR TESTE");
+  });
+
+  it("envia tipo_cargo=CARGO_VAGO quando a designação de origem tem tipo_vaga VAGO", async () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, tipo_vaga: "VAGO" },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+        expect.objectContaining({ tipo_cargo: "CARGO_VAGO" })
+      );
+    });
+  });
+
+  it("envia tipo_cargo=CARGO_DISPONIVEL quando a designação de origem tem tipo_vaga DISPONIVEL", async () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, tipo_vaga: "DISPONIVEL" },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+        expect.objectContaining({ tipo_cargo: "CARGO_DISPONIVEL" })
+      );
+    });
   });
 
   it("pré-seleciona tipo 'cessação' quando a URL vem com origem=cessacao", async () => {
@@ -435,11 +490,10 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Trechos para o SEI"));
 
     await waitFor(() => {
-      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+        expect.objectContaining({ tipo_ato_pai: "CESSACAO" })
+      );
     });
-
-    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
-    expect(textoGerado).toContain("que cessou os efeitos da Port.");
   });
 
   it("usa o tipo 'designação' por padrão quando não há origem na URL", async () => {
@@ -453,11 +507,33 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Trechos para o SEI"));
 
     await waitFor(() => {
-      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+        expect.objectContaining({ tipo_ato_pai: "DESIGNACAO" })
+      );
+    });
+  });
+
+  it("exibe notificação de erro e não mostra o botão Salvar quando a prévia falha", async () => {
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValueOnce({
+      success: false,
+      error: "Não há modelo de portaria ativo cadastrado para este tipo de ato.",
     });
 
-    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
-    expect(textoGerado).not.toContain("que cessou os efeitos da Port.");
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(notificationMocks.error).toHaveBeenCalledWith({
+        title: "Erro ao gerar o texto da portaria: Não há modelo de portaria ativo cadastrado para este tipo de ato.",
+      });
+    });
+    expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
   });
 
   it("não gera trechos para o SEI quando o trigger do formulário é inválido", async () => {
@@ -477,7 +553,7 @@ describe("InsubsistenciaPage", () => {
     });
   });
 
-  it("gera texto com fallbacks quando não existe designação", async () => {
+  it("busca a prévia do texto SEI com valores vazios quando não existe designação", async () => {
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
       data: null,
       isLoading: false,
@@ -488,22 +564,17 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Trechos para o SEI"));
 
     await waitFor(() => {
-      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalled();
     });
 
-    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
-    expect(textoGerado).toContain("a partir de undefined/undefined/");
-    expect(textoGerado).toContain("-");
+    const chamada = vi.mocked(gerarPreviewTextoSeiAction).mock.calls.at(-1)?.[0];
+    expect(chamada?.dados.NOME_SERVIDOR).toBe("");
+    expect(chamada?.dados.NUMERO_RF).toBe("");
   });
 
-  it("usa fallbacks de data e valores indefinidos ao gerar texto", async () => {
-    testControls.forceUndefinedGetValues = true;
+  it("exibe o texto retornado pelo back no editor após gerar a prévia", async () => {
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
-      data: {
-        ...designacaoMock,
-        data_inicio: undefined as never,
-        data_fim: "2026-01-31",
-      },
+      data: designacaoMock,
       isLoading: false,
     } as never);
 
@@ -512,11 +583,8 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Trechos para o SEI"));
 
     await waitFor(() => {
-      expect(testControls.gerarHtmlPortaria).toHaveBeenCalled();
+      expect(testControls.gerarHtmlPortaria).toHaveBeenCalledWith(textoPreviewPadrao);
     });
-
-    const textoGerado = testControls.gerarHtmlPortaria.mock.calls.at(-1)?.[0] as string;
-    expect(textoGerado).toContain("no período de undefined/undefined/ a 31/01/2026");
   });
 
   it("radio group fica desabilitado quando cessação já possui insubsistência", () => {
