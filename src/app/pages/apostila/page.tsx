@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { nameToCamelCase, formatarRF } from "@/utils/portarias/formatadores";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
@@ -27,7 +27,7 @@ import { DesignacaoResponse } from "@/types/designacao";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
-import { formatarData } from "@/lib/utils";
+
 
 const defaultValues = {
 
@@ -45,8 +45,7 @@ const defaultValues = {
   codigo_hierarquico: "",
 
   informacoes_adicionais: "",
-  
-
+  detalhe_para_quadro_de_historico_por_ano: true,
 
   portaria_designacao: "",
   ano: "",
@@ -91,12 +90,18 @@ const defaultValues = {
 
 };
 
+const normalizarDetalheParaQuadroDeHistoricoPorAno = (value: unknown) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+
+  return true;
+};
+
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const origem = searchParams.get("origem");
   const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
-  const router = useRouter();
   const notification = useAppNotification();
   const salvarApostila = useSalvarApostila();
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
@@ -173,6 +178,7 @@ export default function ApostilaPage() {
   };
   const gerarAlteracoes = (formValues: formSchemaApostilaData) => {
     delete formValues.impedimento_label;
+    console.log('formValues', formValues);
     const values = {
       ...formValues,
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
@@ -289,7 +295,7 @@ export default function ApostilaPage() {
 
       const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
       console.log(cessacaoFieldsValues);
-      console.log('designacao', designacao);
+      console.log('designacao', designacao.detalhe_para_quadro_de_historico_por_ano);
       form.reset({
         ...defaultValues,
         texto_portaria: "A presente portaria apostilada,",
@@ -309,8 +315,9 @@ export default function ApostilaPage() {
         com_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_pendencia: designacao?.pendencias,
         informacoes_adicionais: designacao?.informacoes_adicionais,
-        detalhe_para_quadro_de_historico_por_ano: designacao.detalhe_para_quadro_de_historico_por_ano,
-
+        detalhe_para_quadro_de_historico_por_ano: normalizarDetalheParaQuadroDeHistoricoPorAno(
+          designacao.detalhe_para_quadro_de_historico_por_ano,
+        ),
         // campos unidade proponente
         dre: designacao?.dre ?? '-',
         dre_nome: designacao?.dre_nome,
@@ -346,7 +353,7 @@ export default function ApostilaPage() {
 
 
     }
-  }, [designacao, form]);
+  }, [designacao, form, origem]);
 
   return (
     <>
