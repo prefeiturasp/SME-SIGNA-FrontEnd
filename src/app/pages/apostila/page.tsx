@@ -27,7 +27,69 @@ import { DesignacaoResponse } from "@/types/designacao";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
+import { formatarData } from "@/lib/utils";
 
+const defaultValues = {
+
+  apostila: {
+    numero_sei: "22",
+    doc: "",
+    observacao: "",
+    numero_portaria: "222",
+  },
+
+  dre: "",
+  dre_nome: "",
+  ue: "",
+  ue_nome: "",
+  codigo_hierarquico: "",
+
+  informacoes_adicionais: "",
+  
+
+
+  portaria_designacao: "",
+  ano: "",
+  numero_sei: "",
+  doc: "",
+  a_partir_de: new Date(),
+  designacao_data_final: null,
+  carater_especial: EnumCheckbox.NAO,
+  impedimento_substituicao: "",
+  impedimento_label: "",
+  com_afastamento: EnumCheckbox.NAO,
+  motivo_afastamento: "",
+  com_pendencia: EnumCheckbox.NAO,
+  motivo_pendencia: "",
+
+  // campos cargo disponível
+  nome_civil: "",
+  nome_servidor: "",
+  rf: "",
+  vinculo: 0,
+  cargo_base: "",
+  cargo_sobreposto_funcao_atividade: "",
+  local_de_exercicio: "",
+  lotacao: "",
+  categoria: "",
+  cursos_titulos: "",
+  laudo_medico: "",
+  cd_cargo_base: "",
+  titular_cargo_sobreposto: "",
+
+
+  cessacao: {
+    numero_portaria: "",
+    ano: new Date().getFullYear().toString(),
+    numero_sei: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: new Date(),
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+    doc: "",
+  },
+
+};
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -45,71 +107,11 @@ export default function ApostilaPage() {
   }));
 
 
-  const defaultValues = {
-
-    apostila: {
-      numero_sei: "",
-      doc: "",
-      observacao: "",
-      numero_portaria: "",
-    },
-
-    dre: "",
-    dre_nome: "",
-    ue: "",
-    ue_nome: "",
-    codigo_hierarquico: "",
-
-    informacoes_adicionais: "",
-    detalhe_para_quadro_de_historico_por_ano: false,
-    ato_apostilado: origem ?? "",
-
-
-    portaria_designacao: "",
-    ano: "",
-    numero_sei: "",
-    doc: "",
-    a_partir_de: new Date(),
-    designacao_data_final: null,
-    carater_especial: EnumCheckbox.NAO,
-    impedimento_substituicao: "",
-    impedimento_label: "",
-    com_afastamento: EnumCheckbox.NAO,
-    motivo_afastamento: "",
-    com_pendencia: EnumCheckbox.NAO,
-    motivo_pendencia: "",
-
-    // campos cargo disponível
-    nome_civil: "",
-    nome_servidor: "",
-    rf: "",
-    vinculo: 0,
-    cargo_base: "",
-    cargo_sobreposto_funcao_atividade: "",
-    local_de_exercicio: "",
-    lotacao: "",
-    categoria: "",
-    cursos_titulos: "",
-    laudo_medico: "",
-    cd_cargo_base: "",
-    titular_cargo_sobreposto: "",
-
-
-    cessacao: {
-      numero_portaria: "",
-      ano: new Date().getFullYear().toString(),
-      numero_sei: "",
-      a_pedido: EnumCheckbox.NAO,
-      data_inicio: new Date(),
-      remocao: EnumCheckbox.NAO,
-      aposentadoria: EnumCheckbox.NAO,
-      doc: "",
-    },
-
-  };
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
-    defaultValues: defaultValues,
+    defaultValues: {
+      ...defaultValues, ato_apostilado: origem ?? "",
+    },
     mode: "onChange",
   });
 
@@ -124,69 +126,142 @@ export default function ApostilaPage() {
     setMostrarEditor(true);
   };
 
-  const gerarAlteracoes = (values: formSchemaApostilaData) => {
+  const getCampoMapeadoCessacao = (field: string) => {
+    const camposCessacao = {
+      "numero_portaria": "numero_portaria",
+      "ano": "ano_vigente",
+      "numero_sei": "sei_numero",
+      "data_inicio": "data_cessacao",
+    }
+
+    const campoMapeado = camposCessacao[field as keyof typeof camposCessacao];
+    return campoMapeado || field;
+  };
+
+
+  const getCampoMapeadoDesignacao = (field: string) => {
+    const camposDesignação = {
+      "portaria_designacao": "numero_portaria",
+      "ano": "ano_vigente",
+
+
+      "numero_sei": "sei_numero",
+      "doc": "doc",
+      "a_partir_de": "data_inicio",
+      "designacao_data_final": "data_fim",
+
+
+      "carater_especial": "carater_excepcional",
+
+      "com_pendencia": "possui_pendencia",
+
+      "motivo_pendencia": "pendencias",
+      "ue_nome": "unidade_proponente",
+      "texto_portaria": "texto_sei",
+
+      "cd_cargo_base": "cargo_vaga",
+
+      "nome_civil": "indicado_nome_civil",
+      "nome_servidor": "indicado_nome_servidor",
+      "impedimento_substituicao": "impedimento_substituicao_id",
+
+
+    }
+
+    const campoMapeado = camposDesignação[field as keyof typeof camposDesignação];
+    return campoMapeado || field;
+  };
+  const gerarAlteracoes = (formValues: formSchemaApostilaData) => {
+    delete formValues.impedimento_label;
+    const values = {
+      ...formValues,
+      "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
+      "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
+      "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
+      "carater_especial": formValues.carater_especial === "sim" ? "True" : "False",
+
+      "com_afastamento": formValues.com_afastamento === "sim" ? "True" : "False",
+      "com_pendencia": formValues.com_pendencia === "sim" ? "True" : "False",
+      "cessacao": {
+        ...formValues.cessacao,
+        "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
+        "data_inicio": formValues.cessacao.data_inicio.toISOString().split("T")[0],
+        "remocao": formValues.cessacao.remocao === "sim" ? "True" : "False",
+        "aposentadoria": formValues.cessacao.aposentadoria === "sim" ? "True" : "False",
+      },
+    };
+
     const alteracoes: ApostilaAlteracoes[] = [];
     Object.keys(form.formState.dirtyFields).forEach(field => {
 
-      const campoAlterado = values[field as keyof formSchemaApostilaData];
+      const valorDoCampo = values[field as keyof formSchemaApostilaData];
 
       // remove campos vazios, undefined ou null ou campos da apostila
-      if(["", undefined, null].includes(campoAlterado) || field.includes("apostila")){
+      if (["", undefined, null].includes(valorDoCampo) || field.includes("apostila")) {
         return;
       }
 
       // campos da portaria de cessação
-      if(field.includes("cessacao")){       
-  
-        return Object.keys(values['cessacao']).forEach(cessacaoField => {    
-          if(["", undefined, null].includes(values['cessacao'][cessacaoField])){
+      if (field.includes("cessacao")) {
+
+        return Object.keys(values['cessacao']).forEach(cessacaoField => {
+          const valorDoCampoCessacao = values['cessacao'][cessacaoField];
+          if (["", undefined, null].includes(valorDoCampoCessacao)) {
             return;
           }
-    
-           alteracoes.push({
-            "campo_alterado": cessacaoField,
-            "valor_novo": values['cessacao'][cessacaoField],              
+          const campoMapeadoCessacao = getCampoMapeadoCessacao(cessacaoField);
+          alteracoes.push({
+            "campo_alterado": campoMapeadoCessacao,
+            "valor_novo": valorDoCampoCessacao,
           });
         });
       }
 
+
+      //to-do remover mapeamento de campo e trocar os nomes dos campos
+      const campoMapeado = getCampoMapeadoDesignacao(field);
+
       // campos da portaria de designação na apostila de cessação
-      if(origem === "cessacao" && !field.includes("cessacao")){
+      if (origem === "cessacao" && !field.includes("cessacao")) {
         return alteracoes.push({
-          "campo_alterado": field,
+          "campo_alterado": campoMapeado,
           "valor_novo": values[field as keyof formSchemaApostilaData],
           "tipo_ato_alvo": "DESIGNACAO"
         });
 
       }
-      
+
+
 
       // campos default
       alteracoes.push({
-          "campo_alterado": field,
-          "valor_novo": values[field as keyof formSchemaApostilaData]
-        });        
-      
+        "campo_alterado": campoMapeado,
+        "valor_novo": values[field as keyof formSchemaApostilaData]
+      });
+
     });
 
     return alteracoes;
   }
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
-     const alteracoes = gerarAlteracoes(values);
-      
+      const alteracoes = gerarAlteracoes(values);
+
+      console.log('values', values);
+
+      const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
       const body: ApostilaBody = {
-        ato_pai: Number(id),
+        ato_pai: ato_pai,
         sei_numero: values.apostila.numero_sei,
         numero_portaria: values.apostila.numero_portaria,
         doc: values.apostila.doc,
         observacao: values.apostila.observacao,
         alteracoes: alteracoes,
         texto_sei: values.texto_portaria,
-        
+
       };
       console.log('body', body);
-      await salvarApostila.mutateAsync({body});
+      await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
       // router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
@@ -227,12 +302,14 @@ export default function ApostilaPage() {
         doc: designacao?.doc ?? "",
         a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
         designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
-        carater_especial: EnumCheckbox.NAO,
-        impedimento_substituicao: designacao?.impedimento_substituicao ?? "",
+        carater_especial: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        impedimento_substituicao: designacao?.impedimento_substituicao?.toString() ?? null,
         com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_afastamento: designacao?.motivo_afastamento,
-        com_pendencia: designacao?.pendencias ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        com_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_pendencia: designacao?.pendencias,
+        informacoes_adicionais: designacao?.informacoes_adicionais,
+        detalhe_para_quadro_de_historico_por_ano: designacao.detalhe_para_quadro_de_historico_por_ano,
 
         // campos unidade proponente
         dre: designacao?.dre ?? '-',
@@ -264,7 +341,9 @@ export default function ApostilaPage() {
         // campos portaria de cessação
         cessacao: cessacaoFieldsValues,
       },);
-      
+
+      // form.setValue('detalhe_para_quadro_de_historico_por_ano', 'true');
+
 
     }
   }, [designacao, form]);
@@ -298,12 +377,12 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                defaultValue={["portaria-apostila","portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
+                  defaultValue={["portaria-apostila", "portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
                 >
 
-                <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
-                  <PortariaApostilaFields />              
-                </CustomAccordionItem>
+                  <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
+                    <PortariaApostilaFields />
+                  </CustomAccordionItem>
 
                   <CustomAccordionItem
                     title="Portarias de designação"
