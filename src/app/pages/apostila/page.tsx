@@ -192,7 +192,7 @@ export default function ApostilaPage() {
       "cessacao": {
         ...formValues.cessacao,
         "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
-        "data_inicio": formValues.cessacao.data_inicio.toISOString().split("T")[0],
+        "data_inicio": formValues.cessacao.data_inicio ? formValues.cessacao.data_inicio.toISOString().split("T")[0] : null,
         "remocao": formValues.cessacao.remocao === "sim" ? "True" : "False",
         "aposentadoria": formValues.cessacao.aposentadoria === "sim" ? "True" : "False",
       },
