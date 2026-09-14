@@ -10,11 +10,6 @@ Funcionalidade: Ações da listagem de Atos Administrativos
   Para dar continuidade a um ato já existente sem precisar buscá-lo de novo
   pelo menu "Novo ato"
 
-  # Estas ações partem de um ato já existente selecionado na tabela (menu "⋮"
-  # de cada linha) e chegam pré-carregadas com os dados desse ato — caminho
-  # de código diferente do menu "Novo ato" (atos_novos.feature), que sempre
-  # busca por número de portaria antes de abrir a tela.
-
   Contexto:
     Dado que o usuário já está autenticado no sistema
     E está na página "Atos Administrativos"
@@ -144,13 +139,8 @@ Funcionalidade: Ações da listagem de Atos Administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 10 — Designação publicada não oferece Editar nem Excluir
   # ══════════════════════════════════════════════════════════════
-  # Só abre o menu e lê as opções (sem executar nenhuma ação) — cobre a
-  # regra de ListagemDeAtosAdministrativos.tsx: "Editar" e "Excluir" só
-  # aparecem para designação com status "não publicada". Não valida
-  # Cessar/Tornar insubsistente aqui: essas duas somem independentemente
-  # se ESTA designação já tiver cessação/insubsistência vinculada — regra
-  # coberta à parte nos Cenários 12 e 13. Só "Apostilar" nunca é removido
-  # do menu de uma designação, por isso é a única presença exigida aqui.
+  # "Editar"/"Excluir" só aparecem para status "não publicada". Cessar/Tornar
+  # insubsistente são cobertos à parte nos Cenários 12 e 13.
   @acoes_listagem @regras_menu @regressao
   Cenário: Menu de ações de uma designação publicada não oferece Editar nem Excluir
 
@@ -189,16 +179,10 @@ Funcionalidade: Ações da listagem de Atos Administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 13 — Ato já com insubsistência não oferece "Tornar insubsistente" de novo [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Regra de negócio: não é possível tornar insubsistente duas vezes o
-  # mesmo ato (designação ou cessação).
-  # @skip (2026-09-09): varrendo TODAS as páginas do filtro Designação +
-  # Publicado em QA (13 registros no total, confirmado em execução real),
-  # nenhuma linha está sem a opção "Tornar insubsistente" no menu — ou seja,
-  # nenhuma designação publicada com insubsistência vinculada existe hoje no
-  # ambiente. selecionarLinhaSemOpcaoNoMenu já pagina corretamente (mesmo
-  # helper corrigido pro Cenário 12 "Cessar novamente" — aquele achou a linha
-  # na página 2); aqui é falta de massa de dado, não bug de paginação/código.
-  # Reativar removendo esta tag quando existir esse dado em QA.
+  # Regra de negócio: não é possível tornar insubsistente duas vezes o mesmo
+  # ato. @skip: nenhuma designação publicada com insubsistência vinculada
+  # existe hoje em QA — falta de massa de dado, não bug. Reativar quando
+  # existir esse dado.
   @acoes_listagem @regras_menu @regressao @skip
   Cenário: Menu de ações de um ato já com insubsistência vinculada não exibe Tornar insubsistente novamente
 
@@ -209,17 +193,9 @@ Funcionalidade: Ações da listagem de Atos Administrativos
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 14 — Anular apostila de cessação pela listagem      [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Mesmo caminho do Cenário 6, mas para o tipo "Apostila de Cessação"
-  # (distinto de "Apostila de Designação" no filtro de Tipo).
-  # @skip (2026-09-09): filtro "Apostila de Cessação" retorna "Não há dados"
-  # em QA — confirmado em execução real, zero registros desse tipo no
-  # ambiente. selecionarLinhaAleatoriaFiltrada já detecta esse estado vazio e
-  # falha cedo com mensagem clara (em vez do erro obscuro de índice de coluna
-  # de antes) — mas continua sendo falta de massa de dado, não bug de
-  # código. Ver também o comentário histórico em
-  # atos_administrativos_complementar_steps.js (linhas 137-149) sobre a
-  # tentativa de descobrir como criar esse dado via UI. Reativar removendo
-  # esta tag quando existir esse dado em QA.
+  # Mesmo caminho do Cenário 6, para o tipo "Apostila de Cessação".
+  # @skip: filtro retorna "Não há dados" em QA — falta de massa de dado, não
+  # bug. Reativar quando existir esse dado.
   @acoes_listagem @anular_apostila @critico @skip
   Cenário: Anular uma apostila de cessação a partir do menu de ações da listagem
 

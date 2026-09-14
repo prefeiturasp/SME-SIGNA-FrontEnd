@@ -1,42 +1,5 @@
-// Step Definitions — Editar Designação
-// Este arquivo cobre o Cenário 1 (Editar) de consulta_atos_adminstra.feature.
-// O Cenário 2 (Visualizar) do mesmo arquivo — antigo visualiza_designação.feature,
-// mesclado aqui porque os dois fluxos convergem para a mesma tela de destino
-// (/pages/designacoes/designacoes-passo-2?id={id}) — usa steps próprios em
-// visualizar_steps.js.
-//
-// A tela real acessada via "Editar" é o passo 2 do assistente de designação
-// (mesma tela usada ao criar uma designação, título h1 "Designação") — não
-// uma tela somente leitura separada. Ela PODE conter rádio "Cargo
-// Disponível"/"Cargo Vago" e campo "RF Titular" dependendo do tipo de cargo
-// da designação selecionada (ver designacao_steps.js, seção "Passo 2"). Por
-// isso o Cenário 1 reutiliza "valida a existencia da seção {string} quando
-// aplicável a esta designação" (visualizar_steps.js) em vez de ter sua
-// própria variante condicionada a tipo de cargo.
-//
-// Steps reutilizados de outros arquivos (Cenário 1):
-//   • "que o usuário está autenticado"           → common_steps.js
-//   • "que o usuário está na página do dashboard"→ common_steps.js
-//   • "valida a existencia do Texto"             → common_steps.js (lowercase v, capital T)
-//   • "Valida a existencia da Tabela"            → common_steps.js
-//   • "Valida a existencia das Colunas"          → cessacao_steps.js
-//   • "navega para a seção Action"               → cessacao_steps.js
-//   • "clica e seleciona a opção"                → cessacao_steps.js
-//   • "o sistema exibe a Tela"                   → common_steps.js
-//   • "valida a existencia da seção {string} quando aplicável a esta designação" → visualizar_steps.js
-//   • "clica em"                                 → designacao_steps.js
-//   • "o sistema direciona para a tela"          → atos_administrativos_steps.js
-//
-// Steps do Cenário 2 (Visualizar) → visualizar_steps.js, exceto onde indicado:
-//   • "Seleciona uma das Designação de forma aleatoria" (sem "para editar") → cessacao_steps.js
-//   • "navega para a seção Action" / "clica e seleciona a opção" (mesmos steps
-//     do Cenário 1, reaproveitados) → cessacao_steps.js — não existe mais
-//     ícone/ação "Detalhar" separado na tabela, só o dropdown com "Editar,
-//     Apostilar, Cessar, Tornar insubsistente, Excluir" (confirmado em
-//     execução real), então os dois cenários navegam pelo mesmo caminho.
-//   • "valida a existencia da seção {string}" (singular, sem Data Table)
-//   • "valida a existencia dos Titulos" (docstring) → cessacao_steps.js
-//   • "clico no botão {string}" → atos_administrativos_steps.js
+// "Editar" abre o passo 2 do assistente de designação (mesma tela usada ao
+// criar uma designação) — não uma tela somente leitura separada.
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 
@@ -67,13 +30,6 @@ Then('Seleciona uma das Designação de forma aleatoria para editar', () => {
       })
     })
 })
-
-// ─── ETAPA 2-4 — Validação unificada das seções incondicionais do formulário ──
-// Unidade Proponente / Portarias de designação / Dados do servidor indicado
-// sempre existem (sem depender do tipo de cargo, ao contrário das ETAPAS 5/6
-// abaixo) — por isso viraram uma única Data Table em vez de 3 steps Gherkin
-// separados. Mesmo padrão de "valida a existencia dos filtros:"/"valida a
-// existencia dos botões:" em atos_administrativos_steps.js.
 
 Then('valida a existencia das seguintes seções:', (dataTable) => {
   const secoes = dataTable.raw().flat()

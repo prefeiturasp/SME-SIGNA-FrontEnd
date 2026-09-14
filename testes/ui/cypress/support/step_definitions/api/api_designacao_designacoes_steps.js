@@ -89,12 +89,6 @@ Then('a resposta do SIGNA deve ser um array', () => {
 // ============================================================================
 // CRIAÇÃO — POST /designacao/designacoes/
 // ============================================================================
-// Monta o payload no mesmo formato de mapearPayloadDesignacao
-// (src/utils/designacao/mapearPayload.ts): dados do indicado vêm da busca de
-// servidor (@servidorResponse, já preenchida pelo step "eu busco um servidor
-// válido do pool de RFs conhecidos" em api_designacao_servidor_steps.js),
-// dados de unidade vêm de UNIDADE_REFERENCIA (combinação real e conhecida em
-// QA), tipo_vaga=VAGO evita precisar de um segundo servidor "titular".
 
 When('monto o payload de criação da designação com os dados coletados', () => {
   cy.get('@servidorResponse').then((res) => {
@@ -115,13 +109,8 @@ Given('removo o campo de cargo sobreposto do indicado no payload', () => {
   })
 })
 
-// RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO (RF 7936460) parou de servir de
-// base para esse bug: a API passou a devolver local_de_exercicio como string
-// placeholder ("Indisponível no EOL") em vez de null (confirmado em
-// 2026-08-27), então o payload montado a partir do servidor real não
-// reproduz mais a ausência do campo. Reproduzimos de forma determinística
-// removendo o campo do payload manualmente — confirmado contra QA em
-// 2026-08-27 que isso ainda dispara o mesmo 400.
+// A API passou a devolver local_de_exercicio como placeholder em vez de
+// null, então reproduzimos a ausência removendo o campo manualmente.
 Given('removo o campo de local de exercício do indicado no payload', () => {
   cy.get('@payloadDesignacao').then((payload) => {
     delete payload.indicado_local_exercicio

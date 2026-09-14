@@ -3,17 +3,8 @@ const { API_EOL_CONFIG } = require('./config')
 // ============================================================================
 // AUTENTICAÇÃO EOL
 // ============================================================================
-// A API EOL usa x-api-eol-key como mecanismo de autenticação (não JWT)
-//
-// CAMINHO CI (esteira Jenkins):
-//   CI=true + API_EOL_KEY no secret cypress_env_signa
-//   → cy.api_autenticar() lê Cypress.env('API_EOL_KEY') diretamente
-//   → NÃO usa token.json, NÃO abre browser
-//
-// CAMINHO LOCAL (desenvolvimento):
-//   CI=false + API_EOL_KEY no arquivo .env local
-//   → cy.api_autenticar() lê Cypress.env('API_EOL_KEY') via dotenv
-// ============================================================================
+// x-api-eol-key como mecanismo de autenticação (não JWT) — vem do secret
+// "cypress_env_signa" no Jenkins (CI) ou do .env local.
 
 Cypress.Commands.add('api_autenticar', () => {
   const isCI = Cypress.env('CI')

@@ -1,9 +1,5 @@
 # language: pt
 
-# "Testar laudo?" e "Pesquisar Licenças no SIGPEC" existem na tela ao vivo mas
-# não em FormCargosBaseSecundario.tsx neste checkout local — checkout
-# desatualizado em relação ao publicado em QA (confirmado por inspeção real
-# do DOM). Ambos têm step de interação (Cenários 6 e 7).
 @gestão_base @cadastro_cargo @testIsolation(false)
 Funcionalidade: Cadastro de cargo base
 
@@ -18,23 +14,9 @@ Funcionalidade: Cadastro de cargo base
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 1 — Cadastrar novo cargo base (fluxo completo)     [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Nota: este cenário cadastra de fato (POST real) — cria um registro novo
-  # de cargo base em QA a cada execução. Se isso passar a poluir a listagem
-  # com registros de teste, considerar excluir o cargo ao final ou marcar a
-  # descrição de forma identificável (já feito: "criado por automação").
-  #
-  # @skip (2026-09-09): os 5 códigos do combobox "Código do cargo no EOL"
-  # (ASSISTENTE DE DIRETOR DE ESCOLA, DIRETOR DE ESCOLA, COORDENADOR
-  # PEDAGOGICO, SECRETARIO DE ESCOLA, SUPERVISOR ESCOLAR) já têm cargo base
-  # cadastrado em QA — confirmado testando os 5 manualmente contra o
-  # ambiente real, todos retornam "codigo_cargo: cargo base com este Código
-  # cargo no EOL já existe." no submit. O combobox não filtra os já usados,
-  # então continuará oferecendo essas 5 opções mesmo esgotadas. Sem código
-  # livre não há como este cenário (nem os Cenários 4/5/6/7, mesma causa)
-  # completar um cadastro novo — falta de massa de dado no ambiente, não bug
-  # de código. Reativar removendo esta tag quando algum código for liberado
-  # (excluindo/inativando um cargo base de teste existente) ou o catálogo de
-  # códigos do formulário for ampliado no backend.
+  # @skip: os 5 códigos do combobox "Código do cargo no EOL" já têm cargo
+  # base cadastrado em QA (falta massa de dado, não bug — mesma causa dos
+  # Cenários 4/5/6/7). Reativar quando algum código EOL for liberado.
   @cadastro_fluxo_completo @critico @smoke @skip
   Cenário: Cadastrar novo cargo base selecionando múltiplas opções de utilização
     Quando clica no botão "Cadastrar novo cargo"
@@ -58,10 +40,7 @@ Funcionalidade: Cadastro de cargo base
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 2 — Localizar na listagem o cargo base recém-cadastrado [ATIVO]
   # ══════════════════════════════════════════════════════════════
-  # Depende do Cenário 1 ter rodado antes, na mesma sessão (@testIsolation
-  # (false) na Funcionalidade) — separado num cenário próprio pra confirmar,
-  # de forma isolada, que o cadastro do Cenário 1 realmente persistiu em QA
-  # (busca pela mesma Descrição Resumida usada lá).
+  # Depende do Cenário 1 ter rodado antes, na mesma sessão (@testIsolation(false)).
   @cadastro_fluxo_completo @critico
   Cenário: Localizar na listagem o cargo base cadastrado no cenário anterior
     Quando preenche o filtro "Descrição Resumida" com "Cargo criado por automação de testes"
@@ -107,9 +86,7 @@ Funcionalidade: Cadastro de cargo base
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 4 — Cadastrar cargo base com todas as opções de utilização [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Nota: mesma observação do Cenário 1 — cadastra de fato (POST real) em QA.
-  # @skip (2026-09-09): mesma causa do Cenário 1 — códigos EOL esgotados em
-  # QA. Ver comentário completo lá.
+  # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base selecionando todas as opções de utilização
     Quando clica no botão "Cadastrar novo cargo"
@@ -139,9 +116,7 @@ Funcionalidade: Cadastro de cargo base
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 5 — Cadastrar cargo base em situação "Cargo em comissão"  [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Nota: mesma observação do Cenário 1 — cadastra de fato (POST real) em QA.
-  # @skip (2026-09-09): mesma causa do Cenário 1 — códigos EOL esgotados em
-  # QA. Ver comentário completo lá.
+  # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base com situação funcional "Cargo em comissão"
     Quando clica no botão "Cadastrar novo cargo"
@@ -168,9 +143,7 @@ Funcionalidade: Cadastro de cargo base
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 6 — Cadastrar cargo base com "Testar laudo?" habilitado  [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Nota: mesma observação do Cenário 1 — cadastra de fato (POST real) em QA.
-  # @skip (2026-09-09): mesma causa do Cenário 1 — códigos EOL esgotados em
-  # QA. Ver comentário completo lá.
+  # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base com a opção "Testar laudo?" habilitada
     Quando clica no botão "Cadastrar novo cargo"
@@ -197,9 +170,7 @@ Funcionalidade: Cadastro de cargo base
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 7 — Cadastrar cargo base com "Pesquisar Licenças no SIGPEC" [BLOQUEADO]
   # ══════════════════════════════════════════════════════════════
-  # Nota: mesma observação do Cenário 1 — cadastra de fato (POST real) em QA.
-  # @skip (2026-09-09): mesma causa do Cenário 1 — códigos EOL esgotados em
-  # QA. Ver comentário completo lá.
+  # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base com a opção "Pesquisar Licenças no SIGPEC" habilitada
     Quando clica no botão "Cadastrar novo cargo"

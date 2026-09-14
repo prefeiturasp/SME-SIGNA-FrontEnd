@@ -7,14 +7,6 @@ Funcionalidade: Gestão de cargos base
   Eu quero pesquisar e filtrar os cargos base cadastrados
   Para localizar rapidamente um cargo específico na lista
 
-  # @testIsolation(false): desativa o reset automático do navegador entre
-  # os cenários desta Funcionalidade — login roda uma única vez (1º
-  # cenário) e os demais reaproveitam a mesma sessão. Usa um step de login
-  # PRÓPRIO ("está logado", gestao_cargos_base_steps.js), não o de
-  # atos_administrativos_steps.js: aquele tem recuperação hardcoded pra
-  # tela de Atos Administrativos (foi a causa da falha na 1ª tentativa de
-  # reaproveitar sessão aqui). "está na tela" já roda de novo em todo
-  # cenário e limpa qualquer filtro deixado pelo cenário anterior.
   Contexto:
     Dado que o usuário está logado no sistema
     E está na tela "Gestão de cargos base"

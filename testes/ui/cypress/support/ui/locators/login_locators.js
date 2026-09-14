@@ -3,16 +3,8 @@
 
 export const loginLocators = {
   // Campos de entrada
-  // "#seu_rf"/"#senha" confirmados via inspeção real do DOM da tela de login
-  // (name="seu_rf"/"senha", sem data-testid). Os fallbacks antigos
-  // "input[placeholder*='RF']"/"input[placeholder*='CPF']" foram REMOVIDOS:
-  // são específicos demais pra parecerem seguros mas casam com QUALQUER
-  // input da aplicação cujo placeholder contenha essas letras — confirmado
-  // em execução real que o filtro "Registro Funcional (RF)" da listagem de
-  // Atos Administrativos (placeholder "Entre com o RF") também casava,
-  // quebrando qualquer asserção "não deve existir campo de RF/CPF" feita
-  // fora da tela de login (ex.: signa_extra.feature, cenário de sessão
-  // autenticada acessando "/").
+  // Fallbacks por placeholder ("RF"/"CPF") foram REMOVIDOS: casavam também
+  // com o filtro de RF da listagem de Atos Administrativos.
   campoRfCpf: '#seu_rf, [data-testid="input-rf-cpf"], input[name="seu_rf"]',
   campoSenha: '#senha, [data-testid="input-senha"], input[name="senha"], input[type="password"]',
   
@@ -22,11 +14,8 @@ export const loginLocators = {
   botaoOcultarSenha: '[data-testid="btn-ocultar-senha"], .toggle-password, .hide-password',
   
   // Links
-  // A tela real renderiza "Esqueci minha senha" como <button type="button"
-  // variant="link"> (shadcn/Button), não como uma tag <a> — confirmado no
-  // componente LoginForm (src/components/login/LoginForm/index.tsx) e no
-  // HTML servido pelo ambiente de QA. Os seletores de <a> ficam como
-  // fallback caso a implementação volte a usar um link real no futuro.
+  // "Esqueci minha senha" é um <button>, não <a> — seletores de <a> ficam
+  // como fallback.
   linkEsqueciSenha: '[data-testid="link-esqueci-senha"], button:contains("Esqueci"), a:contains("Esqueci"), a[href*="recuperar"]',
   
   // Elementos visuais
@@ -39,14 +28,8 @@ export const loginLocators = {
   mensagemCampoObrigatorio: '.campo-obrigatorio, .error-text, .invalid-feedback',
   
   // Menu após login
-  // Não existe <nav>, data-testid="menu-principal" nem ".menu-principal" na
-  // aplicação real — o layout autenticado (src/app/pages/layout.tsx) sempre
-  // renderiza <main> (conteúdo) e o <aside> do menu lateral (Sider), então
-  // esses dois elementos servem como indicador confiável de "autenticado".
   menuPrincipal: '[data-testid="menu-principal"], .menu-principal, main, aside',
-  // Não existe menu/dropdown de usuário na Navbar (src/components/dashboard/
-  // Navbar/Navbar.tsx) — o botão "Sair" (SignOutButton.tsx) fica sempre
-  // visível diretamente no header, sem precisar abrir nada antes.
+  // Botão "Sair" fica sempre visível no header, sem menu/dropdown pra abrir.
   opcaoSair: '[data-testid="opcao-sair"], button:contains("Sair"), a:contains("Sair"), .logout',
   
   // Container

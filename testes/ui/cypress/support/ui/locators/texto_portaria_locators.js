@@ -1,21 +1,6 @@
 // =====================================================
 // LOCATORS — TEXTOS DE PORTARIA (Listagem / Modal / Cadastro)
 // =====================================================
-// Telas cobertas:
-//   - /pages/gestao/textos-de-portaria       (listagem — textoPortariaPack.listagem)
-//   - modal "Novo texto de portaria"         (textoPortariaPack.modalNovoTexto)
-//   - /pages/gestao/criar-textos-de-portaria (cadastro — textoPortariaPack.cadastro)
-//   - modal "Revise as variáveis do texto"   (textoPortariaPack.modalRevisarVariaveis)
-//
-// Tela não existe neste checkout local (fora de src/ — mesma situação já
-// documentada em gestao_cargo_cadastro_locators.js pra "Testar laudo?"):
-// todos os seletores abaixo vêm de inspeção real do DOM em QA (2026-09-11,
-// via playwright-extension), não de leitura de componente React.
-//
-// Mesmo padrão de campoPorLabel/comboboxPorLabel de
-// gestao_cargo_cadastro_locators.js: label e campo são irmãos dentro do
-// mesmo <div class="space-y-2"> (shadcn Form), então basta subir pro pai do
-// label e procurar o elemento de input/combobox ali dentro.
 
 const campoPorLabel = (label) =>
   cy.contains('label', label, { timeout: 15000 })
@@ -27,9 +12,6 @@ const comboboxPorLabel = (label) =>
     .parent()
     .find('button[role="combobox"]')
 
-// "Variavel*" usa um botão próprio com aria-haspopup="listbox" (não
-// button[role="combobox"] como os outros 3 campos de seleção da tela) —
-// por isso não reaproveita comboboxPorLabel.
 const botaoVariavelPorLabel = (label) =>
   cy.contains('label', label, { timeout: 15000 })
     .parent()
@@ -45,10 +27,6 @@ export const textoPortariaPack = {
   },
 
   modalNovoTexto: {
-    // Radix Dialog não renderiza "Novo texto de portaria" e "Revise as
-    // variáveis do texto" ao mesmo tempo — escopar pelo texto do heading
-    // (em vez de pegar o primeiro [role="dialog"] do DOM) evita ambiguidade
-    // caso mais de um dialog exista montado e oculto.
     dialog: () =>
       cy.contains('[role="dialog"]', 'Novo texto de portaria', { timeout: 15000 }),
   },
@@ -74,13 +52,8 @@ export const textoPortariaPack = {
           .contains('[role="option"]', new RegExp(`^${nome}$`, 'i')),
     },
 
-    // Editor rich-text (Tiptap/ProseMirror) — não é um <textarea>, por isso
-    // não entra em campoPorLabel. Selecionar uma "Variavel" insere o
-    // placeholder [[NOME]] correspondente aqui automaticamente; texto
-    // digitado à mão deve ser adicionado DEPOIS de selecionar as variáveis
-    // (cy.type acrescenta no cursor — não usar .clear() nem set direto do
-    // value, que substituem o conteúdo inteiro e apagam os placeholders já
-    // inseridos, confirmado em inspeção manual).
+    // Editor rich-text (Tiptap/ProseMirror) — não é <textarea>, não entra em
+    // campoPorLabel. Nunca usar .clear(): apaga os placeholders [[NOME]].
     editor: () =>
       cy.get('.simple-editor-wrapper [contenteditable="true"]', { timeout: 15000 }),
 
@@ -99,9 +72,6 @@ export const textoPortariaUrls = {
   cadastro: 'gestao/criar-textos-de-portaria',
 }
 
-// Os 8 tipos de portaria do combobox "Tipo de portaria" da tela de
-// cadastro, na ordem em que aparecem no DOM (confirmado em QA) — um modelo
-// de texto por tipo é a única forma de cobrir o combobox inteiro.
 export const TIPOS_DE_PORTARIA = [
   'Designação',
   'Cessação',
@@ -114,16 +84,8 @@ export const TIPOS_DE_PORTARIA = [
 ]
 
 // A coluna "Tipo de portaria" da LISTAGEM usa um rótulo diferente do
-// combobox da tela de CADASTRO pra 3 dos 8 tipos — confirmado em execução
-// real em QA (2026-09-11, print da listagem após cadastrar os 8 modelos):
-// um modelo cadastrado com "Tornar sem efeito" no combobox aparece na
-// listagem como "Insubsistência de Insubsistência"; um cadastrado com
-// "Anulação de Apostila" aparece como "Insubsistência de Apostila"; um
-// cadastrado com "Cessação" aparece como "Cessação de Designação". Os
-// outros 5 tipos usam o mesmo texto nas duas telas. Provável inconsistência
-// de nomenclatura no próprio sistema (mesmo valor de backend, rótulo de
-// exibição diferente por tela) — vale reportar pro time de desenvolvimento,
-// não é só um detalhe de teste.
+// combobox de CADASTRO pra 3 dos 8 tipos (provável inconsistência de
+// nomenclatura no próprio sistema, vale reportar ao time de dev).
 export const TIPO_PORTARIA_NA_LISTAGEM = {
   'Designação': 'Designação',
   'Cessação': 'Cessação de Designação',

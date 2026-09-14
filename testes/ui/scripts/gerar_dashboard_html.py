@@ -1,35 +1,14 @@
 """
-Gera um dashboard HTML (autocontido, sem dependencias externas) a partir dos
-relatorios brutos que o cypress-mochawesome-reporter grava por spec em
-cypress/reports/mochawesome/.jsons/*.json.
+Gera um dashboard HTML (autocontido) a partir dos relatorios brutos que o
+cypress-mochawesome-reporter grava por spec em
+cypress/reports/mochawesome/.jsons/*.json (le os .json crus diretamente em
+vez de depender do merge automatico do reporter, que fica orfao se a suite
+for interrompida ou rodada spec a spec via "cypress open").
 
-Nao depende do merge automatico do reporter (mochawesome-merge / after:run):
-aquele passo so roda uma vez, no final de um "cypress run" completo, e fica
-orfao se a suite for interrompida ou rodada spec a spec via "cypress open" -
-exatamente o cenario observado neste projeto. Este script le os .json crus
-diretamente, que ja sao gravados de forma confiavel a cada spec (after:spec),
-e agrega o resultado por conta propria.
-
-Cobre UI e API (cypress/e2e/ui e cypress/e2e/api rodam pela mesma config e
-gravam no mesmo diretorio de relatorio). Quando uma feature foi executada
-mais de uma vez (reprocessamento manual, iteracao de debug), mantem apenas a
-execucao mais recente por spec.
-
-O dashboard tambem compara com a execucao anterior: antes de sobrescrever o
-arquivo, le um resumo compacto (json) embutido no dashboard.html antigo
-(tag <script id="dashboard-snapshot">), calcula a diferenca e mostra um
-indicador (resumo geral + por feature). Depois grava o resumo da execucao
-atual no arquivo novo, pra servir de base da proxima comparacao. So compara
-com a ultima execucao — nao ha grafico de tendencia com varias execucoes.
-
-O dashboard tambem mostra o PR do GitHub associado a branch atual (numero,
-titulo, status de revisao), via chamada direta a API REST publica do GitHub
-(sem token, sem "gh" CLI — so funciona porque o repositorio e publico).
-Totalmente opcional: sem internet, sem PR pra branch atual, ou se o repo
-virar privado, essa secao e omitida e o resto do dashboard e gerado
-normalmente. So reflete o PR da execucao atual — nao ha historico de PRs
-anteriores (o script sempre mantem so a ultima execucao de cada spec, ver
-acima).
+Cobre UI e API. Compara com a execucao anterior (resumo json embutido no
+dashboard.html antigo) e mostra o PR do GitHub associado a branch atual via
+API REST publica (sem token) — ambos opcionais, sem quebrar a geracao se
+falharem.
 
 Uso:
     python scripts/gerar_dashboard_html.py
@@ -64,10 +43,8 @@ CONFIG_PADRAO = {
 
 
 def carregar_config() -> dict:
-    """Config por projeto (titulo/branding), versionada no repositorio junto
-    do script para que outro projeto so precise trocar este JSON — sem editar
-    codigo — ao reaproveitar o gerador. Ausente ou invalido cai no padrao
-    generico, entao o script funciona mesmo em projeto sem esse arquivo."""
+    """Config por projeto (titulo/branding). Ausente ou invalido cai no padrao
+    generico."""
     if not CONFIG_PATH.is_file():
         return dict(CONFIG_PADRAO)
     try:
@@ -147,10 +124,8 @@ class Feature:
 
 
 def _normalizar_busca(texto: str) -> str:
-    """Minusculo e sem acentuacao — mesma normalizacao de normalizarBusca()
-    em JS, usada como valor do atributo data-busca-nome pra o campo de busca
-    do dashboard casar "designacao" com "Designação" e vice-versa (usuario
-    nao deveria precisar acertar o acento pra encontrar a feature)."""
+    """Minusculo e sem acentuacao — mesma normalizacao de normalizarBusca() em
+    JS, pra busca casar "designacao" com "Designação"."""
     sem_acento = unicodedata.normalize("NFD", texto)
     sem_acento = "".join(c for c in sem_acento if unicodedata.category(c) != "Mn")
     return sem_acento.lower()
@@ -233,12 +208,8 @@ def carregar_features() -> list[Feature]:
 # ---------------------------------------------------------------------------
 # Cenarios pendentes (@skip) — lidos direto dos .feature, nao do relatorio
 # ---------------------------------------------------------------------------
-# cypress.config.js roda com "tags: not @skip" (ver env.tags) — o
-# cypress-cucumber-preprocessor filtra esses cenarios ANTES da execucao, o
-# Cucumber nunca gera um it() pra eles, e o mochawesome nunca grava resultado
-# nenhum (nem "pending" do Mocha): eles simplesmente somem do relatorio, como
-# se nao existissem. Pra mostrar "cenarios pendentes" no dashboard, a unica
-# fonte de verdade e ler a tag @skip direto do .feature.
+# cypress-cucumber-preprocessor filtra @skip ANTES da execucao — o mochawesome
+# nunca grava resultado pra eles. Unica fonte de verdade: ler a tag no .feature.
 
 EXCLUDE_SPECS_EXATOS = {"ui/consulta_rf.feature"}
 
@@ -255,12 +226,8 @@ def _spec_relativo_do_path(path: Path) -> str:
 
 
 def _specs_ativos() -> list[Path]:
-    """Espelha specPattern/excludeSpecPattern do cypress.config.js (uso
-    local, fora do CI — ver rodape do dashboard) — so os .feature que
-    realmente entrariam numa execucao real da suite. Sem isso, cenarios de
-    arquivos em nao_executar/ (que nem tentariam rodar de qualquer jeito)
-    contariam como "pendentes" igual aos que so estao bloqueados por @skip.
-    """
+    """Espelha specPattern/excludeSpecPattern do cypress.config.js — so os
+    .feature que realmente entrariam numa execucao real da suite."""
     ativos = []
     for path in sorted(BASE_DIR.glob("cypress/e2e/**/*.feature")):
         rel = _spec_relativo_do_path(path)
@@ -316,12 +283,8 @@ def carregar_pendentes() -> list[CenarioPendente]:
 
 def _git_saida(*args: str) -> str | None:
     try:
-        # encoding="utf-8" explicito: no Windows o default do subprocess em
-        # modo texto e o codepage do locale (ex.: cp1252), que quebra ao
-        # decodificar saida do git com acentuacao (UTF-8) — ver mesmo motivo
-        # em _historico_execucoes. errors="replace" evita crash mesmo se
-        # algum byte realmente invalido aparecer (essa integracao e opcional,
-        # nunca deve derrubar a geracao do dashboard).
+        # encoding="utf-8" explicito: no Windows o default do subprocess e o
+        # codepage do locale, que quebra ao decodificar acentuacao do git.
         resultado = subprocess.run(
             ["git", *args], cwd=BASE_DIR, capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=5,
@@ -343,10 +306,8 @@ def _owner_repo_github() -> str | None:
 
 
 def _api_github(caminho: str) -> list | dict | None:
-    """GET na API REST publica do GitHub (sem autenticacao — so funciona pra
-    repositorio publico; ver comentario em obter_info_pr). Falha silenciosa
-    em qualquer erro de rede/HTTP: essa integracao e so um extra opcional.
-    """
+    """GET na API REST publica do GitHub (sem autenticacao). Falha silenciosa
+    em qualquer erro de rede/HTTP — integracao opcional."""
     req = urllib.request.Request(
         f"https://api.github.com{caminho}",
         headers={
@@ -362,10 +323,8 @@ def _api_github(caminho: str) -> list | dict | None:
 
 
 def _decisao_revisao(reviews: list[dict]) -> str | None:
-    """Ultimo estado de revisao por pessoa (ignora COMMENTED); se alguem
-    pediu mudancas e nao houve revisao mais nova aprovando por cima, isso
-    prevalece — mesma logica que o GitHub usa pra "reviewDecision".
-    """
+    """Ultimo estado de revisao por pessoa (ignora COMMENTED) — mesma logica
+    que o GitHub usa pra "reviewDecision"."""
     ultimo_por_autor: dict[str, str] = {}
     for review in reviews:
         estado = review.get("state")
@@ -383,27 +342,16 @@ def _decisao_revisao(reviews: list[dict]) -> str | None:
 
 
 def obter_info_pr(owner_repo: str | None, branch: str | None) -> dict | None:
-    """PR do GitHub associado a "branch" no repositorio "owner_repo", via API
-    REST publica (sem autenticacao — funciona porque o repositorio e
-    publico; ver api.github.com/repos/{owner}/{repo}). Se o repositorio
-    virar privado no futuro, essas chamadas passam a exigir token e
-    simplesmente retornam None (dashboard gerado normalmente, sem essa
-    secao).
+    """PR do GitHub associado a "branch", via API REST publica sem
+    autenticacao — so funciona pra repositorio publico. Qualquer falha
+    retorna None sem quebrar a geracao do dashboard.
 
-    Opcional por natureza: qualquer falha (sem internet, remote nao e
-    github.com, branch sem PR, API fora do ar) retorna None sem quebrar a
-    geracao do dashboard — mesmo espirito do fallback em coletar_evidencias.
+    NAO adicionar suporte a token aqui (nem em _api_github): o dashboard.html
+    gerado fica versionado no repositorio e um token embutido ficaria exposto
+    em texto puro pra qualquer um com acesso ao arquivo.
 
-    NAO adicionar suporte a token de autenticacao aqui (nem em _api_github):
-    o dashboard.html gerado e estatico e fica versionado no repositorio, e a
-    logica de "Atualizar PR" roda esse mesmo request de novo no navegador
-    (ver JS_PR/atualizarPR) — qualquer token embutido no HTML ficaria exposto
-    em texto puro pra qualquer um com acesso ao arquivo. Por isso essa
-    integracao so funciona pra repositorio publico.
-
-    Mesma logica replicada em JS (funcao atualizarPR() em JS_PR) pro botao
-    "Atualizar PR" do dashboard, que consulta a API ao vivo no navegador —
-    mantenha as duas em sincronia se mudar uma.
+    Mesma logica replicada em JS (atualizarPR() em JS) pro botao "Atualizar
+    PR" — mantenha as duas em sincronia se mudar uma.
     """
     if not owner_repo or not branch:
         return None
@@ -430,14 +378,8 @@ def obter_info_pr(owner_repo: str | None, branch: str | None) -> dict | None:
 
 
 def coletar_evidencias(feature: Feature, limite: int = 6) -> list[str]:
-    """Nomes dos screenshots de falha do spec (sem embutir o conteudo da
-    imagem no HTML — dashboard.html e versionado no git e cypress/screenshots
-    e local/gitignored, entao so da pra referenciar o nome do arquivo aqui).
-
-    Cypress limpa cypress/screenshots a cada novo "cypress run"
-    (trashAssetsBeforeRuns), entao so existem evidencias da execucao mais
-    recente de cada spec - o que e o comportamento desejado aqui.
-    """
+    """Nomes dos screenshots de falha do spec — sem embutir a imagem no HTML,
+    ja que cypress/screenshots e local/gitignored."""
     pasta = SCREENSHOTS_DIR / feature.spec_relativo
     if not pasta.is_dir():
         return []
@@ -564,10 +506,8 @@ def _feature_card(feature: Feature, indice: int, anterior_features: dict) -> str
 
 def _ler_snapshot_anterior() -> dict | None:
     """Resumo (json) da execucao anterior, embutido no dashboard.html que
-    esta prestes a ser sobrescrito. None se e a primeira geracao, ou se o
-    arquivo antigo nao tem o snapshot (versao anterior do script) ou esta
-    corrompido — nesses casos so nao mostra comparacao, sem quebrar nada.
-    """
+    esta prestes a ser sobrescrito. None se nao houver (primeira geracao,
+    versao antiga do script, ou arquivo corrompido)."""
     if not OUTPUT_PATH.is_file():
         return None
     conteudo = OUTPUT_PATH.read_text(encoding="utf-8")
@@ -585,12 +525,9 @@ def _ler_snapshot_anterior() -> dict | None:
 
 
 def _hash_fonte_dados() -> str:
-    """Hash barato (nome + horario de modificacao, sem ler o conteudo) dos
-    relatorios brutos do Cypress. Usado so pra saber se uma nova geracao do
-    dashboard corresponde a uma execucao de teste de verdade, ou se e so o
-    script rodando de novo em cima dos mesmos relatorios de sempre — nesse
-    segundo caso nao deveria "consumir" a comparacao com a execucao anterior
-    (ver "baseline" em _montar_snapshot e o comentario em montar_html)."""
+    """Hash barato (nome + mtime, sem ler conteudo) dos relatorios brutos —
+    usado pra distinguir execucao de teste nova de apenas regerar o
+    dashboard em cima dos mesmos relatorios (ver "baseline" em montar_html)."""
     if not JSONS_DIR.is_dir():
         return ""
     entradas = sorted(
@@ -600,9 +537,8 @@ def _hash_fonte_dados() -> str:
 
 
 def _resumo_comparavel(snapshot: dict) -> dict:
-    """So os campos que _delta_resumo_html/_delta_feature_html realmente
-    usam — extraido pra guardar como "baseline" sem aninhar o snapshot
-    inteiro (com fonte_hash/baseline) dentro dele mesmo a cada geracao."""
+    """So os campos que _delta_resumo_html/_delta_feature_html usam — evita
+    aninhar o snapshot inteiro dentro dele mesmo a cada geracao."""
     return {
         "gerado_em": snapshot.get("gerado_em"),
         "total_cenarios": snapshot.get("total_cenarios"),
@@ -645,11 +581,8 @@ def _montar_snapshot(
 
 
 def _delta_resumo_html(atual: dict, anterior: dict | None) -> str:
-    """Badge compacto de comparacao com a execucao anterior — so seta + pp
-    de variacao, no mesmo estilo pill dos botoes de filtro (fica ao lado
-    deles, nao mais numa frase junto do "Gerado em..."). O detalhe completo
-    (de onde pra onde, cenarios) vai so no title (tooltip ao passar o mouse),
-    pra manter o texto visivel minimo."""
+    """Badge compacto de comparacao com a execucao anterior — seta + pp de
+    variacao; detalhe completo so no title (tooltip)."""
     if not anterior:
         return ""
 
@@ -676,9 +609,8 @@ def _delta_resumo_html(atual: dict, anterior: dict | None) -> str:
 
 
 def _delta_feature_html(feature: Feature, anterior_features: dict) -> str:
-    """Indicador discreto (▲/▼, verde/vermelho) ao lado do % de cada card,
-    comparando com a mesma feature na execucao anterior. Sem indicador se
-    nao havia dado anterior (feature nova) ou a diferenca e insignificante."""
+    """Indicador discreto (▲/▼) ao lado do % de cada card vs. execucao
+    anterior. Vazio se nao havia dado anterior ou diferenca e insignificante."""
     anterior = anterior_features.get(feature.spec_relativo)
     if not anterior:
         return ""
@@ -690,9 +622,8 @@ def _delta_feature_html(feature: Feature, anterior_features: dict) -> str:
 
 
 def _opcoes_feature_html(features: list[Feature]) -> str:
-    """Options do select de filtro por feature especifica, na mesma ordem
-    ja usada pros cards (sistema, nome). O value e o spec_relativo (chave
-    unica de cada feature), pra casar com o data-feature gravado no card."""
+    """Options do select de filtro por feature — value e o spec_relativo,
+    pra casar com o data-feature gravado no card."""
     opcoes = [
         f'<option value="{html.escape(f.spec_relativo)}">{html.escape(f.sistema)} — {html.escape(f.nome)}</option>'
         for f in features
@@ -701,11 +632,9 @@ def _opcoes_feature_html(features: list[Feature]) -> str:
 
 
 def _pr_conteudo_html(info: dict | None) -> str:
-    """Conteudo interno do badge de PR — link com os dados, ou um aviso
-    quando nao ha PR pra branch atual. Sempre retorna algo renderizavel
-    (nunca string vazia), porque o botao "Atualizar PR" (JS) substitui esse
-    mesmo elemento em tempo real — precisa de um estado inicial pra trocar.
-    """
+    """Conteudo interno do badge de PR. Sempre retorna algo renderizavel
+    (nunca string vazia): o botao "Atualizar PR" (JS) substitui esse mesmo
+    elemento em tempo real e precisa de um estado inicial pra trocar."""
     if not info:
         return '<span class="pr-vazio">Nenhum PR encontrado para esta branch</span>'
     numero = info.get("number")
@@ -972,8 +901,7 @@ def montar_html(features: list[Feature]) -> str:
     ui = [f for f in features if f.sistema == "UI"]
     api = [f for f in features if f.sistema == "API"]
 
-    # Cenarios @skip — NAO vem do relatorio de execucao (ver carregar_pendentes),
-    # por isso ficam fora de total_cenarios/pct_geral: misturar os dois
+    # Cenarios @skip ficam fora de total_cenarios/pct_geral: misturar os dois
     # inflaria o denominador do "% de sucesso" com cenarios que nem rodaram.
     pendentes_skip = carregar_pendentes()
     total_pendentes_skip = len(pendentes_skip)
@@ -986,12 +914,8 @@ def montar_html(features: list[Feature]) -> str:
     anterior = _ler_snapshot_anterior()
     hash_atual = _hash_fonte_dados()
 
-    # So avanca a base de comparacao quando os relatorios brutos do Cypress
-    # mudaram de verdade desde a ultima geracao. Regenerar o dashboard.html
-    # sem ter rodado teste novo no meio (ex.: eu conferindo o resultado)
-    # reutiliza a MESMA baseline de antes, em vez de comparar "atual" com
-    # "atual" (que sempre dá "sem mudanca") e assim "consumir" silenciosamente
-    # uma comparacao real que ainda nao foi vista/commitada.
+    # So avanca a base de comparacao quando os relatorios mudaram de verdade —
+    # regenerar sem rodar teste novo reutiliza a MESMA baseline de antes.
     if anterior and anterior.get("fonte_hash") == hash_atual:
         baseline = anterior.get("baseline")
     elif anterior:

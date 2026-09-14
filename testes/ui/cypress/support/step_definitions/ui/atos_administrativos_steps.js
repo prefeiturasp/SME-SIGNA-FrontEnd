@@ -1,36 +1,6 @@
-// Step Definitions — Pesquisa de Atos Administrativos
-// Steps comuns reutilizados:
-//   • "valida a existencia do titulo {string}"     → alterar_senha_steps.js
-//
-// Observação: "o sistema exibe a tabela sem resultados" NÃO é reutilizado
-// aqui — aquele step (definido em altera_DO_steps.js) usa o locator de
-// Empty do Ant Design (.ant-empty/.ant-table-empty), que não existe nesta
-// tela. Esta feature usa seu próprio step com texto diferente, checando o
-// markup real desta tela ("Não há dados" como texto dentro do tbody).
-//
-// Login: esta feature tem seu próprio step de autenticação — "que o
-// usuário já está autenticado no sistema" — em vez de reutilizar o step
-// compartilhado de common_steps.js. Cada um dos Cenários desta feature
-// roda o Contexto (Background) antes de si, e o login via UI completo
-// (visitar /login, digitar RF/CPF e senha, clicar em Acessar) é lento;
-// como nenhum cenário aqui depende de uma sessão "fresca", o login real só
-// precisa acontecer uma vez por execução da suíte. Mudança isolada nesta
-// feature — common_steps.js e as demais features continuam fazendo login
-// via UI a cada cenário.
-//
-// Abordagem: cy.session (restaurar cookies/localStorage após um hard
-// reload) foi tentada e descartada — confirmado em execução real que esta
-// aplicação não recompõe o estado autenticado da SPA a partir de um reload
-// frio, mesmo com os cookies corretos presentes (login some, ou o app fica
-// preso na raiz sem nunca navegar para a tela de destino). Em vez de lutar
-// contra esse comportamento, a Funcionalidade (no .feature) carrega a tag
-// @testIsolation(false), suportada nativamente pelo cypress-cucumber-
-// preprocessor como suite-level override — o Cypress só aceita mudar essa
-// config dessa forma, não em runtime/hook. Com isso o navegador nunca é
-// resetado entre os cenários desta feature: a sessão da SPA permanece viva
-// na memória, exatamente como um usuário real navegando sem dar F5. O
-// login via UI roda uma única vez (1º cenário); os demais reaproveitam a
-// mesma aba/página já autenticada.
+// cy.session foi descartado: a app não recompõe o estado autenticado da SPA
+// a partir de reload frio. Feature usa @testIsolation(false) — login via UI
+// roda uma única vez (1º cenário), os demais reaproveitam a sessão viva.
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import {
@@ -43,25 +13,15 @@ let loginJaRealizado = false
 
 Given('que o usuário já está autenticado no sistema', () => {
   if (loginJaRealizado) {
-    // Já autenticado e na tela correta — o navegador não foi resetado
-    // desde o cenário anterior (testIsolation:false acima). Se o cenário
-    // anterior falhou com um modal Radix (Dialog/Select) ainda aberto, o
-    // Cypress pula direto pro próximo teste sem rodar o fechamento — o
-    // Radix deixa <body data-scroll-locked="1" style="pointer-events:none">
-    // preso, o que bloqueia até o clique em "Limpar filtros" (elemento
-    // coberto por um body com pointer-events:none) e quebra em cascata
-    // todos os cenários seguintes. Fecha qualquer dialog/dropdown residual
-    // com Esc antes de seguir.
+    // Fecha dialog/dropdown residual de um cenário anterior que tenha
+    // falhado com modal Radix aberto (bloquearia cliques em cascata).
     cy.get('body').then(($body) => {
       if ($body.find('[role="dialog"], [role="listbox"]').length > 0) {
         cy.get('body').type('{esc}')
         cy.wait(300)
       }
 
-      // Se o cenário anterior falhou fora da tela de Atos Administrativos
-      // (ex.: preso em designacoes-passo-1), "Limpar filtros" nunca vai
-      // aparecer aqui — sem esse fallback, todos os cenários seguintes
-      // falhariam em cascata por causa de um único cenário quebrado.
+      // Cenário anterior pode ter falhado fora desta tela.
       if ($body.find('button:contains("Limpar filtros")').length === 0) {
         cy.visit(`/pages/${atosAdministrativosUrls.pagina}`)
         cy.wait(500)
@@ -80,28 +40,20 @@ Given('que o usuário já está autenticado no sistema', () => {
     )
   }
 
-  // .then() em vez de atribuir logo após a chamada: comandos Cypress são
-  // enfileirados (assíncronos) — a linha seguinte a cy.realizarLogin(...)
-  // rodaria antes do login realmente terminar, marcando a flag como "já
-  // logado" mesmo se o login falhar (ex.: página fora do ar), fazendo os
-  // cenários seguintes pularem o login direto para uma tela inexistente.
+  // .then() em vez de atribuir logo após: comandos Cypress são enfileirados,
+  // marcar a flag fora do .then() marcaria "já logado" mesmo se falhar.
   cy.realizarLogin(username, password).then(() => {
     loginJaRealizado = true
   })
 })
 
-// Estado do último filtro aplicado e da última requisição de pesquisa,
-// usados em "a tabela apresenta resultado para" para provar que o valor
-// buscado foi realmente enviado ao backend — e não só que o texto aparece
-// na tabela por coincidência (ex.: "Publicado" sendo o status mais comum
-// mesmo com o filtro não tendo funcionado).
+// Usados em "a tabela apresenta resultado para" para provar que o valor
+// buscado foi enviado ao backend, não só que aparece na tabela por coincidência.
 let ultimoFiltroAplicado = null
 let corpoUltimaRequisicaoPesquisa = null
 
-// Filtros de texto livre: o valor digitado tende a ir literal no corpo da
-// requisição. "Tipo"/"Status" são dropdowns que costumam mandar um
-// código/id para o backend em vez do texto exibido na tela, então não dá
-// pra fazer essa checagem neles sem risco de falso negativo.
+// "Tipo"/"Status" são dropdowns que mandam código/id, não o texto exibido —
+// não dá pra checar o corpo da requisição neles sem risco de falso negativo.
 const FILTROS_TEXTO_LIVRE = [
   'Nº SEI',
   'Portaria de designação',
@@ -110,12 +62,6 @@ const FILTROS_TEXTO_LIVRE = [
 ]
 
 // ─── Contexto — Confirmação de tela ────────────────────────────────────────
-// "Atos administrativos" é a rota padrão pós-login (o app redireciona para
-// /pages/atos-administrativos automaticamente ao acessar "/"). Não há
-// navegação via sidebar aqui — apenas confirmamos que a tela carregou.
-// O redirect é assíncrono, então a checagem de URL usa .should() (com
-// retry) em vez de .then() — um .then() captura a URL uma única vez e
-// pode rodar antes do redirect terminar, quebrando o teste à toa.
 Given('está na página {string}', () => {
   cy.url({ timeout: 20000 }).should('include', atosAdministrativosUrls.pagina)
   atosAdministrativosPack.titulo().should('be.visible')
@@ -197,12 +143,8 @@ When('preencho o filtro {string} com {string}', (filtro, valor) => {
 })
 
 When('clico no botão {string}', (botao) => {
-  // "Pesquisar" dispara um POST assíncrono para a própria rota — um wait
-  // fixo não garante que a resposta já chegou antes das validações
-  // seguintes, causando checagens em cima de um estado transitório da
-  // tabela (mistura de linha antiga + "Não há dados" + resultado final).
-  // Intercepta e aguarda essa resposta específica, mesmo padrão já usado
-  // em designacao_steps.js para os POSTs de listagem/pesquisa.
+  // "Pesquisar" dispara um POST assíncrono — intercepta e aguarda a
+  // resposta em vez de um wait fixo (evita checar estado transitório).
   if (botao === 'Pesquisar') {
     cy.intercept('POST', '**/pages/atos-administrativos**').as('pesquisarAtos')
   }
@@ -228,22 +170,9 @@ Then('o sistema exibe registros compatíveis com o filtro {string}', (filtro) =>
   cy.log(`✓ Resultados exibidos para o filtro "${filtro}"`)
 })
 
-// Validação forte: garante que TODAS as linhas visíveis contêm o valor
-// pesquisado, não apenas que a tabela existe — evita falso positivo de um
-// filtro que "parece" funcionar mas devolve resultados não relacionados.
-//
-// Usa .should(callback) em vez de .each() com elementos presos: a tabela
-// re-renderiza de forma assíncrona (primeiro com dado antigo/parcial,
-// depois com o resultado filtrado final), e um .each() guarda referência
-// fixa aos elementos — se o React trocar o DOM no meio da checagem, o
-// elemento "morre" e o Cypress lança "subject is no longer attached to
-// the DOM". O callback do .should() reconsulta o DOM do zero a cada
-// tentativa, então ele naturalmente re-tenta até a tabela estabilizar
-// com o resultado correto, dentro do timeout.
+// .should(callback) em vez de .each(): a tabela re-renderiza de forma
+// assíncrona e .each() guarda referência fixa que pode "morrer" no meio.
 Then('a tabela apresenta resultado para {string}', (valor) => {
-  // Prova de que o filtro realmente foi aplicado no backend (não só que o
-  // texto aparece na tabela por coincidência) — ver comentário na
-  // declaração de FILTROS_TEXTO_LIVRE.
   if (ultimoFiltroAplicado && FILTROS_TEXTO_LIVRE.includes(ultimoFiltroAplicado.filtro)) {
     cy.wrap(null).should(() => {
       expect(JSON.stringify(corpoUltimaRequisicaoPesquisa)).to.contain(valor)
@@ -259,9 +188,6 @@ Then('a tabela apresenta resultado para {string}', (valor) => {
 })
 
 // ─── Período ────────────────────────────────────────────────────────────────
-// Digitação direta nos inputs do RangePicker em vez de clicar em células do
-// calendário: evita lidar com navegação entre meses/anos quando início e
-// fim estão em painéis diferentes (ex.: janeiro e dezembro do mesmo ano).
 When('seleciono o período de {string} até {string}', (dataInicio, dataFim) => {
   atosAdministrativosPack.filtros.periodo().should('be.visible').click()
   atosAdministrativosPack.filtros.periodoInputs().eq(0).clear().type(`${dataInicio}{enter}`)
@@ -292,12 +218,6 @@ Then('os campos de filtro são limpos', () => {
 })
 
 // ─── Menu "Novo ato +" ──────────────────────────────────────────────────────
-// Não define "clica no botão {string}" aqui: esse step já existe, registrado
-// globalmente em alterar_senha_steps.js (linha 121), e o Cucumber trava com
-// "Multiple matching step definitions" se dois arquivos declararem o mesmo
-// texto. O fallback genérico de lá (`cy.contains('button, a', btnText,
-// {matchCase:false}).click({force:true})`) já cobre "Novo ato +" sem
-// necessidade de um step dedicado.
 Then('o sistema exibe as opções:', (dataTable) => {
   const opcoes = dataTable.raw().flat()
   opcoes.forEach((opcao) => {
@@ -305,10 +225,6 @@ Then('o sistema exibe as opções:', (dataTable) => {
   })
 })
 
-// Nome específico ("... no menu de novo ato") em vez de "seleciona a opção
-// {string}" genérico: esse texto já existe em insubsistente_steps.js, ligado
-// a radio buttons Ant Design (.ant-radio-wrapper) — incompatível com o menu
-// de ações do "Novo ato +" e causaria "Multiple matching step definitions".
 When('seleciona a opção {string} no menu de novo ato', (opcao) => {
   atosAdministrativosPack.novoAto.opcao(opcao).should('be.visible').click()
 })
@@ -332,13 +248,6 @@ Then('o sistema direciona para a tela {string}', (tela) => {
 })
 
 // ─── Retorno ao Atos Administrativos via menu lateral ──────────────────────
-// Após salvar uma designação o app redireciona para listagem-designacoes.
-// Para voltar a "Atos Administrativos" sem logar de novo (a sessão continua
-// viva entre Cenários por causa de @testIsolation(false), ver cabeçalho do
-// arquivo), o teste navega pelo menu lateral esquerdo — mesmo tratamento de
-// sidebar colapsada e filtro ":visible" (para não colidir com a cópia oculta
-// do popup do Ant Design Menu) já usado em "navega até o menu lateral e
-// seleciona {string}" (common_steps.js).
 When('o sistema navega até o menu lateral esquerdo', () => {
   cy.get('aside').then(($aside) => {
     if ($aside.hasClass('is-collapsed')) {
@@ -350,10 +259,6 @@ When('o sistema navega até o menu lateral esquerdo', () => {
   cy.get('aside, nav', { timeout: 10000 }).should('be.visible')
 })
 
-// Nome específico ("... no menu lateral") para não colidir com "seleciona a
-// opção {string}" (insubsistente_steps.js) nem com "... no menu de novo ato"
-// (acima) — os três textos precisam ser distintos para o Cucumber resolver
-// sem ambiguidade.
 When('seleciona a opção {string} no menu lateral', (opcao) => {
   cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${opcao}$`, 'i'), { timeout: 15000 })
     .closest('li, [role="menuitem"], a')
@@ -362,9 +267,6 @@ When('seleciona a opção {string} no menu lateral', (opcao) => {
 })
 
 // ─── Modal de ação (Nova cessação / Tornar insubsistente / etc.) ───────────
-// Confirmado contra o HTML real: é um Dialog Radix/shadcn (role="dialog"),
-// com <h2> de título, <label for="..."> + <input id="..."> e um <button
-// type="submit" data-testid="botao-buscar-portaria">Buscar</button>.
 Then('o sistema exibe o modal {string}', (nomeModal) => {
   atosAdministrativosPack.modal.container().should('be.visible')
   atosAdministrativosPack.modal.contendo(nomeModal.trim()).should('be.visible')
@@ -385,10 +287,6 @@ When('preenche o campo {string} com {string}', (campo, valor) => {
     .type(valor, { delay: 100 })
 })
 
-// Select "Ano" do modal de busca por portaria — campo novo e obrigatório
-// (ver atosAdministrativosPack.modal.selectAno). Abre o Select (shadcn/
-// Radix) e clica na opção com o texto exato do ano; as opções usam o
-// mesmo role="option" já tratado por atosAdministrativosPack.dropdown.
 When('seleciona o ano {string} no campo de busca', (ano) => {
   atosAdministrativosPack.modal.selectAno().should('be.visible').click()
   cy.get('[role="option"]', { timeout: 10000 })
@@ -397,16 +295,9 @@ When('seleciona o ano {string} no campo de busca', (ano) => {
     .click()
 })
 
-// ─── "Anular apostila" — a portaria buscada pode não ter nenhuma apostila
-// vinculada. Nesse caso useNovoAto.buscarParaAnularApostila (src, branch
-// test) retorna false e mostra "Essa portaria não possui apostila
-// vinculada para anular." no próprio modal, sem navegar — resultado de
-// negócio válido (nada para anular), não uma falha do teste. Reaproveita
-// Cypress.env('apostilaCessacaoTemDados'), o mesmo flag que as etapas
-// condicionais de apostilar_steps.js (Valida a existencia do texto,
-// preenche o campo apostilamento, Valida o botão, Clica no botão
-// apostilamento) e o branch "apostil" de "o sistema exibe a Tela" já
-// verificam para pular com log em vez de falhar por timeout.
+// A portaria buscada pode não ter apostila vinculada — resultado de negócio
+// válido (nada para anular), não falha do teste. Reaproveita
+// Cypress.env('apostilaCessacaoTemDados'), também lido por apostilar_steps.js.
 Then('valida se a portaria possui apostila vinculada para anular', () => {
   cy.wait(500)
   cy.url().then((url) => {
@@ -429,11 +320,8 @@ Then('valida se a portaria possui apostila vinculada para anular', () => {
   })
 })
 
-// A portaria "5791346" (preenchida no passo anterior do cenário) é
-// reaproveitada entre execuções e pode já ter sido apostilada — resultado de
-// negócio válido ("Essa portaria já possui uma apostila vinculada."), não uma
-// falha do teste. Antes de desistir, tenta as portarias alternativas abaixo
-// no mesmo modal; só falha de fato se nenhuma delas tiver apostila disponível.
+// A portaria padrão pode já ter sido apostilada em execução anterior — tenta
+// as alternativas abaixo antes de falhar de fato.
 const PORTARIAS_APOSTILA_FALLBACK = ['5791346', '7890123', '1019142']
 
 Then('valida se a portaria possui apostila disponível para criar', () => {

@@ -1,48 +1,15 @@
-// Step Definitions — Ações da listagem de Atos Administrativos
-// Cobre atos_administrativos_complementar.feature (menu "⋮" de cada linha da
-// tabela de Atos Administrativos: Apostilar, Cessar, Tornar insubsistente,
-// Anular Apostila, Tornar sem efeito, Excluir).
-//
-// Steps reutilizados de outros arquivos (não redefinidos aqui):
-//   • "que o usuário já está autenticado no sistema" / "está na página {string}" → atos_administrativos_steps.js
-//   • "navega para a seção Action"                    → cessacao_steps.js
-//   • "clica e seleciona a opção {string}"             → cessacao_steps.js (estendido
-//     aqui para tratar "Tornar sem efeito" e "Excluir" — ver comentário no próprio arquivo)
-//   • "o sistema exibe a Tela {string}"                → common_steps.js
-//   • "deve visualizar o texto {string}"                → designacao_steps.js
-//   • "valida a existencia do botão de navegação {string}" → cessacao_steps.js
-//
-// Todos os steps de seleção de linha abaixo gravam o índice escolhido no
-// alias "@designacaoIndex" — o MESMO alias que "navega para a seção Action"
-// e "clica e seleciona a opção" já esperam (cessacao_steps.js), para poder
-// reaproveitar os dois sem duplicar a lógica de abrir o dropdown/clicar na
-// opção. Também gravam "@nomeServidorSelecionado" e "@seiLinhaSelecionada"
-// (lidos da própria linha, antes de navegar) para validar depois, na tela de
-// destino, que os dados carregados realmente correspondem à linha escolhida.
+// Steps de seleção de linha gravam o índice em "@designacaoIndex" (lido por
+// "navega para a seção Action"/"clica e seleciona a opção", cessacao_steps.js)
+// e "@nomeServidorSelecionado"/"@seiLinhaSelecionada" para validar depois que
+// a tela de destino carregou os dados da linha certa.
 
 import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { acoesListagemLocators } from '../../ui/locators/atos_administrativos_complementar_locators'
 import { atosAdministrativosPack } from '../../ui/locators/atos_administrativos_locators'
 
 // ─── Seleção de linha via filtro Tipo/Status ────────────────────────────────
-// A listagem sem filtro nenhum chega a esconder Cessação/Apostila/
-// Insubsistência por completo: confirmado em execução real que a página 1
-// (10 registros de 124) só trazia "Designação"/"Aguardando publicação" —
-// volume alto de dados de teste acumulados em QA. Escanear a página crua
-// (abordagem anterior) falhava sempre que o tipo/status procurado não
-// calhava de estar nos primeiros 10 registros. Em vez disso, aplica o
-// mesmo filtro "Tipo"/"Status" já usado em filtra_atos.feature
-// (atos_administrativos_steps.js) antes de escolher a linha — os resultados
-// já vêm filtrados pelo backend, então qualquer linha visível serve.
-//
-// Valores de "Tipo" confirmados em AtosOpcoes (FiltroDeAtosAdministrativos.tsx)
-// — note que são mais granulares do que o enum tipo (DESIGNACAO/CESSACAO/
-// APOSTILA/INSUBSISTENCIA): "Apostila de Designação"/"Apostila de Cessação"
-// em vez de só "Apostila", e "Insubsistência de Designação"/"Insubsistência
-// de Cessação" em vez de só "Insubsistência" — "Anulação de Apostila" e
-// "Tornar sem efeito" são tipos à parte (o EVENTO de anular/tornar sem
-// efeito vira sua própria linha na listagem).
-
+// Filtra antes de escolher a linha: a listagem sem filtro esconde tipos raros
+// nas primeiras páginas por volume de dados de teste acumulado em QA.
 const aplicarFiltroTipoStatus = ({ tipo, status }) => {
   if (tipo) {
     atosAdministrativosPack.filtros.tipo().should('be.visible').click()
@@ -61,11 +28,8 @@ const aplicarFiltroTipoStatus = ({ tipo, status }) => {
   cy.wait(500)
 }
 
-// Dropdown de ações (antd Dropdown) escopado em ".ant-dropdown:not(.ant-dropdown-hidden)"
-// — mesmo padrão de atosAdministrativosPack.novoAto.opcao. Sem esse escopo,
-// "ul li span" também casa com os itens do menu lateral (<aside>, também um
-// <ul><li><span>), inflando a contagem e arriscando falso positivo/negativo
-// nas checagens de conteúdo exato abaixo.
+// Escopado ao dropdown aberto — sem isso "ul li span" também casa com o menu
+// lateral (<aside>), inflando a contagem.
 const spansDoMenuAberto = () =>
   cy.get('.ant-dropdown:not(.ant-dropdown-hidden) li span', { timeout: 10000 })
 
@@ -77,13 +41,8 @@ const guardarDadosDaLinha = (index) => {
   acoesListagemLocators.colunaNumeroSei(index).invoke('text').then((t) => {
     const sei = t.trim()
     cy.wrap(sei).as('seiLinhaSelecionada')
-    // A base de QA tem registros de teste com o MESMO Nº SEI repetido em
-    // várias linhas (ex.: "7643334446", "Criado via Postman — controle
-    // isolando causa do 500", confirmado em inspeção real: 4 linhas
-    // idênticas na mesma página) — checar exclusão por "SEI não existe mais
-    // na tabela" dá falso negativo sempre que sobra uma duplicata. Grava
-    // quantas linhas da página atual já compartilham esse SEI ANTES de agir,
-    // para comparar CONTAGEM (não presença) depois.
+    // A base de QA tem SEIs duplicados entre linhas — grava a contagem antes
+    // de agir pra comparar CONTAGEM (não presença) depois.
     cy.get(acoesListagemLocators.linhas).then(($rows) => {
       const ocorrencias = $rows.toArray().filter((el) => el.textContent.includes(sei)).length
       cy.wrap(ocorrencias).as('ocorrenciasSeiAntes')
@@ -94,13 +53,8 @@ const guardarDadosDaLinha = (index) => {
 const selecionarLinhaAleatoriaFiltrada = (descricao, filtro) => {
   aplicarFiltroTipoStatus(filtro)
 
-  // O filtro pode legitimamente não ter nenhum registro em QA (confirmado em
-  // execução real para "Apostila de Cessação": listagem retorna a linha de
-  // estado vazio "Não há dados", que "tbody tr:not(.ant-table-measure-row)"
-  // conta como 1 "linha" — o length>0 abaixo passaria mesmo sem dado real, e
-  // o teste só quebraria depois, com um erro obscuro de índice de coluna).
-  // Falha aqui, cedo e com mensagem clara, em vez de deixar estourar lá na
-  // frente.
+  // O filtro pode legitimamente não ter nenhum registro em QA — falha aqui,
+  // cedo e com mensagem clara, em vez de um erro obscuro de índice depois.
   cy.get('tbody', { timeout: 15000 }).then(($tbody) => {
     if (/não há dados/i.test($tbody.text())) {
       throw new Error(`Nenhum registro do tipo "${descricao}" disponível na base de QA no momento (listagem retornou "Não há dados") — cenário depende de massa de dado que hoje não existe no ambiente, não é falha de código.`)
@@ -134,19 +88,8 @@ When('seleciona uma apostila de forma aleatoria na listagem', () => {
   selecionarLinhaAleatoriaFiltrada('apostila', { tipo: 'Apostila de Designação' })
 })
 
-// Cenário 14 depende de já existir ao menos 1 registro tipo "Apostila de
-// Cessação" em QA — confirmado em 04/09/2026 que a base não tinha nenhum
-// (0 registros no filtro). Investigado como criar via UI: nem "listagem →
-// Cessação → Apostilar" (/pages/apostila?id=X&origem=cessacao) nem "Novo
-// ato → Nova apostila" (busca por portaria de designação,
-// /pages/apostila?id=X&origem=designacao) expõem um botão "Salvar" — as
-// duas telas terminam em "Gerar texto SEI" sem disparar nenhuma requisição
-// de rede, mesmo com o campo "Texto para a apostila" preenchido. A aba
-// "Portarias de Cessação" que atos_novos.feature (Cenário "Nova Apostila",
-// @skip) e apostilar_steps.js esperam não existe nessa tela na versão atual
-// do app — teste provavelmente desatualizado. Até alguém com acesso ao
-// código-fonte do front confirmar o fluxo real de criação, este cenário
-// fica pendente (falha por falta de dado, não por bug do teste).
+// Depende de já existir ao menos 1 registro "Apostila de Cessação" em QA —
+// base sem dado no momento, cenário fica pendente até haver massa de dado.
 When('seleciona uma apostila de cessação de forma aleatoria na listagem', () => {
   selecionarLinhaAleatoriaFiltrada('apostila de cessação', { tipo: 'Apostila de Cessação' })
 })
@@ -157,11 +100,7 @@ When('seleciona uma insubsistência de forma aleatoria na listagem', () => {
 
 // ─── Seleção de linha por ausência de opção no menu (regras de negócio) ────
 // Não dá pra saber pela tabela se um ato já tem cessação/insubsistência
-// vinculada — só abrindo o próprio menu de ações (ListagemDeAtosAdministrativos.tsx
-// remove a opção já executada: "não pode cessar 2x", "não pode insubsistir 2x").
-// Abre o dropdown de cada linha candidata, olha se a opção está lá e fecha de
-// novo (mesmo clique em body 0,0 usado em "clica e seleciona a opção").
-
+// vinculada — só abrindo o próprio menu de ações (a opção já executada some).
 const linhaTemOpcaoNoMenu = (index, opcao) =>
   acoesListagemLocators.dropdownTrigger(index).click({ force: true }).then(() => {
     return spansDoMenuAberto().then(($spans) => {
@@ -174,15 +113,8 @@ const linhaTemOpcaoNoMenu = (index, opcao) =>
     })
   })
 
-// Filtra por Tipo="Designação" + Status="Publicado" antes de sondar — só
-// designações publicadas fazem sentido como candidatas reais a já terem
-// cessação/insubsistência vinculada (mesmo filtro usado nos Cenários 1-3).
-//
-// Pagina até achar (ou esgotar): confirmado em execução real que a linha
-// qualificada ("Cessar" ausente do menu) para o filtro atual em QA estava na
-// PÁGINA 2 (13 registros filtrados, 10 por página) — a versão anterior só
-// sondava a página 1 e sempre falhava com "nenhuma linha encontrada" mesmo
-// havendo uma candidata válida logo na página seguinte.
+// Pagina até achar (ou esgotar) uma linha qualificada — a candidata válida
+// nem sempre está na primeira página de resultados filtrados.
 const selecionarLinhaSemOpcaoNoMenu = (descricao, opcaoAusente) => {
   aplicarFiltroTipoStatus({ tipo: 'Designação', status: 'Publicado' })
 
@@ -234,20 +166,10 @@ When('seleciona um ato com insubsistência vinculada de forma aleatoria na lista
 })
 
 // ─── Validação dos dados carregados na tela de destino ─────────────────────
-// Confirma que a tela chegou pré-carregada com o ato certo (sem passar pelo
-// modal de busca de portaria), comparando com o nome do servidor OU o Nº SEI
-// capturados ainda na listagem, antes de navegar.
-//
-// Por que os dois critérios: confirmado em inspeção real que a tela de
-// Apostila (origem=designacao E origem=cessacao) NUNCA exibe o nome do
-// servidor — só os dados da portaria/SEI/unidade — enquanto Cessação e
-// Insubsistência exibem o nome como texto visível mas só carregam o Nº SEI
-// dentro de abas/inputs (não aparece em innerText antes de abrir a aba). Um
-// único critério fixo falha sempre numa das duas famílias de tela. Além
-// disso, vários registros de QA compartilham o mesmo nome de servidor
-// (dado de teste reaproveitado, ex.: "ADALBERTO PAVLIDIS DA SILVA" aparece
-// em dezenas de linhas) — o Nº SEI é o identificador mais confiável da linha
-// realmente escolhida.
+// Confirma que a tela chegou pré-carregada com o ato certo, comparando com o
+// nome do servidor OU o Nº SEI capturados na listagem antes de navegar — um
+// único critério fixo falha numa das famílias de tela (Apostila nunca exibe
+// o nome do servidor; nomes de servidor também se repetem entre registros).
 const validarDadosCarregados = () => {
   cy.get('.ant-spin, .loading, .spinner', { timeout: 15000 }).should('not.exist')
 
@@ -288,14 +210,8 @@ Then('não deve exibir o modal de busca de portaria', () => {
   cy.log('✓ Modal de busca de portaria não exibido')
 })
 
-// Não existe mais nenhum RadioGroupItem "#designacao"/"#cessacao" nesta tela
-// (confirmado em inspeção real do DOM: os únicos radios da página são
-// "Sim"/"Não" de outros campos, tipo Carater Especial). O tipo de apostila
-// hoje é implícito na navegação — vem pela query string da URL
-// (?origem=designacao|cessacao) e é exibido como rótulo de texto logo abaixo
-// do título (ex.: <div>Cessação</div> abaixo de "Apostila de cessação").
-// Checa os dois sinais: URL (estável, não depende de texto/idioma) e rótulo
-// visível (evidência para quem lê o relatório de execução).
+// Tipo de apostila é implícito na navegação (query string ?origem=...) e
+// exibido como rótulo de texto — checa os dois sinais.
 Then('o tipo de apostila pré-selecionado é {string}', (tipo) => {
   const origem = tipo.trim().toLowerCase() === 'cessação' ? 'cessacao' : 'designacao'
   cy.url({ timeout: 15000 }).should('include', `origem=${origem}`)
@@ -342,11 +258,7 @@ Then('o modal de confirmação é fechado', () => {
 })
 
 // Compara CONTAGEM de ocorrências do SEI (antes vs. depois), não presença —
-// "não contém mais o SEI" dá falso negativo sempre que outra linha da
-// própria QA compartilha o mesmo Nº SEI duplicado (ver comentário em
-// guardarDadosDaLinha/@ocorrenciasSeiAntes). Se a linha excluída era a única
-// com esse SEI, a contagem depois é 0, que é o mesmo efeito da checagem
-// antiga — só passa a funcionar também quando havia duplicatas.
+// evita falso negativo quando outra linha compartilha o mesmo SEI duplicado.
 Then('a designação excluída não aparece mais na listagem', () => {
   cy.url({ timeout: 15000 }).should('include', 'atos-administrativos')
   cy.get('@seiLinhaSelecionada').then((sei) => {
@@ -371,10 +283,7 @@ Then('a designação permanece na listagem', () => {
 
 // ─── Regras de exibição do menu de ações ───────────────────────────────────
 // Roda logo após "navega para a seção Action" (cessacao_steps.js), que já
-// deixa o dropdown aberto — só lê os itens, não clica em nenhum.
-// (spansDoMenuAberto definido no topo do arquivo, reaproveitado também por
-// linhaTemOpcaoNoMenu.)
-
+// deixa o dropdown aberto.
 Then('o menu de ações exibe as opções:', (dataTable) => {
   const opcoes = dataTable.raw().flat().map((o) => o.trim()).filter(Boolean)
   spansDoMenuAberto().then(($spans) => {
