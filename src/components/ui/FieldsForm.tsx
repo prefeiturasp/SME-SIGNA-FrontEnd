@@ -309,7 +309,7 @@ export const MultiSelectField = ({
 
 
 
-export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear }: PropsField<TFieldValues> & { onClear?: () => void }) => {
     return (
         <FormField
             {...register(name)}
@@ -345,6 +345,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ reg
                                 }}
                                 onBlur={field.onBlur}
                                 style={{ width: "100%" }}
+                                onClear={onClear}
                             />
                         </FormControl>
 
