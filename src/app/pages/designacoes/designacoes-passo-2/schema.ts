@@ -1,11 +1,21 @@
 import { z } from "zod";
+import {
+  NUMERO_PORTARIA_MAX_DIGITOS,
+  NUMERO_PORTARIA_MAX_LABEL,
+  excedeNumeroPortaria,
+} from "@/utils/portarias/numeroPortaria";
 
 const formSchemaDesignacaoPasso2 = z
   .object({
         portaria_designacao: z
       .string()
       .min(1, "Selecione uma Portaria de Designação")
-      .max(20, "A Portaria de Designação deve ter no máximo 20 caracteres"),
+      .max(NUMERO_PORTARIA_MAX_DIGITOS, `A Portaria de Designação deve ter no máximo ${NUMERO_PORTARIA_MAX_DIGITOS} dígitos`)
+      .regex(/^\d*$/, "A Portaria de Designação deve conter apenas números")
+      .refine(
+        (valor) => !excedeNumeroPortaria(valor),
+        `A Portaria de Designação deve ser no máximo ${NUMERO_PORTARIA_MAX_LABEL}`
+      ),
     numero_sei: z.string().min(1, "Digite o número do SEI"),
     a_partir_de: z.date(),
     designacao_data_final: z.date().optional().nullable(),

@@ -28,7 +28,8 @@ import {
   DateField,
   InputField,
 } from "@/components/ui/FieldsForm";
-import { SelectAnoField } from "@/components/ui/SelectAnoField"
+import {SelectAnoField} from "@/components/ui/SelectAnoField"
+import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 
 interface Props {
@@ -77,7 +78,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 placeholder="Nº da portaria"
                 data-testid="input-portaria-designacao"
                 type="number"
-                maxLength={20}
+                maxLength={NUMERO_PORTARIA_MAX_DIGITOS}
               />
             </div>
 

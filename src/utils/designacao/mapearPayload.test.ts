@@ -119,10 +119,28 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.dre_nome).toBe("DRE Centro");
         expect(result?.unidade_proponente).toBe("EMEF Teste");
         expect(result?.codigo_hierarquico).toBe("001");
-        expect(result?.numero_portaria).toBe("42");
+        expect(result?.numero_portaria).toBe(42);
         expect(result?.ano_vigente).toBe("2024");
         expect(result?.sei_numero).toBe("SEI-001");
         expect(result?.doc).toBe("DOC-001");
+    });
+
+    it("repassa texto_sei e modelo_portaria quando presentes", () => {
+        const result = mapearPayloadDesignacao({
+            ...formBase,
+            texto_sei: "Texto gerado pelo back.",
+            modelo_portaria: 7,
+        });
+
+        expect(result?.texto_sei).toBe("Texto gerado pelo back.");
+        expect(result?.modelo_portaria).toBe(7);
+    });
+
+    it("usa string vazia e null como default para texto_sei e modelo_portaria", () => {
+        const result = mapearPayloadDesignacao({ ...formBase });
+
+        expect(result?.texto_sei).toBe("");
+        expect(result?.modelo_portaria).toBeNull();
     });
 
     it("inclui campos do titular quando dadosTitular está presente", () => {

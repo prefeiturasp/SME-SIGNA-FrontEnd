@@ -112,7 +112,7 @@ describe("useAtosAdministrativos", () => {
     await act(async () => {
       result.current.onSubmitFilterForm({
         tipo: "CESSACAO",
-        portaria: "100/2026",
+        portaria: "100",
         numero_sei: "1234.5678/9012345-6",
         nome_titular_e_indicado: "Servidor A",
         status_publicacao: "PUBLICADO",
@@ -129,7 +129,7 @@ describe("useAtosAdministrativos", () => {
     await waitFor(() => {
       expect(fetchAtosAdministrativosMock).toHaveBeenLastCalledWith({
         tipo: "CESSACAO",
-        portaria: "100/2026",
+        portaria: "100",
         numero_sei: "1234.5678/9012345-6",
         nome_titular_e_indicado: "Servidor A",
         status_publicacao: "PUBLICADO",
@@ -211,7 +211,7 @@ describe("useAtosAdministrativos", () => {
 
     const response = await result.current.buscarAtosAdministrativos({
       tipo: "APOSTILA_DESIGNACAO",
-      portaria: "222/2026",
+      portaria: "222",
       numero_sei: "9000.0000/0000000-1",
       nome_titular_e_indicado: "Servidor B",
       status_publicacao: "NAO_PUBLICADO",

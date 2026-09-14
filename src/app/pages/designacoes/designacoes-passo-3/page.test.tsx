@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import DesignacoesPasso3 from "./page";
 import { designacaoAction } from "@/actions/cadastro-designacao";
-import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
+import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import type { FormDesignacaoEServidorIndicado } from "../DesignacaoContext";
 
 // ── Mocks de Navegação ───────────────────────────
@@ -29,6 +29,9 @@ const defaultFormData = {
   numero_sei: "6016.2024/0001-2",
   servidorIndicado: { nome_civil: "JOÃO SILVA" },
 } as const;
+
+const textoPreviewPadrao =
+  "PORTARIA Nº 123/2024\nSEI Nº 6016.2024/0001-2\nEXPEDE:\nTexto da portaria para JOÃO SILVA";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: h.pushMock }),
@@ -109,17 +112,12 @@ vi.mock("@/assets/icons/Designacao", () => ({
   default: () => <svg />,
 }));
 
-// ── Utils mock ───────────────────────────
-vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: vi.fn((_template: string, dados: Record<string, unknown>) => {
-    return `PORTARIA Nº ${dados.portaria}
-SEI Nº ${dados.sei}
-EXPEDE:
-Texto da portaria para ${dados.nome_indicado}`;
-  }),
+// ── Action de preview do texto SEI ───────────────────────────
+vi.mock("@/actions/textos-sei", () => ({
+  gerarPreviewTextoSeiAction: vi.fn(),
 }));
 
-// ── Action mock ───────────────────────────
+// ── Action de salvar ───────────────────────────
 vi.mock("@/actions/cadastro-designacao", () => ({
   designacaoAction: vi.fn(),
 }));
@@ -157,12 +155,19 @@ describe("DesignacoesPasso3 - Testes", () => {
     h.formData = { ...defaultFormData } as unknown as FormDesignacaoEServidorIndicado;
     notificationSuccessMock.mockReset();
     notificationErrorMock.mockReset();
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValue({
+      success: true,
+      data: { modelo_portaria_id: 7, texto: textoPreviewPadrao },
+    });
   });
 
-  it("renderiza editor com conteúdo formatado", async () => {
+  it("busca a prévia do texto SEI no back e exibe o texto retornado", async () => {
     render(<DesignacoesPasso3 />);
     const editor = await screen.findByTestId("editor-sei");
 
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo_portaria: "DESIGNACAO" })
+    );
     expect(editor).toHaveTextContent("PORTARIA Nº");
     expect(editor).toHaveTextContent("EXPEDE:");
     expect(editor).toHaveTextContent("SEI Nº");
@@ -171,14 +176,101 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(strongs.length).toBeGreaterThan(0);
   });
 
-  it("chama action ao salvar", async () => {
+  it("envia tipo_cargo=CARGO_VAGO quando o tipo_cargo do formulário é 'vago'", async () => {
+    h.formData = {
+      ...defaultFormData,
+      tipo_cargo: "vago",
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo_cargo: "CARGO_VAGO" })
+    );
+  });
+
+  it("envia tipo_cargo=CARGO_DISPONIVEL quando o tipo_cargo do formulário é 'disponivel'", async () => {
+    h.formData = {
+      ...defaultFormData,
+      tipo_cargo: "disponivel",
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo_cargo: "CARGO_DISPONIVEL" })
+    );
+  });
+
+  it("busca a prévia apenas uma vez, mesmo com re-render do contexto", async () => {
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+
+    fireEvent.change(screen.getByTestId("input-descricao-pendencia"), {
+      target: { value: "Observacao complementar" },
+    });
+
+    await waitFor(() => {
+      expect(h.setFormDesignacaoDataMock).toHaveBeenCalled();
+    });
+
+    expect(gerarPreviewTextoSeiAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("avisa que não há modelo de portaria e volta para o passo 2 quando a prévia falha", async () => {
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValueOnce({
+      success: false,
+      error: "Não há modelo de portaria ativo cadastrado para este tipo de ato.",
+    });
+
+    render(<DesignacoesPasso3 />);
+
+    await waitFor(() => {
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Não existe modelo de portaria criado",
+        description: "Certifique-se de criar um modelo de portaria para designação antes de prosseguir.",
+      });
+    });
+
+    expect(h.pushMock).toHaveBeenCalledWith(
+      "/pages/designacoes/designacoes-passo-2?rf=1234567"
+    );
+  });
+
+  it("volta para o passo 2 preservando o id quando a prévia falha em edição", async () => {
+    h.searchId = "42";
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValueOnce({
+      success: false,
+      error: "Não há modelo de portaria ativo cadastrado para este tipo de ato.",
+    });
+
+    render(<DesignacoesPasso3 />);
+
+    await waitFor(() => {
+      expect(h.pushMock).toHaveBeenCalledWith(
+        "/pages/designacoes/designacoes-passo-2?id=42&rf=1234567"
+      );
+    });
+  });
+
+  it("chama action ao salvar incluindo o texto e o modelo gerados", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() =>
-      expect(designacaoAction).toHaveBeenCalledWith(h.formData, null)
+      expect(designacaoAction).toHaveBeenCalledWith(
+        {
+          ...h.formData,
+          texto_sei: textoPreviewPadrao,
+          modelo_portaria: 7,
+        },
+        null
+      )
     );
   });
 
@@ -187,20 +279,25 @@ describe("DesignacoesPasso3 - Testes", () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() =>
-      expect(designacaoAction).toHaveBeenCalledWith(h.formData, "42")
+      expect(designacaoAction).toHaveBeenCalledWith(
+        expect.objectContaining({ texto_sei: textoPreviewPadrao, modelo_portaria: 7 }),
+        "42"
+      )
     );
   });
 
-  it("bloqueia botão durante loading", async () => {
+  it("bloqueia botão durante loading do salvamento", async () => {
     let resolveFn!: (value: Awaited<ReturnType<typeof designacaoAction>>) => void;
     vi.mocked(designacaoAction).mockImplementation(
       () => new Promise((r) => (resolveFn = r))
     );
 
     render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
     const btn = screen.getByText("Salvar");
 
     fireEvent.click(btn);
@@ -215,6 +312,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
@@ -226,6 +324,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
@@ -242,6 +341,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     });
 
     render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
     fireEvent.click(screen.getByText("Salvar"));
 
     await waitFor(() => {
@@ -271,7 +371,10 @@ describe("DesignacoesPasso3 - Testes", () => {
   });
 
   it("renderiza quebra de linha", async () => {
-    vi.mocked(preencherTemplate).mockReturnValueOnce("A\n\nB");
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValueOnce({
+      success: true,
+      data: { modelo_portaria_id: 7, texto: "A\n\nB" },
+    });
 
     render(<DesignacoesPasso3 />);
     const editor = await screen.findByTestId("editor-sei");
@@ -279,31 +382,14 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(editor.innerHTML).toContain("<br>");
   });
 
-  it("não quebra com template vazio", async () => {
-    vi.mocked(preencherTemplate).mockReturnValueOnce("");
+  it("não quebra com texto vazio", async () => {
+    vi.mocked(gerarPreviewTextoSeiAction).mockResolvedValueOnce({
+      success: true,
+      data: { modelo_portaria_id: 7, texto: "" },
+    });
 
     render(<DesignacoesPasso3 />);
     const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toBeInTheDocument();
-  });
-
-  it("não renderiza undefined em negrito", async () => {
-    vi.mocked(preencherTemplate).mockReturnValueOnce("Autoridade: undefined");
-
-    render(<DesignacoesPasso3 />);
-    const editor = await screen.findByTestId("editor-sei");
-
-    expect(editor).toHaveTextContent("Autoridade: undefined");
-    expect(editor.innerHTML).not.toContain("<strong>undefined</strong>");
-  });
-
-  it("atualiza texto plano ao editar conteúdo do editor", async () => {
-    render(<DesignacoesPasso3 />);
-    const editor = await screen.findByTestId("editor-sei");
-
-    editor.textContent = "Portaria editada manualmente";
-    fireEvent.input(editor);
 
     expect(editor).toBeInTheDocument();
   });
@@ -344,21 +430,15 @@ describe("DesignacoesPasso3 - Testes", () => {
     });
   });
 
-  it("trata ausência de dados no contexto ao renderizar e salvar", async () => {
+  it("não busca prévia nem permite salvar quando não há dados no contexto", async () => {
     h.formData = null;
-    vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
 
     render(<DesignacoesPasso3 />);
-    const editor = await screen.findByTestId("editor-sei");
-    expect(editor).toBeInTheDocument();
+
+    expect(gerarPreviewTextoSeiAction).not.toHaveBeenCalled();
+    expect(screen.getByText("Salvar")).toBeDisabled();
 
     fireEvent.click(screen.getByText("Salvar"));
-
-    await waitFor(() => {
-      expect(notificationErrorMock).toHaveBeenCalledWith({
-        title: "Erro ao salvar portaria: Dados do formulário não encontrados.",
-      });
-    });
     expect(designacaoAction).not.toHaveBeenCalled();
   });
 });

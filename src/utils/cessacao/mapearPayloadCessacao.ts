@@ -2,11 +2,13 @@ import { formSchemaCessacaoData } from "@/app/pages/cessacao/schema";
 
 export function mapearPayloadCessacao(
   values: formSchemaCessacaoData,
-  designacaoId: number
+  designacaoId: number,
+  textoSei: string = "",
+  modeloPortaria: number | null = null
 ) {
   return {
     ato_pai: designacaoId,
-    numero_portaria: values.cessacao.numero_portaria,
+    numero_portaria: Number(values.cessacao.numero_portaria),
     ano_vigente: values.cessacao.ano,
     sei_numero: values.cessacao.numero_sei,
     doc: values.cessacao.doc !== "" ? values.cessacao.doc : undefined,
@@ -14,5 +16,7 @@ export function mapearPayloadCessacao(
     a_pedido: values.cessacao.a_pedido === "sim",
     remocao: values.cessacao.remocao === "sim",
     aposentadoria: values.cessacao.aposentadoria === "sim",
+    texto_sei: textoSei,
+    modelo_portaria: modeloPortaria,
   };
 }
