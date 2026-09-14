@@ -3,8 +3,18 @@
 
 export const loginLocators = {
   // Campos de entrada
-  campoRfCpf: '[data-testid="input-rf-cpf"], #rf-cpf, input[name="username"], input[placeholder*="RF"], input[placeholder*="CPF"]',
-  campoSenha: '[data-testid="input-senha"], #senha, input[name="password"], input[type="password"]',
+  // "#seu_rf"/"#senha" confirmados via inspeção real do DOM da tela de login
+  // (name="seu_rf"/"senha", sem data-testid). Os fallbacks antigos
+  // "input[placeholder*='RF']"/"input[placeholder*='CPF']" foram REMOVIDOS:
+  // são específicos demais pra parecerem seguros mas casam com QUALQUER
+  // input da aplicação cujo placeholder contenha essas letras — confirmado
+  // em execução real que o filtro "Registro Funcional (RF)" da listagem de
+  // Atos Administrativos (placeholder "Entre com o RF") também casava,
+  // quebrando qualquer asserção "não deve existir campo de RF/CPF" feita
+  // fora da tela de login (ex.: signa_extra.feature, cenário de sessão
+  // autenticada acessando "/").
+  campoRfCpf: '#seu_rf, [data-testid="input-rf-cpf"], input[name="seu_rf"]',
+  campoSenha: '#senha, [data-testid="input-senha"], input[name="senha"], input[type="password"]',
   
   // Botões
   botaoEntrar: '[data-testid="btn-entrar"], button[type="submit"], button:contains("Entrar")',

@@ -110,24 +110,12 @@ Funcionalidade: API SIGNA - Designações
 
   # ── BUG CONHECIDO — local de exercício ausente sempre quebra o salvamento
   # ────────────────────────────────────────────────────────────────────────
-  # RF 7936460 (GABRIELA RODRIGUES, DIRETOR DE ESCOLA) é um servidor real em
-  # QA sem cargo sobreposto NEM local de exercício retornados pela
-  # integração (confirmado via POST /designacao/servidor em 2026-08-21). O
-  # comportamento esperado pelo requisito original é que o salvamento
-  # conclua com sucesso mesmo assim. Testado manualmente contra QA em 3
-  # variações de indicado_local_exercicio (null, campo ausente, string
-  # vazia) e as 3 retornam 400 — diferente de indicado_cargo_sobreposto
-  # (ausente funciona normalmente, ver cenário acima, isolado e confirmado
-  # separadamente). Documentado aqui como teste de regressão: hoje FALHA
-  # (bug real do backend, não do teste); quando corrigido, o status abaixo
-  # deve passar a 200/201.
   @critico @bug_conhecido @dados_opcionais_ausentes
-  Cenário: BUG - Salvar designação para servidor sem local de exercício (RF 7936460)
-    Dado que busco o servidor pelo RF conhecido sem cargo sobreposto e local de exercício
-    Então o servidor retornado não deve ter cargo sobreposto nem local de exercício
-
-    Quando monto o payload de criação da designação com os dados coletados
-    E eu crio a designação
+  Cenário: BUG - Salvar designação sem local de exercício do indicado
+    Dado eu busco um servidor válido do pool de RFs conhecidos
+    E monto o payload de criação da designação com os dados coletados
+    E removo o campo de local de exercício do indicado no payload
+    Quando eu crio a designação
     Então o status code da resposta do SIGNA deve ser 400
     E a resposta deve indicar que o campo de local de exercício é obrigatório
 

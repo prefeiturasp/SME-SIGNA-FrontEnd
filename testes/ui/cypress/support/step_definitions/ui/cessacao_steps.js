@@ -94,11 +94,13 @@ Then('clica e seleciona a opção {string}', (opcao) => {
   // desatualizada: o polling nunca via essa URL, esgotava as 8 checagens em
   // toda designação e acabava estourando as 4 tentativas mesmo com a
   // navegação funcionando de verdade.
-  const paginaEsperada = opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
+  const paginaEsperada = opcao.toLowerCase().includes('sem efeito') ? 'tornar-sem-efeito'
+    : opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
     : opcao.toLowerCase().includes('apostil') ? 'apostila'
     : opcao.toLowerCase().includes('editar') ? 'designacoes-passo-2'
     : 'cessacao'
-  const chaveEnv = opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
+  const chaveEnv = opcao.toLowerCase().includes('sem efeito') ? 'tornarSemEfeitoTentadas'
+    : opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
     : opcao.toLowerCase().includes('apostil') ? 'apostilarTentadas'
     : opcao.toLowerCase().includes('editar') ? 'editarTentadas'
     : 'designacoesTentadas'
@@ -180,6 +182,15 @@ Then('clica e seleciona a opção {string}', (opcao) => {
       // Visualizar/Detalhar não exige validação de URL
       if (opcao.toLowerCase().includes('visualizar') || opcao.toLowerCase().includes('detalhar')) {
         cy.log('✓ Navegação para visualização')
+        return
+      }
+
+      // "Excluir" não navega — abre um Modal.confirm do antd na própria tela
+      // (handleExcluirDesignacao, ListagemDeAtosAdministrativos.tsx). Sem
+      // este branch a checagem de URL abaixo nunca resolveria.
+      if (opcao.trim().toLowerCase() === 'excluir') {
+        cy.get('.ant-modal-confirm', { timeout: 10000 }).should('be.visible')
+        cy.log('✓ Modal de confirmação de exclusão exibido')
         return
       }
 

@@ -115,6 +115,25 @@ Given('removo o campo de cargo sobreposto do indicado no payload', () => {
   })
 })
 
+// RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO (RF 7936460) parou de servir de
+// base para esse bug: a API passou a devolver local_de_exercicio como string
+// placeholder ("Indisponível no EOL") em vez de null (confirmado em
+// 2026-08-27), então o payload montado a partir do servidor real não
+// reproduz mais a ausência do campo. Reproduzimos de forma determinística
+// removendo o campo do payload manualmente — confirmado contra QA em
+// 2026-08-27 que isso ainda dispara o mesmo 400.
+Given('removo o campo de local de exercício do indicado no payload', () => {
+  cy.get('@payloadDesignacao').then((payload) => {
+    delete payload.indicado_local_exercicio
+
+    cy.wrap(payload).as('payloadDesignacao')
+    Cypress.log({
+      name: 'Payload ajustado',
+      message: 'local de exercício do indicado removido do payload',
+    })
+  })
+})
+
 // Confirma o erro de validação do bug conhecido: indicado_local_exercicio é
 // obrigatório no backend, mesmo quando a integração não retorna esse dado
 // (ver Cenário "BUG - ..." em api_designacao_designacoes.feature).

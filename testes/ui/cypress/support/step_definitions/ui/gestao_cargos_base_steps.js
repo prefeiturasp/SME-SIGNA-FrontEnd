@@ -15,9 +15,15 @@
 // ignora o parâmetro e sempre valida a URL de Atos Administrativos). Por
 // isso os steps abaixo usam texto próprio ("está logado", "preenche o
 // filtro", "está na tela") em vez de colidir/depender desses.
+//
+// "está na tela {string}" cobre qualquer tela alcançável pelo submenu
+// lateral "Gestão" (hoje: "Gestão de cargos base" e "Textos de portarias",
+// esta última reaproveitada por texto_portaria_steps.js) — ver o mapa
+// TELAS_SUPORTADAS abaixo antes de duplicar esse step pra uma tela nova.
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { gestaoCargosBasePack, gestaoCargosBaseUrls } from '../../ui/locators/gestao_cargos_base_locators'
+import { textoPortariaPack, textoPortariaUrls } from '../../ui/locators/texto_portaria_locators'
 
 // ─── Login único por suíte (sessão reaproveitada entre os cenários desta
 // feature) ────────────────────────────────────────────────────────────────
@@ -60,19 +66,67 @@ Given('que o usuário está logado no sistema', () => {
   })
 })
 
+// Mapa "tela" (texto do Contexto do .feature) → item do submenu lateral
+// "Gestão" que leva até ela + validação de chegada. Extensível: qualquer
+// nova tela dentro de "Gestão" só precisa de uma entrada nova aqui, sem
+// duplicar a lógica de abrir/retry do submenu abaixo.
+const TELAS_SUPORTADAS = {
+  'gestão de cargos base': {
+    itemMenu: 'Cargos base',
+    validarChegada: () => {
+      cy.url({ timeout: 20000 }).should('include', gestaoCargosBaseUrls.pagina)
+      gestaoCargosBasePack.titulo().should('be.visible')
+      cy.get('.loading, .spinner, .loader').should('not.exist')
+
+      // Com a sessão reaproveitada entre cenários (@testIsolation(false)),
+      // um cenário anterior pode ter deixado filtro aplicado — reseta pra
+      // um estado limpo antes de começar o cenário atual. "Limpar filtros"
+      // só existe habilitado quando há algo pra limpar; se já estiver
+      // desabilitado (primeiro cenário da suíte, tela já limpa) não há nada
+      // a fazer.
+      cy.get('body').then(($body) => {
+        const $botaoLimpar = $body.find('[data-testid="btn-limpar-filtros"]')
+        if ($botaoLimpar.length && !$botaoLimpar.prop('disabled')) {
+          cy.wrap($botaoLimpar).click({ force: true })
+          cy.wait(500)
+        }
+      })
+    },
+  },
+  'textos de portarias': {
+    itemMenu: 'Textos de portaria',
+    validarChegada: () => {
+      cy.url({ timeout: 20000 }).should('include', textoPortariaUrls.listagem)
+      textoPortariaPack.listagem.titulo().should('be.visible')
+      cy.get('.loading, .spinner, .loader').should('not.exist')
+
+      // Mesmo cuidado do branch de "Gestão de cargos base" acima: reseta
+      // filtro residual de um cenário anterior antes de começar este.
+      cy.get('body').then(($body) => {
+        const $botaoLimpar = $body.find('button').filter(':contains("Limpar filtros")')
+        if ($botaoLimpar.length && !$botaoLimpar.prop('disabled')) {
+          cy.wrap($botaoLimpar).click({ force: true })
+          cy.wait(500)
+        }
+      })
+    },
+  },
+}
+
 Given('está na tela {string}', (tela) => {
-  if (tela.trim().toLowerCase() !== 'gestão de cargos base') {
-    throw new Error(`Step "está na tela" só implementado para "Gestão de cargos base" (recebido: "${tela}")`)
+  const config = TELAS_SUPORTADAS[tela.trim().toLowerCase()]
+  if (!config) {
+    throw new Error(`Step "está na tela" não implementado para "${tela}". Telas suportadas: ${Object.keys(TELAS_SUPORTADAS).join(', ')}`)
   }
 
-  // NÃO usa cy.visit() direto pra "/pages/gestao/cargos-base": confirmado em
-  // execução real que a aplicação responde com 307 e redireciona de volta
-  // pra "/" numa navegação dura (reload completo) pra uma rota profunda,
-  // mesmo logo após o login — mesmo comportamento já documentado nos
-  // comentários de atos_administrativos_steps.js ("a aplicação não
-  // recompõe o estado autenticado da SPA a partir de um reload frio"). A
-  // navegação real só funciona clicando pelo menu lateral, como um usuário
-  // faria — por isso a sequência abaixo replica esse caminho.
+  // NÃO usa cy.visit() direto pras rotas profundas de "Gestão": confirmado
+  // em execução real que a aplicação responde com 307 e redireciona de
+  // volta pra "/" numa navegação dura (reload completo), mesmo logo após o
+  // login — mesmo comportamento já documentado nos comentários de
+  // atos_administrativos_steps.js ("a aplicação não recompõe o estado
+  // autenticado da SPA a partir de um reload frio"). A navegação real só
+  // funciona clicando pelo menu lateral, como um usuário faria — por isso a
+  // sequência abaixo replica esse caminho.
 
   // Sidebar colapsada: mesmo tratamento usado em common_steps.js
   // ("navega até o menu lateral e seleciona") — sem isso, qualquer clique
@@ -90,10 +144,10 @@ Given('está na tela {string}', (tela) => {
   // Abre o submenu "Gestão" (não navega — só expande, mesmo padrão do menu
   // lateral usado no resto do projeto). Em execução real esse clique nem
   // sempre expande o submenu na primeira tentativa (confirmado: 1 a cada 3
-  // execuções não achava "Cargos base" depois do wait) — sem elemento
-  // óbvio pra esperar (o próprio "Cargos base" só existe no DOM depois do
-  // submenu abrir), a saída é tentar de novo em vez de confiar numa única
-  // tentativa com wait fixo.
+  // execuções não achava o item esperado depois do wait) — sem elemento
+  // óbvio pra esperar (o próprio item só existe no DOM depois do submenu
+  // abrir), a saída é tentar de novo em vez de confiar numa única tentativa
+  // com wait fixo.
   const MAX_TENTATIVAS_MENU = 3
   const abrirSubmenuGestao = (tentativa) => {
     cy.contains('span:visible, a:visible, div:visible', /^Gestão$/i, { timeout: 15000 })
@@ -105,7 +159,7 @@ Given('está na tela {string}', (tela) => {
       const abriu = $body
         .find('span:visible, a:visible, div:visible')
         .toArray()
-        .some((el) => /^Cargos base$/i.test(el.textContent.trim()))
+        .some((el) => new RegExp(`^${config.itemMenu}$`, 'i').test(el.textContent.trim()))
 
       if (!abriu && tentativa < MAX_TENTATIVAS_MENU) {
         cy.log(`Submenu "Gestão" não abriu na tentativa ${tentativa}/${MAX_TENTATIVAS_MENU} — tentando de novo`)
@@ -115,27 +169,12 @@ Given('está na tela {string}', (tela) => {
   }
   abrirSubmenuGestao(1)
 
-  // Clica no item "Cargos base" dentro do submenu recém-aberto.
-  cy.contains('span:visible, a:visible, div:visible', /^Cargos base$/i, { timeout: 15000 })
+  // Clica no item do submenu recém-aberto.
+  cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${config.itemMenu}$`, 'i'), { timeout: 15000 })
     .closest('li, [role="menuitem"], a')
     .click({ force: true })
 
-  cy.url({ timeout: 20000 }).should('include', gestaoCargosBaseUrls.pagina)
-  gestaoCargosBasePack.titulo().should('be.visible')
-  cy.get('.loading, .spinner, .loader').should('not.exist')
-
-  // Com a sessão reaproveitada entre cenários (@testIsolation(false)), um
-  // cenário anterior pode ter deixado filtro aplicado — reseta pra um
-  // estado limpo antes de começar o cenário atual. "Limpar filtros" só
-  // existe habilitado quando há algo pra limpar; se já estiver desabilitado
-  // (primeiro cenário da suíte, tela já limpa) não há nada a fazer.
-  cy.get('body').then(($body) => {
-    const $botaoLimpar = $body.find('[data-testid="btn-limpar-filtros"]')
-    if ($botaoLimpar.length && !$botaoLimpar.prop('disabled')) {
-      cy.wrap($botaoLimpar).click({ force: true })
-      cy.wait(500)
-    }
-  })
+  config.validarChegada()
 })
 
 Then('valida a existencia dos campos de filtro {string}', (camposParam) => {

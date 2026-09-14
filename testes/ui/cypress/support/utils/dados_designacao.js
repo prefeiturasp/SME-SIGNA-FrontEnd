@@ -28,14 +28,6 @@ const UNIDADE_REFERENCIA = {
   funcionarios_da_unidade: '3085',
 }
 
-// RF real em QA cujo retorno de POST /designacao/servidor NÃO tem cargo
-// sobreposto nem local de exercício (cargo_sobreposto_funcao_atividade e
-// local_de_exercicio vêm null) — confirmado manualmente contra QA em
-// 2026-08-21. Usado para reproduzir de forma determinística o cenário de
-// "ausência de dados opcionais/obrigatórios da integração" sem depender de
-// sorteio no pool de RFs.
-const RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO = '7936460'
-
 // Portaria/ano de uma designação já existente em QA, usada nos cenários de
 // "buscar por portaria" (mesmo dado já usado em cypress/e2e/ui/atos_novos.feature).
 const PORTARIA_EXISTENTE = { portaria: '5791346', ano: '2026' }
@@ -114,7 +106,6 @@ function montarPayloadDesignacao(servidor, overrides = {}) {
 
 module.exports = {
   RF_POOL,
-  RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO,
   UNIDADE_REFERENCIA,
   PORTARIA_EXISTENTE,
   PORTARIA_CESSACAO_EXISTENTE,
