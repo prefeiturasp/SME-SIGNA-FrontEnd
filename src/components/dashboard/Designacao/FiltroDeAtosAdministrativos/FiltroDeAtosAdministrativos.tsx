@@ -104,7 +104,7 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
             control={control}
             name="portaria"
             label="Portaria de designação"
-            placeholder="0000/2026"
+            placeholder="Exemplo: 1234"
             data-testid="input-portaria"
             type="text"
           />

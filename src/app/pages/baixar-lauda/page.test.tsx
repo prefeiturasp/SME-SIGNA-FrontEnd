@@ -20,7 +20,7 @@ const {
 const selectedRowsMock: ListagemPortariasResponse[] = [
   {
     id: 1,
-    numero_portaria: "100",
+    numero_portaria: 100,
     doc: "DOC",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",

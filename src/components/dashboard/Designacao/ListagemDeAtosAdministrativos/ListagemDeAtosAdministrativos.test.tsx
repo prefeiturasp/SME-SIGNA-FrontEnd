@@ -145,7 +145,7 @@ const rows: ListagemAtosAdministrativosResponse[] = [
     rf: "1234567",
     numero_sei: "SEI-1",
     observacoes: "obs 1",
-    numero_portaria: "100/2026",
+    numero_portaria: 100,
     status_publicacao: StatusAtosAdministrativos.PUBLICADO,
     tipo: "DESIGNACAO",
     tipo_insubsistencia: null,
@@ -369,6 +369,29 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.queryByTestId("menu-item-3")).not.toBeInTheDocument();
   });
 
+  it("não exibe Apostilar para designação publicada quando já existe apostila", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.PUBLICADO,
+          apostilas: [{ id: 10 }],
+        })}
+      </>
+    );
+
+    expect(screen.queryByTestId("menu-item-1")).not.toBeInTheDocument();
+    expect(screen.getByTestId("menu-item-2")).toHaveTextContent("Cessar");
+    expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
+  });
+
   it("monta menu de ações para designação não publicada", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
@@ -460,6 +483,31 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByTestId("menu-item-7")).toHaveTextContent("Tornar sem efeito");
 
     
+  });
+
+  it("não exibe Apostilar para cessação quando já existe apostila", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "CESSACAO",
+          ato_pai_id: 99,
+          apostilas: [{ id: 20 }],
+        })}
+      </>
+    );
+
+    expect(screen.queryByTestId("menu-item-1")).not.toBeInTheDocument();
+    expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
+
+    screen.getByTestId("menu-item-3").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/insubsistencia?id=99&origem=cessacao");
   });
 
   it("não exibe itens de ação para tipo não mapeado", () => {
@@ -613,7 +661,7 @@ describe("ListagemDeAtosAdministrativos", () => {
         data={rows}
         total={1}
         page={1}
-        portaria="100/2026"
+        portaria="100"
         servidor_indicado="Servidor A"
         titulo="Histórico de atos"
         subtitulo="Subtítulo customizado"
@@ -623,7 +671,7 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByText("Histórico de atos")).toBeInTheDocument();
     expect(screen.getByText("Subtítulo customizado")).toBeInTheDocument();
     expect(screen.getByText("Nº da portaria:")).toBeInTheDocument();
-    expect(screen.getByText("100/2026")).toBeInTheDocument();
+    expect(screen.getByText("100")).toBeInTheDocument();
     expect(screen.getByText("Servidor indicado:")).toBeInTheDocument();
     expect(screen.getByText("Servidor A")).toBeInTheDocument();
   });

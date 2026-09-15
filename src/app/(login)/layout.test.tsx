@@ -11,7 +11,7 @@ describe("LoginLayout", () => {
         const child = screen.getByTestId("child");
         expect(child).toBeInTheDocument();
         const container = child.closest(
-            ".flex.flex-col.items-center.flex-shrink-0.px-4.py-8"
+            ".flex.flex-col.items-center.shrink-0.px-4.py-8"
         );
         expect(container).toBeInTheDocument();
         expect(container).toHaveClass("w-full");

@@ -4,7 +4,7 @@ import ResumoPortariaApostila from "./ResumoPortariaApostila";
 
 const apostilaBase = {
   id: 1,
-  numero_portaria: "050",
+  numero_portaria: 50,
   tipo: "APOSTILA",
   ato_apostilado: "DESIGNACAO",
   ato_apostilado_display: "Designação",
@@ -22,7 +22,7 @@ describe("ResumoPortariaApostila", () => {
     render(<ResumoPortariaApostila defaultValues={apostilaBase as never} />);
 
     expect(screen.getByText("Portaria da apostila")).toBeInTheDocument();
-    expect(screen.getByText("050")).toBeInTheDocument();
+    expect(screen.getByText("50")).toBeInTheDocument();
     expect(screen.getByText("Tipo de apostila")).toBeInTheDocument();
     expect(screen.getByText("Designação")).toBeInTheDocument();
     expect(screen.getByText("Nº SEI")).toBeInTheDocument();

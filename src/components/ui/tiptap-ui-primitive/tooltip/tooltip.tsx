@@ -183,6 +183,11 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
 
       return cloneElement(
         children,
+        // Dívida conhecida (código vendored do Tiptap UI): o padrão do Floating UI
+        // repassa a ref via cloneElement durante o render, o que a regra nova do
+        // eslint-plugin-react-hooks proíbe. Reescrever isso é mexer em componente
+        // de terceiros e arrisca quebrar os tooltips do editor, sem ganho real.
+        // eslint-disable-next-line react-hooks/refs
         context.getReferenceProps({
           ref,
           ...props,

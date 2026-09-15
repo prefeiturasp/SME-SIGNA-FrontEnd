@@ -4,18 +4,20 @@ import { Cessacao, DesignacaoResponse } from "./designacao";
 // Payload para escrita (POST /v2/insubsistencias/)
 export interface InsubsistenciaBody {
     ato_pai: number;
-    numero_portaria: string;
+    numero_portaria: number;
     ano_vigente: string;
     sei_numero: string;
     doc?: string;
     observacoes?: string;
     texto_apostila?: string;
+    texto_sei?: string;
+    modelo_portaria?: number | null;
 }
 
 
 export interface InsubsistenciaBaseRead {
     id: number;
-    numero_portaria: string;
+    numero_portaria: number;
     ano_vigente: string;
     sei_numero: string;
     doc: string;
@@ -36,6 +38,8 @@ export interface InsubsistenciaRead extends InsubsistenciaBaseRead {
     ato_apostilado_display: string;
     tipo_insubsistencia: string;
     tipo: string;
+    texto_sei: string;
+    modelo_portaria: number | null;
 }
  
 

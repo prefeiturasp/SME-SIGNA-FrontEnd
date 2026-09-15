@@ -30,7 +30,7 @@ const mockCookies = (token: string | undefined) => {
 
 const payloadMock = {
   ato_pai: 10,
-  numero_portaria: "123",
+  numero_portaria: 123,
   ano_vigente: "2026",
   sei_numero: "SEI-123",
   doc: "DOC-123",
@@ -38,6 +38,8 @@ const payloadMock = {
   a_pedido: false,
   remocao: false,
   aposentadoria: false,
+  texto_sei: "",
+  modelo_portaria: null,
 };
 
 

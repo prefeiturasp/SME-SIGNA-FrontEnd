@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Card } from "antd";
+import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
@@ -9,35 +10,18 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 import Designacao from "@/assets/icons/Designacao";
 import { useDesignacaoContext } from "../DesignacaoContext";
-import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
-import { gerarDadosPortaria } from "@/utils/portarias/gerarDadosPortaria";
+import { montarDadosTextoSeiDesignacao } from "@/utils/designacao/montarDadosTextoSei";
+import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
+import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { designacaoAction } from "@/actions/cadastro-designacao";
-import { TEMPLATE_DESIGNACAO } from "@/utils/portarias/templates";
 import EditorSEI, {
   gerarHtmlPortaria,
-  normalizarQuebras,
-  EditorSEIHandle,
-  adicionarNegrito,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-import { FormField, FormLabel, FormControl, FormItem, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import formSchemaDesignacaoPasso3, { formSchemaDesignacaoPasso3Data } from "./schema";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
-const CAMPOS_NEGRITO = ["nome_indicado", "autoridade", "portaria", "sei"] as const;
-
-function escapeHtml(s: string) {
-  return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
-}
 
 export default function DesignacoesPasso3() {
   const router = useRouter();
@@ -46,8 +30,6 @@ export default function DesignacoesPasso3() {
   const rf = searchParams.get("rf");
   const { formDesignacaoData, clearFormDesignacaoData, setFormDesignacaoData } = useDesignacaoContext();
   const notification = useAppNotification();
-  const editorSEIRef = useRef<EditorSEIHandle>(null);
-  const textoPlanoRef = useRef<string>("");
 
   const [salvando, setSalvando] = useState(false);
 
@@ -60,50 +42,68 @@ export default function DesignacoesPasso3() {
     mode: "onChange",
   });
 
+  // Gera a prévia do texto SEI uma única vez, quando os dados do formulário
+  // ficam disponíveis.
+  const previewSolicitadoRef = useRef(false);
+  const [textoSei, setTextoSei] = useState("");
+  const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
+  const [carregandoPreview, setCarregandoPreview] = useState(true);
+  const [erroPreview, setErroPreview] = useState<string | null>(null);
 
-  // Mantém textoPlanoRef sincronizado (usado caso precise do texto puro)
+  const voltarParaPasso2 = useCallback(() => {
+    const url = id
+      ? `/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`
+      : `/pages/designacoes/designacoes-passo-2?rf=${rf}`;
+    router.push(url);
+  }, [id, rf, router]);
+
   useEffect(() => {
-    if (!formDesignacaoData) return;
+    if (!formDesignacaoData || previewSolicitadoRef.current) return;
+    previewSolicitadoRef.current = true;
 
-    const dadosPuros = gerarDadosPortaria({
-      ...formDesignacaoData,
-      designacao_data_final: formDesignacaoData.designacao_data_final ?? undefined,
-      impedimento_substituicao: formDesignacaoData.impedimento_substituicao ?? undefined,
-    });
+    const buscarPreview = async () => {
+      setCarregandoPreview(true);
+      setErroPreview(null);
 
-    const textoRaw = preencherTemplate(TEMPLATE_DESIGNACAO, dadosPuros);
-    textoPlanoRef.current = normalizarQuebras(textoRaw.replaceAll(/<\/?strong>/g, ""));
-  }, [formDesignacaoData]);
+      const dados = montarDadosTextoSeiDesignacao(formDesignacaoData);
+      const result = await gerarPreviewTextoSeiAction({
+        tipo_portaria: "DESIGNACAO",
+        tipo_cargo: mapTipoVagaParaTipoCargo(formDesignacaoData.tipo_cargo),
+        dados,
+      });
 
-  const htmlInicial = useMemo(() => {
-    if (!formDesignacaoData) return "";
+      if (result.success) {
+        setTextoSei(result.data.texto);
+        setModeloPortariaId(result.data.modelo_portaria_id);
+        setCarregandoPreview(false);
+      } else {
+        setErroPreview(result.error);
+        notification.error({
+          title: "Não existe modelo de portaria criado",
+          description: "Certifique-se de criar um modelo de portaria para designação antes de prosseguir.",
+        });
+        voltarParaPasso2();
+      }
+    };
 
-    const dadosPuros = gerarDadosPortaria({
-      ...formDesignacaoData,
-      designacao_data_final: formDesignacaoData.designacao_data_final ?? undefined,
-      impedimento_substituicao: formDesignacaoData.impedimento_substituicao ?? undefined,
-    });
+    buscarPreview();
+  }, [formDesignacaoData, notification, voltarParaPasso2]);
 
-    const dadosEscapados: Record<string, string> = {};
-    for (const [k, v] of Object.entries(dadosPuros)) {
-      if (v === undefined || v === null) continue;
-      dadosEscapados[k] = escapeHtml(String(v));
-    }
-
-
-    const dadosEscapadosNegrito = adicionarNegrito(dadosEscapados, CAMPOS_NEGRITO);
-
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_DESIGNACAO, dadosEscapadosNegrito));
-  }, [formDesignacaoData]);
-
-  const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
-    textoPlanoRef.current = e.currentTarget.innerText;
-  }, []);
+  const htmlTexto = useMemo(() => {
+    if (!textoSei) return "";
+    return gerarHtmlPortaria(textoSei);
+  }, [textoSei]);
 
   const salvarPortaria = async (id: string | null) => {
     if (!formDesignacaoData) throw new Error("Dados do formulário não encontrados.");
 
-    const result = await designacaoAction(formDesignacaoData, id);
+    const payloadData = {
+      ...formDesignacaoData,
+      texto_sei: textoSei,
+      modelo_portaria: modeloPortariaId,
+    };
+
+    const result = await designacaoAction(payloadData, id);
     if (!result.success) throw new Error(result.error);
 
     return result.data;
@@ -147,13 +147,17 @@ export default function DesignacoesPasso3() {
         className="mt-4 m-0"
       >
         <div className="card-designacao mb-2">
-          <EditorSEI
-            ref={editorSEIRef}
-            html={htmlInicial}
-            titulo="PORTARIA"
-            onInput={handleInput}
-            mostrarBotao={false}
-          />
+          {carregandoPreview ? (
+            <div className="flex justify-center items-center h-[200px]">
+              <Loader2 className="h-8 w-8 animate-spin text-[#B22B2A]" />
+            </div>
+          ) : (
+            <EditorSEI
+              html={htmlTexto}
+              titulo="PORTARIA"
+              mostrarBotao={false}
+            />
+          )}
         </div>
       </Card>
 
@@ -193,12 +197,10 @@ export default function DesignacoesPasso3() {
       <div className="w-full flex flex-col mt-6">
         <BotoesDeNavegacao
           disableAnterior={false}
-          disableProximo={salvando}
+          disableProximo={salvando || carregandoPreview || !!erroPreview}
           labelProximo="Salvar"
           showAnterior
-          onAnterior={() => {
-            id ? router.push(`/pages/designacoes/designacoes-passo-2?id=${id}&rf=${rf}`) : router.push(`/pages/designacoes/designacoes-passo-2?rf=${rf}`);
-          }}
+          onAnterior={voltarParaPasso2}
           onProximo={() => handleSalvar(id)}
         />
       </div>

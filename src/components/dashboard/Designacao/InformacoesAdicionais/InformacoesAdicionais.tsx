@@ -1,5 +1,5 @@
 "use client";
-import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 import { FormControl, FormField, FormLabel, FormMessage } from "@/components/ui/form";
 import FormItem from "antd/es/form/FormItem";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,7 +33,7 @@ export default function InformacoesAdicionais({ className = "", disableFields = 
           render={({ field }) => (
             <FormItem className="mb-0">
               <div className="mb-4 mt-4">
-                <FormLabel className="required font-[400]">
+                <FormLabel className="required font-normal">
                   Insira informações que considerar importante no processo da designação. Este é um campo opcional.
                 </FormLabel>
               </div>
@@ -63,42 +63,46 @@ export default function InformacoesAdicionais({ className = "", disableFields = 
           control={form.control}
 
           name="detalhe_para_quadro_de_historico_por_ano"
-          render={({ field }) => (
+          render={({ field }) => {
+            const detalheParaHistorico = field.value ?? true;
 
-            <FormItem className="mb-0">
-              <FormLabel className="font-bold text-[#313131]">
-                Detalhe para quadro de histórico por ano
-              </FormLabel>
+            return (
 
-              {disableFields ? (
-                <div className="flex items-center pt-1">
-                  <span className="text-sm text-gray-500">
-                    {field.value ? "Contabilizar" : "Não contabilizar"}
-                  </span>
-                </div>
+              <FormItem className="mb-0">
+                <FormLabel className="font-bold text-[#313131]">
+                  Detalhe para quadro de histórico por ano
+                </FormLabel>
 
-              ) : (
-                <Select
-                  value={field.value?.toString() ?? ''}
-                  onValueChange={(value) => {
-                    onValueChangeDetalheParaQuadroDeHistoricoPorAno(value)
-                    const booleanValue = value === "true";
-                    return field.onChange(booleanValue)
-                  }}
-                >
-                  <SelectTrigger >
-                    <SelectValue placeholder="Selecione o Detalhe..." />
-                  </SelectTrigger>
+                {disableFields ? (
+                  <div className="flex items-center pt-1">
+                    <span className="text-sm text-gray-500">
+                      {detalheParaHistorico ? "Contabilizar" : "Não contabilizar"}
+                    </span>
+                  </div>
 
-                  <SelectContent>
-                    <SelectItem value="false">Não contabilizar</SelectItem>
-                    <SelectItem value="true">Contabilizar</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
+                ) : (
+                  <Select
+                    value={detalheParaHistorico.toString()}
+                    onValueChange={(value) => {
+                      onValueChangeDetalheParaQuadroDeHistoricoPorAno(value)
+                      const booleanValue = value === "true";
+                      return field.onChange(booleanValue)
+                    }}
+                  >
+                    <SelectTrigger >
+                      <SelectValue placeholder="Selecione o Detalhe..." />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="false">Não contabilizar</SelectItem>
+                      <SelectItem value="true">Contabilizar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
       </div>
     </>

@@ -33,7 +33,7 @@ const FormDados: React.FC = () => {
                         id="nome"
                         value={dados.nome}
                         disabled
-                        className="text-[#dadada] bg-[#fff] border border-[#dadada]"
+                        className="text-[#dadada] bg-white border border-[#dadada]"
                     />
                 </div>
 
@@ -79,7 +79,7 @@ const FormDados: React.FC = () => {
                         id="cpf"
                         value={dados.cpf}
                         disabled
-                        className="text-[#dadada] bg-[#fff] border border-[#dadada]"
+                        className="text-[#dadada] bg-white border border-[#dadada]"
                     />
                 </div>
 
@@ -91,7 +91,7 @@ const FormDados: React.FC = () => {
                         id="dre"
                         value={dados.dre}
                         disabled
-                        className="text-[#dadada] bg-[#fff] border border-[#dadada]"
+                        className="text-[#dadada] bg-white border border-[#dadada]"
                     />
                 </div>
 
@@ -103,7 +103,7 @@ const FormDados: React.FC = () => {
                         id="unidade"
                         value={dados.unidade}
                         disabled
-                        className="text-[#dadada] bg-[#fff] border border-[#dadada]"
+                        className="text-[#dadada] bg-white border border-[#dadada]"
                     />
                 </div>
 
@@ -115,7 +115,7 @@ const FormDados: React.FC = () => {
                         id="perfil"
                         value={dados.perfil}
                         disabled
-                        className="text-[#dadada] bg-[#fff] border border-[#dadada]"
+                        className="text-[#dadada] bg-white border border-[#dadada]"
                     />
                 </div>
             </div>

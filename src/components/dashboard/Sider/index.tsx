@@ -182,7 +182,7 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
         {collapsed ? null : logoMenu}
         <Button
           type='text'
-          className={`!text-white hover:!text-white ${collapsed ? '' : '!rounded-[24px]'}`}
+          className={`text-white! hover:text-white! ${collapsed ? '' : 'rounded-[24px]!'}`}
           icon={collapsed ? <MenuBurger width={18} height={12}  />
           : <X width={24} height={24} />}
           onClick={() => {

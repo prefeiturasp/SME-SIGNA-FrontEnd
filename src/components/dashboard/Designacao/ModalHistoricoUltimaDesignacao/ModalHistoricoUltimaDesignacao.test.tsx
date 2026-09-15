@@ -83,7 +83,7 @@ const servidorMock: Servidor = {
 };
 
 const portariaMock = {
-  numero_portaria: "001",
+  numero_portaria: 1,
   ano: "2024",
   numero_sei: "SEI-001",
   doc: "DOC-001",
@@ -165,7 +165,7 @@ describe("ModalUltimaDesignacao", () => {
 
     expect(screen.getByText("Portaria de Cessação")).toBeInTheDocument();
     expect(screen.getByText("Nº Portaria da designação")).toBeInTheDocument();
-    expect(screen.getByText("001")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("2024")).toBeInTheDocument();
     expect(screen.getByText("SEI-001")).toBeInTheDocument();
     expect(screen.getByText("DOC-001")).toBeInTheDocument();

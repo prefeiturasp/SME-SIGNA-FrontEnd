@@ -140,12 +140,12 @@ const EditorSEI = forwardRef<EditorSEIHandle, EditorSEIProps>(
                     suppressContentEditableWarning
                     onInput={onInput}
                     style={{ minHeight }}
-                    className="w-full border border-gray-300 rounded p-4 text-sm text-gray-800 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400 leading-relaxed overflow-auto"
+                    className="w-full border border-gray-300 rounded p-4 text-sm text-gray-800 bg-white focus:outline-hidden focus:ring-1 focus:ring-gray-400 leading-relaxed overflow-auto"
                 />
 
                 {/* Botão opcional */}
                 {mostrarBotao && (
-                    <div className="w-full flex justify-end pt-[2rem]">
+                    <div className="w-full flex justify-end pt-8">
                         <div className="w-[200px]">
                             <Button
                                 type={tipoBotao}

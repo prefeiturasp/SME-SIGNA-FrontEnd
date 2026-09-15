@@ -162,7 +162,7 @@ describe("VisualizarInsubsistenciaPage", () => {
       doc: "2025-01-01",
     },
     cessacao: {
-      numero_portaria: "050",
+      numero_portaria: 50,
       ano_vigente: "2024",
       sei_numero: "SEI-CES",
       doc: "2024-01-01",
@@ -309,6 +309,35 @@ describe("VisualizarInsubsistenciaPage", () => {
     );
   });
 
+  it("exibe o texto_sei do backend diretamente quando presente, sem montagem local", () => {
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: { ...dataMock, texto_sei: "Texto pronto vindo do backend" },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+
+    expect(gerarHtmlPortariaSpy).toHaveBeenCalledWith("Texto pronto vindo do backend");
+    expect(gerarDadosInsubsistenciaSpy).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-sei").textContent).toBe(
+      "HTML:Texto pronto vindo do backend",
+    );
+  });
+
+  it("cai na montagem local quando texto_sei ainda não foi persistido (registros de apostila/tornar-sem-efeito)", () => {
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: { ...dataMock, tipo_insubsistencia: "APOSTILA", texto_sei: "" },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+
+    expect(gerarDadosInsubsistenciaSpy).toHaveBeenCalled();
+    expect(screen.getByTestId("editor-sei").textContent).toContain("HTML:APOSTILA");
+  });
+
   it("usa dados de cessação para apostila quando ato_apostilado é CESSACAO", () => {
     vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
       data: { ...dataMock, ato_apostilado: "CESSACAO" },
@@ -320,6 +349,6 @@ describe("VisualizarInsubsistenciaPage", () => {
 
     const html = screen.getByTestId("editor-sei").textContent ?? "";
     expect(html).toContain("<strong>Servidor Teste</strong>");
-    expect(html).toContain("050");
+    expect(html).toContain("50");
   });
 });

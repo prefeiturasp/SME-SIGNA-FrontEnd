@@ -12,8 +12,8 @@ const Textarea = React.forwardRef<
     return (
         <textarea
             className={cn(
-                "flex min-h-[80px] w-full border border-[#dadada] bg-background px-3 py-2 text-sm font-medium ring-0 ring-offset-0 shadow-none outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none focus:bg-[#E8F0FE] focus:border-[#ced4da] disabled:cursor-not-allowed rounded-[4px] resize-none",
-                error && "!border-destructive",
+                "flex min-h-[80px] w-full border border-[#dadada] bg-background px-3 py-2 text-sm font-medium ring-0 ring-offset-0 shadow-none outline-hidden focus:outline-hidden focus:ring-0 focus:ring-offset-0 focus:shadow-none focus:bg-[#E8F0FE] focus:border-[#ced4da] disabled:cursor-not-allowed rounded-[4px] resize-none",
+                error && "border-destructive!",
                 className
             )}
             ref={ref}
