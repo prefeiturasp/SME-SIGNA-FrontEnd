@@ -1,12 +1,5 @@
 # language: pt
 
-# @testIsolation(false): desativa o reset automático do navegador (reload,
-# limpeza de cookies/storage) entre os cenários desta Funcionalidade — só
-# aqui. É a forma suportada pelo cypress-cucumber-preprocessor de definir
-# essa config por suíte (exigência do próprio Cypress; só pode ser feita a
-# nível de Feature/Rule, não em runtime/hook). Ver login step em
-# atos_administrativos_steps.js: faz login via UI uma única vez e reaproveita
-# a mesma sessão/página nos cenários seguintes.
 @atos-administrativos @testIsolation(false)
 Funcionalidade: Pesquisa de Atos Administrativos
 
@@ -114,12 +107,8 @@ Funcionalidade: Pesquisa de Atos Administrativos
     E a tabela apresenta resultado para "Aguardando publicação"
 
   # ─── Bloqueados por bug no backend ───────────────────────────────────────
-  # Bug conhecido (2026-07-12, reconfirmado em 2026-07-20): o backend não
-  # filtra corretamente por Servidor/RF — a tabela retorna linhas que não
-  # correspondem ao valor pesquisado (evidência: busca por "ROSANGELA DA
-  # SILVA PRADO" e por RF "7443668" trouxe registros de outras pessoas/RFs,
-  # mesmo com o request enviando o valor correto ao backend). Skip até
-  # correção.
+  # Bug conhecido: o backend não filtra corretamente por Servidor/RF — a
+  # tabela retorna linhas que não correspondem ao valor pesquisado.
 
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 7 — Filtrar por Servidor (bloqueado por bug)       [@skip]
@@ -168,9 +157,8 @@ Funcionalidade: Pesquisa de Atos Administrativos
 
     Então os campos de filtro são limpos
 
-  # Bug conhecido (2026-07-12, reconfirmado em 2026-07-20): a combinação de
-  # filtros não funciona como "E" (AND) — nenhuma linha retornada satisfaz
-  # RF e Status ao mesmo tempo. Skip até correção no backend.
+  # Bug conhecido: a combinação de filtros não funciona como "E" (AND) —
+  # nenhuma linha retornada satisfaz RF e Status ao mesmo tempo.
   # ══════════════════════════════════════════════════════════════
   # CENÁRIO 11 — Busca combinada RF + Status                   [@skip]
   # ══════════════════════════════════════════════════════════════

@@ -159,11 +159,8 @@ def is_tracked(path: Path) -> bool:
 
 
 def git_dates(path: Path) -> tuple[date | None, date | None]:
-    """Data de inicio = primeiro commit que criou o arquivo.
-    Data de fim = commit mais recente que alterou conteudo de cenario
-    (evita datar como "finalizacao" commits cosmeticos, ex.: ajuste de tag
-    ou .gitignore, que tambem tocam o arquivo).
-    """
+    """Inicio = primeiro commit do arquivo. Fim = commit mais recente que
+    alterou conteudo de cenario (ignora commits cosmeticos, ex.: tag/gitignore)."""
     rel = path.relative_to(BASE_DIR).as_posix()
     log = git("log", "--follow", "--format=%H %ad", "--date=short", "--", rel)
     linhas = log.splitlines()
@@ -247,9 +244,8 @@ def _urls_em(path: Path) -> list[str]:
 
 
 def extrair_url_ui(stem: str) -> str:
-    # Nao usamos os commands globais (ex.: commands_login.js) como fonte:
-    # eles sao compartilhados por praticamente todo fluxo (login no Contexto)
-    # e poluiriam qualquer funcionalidade sem cy.visit proprio com "/login".
+    # Nao usamos os commands globais (login no Contexto) como fonte: sao
+    # compartilhados por quase todo fluxo e poluiriam a URL de cada feature.
     step_file = FEATURE_TO_STEPFILE.get(stem)
     achados = _urls_em(BASE_DIR / "cypress" / "support" / "step_definitions" / "ui" / step_file) if step_file else []
 
