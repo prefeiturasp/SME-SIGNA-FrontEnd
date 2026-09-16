@@ -38,7 +38,7 @@ describe("FormularioBuscaDesignacao", () => {
     await user.click(button);
 
     await waitFor(() => {
-      expect(screen.queryAllByText(/obrigatório|inválido/i).length).toBeGreaterThan(0);
+      expect(document.body).toContainAnyByText(/obrigatório|inválido/i);
     });
   });
 
