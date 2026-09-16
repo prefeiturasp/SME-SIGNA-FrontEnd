@@ -158,7 +158,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                     </FormLabel>
                     <FormControl>
                       <Select
-                        value={field.value?.toString() ?? ""}
+                        value={field.value?.toString() ?? undefined}
                         onValueChange={(value) => {
                           if (value === "" || value === null) {
                             return;
