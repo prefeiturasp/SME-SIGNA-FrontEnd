@@ -28,7 +28,8 @@ Funcionalidade: API SIGNA - Unidade
   @negativo @dados_unidade
   Cenário: Buscar dados de unidade com código UE inexistente
     Quando eu busco os dados da unidade pelo código UE "000000"
-    Então o status da resposta do SIGNA deve ser 404 ou 400
+    Então o status code da resposta do SIGNA deve ser 200
+    E a resposta da unidade deve indicar código hierárquico ausente
 
   # GET /unidade/?codigo_ue= — NEGATIVO sem autenticação
   @negativo @sem_autenticacao

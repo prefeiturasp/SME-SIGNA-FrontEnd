@@ -118,18 +118,9 @@ Given('que o sistema carregou o dashboard', () => {
 When('valida e clica no botão Nova Designação', () => {
   cy.intercept('POST', '**/designacoes-passo-1**').as('loadPasso1');
 
-  // Bug de aplicação: a tela "Lista de designações" mantém um polling/refresh
-  // (POST na própria rota) que não é cancelado ao navegar para outra página.
-  // Minutos/segundos depois, a resposta desse polling força o app a navegar
-  // de volta para listagem-designacoes — mesmo já estando em designacoes-passo-1.
-  // Não precisamos mais dessa rota no restante do fluxo de criação de
-  // designação. IMPORTANTE: forceNetworkError faz o fetch() do app rejeitar de
-  // verdade, o que aciona o próprio tratamento de erro da aplicação e dispara
-  // o redirecionamento de volta para listagem-designacoes — ou seja, causava
-  // exatamente o bug que tentava neutralizar. Em vez disso, atrasamos a
-  // resposta (mesma técnica já usada acima, em "navega pelo menu lateral..."):
-  // sem erro, sem redirecionamento, e a resposta nunca chega a tempo de afetar
-  // o restante do fluxo de criação da designação.
+  // Bug de aplicação: polling da tela "Lista de designações" não é cancelado
+  // ao navegar e força retorno a ela — atrasa a resposta em vez de derrubá-la
+  // (forceNetworkError dispararia o mesmo bug pelo tratamento de erro do app).
   cy.intercept('POST', '**/pages/listagem-designacoes**', (req) => {
     req.continue((res) => {
       res.delay = 90000;
@@ -214,13 +205,9 @@ When('clica em {string}', (texto) => {
   if (seletor === 'Salvar') {
     cy.log('Clicando em Salvar...');
 
-    // Ao salvar, o app navega de volta para listagem-designacoes. Se o
-    // intercept "blockListagemPolling" (forceNetworkError, registrado em
-    // "valida e clica no botão Nova Designação" para neutralizar o polling
-    // bugado enquanto estávamos em designacoes-passo-*) continuar ativo, ele
-    // também derruba as requisições legítimas da listagem após o retorno,
-    // gerando "TypeError: Failed to fetch" não capturado no fim do teste.
-    // Restauramos o comportamento normal da rota antes de navegar de volta.
+    // Restaura o intercept da listagem antes de voltar pra ela (senão o
+    // delay registrado em "valida e clica no botão Nova Designação" derruba
+    // as requisições legítimas pós-navegação).
     cy.intercept('POST', '**/pages/listagem-designacoes**').as('unblockListagemPolling');
 
     // Tenta primeiro o seletor para cessação (dentro do form)
@@ -250,8 +237,6 @@ When('clica em {string}', (texto) => {
     cy.log('Salvo com sucesso');
   } else if (seletor === 'Pesquisar Unidade proponente') {
     cy.wait(25000);
-    // XPath: /html/body/div[2]/div/div/div/main/div[3]/div[2]/div/div/div[3]/div/div/div/div/form/div/div[3]/div/button
-    // CSS equivalente estável (descendant no button para ignorar wrappers extras):
     const seletorBotaoPesquisarUnidade = '[id^="radix-"] form > div > div:nth-child(3) button';
     cy.get(seletorBotaoPesquisarUnidade)
       .scrollIntoView({ duration: 600 })
@@ -312,11 +297,8 @@ When('seleciona uma DRE aleatória no formulário', () => {
 });
 
 When('seleciona uma unidade proponente aleatória', () => {
-  // Algumas DREs retornam erro 500 do backend neste ambiente ao carregar
-  // suas unidades (confirmado em execução real — nada relacionado à DRE
-  // escolhida no passo anterior é validado antes deste ponto). Em vez de
-  // falhar o cenário por causa de um dado específico sorteado, troca de
-  // DRE e tenta de novo, com um número limitado de tentativas.
+  // Algumas DREs retornam erro 500 ao carregar unidades — troca de DRE e
+  // tenta de novo em vez de falhar o cenário.
   const MAX_TENTATIVAS = 4;
 
   const tentarSelecionarUnidade = (tentativa) => {
@@ -355,11 +337,6 @@ When('espera {int} seg', (segundos) => {
 
 When('valida a existencia do botão e clica em {string}', (texto) => {
   if (texto === 'Pesquisar Unidade proponente') {
-    // Seletor estável: usa a classe Tailwind w-[150px] do container do botão Pesquisar
-    // da seção Unidade Proponente — mais robusto que seletor posicional nth-child
-    // Referência: #radix-_r_3m_ > div > div > div > form > div:nth-child(1) > div.w-[150px].pt-[2rem] > button
-    // XPath: /html/body/div[2]/div/div/div/main/div[3]/div[2]/div/div/div[3]/div/div/div/div/form/div/div[3]/div/button
-    // CSS equivalente estável (descendant no button para ignorar wrappers extras):
     const seletorFinal = '[id^="radix-"] form > div > div:nth-child(3) button';
 
     cy.get(seletorFinal, { timeout: 15000 })
@@ -451,13 +428,8 @@ Then('o sistema valida que está na listagem de designações', () => {
   cy.url({ timeout: 15000 }).should('include', 'listagem-designacoes');
 });
 
-// Workaround: bug conhecido na aplicação — uma chamada de polling/refresh
-// obsoleta da tela "listagem-designacoes" continua ativa após a navegação e,
-// segundos depois, força o retorno a essa URL. Como isso pode ocorrer a
-// qualquer momento (inclusive durante a espera de uma assertion), fazemos um
-// retry ativo: a cada tentativa verificamos a URL e, se tiver revertido,
-// reclicamos em "Nova Designação" e checamos de novo — em vez de uma única
-// verificação no início, que não pega o caso do bug disparar durante a espera.
+// Bug conhecido: polling obsoleto da listagem pode forçar retorno a ela a
+// qualquer momento — retry ativo em vez de checagem única.
 function aguardarPaginaNovaDesignacao(tentativas = 6) {
   cy.url().then((url) => {
     if (url.includes('designacoes-passo-1')) {
@@ -780,14 +752,6 @@ When('valida a existencia do campo Cargo Vago', () => {
 });
 
 When('valida a existencia do botao de selecao de cargo vago', () => {
-  // Antes usava um seletor CSS absoluto (nth-child, convertido de XPath) que
-  // quebra com qualquer mudança minima na estrutura do DOM — nunca tinha sido
-  // exercitado de verdade porque a feature de origem estava excluida da
-  // execucao. Troca pelo mesmo padrao robusto ja usado mais adiante neste
-  // mesmo fluxo (ver "clica no campo ... e seleciona a primeira opcao
-  // disponivel" abaixo): o botao do combobox tem o proprio id terminado em
-  // "-form-item", entao filtra por button visivel dentro desse seletor
-  // dinamico em vez de depender da posicao exata na arvore.
   cy.get(designacaoLocators.campoCargoVago, { timeout: 15000 })
     .filter('button')
     .filter(':visible')
@@ -1026,13 +990,8 @@ Then('deve visualizar os botoes de navegacao do passo 2', () => {
 });
 
 When('clica em Avançar no rodape do passo 2', () => {
-  // Diagnóstico: cy.get(selector, { timeout }) aguarda o elemento EXISTIR, não o
-  // seu ESTADO. Quando o botão já existe (mas disabled), o timeout é consumido
-  // imediatamente e o .should() downstream usa apenas defaultCommandTimeout (10s).
-  //
-  // Solução definitiva: .should(callback) colocado DIRETAMENTE em cy.get() força
-  // o Cypress a re-executar cy.get() + callback inteiro a cada retry, respeitando
-  // os 60s. Traversals intermediários (.filter, .last) quebram esse vínculo.
+  // .should(callback) direto em cy.get() (sem .filter/.last no meio) força
+  // reavaliação a cada retry, respeitando o timeout de 60s.
   cy.get('button', { timeout: 60000 }).should(($buttons) => {
     const $avançar = $buttons.filter(':contains("Avançar")');
     expect($avançar.length, 'botão Avançar deve existir').to.be.greaterThan(0);

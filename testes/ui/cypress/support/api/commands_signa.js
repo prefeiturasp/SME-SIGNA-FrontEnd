@@ -4,15 +4,8 @@ const { RF_POOL, montarPayloadDesignacao } = require('../utils/dados_designacao'
 // ============================================================================
 // AUTENTICAÇÃO SIGNA (backend próprio, JWT)
 // ============================================================================
-// POST /api/usuario/login com {username, password} devolve {token, name,
-// email, cpf} (confirmado em src/actions/login.ts). O token é usado depois
-// como header Authorization: Bearer <token> (confirmado em
-// src/actions/cadastro-designacao.ts e demais actions de designação).
-//
-// Reaproveita as credenciais já usadas pelo login via UI:
-//   Cypress.env('username') / Cypress.env('password')
-//   (carregadas de SIGNA_USERNAME/SIGNA_PASSWORD no .env — ver cypress.config.js)
-// ============================================================================
+// Reaproveita Cypress.env('username')/('password'), as mesmas credenciais do
+// login via UI (SIGNA_USERNAME/SIGNA_PASSWORD no .env).
 
 Cypress.Commands.add('signa_api_autenticar', () => {
   const username = Cypress.env('username')
@@ -101,9 +94,7 @@ Cypress.Commands.add('signa_api_delete', (path, options = {}) => {
 // ORQUESTRAÇÃO — designação "de apoio" para testes de cessação/apostila/
 // insubsistência (todas dependem de um ato_pai/designação já existente).
 // ============================================================================
-// POST /designacao/servidor é instável em QA (500/timeout transitórios para
-// RFs válidos — mesmo comportamento já tratado com retry na suíte de UI).
-// Tenta cada RF do pool até obter 200.
+// POST /designacao/servidor é instável em QA — tenta cada RF do pool até 200.
 
 Cypress.Commands.add('signa_buscar_servidor_valido', () => {
   const tentar = (indice) => {
