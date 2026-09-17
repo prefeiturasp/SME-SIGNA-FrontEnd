@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
 
@@ -39,6 +39,25 @@ import { useFetchCargos } from "@/hooks/useCargos";
 import { encontrarCargoPorNome, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
 import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
+const BREADCRUMBS = [
+  { title: "Início", href: "/" },
+  { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
+  { title: "Designação" },
+];
+
+
+const PORTARIA_CESSACAO_MOCK = {
+  numero_portaria: 123,
+  ano: "2026",
+  numero_sei: "0012345",
+  doc: "0098765",
+  designacao_a_partir_de: "01/01/2024",
+  ate: "31/12/2024",
+  carater_excepcional: "nao",
+  motivo_cancelamento: "Encerramento do período de designação",
+  impedimento_substituicao: "Nenhum impedimento registrado",
+};
+
 function obterErrorCargoTitular(
   cargoTitularInvalido: boolean,
   nomeCargoTitular: string | null | undefined
@@ -64,7 +83,6 @@ export default function DesignacoesPasso2() {
   
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
-  const [isPopulateScreen, setIsPopulateScreen] = useState(false);
   const hasPopulatedFromApi = useRef(false);
   const [dadosTitular, setDadosTitular] = useState<Servidor | null>(formDesignacaoData?.dadosTitular ?? null);
 
@@ -181,15 +199,14 @@ export default function DesignacoesPasso2() {
       // Ao navegar de volta do passo-3, rf está na URL e o contexto já tem os
       // dados editados pelo usuário. Evita sobrescrever com os dados originais da API.
       if (rf && formDesignacaoData?.portaria_designacao) {
-        setIsPopulateScreen(false);
         return;
       }
 
-      setIsPopulateScreen(true);
+      /* eslint-disable react-hooks/set-state-in-effect -- hidrata o formulário uma única vez com dados da API. */
       popularCamposFormulario(designacao);
       popularDadosContexto(designacao);
       form.clearErrors();
-      setIsPopulateScreen(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [designacao]);
 
@@ -197,32 +214,48 @@ export default function DesignacoesPasso2() {
   const router = useRouter();
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
-  const tipoCargo = form.watch("tipo_cargo");
-  const cargoVago = form.watch("cargo_vago_selecionado");
-  const rfTitular = form.watch("rf_titular");
+
+  const tipoCargo = useWatch({ control: form.control, name: "tipo_cargo" });
+  const cargoVago = useWatch({ control: form.control, name: "cargo_vago_selecionado" });
+  const rfTitular = useWatch({ control: form.control, name: "rf_titular" });
 
   const { data: cargosData = [], isLoading: isLoadingCargos } = useFetchCargos();
-  const nomeCargoTitular = obterNomeCargoTitular(dadosTitular);
-  const cargoTitularCorrespondente = encontrarCargoPorNome(nomeCargoTitular, cargosData);
-  const cargoTitularInvalido =
-    tipoCargo !== "vago" && !!dadosTitular && !isLoadingCargos && !cargoTitularCorrespondente;
-  const errorCargoTitular = obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular);
-  const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
-    const response = await mutateAsync(values);
-    if (response.success) {
-      const titularFormatado: Servidor = {
-        ...response.data,
-      };
+  const nomeCargoTitular = useMemo(
+    () => obterNomeCargoTitular(dadosTitular),
+    [dadosTitular]
+  );
+  const cargoTitularInvalido = useMemo(
+    () =>
+      tipoCargo !== "vago" &&
+      !!dadosTitular &&
+      !isLoadingCargos &&
+      !encontrarCargoPorNome(nomeCargoTitular, cargosData),
+    [tipoCargo, dadosTitular, isLoadingCargos, nomeCargoTitular, cargosData]
+  );
+  const errorCargoTitular = useMemo(
+    () => obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular),
+    [cargoTitularInvalido, nomeCargoTitular]
+  );
 
-      setDadosTitular(titularFormatado);
-      setErrorBusca(null);
-      form.setValue("rf_titular", values.rf, { shouldValidate: true });
-    } else {
-      setErrorBusca(response.error);
-      setDadosTitular(null);
-      form.setValue("rf_titular", "");
-    }
-  };
+  const onBuscaTitular = useCallback(
+    async (values: BuscaDesignacaoRequest) => {
+      const response = await mutateAsync(values);
+      if (response.success) {
+        const titularFormatado: Servidor = {
+          ...response.data,
+        };
+
+        setDadosTitular(titularFormatado);
+        setErrorBusca(null);
+        form.setValue("rf_titular", values.rf, { shouldValidate: true });
+      } else {
+        setErrorBusca(response.error);
+        setDadosTitular(null);
+        form.setValue("rf_titular", "");
+      }
+    },
+    [mutateAsync, form]
+  );
 
   const canAdvance =
     Object.keys(form.formState.errors).length === 0 &&
@@ -280,21 +313,24 @@ export default function DesignacoesPasso2() {
     }
   }, [tipoCargo]);
 
-  function onSubmitEditarServidor(data: FormEditarServidorData) {
-    setFormDesignacaoData((prevState) => {
-      if (!prevState?.servidorIndicado) return prevState;
+  const onSubmitEditarServidor = useCallback(
+    (data: FormEditarServidorData) => {
+      setFormDesignacaoData((prevState) => {
+        if (!prevState?.servidorIndicado) return prevState;
 
-      return {
-        ...prevState,
-        servidorIndicado: {
-          ...prevState.servidorIndicado,
-          nome_servidor: data.nome_servidor,
-          nome_civil: data.nome_civil,
-          categoria: data.categoria ?? "",
-        },
-      };
-    });
-  }
+        return {
+          ...prevState,
+          servidorIndicado: {
+            ...prevState.servidorIndicado,
+            nome_servidor: data.nome_servidor,
+            nome_civil: data.nome_civil,
+            categoria: data.categoria ?? "",
+          },
+        };
+      });
+    },
+    [setFormDesignacaoData]
+  );
 
   useEffect(() => {
     if (!rf && id) {
@@ -307,10 +343,7 @@ export default function DesignacoesPasso2() {
     <>
       <PageHeader
         title= {id ? "Editar Designação" : "Designação"}
-        breadcrumbs={[
-          { title: "Início", href: "/" }, 
-          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
-          { title: "Designação" }, ]}
+        breadcrumbs={BREADCRUMBS}
           icon={<Designacao width={24} height={24} color="#660C0B" />}
           showBackButton={false}
       />
@@ -370,7 +403,7 @@ export default function DesignacoesPasso2() {
                   value="portarias-designacao"
                 >
                   <PortariaDesigacaoFields
-                    isLoading={isPopulateScreen || isLoadingDesignacao}
+                    isLoading={isLoadingDesignacao}
                   />
                 </CustomAccordionItem>
                 <CustomAccordionItem
@@ -392,7 +425,7 @@ export default function DesignacoesPasso2() {
             {/* to-do: arrumar nome */}
             <SelecaoServidorIndicado
               rf_default={rfTitular ?? ""}
-              isLoading={isPopulateScreen || isLoadingDesignacao}
+              isLoading={isLoadingDesignacao}
               form={form}
               tipoCargo={tipoCargo}
               dadosTitular={dadosTitular}
@@ -429,18 +462,7 @@ export default function DesignacoesPasso2() {
         onOpenChange={setModalHistoricoUltimaDesignacaoOpen}
         // to-do: quando houver api com os dados trazer dados corretamente do ultimo servidor
         ultimoServidor={formDesignacaoData?.servidorIndicado ?? null}
-        // to-do: quando houver api com os dados remover mock
-        portariaCessacao={{
-          numero_portaria: 123,
-          ano: "2026",
-          numero_sei: "0012345",
-          doc: "0098765",
-          designacao_a_partir_de: "01/01/2024",
-          ate: "31/12/2024",
-          carater_excepcional: "nao",
-          motivo_cancelamento: "Encerramento do período de designação",
-          impedimento_substituicao: "Nenhum impedimento registrado",
-        }}
+        portariaCessacao={PORTARIA_CESSACAO_MOCK}
       />
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import {
   SelectItem,
@@ -20,7 +20,7 @@ import {
 
 import { useFetchImpedimentos } from "@/hooks/useTiposImpedimentos";
 
-import { useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import {
@@ -38,19 +38,21 @@ interface Props {
 }
 
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
-  const { register, control, watch, setValue } = useFormContext();
+  const { register, control, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
-  const comAfastamento = watch("com_afastamento");
-  const possuiPendencia = watch("possui_pendencia");
-  const impedimentos =
-    data?.map((item) => ({
-      codigo: item.value.toString(),
-      nome: item.label,
-    })) ?? [];
+  
+  const comAfastamento = useWatch({ control, name: "com_afastamento" });
+  const possuiPendencia = useWatch({ control, name: "possui_pendencia" });
+  const dataFinal = useWatch({ control, name: "designacao_data_final" });
 
-
-
-  const dataFinal = watch("designacao_data_final");
+  const impedimentos = useMemo(
+    () =>
+      data?.map((item) => ({
+        codigo: item.value.toString(),
+        nome: item.label,
+      })) ?? [],
+    [data]
+  );
 
   const isImpedimentoDisabled = !dataFinal;
 
@@ -300,4 +302,4 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
   );
 };
 
-export default PortariaDesigacaoFields;
+export default memo(PortariaDesigacaoFields);
