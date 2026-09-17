@@ -75,7 +75,7 @@ export default function DesignacoesPasso2() {
       designacao_data_final: formDesignacaoData?.designacao_data_final ?? null,
       ano: formDesignacaoData?.ano ?? new Date().getFullYear().toString(),
       doc: formDesignacaoData?.doc ?? "",
-      impedimento_substituicao: formDesignacaoData?.impedimento_substituicao ?? null,
+      impedimento_substituicao: formDesignacaoData?.impedimento_substituicao?.toString() ?? null,
       impedimento_label: formDesignacaoData?.impedimento_label ?? "",
       carater_especial: formDesignacaoData?.carater_especial ?? "nao",
       com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
@@ -99,7 +99,7 @@ export default function DesignacoesPasso2() {
     form.setValue("designacao_data_final", d.data_fim ? new Date(d.data_fim.replaceAll("-", '/')) : null);
     form.setValue("ano", d.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
     form.setValue("doc", d.doc ?? "");
-    form.setValue("impedimento_substituicao", d.impedimento_substituicao);
+    form.setValue("impedimento_substituicao", d.impedimento_substituicao?.toString() ?? null);
     form.setValue("carater_especial", d.carater_excepcional ? "sim" : "nao");
     form.setValue("com_afastamento", d.com_afastamento ? "sim" : "nao");
     form.setValue("motivo_afastamento", d.motivo_afastamento);
@@ -164,7 +164,7 @@ export default function DesignacoesPasso2() {
       tipo_cargo: d.tipo_vaga.toLowerCase() as "vago" | "disponivel",
       rf_titular: d.titular_rf,
       cargo_vago_selecionado: { id: d.cargo_vaga, label: d.cargo_vaga_display },
-      impedimento_substituicao: d.impedimento_substituicao,
+      impedimento_substituicao: d.impedimento_substituicao?.toString() ?? null,
       impedimento_label: d.impedimento_substituicao !== null ? d.impedimento_display : "",
       dadosTitular: null,
       informacoes_adicionais: d.informacoes_adicionais ?? "",
