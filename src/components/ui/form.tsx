@@ -45,10 +45,7 @@ const useFormField = () => {
     const fieldContext = React.useContext(FormFieldContext);
     const itemContext = React.useContext(FormItemContext);
 
-    // Assina apenas os erros deste campo. Ler `formState` de `useFormContext()`
-    // marcaria o componente que chama `useForm` como assinante de
-    // isValidating/dirtyFields/touchedFields, fazendo a página inteira
-    // re-renderizar duas vezes por tecla digitada em qualquer campo.
+    
     const { errors } = useFormState({ name: fieldContext.name });
 
     if (!fieldContext) {
