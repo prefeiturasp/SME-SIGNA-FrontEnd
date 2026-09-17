@@ -134,7 +134,6 @@ export default function ApostilaPage() {
 
   const getCampoMapeadoCessacao = (field: string) => {
     const camposCessacao = {
-      "numero_portaria": "numero_portaria",
       "ano": "ano_vigente",
       "numero_sei": "sei_numero",
       "data_inicio": "data_cessacao",
@@ -151,15 +150,9 @@ export default function ApostilaPage() {
       "ano": "ano_vigente",
 
 
-      "numero_sei": "sei_numero",
-      "doc": "doc",
+      "numero_sei": "sei_numero",      
       "a_partir_de": "data_inicio",
       "designacao_data_final": "data_fim",
-
-
-      "carater_excepcional": "carater_excepcional",
-
-      "possui_pendencia": "possui_pendencia",
 
       "motivo_pendencia": "pendencias",
       "ue_nome": "unidade_proponente",
