@@ -3,7 +3,12 @@
 import { StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider } from "antd";
 import ptBR from "antd/locale/pt_BR";
+import { Spin } from 'antd';
+import { Loader2 } from "lucide-react";
 
+Spin.setDefaultIndicator(
+  <Loader2 className="animate-spin" />
+);
 interface AntdProviderProps {
     readonly children: React.ReactNode;
 }
@@ -14,7 +19,7 @@ const AntdProvider = ({ children }: AntdProviderProps) => {
             <ConfigProvider
                 locale={ptBR}
                 theme={{
-                    components: {
+                    components: {                        
                         Alert: {
                             withDescriptionPadding: "8px 12px",
                             colorTextHeading: "#B7A100",
