@@ -53,12 +53,12 @@ const defaultValues = {
   doc: "",
   a_partir_de: new Date(),
   designacao_data_final: null,
-  carater_especial: EnumCheckbox.NAO,
+  carater_excepcional: EnumCheckbox.NAO,
   impedimento_substituicao: "",
   impedimento_label: "",
   com_afastamento: EnumCheckbox.NAO,
   motivo_afastamento: "",
-  com_pendencia: EnumCheckbox.NAO,
+  possui_pendencia: EnumCheckbox.NAO,
   motivo_pendencia: "",
 
   // campos cargo disponível
@@ -157,9 +157,9 @@ export default function ApostilaPage() {
       "designacao_data_final": "data_fim",
 
 
-      "carater_especial": "carater_excepcional",
+      "carater_excepcional": "carater_excepcional",
 
-      "com_pendencia": "possui_pendencia",
+      "possui_pendencia": "possui_pendencia",
 
       "motivo_pendencia": "pendencias",
       "ue_nome": "unidade_proponente",
@@ -185,10 +185,10 @@ export default function ApostilaPage() {
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
       "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
       "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
-      "carater_especial": formValues.carater_especial === "sim" ? "True" : "False",
+      "carater_excepcional": formValues.carater_excepcional === "sim" ? "True" : "False",
 
       "com_afastamento": formValues.com_afastamento === "sim" ? "True" : "False",
-      "com_pendencia": formValues.com_pendencia === "sim" ? "True" : "False",
+      "possui_pendencia": formValues.possui_pendencia === "sim" ? "True" : "False",
       "cessacao": {
         ...formValues.cessacao,
         "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
@@ -253,7 +253,10 @@ export default function ApostilaPage() {
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
       const alteracoes = gerarAlteracoes(values);
-
+      if (alteracoes.length === 0) {
+        notification.error({ title: "Não há alterações para salvar", description: "Adicione ao menos uma alteração para salvar a apostila" });
+        return;
+      }
 
       const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
       const body: ApostilaBody = {
@@ -264,7 +267,6 @@ export default function ApostilaPage() {
         observacao: values.apostila.observacao,
         alteracoes: alteracoes,
         texto_sei: values.texto_portaria,
-
       };
       await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
@@ -306,11 +308,11 @@ export default function ApostilaPage() {
         doc: designacao?.doc ?? "",
         a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
         designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
-        carater_especial: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        carater_excepcional: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         impedimento_substituicao: designacao?.impedimento_substituicao?.toString() ?? null,
         com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_afastamento: designacao?.motivo_afastamento,
-        com_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        possui_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_pendencia: designacao?.pendencias,
         informacoes_adicionais: designacao?.informacoes_adicionais,
         detalhe_para_quadro_de_historico_por_ano: normalizarDetalheParaQuadroDeHistoricoPorAno(
