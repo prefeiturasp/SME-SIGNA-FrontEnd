@@ -56,6 +56,7 @@ export default function SelecaoServidorIndicado({
   rf_default
 }: Readonly<SelecaoTipoCargoProps>) {
 
+
   const { data: cargosData = [] } = useFetchCargos();
   const cargos = cargosData.map(cargo => ({
     id: cargo.codigoCargo,
