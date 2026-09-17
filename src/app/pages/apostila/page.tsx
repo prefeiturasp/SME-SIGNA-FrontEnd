@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useForm, FormProvider, FieldValues, UseFormReturn } from "react-hook-form";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm, FormProvider, FieldValues, UseFormReturn, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
 import { Loader2 } from "lucide-react";
@@ -97,6 +97,50 @@ const normalizarDetalheParaQuadroDeHistoricoPorAno = (value: unknown) => {
   return true;
 };
 
+function BotaoGerarTextoSei({
+  form,
+  onClick,
+}: Readonly<{
+  form: UseFormReturn<formSchemaApostilaData>;
+  onClick: () => Promise<void>;
+}>) {
+  const { isValid } = useFormState({ control: form.control });
+
+  return (
+    <Button
+      type="button"
+      size="lg"
+      className="w-full flex items-center justify-center gap-6"
+      variant="destructive"
+      disabled={!isValid}
+      onClick={onClick}
+    >
+      Gerar texto SEI
+    </Button>
+  );
+}
+
+function BotaoSalvarPortariaApostila({
+  form,
+}: Readonly<{
+  form: UseFormReturn<formSchemaApostilaData>;
+}>) {
+  const { isValid } = useFormState({ control: form.control });
+
+  return (
+    <Button
+      type="submit"
+      size="lg"
+      className="w-full flex items-center justify-center px-6"
+      variant="destructive"
+      data-testid="button-salvar-portaria-apostila"
+      disabled={!isValid}
+    >
+      <p className="text-[16px] font-bold">Salvar</p>
+    </Button>
+  );
+}
+
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -107,10 +151,14 @@ export default function ApostilaPage() {
   const salvarApostila = useSalvarApostila();
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
   const { data: cargosData = [] } = useFetchCargos();
-  const cargos = cargosData.map(cargo => ({
-    value: cargo.codigoCargo.toString(),
-    label: cargo.nomeCargo,
-  }));
+  const cargos = useMemo(
+    () =>
+      cargosData.map(cargo => ({
+        value: cargo.codigoCargo.toString(),
+        label: cargo.nomeCargo,
+      })),
+    [cargosData]
+  );
 
 
   const form = useForm<formSchemaApostilaData>({
@@ -128,9 +176,11 @@ export default function ApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
 
 
-  const handleGerarPortaria = () => {
+  const handleClickGerarTextoSei = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (!isValid) return;
     setMostrarEditor(true);
-  };
+  }, [form]);
 
   const getCampoMapeadoCessacao = (field: string) => {
     const camposCessacao = {
@@ -476,19 +526,7 @@ export default function ApostilaPage() {
 
               <div className="w-full flex justify-end pt-8">
                 <div className="w-50">
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="w-full flex items-center justify-center gap-6"
-                    variant="destructive"
-                    disabled={!form.formState.isValid}
-                    onClick={async () => {
-                      const isValid = await form.trigger();
-                      if (!isValid) return;
-                      handleGerarPortaria();
-                    }}>
-                    Gerar texto SEI
-                  </Button>
+                  <BotaoGerarTextoSei form={form} onClick={handleClickGerarTextoSei} />
                 </div>
               </div>
 
@@ -521,17 +559,7 @@ export default function ApostilaPage() {
                   />
                   <div className="w-full flex justify-end pt-8">
                     <div >
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full flex items-center justify-center px-6"
-                        variant="destructive"
-                        data-testid="button-salvar-portaria-apostila"
-                        disabled={!form.formState.isValid}
-
-                      >
-                        <p className="text-[16px] font-bold">Salvar</p>
-                      </Button>
+                      <BotaoSalvarPortariaApostila form={form} />
                     </div>
                   </div>
                 </div>

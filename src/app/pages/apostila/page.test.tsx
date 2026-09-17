@@ -463,6 +463,12 @@ vi.mock("react-hook-form", async () => {
       register: vi.fn(),
       reset: resetMock,
     }),
+    useFormState: () => ({
+      errors: {},
+      isDirty: mockIsDirty,
+      isValid: mockIsValid,
+      dirtyFields: mockDirtyFields,
+    }),
     FormProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   };
 });
@@ -483,6 +489,23 @@ describe("ApostilaPage", () => {
     notificationSuccessMock.mockReset();
     notificationErrorMock.mockReset();
   });
+
+  function prepararSubmitComAlteracoes() {
+    mockDirtyFields = {
+      portaria_designacao: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "",
+        observacao: "",
+      },
+      portaria_designacao: "654",
+      texto_portaria: "Texto SEI apostila",
+    });
+  }
 
   it("mostra loading", () => {
     mockIsLoading = true;
@@ -635,6 +658,8 @@ describe("ApostilaPage", () => {
   });
 
   it("submete com sucesso e redireciona", async () => {
+    prepararSubmitComAlteracoes();
+
     render(<ApostilaPage />);
 
     fireEvent.submit(document.querySelector("form")!);
@@ -832,6 +857,7 @@ describe("ApostilaPage", () => {
   });
 
   it("exibe a mensagem do Error quando o submit falha", async () => {
+    prepararSubmitComAlteracoes();
     notificationSuccessMock.mockImplementationOnce(() => {
       throw new Error("falha detalhada");
     });
@@ -846,6 +872,7 @@ describe("ApostilaPage", () => {
   });
 
   it("exibe mensagem padrão quando o erro do submit não é Error", async () => {
+    prepararSubmitComAlteracoes();
     notificationSuccessMock.mockImplementationOnce(() => {
       throw "erro";
     });
