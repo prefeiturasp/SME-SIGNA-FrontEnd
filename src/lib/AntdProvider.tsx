@@ -1,9 +1,8 @@
 "use client";
 
 import { StyleProvider } from "@ant-design/cssinjs";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, Spin } from "antd";
 import ptBR from "antd/locale/pt_BR";
-import { Spin } from 'antd';
 import { Loader2 } from "lucide-react";
 
 Spin.setDefaultIndicator(
