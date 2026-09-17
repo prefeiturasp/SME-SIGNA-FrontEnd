@@ -97,7 +97,7 @@ export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldV
 
 
 
-export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues>) => {
+export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ onChange, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues> & { onChange?: (value: string) => void }) => {
     return (
         <FormField
             control={control}
@@ -110,7 +110,10 @@ export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({
                     <FormControl>
                         <RadioGroup
                             value={field.value}
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                                field.onChange(value);
+                                onChange?.(value);
+                            }}
                             defaultValue="sim"
                             className="w-fit "
                         >

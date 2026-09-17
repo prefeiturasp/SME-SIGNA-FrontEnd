@@ -26,6 +26,7 @@ import { Loader2 } from "lucide-react";
 import {
   CheckboxField,
   DateField,
+  EnumCheckbox,
   InputField,
 } from "@/components/ui/FieldsForm";
 import {SelectAnoField} from "@/components/ui/SelectAnoField"
@@ -39,7 +40,8 @@ interface Props {
 const PortariaDesigacaoFields = ({ isLoading }: Props) => {
   const { register, control, watch, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
-
+  const comAfastamento = watch("com_afastamento");
+  const possuiPendencia = watch("possui_pendencia");
   const impedimentos =
     data?.map((item) => ({
       codigo: item.value.toString(),
@@ -213,10 +215,15 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="com_afastamento"
                 label="Com afastamento?"
                 data-testid="checkbox-com-afastamento"
+                onChange={(value) => {
+                  if (value === EnumCheckbox.NAO) {
+                    setValue("motivo_afastamento", "");
+                  }
+                }}                             
               />
             </div>
 
-            {watch("com_afastamento") === "sim" && (
+            {comAfastamento === EnumCheckbox.SIM && (
               <div className="w-full pt-1">
                 <FormField
                   control={control}
@@ -251,10 +258,15 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="possui_pendencia"
                 label="Possui pendência?"
                 data-testid="checkbox-possui-pendencia"
+                onChange={(value) => {
+                  if (value === EnumCheckbox.NAO) {
+                    setValue("motivo_pendencia", "");
+                  }
+                }}        
               />
             </div>
 
-            {watch("possui_pendencia") === "sim" && (
+            {possuiPendencia === EnumCheckbox.SIM && (
               <div className="w-full pt-1">
                 <FormField
                   control={control}

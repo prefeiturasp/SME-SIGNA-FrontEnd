@@ -185,16 +185,16 @@ export default function ApostilaPage() {
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
       "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
       "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
-      "carater_excepcional": formValues.carater_excepcional === "sim" ? "True" : "False",
+      "carater_excepcional": formValues.carater_excepcional ===  EnumCheckbox.SIM ? "True" : "False",
 
-      "com_afastamento": formValues.com_afastamento === "sim" ? "True" : "False",
-      "possui_pendencia": formValues.possui_pendencia === "sim" ? "True" : "False",
+      "com_afastamento": formValues.com_afastamento === EnumCheckbox.SIM ? "True" : "False",
+      "possui_pendencia": formValues.possui_pendencia === EnumCheckbox.SIM ? "True" : "False",
       "cessacao": {
         ...formValues.cessacao,
-        "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
+        "a_pedido": formValues.cessacao.a_pedido === EnumCheckbox.SIM ? "True" : "False",
         "data_inicio": formValues.cessacao.data_inicio ? formValues.cessacao.data_inicio.toISOString().split("T")[0] : null,
-        "remocao": formValues.cessacao.remocao === "sim" ? "True" : "False",
-        "aposentadoria": formValues.cessacao.aposentadoria === "sim" ? "True" : "False",
+        "remocao": formValues.cessacao.remocao === EnumCheckbox.SIM ? "True" : "False",
+        "aposentadoria": formValues.cessacao.aposentadoria === EnumCheckbox.SIM ? "True" : "False",
       },
     };
 
