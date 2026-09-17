@@ -141,7 +141,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
               <CheckboxField
                 register={register}
                 control={control}
-                name="carater_especial"
+                name="carater_excepcional"
                 label="Carater Especial"
                 data-testid="checkbox-carater-especial"
               />
@@ -248,13 +248,13 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
               <CheckboxField
                 register={register}
                 control={control}
-                name="com_pendencia"
+                name="possui_pendencia"
                 label="Possui pendência?"
                 data-testid="checkbox-possui-pendencia"
               />
             </div>
 
-            {watch("com_pendencia") === "sim" && (
+            {watch("possui_pendencia") === "sim" && (
               <div className="w-full pt-1">
                 <FormField
                   control={control}

@@ -37,6 +37,7 @@ import { Servidor } from "@/types/designacao-unidade";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useFetchCargos } from "@/hooks/useCargos";
 import { encontrarCargoPorNome, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 function obterErrorCargoTitular(
   cargoTitularInvalido: boolean,
@@ -60,6 +61,7 @@ export default function DesignacoesPasso2() {
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
   );
+  
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
@@ -77,10 +79,10 @@ export default function DesignacoesPasso2() {
       doc: formDesignacaoData?.doc ?? "",
       impedimento_substituicao: formDesignacaoData?.impedimento_substituicao?.toString() ?? null,
       impedimento_label: formDesignacaoData?.impedimento_label ?? "",
-      carater_especial: formDesignacaoData?.carater_especial ?? "nao",
-      com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
+      carater_excepcional: formDesignacaoData?.carater_excepcional ?? EnumCheckbox.NAO,
+      com_afastamento: formDesignacaoData?.com_afastamento ?? EnumCheckbox.NAO,
       motivo_afastamento: formDesignacaoData?.motivo_afastamento ?? "",
-      com_pendencia: formDesignacaoData?.com_pendencia ?? "nao",
+      possui_pendencia: formDesignacaoData?.possui_pendencia ?? EnumCheckbox.NAO,
       motivo_pendencia: formDesignacaoData?.motivo_pendencia ?? "",
       tipo_cargo: formDesignacaoData?.tipo_cargo ?? "disponivel",
       rf_titular: formDesignacaoData?.rf_titular ?? "",
@@ -100,10 +102,10 @@ export default function DesignacoesPasso2() {
     form.setValue("ano", d.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
     form.setValue("doc", d.doc ?? "");
     form.setValue("impedimento_substituicao", d.impedimento_substituicao?.toString() ?? null);
-    form.setValue("carater_especial", d.carater_excepcional ? "sim" : "nao");
-    form.setValue("com_afastamento", d.com_afastamento ? "sim" : "nao");
+    form.setValue("carater_excepcional", d.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO);
+    form.setValue("com_afastamento", d.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO);
     form.setValue("motivo_afastamento", d.motivo_afastamento);
-    form.setValue("com_pendencia", d.possui_pendencia ? "sim" : "nao");
+    form.setValue("possui_pendencia", d.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO);
     form.setValue("motivo_pendencia", d.pendencias);
     form.setValue("rf_titular", d.titular_rf, { shouldValidate: true, shouldTouch: true });
     form.setValue("impedimento_label", d.impedimento_substituicao !== null ? d.impedimento_display : "");
@@ -157,9 +159,9 @@ export default function DesignacoesPasso2() {
       ano: d.ano_vigente,
       a_partir_de: d.data_inicio ? new Date(d.data_inicio.replace(/-/g, '/')) : new Date(),
       designacao_data_final: d.data_fim ? new Date(d.data_fim.replace(/-/g, '/')) : null,
-      com_afastamento: d.com_afastamento ? "sim" : "nao",
+      com_afastamento: d.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
       motivo_afastamento: d.motivo_afastamento,
-      com_pendencia: d.possui_pendencia ? "sim" : "nao",
+      possui_pendencia: d.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
       motivo_pendencia: d.pendencias,
       tipo_cargo: d.tipo_vaga.toLowerCase() as "vago" | "disponivel",
       rf_titular: d.titular_rf,
