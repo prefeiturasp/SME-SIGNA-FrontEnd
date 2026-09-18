@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useForm, FormProvider, FieldValues, UseFormReturn } from "react-hook-form";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm, FormProvider, FieldValues, UseFormReturn, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
 import { Loader2 } from "lucide-react";
@@ -53,12 +53,12 @@ const defaultValues = {
   doc: "",
   a_partir_de: new Date(),
   designacao_data_final: null,
-  carater_especial: EnumCheckbox.NAO,
+  carater_excepcional: EnumCheckbox.NAO,
   impedimento_substituicao: "",
   impedimento_label: "",
   com_afastamento: EnumCheckbox.NAO,
   motivo_afastamento: "",
-  com_pendencia: EnumCheckbox.NAO,
+  possui_pendencia: EnumCheckbox.NAO,
   motivo_pendencia: "",
 
   // campos cargo disponível
@@ -97,6 +97,50 @@ const normalizarDetalheParaQuadroDeHistoricoPorAno = (value: unknown) => {
   return true;
 };
 
+function BotaoGerarTextoSei({
+  form,
+  onClick,
+}: Readonly<{
+  form: UseFormReturn<formSchemaApostilaData>;
+  onClick: () => Promise<void>;
+}>) {
+  const { isValid } = useFormState({ control: form.control });
+
+  return (
+    <Button
+      type="button"
+      size="lg"
+      className="w-full flex items-center justify-center gap-6"
+      variant="destructive"
+      disabled={!isValid}
+      onClick={onClick}
+    >
+      Gerar texto SEI
+    </Button>
+  );
+}
+
+function BotaoSalvarPortariaApostila({
+  form,
+}: Readonly<{
+  form: UseFormReturn<formSchemaApostilaData>;
+}>) {
+  const { isValid } = useFormState({ control: form.control });
+
+  return (
+    <Button
+      type="submit"
+      size="lg"
+      className="w-full flex items-center justify-center px-6"
+      variant="destructive"
+      data-testid="button-salvar-portaria-apostila"
+      disabled={!isValid}
+    >
+      <p className="text-[16px] font-bold">Salvar</p>
+    </Button>
+  );
+}
+
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -107,10 +151,14 @@ export default function ApostilaPage() {
   const salvarApostila = useSalvarApostila();
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
   const { data: cargosData = [] } = useFetchCargos();
-  const cargos = cargosData.map(cargo => ({
-    value: cargo.codigoCargo.toString(),
-    label: cargo.nomeCargo,
-  }));
+  const cargos = useMemo(
+    () =>
+      cargosData.map(cargo => ({
+        value: cargo.codigoCargo.toString(),
+        label: cargo.nomeCargo,
+      })),
+    [cargosData]
+  );
 
 
   const form = useForm<formSchemaApostilaData>({
@@ -128,13 +176,14 @@ export default function ApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
 
 
-  const handleGerarPortaria = () => {
+  const handleClickGerarTextoSei = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (!isValid) return;
     setMostrarEditor(true);
-  };
+  }, [form]);
 
   const getCampoMapeadoCessacao = (field: string) => {
     const camposCessacao = {
-      "numero_portaria": "numero_portaria",
       "ano": "ano_vigente",
       "numero_sei": "sei_numero",
       "data_inicio": "data_cessacao",
@@ -151,15 +200,9 @@ export default function ApostilaPage() {
       "ano": "ano_vigente",
 
 
-      "numero_sei": "sei_numero",
-      "doc": "doc",
+      "numero_sei": "sei_numero",      
       "a_partir_de": "data_inicio",
       "designacao_data_final": "data_fim",
-
-
-      "carater_especial": "carater_excepcional",
-
-      "com_pendencia": "possui_pendencia",
 
       "motivo_pendencia": "pendencias",
       "ue_nome": "unidade_proponente",
@@ -185,16 +228,16 @@ export default function ApostilaPage() {
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
       "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
       "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
-      "carater_especial": formValues.carater_especial === "sim" ? "True" : "False",
+      "carater_excepcional": formValues.carater_excepcional ===  EnumCheckbox.SIM ? "True" : "False",
 
-      "com_afastamento": formValues.com_afastamento === "sim" ? "True" : "False",
-      "com_pendencia": formValues.com_pendencia === "sim" ? "True" : "False",
+      "com_afastamento": formValues.com_afastamento === EnumCheckbox.SIM ? "True" : "False",
+      "possui_pendencia": formValues.possui_pendencia === EnumCheckbox.SIM ? "True" : "False",
       "cessacao": {
         ...formValues.cessacao,
-        "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
+        "a_pedido": formValues.cessacao.a_pedido === EnumCheckbox.SIM ? "True" : "False",
         "data_inicio": formValues.cessacao.data_inicio ? formValues.cessacao.data_inicio.toISOString().split("T")[0] : null,
-        "remocao": formValues.cessacao.remocao === "sim" ? "True" : "False",
-        "aposentadoria": formValues.cessacao.aposentadoria === "sim" ? "True" : "False",
+        "remocao": formValues.cessacao.remocao === EnumCheckbox.SIM ? "True" : "False",
+        "aposentadoria": formValues.cessacao.aposentadoria === EnumCheckbox.SIM ? "True" : "False",
       },
     };
 
@@ -253,7 +296,10 @@ export default function ApostilaPage() {
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
       const alteracoes = gerarAlteracoes(values);
-
+      if (alteracoes.length === 0) {
+        notification.error({ title: "Não há alterações para salvar", description: "Adicione ao menos uma alteração para salvar a apostila" });
+        return;
+      }
 
       const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
       const body: ApostilaBody = {
@@ -264,7 +310,6 @@ export default function ApostilaPage() {
         observacao: values.apostila.observacao,
         alteracoes: alteracoes,
         texto_sei: values.texto_portaria,
-
       };
       await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
@@ -306,11 +351,11 @@ export default function ApostilaPage() {
         doc: designacao?.doc ?? "",
         a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
         designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
-        carater_especial: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        carater_excepcional: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         impedimento_substituicao: designacao?.impedimento_substituicao?.toString() ?? null,
         com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_afastamento: designacao?.motivo_afastamento,
-        com_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        possui_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_pendencia: designacao?.pendencias,
         informacoes_adicionais: designacao?.informacoes_adicionais,
         detalhe_para_quadro_de_historico_por_ano: normalizarDetalheParaQuadroDeHistoricoPorAno(
@@ -481,19 +526,7 @@ export default function ApostilaPage() {
 
               <div className="w-full flex justify-end pt-8">
                 <div className="w-50">
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="w-full flex items-center justify-center gap-6"
-                    variant="destructive"
-                    disabled={!form.formState.isValid}
-                    onClick={async () => {
-                      const isValid = await form.trigger();
-                      if (!isValid) return;
-                      handleGerarPortaria();
-                    }}>
-                    Gerar texto SEI
-                  </Button>
+                  <BotaoGerarTextoSei form={form} onClick={handleClickGerarTextoSei} />
                 </div>
               </div>
 
@@ -501,7 +534,6 @@ export default function ApostilaPage() {
               {mostrarEditor && (
                 <div className="mb-2 mt-4">
                   <FormField
-                    {...form.register('texto_portaria')}
                     control={form.control}
                     name="texto_portaria"
                     render={({ field, fieldState }) => (
@@ -527,17 +559,7 @@ export default function ApostilaPage() {
                   />
                   <div className="w-full flex justify-end pt-8">
                     <div >
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full flex items-center justify-center px-6"
-                        variant="destructive"
-                        data-testid="button-salvar-portaria-apostila"
-                        disabled={!form.formState.isValid}
-
-                      >
-                        <p className="text-[16px] font-bold">Salvar</p>
-                      </Button>
+                      <BotaoSalvarPortariaApostila form={form} />
                     </div>
                   </div>
                 </div>

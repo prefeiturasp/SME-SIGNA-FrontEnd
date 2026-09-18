@@ -236,12 +236,12 @@ function FormWrapper({
       designacao_data_final: undefined,
       ano: "",
       doc: "",
-      carater_especial: "",
+      carater_excepcional: "",
       motivo_cancelamento: "",
       impedimento_substituicao: "",
       com_afastamento: "",
       motivo_afastamento: "",
-      com_pendencia: "",
+      possui_pendencia: "",
       motivo_pendencia: "",
     },
   });
@@ -309,7 +309,7 @@ describe("PortariaDesigacaoFields", () => {
     // RadioGroup (onValueChange -> field.onChange)
     const [caraterEspecialGroup] = screen.getAllByTestId("mock-radio-group");
     fireEvent.click(within(caraterEspecialGroup).getByRole("button", { name: /marcar sim/i }));
-    expect(methods.getValues("carater_especial")).toBe("sim");
+    expect(methods.getValues("carater_excepcional")).toBe("sim");
 
 
     expect(methods.getValues("a_partir_de")).toBeInstanceOf(Date);
@@ -328,12 +328,12 @@ describe("PortariaDesigacaoFields", () => {
           designacao_data_final: undefined,
           ano: "",
           doc: "",
-          carater_especial: "",
+          carater_excepcional: "",
           motivo_cancelamento: "",
           impedimento_substituicao: "",
           com_afastamento: "nao",
           motivo_afastamento: "",
-          com_pendencia: "nao",
+          possui_pendencia: "nao",
           motivo_pendencia: "",
         }}
       >
@@ -433,12 +433,12 @@ describe("PortariaDesigacaoFields", () => {
           designacao_data_final: undefined,
           ano: "",
           doc: "",
-          carater_especial: "",
+          carater_excepcional: "",
           motivo_cancelamento: "",
           impedimento_substituicao: "",
           com_afastamento: "nao",
           motivo_afastamento: "",
-          com_pendencia: "nao",
+          possui_pendencia: "nao",
           motivo_pendencia: "",
         }}
       >
@@ -452,13 +452,13 @@ describe("PortariaDesigacaoFields", () => {
     const pendenciaGroup = radioGroups[2];
 
     fireEvent.click(within(pendenciaGroup).getByRole("button", { name: /marcar sim/i }));
-    expect(methods.getValues("com_pendencia")).toBe("sim");
+    expect(methods.getValues("possui_pendencia")).toBe("sim");
     const textarea = screen.getByTestId("input-descricao-pendencia");
     fireEvent.change(textarea, { target: { value: "Pendência de documentação" } });
     expect(methods.getValues("motivo_pendencia")).toBe("Pendência de documentação");
 
     fireEvent.click(within(pendenciaGroup).getByRole("button", { name: /marcar nao/i }));
-    expect(methods.getValues("com_pendencia")).toBe("nao");
+    expect(methods.getValues("possui_pendencia")).toBe("nao");
     expect(screen.queryByTestId("input-descricao-pendencia")).not.toBeInTheDocument();
   });
 

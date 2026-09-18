@@ -4,7 +4,7 @@ import { InputBaseMask } from "@/components/ui/input-base";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
-import { FieldValues, UseFormRegister, Control, FieldPath } from "react-hook-form";
+import { FieldValues, Control, FieldPath } from "react-hook-form";
 import type { ReactNode } from "react";
 import { FormControl, FormField, FormLabel, FormMessage, FormItem } from "./form";
 import { Calendar } from "@/components/ui/calendar";
@@ -25,7 +25,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const isDate = (value: unknown): value is Date => value instanceof Date;
 
 interface PropsField<TFieldValues extends FieldValues = FieldValues> {
-    register: UseFormRegister<TFieldValues>;
     control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
     label: string | ReactNode;
@@ -36,6 +35,7 @@ interface PropsField<TFieldValues extends FieldValues = FieldValues> {
     allowClear?: boolean;
     showBlankSpace?: boolean;
     description?: string | ReactNode;
+    [key: string]: unknown;
 }
 
 interface FieldSecondary {
@@ -48,10 +48,9 @@ interface PropsFieldSecondary {
 }
 
 
-export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, showBlankSpace, fields }: PropsField<TFieldValues> & PropsFieldSecondary) => {
+export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldValues,>({ control, name, showBlankSpace, fields }: PropsField<TFieldValues> & PropsFieldSecondary) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field }) => (
@@ -98,10 +97,9 @@ export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldV
 
 
 
-export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues>) => {
+export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ onChange, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues> & { onChange?: (value: string) => void }) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field }) => (
@@ -112,7 +110,10 @@ export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({
                     <FormControl>
                         <RadioGroup
                             value={field.value}
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                                field.onChange(value);
+                                onChange?.(value);
+                            }}
                             defaultValue="sim"
                             className="w-fit "
                         >
@@ -145,12 +146,11 @@ export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({
     );
 };
 export const InputField = <TFieldValues extends FieldValues = FieldValues,>({
-    register, control, name, label, placeholder, dataTestId, type = "text",
+    control, name, label, placeholder, dataTestId, type = "text",
     disabled = false, mask, maxLength, showBlankSpace = true }:
-    { register: UseFormRegister<TFieldValues>; control: Control<TFieldValues>; name: FieldPath<TFieldValues>; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean }) => {
+    { control: Control<TFieldValues>; name: FieldPath<TFieldValues>; label: string | ReactNode; placeholder?: string; dataTestId?: string; type?: string; disabled?: boolean; mask?: string; maxLength?: number; showBlankSpace?: boolean; [key: string]: unknown }) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
 
@@ -164,9 +164,11 @@ export const InputField = <TFieldValues extends FieldValues = FieldValues,>({
                             mask={mask}
                             type={type}
                             placeholder={placeholder}
-                            value={field.value}
+                            value={field.value ?? ""}
                             onChange={(value) => {
-                                field.onChange(value.target.value);
+                                if (value.target.value !== field.value) {
+                                    field.onChange(value.target.value);
+                                }
                             }}
                             data-testid={dataTestId}
                             disabled={disabled}
@@ -194,7 +196,6 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     dataTestId,
     options,
     disabled = false,
-    register,
     showBlankSpace = true,
     onValueChange,
     isLoading = false,
@@ -206,14 +207,13 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     dataTestId?: string;
     options: SelectOption[];
     disabled?: boolean;
-    register: UseFormRegister<TFieldValues>;
     showBlankSpace?: boolean;
     onValueChange?: (value: string) => void;
     isLoading?: boolean;
+    [key: string]: unknown;
 }) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field, fieldState }) => (
@@ -268,7 +268,6 @@ export const MultiSelectField = ({
     dataTestId,
     options,
     disabled = false,
-    register,
     showBlankSpace = true,
 }: {
     control: Control<FieldValues>;
@@ -278,12 +277,11 @@ export const MultiSelectField = ({
     dataTestId?: string;
     options: SelectOption[];
     disabled?: boolean;
-    register: UseFormRegister<FieldValues>;
     showBlankSpace?: boolean;
+    [key: string]: unknown;
 }) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field, fieldState }) => (
@@ -309,10 +307,9 @@ export const MultiSelectField = ({
 
 
 
-export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear }: PropsField<TFieldValues> & { onClear?: () => void }) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear }: PropsField<TFieldValues> & { onClear?: () => void }) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field }) => {
@@ -357,10 +354,9 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ reg
     );
 };
 
-export const DateRangeField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, showBlankSpace = true }: PropsField<TFieldValues>) => {
+export const DateRangeField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field }) => (
@@ -414,10 +410,9 @@ export const DateRangeField = <TFieldValues extends FieldValues = FieldValues,>(
     );
 };
 
-export const DateRangePickerField = <TFieldValues extends FieldValues = FieldValues,>({ register, control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
+export const DateRangePickerField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true }: PropsField<TFieldValues>) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field }) => {
@@ -479,7 +474,6 @@ export const DateRangePickerField = <TFieldValues extends FieldValues = FieldVal
 
 
 export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
-    register,
     control,
     name,
     label,
@@ -490,7 +484,6 @@ export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
 }: PropsField<TFieldValues>) => {
     return (
         <FormField
-            {...register(name)}
             control={control}
             name={name}
             render={({ field }) => (

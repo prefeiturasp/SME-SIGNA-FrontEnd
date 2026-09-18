@@ -101,9 +101,9 @@ const valoresPadrao: formSchemaApostilaData = {
   numero_sei: "",
   a_partir_de: new Date(),
   ano: "",
-  carater_especial: EnumCheckbox.NAO,
+  carater_excepcional: EnumCheckbox.NAO,
   com_afastamento: EnumCheckbox.NAO,
-  com_pendencia: EnumCheckbox.NAO,
+  possui_pendencia: EnumCheckbox.NAO,
   motivo_afastamento: "",
   impedimento_label: "",
   motivo_pendencia: "",
@@ -164,9 +164,9 @@ const {
     numero_sei: "",
     a_partir_de: new Date(),
     ano: "",
-    carater_especial: EnumCheckbox.NAO,
+    carater_excepcional: EnumCheckbox.NAO,
     com_afastamento: EnumCheckbox.NAO,
-    com_pendencia: EnumCheckbox.NAO,
+    possui_pendencia: EnumCheckbox.NAO,
     motivo_afastamento: "",
     impedimento_label: "",
     motivo_pendencia: "",
@@ -463,6 +463,12 @@ vi.mock("react-hook-form", async () => {
       register: vi.fn(),
       reset: resetMock,
     }),
+    useFormState: () => ({
+      errors: {},
+      isDirty: mockIsDirty,
+      isValid: mockIsValid,
+      dirtyFields: mockDirtyFields,
+    }),
     FormProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   };
 });
@@ -483,6 +489,23 @@ describe("ApostilaPage", () => {
     notificationSuccessMock.mockReset();
     notificationErrorMock.mockReset();
   });
+
+  function prepararSubmitComAlteracoes() {
+    mockDirtyFields = {
+      portaria_designacao: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "",
+        observacao: "",
+      },
+      portaria_designacao: "654",
+      texto_portaria: "Texto SEI apostila",
+    });
+  }
 
   it("mostra loading", () => {
     mockIsLoading = true;
@@ -635,6 +658,8 @@ describe("ApostilaPage", () => {
   });
 
   it("submete com sucesso e redireciona", async () => {
+    prepararSubmitComAlteracoes();
+
     render(<ApostilaPage />);
 
     fireEvent.submit(document.querySelector("form")!);
@@ -707,8 +732,8 @@ describe("ApostilaPage", () => {
     mockDirtyFields = {
       a_partir_de: true,
       designacao_data_final: true,
-      carater_especial: true,
-      com_pendencia: true,
+      carater_excepcional: true,
+      possui_pendencia: true,
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
@@ -721,8 +746,8 @@ describe("ApostilaPage", () => {
       a_partir_de: new Date("2026-04-05"),
       designacao_data_final: new Date("2026-05-06"),
       detalhe_para_quadro_de_historico_por_ano: true,
-      carater_especial: EnumCheckbox.SIM,
-      com_pendencia: EnumCheckbox.SIM,
+      carater_excepcional: EnumCheckbox.SIM,
+      possui_pendencia: EnumCheckbox.SIM,
     });
 
     render(<ApostilaPage />);
@@ -832,6 +857,7 @@ describe("ApostilaPage", () => {
   });
 
   it("exibe a mensagem do Error quando o submit falha", async () => {
+    prepararSubmitComAlteracoes();
     notificationSuccessMock.mockImplementationOnce(() => {
       throw new Error("falha detalhada");
     });
@@ -846,6 +872,7 @@ describe("ApostilaPage", () => {
   });
 
   it("exibe mensagem padrão quando o erro do submit não é Error", async () => {
+    prepararSubmitComAlteracoes();
     notificationSuccessMock.mockImplementationOnce(() => {
       throw "erro";
     });
@@ -933,11 +960,11 @@ describe("ApostilaPage", () => {
       doc: "DOC",
       a_partir_de: new Date("2026/01/10"),
       designacao_data_final: new Date("2026/12/20"),
-      carater_especial: "sim",
+      carater_excepcional: "sim",
       impedimento_substituicao: "LICENCA",
       com_afastamento: "sim",
       motivo_afastamento: "Afastamento",
-      com_pendencia: "sim",
+      possui_pendencia: "sim",
       motivo_pendencia: "Pendência",
       informacoes_adicionais: "Info",
       detalhe_para_quadro_de_historico_por_ano: false,
@@ -996,11 +1023,11 @@ describe("ApostilaPage", () => {
         numero_sei: "",
         doc: "",
         designacao_data_final: null,
-        carater_especial: "nao",
+        carater_excepcional: "nao",
         impedimento_substituicao: null,
         com_afastamento: "nao",
         motivo_afastamento: "",
-        com_pendencia: "nao",
+        possui_pendencia: "nao",
         motivo_pendencia: "",
         dre: "-",
         ue: "-",

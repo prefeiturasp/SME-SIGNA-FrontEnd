@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
  
 
@@ -8,7 +8,7 @@ import { InputField } from "@/components/ui/FieldsForm";
 import { InfoItem } from "@/components/ui/info-item";
 import { Button } from "@/components/ui/button";
 import Eye from "@/assets/icons/Eye";
-import { useState } from "react";
+import { memo, useState } from "react";
 import ModalListaCursosTitulos from "../ModalListaCursosTitulo/ModalListaCursosTitulos";
 
 
@@ -18,7 +18,35 @@ const CamposEditarServidor = (
 
 ) => {
 
-  const { register, control, watch } = useFormContext();
+  const { register, control } = useFormContext();
+  const [
+    nomeServidor,
+    rf,
+    vinculo,
+    cargoBase,
+    lotacao,
+    cursosTitulos,
+    cargoSobreposto,
+    localExercicio,
+    laudoMedico,
+    cdCargoBase,
+    categoria,
+  ] = useWatch({
+    control,
+    name: [
+      "nome_servidor",
+      "rf",
+      "vinculo",
+      "cargo_base",
+      "lotacao",
+      "cursos_titulos",
+      "cargo_sobreposto_funcao_atividade",
+      "local_de_exercicio",
+      "laudo_medico",
+      "cd_cargo_base",
+      "categoria",
+    ],
+  });
   const [openModalListaCursosTitulos, setOpenModalListaCursosTitulos] = useState(false);
 
   function handleOpenModalListaCursosTitulos() {
@@ -51,7 +79,7 @@ const CamposEditarServidor = (
         <div className="w-full">
         <InfoItem
             label="RF"  
-            value={watch("rf") ?? '-'}
+            value={rf ?? '-'}
           />
         </div>
 
@@ -59,7 +87,7 @@ const CamposEditarServidor = (
         <div className="w-full">
         <InfoItem
             label="Vínculo"
-            value={watch("vinculo") ?? '-'}
+            value={vinculo ?? '-'}
           />
         </div>
 
@@ -70,7 +98,7 @@ const CamposEditarServidor = (
         <div className="w-full">
         <InfoItem
             label="Cargo base"
-            value={watch("cargo_base") ?? '-'}
+            value={cargoBase ?? '-'}
           />
              
         </div>
@@ -79,14 +107,14 @@ const CamposEditarServidor = (
         <div className="w-full">
         <InfoItem
             label="Lotação"
-            value={watch("lotacao") ?? '-'}
+            value={lotacao ?? '-'}
           />
         </div>
         <div className="w-full">
 
           <InfoItem
             label="Cursos/Títulos"
-            value={watch("cursos_titulos") ?? 'Cursos/Títulos de exemplo'}
+            value={cursosTitulos ?? 'Cursos/Títulos de exemplo'}
             icon={
               <Button
                 type="button"
@@ -109,7 +137,7 @@ const CamposEditarServidor = (
         <div className="w-full">
           <InfoItem
             label="Cargo sobreposto/Função atividade"
-            value={watch("cargo_sobreposto_funcao_atividade") ?? '-'}
+            value={cargoSobreposto ?? '-'}
           />
          
         </div>
@@ -117,7 +145,7 @@ const CamposEditarServidor = (
         <div className="w-full">
           <InfoItem
             label="Local de exercício"
-            value={watch("local_de_exercicio") ?? '-'}
+            value={localExercicio ?? '-'}
           />
          
         </div>
@@ -125,7 +153,7 @@ const CamposEditarServidor = (
         <div className="w-full">
           <InfoItem
             label="Laudo médico"
-            value={watch("laudo_medico") ?? '-'}
+            value={laudoMedico ?? '-'}
           />
          
         </div>
@@ -139,17 +167,17 @@ const CamposEditarServidor = (
         //to-do: remover mock quando conectar com api que recebera dados do EOL
         data={[{ id: 1, concurso: '201002757777 - PROF ENS FUND II MEDIO' }, { id: 2, concurso: "201002757778 - PROF ENS FUND II MEDIO" }]}
         defaultValues={{  
-          nome_servidor: watch("nome_servidor"),
-          rf: watch("rf"),
-          cargo_sobreposto_funcao_atividade: watch("cargo_sobreposto_funcao_atividade"),
-          vinculo: watch("vinculo"),
-          lotacao: watch("lotacao"),
-          cd_cargo_base: watch("cd_cargo_base"),
-          cargo_base: watch("cargo_base"),
-          categoria: watch("categoria"),
-          cursos_titulos: watch("cursos_titulos"),
-          local_de_exercicio: watch("local_de_exercicio"),
-          laudo_medico: watch("laudo_medico"),
+          nome_servidor: nomeServidor,
+          rf,
+          cargo_sobreposto_funcao_atividade: cargoSobreposto,
+          vinculo,
+          lotacao,
+          cd_cargo_base: cdCargoBase,
+          cargo_base: cargoBase,
+          categoria,
+          cursos_titulos: cursosTitulos,
+          local_de_exercicio: localExercicio,
+          laudo_medico: laudoMedico,
           cd_cargo_sobreposto_funcao_atividade:1,     
           local_de_servico: "-",
         }}
@@ -158,4 +186,4 @@ const CamposEditarServidor = (
   );
 };
 
-export default CamposEditarServidor;
+export default memo(CamposEditarServidor);

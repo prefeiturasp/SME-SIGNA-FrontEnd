@@ -29,6 +29,7 @@ import { FormEditarServidorData } from "../ModalEditarServidor/schema";
 import { Servidor } from "@/types/designacao-unidade";
 import { useFetchCargos } from "@/hooks/useCargos";
 import { Loader2 } from "lucide-react";
+import { memo, useMemo } from "react";
 
 interface SelecaoTipoCargoProps {
   readonly form: UseFormReturn<formSchemaDesignacaoPasso2Data>;
@@ -43,7 +44,7 @@ interface SelecaoTipoCargoProps {
   readonly rf_default: string;
 }
 
-export default function SelecaoServidorIndicado({
+function SelecaoServidorIndicado({
   form,
   tipoCargo,
   dadosTitular,
@@ -56,11 +57,16 @@ export default function SelecaoServidorIndicado({
   rf_default
 }: Readonly<SelecaoTipoCargoProps>) {
 
+
   const { data: cargosData = [] } = useFetchCargos();
-  const cargos = cargosData.map(cargo => ({
-    id: cargo.codigoCargo,
-    label: cargo.nomeCargo,
-  }));
+  const cargos = useMemo(
+    () =>
+      cargosData.map(cargo => ({
+        id: cargo.codigoCargo,
+        label: cargo.nomeCargo,
+      })),
+    [cargosData]
+  );
 
   function handleSubmitEditarServidor(data: FormEditarServidorData) {
     setDadosTitular({
@@ -205,3 +211,5 @@ export default function SelecaoServidorIndicado({
     </div>
   );
 }
+
+export default memo(SelecaoServidorIndicado);

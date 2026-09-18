@@ -27,7 +27,6 @@ export default function InformacoesAdicionais({ className = "", disableFields = 
     <>
         <div className={`w-full ${className}`}>
         <FormField
-          {...form.register("informacoes_adicionais")}
           control={form.control}
           name="informacoes_adicionais"
           render={({ field }) => (

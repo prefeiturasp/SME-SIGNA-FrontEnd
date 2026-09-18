@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
 
@@ -37,6 +37,26 @@ import { Servidor } from "@/types/designacao-unidade";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useFetchCargos } from "@/hooks/useCargos";
 import { encontrarCargoPorNome, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
+
+const BREADCRUMBS = [
+  { title: "Início", href: "/" },
+  { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
+  { title: "Designação" },
+];
+
+
+const PORTARIA_CESSACAO_MOCK = {
+  numero_portaria: 123,
+  ano: "2026",
+  numero_sei: "0012345",
+  doc: "0098765",
+  designacao_a_partir_de: "01/01/2024",
+  ate: "31/12/2024",
+  carater_excepcional: "nao",
+  motivo_cancelamento: "Encerramento do período de designação",
+  impedimento_substituicao: "Nenhum impedimento registrado",
+};
 
 function obterErrorCargoTitular(
   cargoTitularInvalido: boolean,
@@ -60,6 +80,7 @@ export default function DesignacoesPasso2() {
   const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(
     Number(id)
   );
+  
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
   const [isPopulateScreen, setIsPopulateScreen] = useState(false);
@@ -75,12 +96,12 @@ export default function DesignacoesPasso2() {
       designacao_data_final: formDesignacaoData?.designacao_data_final ?? null,
       ano: formDesignacaoData?.ano ?? new Date().getFullYear().toString(),
       doc: formDesignacaoData?.doc ?? "",
-      impedimento_substituicao: formDesignacaoData?.impedimento_substituicao ?? null,
+      impedimento_substituicao: formDesignacaoData?.impedimento_substituicao?.toString() ?? null,
       impedimento_label: formDesignacaoData?.impedimento_label ?? "",
-      carater_especial: formDesignacaoData?.carater_especial ?? "nao",
-      com_afastamento: formDesignacaoData?.com_afastamento ?? "nao",
+      carater_excepcional: formDesignacaoData?.carater_excepcional ?? EnumCheckbox.NAO,
+      com_afastamento: formDesignacaoData?.com_afastamento ?? EnumCheckbox.NAO,
       motivo_afastamento: formDesignacaoData?.motivo_afastamento ?? "",
-      com_pendencia: formDesignacaoData?.com_pendencia ?? "nao",
+      possui_pendencia: formDesignacaoData?.possui_pendencia ?? EnumCheckbox.NAO,
       motivo_pendencia: formDesignacaoData?.motivo_pendencia ?? "",
       tipo_cargo: formDesignacaoData?.tipo_cargo ?? "disponivel",
       rf_titular: formDesignacaoData?.rf_titular ?? "",
@@ -99,11 +120,11 @@ export default function DesignacoesPasso2() {
     form.setValue("designacao_data_final", d.data_fim ? new Date(d.data_fim.replaceAll("-", '/')) : null);
     form.setValue("ano", d.ano_vigente, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
     form.setValue("doc", d.doc ?? "");
-    form.setValue("impedimento_substituicao", d.impedimento_substituicao);
-    form.setValue("carater_especial", d.carater_excepcional ? "sim" : "nao");
-    form.setValue("com_afastamento", d.com_afastamento ? "sim" : "nao");
+    form.setValue("impedimento_substituicao", d.impedimento_substituicao?.toString() ?? null);
+    form.setValue("carater_excepcional", d.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO);
+    form.setValue("com_afastamento", d.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO);
     form.setValue("motivo_afastamento", d.motivo_afastamento);
-    form.setValue("com_pendencia", d.possui_pendencia ? "sim" : "nao");
+    form.setValue("possui_pendencia", d.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO);
     form.setValue("motivo_pendencia", d.pendencias);
     form.setValue("rf_titular", d.titular_rf, { shouldValidate: true, shouldTouch: true });
     form.setValue("impedimento_label", d.impedimento_substituicao !== null ? d.impedimento_display : "");
@@ -157,14 +178,14 @@ export default function DesignacoesPasso2() {
       ano: d.ano_vigente,
       a_partir_de: d.data_inicio ? new Date(d.data_inicio.replace(/-/g, '/')) : new Date(),
       designacao_data_final: d.data_fim ? new Date(d.data_fim.replace(/-/g, '/')) : null,
-      com_afastamento: d.com_afastamento ? "sim" : "nao",
+      com_afastamento: d.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
       motivo_afastamento: d.motivo_afastamento,
-      com_pendencia: d.possui_pendencia ? "sim" : "nao",
+      possui_pendencia: d.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
       motivo_pendencia: d.pendencias,
       tipo_cargo: d.tipo_vaga.toLowerCase() as "vago" | "disponivel",
       rf_titular: d.titular_rf,
       cargo_vago_selecionado: { id: d.cargo_vaga, label: d.cargo_vaga_display },
-      impedimento_substituicao: d.impedimento_substituicao,
+      impedimento_substituicao: d.impedimento_substituicao?.toString() ?? null,
       impedimento_label: d.impedimento_substituicao !== null ? d.impedimento_display : "",
       dadosTitular: null,
       informacoes_adicionais: d.informacoes_adicionais ?? "",
@@ -195,32 +216,48 @@ export default function DesignacoesPasso2() {
   const router = useRouter();
   const [errorBusca, setErrorBusca] = useState<string | null>(null);
 
-  const tipoCargo = form.watch("tipo_cargo");
-  const cargoVago = form.watch("cargo_vago_selecionado");
-  const rfTitular = form.watch("rf_titular");
+
+  const tipoCargo = useWatch({ control: form.control, name: "tipo_cargo" });
+  const cargoVago = useWatch({ control: form.control, name: "cargo_vago_selecionado" });
+  const rfTitular = useWatch({ control: form.control, name: "rf_titular" });
 
   const { data: cargosData = [], isLoading: isLoadingCargos } = useFetchCargos();
-  const nomeCargoTitular = obterNomeCargoTitular(dadosTitular);
-  const cargoTitularCorrespondente = encontrarCargoPorNome(nomeCargoTitular, cargosData);
-  const cargoTitularInvalido =
-    tipoCargo !== "vago" && !!dadosTitular && !isLoadingCargos && !cargoTitularCorrespondente;
-  const errorCargoTitular = obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular);
-  const onBuscaTitular = async (values: BuscaDesignacaoRequest) => {
-    const response = await mutateAsync(values);
-    if (response.success) {
-      const titularFormatado: Servidor = {
-        ...response.data,
-      };
+  const nomeCargoTitular = useMemo(
+    () => obterNomeCargoTitular(dadosTitular),
+    [dadosTitular]
+  );
+  const cargoTitularInvalido = useMemo(
+    () =>
+      tipoCargo !== "vago" &&
+      !!dadosTitular &&
+      !isLoadingCargos &&
+      !encontrarCargoPorNome(nomeCargoTitular, cargosData),
+    [tipoCargo, dadosTitular, isLoadingCargos, nomeCargoTitular, cargosData]
+  );
+  const errorCargoTitular = useMemo(
+    () => obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular),
+    [cargoTitularInvalido, nomeCargoTitular]
+  );
 
-      setDadosTitular(titularFormatado);
-      setErrorBusca(null);
-      form.setValue("rf_titular", values.rf, { shouldValidate: true });
-    } else {
-      setErrorBusca(response.error);
-      setDadosTitular(null);
-      form.setValue("rf_titular", "");
-    }
-  };
+  const onBuscaTitular = useCallback(
+    async (values: BuscaDesignacaoRequest) => {
+      const response = await mutateAsync(values);
+      if (response.success) {
+        const titularFormatado: Servidor = {
+          ...response.data,
+        };
+
+        setDadosTitular(titularFormatado);
+        setErrorBusca(null);
+        form.setValue("rf_titular", values.rf, { shouldValidate: true });
+      } else {
+        setErrorBusca(response.error);
+        setDadosTitular(null);
+        form.setValue("rf_titular", "");
+      }
+    },
+    [mutateAsync, form]
+  );
 
   const canAdvance =
     Object.keys(form.formState.errors).length === 0 &&
@@ -278,21 +315,24 @@ export default function DesignacoesPasso2() {
     }
   }, [tipoCargo]);
 
-  function onSubmitEditarServidor(data: FormEditarServidorData) {
-    setFormDesignacaoData((prevState) => {
-      if (!prevState?.servidorIndicado) return prevState;
+  const onSubmitEditarServidor = useCallback(
+    (data: FormEditarServidorData) => {
+      setFormDesignacaoData((prevState) => {
+        if (!prevState?.servidorIndicado) return prevState;
 
-      return {
-        ...prevState,
-        servidorIndicado: {
-          ...prevState.servidorIndicado,
-          nome_servidor: data.nome_servidor,
-          nome_civil: data.nome_civil,
-          categoria: data.categoria ?? "",
-        },
-      };
-    });
-  }
+        return {
+          ...prevState,
+          servidorIndicado: {
+            ...prevState.servidorIndicado,
+            nome_servidor: data.nome_servidor,
+            nome_civil: data.nome_civil,
+            categoria: data.categoria ?? "",
+          },
+        };
+      });
+    },
+    [setFormDesignacaoData]
+  );
 
   useEffect(() => {
     if (!rf && id) {
@@ -300,14 +340,12 @@ export default function DesignacoesPasso2() {
     }
   }, []);
   
+  
   return (
     <>
       <PageHeader
         title= {id ? "Editar Designação" : "Designação"}
-        breadcrumbs={[
-          { title: "Início", href: "/" }, 
-          { title: "Atos Administrativos", href: "/pages/atos-administrativos" },
-          { title: "Designação" }, ]}
+        breadcrumbs={BREADCRUMBS}
           icon={<Designacao width={24} height={24} color="#660C0B" />}
           showBackButton={false}
       />
@@ -426,18 +464,7 @@ export default function DesignacoesPasso2() {
         onOpenChange={setModalHistoricoUltimaDesignacaoOpen}
         // to-do: quando houver api com os dados trazer dados corretamente do ultimo servidor
         ultimoServidor={formDesignacaoData?.servidorIndicado ?? null}
-        // to-do: quando houver api com os dados remover mock
-        portariaCessacao={{
-          numero_portaria: 123,
-          ano: "2026",
-          numero_sei: "0012345",
-          doc: "0098765",
-          designacao_a_partir_de: "01/01/2024",
-          ate: "31/12/2024",
-          carater_excepcional: "nao",
-          motivo_cancelamento: "Encerramento do período de designação",
-          impedimento_substituicao: "Nenhum impedimento registrado",
-        }}
+        portariaCessacao={PORTARIA_CESSACAO_MOCK}
       />
     </>
   );

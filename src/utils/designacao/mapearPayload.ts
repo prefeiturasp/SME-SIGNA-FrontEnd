@@ -123,11 +123,11 @@ export function mapearPayloadDesignacao(
         data_inicio: formatarData(a_partir_de),
         data_fim: formatarData(form.designacao_data_final),
 
-        carater_excepcional: form.carater_especial === "sim",
+        carater_excepcional: form.carater_excepcional ===  "sim",
         impedimento_substituicao: form.impedimento_substituicao != null ? Number(form.impedimento_substituicao) : null,
-        com_afastamento: form.com_afastamento === "sim",
+        com_afastamento: form.com_afastamento ===  "sim",
         motivo_afastamento: form.motivo_afastamento ?? null,
-        possui_pendencia: form.com_pendencia === "sim",
+        possui_pendencia: form.possui_pendencia ===  "sim",
         pendencias: form.motivo_pendencia ?? null,
 
         tipo_vaga: tipo_cargo.toUpperCase(),
