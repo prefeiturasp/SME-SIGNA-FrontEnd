@@ -17,7 +17,7 @@ const ResumoPortariaDesigacao: React.FC<{
   isLoading,
   showExtraFields = true,
 }) => {
-  console.log(defaultValues);
+  
     return (
       <>
         {isLoading ? (
