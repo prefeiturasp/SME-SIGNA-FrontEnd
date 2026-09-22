@@ -9,6 +9,7 @@ export interface ApostilaAlteracoes {
 }
 
 export interface ApostilaBody {
+    id?: number;
     ato_pai: number;
     sei_numero: string;
     doc?: string;
@@ -53,5 +54,6 @@ export interface ApostilaDetailRead {
     criado_em: string;
     designacao: DesignacaoResponse;
     cessacao: Cessacao;
+    texto_sei: string;
 }
 

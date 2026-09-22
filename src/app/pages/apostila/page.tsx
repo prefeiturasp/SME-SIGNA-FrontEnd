@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { nameToCamelCase, formatarRF } from "@/utils/portarias/formatadores";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useSearchParams,useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
@@ -24,9 +24,11 @@ import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/comp
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
-import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
+import { ApostilaAlteracoes, ApostilaBody, ApostilaDetailRead } from "@/types/apostila";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
 import { gerarFormValuesCessacao } from "../cessacao/page";
+import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
+import { DesignacaoResponse } from "@/types/designacao";
 
 
 const defaultValues = {
@@ -146,12 +148,14 @@ function BotaoSalvarPortariaApostila({
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const apostilaId = searchParams.get("apostila_id");
   const origem = searchParams.get("origem");
   const router = useRouter();
   const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
   const notification = useAppNotification();
   const salvarApostila = useSalvarApostila();
-  const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
+  const { data: apostilaData, isLoading: isLoadingApostila } = useFetchApostilaById(Number(apostilaId));
+  const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(Number(id));
   const { data: cargosData = [] } = useFetchCargos();
   const cargos = useMemo(
     () =>
@@ -202,7 +206,7 @@ export default function ApostilaPage() {
       "ano": "ano_vigente",
 
 
-      "numero_sei": "sei_numero",      
+      "numero_sei": "sei_numero",
       "a_partir_de": "data_inicio",
       "designacao_data_final": "data_fim",
 
@@ -224,13 +228,13 @@ export default function ApostilaPage() {
   };
   const gerarAlteracoes = (formValues: formSchemaApostilaData) => {
     delete formValues.impedimento_label;
-    
+
     const values = {
       ...formValues,
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
       "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
       "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
-      "carater_excepcional": formValues.carater_excepcional ===  EnumCheckbox.SIM ? "True" : "False",
+      "carater_excepcional": formValues.carater_excepcional === EnumCheckbox.SIM ? "True" : "False",
 
       "com_afastamento": formValues.com_afastamento === EnumCheckbox.SIM ? "True" : "False",
       "possui_pendencia": formValues.possui_pendencia === EnumCheckbox.SIM ? "True" : "False",
@@ -297,22 +301,40 @@ export default function ApostilaPage() {
   }
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
-      const alteracoes = gerarAlteracoes(values);
-      if (alteracoes.length === 0) {
-        notification.error({ title: "Não há alterações para salvar", description: "Adicione ao menos uma alteração para salvar a apostila" });
-        return;
+      let body: ApostilaBody;
+      const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;      
+      
+      if (apostilaId) {
+        // edição somente dos campos de portaria de apostila e texto SEI
+        body = {
+          id: Number(apostilaId),
+          ato_pai: ato_pai,
+          sei_numero: values.apostila.numero_sei,
+          numero_portaria: values.apostila.numero_portaria,
+          doc: values.apostila.doc,
+          observacao: values.apostila.observacao,
+          texto_sei: values.texto_portaria,
+        };
+      } else {
+        // criação de apostila com todos os campos
+        const alteracoes = gerarAlteracoes(values);
+        if (alteracoes.length === 0) {
+          notification.error({ title: "Não há alterações para salvar", description: "Adicione ao menos uma alteração para salvar a apostila" });
+          return;
+        }
+
+        body = {
+          ato_pai: ato_pai,
+          sei_numero: values.apostila.numero_sei,
+          numero_portaria: values.apostila.numero_portaria,
+          doc: values.apostila.doc,
+          observacao: values.apostila.observacao,
+          alteracoes: alteracoes,
+          texto_sei: values.texto_portaria,
+        };
       }
 
-      const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
-      const body: ApostilaBody = {
-        ato_pai: ato_pai,
-        sei_numero: values.apostila.numero_sei,
-        numero_portaria: values.apostila.numero_portaria,
-        doc: values.apostila.doc,
-        observacao: values.apostila.observacao,
-        alteracoes: alteracoes,
-        texto_sei: values.texto_portaria,
-      };
+        
       await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
@@ -323,16 +345,26 @@ export default function ApostilaPage() {
   };
 
 
+  const gerarFormValuesApostila = (apostila: ApostilaDetailRead | undefined) => {
+    return {
+      numero_portaria: apostila?.numero_portaria?.toString() ?? "",
+      numero_sei: apostila?.sei_numero ?? "",
+      doc: apostila?.doc ?? "",
+      observacao: apostila?.observacao ?? "",
+    };
+  };
 
   useEffect(() => {
     if (designacao && !form.formState.isDirty) {
 
 
       const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
+      const apostilaFieldsValues = gerarFormValuesApostila(apostilaData);
+      
       
       form.reset({
         ...defaultValues,
-        texto_portaria: "A presente portaria apostilada,",
+
         ato_apostilado: origem ?? "",
 
         // campos portaria de designacao
@@ -381,12 +413,16 @@ export default function ApostilaPage() {
 
         // campos portaria de cessação
         cessacao: cessacaoFieldsValues,
+
+        // campos apostila
+        apostila: apostilaFieldsValues,
+        texto_portaria: apostilaData?.texto_sei ?? "A presente portaria apostilada,",
       },);
 
 
 
     }
-  }, [designacao, form, origem]);
+  }, [designacao, apostilaData, form, origem]);
 
   return (
     <>
@@ -398,7 +434,7 @@ export default function ApostilaPage() {
       />
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          {isLoading ? (
+          {isLoadingDesignacao || isLoadingApostila ? (
             <div className="flex justify-center items-center h-[60vh]">
               <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
             </div>
@@ -430,7 +466,8 @@ export default function ApostilaPage() {
                     value="portarias-designacao"
                   >
                     <PortariaDesigacaoFields
-                      isLoading={isLoading}
+                      disabled={!!apostilaId}
+                      isLoading={isLoadingDesignacao}
                     />
                   </CustomAccordionItem>
 
@@ -439,7 +476,7 @@ export default function ApostilaPage() {
                     color="blue"
                     value="unidade-proponente"
                   >
-                    <CamposPesquisaUnidade />
+                    <CamposPesquisaUnidade disabled={!!apostilaId} />
                   </CustomAccordionItem>
 
                   <CustomAccordionItem
@@ -448,6 +485,7 @@ export default function ApostilaPage() {
                     value="servidor-indicado"
                   >
                     <CamposEditarServidor
+                      disabled={!!apostilaId}
                     />
                   </CustomAccordionItem>
 
@@ -467,7 +505,7 @@ export default function ApostilaPage() {
                           data-testid="select-codigo-cargo-eol"
                           options={cargos}
                           showBlankSpace={false}
-                          disabled={false}
+                          disabled={!!apostilaId}
                         />
                       </div>
                     </CustomAccordionItem>
@@ -502,7 +540,7 @@ export default function ApostilaPage() {
                 </Accordion>
 
                 <span className="text-[#333] text-[14px] font-bold">Informações adicionais</span>
-                <InformacoesAdicionais
+                <InformacoesAdicionais 
                   form={form as unknown as UseFormReturn<FieldValues>}
                   onChangeDescricao={
                     (value) => {
@@ -511,7 +549,7 @@ export default function ApostilaPage() {
                   onValueChangeDetalheParaQuadroDeHistoricoPorAno={(value) => {
                     console.log(value);
                   }}
-                  disableFields={false}
+                  disableFields={!!apostilaId}
                 />
               </div>
 

@@ -243,7 +243,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     ...cessacaoPublicadaItems(record),    
   ]
 
-  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+  const apostilaPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const items: ItemType[] = [
       {
         key: '6',
@@ -254,6 +254,23 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
           router.push(`/pages/anular-apostila?id=${record.id}`);
         },
       }
+    ]
+    return items;
+  };
+  const apostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    console.log('apostilaNaoPublicadaItems', record);
+    const origem = record?.cessacao ? 'cessacao' : 'designacao';
+    const items: ItemType[] = [
+      {
+        key: '4',
+        label: 'Editar Apostila',
+        icon: <Editar width={20} height={20} color="#9CA3B9" />,
+        onClick: (e) => {
+          e.domEvent.preventDefault();
+          router.push(`/pages/apostila?id=${record.ato_pai_id}&origem=${origem}&apostila_id=${record.id}`);
+        },        
+      },
+      ...apostilaPublicadaItems(record),      
     ]
     return items;
   };
@@ -285,7 +302,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...desigacaoNaoPublicadaItems(record));
     }
 
-
     if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
       items.push(...cessacaoPublicadaItems(record));
     }
@@ -293,12 +309,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
       items.push(...cessacaoNaoPublicadaItems(record));
     }
-
     
-    if (record.tipo === 'APOSTILA') {
-      items.push(...apostilaItems(record));
+    if (record.tipo === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      items.push(...apostilaPublicadaItems(record));
     }
 
+    if (record.tipo === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...apostilaNaoPublicadaItems(record));
+    }
     if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) {
       items.push(...insubsistenciaItems(record));
     }

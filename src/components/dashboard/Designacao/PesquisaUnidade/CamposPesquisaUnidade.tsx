@@ -24,11 +24,11 @@ import { InputField, SelectField } from "@/components/ui/FieldsForm";
 
 
 
+interface Props { 
+  disabled?: boolean;
+}
 
-const CamposPesquisaUnidade = (
-
-) => {
-
+const CamposPesquisaUnidade = ({ disabled }: Props) => {
   const { register, control, setValue, clearErrors } = useFormContext();
 
   const { data: dreOptions = [], isLoading: isLoadingDREs } = useFetchDREs();
@@ -61,6 +61,7 @@ const CamposPesquisaUnidade = (
     <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
       <div className="w-full">
         <SelectField
+          disabled={disabled}
           isLoading={isLoadingDREs}
           key="dre"
           placeholder="Selecione a DRE"
@@ -85,6 +86,7 @@ const CamposPesquisaUnidade = (
 
       <div className="w-full">
         <FormField
+          disabled={disabled}
           control={control}
           name="ue"
           render={({ field }) => (
@@ -100,7 +102,7 @@ const CamposPesquisaUnidade = (
                 ) : (
                   <Combobox
                     placeholder="Digite o nome da UE"
-                    disabled={!dre}
+                    disabled={!dre || disabled}
                     data-testid="select-ue"
                     value={field.value}
                     options={ueSelectOptions}
@@ -131,15 +133,10 @@ const CamposPesquisaUnidade = (
           placeholder="Exemplo: 1234567890"
           data-testid="input-codigo-hierarquico"
           type="text"
+          disabled={disabled}
         />
       </div>
-
-
     </div>
-
-
-
-
   );
 };
 

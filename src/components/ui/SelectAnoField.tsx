@@ -22,9 +22,10 @@ interface SelectAnoFieldProps {
   name: string;
   label?: string;
   opcoes?: { codigo: string; nome: string }[];
+  disabled?: boolean;
 }
 
-export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAnoFieldProps) => {
+export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }: SelectAnoFieldProps) => {
   const { control, setValue } = useFormContext();
   const valorSelecionado = useWatch({ control, name });
   const [pendingValue, setPendingValue] = useState<string | null>(null);
@@ -74,6 +75,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAn
               <Select
                 value={field.value || currentYear}
                 onValueChange={handleValueChange}
+                disabled={disabled}
               >
                 <SelectTrigger data-testid="select-ano">
                   <SelectValue placeholder="Selecione um ano" />
