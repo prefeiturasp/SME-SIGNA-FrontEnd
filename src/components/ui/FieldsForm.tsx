@@ -331,6 +331,9 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 format="DD/MM/YYYY"
                                 size="large"
                                 value={value}
+                                className={cn(
+                                    disabled && "opacity-50",
+                                )}
                                 placeholder={placeholder ?? "Selecione a data"}
                                 onKeyDown={(event) => {
                                     if (event.key === "Enter") {
