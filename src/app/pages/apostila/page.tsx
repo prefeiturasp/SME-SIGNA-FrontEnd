@@ -23,10 +23,10 @@ import { SelectField, EnumCheckbox, InputField } from "@/components/ui/FieldsFor
 import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/components/ui/form";
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
-import { DesignacaoResponse } from "@/types/designacao";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
 import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
+import { gerarFormValuesCessacao } from "../cessacao/page";
 
 
 const defaultValues = {
@@ -140,6 +140,8 @@ function BotaoSalvarPortariaApostila({
     </Button>
   );
 }
+
+
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
@@ -320,18 +322,7 @@ export default function ApostilaPage() {
     }
   };
 
-  const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
-    return {
-      numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
-      ano: designacao?.cessacao?.ano_vigente ?? "",
-      numero_sei: designacao?.cessacao?.sei_numero ?? "",
-      a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-      data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
-      remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-      aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-      doc: designacao?.cessacao?.doc ?? "",
-    };
-  };
+
 
   useEffect(() => {
     if (designacao && !form.formState.isDirty) {
