@@ -50,7 +50,7 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
       const value = (row as Record<string, unknown>)[String(header.key)];
 
       // RFC 4180: aspas dentro do campo são escapadas duplicando-as
-      const escaped = serializeCSVValue(value).replace(/"/g, '""');
+      const escaped = serializeCSVValue(value).replaceAll('"', '""');
       return `"${escaped}"`;
     });
     csvRows.push(values.join(CSV_SEPARATOR));
@@ -62,7 +62,7 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
 export const downloadCSV = <T extends RowData>(
   data: T[],
   columns: ColumnsType<T>,
-  fileName: string = `table-export-${new Date().getTime()}.csv`
+  fileName: string = `table-export-${Date.now()}.csv`
 ) => {
   const csvContent = convertToCSV(data, columns);
   const blob = new Blob([CSV_BOM + csvContent], { type: "text/csv;charset=utf-8;" });

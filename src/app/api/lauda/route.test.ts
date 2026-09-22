@@ -145,6 +145,17 @@ describe("POST /api/lauda", () => {
     expect(await response.json()).toEqual({ detail: "Atos já publicados: 1, 2" });
   });
 
+  it("usa mensagem padrão quando o JSON do erro não traz detail", async () => {
+    mockToken("token-123");
+    const body = new TextEncoder().encode(JSON.stringify({ ids: [1] })).buffer;
+    axiosPostMock.mockRejectedValueOnce(buildAxiosError(400, body));
+
+    const response = await POST(buildRequest({ ids: [1] }));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ detail: "Erro ao gerar a lauda" });
+  });
+
   it("usa mensagem padrão quando o corpo do erro não é JSON", async () => {
     mockToken("token-123");
     const body = new TextEncoder().encode("<html>erro</html>").buffer;

@@ -223,6 +223,25 @@ describe("downloadCSV", () => {
     expect(blob.parts[0]).toContain('"{""a"":1}"');
   });
 
+  it("retorna vazio para valores não serializáveis (symbol e função)", () => {
+    const { createObjectURLSpy } = setupDOMMocks();
+
+    const data = [
+      { key: "1", nome: Symbol("x"), idade: () => 1 },
+    ];
+
+    const columns: ColumnsType<TestRow> = [
+      { key: "nome", title: "Nome" },
+      { key: "idade", title: "Idade" },
+    ];
+
+    downloadCSV(data, columns);
+
+    const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
+
+    expect(blob.parts[0]).toContain('"";""');
+  });
+
   it("retorna vazio quando JSON.stringify falha (circular)", () => {
     const { createObjectURLSpy } = setupDOMMocks();
 
