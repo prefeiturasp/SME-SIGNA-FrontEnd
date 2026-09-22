@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import CessacaoPage, { gerarFormValuesCessacao } from "./page";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
-import type { DesignacaoResponse } from "@/types/designacao";
+import type { Cessacao, DesignacaoResponse } from "@/types/designacao";
 
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
@@ -460,17 +460,15 @@ describe("CessacaoPage", () => {
 
   it("mapeia corretamente todos os valores da cessação vinculada", () => {
     const result = gerarFormValuesCessacao({
-      cessacao: {
-        numero_portaria: 456,
-        ano_vigente: "2025",
-        sei_numero: "SEI-CESS",
-        a_pedido: true,
-        data_cessacao: "2026-03-10",
-        remocao: true,
-        aposentadoria: true,
-        doc: "DOC-CESS",
-      },
-    } as unknown as DesignacaoResponse);
+      numero_portaria: 456,
+      ano_vigente: "2025",
+      sei_numero: "SEI-CESS",
+      a_pedido: true,
+      data_cessacao: "2026-03-10",
+      remocao: true,  
+      aposentadoria: true,
+      doc: "DOC-CESS",
+    } as Cessacao);
 
     expect(result).toEqual({
       numero_portaria: "456",

@@ -258,8 +258,8 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     return items;
   };
   const apostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
-    console.log('apostilaNaoPublicadaItems', record);
-    const origem = record?.cessacao ? 'cessacao' : 'designacao';
+    const origem = record?.tipo_de_ato.includes("Cessação") ? 'cessacao' : 'designacao';
+    console.log('origem', record);
     const items: ItemType[] = [
       {
         key: '4',
@@ -267,7 +267,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         icon: <Editar width={20} height={20} color="#9CA3B9" />,
         onClick: (e) => {
           e.domEvent.preventDefault();
-          router.push(`/pages/apostila?id=${record.ato_pai_id}&origem=${origem}&apostila_id=${record.id}`);
+          router.push(`/pages/apostila?origem=${origem}&apostila_id=${record.id}`);
         },        
       },
       ...apostilaPublicadaItems(record),      

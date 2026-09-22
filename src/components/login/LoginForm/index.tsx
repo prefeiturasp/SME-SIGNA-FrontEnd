@@ -142,7 +142,7 @@ export default function LoginForm() {
                   variant="secondary"
                   disabled={estaDesabilitado}
                   loading={isLoggingIn}
-                  className="rounded text-white w-full disabled:opacity-50"
+                  className="rounded text-white w-full "
                 >
                   Acessar
                 </Button>

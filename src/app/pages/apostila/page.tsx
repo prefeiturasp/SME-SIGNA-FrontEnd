@@ -155,7 +155,12 @@ export default function ApostilaPage() {
   const notification = useAppNotification();
   const salvarApostila = useSalvarApostila();
   const { data: apostilaData, isLoading: isLoadingApostila } = useFetchApostilaById(Number(apostilaId));
-  const { data: designacao, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(Number(id));
+  
+  const { data: designacaoData, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(Number(id));
+  const cessacao = apostilaData ? apostilaData.cessacao : designacaoData?.cessacao;
+  const designacao = apostilaData ? apostilaData.designacao : designacaoData;
+  
+
   const { data: cargosData = [] } = useFetchCargos();
   const cargos = useMemo(
     () =>
@@ -165,6 +170,7 @@ export default function ApostilaPage() {
       })),
     [cargosData]
   );
+
 
 
   const form = useForm<formSchemaApostilaData>({
@@ -301,14 +307,11 @@ export default function ApostilaPage() {
   }
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
-      let body: ApostilaBody;
-      const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;      
-      
+      let body: ApostilaBody;           
       if (apostilaId) {
         // edição somente dos campos de portaria de apostila e texto SEI
         body = {
           id: Number(apostilaId),
-          ato_pai: ato_pai,
           sei_numero: values.apostila.numero_sei,
           numero_portaria: values.apostila.numero_portaria,
           doc: values.apostila.doc,
@@ -322,6 +325,8 @@ export default function ApostilaPage() {
           notification.error({ title: "Não há alterações para salvar", description: "Adicione ao menos uma alteração para salvar a apostila" });
           return;
         }
+        
+        const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;      
 
         body = {
           ato_pai: ato_pai,
@@ -358,9 +363,8 @@ export default function ApostilaPage() {
     if (designacao && !form.formState.isDirty) {
 
 
-      const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
+      const cessacaoFieldsValues = gerarFormValuesCessacao(cessacao ?? undefined);
       const apostilaFieldsValues = gerarFormValuesApostila(apostilaData);
-      
       
       form.reset({
         ...defaultValues,
@@ -417,12 +421,9 @@ export default function ApostilaPage() {
         // campos apostila
         apostila: apostilaFieldsValues,
         texto_portaria: apostilaData?.texto_sei ?? "A presente portaria apostilada,",
-      },);
-
-
-
+      });
     }
-  }, [designacao, apostilaData, form, origem]);
+  }, [designacao, cessacao, apostilaData, form, origem]);
 
   return (
     <>
@@ -533,7 +534,7 @@ export default function ApostilaPage() {
 
                   {origem === "cessacao" && (
                     <CustomAccordionItem title="Portaria de cessação" value="portarias-cessacao" color="silver">
-                      <PortariaCessacaoFields />
+                      <PortariaCessacaoFields disabled={!!apostilaId} />
                     </CustomAccordionItem>
                   )}
 
