@@ -1,6 +1,7 @@
 import type { ColumnsType } from "antd/es/table";
+import { baixarArquivo } from "./baixarArquivo";
 
-type RowData = Record<string, unknown>;
+type RowData = object;
 
 const serializeCSVValue = (value: unknown): string => {
   if (value == null) return "";
@@ -29,6 +30,10 @@ const serializeCSVValue = (value: unknown): string => {
   return "";
 };
 
+// Separador ";" e BOM para o Excel em pt-BR abrir o arquivo com colunas e acentos corretos
+const CSV_SEPARATOR = ";";
+const CSV_BOM = "\uFEFF";
+
 const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => {
   if (!data || data.length === 0) return "";
 
@@ -38,35 +43,29 @@ const convertToCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => 
     typeof col.title === "string" ? col.title : ""
   );
 
-  csvRows.push(headersCSV.join(","));
+  csvRows.push(headersCSV.join(CSV_SEPARATOR));
 
   for (const row of data) {
     const values = columns.map((header) => {
-      const value = row[String(header.key)];
- 
-      const escaped = serializeCSVValue(value).replace(/"/g, '\\"');
+      const value = (row as Record<string, unknown>)[String(header.key)];
+
+      // RFC 4180: aspas dentro do campo são escapadas duplicando-as
+      const escaped = serializeCSVValue(value).replace(/"/g, '""');
       return `"${escaped}"`;
     });
-    csvRows.push(values.join(","));
+    csvRows.push(values.join(CSV_SEPARATOR));
   }
 
   return csvRows.join("\n");
 };
 
-export const downloadCSV = <T extends RowData>(data: T[], columns: ColumnsType<T>) => {
+export const downloadCSV = <T extends RowData>(
+  data: T[],
+  columns: ColumnsType<T>,
+  fileName: string = `table-export-${new Date().getTime()}.csv`
+) => {
   const csvContent = convertToCSV(data, columns);
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.setAttribute("href", url);
-  link.setAttribute("download", `table-export-${new Date().getTime()}.csv`);
-  link.style.visibility = "hidden";
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
+  const blob = new Blob([CSV_BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+  baixarArquivo(blob, fileName);
 };
   

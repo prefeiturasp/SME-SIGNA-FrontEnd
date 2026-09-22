@@ -7,7 +7,7 @@ import { ListagemPortariasResponse } from '@/types/designacao';
 import SimpleCheck from '@/assets/icons/SimpleCheck';
 import { format } from 'date-fns';
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO, PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA } from '../MainDOForm/MainDOForm';
-import { formatDate } from '@/utils/formatDate';
+import { colunasListagemDeDo } from './colunasListagemDeDo';
 import DownloadFiles from '@/assets/icons/DownloadFiles';
 
 
@@ -68,16 +68,6 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
 
 
 
-  const columns: TableProps<ListagemPortariasResponse>['columns'] = [
-    { title: 'PORTARIA', dataIndex: 'numero_portaria', key: 'numero_portaria' },
-    { title: 'TIPO DE ATO', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
-    { title: 'NOME', dataIndex: 'nome', key: 'nome' },
-    { title: 'CARGO', dataIndex: 'cargo', key: 'cargo' },
-    { title: 'D.O', dataIndex: 'doc', key: 'doc', render: (text: string | null) => formatDate(text) },
-    { title: 'DATA DA DESIGNAÇÃO', dataIndex: 'data_designacao', key: 'data_designacao', render: (text: string | null) => formatDate(text) },
-    { title: 'DATA DA CESSAÇÃO', dataIndex: 'data_cessacao', key: 'data_cessacao', render: (text: string | null) => formatDate(text) },
-    { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' }
-  ];
   return (
     <div className="flex flex-col gap-1 bg-white  ">
       <div className="py-8">
@@ -92,7 +82,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
           className="tabela-principal w-full"
           scroll={{ x: '100%' }}
           loading={isLoading}
-          columns={columns}
+          columns={colunasListagemDeDo}
           dataSource={data}
           rowSelection={rowSelection}
           rowKey={(record) => record.id.toString()}
@@ -163,7 +153,6 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
                  className="w-full flex items-center justify-center gap-2"
                  variant="destructive"
                  disabled={isDisabledButtonBaixarLauda}
-                 onClick={handleAlterarDataDo}
                  data-testid="botao-proximo"
                 >Baixar lauda
                 <DownloadFiles className="text-[16px] font-bold" />
