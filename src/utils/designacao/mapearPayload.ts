@@ -2,9 +2,7 @@ import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/De
 import type { ICargoType } from "@/types/cargos";
 import type { Servidor } from "@/types/designacao-unidade";
 
-// `a_partir_de`/`designacao_data_final` são `Date` no schema, mas o formulário é
-// persistido em localStorage via JSON.stringify/parse (DesignacaoContext), o que
-// desfaz o tipo Date em string. Por isso essa função aceita `unknown` de propósito.
+// `unknown` porque o formulário passa por JSON.stringify/parse no localStorage.
 function formatarData(valor: unknown): string | null {
     if (!valor) return null;
     if (
@@ -18,10 +16,7 @@ function formatarData(valor: unknown): string | null {
     return null;
 }
 
-// `cd_cargo_sobreposto_funcao_atividade` do titular vem da busca por RF
-// (/designacao/servidor) e é o código de cargo do EOL, não um dos códigos
-// fixos aceitos por `cargo_vaga`. É preciso resolver pelo nome do cargo
-// contra a lista fixa (/designacao/unidade/cargos/) para obter o código correto.
+// Resolve pelo nome pois o código do EOL não bate com o de CargoBase.
 export function encontrarCargoPorNome(
     nomeCargo: string | null | undefined,
     cargosDisponiveis: ICargoType[]
@@ -30,9 +25,7 @@ export function encontrarCargoPorNome(
     return cargosDisponiveis.find((cargo) => cargo.nomeCargo === nomeCargo);
 }
 
-// A integração SME pode retornar `cargo_sobreposto_funcao_atividade` nulo para
-// o titular; nesse caso usamos `cargo_base` (que a integração sempre preenche)
-// como fallback para resolver o cargo de vaga.
+// Fallback para `cargo_base` quando `cargo_sobreposto_funcao_atividade` vem nulo.
 export function obterNomeCargoTitular(
     titular: Pick<Servidor, "cargo_sobreposto_funcao_atividade" | "cargo_base"> | null | undefined
 ): string | null | undefined {
