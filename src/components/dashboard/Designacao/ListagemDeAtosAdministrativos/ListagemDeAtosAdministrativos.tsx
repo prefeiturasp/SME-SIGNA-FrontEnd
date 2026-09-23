@@ -259,7 +259,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   };
   const apostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const origem = record?.tipo_de_ato.includes("Cessação") ? 'cessacao' : 'designacao';
-    console.log('origem', record);
+    
     const items: ItemType[] = [
       {
         key: '4',
