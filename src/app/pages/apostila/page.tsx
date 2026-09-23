@@ -28,7 +28,6 @@ import { ApostilaAlteracoes, ApostilaBody, ApostilaDetailRead } from "@/types/ap
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
 import { gerarFormValuesCessacao } from "../cessacao/page";
 import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
-import { DesignacaoResponse } from "@/types/designacao";
 
 
 const defaultValues = {
