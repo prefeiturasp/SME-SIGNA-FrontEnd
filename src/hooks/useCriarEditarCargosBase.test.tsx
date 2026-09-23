@@ -20,6 +20,7 @@ const {
   formResetMock,
   formWatchMock,
   formTriggerMock,
+  invalidateQueriesMock,
 } = vi.hoisted(() => ({
   useFormMock: vi.fn(),
   zodResolverMock: vi.fn(() => "resolver-mock"),
@@ -28,12 +29,17 @@ const {
   errorNotificationMock: vi.fn(),
   useBuscarCargosBaseMock: vi.fn(),
   useBuscarCargosBaseByIdMock: vi.fn(),
-  useMutationMock: vi.fn((options: { mutationFn: (args: unknown) => Promise<unknown> }) => ({
-    mutateAsync: vi.fn((args: unknown) => options.mutationFn(args)),
+  useMutationMock: vi.fn((options: { mutationFn: (args: unknown) => Promise<unknown>; onSuccess?: () => void }) => ({
+    mutateAsync: vi.fn(async (args: unknown) => {
+      const result = await options.mutationFn(args);
+      options.onSuccess?.();
+      return result;
+    }),
   })),
   formResetMock: vi.fn(),
   formWatchMock: vi.fn(),
   formTriggerMock: vi.fn(),
+  invalidateQueriesMock: vi.fn(),
 }));
 const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
@@ -65,6 +71,7 @@ vi.mock("@/components/providers/NotificationProvider", () => ({
 
 vi.mock("@tanstack/react-query", () => ({
   useMutation: useMutationMock,
+  useQueryClient: () => ({ invalidateQueries: invalidateQueriesMock }),
 }));
 
 vi.mock("@/actions/cargos-base", () => ({
@@ -136,6 +143,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     );
     expect(criarCargosBaseAction).toHaveBeenCalledWith(payloadBase);
     expect(response).toEqual({ id: 123 });
+    expect(invalidateQueriesMock).toHaveBeenCalledWith({ queryKey: ["get-cargos"] });
   });
 
   it("configura useCriarCargosBase e lança erro na falha", async () => {
@@ -160,6 +168,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
 
     expect(editarCargosBaseAction).toHaveBeenCalledWith(7, values);
     expect(response).toEqual({ id: 7 });
+    expect(invalidateQueriesMock).toHaveBeenCalledWith({ queryKey: ["get-cargos"] });
   });
 
   it("configura useEditarCargosBase e lança erro na falha", async () => {
