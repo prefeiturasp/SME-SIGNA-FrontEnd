@@ -258,6 +258,17 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     return items;
   };
 
+  const anularApostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
+    {
+      key: '4',
+      label: 'Editar',
+      icon: <Editar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        router.push(`/pages/anular-apostila/editar?id=${record.id}&atoPai=${record.ato_pai_id}`);
+      },
+    },
+  ]
+
   const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     return [
       {
@@ -301,6 +312,10 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
     if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) {
       items.push(...insubsistenciaItems(record));
+    }
+
+    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...anularApostilaNaoPublicadaItems(record));
     }
 
     // remove as funções que ja foram executadas e não podem ser duplicadas

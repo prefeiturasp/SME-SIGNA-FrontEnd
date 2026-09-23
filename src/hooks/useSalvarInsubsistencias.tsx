@@ -9,9 +9,11 @@ export const useSalvarInsubsistencias = () => {
     mutationFn: async ({
       values,
       atoPai,
+      id,
     }: {
       values: formSchemaAnularApostilaTornarSemEfeitoData;
       atoPai: number;
+      id?: number | null;
     }) => {
 
       
@@ -24,7 +26,7 @@ export const useSalvarInsubsistencias = () => {
         observacoes: values.apostila_insubsistencia.observacao,
         texto_apostila: values.apostila_insubsistencia.texto_para_apostila        
       };
-      const response = await insubsistenciaAction(payload);      
+      const response = await insubsistenciaAction(payload, id);      
 
       if (!response.success) {
         console.log(response.error);

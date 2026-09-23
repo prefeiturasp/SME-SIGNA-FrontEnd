@@ -14,6 +14,7 @@ vi.mock("axios", async () => {
     ...actual,
     default: {
       post: vi.fn(),
+      patch: vi.fn(),
       isAxiosError: actual.default.isAxiosError,
     },
   };
@@ -68,6 +69,49 @@ describe("insubsistenciaAction", () => {
         headers: expect.objectContaining({ Authorization: "Bearer meu-token" }),
       })
     );
+  });
+
+  it("faz PATCH no recurso existente quando um id é informado", async () => {
+    vi.mocked(cookies).mockResolvedValue(buildCookieStore("meu-token") as never);
+    vi.mocked(axios.patch).mockResolvedValue({ data: { id: 42 } });
+
+    const result = await insubsistenciaAction(payloadBase, 42);
+
+    expect(result).toEqual({ success: true, data: { id: 42 } });
+    expect(axios.post).not.toHaveBeenCalled();
+    expect(axios.patch).toHaveBeenCalledWith(
+      "http://api.test/designacao/insubsistencias/42/",
+      payloadBase,
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer meu-token" }),
+      })
+    );
+  });
+
+  it("retorna erro do PATCH quando a atualização falha", async () => {
+    vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
+    vi.mocked(axios.patch).mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 400, data: { detail: "Insubsistência não encontrada" } },
+    });
+
+    const result = await insubsistenciaAction(payloadBase, 7);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Insubsistência não encontrada",
+      field: undefined,
+    });
+  });
+
+  it("faz POST quando o id é nulo", async () => {
+    vi.mocked(cookies).mockResolvedValue(buildCookieStore("tk") as never);
+    vi.mocked(axios.post).mockResolvedValue({ data: { id: 1 } });
+
+    await insubsistenciaAction(payloadBase, null);
+
+    expect(axios.patch).not.toHaveBeenCalled();
+    expect(axios.post).toHaveBeenCalled();
   });
 
   it("envia requisição sem Authorization quando não há cookie", async () => {

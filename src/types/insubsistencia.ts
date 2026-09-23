@@ -29,6 +29,7 @@ export interface InsubsistenciaBaseRead {
 
 export interface InsubsistenciaRead extends InsubsistenciaBaseRead {
     criado_em: string;
+    ato_pai_id?: number;
     status: string;
     observacao: string;
     designacao: DesignacaoResponse;

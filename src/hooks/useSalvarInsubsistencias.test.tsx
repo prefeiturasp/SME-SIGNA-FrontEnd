@@ -58,15 +58,18 @@ describe("useSalvarInsubsistencias", () => {
       });
     });
 
-    expect(insubsistenciaAction).toHaveBeenCalledWith({
-      ato_pai: 10,
-      numero_portaria: 1,
-      ano_vigente: "2026",
-      sei_numero: "6016.2026/0001-1",
-      doc: "2026-03-02",
-      observacoes: "obs teste",
-      texto_apostila: "Texto de anulação",
-    });
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      {
+        ato_pai: 10,
+        numero_portaria: 1,
+        ano_vigente: "2026",
+        sei_numero: "6016.2026/0001-1",
+        doc: "2026-03-02",
+        observacoes: "obs teste",
+        texto_apostila: "Texto de anulação",
+      },
+      undefined
+    );
   });
 
   it("envia doc undefined quando data não existe", async () => {
@@ -97,7 +100,32 @@ describe("useSalvarInsubsistencias", () => {
       expect.objectContaining({
         ato_pai: 3,
         doc: undefined,
-      })
+      }),
+      undefined
+    );
+  });
+
+  it("repassa o id para a action quando é uma edição", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
+      success: true,
+      data: { id: 55 },
+    } as never);
+
+    const { result } = renderHook(() => useSalvarInsubsistencias(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesMock,
+        atoPai: 10,
+        id: 55,
+      });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ ato_pai: 10 }),
+      55
     );
   });
 
