@@ -23,7 +23,7 @@ const nomeArquivoDoHeader = (contentDisposition: string | null): string | undefi
 
 export const baixarLauda = async (ids: number[], formato: FormatoLauda): Promise<BaixarLaudaResult> => {
   try {
-    const response = await fetch("/api/lauda", {
+    const response = await fetch("/download/lauda", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids, formato }),
