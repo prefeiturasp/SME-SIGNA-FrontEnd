@@ -2,6 +2,7 @@ import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosBase";
 import { fetchCargosBaseAction, fetchCargosBaseActionByIdAction } from "@/actions/cargos-base";
+import { fetchCargosBase } from "@/actions/gestao";
 
 const useQueryMock = vi.fn((options) => options);
 
@@ -14,9 +15,17 @@ vi.mock("@/actions/cargos-base", () => ({
   fetchCargosBaseActionByIdAction: vi.fn(),
 }));
 
+vi.mock("@/actions/gestao", () => ({
+  fetchCargosBase: vi.fn(),
+}));
+
 describe("useBuscarCargosBase", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fetchCargosBase).mockResolvedValue({
+      success: true,
+      data: { count: 0, next: null, previous: null, results: [] },
+    });
   });
 
   it("configura query com chave e opções esperadas", () => {
@@ -72,6 +81,49 @@ describe("useBuscarCargosBase", () => {
     const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
 
     await expect(queryOptions.queryFn()).rejects.toThrow("falha ao buscar");
+  });
+
+  it("oculta do EOL os cargos cujo código já está cadastrado", async () => {
+    vi.mocked(fetchCargosBaseAction).mockResolvedValueOnce({
+      success: true,
+      data: [
+        { codigoCargo: 3360, nomeCargo: "DIRETOR DE ESCOLA" },
+        { codigoCargo: 3379, nomeCargo: "COORDENADOR PEDAGOGICO" },
+      ] as never,
+    });
+    vi.mocked(fetchCargosBase).mockResolvedValueOnce({
+      success: true,
+      data: {
+        count: 1,
+        next: null,
+        previous: null,
+        results: [{ codigo_cargo: "3360" } as never],
+      },
+    });
+
+    renderHook(() => useBuscarCargosBase());
+    const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
+    const data = await queryOptions.queryFn();
+
+    expect(data).toEqual([{ codigoCargo: 3379, nomeCargo: "COORDENADOR PEDAGOGICO" }]);
+  });
+
+  it("mantém a lista completa do EOL quando a busca dos já cadastrados falha", async () => {
+    const payload = [{ codigoCargo: 3360, nomeCargo: "DIRETOR DE ESCOLA" }];
+    vi.mocked(fetchCargosBaseAction).mockResolvedValueOnce({
+      success: true,
+      data: payload as never,
+    });
+    vi.mocked(fetchCargosBase).mockResolvedValueOnce({
+      success: false,
+      error: "falha ao buscar cadastrados",
+    });
+
+    renderHook(() => useBuscarCargosBase());
+    const queryOptions = useQueryMock.mock.calls[0][0] as { queryFn: () => Promise<unknown> };
+    const data = await queryOptions.queryFn();
+
+    expect(data).toEqual(payload);
   });
 });
 
