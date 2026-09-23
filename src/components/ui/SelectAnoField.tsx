@@ -27,13 +27,13 @@ interface SelectAnoFieldProps {
 
 export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }: SelectAnoFieldProps) => {
   const { control } = useFormContext();
-  
+
   const [pendingValue, setPendingValue] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
 
-  const currentYear = new Date().getFullYear().toString();
+  
 
- 
+   const currentYear = new Date().getFullYear().toString();
 
   const anosDefault = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
@@ -49,7 +49,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
     <FormField
       control={control}
       name={name}
-      defaultValue={currentYear}
+      
       render={({ field }) => {
         const handleValueChange = (value: string) => {
           if (!opcoes && value !== currentYear) {
