@@ -66,9 +66,8 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
               {label}*
             </FormLabel>
             <FormControl>
-              <Select
-                defaultValue={currentYear}
-                value={field.value}                
+              <Select                
+                value={field.value.length > 0 ? field.value : currentYear}                
                 disabled={disabled}
               >
                 <SelectTrigger data-testid="select-ano">
