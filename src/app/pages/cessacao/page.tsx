@@ -41,7 +41,7 @@ import { Cessacao } from "@/types/designacao";
 export const gerarFormValuesCessacao = (cessacao: Cessacao | undefined) => {
   return {
     numero_portaria: cessacao?.numero_portaria?.toString() ?? "",
-    ano: cessacao?.ano_vigente ?? "",
+    ano: cessacao?.ano_vigente ?? new Date().getFullYear().toString(),
     numero_sei: cessacao?.sei_numero ?? "",
     a_pedido: cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
     data_inicio: cessacao?.data_cessacao ? new Date(cessacao.data_cessacao.replaceAll("-", '/')) : undefined,

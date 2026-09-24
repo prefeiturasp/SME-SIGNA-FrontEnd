@@ -141,7 +141,7 @@ const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
                 allowClear={true}
                 disabled={disabled}
                 onClear={() => {
-                  setValue("impedimento_substituicao", null);
+                  setValue("impedimento_substituicao", null, { shouldDirty: true });
                 }}
               />
             </div>
