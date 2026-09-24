@@ -117,7 +117,7 @@ export default function CessacaoPage() {
       data_inicio: designacao.data_inicio,
       data_fim: designacao.data_fim,
       carater_excepcional: designacao.carater_excepcional,
-      impedimento_substituicao: designacao.impedimento_substituicao,
+      impedimento_substituicao: designacao.impedimento_display,
       motivo_afastamento: designacao.motivo_afastamento,
       pendencias: designacao.pendencias,
     };

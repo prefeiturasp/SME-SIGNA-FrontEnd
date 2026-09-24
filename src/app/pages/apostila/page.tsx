@@ -367,7 +367,7 @@ export default function ApostilaPage() {
       const cessacaoFieldsValues = gerarFormValuesCessacao(cessacao ?? undefined);
       const apostilaFieldsValues = gerarFormValuesApostila(apostilaData);
 
-
+      console.log('designacao',designacao)
       form.reset({
         ...defaultValues,
 

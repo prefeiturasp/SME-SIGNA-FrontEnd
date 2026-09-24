@@ -114,6 +114,7 @@ export default function InsubsistenciaPage() {
   const tipo_insubsistencia = form.watch('insubsistencia.tipo_insubsistencia')
   const dadosPortaria = useMemo(() => {
     if (!designacao) return null;
+    console.log('designação', designacao)
 
     return {
       numero_portaria: designacao.numero_portaria,
@@ -123,7 +124,7 @@ export default function InsubsistenciaPage() {
       data_inicio: designacao.data_inicio,
       data_fim: designacao.data_fim,
       carater_excepcional: designacao.carater_excepcional,
-      impedimento_substituicao: designacao.impedimento_substituicao,
+      impedimento_substituicao: designacao.impedimento_display,
       motivo_afastamento: designacao.motivo_afastamento,
       pendencias: designacao.pendencias,
     };
