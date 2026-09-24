@@ -26,14 +26,20 @@ interface SelectAnoFieldProps {
 }
 
 export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }: SelectAnoFieldProps) => {
-  const { control } = useFormContext();
-
+  const { control, setValue } = useFormContext();
+  const valorSelecionado = useWatch({ control, name });
   const [pendingValue, setPendingValue] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
 
-  
+  const currentYear = new Date().getFullYear().toString();
 
-   const currentYear = new Date().getFullYear().toString();
+  // O select exibe o ano atual quando o formulário está vazio; grava esse
+  // mesmo valor para que o que aparece na tela e o que é validado coincidam.
+  useEffect(() => {
+    if (!opcoes && !valorSelecionado) {
+      setValue(name, currentYear);
+    }
+  }, [opcoes, valorSelecionado, name, currentYear, setValue]);
 
   const anosDefault = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
@@ -49,7 +55,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
     <FormField
       control={control}
       name={name}
-      
+      defaultValue={currentYear}
       render={({ field }) => {
         const handleValueChange = (value: string) => {
           if (!opcoes && value !== currentYear) {
@@ -66,8 +72,9 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
               {label}*
             </FormLabel>
             <FormControl>
-              <Select                
-                value={field.value !=="" ? field.value : currentYear}                
+              <Select
+                value={field.value || currentYear}
+                onValueChange={handleValueChange}
                 disabled={disabled}
               >
                 <SelectTrigger data-testid="select-ano">
@@ -76,9 +83,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
 
                 <SelectContent>
                   {anos.map((ano) => (
-                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`} onClick={() => {
-                      handleValueChange(ano.codigo);
-                    }}>
+                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`}>
                       {ano.nome}
                     </SelectItem>
                   ))}
