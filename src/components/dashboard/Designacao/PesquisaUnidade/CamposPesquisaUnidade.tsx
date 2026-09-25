@@ -21,10 +21,11 @@ import { Loader2 } from "lucide-react";
 
 
 import { InputField, SelectField } from "@/components/ui/FieldsForm";
+import useFetchDesignacaoUnidadeMutation from "@/hooks/useDesignacaoUnidade";
 
 
 
-interface Props { 
+interface Props {
   disabled?: boolean;
 }
 
@@ -36,6 +37,7 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
     dre ?? "",
   );
+
   const dreSelectOptions = useMemo(
     () =>
       dreOptions.map(
@@ -56,12 +58,21 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
       ),
     [ueOptions]
   );
+  const { mutateAsync, isPending: isLoadingCodigoHierarquico } = useFetchDesignacaoUnidadeMutation();
+
+  const populaCodigoHierarquico = async (codigo_ue: string) => {
+    const response = await mutateAsync(codigo_ue);
+    if (response.success) {      
+      setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
+    }
+  }
+
 
   return (
     <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
       <div className="w-full">
         <SelectField
-          disabled={disabled}
+          disabled={disabled|| isLoadingCodigoHierarquico}
           isLoading={isLoadingDREs}
           key="dre"
           placeholder="Selecione a DRE"
@@ -72,9 +83,11 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
           label="DRE"
           options={dreSelectOptions}
           onValueChange={(value: string) => {
-            clearErrors();
+            
             setValue("ue", "");
             setValue("ue_nome", "");
+            setValue("codigo_hierarquico", "");
+            clearErrors();
             const dreSelecionada = dreOptions.find(
               (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) =>
                 String(dre.codigoDRE) === value
@@ -95,7 +108,7 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
                 Unidade proponente
               </FormLabel>
               <FormControl>
-                {isLoadingUEs ? (
+                {isLoadingUEs || isLoadingCodigoHierarquico ? (
                   <div className="flex items-center justify-center">
                     <Loader2 className="w-4 h-4 animate-spin text-primary " />
                   </div>
@@ -114,6 +127,7 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
                           ue.codigoEscola === value
                       );
                       setValue("ue_nome", ueSelecionada ? `${ueSelecionada.siglaTipoEscola} - ${ueSelecionada.nomeEscola}` : "");
+                      if (ueSelecionada) populaCodigoHierarquico(ueSelecionada.codigoEscola);
                     }}
                   />
                 )}
@@ -124,17 +138,17 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
         />
       </div>
 
-      <div className="w-full">
-        <InputField
-          register={register}
-          control={control}
-          name="codigo_hierarquico"
-          label="Código Estrutura Hierárquica"
-          placeholder="Exemplo: 1234567890"
-          data-testid="input-codigo-hierarquico"
-          type="text"
-          disabled={disabled}
-        />
+      <div className="w-full"> 
+          <InputField
+            register={register}
+            control={control}
+            name="codigo_hierarquico"
+            label="Código Estrutura Hierárquica"
+            placeholder="Exemplo: 1234567890"
+            data-testid="input-codigo-hierarquico"
+            type="text"
+            disabled={true}
+          />         
       </div>
     </div>
   );

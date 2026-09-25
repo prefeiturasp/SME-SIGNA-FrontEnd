@@ -105,15 +105,16 @@ function BotaoGerarTextoSei({
   form: UseFormReturn<formSchemaApostilaData>;
   onClick: () => Promise<void>;
 }>) {
-  const { isValid } = useFormState({ control: form.control });
+  const { errors } = useFormState({ control: form.control });
 
+  
   return (
     <Button
       type="button"
       size="lg"
       className="w-full flex items-center justify-center gap-6"
       variant="destructive"
-      disabled={!isValid}
+      disabled={Object.keys(errors).length > 0}
       onClick={onClick}
     >
       Gerar texto SEI
@@ -367,7 +368,7 @@ export default function ApostilaPage() {
       const cessacaoFieldsValues = gerarFormValuesCessacao(cessacao ?? undefined);
       const apostilaFieldsValues = gerarFormValuesApostila(apostilaData);
 
-      console.log('designacao',designacao)
+      
       form.reset({
         ...defaultValues,
 
@@ -426,6 +427,9 @@ export default function ApostilaPage() {
       });
     }
   }, [designacao, cessacao, apostilaData, form, origem]);
+ 
+  
+  
 
   return (
     <>
