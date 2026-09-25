@@ -55,7 +55,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
     <FormField
       control={control}
       name={name}
-      defaultValue={currentYear}
+      
       render={({ field }) => {
         const handleValueChange = (value: string) => {
           if (!opcoes && value !== currentYear) {
@@ -72,9 +72,8 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
               {label}*
             </FormLabel>
             <FormControl>
-              <Select
-                value={field.value || currentYear}
-                onValueChange={handleValueChange}
+              <Select                
+                value={field.value !=="" ? field.value : currentYear}                
                 disabled={disabled}
               >
                 <SelectTrigger data-testid="select-ano">
@@ -83,7 +82,9 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
 
                 <SelectContent>
                   {anos.map((ano) => (
-                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`}>
+                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`} onClick={() => {
+                      handleValueChange(ano.codigo);
+                    }}>
                       {ano.nome}
                     </SelectItem>
                   ))}
