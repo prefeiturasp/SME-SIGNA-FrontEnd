@@ -83,7 +83,6 @@ export default function DesignacoesPasso2() {
   
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
-  const [isPopulateScreen, setIsPopulateScreen] = useState(false);
   const hasPopulatedFromApi = useRef(false);
   const [dadosTitular, setDadosTitular] = useState<Servidor | null>(formDesignacaoData?.dadosTitular ?? null);
 
@@ -200,15 +199,14 @@ export default function DesignacoesPasso2() {
       // Ao navegar de volta do passo-3, rf está na URL e o contexto já tem os
       // dados editados pelo usuário. Evita sobrescrever com os dados originais da API.
       if (rf && formDesignacaoData?.portaria_designacao) {
-        setIsPopulateScreen(false);
         return;
       }
 
-      setIsPopulateScreen(true);
+      /* eslint-disable react/set-state-in-effect -- hidrata o formulário uma única vez com dados da API. */
       popularCamposFormulario(designacao);
       popularDadosContexto(designacao);
       form.clearErrors();
-      setIsPopulateScreen(false);
+      /* eslint-enable react/set-state-in-effect */
     }
   }, [designacao]);
 
@@ -405,7 +403,7 @@ export default function DesignacoesPasso2() {
                   value="portarias-designacao"
                 >
                   <PortariaDesigacaoFields
-                    isLoading={isPopulateScreen || isLoadingDesignacao}
+                    isLoading={isLoadingDesignacao}
                   />
                 </CustomAccordionItem>
                 <CustomAccordionItem
@@ -427,7 +425,7 @@ export default function DesignacoesPasso2() {
             {/* to-do: arrumar nome */}
             <SelecaoServidorIndicado
               rf_default={rfTitular ?? ""}
-              isLoading={isPopulateScreen || isLoadingDesignacao}
+              isLoading={isLoadingDesignacao}
               form={form}
               tipoCargo={tipoCargo}
               dadosTitular={dadosTitular}
