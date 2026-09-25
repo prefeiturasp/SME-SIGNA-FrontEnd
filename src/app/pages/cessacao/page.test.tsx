@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import CessacaoPage, { gerarFormValuesCessacao } from "./page";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
-import type { Cessacao, DesignacaoResponse } from "@/types/designacao";
+import type { Cessacao } from "@/types/designacao";
 
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
@@ -113,8 +113,13 @@ vi.mock("@/assets/icons/Designacao", () => ({
   default: () => <svg data-testid="icon" />,
 }));
 
+const resumoPortariaSpy = vi.fn();
+
 vi.mock("@/components/dashboard/Designacao/ResumoPortariaDesigacao", () => ({
-  default: () => <div data-testid="resumo-portaria" />,
+  default: (props: { defaultValues: Record<string, unknown> }) => {
+    resumoPortariaSpy(props);
+    return <div data-testid="resumo-portaria" />;
+  },
 }));
 
 vi.mock(
@@ -465,7 +470,7 @@ describe("CessacaoPage", () => {
       sei_numero: "SEI-CESS",
       a_pedido: true,
       data_cessacao: "2026-03-10",
-      remocao: true,  
+      remocao: true,
       aposentadoria: true,
       doc: "DOC-CESS",
     } as Cessacao);
@@ -479,6 +484,66 @@ describe("CessacaoPage", () => {
       remocao: "sim",
       aposentadoria: "sim",
       doc: "DOC-CESS",
+    });
+  });
+
+  it("usa fallbacks quando a cessação é indefinida", () => {
+    const result = gerarFormValuesCessacao(undefined);
+
+    expect(result).toEqual({
+      numero_portaria: "",
+      ano: new Date().getFullYear().toString(),
+      numero_sei: "",
+      a_pedido: "nao",
+      data_inicio: undefined,
+      remocao: "nao",
+      aposentadoria: "nao",
+      doc: "",
+    });
+  });
+
+  it("repassa o impedimento_display para o resumo da portaria", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        impedimento_display: "Licença médica",
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(resumoPortariaSpy).toHaveBeenCalledWith({
+      defaultValues: expect.objectContaining({
+        impedimento_substituicao: "Licença médica",
+      }),
+    });
+  });
+
+  it("usa o id da cessação existente ao salvar uma edição", async () => {
+    mockTrigger.mockResolvedValue(true);
+    mockMutateAsync.mockResolvedValueOnce({});
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        cessacao: { id: 55 },
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+    await screen.findByTestId("editor-sei");
+    await userEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          designacaoId: 1,
+          id: "55",
+        }),
+      );
     });
   });
 });
