@@ -97,7 +97,7 @@ export const CheckboxFieldSecondary = <TFieldValues extends FieldValues = FieldV
 
 
 
-export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ onChange, control, name, label, dataTestId, showBlankSpace }: PropsField<TFieldValues> & { onChange?: (value: string) => void }) => {
+export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({ onChange, control, name, label, dataTestId, showBlankSpace, disabled }: PropsField<TFieldValues> & { onChange?: (value: string) => void; disabled?: boolean }) => {
     return (
         <FormField
             control={control}
@@ -116,6 +116,7 @@ export const CheckboxField = <TFieldValues extends FieldValues = FieldValues,>({
                             }}
                             defaultValue="sim"
                             className="w-fit "
+                            disabled={disabled}
                         >
                             <div className="flex items-center mt-4 gap-3">
                                 <Field orientation="horizontal">
@@ -307,7 +308,7 @@ export const MultiSelectField = ({
 
 
 
-export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear }: PropsField<TFieldValues> & { onClear?: () => void }) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear, disabled }: PropsField<TFieldValues> & { onClear?: () => void; disabled?: boolean }) => {
     return (
         <FormField
             control={control}
@@ -330,6 +331,9 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 format="DD/MM/YYYY"
                                 size="large"
                                 value={value}
+                                className={cn(
+                                    disabled && "opacity-50",
+                                )}
                                 placeholder={placeholder ?? "Selecione a data"}
                                 onKeyDown={(event) => {
                                     if (event.key === "Enter") {
@@ -343,6 +347,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 onBlur={field.onBlur}
                                 style={{ width: "100%" }}
                                 onClear={onClear}
+                                disabled={disabled}
                             />
                         </FormControl>
 

@@ -35,9 +35,10 @@ import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 interface Props {
   isLoading: boolean;
+  disabled?: boolean;
 }
 
-const PortariaDesigacaoFields = ({ isLoading }: Props) => {
+const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
   const { register, control, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
   
@@ -83,11 +84,12 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 data-testid="input-portaria-designacao"
                 type="number"
                 maxLength={NUMERO_PORTARIA_MAX_DIGITOS}
+                disabled={disabled}
               />
             </div>
 
             <div className="w-full">
-              <SelectAnoField name="ano" label="Ano Vigente" />
+              <SelectAnoField name="ano" label="Ano Vigente" disabled={disabled} />
             </div>
 
             <div className="w-full">
@@ -100,6 +102,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 data-testid="input-numero-sei"
                 type="string"
                 mask="9999.9999/9999999-9"
+                disabled={disabled}
               />
             </div>
 
@@ -125,6 +128,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="a_partir_de"
                 label="A partir de"
                 allowClear={false}
+                disabled={disabled}
               />
             </div>
 
@@ -135,8 +139,9 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="designacao_data_final"
                 label="Até"
                 allowClear={true}
+                disabled={disabled}
                 onClear={() => {
-                  setValue("impedimento_substituicao", null);
+                  setValue("impedimento_substituicao", null, { shouldDirty: true });
                 }}
               />
             </div>
@@ -148,6 +153,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="carater_excepcional"
                 label="Carater Especial"
                 data-testid="checkbox-carater-especial"
+                disabled={disabled}
               />
             </div>
 
@@ -171,7 +177,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                           const selecionado = impedimentos.find(i => i.codigo === value);
                           setValue("impedimento_label", selecionado?.nome ?? "");
                         }}
-                        disabled={isImpedimentoDisabled || isPending}
+                        disabled={isImpedimentoDisabled || isPending || disabled}
                       > {isPending ? (
 
                         <div className="flex items-center justify-center">
@@ -221,7 +227,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                   if (value === EnumCheckbox.NAO) {
                     setValue("motivo_afastamento", "");
                   }
-                }}                             
+                }}
+                disabled={disabled}
               />
             </div>
 
@@ -244,6 +251,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                             field.onChange(value.target.value)
                           }
                           data-testid="input-motivo-afastamento"
+                          disabled={disabled}
                         />
                       </FormControl>
                       <FormMessage />
@@ -264,7 +272,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                   if (value === EnumCheckbox.NAO) {
                     setValue("motivo_pendencia", "");
                   }
-                }}        
+                }}
+                disabled={disabled}
               />
             </div>
 
@@ -287,6 +296,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                             field.onChange(value.target.value)
                           }
                           data-testid="input-descricao-pendencia"
+                          disabled={disabled}
                         />
                       </FormControl>
                       <FormMessage />

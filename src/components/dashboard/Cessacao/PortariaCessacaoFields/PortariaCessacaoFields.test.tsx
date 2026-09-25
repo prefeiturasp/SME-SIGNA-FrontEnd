@@ -10,7 +10,6 @@ import {
 import { vi } from "vitest";
 import PortariaCessacaoFields from "./PortariaCessacaoFields";
 
-// 🔹 Mock Select (igual ao outro teste)
 vi.mock("@/components/ui/select", async () => {
   const React = await import("react");
 
@@ -21,33 +20,47 @@ vi.mock("@/components/ui/select", async () => {
 
   const SelectContext = React.createContext<SelectContextValue>(null);
 
-
   return {
-    Select: ({ value, onValueChange, children }: {
+    Select: ({
+      value,
+      onValueChange,
+      children,
+    }: {
       value?: string;
       onValueChange?: (value: string) => void;
       children: React.ReactNode;
     }) => {
-    const contextValue = React.useMemo(
+      const contextValue = React.useMemo(
         () => ({ value, onValueChange }),
-        [value, onValueChange]
-    );
+        [value, onValueChange],
+      );
 
-    return (
+      return (
         <SelectContext.Provider value={contextValue}>
-        <div>{children}</div>
+          <div>{children}</div>
         </SelectContext.Provider>
-    );
+      );
     },
     SelectTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
     SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
     SelectContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    SelectItem: ({ value, children }: { value: string; children: React.ReactNode }) => {
+    SelectItem: ({
+      value,
+      children,
+      onClick,
+    }: {
+      value: string;
+      children: React.ReactNode;
+      onClick?: () => void;
+    }) => {
       const ctx = React.useContext(SelectContext);
       return (
         <button
           data-testid={`select-item-${value}`}
-          onClick={() => ctx?.onValueChange?.(value)}
+          onClick={() => {
+            onClick?.();
+            ctx?.onValueChange?.(value);
+          }}
         >
           {children}
         </button>
@@ -57,7 +70,11 @@ vi.mock("@/components/ui/select", async () => {
 });
 
 vi.mock("antd", () => ({
-  Popconfirm: ({ open, onConfirm, onCancel }: {
+  Popconfirm: ({
+    open,
+    onConfirm,
+    onCancel,
+  }: {
     open: boolean;
     onConfirm?: () => void;
     onCancel?: () => void;
@@ -77,7 +94,13 @@ vi.mock("antd", () => ({
 vi.mock("@/components/ui/FieldsForm", () => ({
   InputField: () => <div>InputField</div>,
   DateField: () => <div>DateField</div>,
-  CheckboxField: ({ name, register }: { name: string; register: (name: string) => { onChange: (e: unknown) => void } }) => (
+  CheckboxField: ({
+    name,
+    register,
+  }: {
+    name: string;
+    register: (name: string) => { onChange: (e: unknown) => void };
+  }) => (
     <input
       data-testid={name}
       type="checkbox"
@@ -126,7 +149,7 @@ describe("PortariaCessacaoFields", () => {
     render(
       <FormWrapper onMethods={() => {}}>
         <PortariaCessacaoFields isLoading />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
     expect(screen.getByTestId("loading")).toBeInTheDocument();
@@ -136,7 +159,7 @@ describe("PortariaCessacaoFields", () => {
     render(
       <FormWrapper onMethods={() => {}}>
         <PortariaCessacaoFields />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
     expect(screen.getByText("Ano Vigente*")).toBeInTheDocument();
@@ -147,7 +170,7 @@ describe("PortariaCessacaoFields", () => {
     render(
       <FormWrapper onMethods={() => {}}>
         <PortariaCessacaoFields />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
     const otherYear = `${new Date().getFullYear() - 1}`;
@@ -163,7 +186,7 @@ describe("PortariaCessacaoFields", () => {
     render(
       <FormWrapper onMethods={(m) => (methods = m)}>
         <PortariaCessacaoFields />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
     const otherYear = `${new Date().getFullYear() - 1}`;
@@ -180,7 +203,7 @@ describe("PortariaCessacaoFields", () => {
     render(
       <FormWrapper onMethods={(m) => (methods = m)}>
         <PortariaCessacaoFields />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
     const currentYear = `${new Date().getFullYear()}`;
@@ -190,5 +213,16 @@ describe("PortariaCessacaoFields", () => {
     fireEvent.click(screen.getByTestId("cancel"));
 
     expect(methods.getValues("cessacao.ano")).toBe(currentYear);
+  });
+
+  it("repassa disabled para o campo de ano", () => {
+    render(
+      <FormWrapper onMethods={() => {}}>
+        <PortariaCessacaoFields disabled />
+      </FormWrapper>,
+    );
+
+    expect(screen.getByText("Ano Vigente*")).toBeInTheDocument();
+    expect(screen.getAllByText("InputField").length).toBeGreaterThan(0);
   });
 });
