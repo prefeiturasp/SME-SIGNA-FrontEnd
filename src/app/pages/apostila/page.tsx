@@ -105,7 +105,7 @@ function BotaoGerarTextoSei({
   form: UseFormReturn<formSchemaApostilaData>;
   onClick: () => Promise<void>;
 }>) {
-  const { errors } = useFormState({ control: form.control });
+  const { isValid } = useFormState({ control: form.control });
 
   
   return (
@@ -114,7 +114,7 @@ function BotaoGerarTextoSei({
       size="lg"
       className="w-full flex items-center justify-center gap-6"
       variant="destructive"
-      disabled={Object.keys(errors).length > 0}
+      disabled={!isValid}
       onClick={onClick}
     >
       Gerar texto SEI

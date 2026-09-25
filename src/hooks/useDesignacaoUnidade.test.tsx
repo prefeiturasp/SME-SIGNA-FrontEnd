@@ -1,10 +1,14 @@
+import React from "react";
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { vi, describe, it, expect, beforeEach, type Mock } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
 import { getDesignacaoUnidadeAction } from "@/actions/designacao-unidade";
 
-import { DesignacaoUnidadeResponse } from "@/types/designacao-unidade";
+import type {
+  DesignacaoUnidadeResponse,
+  DesignacaoUnidadeResult,
+} from "@/types/designacao-unidade";
 import useFetchDesignacaoUnidadeMutation from "./useDesignacaoUnidade";
 
 vi.mock("@/actions/designacao-unidade", () => ({
@@ -12,7 +16,7 @@ vi.mock("@/actions/designacao-unidade", () => ({
 }));
  
 
-const getDesignacaoUnidadeActionMock = getDesignacaoUnidadeAction as Mock;
+const getDesignacaoUnidadeActionMock = vi.mocked(getDesignacaoUnidadeAction);
 
 describe("use DesignacaoUnidade", () => {
     let queryClient: QueryClient;
@@ -36,9 +40,7 @@ describe("use DesignacaoUnidade", () => {
 
 
     it("trata erro quando a Action lança erro", async () => {
-        (getDesignacaoUnidadeActionMock as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-            new Error("Erro ")
-        );
+        getDesignacaoUnidadeActionMock.mockRejectedValueOnce(new Error("Erro "));
 
         const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
 
@@ -81,7 +83,11 @@ describe("use DesignacaoUnidade", () => {
             spi: { tipo: "", total: 0, turnos: [] },
         };
 
-        getDesignacaoUnidadeActionMock.mockResolvedValue({ success: true, data: fakeFuncionario });
+        const successResult: DesignacaoUnidadeResult = {
+            success: true,
+            data: fakeFuncionario,
+        };
+        getDesignacaoUnidadeActionMock.mockResolvedValue(successResult);
 
         const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
         const response = await result.current.mutateAsync("123456");
@@ -113,8 +119,7 @@ describe("use DesignacaoUnidade", () => {
     it("deve normalizar mensagem padrão quando success: false e response.error é undefined", async () => {
         getDesignacaoUnidadeActionMock.mockResolvedValue({
             success: false,
-            error: undefined,
-        });
+        } as DesignacaoUnidadeResult);
 
         const { result } = renderHook(() => useFetchDesignacaoUnidadeMutation(), { wrapper });
         const response = await result.current.mutateAsync("123456");
