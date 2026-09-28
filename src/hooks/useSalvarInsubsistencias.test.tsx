@@ -129,6 +129,53 @@ describe("useSalvarInsubsistencias", () => {
     );
   });
 
+  it("envia texto_sei quando um texto gerado é informado", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
+      success: true,
+      data: { id: 1 },
+    } as never);
+
+    const { result } = renderHook(() => useSalvarInsubsistencias(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesMock,
+        atoPai: 10,
+        textoSei: "PORTARIA Nº 001/2026",
+      });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ texto_sei: "PORTARIA Nº 001/2026" }),
+      undefined
+    );
+  });
+
+  it("omite texto_sei quando não há texto gerado, para não apagar o já salvo", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({
+      success: true,
+      data: { id: 1 },
+    } as never);
+
+    const { result } = renderHook(() => useSalvarInsubsistencias(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesMock,
+        atoPai: 10,
+        id: 55,
+        textoSei: "",
+      });
+    });
+
+    const payload = vi.mocked(insubsistenciaAction).mock.calls[0][0];
+    expect(payload).not.toHaveProperty("texto_sei");
+  });
+
   it("retorna dados quando action responde com sucesso", async () => {
     vi.mocked(insubsistenciaAction).mockResolvedValue({
       success: true,

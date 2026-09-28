@@ -70,6 +70,7 @@ export default function AnularApostilaPage() {
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
+  const [textoSei, setTextoSei] = useState("");
 
   const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
       const isCessacao = tipo_portaria === "cessacao";
@@ -120,6 +121,7 @@ export default function AnularApostilaPage() {
       texto = texto.replaceAll(`{{${key}}}`, val);
     });
 
+    setTextoSei(texto);
     setHtmlPortaria(gerarHtmlPortaria(texto));
     setMostrarEditor(true);
   };
@@ -131,6 +133,7 @@ export default function AnularApostilaPage() {
       await salvarInsubsistencias.mutateAsync({
         values,
         atoPai: ato_pai ?? 0,
+        textoSei,
       });
 
       notification.success({ title: "Anulação de apostila salva com sucesso!" });

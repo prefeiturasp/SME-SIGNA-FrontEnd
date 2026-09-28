@@ -81,8 +81,22 @@ export default function EditarAnularApostilaPage() {
     [insubsistencia]
   );
 
-  const [mostrarEditor, setMostrarEditor] = useState(false);
-  const [htmlPortaria, setHtmlPortaria] = useState("");
+  // Estado só do texto que o usuário regera na tela; o texto já salvo
+  // é derivado do dado carregado, sem setState em efeito.
+  const [textoSeiGerado, setTextoSeiGerado] = useState("");
+  const [htmlPortariaGerado, setHtmlPortariaGerado] = useState("");
+
+  const textoSeiSalvo = insubsistencia?.texto_sei ?? "";
+
+  const htmlPortariaSalvo = useMemo(
+    () => (textoSeiSalvo ? gerarHtmlPortaria(textoSeiSalvo) : ""),
+    [textoSeiSalvo]
+  );
+
+  // Sem isso, salvar sem clicar em "Gerar texto SEI" enviaria texto vazio.
+  const textoSei = textoSeiGerado || textoSeiSalvo;
+  const htmlPortaria = htmlPortariaGerado || htmlPortariaSalvo;
+  const mostrarEditor = Boolean(htmlPortaria);
 
   useEffect(() => {
     if (!insubsistencia) return;
@@ -134,8 +148,8 @@ export default function EditarAnularApostilaPage() {
       texto = texto.replaceAll(`{{${key}}}`, val);
     });
 
-    setHtmlPortaria(gerarHtmlPortaria(texto));
-    setMostrarEditor(true);
+    setTextoSeiGerado(texto);
+    setHtmlPortariaGerado(gerarHtmlPortaria(texto));
   };
 
   const onSubmit = async (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
@@ -145,6 +159,7 @@ export default function EditarAnularApostilaPage() {
         values,
         atoPai: ato_pai ?? 0,
         id: insubsistencia?.id,
+        textoSei,
       });
 
       notification.success({ title: "Anulação de apostila editada com sucesso!" });

@@ -338,9 +338,27 @@ describe("AnularApostilaPage", () => {
       expect(mutateAsyncMock).toHaveBeenCalledWith({
         values: formValues,
         atoPai: 10,
+        textoSei: "",
       });
       expect(notificationSuccessMock).toHaveBeenCalledWith({ title: "Anulação de apostila salva com sucesso!" });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
+    });
+  });
+
+  it("envia o texto gerado ao salvar depois de gerar o texto SEI", async () => {
+    render(<AnularApostilaPage />);
+
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+    await waitFor(() => expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1));
+
+    const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
+
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(
+        expect.objectContaining({ textoSei: textoGerado })
+      );
     });
   });
 
@@ -380,6 +398,7 @@ describe("AnularApostilaPage", () => {
       expect(mutateAsyncMock).toHaveBeenCalledWith({
         values: formValues,
         atoPai: 0,
+        textoSei: "",
       });
     });
   });

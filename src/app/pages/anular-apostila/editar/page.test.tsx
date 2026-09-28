@@ -308,6 +308,7 @@ describe("EditarAnularApostilaPage", () => {
         values: formValues,
         atoPai: 10,
         id: 50,
+        textoSei: "",
       });
       expect(notificationSuccessMock).toHaveBeenCalledWith({
         title: "Anulação de apostila editada com sucesso!",
@@ -344,6 +345,56 @@ describe("EditarAnularApostilaPage", () => {
         expect.objectContaining({ atoPai: 0 })
       );
     });
+  });
+
+  it("abre com o texto SEI já salvo e o reenvia sem precisar gerar de novo", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      texto_sei: "PORTARIA Nº 999/2026 SALVA",
+    };
+
+    render(<EditarAnularApostilaPage />);
+
+    expect(gerarHtmlPortariaMock).toHaveBeenCalledWith("PORTARIA Nº 999/2026 SALVA");
+    expect(screen.getByTestId("editor")).toHaveTextContent("HTML:PORTARIA Nº 999/2026 SALVA");
+
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(
+        expect.objectContaining({ textoSei: "PORTARIA Nº 999/2026 SALVA" })
+      );
+    });
+  });
+
+  it("envia o texto regerado quando o usuário gera o texto SEI de novo", async () => {
+    mockInsubsistencia = {
+      ...createInsubsistencia(),
+      texto_sei: "TEXTO ANTIGO",
+    };
+
+    render(<EditarAnularApostilaPage />);
+    gerarHtmlPortariaMock.mockClear();
+
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+    await waitFor(() => expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1));
+
+    const textoGerado = String(gerarHtmlPortariaMock.mock.calls[0][0]);
+    expect(textoGerado).not.toBe("TEXTO ANTIGO");
+
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(
+        expect.objectContaining({ textoSei: textoGerado })
+      );
+    });
+  });
+
+  it("não mostra o editor quando a anulação ainda não tem texto SEI salvo", () => {
+    render(<EditarAnularApostilaPage />);
+
+    expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
   });
 
   it("mostra erro com mensagem lançada como Error", async () => {

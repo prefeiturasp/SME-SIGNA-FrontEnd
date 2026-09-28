@@ -10,10 +10,12 @@ export const useSalvarInsubsistencias = () => {
       values,
       atoPai,
       id,
+      textoSei,
     }: {
       values: formSchemaAnularApostilaTornarSemEfeitoData;
       atoPai: number;
       id?: number | null;
+      textoSei?: string;
     }) => {
 
       
@@ -24,7 +26,9 @@ export const useSalvarInsubsistencias = () => {
         sei_numero: values.apostila_insubsistencia.numero_sei,
         doc: values.apostila_insubsistencia.doc ? format(values.apostila_insubsistencia.doc, "yyyy-MM-dd") : undefined,
         observacoes: values.apostila_insubsistencia.observacao,
-        texto_apostila: values.apostila_insubsistencia.texto_para_apostila        
+        texto_apostila: values.apostila_insubsistencia.texto_para_apostila,
+        // só envia quando há texto gerado
+        ...(textoSei ? { texto_sei: textoSei } : {}),
       };
       const response = await insubsistenciaAction(payload, id);      
 
