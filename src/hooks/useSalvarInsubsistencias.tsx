@@ -11,11 +11,13 @@ export const useSalvarInsubsistencias = () => {
       atoPai,
       id,
       textoSei,
+      modeloPortaria,
     }: {
       values: formSchemaAnularApostilaTornarSemEfeitoData;
       atoPai: number;
       id?: number | null;
       textoSei?: string;
+      modeloPortaria?: number | null;
     }) => {
 
       
@@ -29,6 +31,7 @@ export const useSalvarInsubsistencias = () => {
         texto_apostila: values.apostila_insubsistencia.texto_para_apostila,
         // só envia quando há texto gerado
         ...(textoSei ? { texto_sei: textoSei } : {}),
+        ...(modeloPortaria ? { modelo_portaria: modeloPortaria } : {}),
       };
       const response = await insubsistenciaAction(payload, id);      
 

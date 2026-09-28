@@ -1,39 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 
-import { getDadosPortaria } from "@/utils/designacao/getDadosPortaria";
-import { getDadosPortariaCessacao } from "@/utils/cessacao/getDadosPortaria";
-import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado";
-
-import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-
-import { useRouter, useSearchParams } from "next/navigation";
-import { Servidor } from "@/types/designacao-unidade";
-import formSchemaAnularApostilaTornarSemEfeito, {
-  formSchemaAnularApostilaTornarSemEfeitoData,
-} from "../schema";
 import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
-import AnularApostilaTornarSemEfeitoFormCard from "@/components/dashboard/apostila/AnularApostilaTornarSemEfeitoFormCard";
-import { TEMPLATE_ANULAR_APOSTILA } from "@/utils/portarias/templates";
-import { formatarRF } from "@/utils/portarias/formatadores";
 import { useSalvarInsubsistencias } from "@/hooks/useSalvarInsubsistencias";
-import { formatarData } from "@/lib/utils";
-import { useAppNotification } from "@/components/providers/NotificationProvider";
+import AnularApostilaForm, {
+  AnularApostilaExtras,
+} from "@/components/dashboard/apostila/AnularApostilaForm";
+import { formSchemaAnularApostilaTornarSemEfeitoData } from "../schema";
 import { InsubsistenciaRead } from "@/types/insubsistencia";
-
-const defaultValues = {
-  portaria: "",
-  ano: "",
-  numero_sei: "",
-  doc: new Date(),
-  observacao: "",
-  texto_para_apostila: "",
-};
 
 export const gerarFormValuesAnularApostila = (
   insubsistencia: InsubsistenciaRead
@@ -52,156 +28,36 @@ export default function EditarAnularApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const atoPaiParam = searchParams.get("atoPai");
-  const router = useRouter();
   const salvarInsubsistencias = useSalvarInsubsistencias();
-  const notification = useAppNotification();
 
   const { data: insubsistencia, isLoading } = useFetchInsubsistenciasById(Number(id));
-  const tipo_portaria = insubsistencia?.cessacao ? "cessacao" : "designacao";
 
-  const form = useForm<formSchemaAnularApostilaTornarSemEfeitoData>({
-    resolver: zodResolver(formSchemaAnularApostilaTornarSemEfeito),
-    defaultValues: {
-      apostila_insubsistencia: defaultValues,
-    },
-  });
-
-  const dadosPortaria = useMemo(
-    () => getDadosPortaria(insubsistencia?.designacao),
+  const valoresIniciais = useMemo(
+    () => (insubsistencia ? gerarFormValuesAnularApostila(insubsistencia) : null),
     [insubsistencia]
   );
 
-  const dadosPortariaCessacao = useMemo(
-    () => getDadosPortariaCessacao(insubsistencia),
-    [insubsistencia]
-  );
-
-  const dadosIndicado: Servidor | null = useMemo(
-    () => getDadosIndicado(insubsistencia?.designacao),
-    [insubsistencia]
-  );
-
-  // Estado só do texto que o usuário regera na tela; o texto já salvo
-  // é derivado do dado carregado, sem setState em efeito.
-  const [textoSeiGerado, setTextoSeiGerado] = useState("");
-  const [htmlPortariaGerado, setHtmlPortariaGerado] = useState("");
-
-  const textoSeiSalvo = insubsistencia?.texto_sei ?? "";
-
-  const htmlPortariaSalvo = useMemo(
-    () => (textoSeiSalvo ? gerarHtmlPortaria(textoSeiSalvo) : ""),
-    [textoSeiSalvo]
-  );
-
-  // Sem isso, salvar sem clicar em "Gerar texto SEI" enviaria texto vazio.
-  const textoSei = textoSeiGerado || textoSeiSalvo;
-  const htmlPortaria = htmlPortariaGerado || htmlPortariaSalvo;
-  const mostrarEditor = Boolean(htmlPortaria);
-
-  useEffect(() => {
-    if (!insubsistencia) return;
-
-    form.reset({
-      apostila_insubsistencia: gerarFormValuesAnularApostila(insubsistencia),
+  const onSalvar = async (
+    values: formSchemaAnularApostilaTornarSemEfeitoData,
+    { textoSei, modeloPortaria }: AnularApostilaExtras
+  ) =>
+    salvarInsubsistencias.mutateAsync({
+      values,
+      atoPai: Number(atoPaiParam) || insubsistencia?.ato_pai_id || 0,
+      id: insubsistencia?.id,
+      textoSei,
+      modeloPortaria: modeloPortaria ?? insubsistencia?.modelo_portaria,
     });
-  }, [insubsistencia, form]);
-
-  const gerarDados = (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
-    const isCessacao = tipo_portaria === "cessacao";
-
-    const fonteDados = isCessacao ? insubsistencia?.cessacao : insubsistencia?.designacao;
-
-    const nome_indicado = insubsistencia?.designacao?.indicado_nome_civil?.trim()
-      ? insubsistencia?.designacao?.indicado_nome_civil
-      : insubsistencia?.designacao?.indicado_nome_servidor;
-
-    return {
-      portaria: values.apostila_insubsistencia.portaria,
-      ano: values.apostila_insubsistencia.ano,
-      sei: values.apostila_insubsistencia.numero_sei,
-
-      portaria_apostilada: fonteDados?.portaria ?? "-",
-      ano_apostilado: fonteDados?.ano_vigente ?? "-",
-      doc_apostilado: fonteDados?.doc ? formatarData(fonteDados?.doc) : "-",
-      sei_apostilado: fonteDados?.sei_numero ?? "-",
-
-      nome_indicado: nome_indicado?.toUpperCase() ?? "-",
-      rf: formatarRF(insubsistencia?.designacao?.indicado_rf ?? "-"),
-      dre: insubsistencia?.designacao?.dre_nome ?? "-",
-      vinculo: insubsistencia?.designacao?.indicado_vinculo ?? "-",
-
-      texto_para_apostila: values.apostila_insubsistencia.texto_para_apostila,
-    };
-  };
-
-  const handleGerarPortaria = () => {
-    const values = form.getValues();
-    const dados = gerarDados(values);
-
-    let texto = TEMPLATE_ANULAR_APOSTILA;
-
-    Object.entries(dados).forEach(([key, value]) => {
-      let val = String(value ?? "");
-      if (["nome_indicado", "dre"].includes(key)) {
-        val = `<strong>${val}</strong>`;
-      }
-      texto = texto.replaceAll(`{{${key}}}`, val);
-    });
-
-    setTextoSeiGerado(texto);
-    setHtmlPortariaGerado(gerarHtmlPortaria(texto));
-  };
-
-  const onSubmit = async (values: formSchemaAnularApostilaTornarSemEfeitoData) => {
-    const ato_pai = Number(atoPaiParam) || insubsistencia?.ato_pai_id;
-    try {
-      await salvarInsubsistencias.mutateAsync({
-        values,
-        atoPai: ato_pai ?? 0,
-        id: insubsistencia?.id,
-        textoSei,
-      });
-
-      notification.success({ title: "Anulação de apostila editada com sucesso!" });
-      router.push("/pages/atos-administrativos");
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Erro ao salvar";
-      notification.error({ title: msg });
-    }
-  };
-
-  const title = <span>Editar Anular Apostila</span>;
 
   return (
-    <>
-      <PageHeader
-        title={title}
-        breadcrumbs={[
-          { title: "Início", href: "/" },
-          { title: "Editar Anular Apostila" },
-        ]}
-        showBackButton={false}
-      />
-      {isLoading ? (
-        <div className="flex justify-center items-center h-[60vh]">
-          <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
-        </div>
-      ) : (
-        <AnularApostilaTornarSemEfeitoFormCard
-          form={form}
-          onSubmit={onSubmit}
-          tipoPortaria={tipo_portaria}
-          dadosIndicado={dadosIndicado}
-          dadosPortaria={dadosPortaria}
-          dadosPortariaCessacao={dadosPortariaCessacao}
-          triggerField="apostila_insubsistencia"
-          onGerarPortaria={handleGerarPortaria}
-          mostrarEditor={mostrarEditor}
-          htmlPortaria={htmlPortaria}
-          showTextoParaApostila
-          tituloForm="Dados da portaria de anulação"
-        />
-      )}
-    </>
+    <AnularApostilaForm
+      ato={insubsistencia}
+      isLoading={isLoading}
+      titulo="Editar Anular Apostila"
+      mensagemSucesso="Anulação de apostila editada com sucesso!"
+      valoresIniciais={valoresIniciais}
+      textoSeiSalvo={insubsistencia?.texto_sei}
+      onSalvar={onSalvar}
+    />
   );
 }
