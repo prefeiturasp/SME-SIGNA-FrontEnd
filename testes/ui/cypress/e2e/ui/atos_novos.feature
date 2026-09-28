@@ -11,9 +11,7 @@ Funcionalidade: Criação de atos administrativos
     Dado que o usuário já está autenticado no sistema
     E está na página "Atos Administrativos"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 1 — Nova Designação (via menu "Novo ato")
-  # ══════════════════════════════════════════════════════════════
   @atos @nova_designacao @critico @smoke @skip
   Cenário: Iniciar nova designação através de Atos Administrativos
 
@@ -60,7 +58,7 @@ Funcionalidade: Criação de atos administrativos
     E deve visualizar o texto "Módulos"
     Quando clica no botão Avançar
 
-    # ── Passo 2 — Portarias de designação ────────────────────────────────────
+    # Passo 2 — Portarias de designação
     Então o sistema exibe a seção "Portarias de designação"
     E deve visualizar os campos da portaria
     E preenche o campo portaria com numero aleatorio
@@ -80,7 +78,7 @@ Funcionalidade: Criação de atos administrativos
     E deve visualizar os botoes de navegacao do passo 2
     Quando clica em Avançar no rodape do passo 2
 
-    # ── Passo 4 — Resumo e confirmação ───────────────────────────────────────
+    # Passo 4 — Resumo e confirmação
     # Nota: o fluxo cargo disponivel não exibe "Informações adicionais" — a
     # designação é confirmada e a página de resumo mostra apenas a portaria.
     Então o sistema direciona para a pagina de resumo da designacao
@@ -89,15 +87,13 @@ Funcionalidade: Criação de atos administrativos
     Quando clica em "Salvar"
     Então o sistema direciona para a tela "Atos administrativos"
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 2 — Nova Cessação (via menu "Novo ato")        [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Nova Cessação (via menu "Novo ato") [ATIVO]
   @atos @nova_cessacao @critico @smoke @skip
   Cenário: Iniciar nova cessação através de Atos Administrativos
 
@@ -183,15 +179,13 @@ Funcionalidade: Criação de atos administrativos
     E valida a existencia do botão de navegação "Salvar"
     # E clica em "Salvar"
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 3 — Nova Insubsistência (via menu "Novo ato")   [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Nova Insubsistência (via menu "Novo ato") [ATIVO]
   @atos @nova_insubsistencia @critico @smoke @skip
   Cenário: Iniciar nova insubsistência através de Atos Administrativos
 
@@ -258,15 +252,13 @@ Funcionalidade: Criação de atos administrativos
     # E clica em "Salvar" — não executado: poucas portarias disponíveis em QA
     # para reuso em testes; salvar consumiria uma a cada execução.
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 4 — Nova Apostila (via menu "Novo ato")        [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 4 — Nova Apostila (via menu "Novo ato") [ATIVO]
   @atos @nova_apostila @critico @smoke @skip
   Cenário: Iniciar nova apostila através de Atos Administrativos
 
@@ -337,15 +329,13 @@ Funcionalidade: Criação de atos administrativos
     # execução.
     # Então o sistema processa o apostilamento sem erros
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 5 — Anular Apostila (via menu "Novo ato")        [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 5 — Anular Apostila (via menu "Novo ato") [ATIVO]
   @atos @anular_apostila @critico @smoke @skip
   Cenário: Iniciar anulação de apostila através de Atos Administrativos
 
@@ -424,9 +414,7 @@ Funcionalidade: Criação de atos administrativos
     # execução.
     # Então o sistema processa o apostilamento sem erros
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 6 — Nova Designação com Cargo Vago (via menu "Novo ato")
-  # ══════════════════════════════════════════════════════════════
   @atos @nova_designacao @cargo_vago @critico @smoke
   Cenário: Iniciar nova designação com cargo vago através de Atos Administrativos
 
@@ -473,7 +461,7 @@ Funcionalidade: Criação de atos administrativos
     E deve visualizar o texto "Módulos"
     Quando clica no botão Avançar
 
-    # ── Passo 2 — Portarias de designação (Cargo Vago) ────────────────────────
+    # Passo 2 — Portarias de designação (Cargo Vago)
     Então o sistema exibe a seção "Portarias de designação"
     E deve visualizar os campos da portaria
     E preenche o campo portaria com numero aleatorio
@@ -489,7 +477,7 @@ Funcionalidade: Criação de atos administrativos
     E deve visualizar os botoes de navegacao do passo 2
     Quando clica em Avançar no rodape do passo 2
 
-    # ── Passo 4 — Resumo e confirmação ───────────────────────────────────────
+    # Passo 4 — Resumo e confirmação
     # Nota: o fluxo cargo vago não exibe "Informações adicionais" — a designação
     # é confirmada automaticamente e a página de resumo mostra apenas a portaria.
     Então o sistema direciona para a pagina de resumo da designacao
@@ -498,15 +486,13 @@ Funcionalidade: Criação de atos administrativos
     Quando clica em "Salvar"
     Então o sistema direciona para a tela "Atos administrativos"
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 7 — Pesquisa de servidor com RF inexistente (via menu "Novo ato")
-  # ══════════════════════════════════════════════════════════════
   @atos @nova_designacao @excecao @rf-invalido
   Cenário: Pesquisar servidor com RF inexistente ao iniciar nova designação
 
@@ -529,15 +515,13 @@ Funcionalidade: Criação de atos administrativos
     E clica em pesquisar
     Então o sistema exibe mensagem de servidor não encontrado
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 8 — Avançar Passo 2 sem portaria obrigatória (via menu "Novo ato")
-  # ══════════════════════════════════════════════════════════════
   @atos @nova_designacao @excecao @passo2-sem-portaria
   Cenário: Tentar avançar o Passo 2 sem preencher a portaria obrigatória
 
@@ -573,15 +557,13 @@ Funcionalidade: Criação de atos administrativos
     Quando tenta avançar o passo 2 sem preencher a portaria
     Então o sistema impede o avanco do passo 2
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 9 — Nova Insubsistência tipo Cessação (via menu "Novo ato")
-  # ══════════════════════════════════════════════════════════════
   @atos @nova_insubsistencia @insubsistente_cessacao @critico @smoke
   Cenário: Iniciar nova insubsistência do tipo Cessação através de Atos Administrativos
 
@@ -648,15 +630,13 @@ Funcionalidade: Criação de atos administrativos
     # E clica em "Salvar" — não executado: poucas portarias disponíveis em QA
     # para reuso em testes; salvar consumiria uma a cada execução.
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 10 — Validação dos títulos e opções do menu "Novo ato"
-  # ══════════════════════════════════════════════════════════════
   # Cenário só de validação de texto (sem executar nenhum fluxo): garante
   # que o título da página e os 6 rótulos do menu "Novo ato" continuam
   # corretos, independente de qualquer fluxo funcional ter mudado.
@@ -678,9 +658,7 @@ Funcionalidade: Criação de atos administrativos
       | Nova apostila         |
       | Anular apostila       |
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 11 — Nova Cessação sem selecionar o ano da portaria
-  # ══════════════════════════════════════════════════════════════
   # Mensagem confirmada no schema do frontend (ModalBuscaPortaria/schema.ts,
   # z.string().min(1, "Selecione o ano.")) — validação de campo obrigatório
   # do próprio formulário, dispara antes de qualquer chamada à API.
@@ -708,15 +686,13 @@ Funcionalidade: Criação de atos administrativos
 
     E clica em "Cancelar"
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 12 — Nova Insubsistência sem selecionar o ano da portaria
-  # ══════════════════════════════════════════════════════════════
   # Mesma validação de campo obrigatório do Cenário 11 — modal
   # (ModalBuscaPortaria) e mensagem compartilhados entre os fluxos de
   # cessação, insubsistência e apostila; aqui com o rótulo "Ano da
@@ -745,7 +721,7 @@ Funcionalidade: Criação de atos administrativos
 
     E clica em "Cancelar"
 
-    # ── Retorno a Atos Administrativos (sem logar de novo — mesma sessão) ────
+    # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
     E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral

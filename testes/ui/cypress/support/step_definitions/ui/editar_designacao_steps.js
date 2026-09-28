@@ -3,7 +3,7 @@
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 
-// ─── ETAPA 1 — Seleção aleatória da designação para editar ────────────────────
+// ETAPA 1 — Seleção aleatória da designação para editar
 
 Then('Seleciona uma das Designação de forma aleatoria para editar', () => {
   cy.get('table tbody tr.ant-table-row', { timeout: 30000 })
@@ -43,7 +43,7 @@ Then('valida a existencia das seguintes seções:', (dataTable) => {
   })
 })
 
-// ─── ETAPA FINAL — Valida existência dos dois botões de navegação ──────────────
+// ETAPA FINAL — Valida existência dos dois botões de navegação
 
 Then('valida a existencia dos botões de edição {string} e {string}', (botao1, botao2) => {
   cy.contains('button, a', botao1.trim(), { timeout: 10000 }).should('be.visible')

@@ -101,11 +101,11 @@ function dropdownPorLabel(labelMatcher) {
 
 export const alterarDOLocators = {
 
-  // ─── Título da Página ──────────────────────────────────────────────────────
+  // Título da Página
   tituloPagina: () =>
     cy.contains('Alterar data do D.O', { timeout: 15000 }),
 
-  // ─── Filtros ──────────────────────────────────────────────────────────────
+  // Filtros
   filtros: {
 
     secaoFiltros: () =>
@@ -123,7 +123,7 @@ export const alterarDOLocators = {
       cy.contains('button', 'Limpar filtros', { timeout: 10000 }),
   },
 
-  // ─── Tabela de Portarias ──────────────────────────────────────────────────
+  // Tabela de Portarias
   tabela: {
 
     container: () =>
@@ -175,22 +175,22 @@ export const alterarDOLocators = {
       cy.get('.ant-empty, .ant-table-empty, [class*="empty"]', { timeout: 10000 }),
   },
 
-  // ─── Campo de Data de Publicação ──────────────────────────────────────────
+  // Campo de Data de Publicação
   dataPublicacao: () =>
     cy.contains('label', 'Data da publicação no Diário Oficial (D.O)', { timeout: 15000 })
       .parent()
       .find('.ant-picker')
       .first(),
 
-  // ─── Seleção de Hoje no datepicker Ant Design ─────────────────────────────
+  // Seleção de Hoje no datepicker Ant Design
   selecionarHoje: () =>
     cy.get('.ant-picker-dropdown', { timeout: 15000 }).contains('Hoje'),
 
-  // ─── Botão de Alteração ───────────────────────────────────────────────────
+  // Botão de Alteração
   botaoAlterar: () =>
     cy.contains('button', 'Alterar data', { timeout: 15000 }),
 
-  // ─── Feedback / Confirmação ───────────────────────────────────────────────
+  // Feedback / Confirmação
   mensagemSucesso: () =>
     cy.get(
       '.ant-message-success, .ant-notification-notice-success, [class*="success"]',
@@ -204,13 +204,13 @@ export const alterarDOLocators = {
     ),
 }
 
-// ─── Textos esperados ─────────────────────────────────────────────────────────
+// Textos esperados
 export const alterarDOTextos = {
   tituloPagina:  'Alterar data do D.O',
   secaoFiltros:  'Filtros',
 }
 
-// ─── URLs de referência ───────────────────────────────────────────────────────
+// URLs de referência
 export const alterarDOUrls = {
   paginaAlterarDO: 'alterar-data-do',
 }

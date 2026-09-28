@@ -8,7 +8,7 @@ import {
   atosAdministrativosUrls,
 } from '../../ui/locators/atos_administrativos_locators'
 
-// ─── Contexto — Login único, reaproveitado entre cenários ──────────────────
+// Contexto — Login único, reaproveitado entre cenários
 let loginJaRealizado = false
 
 Given('que o usuário já está autenticado no sistema', () => {
@@ -61,19 +61,19 @@ const FILTROS_TEXTO_LIVRE = [
   'Registro Funcional (RF)',
 ]
 
-// ─── Contexto — Confirmação de tela ────────────────────────────────────────
+// Contexto — Confirmação de tela
 Given('está na página {string}', () => {
   cy.url({ timeout: 20000 }).should('include', atosAdministrativosUrls.pagina)
   atosAdministrativosPack.titulo().should('be.visible')
   cy.get('.loading, .spinner, .loader').should('not.exist')
 })
 
-// ─── Contexto — Validação de texto com DocString ───────────────────────────
+// Contexto — Validação de texto com DocString
 Then('valida a existencia do texto', (docString) => {
   cy.contains(docString.trim(), { timeout: 10000 }).should('exist')
 })
 
-// ─── Contexto — Validação data-driven de filtros e botões ──────────────────
+// Contexto — Validação data-driven de filtros e botões
 Then('valida a existencia dos filtros:', (dataTable) => {
   const filtros = dataTable.raw().flat()
   filtros.forEach((filtro) => {
@@ -89,7 +89,7 @@ Then('valida a existencia dos botões:', (dataTable) => {
   })
 })
 
-// ─── Preenchimento genérico de filtro (Esquema do Cenário) ─────────────────
+// Preenchimento genérico de filtro (Esquema do Cenário)
 When('preencho o filtro {string} com {string}', (filtro, valor) => {
   switch (filtro) {
     case 'Tipo':
@@ -161,7 +161,7 @@ When('clico no botão {string}', (botao) => {
   }
 })
 
-// ─── Validações de resultado ────────────────────────────────────────────────
+// Validações de resultado
 
 Then('o sistema exibe registros compatíveis com o filtro {string}', (filtro) => {
   cy.get('.loading, .spinner, .loader', { timeout: 15000 }).should('not.exist')
@@ -187,7 +187,7 @@ Then('a tabela apresenta resultado para {string}', (valor) => {
   })
 })
 
-// ─── Período ────────────────────────────────────────────────────────────────
+// Período
 When('seleciono o período de {string} até {string}', (dataInicio, dataFim) => {
   atosAdministrativosPack.filtros.periodo().should('be.visible').click()
   atosAdministrativosPack.filtros.periodoInputs().eq(0).clear().type(`${dataInicio}{enter}`)
@@ -201,7 +201,7 @@ Then('o sistema exibe os registros dentro do período', () => {
   atosAdministrativosPack.tabela.linhas().should('have.length.greaterThan', 0)
 })
 
-// ─── Busca sem resultados ───────────────────────────────────────────────────
+// Busca sem resultados
 Then('o sistema exibe a tabela de atos administrativos sem resultados', () => {
   cy.wait(1500)
   atosAdministrativosPack.tabela.container().should('be.visible')
@@ -209,7 +209,7 @@ Then('o sistema exibe a tabela de atos administrativos sem resultados', () => {
   cy.log('✓ Tabela exibida sem resultados para o filtro informado')
 })
 
-// ─── Limpar filtros ──────────────────────────────────────────────────────────
+// Limpar filtros
 Then('os campos de filtro são limpos', () => {
   atosAdministrativosPack.filtros.numeroSei().should('have.value', '')
   atosAdministrativosPack.filtros.portariaDesignacao().should('have.value', '')
@@ -217,7 +217,7 @@ Then('os campos de filtro são limpos', () => {
   atosAdministrativosPack.filtros.rf().should('have.value', '')
 })
 
-// ─── Menu "Novo ato +" ──────────────────────────────────────────────────────
+// Menu "Novo ato +"
 Then('o sistema exibe as opções:', (dataTable) => {
   const opcoes = dataTable.raw().flat()
   opcoes.forEach((opcao) => {
@@ -247,7 +247,7 @@ Then('o sistema direciona para a tela {string}', (tela) => {
   }
 })
 
-// ─── Retorno ao Atos Administrativos via menu lateral ──────────────────────
+// Retorno ao Atos Administrativos via menu lateral
 When('o sistema navega até o menu lateral esquerdo', () => {
   cy.get('aside').then(($aside) => {
     if ($aside.hasClass('is-collapsed')) {
@@ -266,7 +266,7 @@ When('seleciona a opção {string} no menu lateral', (opcao) => {
   cy.wait(800)
 })
 
-// ─── Modal de ação (Nova cessação / Tornar insubsistente / etc.) ───────────
+// Modal de ação (Nova cessação / Tornar insubsistente / etc.)
 Then('o sistema exibe o modal {string}', (nomeModal) => {
   atosAdministrativosPack.modal.container().should('be.visible')
   atosAdministrativosPack.modal.contendo(nomeModal.trim()).should('be.visible')

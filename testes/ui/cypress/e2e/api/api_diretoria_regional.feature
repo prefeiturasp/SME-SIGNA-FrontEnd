@@ -33,9 +33,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Dado que possuo credenciais válidas de autenticação
     E que estou autenticado na API
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES POSITIVOS — LISTAGEM E ESTRUTURA
-  # ══════════════════════════════════════════════════════════════════════════
 
   @smoke @listagem_dres
   Cenário: Listar todas as DREs disponíveis
@@ -61,9 +59,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Então o status code da resposta deve ser 200
     E os tipos dos campos da DRE devem estar corretos
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES COM CÓDIGOS CONHECIDOS
-  # ══════════════════════════════════════════════════════════════════════════
 
   @smoke @codigo_conhecido_butanta
   Cenário: Buscar DRE BUTANTA pelo código 108100
@@ -109,9 +105,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Então o status code da resposta deve ser 200
       E a resposta deve ser um array
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES NEGATIVOS — CÓDIGOS INVÁLIDOS
-  # ══════════════════════════════════════════════════════════════════════════
 
   @negativo @codigo_inexistente
   Cenário: Buscar DRE com código numérico inexistente
@@ -128,9 +122,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Quando eu faço uma requisição GET para "/api/DREs/ABC123DEF"
       Então o status code da resposta deve ser 200
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES NEGATIVOS — AUTENTICAÇÃO
-  # ══════════════════════════════════════════════════════════════════════════
 
   @negativo @sem_autenticacao_listagem
   Cenário: Acessar listagem de DREs sem autenticação
@@ -144,9 +136,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Quando eu tento acessar "/api/DREs/108100" sem token
     Então o status da resposta deve ser 401 ou 403
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES DE PERFORMANCE
-  # ══════════════════════════════════════════════════════════════════════════
 
   @performance @listagem_performance
   Cenário: Validar tempo de resposta da listagem de DREs
@@ -160,13 +150,10 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Então o status code da resposta deve ser 200
     E o tempo de resposta deve ser menor que 3000 milissegundos
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES POSITIVOS — POST (FILTRO DE DREs)
-  # ══════════════════════════════════════════════════════════════════════════
   # Endpoint: POST /api/DREs
   # Body: array de strings com codigosDRE
   # Resposta: array de DREs filtradas
-  # ══════════════════════════════════════════════════════════════════════════
 
   @smoke @post_dre_um_codigo
   Cenário: Filtrar uma DRE pelo código via POST
@@ -229,9 +216,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
 
   # Cenário de validação de ordem removido: a API não garante a ordem de retorno
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES NEGATIVOS — POST (FILTRO DE DREs)
-  # ══════════════════════════════════════════════════════════════════════════
 
   @negativo @post_codigo_inexistente
   Cenário: Filtrar DRE com código inexistente via POST
@@ -272,9 +257,7 @@ Funcionalidade: API EOL - DiretoriaRegionalEducacao
     Então o status code da resposta deve ser 200
     E a resposta deve conter apenas os DREs com códigos válidos
 
-  # ══════════════════════════════════════════════════════════════════════════
   # TESTES DE PERFORMANCE — POST
-  # ══════════════════════════════════════════════════════════════════════════
 
   @performance @post_performance_um_codigo
   Cenário: Validar tempo de resposta POST para um código

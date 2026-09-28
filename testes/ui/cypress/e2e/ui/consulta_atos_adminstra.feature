@@ -11,9 +11,7 @@ Funcionalidade: Editar e visualizar designação de servidor
   Contexto:
     Dado que o usuário está autenticado no sistema
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 1 — Editar designação (fluxo completo)            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Editar designação (fluxo completo) [ATIVO]
   @editar-fluxo-completo @smoke
   Cenário: Editar designação e validar todas as seções do formulário
 
@@ -38,9 +36,7 @@ Funcionalidade: Editar e visualizar designação de servidor
     E clica em "Salvar"
     Então o sistema direciona para a tela "Atos administrativos"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 2 — Visualizar designação (somente leitura)       [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Visualizar designação (somente leitura) [ATIVO]
   @visualizar-fluxo-completo @smoke
   Cenário: Visualizar designação existente e validar todos os dados
 
