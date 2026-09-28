@@ -11,12 +11,7 @@ const resumoServidorSpy = vi.fn();
 const customAccordionItemSpy = vi.fn();
 const accordionSpy = vi.fn();
 const editorSEISpy = vi.fn();
-const preencherTemplateSpy = vi.fn();
-const montarTrechoUnidadeSpy = vi.fn();
-const formatDateSpy = vi.fn();
-const formatarRFSpy = vi.fn();
-const nameToCamelCaseSpy = vi.fn();
-const nameToCamelCaseUeSpy = vi.fn();
+const gerarHtmlPortariaSpy = vi.fn((html: string) => html);
 
 const useParamsMock = vi.fn();
 const pushMock = vi.fn();
@@ -125,33 +120,9 @@ vi.mock(
       editorSEISpy(props);
       return <div data-testid="editor-sei" />;
     },
-    gerarHtmlPortaria: (html: string) => html,
+    gerarHtmlPortaria: (html: string) => gerarHtmlPortariaSpy(html),
   }),
 );
-
-vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: (...args: [string, Record<string, string>]) =>
-    preencherTemplateSpy(...args),
-}));
-
-vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
-  montarTrechoUnidade: (...args: [string, string, string]) =>
-    montarTrechoUnidadeSpy(...args),
-}));
-
-vi.mock("@/utils/portarias/templates", () => ({
-  TEMPLATE_CESSACAO: "TEMPLATE-CESSACAO",
-}));
-
-vi.mock("@/utils/formatDate", () => ({
-  formatDate: (value: string) => formatDateSpy(value),
-}));
-
-vi.mock("@/utils/portarias/formatadores", () => ({
-  formatarRF: (value: string) => formatarRFSpy(value),
-  nameToCamelCase: (value: string) => nameToCamelCaseSpy(value),
-  nameToCamelCaseUe: (value: string) => nameToCamelCaseUeSpy(value),
-}));
 
 type UseFetchCessacaoByIdReturn = ReturnType<typeof useFetchCessacaoById>;
 
@@ -217,20 +188,15 @@ describe("VisualizarCessacao page", () => {
     apostilas: [],
     insubsistencia: null,
     designacao: designacaoBaseMock,
+    texto_sei: "Texto da portaria de cessação pronto vindo do backend",
+    modelo_portaria: 1,
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
     useParamsMock.mockReturnValue({ id: "12" });
     pushMock.mockReset();
-    montarTrechoUnidadeSpy.mockReturnValue("trecho-unidade");
-    formatDateSpy.mockImplementation((value) => `data-${value}`);
-    formatarRFSpy.mockImplementation((value) => `RF-${value}`);
-    nameToCamelCaseSpy.mockImplementation((value) => `camel-${value}`);
-    nameToCamelCaseUeSpy.mockImplementation((value) => `ue-${value}`);
-    preencherTemplateSpy.mockImplementation(
-      (_template: string, dados: Record<string, string>) => JSON.stringify(dados),
-    );
+    gerarHtmlPortariaSpy.mockImplementation((html: string) => html);
   });
 
   it("renderiza loading quando consulta está carregando", () => {
@@ -314,44 +280,35 @@ describe("VisualizarCessacao page", () => {
     expect(screen.getByTestId("editor-sei")).toBeInTheDocument();
   });
 
-  it("gera HTML inicial com escape, negrito e sem nulos", () => {
+  it("exibe o texto da portaria retornado pelo backend, sem remontá-lo no cliente", () => {
     vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
-      data: {
-        ...cessacaoBaseMock,
-        designacao: {
-          ...designacaoBaseMock,
-          indicado_nome_servidor: "Servidor & Nome",
-        },
-      },
+      data: cessacaoBaseMock,
       isLoading: false,
       error: null,
     }));
 
     render(<VisualizarCessacaoPage />);
 
-    const dadosPassados = preencherTemplateSpy.mock.calls[0][1] as Record<string, string>;
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-CESSACAO",
-      expect.objectContaining({
-        portaria: "<strong>001</strong>",
-        ano: "<strong>2026</strong>",
-        sei: "<strong>6016.2026/0001-2</strong>",
-        nome_indicado: "<strong>Servidor &amp; Nome</strong>",
-        rf: "RF-123456",
-      }),
-    );
-    expect(montarTrechoUnidadeSpy).toHaveBeenCalledWith(
-      "Lotação Indicada",
-      "EMEF Teste",
-      "DRE Centro",
-    );
-    expect(Object.values(dadosPassados)).not.toContain(undefined);
-    expect(Object.values(dadosPassados)).not.toContain(null);
+    expect(gerarHtmlPortariaSpy).toHaveBeenCalledWith(cessacaoBaseMock.texto_sei);
     expect(editorSEISpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        html: expect.stringContaining("<strong>Servidor &amp; Nome</strong>"),
+        html: cessacaoBaseMock.texto_sei,
       }),
+    );
+  });
+
+  it("não chama a montagem de html quando o backend ainda não retornou texto_sei", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: { ...cessacaoBaseMock, texto_sei: "" },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(gerarHtmlPortariaSpy).not.toHaveBeenCalled();
+    expect(editorSEISpy).toHaveBeenCalledWith(
+      expect.objectContaining({ html: "" }),
     );
   });
 
@@ -399,87 +356,4 @@ describe("VisualizarCessacao page", () => {
     );
   });
 
-  it("aplica fallbacks '-' quando a designação não possui dados", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
-      data: {
-        ...cessacaoBaseMock,
-        designacao: {},
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarCessacaoPage />);
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-CESSACAO",
-      expect.objectContaining({
-        dre: "-",
-        portaria_designacao: "-",
-        doc_designacao: "-",
-        sei_designacao: "-",
-        nome_indicado: "<strong>-</strong>",
-        vinculo: "-",
-        trecho_afastamento: "",
-      }),
-    );
-    expect(montarTrechoUnidadeSpy).toHaveBeenCalledWith("", "", "");
-  });
-
-  it("monta cargo base sem categoria quando ela não é informada", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
-      data: {
-        ...cessacaoBaseMock,
-        designacao: {
-          ...designacaoBaseMock,
-          indicado_categoria: "",
-        },
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarCessacaoPage />);
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-CESSACAO",
-      expect.objectContaining({
-        cargo_base: "camel-PROFESSOR",
-      }),
-    );
-  });
-
-  it("descarta campos indefinidos antes de preencher o template", () => {
-    formatDateSpy.mockReturnValue(undefined);
-    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
-      data: cessacaoBaseMock,
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarCessacaoPage />);
-
-    const dados = preencherTemplateSpy.mock.calls[0][1] as Record<string, string>;
-    expect(dados).not.toHaveProperty("data_inicio");
-  });
-
-  it("usa tipo_cessacao 'de ofício' quando a_pedido for false", () => {
-    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
-      data: {
-        ...cessacaoBaseMock,
-        a_pedido: false,
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarCessacaoPage />);
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-CESSACAO",
-      expect.objectContaining({
-        tipo_cessacao: "de ofício",
-      }),
-    );
-  });
 });

@@ -112,9 +112,9 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
             </span>
           </div>
         }
-        <div className="w-[100%] flex justify-end items-end">
+        <div className="w-full flex justify-end items-end">
 
-          <div className="w-[200px] py-[2rem]">
+          <div className="w-[200px] py-8">
             {isListagemDo ?
               
               <Button
@@ -126,7 +126,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
                 onClick={handleAlterarDataDo}
                 data-testid="botao-proximo"
               >
-                <p className="text-[16px] font-bold">Alterar data</p>
+                <p className="text-[16px] font-bold">Salvar data</p>
                 <SimpleCheck className="text-[16px] font-bold" />
               </Button>:
               <Dropdown  menu={{

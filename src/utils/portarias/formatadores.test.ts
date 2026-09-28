@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "./formatadores";
+import { nameToCamelCase, nameToCamelCaseUe, formatarRF, formatarDataPtBr } from "./formatadores";
 
 describe("nameToCamelCase", () => {
     it("deve formatar nome simples corretamente", () => {
@@ -60,5 +60,29 @@ describe("formatarRF", () => {
 
     it("deve retornar vazio se input for vazio", () => {
         expect(formatarRF("")).toBe("");
+    });
+});
+
+describe("formatarDataPtBr", () => {
+    it("formata data ISO (YYYY-MM-DD) para pt-BR sem deslocar por fuso horário", () => {
+        expect(formatarDataPtBr("2026-08-31")).toBe("31/08/2026");
+    });
+
+    it("formata data ISO com horário para pt-BR", () => {
+        expect(formatarDataPtBr("2026-08-31T00:00:00")).toBe("31/08/2026");
+    });
+
+    it("formata objeto Date para pt-BR", () => {
+        expect(formatarDataPtBr(new Date(2026, 7, 31))).toBe("31/08/2026");
+    });
+
+    it("retorna '-' quando o valor é nulo, indefinido ou vazio", () => {
+        expect(formatarDataPtBr(null)).toBe("-");
+        expect(formatarDataPtBr(undefined)).toBe("-");
+        expect(formatarDataPtBr("")).toBe("-");
+    });
+
+    it("retorna '-' quando o valor não é uma data válida", () => {
+        expect(formatarDataPtBr("DOC")).toBe("-");
     });
 });

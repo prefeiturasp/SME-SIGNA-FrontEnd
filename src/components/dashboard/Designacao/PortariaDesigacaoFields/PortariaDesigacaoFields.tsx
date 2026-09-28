@@ -29,6 +29,7 @@ import {
   InputField,
 } from "@/components/ui/FieldsForm";
 import {SelectAnoField} from "@/components/ui/SelectAnoField"
+import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 
 interface Props {
@@ -46,15 +47,11 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
     })) ?? [];
 
 
+
   const dataFinal = watch("designacao_data_final");
-  
+
   const isImpedimentoDisabled = !dataFinal;
-  
-  useEffect(() => {
-    if(isImpedimentoDisabled){
-      setValue("impedimento_substituicao", null);
-    }
-  }, [isImpedimentoDisabled, setValue]);
+
 
   useEffect(() => {
     mutate();
@@ -81,12 +78,12 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 placeholder="Nº da portaria"
                 data-testid="input-portaria-designacao"
                 type="number"
-                maxLength={20}
+                maxLength={NUMERO_PORTARIA_MAX_DIGITOS}
               />
             </div>
 
             <div className="w-full">
-               <SelectAnoField name="ano" label="Ano Vigente" />
+              <SelectAnoField name="ano" label="Ano Vigente" />
             </div>
 
             <div className="w-full">
@@ -97,8 +94,8 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 label="Nº SEI"
                 placeholder="Número SEI"
                 data-testid="input-numero-sei"
-                type="string"                
-                mask= "9999.9999/9999999-9"
+                type="string"
+                mask="9999.9999/9999999-9"
               />
             </div>
 
@@ -115,7 +112,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
             </div>
           </div>
 
- 
+
           <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4">
             <div className="w-full">
               <DateField
@@ -134,6 +131,9 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="designacao_data_final"
                 label="Até"
                 allowClear={true}
+                onClear={() => {
+                  setValue("impedimento_substituicao", null);
+                }}
               />
             </div>
 
@@ -160,12 +160,20 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                       <Select
                         value={field.value ?? undefined}
                         onValueChange={(value) => {
+                          if (value === "" || value === null) {
+                            return;
+                          }
                           field.onChange(value);
                           const selecionado = impedimentos.find(i => i.codigo === value);
                           setValue("impedimento_label", selecionado?.nome ?? "");
                         }}
                         disabled={isImpedimentoDisabled || isPending}
-                      >
+                      > {isPending ? (
+
+                        <div className="flex items-center justify-center">
+                          <Loader2 className="h-4 w-4 animate-spin  text-[#B22B2A]" />                          
+                        </div>
+                      ) : (
                         <SelectTrigger data-testid="select-impedimento-substituicao">
                           <SelectValue
                             placeholder={
@@ -176,6 +184,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                           />
                         </SelectTrigger>
 
+                      )}
                         <SelectContent>
                           {impedimentos.map((impedimento) => (
                             <SelectItem
@@ -186,6 +195,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                             </SelectItem>
                           ))}
                         </SelectContent>
+
                       </Select>
                     </FormControl>
                     <FormMessage />

@@ -31,7 +31,7 @@ export async function getDesignacaoByIdAction(id: number) {
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth_token")?.value;
 
-    try {
+    try {        
         const { data } = await axios.get<DesignacaoResponse>(`${API_URL}/designacao/designacoes/${id}/`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,

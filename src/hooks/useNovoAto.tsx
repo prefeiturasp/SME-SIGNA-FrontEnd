@@ -100,6 +100,10 @@ export function useNovoAto() {
       setErrorMessage(MENSAGEM_APOSTILA_JA_EXISTE);
       return false;
     }
+    if (!encontrado.id) {
+      setErrorMessage(MENSAGEM_NAO_ENCONTRADO);
+      return false;
+    }
     router.push(
       `/pages/${DESTINO_POR_TIPO[tipo]}?id=${encontrado.id}&origem=${encontrado.origem}`
     );

@@ -10,7 +10,7 @@ export default function ErrorMessage({ message }: ErrorMessageProps) {
     if (!message) return null;
 
     return (
-        <div className="flex items-center justify-center border border-[#B40C31] text-[#B40C31] text-[14px] font-bold rounded h-8 px-3 my-6 w-full mx-auto break-words">
+        <div className="flex items-center justify-center border border-[#B40C31] text-[#B40C31] text-[14px] font-bold rounded h-8 px-3 my-6 w-full mx-auto wrap-break-word">
             {message}
         </div>
     );

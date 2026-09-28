@@ -38,19 +38,19 @@ describe.each([
     nome: "buscarDesignacaoPorPortariaAction",
     action: buscarDesignacaoPorPortariaAction,
     url: "/designacao/designacoes/buscar-por-portaria/",
-    sampleData: { id: 1, numero_portaria: "100/2026" },
+    sampleData: { id: 1, numero_portaria: "100" },
   },
   {
     nome: "buscarCessacaoPorPortariaAction",
     action: buscarCessacaoPorPortariaAction,
     url: "/designacao/cessacoes/buscar-por-portaria/",
-    sampleData: { id: 2, numero_portaria: "200/2026", ato_pai_id: 1 },
+    sampleData: { id: 2, numero_portaria: "200", ato_pai_id: 1 },
   },
   {
     nome: "buscarInsubsistenciaPorPortariaAction",
     action: buscarInsubsistenciaPorPortariaAction,
     url: "/designacao/insubsistencias/buscar-por-portaria/",
-    sampleData: { id: 4, numero_portaria: "400/2026" },
+    sampleData: { id: 4, numero_portaria: "400" },
   },
 ])("$nome", ({ action, url, sampleData }) => {
   it("retorna erro quando não há token (getApiClient retorna null)", async () => {

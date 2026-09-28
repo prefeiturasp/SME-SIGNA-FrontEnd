@@ -1,47 +1,49 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ApostilaBody } from "@/types/apostila";
+import { ApostilaAction } from "@/actions/apostila-criar";
 import { useSalvarApostila } from "./useSalvarApostila";
-import { ApostilaAction } from "@/actions/apostila";
-import type { formSchemaApostilaData } from "@/app/pages/apostila/schema";
 
+const apostilaActionMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/actions/apostila", () => ({
-  ApostilaAction: vi.fn(),
+vi.mock("@/actions/apostila-criar", () => ({
+  ApostilaAction: apostilaActionMock,
 }));
+
+const payloadMock: ApostilaBody = {
+  ato_pai: 10,
+  sei_numero: "SEI-123",
+  numero_portaria: "123",
+  doc: "DOC-123",
+  observacao: "Observação",
+  texto_sei: "Texto SEI",
+  alteracoes: [
+    {
+      campo_alterado: "sei_numero",
+      valor_novo: "SEI-456",
+      tipo_ato_alvo: "DESIGNACAO",
+    },
+  ],
+};
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
+      mutations: {
+        retry: false,
+      },
     },
   });
 
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 
+  Wrapper.displayName = "TestQueryClientProvider";
+
   return Wrapper;
-};
-
-const valuesMock: formSchemaApostilaData = {
-  apostila: {
-    numero_sei: "6016.2024/000123-4",
-    doc: "2024-05-20",
-    observacao: "Teste de apostila",
-    ato_apostilado: "designacao",
-  },
-};
-
-const expectedPayload = {
-  ato_pai: 10,
-  sei_numero: "6016.2024/000123-4",
-  doc: "2024-05-20",
-  observacao: "Teste de apostila",
 };
 
 describe("useSalvarApostila", () => {
@@ -49,8 +51,8 @@ describe("useSalvarApostila", () => {
     vi.clearAllMocks();
   });
 
-  it("chama ApostilaAction com o payload formatado corretamente (designacao)", async () => {
-    vi.mocked(ApostilaAction).mockResolvedValue({
+  it("chama ApostilaAction com body tipado e retorna os dados", async () => {
+    vi.mocked(ApostilaAction).mockResolvedValueOnce({
       success: true,
       data: { id: 1 },
     });
@@ -59,88 +61,34 @@ describe("useSalvarApostila", () => {
       wrapper: createWrapper(),
     });
 
+    let response: unknown;
     await act(async () => {
-      await result.current.mutateAsync({
-        values: valuesMock,
-        designacaoId: 10,
-      });
+      response = await result.current.mutateAsync({ body: payloadMock });
     });
 
-    expect(ApostilaAction).toHaveBeenCalledWith(expectedPayload);
+    expect(ApostilaAction).toHaveBeenCalledWith(payloadMock);
+    expect(response).toEqual({ id: 1 });
   });
 
-  it("usa cessacaoId como ato_pai quando ato_apostilado é cessacao", async () => {
-    vi.mocked(ApostilaAction).mockResolvedValue({
-      success: true,
-      data: { id: 1 },
+  it("lança erro quando ApostilaAction retorna success false", async () => {
+    vi.mocked(ApostilaAction).mockResolvedValueOnce({
+      success: false,
+      error: "Erro ao salvar apostila",
     });
 
     const { result } = renderHook(() => useSalvarApostila(), {
       wrapper: createWrapper(),
     });
 
-    const valuesCessacao = {
-      apostila: { ...valuesMock.apostila, ato_apostilado: "cessacao" },
-    };
-
-    await act(async () => {
-      await result.current.mutateAsync({
-        values: valuesCessacao,
-        designacaoId: 10,
-        cessacaoId: 55,
-      });
-    });
-
-    expect(ApostilaAction).toHaveBeenCalledWith(
-      expect.objectContaining({ ato_pai: 55 })
+    await expect(result.current.mutateAsync({ body: payloadMock })).rejects.toThrow(
+      "Erro ao salvar apostila",
     );
   });
 
-  it("retorna os dados de resposta em caso de sucesso", async () => {
-    const mockResponseData = { id: 50, status: "criado" };
-    vi.mocked(ApostilaAction).mockResolvedValue({
-      success: true,
-      data: mockResponseData,
-    });
-
-    const { result } = renderHook(() => useSalvarApostila(), {
-      wrapper: createWrapper(),
-    });
-
-    let response;
-    await act(async () => {
-      response = await result.current.mutateAsync({
-        values: valuesMock,
-        designacaoId: 10,
-      });
-    });
-
-    expect(response).toEqual(mockResponseData);
-  });
-
-  it("lança um erro quando a action retorna success: false", async () => {
-    const errorMessage = "Erro interno no servidor";
-    vi.mocked(ApostilaAction).mockResolvedValue({
+  it("mantém estado de erro na mutation", async () => {
+    vi.mocked(ApostilaAction).mockResolvedValueOnce({
       success: false,
-      error: errorMessage,
-    });
-
-    const { result } = renderHook(() => useSalvarApostila(), {
-      wrapper: createWrapper(),
-    });
-
-    await expect(
-      result.current.mutateAsync({
-        values: valuesMock,
-        designacaoId: 10,
-      })
-    ).rejects.toThrow(errorMessage);
-  });
-
-  it("garante que o estado isError do hook fica verdadeiro após falha", async () => {
-    vi.mocked(ApostilaAction).mockResolvedValue({
-      success: false,
-      error: "Falha técnica",
+      error: "Erro API",
     });
 
     const { result } = renderHook(() => useSalvarApostila(), {
@@ -149,12 +97,8 @@ describe("useSalvarApostila", () => {
 
     await act(async () => {
       try {
-        await result.current.mutateAsync({
-          values: valuesMock,
-          designacaoId: 10,
-        });
-      } catch (e) {
-      }
+        await result.current.mutateAsync({ body: payloadMock });
+      } catch {}
     });
 
     await waitFor(() => {

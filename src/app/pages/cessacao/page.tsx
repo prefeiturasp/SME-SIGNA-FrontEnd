@@ -19,20 +19,21 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import ResumoPortariaDesigacao from "@/components/dashboard/Designacao/ResumoPortariaDesigacao";
 import ResumoTitular from "@/components/dashboard/Designacao/ResumoTitular";
 
-import formSchemaCessacao, {
+import formSchemaCessacao, {  
   formSchemaCessacaoData,
 } from "./schema";
 
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { Servidor } from "@/types/designacao-unidade";
 import { getDadosIndicado } from "@/utils/ServidorIndicado/getDadosIndicado";
 import Designacao from "@/assets/icons/Designacao";
 
-import EditorSEI, { adicionarNegrito, gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-import { TEMPLATE_CESSACAO } from "@/utils/portarias/templates";
-import { nameToCamelCase, nameToCamelCaseUe, formatarRF } from "@/utils/portarias/formatadores";
-import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
+import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
+import { montarDadosTextoSeiCessacao } from "@/utils/cessacao/montarDadosTextoSei";
+import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
+import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 
 export default function CessacaoPage() {
@@ -53,10 +54,10 @@ export default function CessacaoPage() {
         numero_portaria: "",
         ano: new Date().getFullYear().toString(),
         numero_sei: "",
-        a_pedido: "nao",
+        a_pedido: EnumCheckbox.NAO,
         data_inicio: new Date(),
-        remocao: "nao",
-        aposentadoria: "nao",
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
         doc: "",
       },
     },
@@ -120,61 +121,43 @@ export default function CessacaoPage() {
       cessacao: {
         numero_portaria: "",
         numero_sei: "",
-        ano: new Date().getFullYear().toString(),
+        ano: "",
         doc: "",
         data_inicio: new Date(),
-        a_pedido: "nao",
-        remocao: "nao",
-        aposentadoria: "nao",
+        a_pedido: EnumCheckbox.NAO,
+        remocao: EnumCheckbox.NAO,
+        aposentadoria: EnumCheckbox.NAO,
       },
     });
   }, [designacao, form]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
+  const [textoSei, setTextoSei] = useState("");
+  const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
+  const [gerandoPreview, setGerandoPreview] = useState(false);
 
-  const gerarDados = (values: formSchemaCessacaoData) => ({
-    portaria: values.cessacao.numero_portaria,
-    ano: values.cessacao.ano,
-    sei: values.cessacao.numero_sei,
-    dre: designacao?.dre_nome ?? "-",
-    tipo_cessacao:
-      values.cessacao.a_pedido === "sim" ? "a pedido" : "de ofício",
-    portaria_designacao: designacao?.numero_portaria ?? "-",
-    doc_designacao: designacao?.doc ?? "-",
-    sei_designacao: designacao?.sei_numero ?? "-",
-    nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-    rf: formatarRF(designacao?.indicado_rf ?? "-"),
-    vinculo: designacao?.indicado_vinculo ?? "-",
-    cargo_base: (() => {
-      const base = nameToCamelCase(designacao?.indicado_cargo_base ?? "-");
-      const cat = designacao?.indicado_categoria;
-      return cat ? `${base} - Categoria ${cat}` : base;
-    })(),
-    cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-    ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"), // NAO TEM TIPO DA ESCOLA NO BANCO!! VER COMO ARRUMAR
-    data_inicio:
-      values.cessacao.data_inicio?.toLocaleDateString("pt-BR"),
-    trecho_unidade: montarTrechoUnidade(designacao?.indicado_lotacao ?? "", designacao?.unidade_proponente ?? "", designacao?.dre_nome ?? ""),
-    trecho_afastamento: designacao?.com_afastamento && designacao?.motivo_afastamento
-      ? `, ${designacao.motivo_afastamento}`
-      : "",
-  });
-
-  const handleGerarPortaria = () => {
+  const handleGerarPortaria = async () => {
     const values = form.getValues();
-    const dados = gerarDados(values);
+    const dados = montarDadosTextoSeiCessacao(designacao, values.cessacao);
 
-    let texto = TEMPLATE_CESSACAO;
-
-    const dadosNegrito = adicionarNegrito(dados, ["nome_indicado","sei","portaria","ano"]);
-
-    Object.entries(dadosNegrito).forEach(([key, value]) => {
-      const val = String(value ?? "");
-      texto = texto.replaceAll(`{{${key}}}`, val);
+    setGerandoPreview(true);
+    const result = await gerarPreviewTextoSeiAction({
+      tipo_portaria: "CESSACAO",
+      tipo_ato_pai: "DESIGNACAO",
+      tipo_cargo: mapTipoVagaParaTipoCargo(designacao?.tipo_vaga),
+      dados,
     });
+    setGerandoPreview(false);
 
-    setHtmlPortaria(gerarHtmlPortaria(texto));
+    if (!result.success) {
+      notification.error({ title: `Erro ao gerar o texto da portaria: ${result.error}` });
+      return;
+    }
+
+    setTextoSei(result.data.texto);
+    setModeloPortariaId(result.data.modelo_portaria_id);
+    setHtmlPortaria(gerarHtmlPortaria(result.data.texto));
     setMostrarEditor(true);
   };
 
@@ -184,6 +167,8 @@ export default function CessacaoPage() {
         values,
         designacaoId: Number(id),
         id: null,
+        textoSei,
+        modeloPortaria: modeloPortariaId,
       });
 
       notification.success({ title: "Cessação salva com sucesso!" });
@@ -254,19 +239,20 @@ export default function CessacaoPage() {
 
             <CustomAccordionItem title="Portaria de cessação" value="4" color="silver">
               <PortariaCessacaoFields />
-              <div className="w-full flex justify-end pt-[2rem]">
+              <div className="w-full flex justify-end pt-8">
                 <div className="w-[200px]">
                   <Button
                     type="button"
                     size="lg"
                     className="w-full flex items-center justify-center gap-6"
                     variant="destructive"
+                    disabled={gerandoPreview}
                     onClick={async () => {
                       const isValid = await form.trigger("cessacao");
 
                       if (!isValid) return;
 
-                      handleGerarPortaria();
+                      await handleGerarPortaria();
                     }}>
                     Trechos para o SEI
                   </Button>

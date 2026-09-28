@@ -122,6 +122,11 @@ export const ColorHighlightButton = forwardRef<
 
     const buttonStyle = useMemo(
       () =>
+        // Dívida conhecida (código vendored do Tiptap UI): o cast é necessário
+        // porque React.CSSProperties não aceita CSS custom properties (`--*`);
+        // anotar o tipo direto, como a regra pede, faria o TypeScript recusar
+        // a propriedade `--highlight-color`.
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         ({
           ...style,
           "--highlight-color": highlightColor,

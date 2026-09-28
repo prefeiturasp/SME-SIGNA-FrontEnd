@@ -57,9 +57,21 @@ export interface CargosBaseCriarEditar extends CargosBaseCamposComuns {
 
 export interface TextosDePortariasResponse {
   id: number;
+  tipo_ato_pai: string;
   tipo_portaria: string;
+  tipo_de_ato: string;
   nome_modelo: string;
   status: string;
   criado_em: string;
   atualizado_em: string;
+  texto_portaria: string;
+  variaveis: string[];
+  tipo_cargo: string;
+  observacoes: string;
+}
+
+
+export interface Variavel {  
+  display_name: string;
+  value: string;
 }

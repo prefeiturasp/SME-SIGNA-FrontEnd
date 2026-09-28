@@ -1,36 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
-import { formSchemaApostilaData } from "@/app/pages/apostila/schema";
-import { ApostilaAction } from "@/actions/apostila";
+import { ApostilaAction } from "@/actions/apostila-criar";
 import { ApostilaBody } from "@/types/apostila";
 
 export const useSalvarApostila = () => {
   return useMutation({
     mutationFn: async ({
-      values,
-      designacaoId,
-      cessacaoId,
+      body,
     }: {
-      values: formSchemaApostilaData;
-      designacaoId?: number;
-      cessacaoId?: number;
+      body: ApostilaBody;
     }) => {
-      const atoPai =
-        values.apostila.ato_apostilado === "cessacao" && cessacaoId
-          ? cessacaoId
-          : designacaoId;
-
-      if (atoPai === undefined) {
-        throw new Error("Ato de origem (designação ou cessação) não informado.");
-      }
-
-      const payload: ApostilaBody = {
-        ato_pai: atoPai,
-        sei_numero: values.apostila.numero_sei,
-        doc: values.apostila.doc !== "" ? values.apostila.doc : undefined,
-        observacao: values.apostila.observacao,
-      };
-
-      const response = await ApostilaAction(payload);
+      const response = await ApostilaAction(body);
 
       if (!response.success) {
         throw new Error(response.error);

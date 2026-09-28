@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FiltroDeAtosAdministrativos from "./FiltroDeAtosAdministrativos";
+import { StatusAtosAdministrativos } from "@/types/designacao";
+import FiltroDeAtosAdministrativos, {
+  AtosOpcoes,
+  StatusPublicacaoOpcoes,
+  TipoAtoSelectField,
+} from "./FiltroDeAtosAdministrativos";
 
 const watchValues: Record<string, unknown> = {};
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
@@ -131,12 +136,15 @@ describe("FiltroDeAtosAdministrativos", () => {
 
     expect(screen.getByTestId("select-listar-para")).toBeInTheDocument();
     expect(screen.getByTestId("select-status-publicacao")).toBeInTheDocument();
+    expect(screen.getByTestId("select-listar-para")).toHaveTextContent("Tipo");
     expect(screen.getByTestId("select-item-DESIGNACAO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-CESSACAO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-INSUBSISTENCIA_DESIGNACAO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-INSUBSISTENCIA_CESSACAO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-APOSTILA_DESIGNACAO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-APOSTILA_CESSACAO")).toBeInTheDocument();
+    expect(screen.getByTestId("select-item-INSUBSISTENCIA_APOSTILA")).toBeInTheDocument();
+    expect(screen.getByTestId("select-item-INSUBSISTENCIA_INSUBSISTENCIA")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-NAO_PUBLICADO")).toBeInTheDocument();
     expect(screen.getByTestId("select-item-PUBLICADO")).toBeInTheDocument();
 
@@ -170,5 +178,38 @@ describe("FiltroDeAtosAdministrativos", () => {
 
     fireEvent.click(screen.getByTestId("mock-filtro-acoes"));
     expect(onClear).toHaveBeenCalledTimes(1);
+  });
+
+  it("exporta as opções de atos administrativos e status de publicação", () => {
+    expect(AtosOpcoes).toEqual([
+      { codigo: "DESIGNACAO", nome: "Designação" },
+      { codigo: "CESSACAO", nome: "Cessação" },
+      { codigo: "INSUBSISTENCIA_DESIGNACAO", nome: "Insubsistência de Designação" },
+      { codigo: "INSUBSISTENCIA_CESSACAO", nome: "Insubsistência de Cessação" },
+      { codigo: "APOSTILA_DESIGNACAO", nome: "Apostila de Designação" },
+      { codigo: "APOSTILA_CESSACAO", nome: "Apostila de Cessação" },
+      { codigo: "INSUBSISTENCIA_APOSTILA", nome: "Anulação de Apostila" },
+      { codigo: "INSUBSISTENCIA_INSUBSISTENCIA", nome: "Tornar sem efeito" },
+    ]);
+    expect(StatusPublicacaoOpcoes).toEqual([
+      { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: "Aguardando publicação" },
+      { codigo: StatusAtosAdministrativos.PUBLICADO, nome: "Publicado" },
+    ]);
+  });
+
+  it("permite customizar label, name e opções do TipoAtoSelectField", () => {
+    const opcoesCustomizadas = [{ codigo: "DESIGNACAO", nome: "Designação" }];
+
+    render(
+      <TipoAtoSelectField
+        label="Tipo de portaria"
+        name="tipo_portaria"
+        AtosOpcoes={opcoesCustomizadas}
+      />,
+    );
+
+    expect(screen.getByTestId("select-listar-para")).toHaveTextContent("Tipo de portaria");
+    expect(screen.getByTestId("select-item-DESIGNACAO")).toHaveTextContent("Designação");
+    expect(screen.queryByTestId("select-item-CESSACAO")).not.toBeInTheDocument();
   });
 });

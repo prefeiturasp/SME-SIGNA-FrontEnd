@@ -54,7 +54,7 @@ vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria
         </button>
         <button
           data-testid="modal-buscar"
-          onClick={() => (props.onSubmit as (portaria: string, ano: string) => void)("100/2026", "2026")}
+          onClick={() => (props.onSubmit as (portaria: string, ano: string) => void)("100", "2026")}
         >
           buscar
         </button>
@@ -275,7 +275,7 @@ describe("Página de atos administrativos", () => {
     fireEvent.click(screen.getByTestId("menu-item-3"));
     fireEvent.click(screen.getByTestId("modal-buscar"));
 
-    expect(buscarMock).toHaveBeenCalledWith("cessacao", "100/2026", "2026");
+    expect(buscarMock).toHaveBeenCalledWith("cessacao", "100", "2026");
   });
 
   it("fecha o modal e limpa o erro ao chamar onOpenChange(false)", () => {

@@ -154,14 +154,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   };
 
   const designacaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
-    {
+    ...(record?.apostilas?.length && record?.apostilas?.length > 0 ? [] : [{
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
       onClick: () => {
         router.push(`/pages/apostila?id=${record.id}&origem=designacao`);
       },
-    },
+    }]),
     {
       key: '2',
       label: 'Cessar',
@@ -200,24 +200,35 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ]
 
-  const cessacaoItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
-    {
-      key: '1',
-      label: 'Apostilar',
-      icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        router.push(`/pages/apostila?id=${record.ato_pai_id}&origem=cessacao`);
+  const cessacaoItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    const navegarParaAtoPai = (destino: string) => {
+      const atoPaiId = record.ato_pai_id;
+      if (!atoPaiId) {
+        notification.error({ title: 'Não foi possível identificar a designação de origem desta cessação.' });
+        return;
+      }
+      router.push(`/pages/${destino}?id=${atoPaiId}&origem=cessacao`);
+    };
+
+    return [
+      ...(record?.apostilas?.length && record?.apostilas?.length > 0 ? [] : [{
+        key: '1',
+        label: 'Apostilar',
+        icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          navegarParaAtoPai('apostila');
+        },
+      }]),
+      {
+        key: '3',
+        label: 'Tornar insubsistente',
+        icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          navegarParaAtoPai('insubsistencia');
+        },
       },
-    },
-    {
-      key: '3',
-      label: 'Tornar insubsistente',
-      icon: <DocumentoErro width={20} height={20} color="#9CA3B9" />,
-      onClick: () => {
-        router.push(`/pages/insubsistencia?id=${record.ato_pai_id}&origem=cessacao`);
-      },
-    },
-  ]
+    ];
+  }
 
 
   const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
@@ -254,7 +265,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
 
     let items: ItemType[] = [];
-
     if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
       items.push(...designacaoPublicadaItems(record));
     }

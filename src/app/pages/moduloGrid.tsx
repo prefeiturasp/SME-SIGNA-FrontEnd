@@ -16,7 +16,7 @@ export default function ModuleGrid({ modules }: { modules: Module[] }) {
             {modules.map((module) => (
                 <div
                     key={module.id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center"
+                    className="bg-white rounded-xl shadow-xs border border-gray-200 p-6 flex flex-col items-center text-center"
                 >
                     <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-400 mb-4">
                         <module.icon className="w-7 h-7 text-white" />

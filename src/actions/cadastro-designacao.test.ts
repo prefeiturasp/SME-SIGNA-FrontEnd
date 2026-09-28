@@ -21,6 +21,10 @@ vi.mock("@/utils/designacao/mapearPayload", () => ({
     mapearPayloadDesignacao: vi.fn(() => ({ dre: "dre-1" })),
 }));
 
+vi.mock("@/actions/cargos", () => ({
+    getCargos: vi.fn(() => Promise.resolve([])),
+}));
+
 // ── Helpers ──────────────────────────────────────
 
 const { cookies } = await import("next/headers");
@@ -177,7 +181,7 @@ describe("designacaoAction", () => {
                 status: 400,
                 data: {
                     detail:
-                        "numero_portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; indicado_local_exercicio: Este campo pode não estar em branco.",
+                        "numero_portaria: Certifique-se de que este valor seja menor ou igual a 2147483647.; indicado_local_exercicio: Este campo pode não estar em branco.",
                 },
             },
             message: "Request failed",
@@ -189,7 +193,7 @@ describe("designacaoAction", () => {
         expect(result).toEqual({
             success: false,
             error:
-                "Numero portaria: Certifique-se de que este campo não tenha mais de 20 caracteres.; Indicado local exercicio: Este campo pode não estar em branco.",
+                "Numero portaria: Certifique-se de que este valor seja menor ou igual a 2147483647.; Indicado local exercicio: Este campo pode não estar em branco.",
             field: undefined,
         });
     });
@@ -240,6 +244,21 @@ describe("designacaoAction", () => {
 
         await designacaoAction(formDataMock, null);
 
-        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock);
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
+    });
+
+    it("usa lista de cargos vazia quando getCargos falha", async () => {
+        mockCookies("token");
+        mockedAxios.post.mockResolvedValueOnce({ data: {} });
+
+        const { getCargos } = await import("@/actions/cargos");
+        vi.mocked(getCargos).mockRejectedValueOnce(new Error("falha ao buscar cargos"));
+
+        const { mapearPayloadDesignacao } = await import("@/utils/designacao/mapearPayload");
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({ success: true, data: {} });
+        expect(mapearPayloadDesignacao).toHaveBeenCalledWith(formDataMock, []);
     });
 });

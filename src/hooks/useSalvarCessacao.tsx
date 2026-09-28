@@ -9,12 +9,21 @@ export const useSalvarCessacao = () => {
       values,
       designacaoId,
       id,
+      textoSei,
+      modeloPortaria,
     }: {
       values: formSchemaCessacaoData;
       designacaoId: number;
       id: string | null;
+      textoSei?: string;
+      modeloPortaria?: number | null;
     }) => {
-      const payload = mapearPayloadCessacao(values, designacaoId);
+      const payload = mapearPayloadCessacao(
+        values,
+        designacaoId,
+        textoSei,
+        modeloPortaria
+      );
       const response = await cessacaoAction(payload, id);
 
       if (!response.success) {

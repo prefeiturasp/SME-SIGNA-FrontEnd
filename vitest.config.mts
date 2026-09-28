@@ -4,7 +4,7 @@ import path from "node:path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   test: {
@@ -31,11 +31,10 @@ export default defineConfig({
         "src/app/api/*",
         "*/types/*",
         "next.config.mjs",
-        "tailwind.config.js",
         "postcss.config.mjs",
         "src/lib/zod-i18n.ts",
         "next-env.d.ts",
-        "vitest.config.ts",
+        "vitest.config.mts",
         "eslint.config.mjs",
         "*/.next/*",
         "testes/**",

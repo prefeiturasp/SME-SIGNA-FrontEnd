@@ -55,16 +55,19 @@ export default function DesignacoesPasso1() {
   };
 
   function onSubmitEditarServidor(data: FormEditarServidorData) {
-    const servidorIndicado = formDesignacaoData!.servidorIndicado!;
-    setFormDesignacaoData((prevState)=>({
-      ...(prevState??{}),
-      servidorIndicado: {
-        ...servidorIndicado,
-        nome_servidor: data.nome_servidor,
-        nome_civil: data.nome_civil,
-        categoria: data.categoria ?? "",
-      },
-    }));
+    setFormDesignacaoData((prevState) => {
+      if (!prevState?.servidorIndicado) return prevState;
+
+      return {
+        ...prevState,
+        servidorIndicado: {
+          ...prevState.servidorIndicado,
+          nome_servidor: data.nome_servidor,
+          nome_civil: data.nome_civil,
+          categoria: data.categoria ?? "",
+        },
+      };
+    });
   }
 
   const onProximo = () => {

@@ -1,109 +1,110 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { FormProvider, useForm } from "react-hook-form";
-import { describe, it, expect, vi } from "vitest";
+import type { ReactNode } from "react";
+import { render, screen } from "@testing-library/react";
+import { FormProvider, useForm, type FieldValues, type UseFormReturn } from "react-hook-form";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import PortariaApostilaFields from "./PortariaApostilaFields";
 
-vi.mock("lucide-react", () => ({
-  Loader2: () => <svg data-testid="loading-spinner" />,
-}));
+const inputFieldSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("@/components/ui/FieldsForm", () => ({
-  InputField: ({ name, label }: { name: string; label: string }) => (
-    <div data-testid={`input-field-${name}`}>{label}</div>
-  ),
+  InputField: (props: {
+    name: string;
+    label: string;
+    placeholder?: string;
+    type?: string;
+    disabled?: boolean;
+    mask?: string;
+  }) => {
+    inputFieldSpy(props);
+    return (
+      <input
+        aria-label={props.label}
+        data-testid={`input-${props.name}`}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        type={props.type}
+      />
+    );
+  },
 }));
 
-vi.mock("@/components/ui/SelectAnoField", () => ({
-  SelectAnoField: ({ label }: { label: string }) => (
-    <div data-testid="select-ano-field">{label}</div>
-  ),
+vi.mock("lucide-react", () => ({
+  Loader2: () => <div data-testid="loading-spinner" />,
 }));
 
-vi.mock("@/components/ui/textarea", () => ({
-  Textarea: ({ value, onChange, ...props }: {
-    value?: string;
-    onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
-    [key: string]: unknown;
-  }) => (
-    <textarea data-testid="input-observacao" value={value} onChange={onChange} {...props} />
-  ),
-}));
-
-function FormWrapper({ children }: { children: React.ReactNode }) {
-  const methods = useForm({
+function FormWrapper({
+  children,
+  onMethods,
+}: {
+  children: ReactNode;
+  onMethods?: (methods: UseFormReturn<FieldValues>) => void;
+}) {
+  const methods = useForm<FieldValues>({
     defaultValues: {
       apostila: {
+        numero_portaria: "",
         numero_sei: "",
         doc: "",
-        observacao: "",
-        ato_apostilado: "designacao",
       },
     },
   });
+
+  onMethods?.(methods);
 
   return <FormProvider {...methods}>{children}</FormProvider>;
 }
 
 describe("PortariaApostilaFields", () => {
-  it("exibe o spinner quando isLoading é true", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("mostra loading quando isLoading é true", () => {
     render(
       <FormWrapper>
         <PortariaApostilaFields isLoading />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
     expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
-    expect(screen.queryByTestId("input-observacao")).not.toBeInTheDocument();
+    expect(inputFieldSpy).not.toHaveBeenCalled();
   });
 
-  it("renderiza os campos corretos de apostila quando não está carregando", () => {
+  it("renderiza campos da portaria de apostila com nomes e máscaras corretos", () => {
     render(
       <FormWrapper>
         <PortariaApostilaFields />
-      </FormWrapper>
+      </FormWrapper>,
     );
 
-    expect(screen.queryByTestId("loading-spinner")).not.toBeInTheDocument();
-    
-    expect(screen.getByTestId("input-field-apostila.numero_sei")).toBeInTheDocument();
-    expect(screen.getByTestId("input-field-apostila.doc")).toBeInTheDocument();
-    expect(screen.getByTestId("input-apostila.observacao")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("input-apostila.numero_portaria")).toBeInTheDocument();
+    expect(screen.getByTestId("input-apostila.numero_sei")).toBeInTheDocument();
+    expect(screen.getByTestId("input-apostila.doc")).toBeDisabled();
 
-  it("exibe as labels corretas conforme definido no array inputFields", () => {
-    render(
-      <FormWrapper>
-        <PortariaApostilaFields />
-      </FormWrapper>
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "apostila.numero_portaria",
+        label: "Nº Portaria",
+        placeholder: "Número Portaria",
+        type: "number",
+      }),
     );
-
-    expect(screen.getByText("Nº SEI")).toBeInTheDocument();
-    expect(screen.getByText("D.O")).toBeInTheDocument();
-    expect(screen.getByText("Observações")).toBeInTheDocument();
-  });
-
-  it("permite a interação com o campo de observações", () => {
-    render(
-      <FormWrapper>
-        <PortariaApostilaFields />
-      </FormWrapper>
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "apostila.numero_sei",
+        label: "Nº SEI",
+        placeholder: "Número SEI",
+        type: "string",
+        mask: "9999.9999/9999999-9",
+      }),
     );
-
-    const textarea = screen.getByTestId("input-apostila.observacao");
-    fireEvent.change(textarea, { target: { value: "Texto de teste para apostila" } });
-    
-    expect((textarea as HTMLTextAreaElement).value).toBe("Texto de teste para apostila");
-  });
-
-  it("valida se o campo D.O está renderizado (conforme configurado no componente)", () => {
-    render(
-      <FormWrapper>
-        <PortariaApostilaFields />
-      </FormWrapper>
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "apostila.doc",
+        label: "D.O",
+        placeholder: "D.O",
+        disabled: true,
+      }),
     );
-
-    const fieldDo = screen.getByTestId("input-field-apostila.doc");
-    expect(fieldDo).toBeInTheDocument();
   });
 });

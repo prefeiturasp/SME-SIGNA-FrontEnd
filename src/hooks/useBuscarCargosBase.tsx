@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCargosBaseAction, fetchCargosBaseActionByIdAction } from "@/actions/cargos-base";
 
 
+
  
 
 export function useBuscarCargosBase() {
@@ -23,6 +24,9 @@ export function useBuscarCargosBase() {
         gcTime: 0,
     });
 }
+
+
+
 
 
 

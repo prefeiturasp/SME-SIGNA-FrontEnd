@@ -65,7 +65,12 @@ export function CustomAccordionItem({
   return (
     <AccordionItem value={value} className={`border-b-0 mb-5 ${className}`}>
       <AccordionTrigger
-        className={`mb-0 pr-4 ${variant.bg} rounded-md border-l-4 ${variant.border}`}
+        className={
+        `mb-0 pr-4 ${variant.bg} 
+        rounded-t-md  
+        data-[state=open]:rounded-b-none
+        data-[state=closed]:rounded-b-[10px]
+        border-l-4 ${variant.border}`}
       >
         <div className="flex items-center justify-between w-full">
           <span className={`pl-4 text-lg ${variant.text}`}>
@@ -77,7 +82,8 @@ export function CustomAccordionItem({
 
       <AccordionContent  className="mt-0 m-0">
         <Card
-          className={`m-0 border-l-4 ${variant.bg} ${variant.border}`}
+          className={`m-0 border-l-4 ${variant.bg} ${variant.border} rounded-b-md  rounded-t-none`}
+          variant="borderless"
         >
           {children}
         </Card>
