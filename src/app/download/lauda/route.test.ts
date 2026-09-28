@@ -26,7 +26,7 @@ const mockToken = (token?: string) => {
 };
 
 const buildRequest = (body: unknown) =>
-  new Request("http://localhost/api/lauda", {
+  new Request("http://localhost/download/lauda", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -44,7 +44,7 @@ const buildAxiosError = (status: number, data: unknown) => {
   return error;
 };
 
-describe("POST /api/lauda", () => {
+describe("POST /download/lauda", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://backend/api");

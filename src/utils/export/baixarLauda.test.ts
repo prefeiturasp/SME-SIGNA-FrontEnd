@@ -30,7 +30,7 @@ describe("baixarLauda", () => {
 
     const result = await baixarLauda([3, 1], "PDF");
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/lauda", {
+    expect(fetchMock).toHaveBeenCalledWith("/download/lauda", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids: [3, 1], formato: "PDF" }),
@@ -71,7 +71,7 @@ describe("baixarLauda", () => {
     const result = await baixarLauda([5], "WORD");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/lauda",
+      "/download/lauda",
       expect.objectContaining({ body: JSON.stringify({ ids: [5], formato: "WORD" }) })
     );
     expect(baixarArquivoMock).toHaveBeenCalledWith(blob, "lauda-2026-09-18_14-05-09.docx");
