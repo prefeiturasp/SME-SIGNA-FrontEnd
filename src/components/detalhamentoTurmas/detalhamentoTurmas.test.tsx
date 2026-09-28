@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import DetalhamentoTurmasModal from './detalhamentoTurmas'
@@ -104,7 +104,7 @@ describe('DetalhamentoTurmasModal', () => {
 
         expect(screen.getByText('DRE Centro')).toBeInTheDocument()
         expect(screen.getByText('EMEF João Silva')).toBeInTheDocument()
-        expect(screen.getAllByText('15').length).toBeGreaterThan(0)
+        expect(document.body).toContainAnyByText('15')
         expect(screen.getAllByText('5').length).toBeGreaterThan(0)
     })
 
@@ -132,10 +132,9 @@ describe('DetalhamentoTurmasModal', () => {
 
         const noiteLabel = screen.getByText('Noite')
         const row = noiteLabel.closest('tr')!
-        const utils = within(row)
 
-        expect(utils.getAllByText('2').length).toBeGreaterThan(0)
-        expect(utils.getAllByText('4').length).toBeGreaterThan(0)
+        expect(row).toContainAnyByText('2')
+        expect(row).toContainAnyByText('4')
     })
 
     it('deve renderizar todas as linhas de turnos', () => {
@@ -149,7 +148,7 @@ describe('DetalhamentoTurmasModal', () => {
         render(<DetalhamentoTurmasModal {...defaultProps} />)
 
         expect(screen.getByText('TOTAL GERAL DE TURMAS')).toBeInTheDocument()
-        expect(screen.getAllByText('15').length).toBeGreaterThan(0)
+        expect(document.body).toContainAnyByText('15')
     })
 
     it('deve renderizar linhas de SPI quando fornecidas', () => {
@@ -159,9 +158,8 @@ describe('DetalhamentoTurmasModal', () => {
         expect(spiRowLabel).toBeInTheDocument()
 
         const row = spiRowLabel.closest('tr')!
-        const utils = within(row)
 
-        expect(utils.getByText('3')).toBeInTheDocument()
+        expect(row).toContainOneByText('3')
     })
 
     it('não deve renderizar SPI quando spiRows não for fornecido', () => {
@@ -186,9 +184,8 @@ describe('DetalhamentoTurmasModal', () => {
 
         const spiLabel = screen.getByText('SPI')
         const spiContainer = spiLabel.closest('div')!
-        const utils = within(spiContainer)
 
-        expect(utils.getByText('5')).toBeInTheDocument()
+        expect(spiContainer).toContainOneByText('5')
     })
 
     it('deve exibir "-" no campo SPI quando spi está vazio ou apenas espaços', () => {
@@ -196,8 +193,7 @@ describe('DetalhamentoTurmasModal', () => {
 
         const spiLabel = screen.getByText('SPI')
         const spiContainer = spiLabel.closest('div')!
-        const utils = within(spiContainer)
 
-        expect(utils.getByText('-')).toBeInTheDocument()
+        expect(spiContainer).toContainOneByText('-')
     })
 })

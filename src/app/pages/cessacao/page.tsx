@@ -35,18 +35,32 @@ import { montarDadosTextoSeiCessacao } from "@/utils/cessacao/montarDadosTextoSe
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
+import { DesignacaoResponse } from "@/types/designacao";
 
+
+export const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
+  return {
+    numero_portaria: designacao?.cessacao?.numero_portaria?.toString() ?? "",
+    ano: designacao?.cessacao?.ano_vigente ?? "",
+    numero_sei: designacao?.cessacao?.sei_numero ?? "",
+    a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
+    remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    doc: designacao?.cessacao?.doc ?? "",
+  };
+};
 export default function CessacaoPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const salvarCessacao = useSalvarCessacao();
   const router = useRouter();
   const notification = useAppNotification();
-
+  
 
   const { data: designacao, isLoading } =
     useFetchDesignacoesById(Number(id));
-
+  
   const form = useForm<formSchemaCessacaoData>({
     resolver: zodResolver(formSchemaCessacao),
     defaultValues: {
@@ -115,19 +129,10 @@ export default function CessacaoPage() {
   );
 
   useEffect(() => {
-    if (!designacao) return;
+    if (!designacao) return;   
 
     form.reset({
-      cessacao: {
-        numero_portaria: "",
-        numero_sei: "",
-        ano: "",
-        doc: "",
-        data_inicio: new Date(),
-        a_pedido: EnumCheckbox.NAO,
-        remocao: EnumCheckbox.NAO,
-        aposentadoria: EnumCheckbox.NAO,
-      },
+      cessacao: gerarFormValuesCessacao(designacao)
     });
   }, [designacao, form]);
 
@@ -166,7 +171,7 @@ export default function CessacaoPage() {
       await salvarCessacao.mutateAsync({
         values,
         designacaoId: Number(id),
-        id: null,
+        id: designacao?.cessacao?.id.toString() || null,
         textoSei,
         modeloPortaria: modeloPortariaId,
       });

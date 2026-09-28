@@ -104,7 +104,6 @@ const FormCriarTextosPortaria: React.FC<{ variaveisOpcoes: Variavel[] }> = ( { v
 
 
       <FormField
-        {...register("observacoes")}
         control={control}
         name="observacoes"
         render={({ field }) => (

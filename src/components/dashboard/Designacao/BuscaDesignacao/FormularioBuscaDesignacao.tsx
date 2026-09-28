@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -41,6 +41,7 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
     mode: "onChange",
   });
 
+
   const onSubmit = async (values: BuscaDesignacaoRequest) => {
     setIsLoading(true);
     try {
@@ -50,13 +51,19 @@ const FormularioBuscaDesignacao: React.FC<FormularioBuscaDesignacaoProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (defaultValues?.rf && form.getValues("rf") === "") {
+      form.setValue("rf", defaultValues.rf);
+    }
+  }, [defaultValues, form]);
+
   return (
     <div className={className}>
       <Form {...form}>
         <div className="w-full flex flex-col h-full flex-1">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-[90%]">
-              <FormField
+              <FormField                
                 control={form.control}
                 name="rf"
                 render={({ field }) => (

@@ -485,6 +485,57 @@ describe("ListagemDeAtosAdministrativos", () => {
     
   });
 
+  it("monta menu de cessação não publicada e navega para edição", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "CESSACAO",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+          ato_pai_id: 99,
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-4")).toHaveTextContent("Editar");
+    expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
+
+    screen.getByTestId("menu-item-4").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/cessacao?id=99");
+  });
+
+  it("notifica quando uma ação de cessação não identifica o ato pai", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "CESSACAO",
+          status_publicacao: StatusAtosAdministrativos.PUBLICADO,
+          ato_pai_id: undefined,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-1").click();
+
+    expect(notificationErrorMock).toHaveBeenCalledWith({
+      title: "Não foi possível identificar a designação de origem desta cessação.",
+    });
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
   it("não exibe Apostilar para cessação quando já existe apostila", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 

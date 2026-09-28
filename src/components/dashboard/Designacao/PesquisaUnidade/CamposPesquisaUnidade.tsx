@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { memo, useMemo } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import {
   FormControl,
@@ -28,12 +29,32 @@ const CamposPesquisaUnidade = (
 
 ) => {
 
-  const { register, control, watch, setValue, clearErrors } = useFormContext();
+  const { register, control, setValue, clearErrors } = useFormContext();
 
   const { data: dreOptions = [], isLoading: isLoadingDREs } = useFetchDREs();
-  const values = watch();
+  const dre = useWatch({ control, name: "dre" });
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
-    values?.dre ?? "",
+    dre ?? "",
+  );
+  const dreSelectOptions = useMemo(
+    () =>
+      dreOptions.map(
+        (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => ({
+          label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
+          value: dre.codigoDRE,
+        })
+      ),
+    [dreOptions]
+  );
+  const ueSelectOptions = useMemo(
+    () =>
+      ueOptions.map(
+        (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
+          label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
+          value: ue.codigoEscola,
+        })
+      ),
+    [ueOptions]
   );
 
   return (
@@ -48,12 +69,7 @@ const CamposPesquisaUnidade = (
           control={control}
           name="dre"
           label="DRE"
-          options={dreOptions.map(
-            (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => ({
-              label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
-              value: dre.codigoDRE,
-            })
-          )}
+          options={dreSelectOptions}
           onValueChange={(value: string) => {
             clearErrors();
             setValue("ue", "");
@@ -84,15 +100,10 @@ const CamposPesquisaUnidade = (
                 ) : (
                   <Combobox
                     placeholder="Digite o nome da UE"
-                    disabled={!values.dre}
+                    disabled={!dre}
                     data-testid="select-ue"
                     value={field.value}
-                    options={ueOptions.map(
-                      (ue: { codigoEscola: string; nomeEscola: string, siglaTipoEscola: string }) => ({
-                        label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
-                        value: ue.codigoEscola,
-                      })
-                    )}
+                    options={ueSelectOptions}
                     onChange={(value) => {
                       field.onChange(value);
                       clearErrors();
@@ -132,4 +143,4 @@ const CamposPesquisaUnidade = (
   );
 };
 
-export default CamposPesquisaUnidade;
+export default memo(CamposPesquisaUnidade);

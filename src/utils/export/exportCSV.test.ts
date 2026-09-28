@@ -30,7 +30,6 @@ const setupDOMMocks = () => {
     .mockImplementation(() => undefined);
 
   const appendSpy = vi.spyOn(document.body, "appendChild");
-  const removeSpy = vi.spyOn(document.body, "removeChild");
 
   const nativeCreateElement = document.createElement.bind(document);
   const clickSpy = vi.fn();
@@ -50,7 +49,6 @@ const setupDOMMocks = () => {
     createObjectURLSpy,
     revokeObjectURLSpy,
     appendSpy,
-    removeSpy,
     clickSpy,
   };
 };
@@ -66,8 +64,7 @@ describe("downloadCSV", () => {
       createObjectURLSpy,
       revokeObjectURLSpy,
       appendSpy,
-      removeSpy,
-      clickSpy,
+        clickSpy,
     } = setupDOMMocks();
 
     const data: TestRow[] = [
@@ -84,15 +81,32 @@ describe("downloadCSV", () => {
     expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
     expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(appendSpy).toHaveBeenCalledTimes(1);
-    expect(removeSpy).toHaveBeenCalledTimes(1);
+    expect((appendSpy.mock.calls[0][0] as HTMLElement).isConnected).toBe(false);
     expect(revokeObjectURLSpy).toHaveBeenCalledWith("blob:mock-url");
 
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
     expect(blob.parts).toEqual([
-      'Nome,Idade\n"Ana \\"Maria\\"","30"',
+      '\uFEFFNome;Idade\n"Ana ""Maria""";"30"',
     ]);
     expect(blob.type).toBe("text/csv;charset=utf-8;");
+
+    const anchor = appendSpy.mock.calls[0][0] as HTMLAnchorElement;
+    expect(anchor.getAttribute("href")).toBe("blob:mock-url");
+    expect(anchor.getAttribute("download")).toMatch(/^table-export-\d+\.csv$/);
+  });
+
+  it("usa o nome de arquivo informado", () => {
+    const { appendSpy } = setupDOMMocks();
+
+    downloadCSV<TestRow>(
+      [{ key: "1", nome: "Ana", idade: 30 }],
+      [{ key: "nome", title: "Nome" }],
+      "lauda-2026-09-16.csv"
+    );
+
+    const anchor = appendSpy.mock.calls[0][0] as HTMLAnchorElement;
+    expect(anchor.getAttribute("download")).toBe("lauda-2026-09-16.csv");
   });
 
   it("gera CSV vazio quando não há dados", () => {
@@ -105,7 +119,7 @@ describe("downloadCSV", () => {
 
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
-    expect(blob.parts).toEqual([""]);
+    expect(blob.parts).toEqual(["\uFEFF"]);
     expect(blob.type).toBe("text/csv;charset=utf-8;");
   });
 
@@ -127,7 +141,7 @@ describe("downloadCSV", () => {
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
     expect(blob.parts[0]).toBe(
-      'Nome,Idade\n"Ana","30"\n"João","25"'
+      '\uFEFFNome;Idade\n"Ana";"30"\n"João";"25"'
     );
   });
 
@@ -147,7 +161,7 @@ describe("downloadCSV", () => {
 
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
-    expect(blob.parts[0]).toContain('"",""');
+    expect(blob.parts[0]).toContain('"";""');
   });
 
   it("serializa boolean e bigint", () => {
@@ -166,7 +180,7 @@ describe("downloadCSV", () => {
 
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
-    expect(blob.parts[0]).toContain('"true","99"');
+    expect(blob.parts[0]).toContain('"true";"99"');
   });
 
   it("serializa Date corretamente", () => {
@@ -206,7 +220,26 @@ describe("downloadCSV", () => {
 
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
-    expect(blob.parts[0]).toContain('{\\"a\\":1}');
+    expect(blob.parts[0]).toContain('"{""a"":1}"');
+  });
+
+  it("retorna vazio para valores não serializáveis (symbol e função)", () => {
+    const { createObjectURLSpy } = setupDOMMocks();
+
+    const data = [
+      { key: "1", nome: Symbol("x"), idade: () => 1 },
+    ];
+
+    const columns: ColumnsType<TestRow> = [
+      { key: "nome", title: "Nome" },
+      { key: "idade", title: "Idade" },
+    ];
+
+    downloadCSV(data, columns);
+
+    const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
+
+    expect(blob.parts[0]).toContain('"";""');
   });
 
   it("retorna vazio quando JSON.stringify falha (circular)", () => {
@@ -229,6 +262,6 @@ describe("downloadCSV", () => {
     const blob = createObjectURLSpy.mock.calls[0][0] as unknown as MockBlob;
 
     // nome vira vazio
-    expect(blob.parts[0]).toContain('"","1"');
+    expect(blob.parts[0]).toContain('"";"1"');
   });
 });

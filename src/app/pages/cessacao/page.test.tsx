@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import CessacaoPage from "./page";
+import CessacaoPage, { gerarFormValuesCessacao } from "./page";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
+import type { DesignacaoResponse } from "@/types/designacao";
 
 const mockMutateAsync = vi.fn();
 const mockRouterPush = vi.fn();
@@ -335,6 +336,21 @@ describe("CessacaoPage", () => {
     });
   });
 
+  it("exibe mensagem padrão quando salvar falha com erro não tipado", async () => {
+    mockTrigger.mockResolvedValue(true);
+    mockMutateAsync.mockRejectedValueOnce("falha desconhecida");
+
+    render(<CessacaoPage />);
+
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+    await screen.findByTestId("editor-sei");
+    await userEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(mockNotificationError).toHaveBeenCalledWith({ title: "Erro ao salvar" });
+    });
+  });
+
   it("exibe 'Não há servidor titular' quando titular tem strings vazias", () => {
     mockUseFetch.mockReturnValue({
       data: {
@@ -417,5 +433,54 @@ describe("CessacaoPage", () => {
     render(<CessacaoPage />);
 
     expect(screen.getByTestId("resumo-titular")).toBeInTheDocument();
+  });
+
+  it("preenche valores vazios quando a cessação vinculada não possui dados", () => {
+    mockUseFetch.mockReturnValue({
+      data: {
+        ...mockDesignacao,
+        cessacao: {
+          numero_portaria: null,
+          ano_vigente: null,
+          sei_numero: null,
+          a_pedido: false,
+          data_cessacao: "",
+          remocao: false,
+          aposentadoria: false,
+          doc: null,
+        },
+      },
+      isLoading: false,
+    });
+
+    render(<CessacaoPage />);
+
+    expect(screen.getByTestId("page-header")).toBeInTheDocument();
+  });
+
+  it("mapeia corretamente todos os valores da cessação vinculada", () => {
+    const result = gerarFormValuesCessacao({
+      cessacao: {
+        numero_portaria: 456,
+        ano_vigente: "2025",
+        sei_numero: "SEI-CESS",
+        a_pedido: true,
+        data_cessacao: "2026-03-10",
+        remocao: true,
+        aposentadoria: true,
+        doc: "DOC-CESS",
+      },
+    } as unknown as DesignacaoResponse);
+
+    expect(result).toEqual({
+      numero_portaria: "456",
+      ano: "2025",
+      numero_sei: "SEI-CESS",
+      a_pedido: "sim",
+      data_inicio: new Date("2026/03/10"),
+      remocao: "sim",
+      aposentadoria: "sim",
+      doc: "DOC-CESS",
+    });
   });
 });

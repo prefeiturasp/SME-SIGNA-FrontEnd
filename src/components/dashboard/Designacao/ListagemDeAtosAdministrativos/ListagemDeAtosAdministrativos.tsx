@@ -200,7 +200,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ]
 
-  const cessacaoItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+  const cessacaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const navegarParaAtoPai = (destino: string) => {
       const atoPaiId = record.ato_pai_id;
       if (!atoPaiId) {
@@ -230,6 +230,18 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     ];
   }
 
+
+  const cessacaoNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
+    {
+      key: '4',
+      label: 'Editar',
+      icon: <Editar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        router.push(`/pages/cessacao?id=${record.ato_pai_id}`);
+      },
+    },
+    ...cessacaoPublicadaItems(record),    
+  ]
 
   const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const items: ItemType[] = [
@@ -274,11 +286,15 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     }
 
 
-    if (record.tipo === 'CESSACAO') {
-      items.push(...cessacaoItems(record));
+    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      items.push(...cessacaoPublicadaItems(record));
     }
 
+    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...cessacaoNaoPublicadaItems(record));
+    }
 
+    
     if (record.tipo === 'APOSTILA') {
       items.push(...apostilaItems(record));
     }

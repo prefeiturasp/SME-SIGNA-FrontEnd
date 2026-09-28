@@ -17,6 +17,7 @@ const ResumoPortariaDesigacao: React.FC<{
   isLoading,
   showExtraFields = true,
 }) => {
+  
     return (
       <>
         {isLoading ? (
@@ -53,8 +54,8 @@ const ResumoPortariaDesigacao: React.FC<{
                     <InfoItem label="Até" value={formatDate(defaultValues.data_fim)} />
                     <InfoItem label="Caráter Excepcional" value={defaultValues.carater_excepcional? 'Sim':'Não'} />
                     <InfoItem label="Impedimento para substituição:" value={defaultValues.impedimento_substituicao ?? '-'} />
-                    <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento ?? '-'} />
-                    <InfoItem label="Pendência:" value={defaultValues.pendencias ?? '-'} />
+                    <InfoItem label="Motivo do afastamento:" value={defaultValues.motivo_afastamento?.length > 0 ? defaultValues.motivo_afastamento : '-'} />
+                    <InfoItem label="Pendência:" value={defaultValues.pendencias?.length > 0 ? defaultValues.pendencias : '-'} />
                   </>
                 )}
               </div>
