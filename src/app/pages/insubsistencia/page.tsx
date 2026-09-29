@@ -114,8 +114,7 @@ export default function InsubsistenciaPage() {
   const tipo_insubsistencia = form.watch('insubsistencia.tipo_insubsistencia')
   const dadosPortaria = useMemo(() => {
     if (!designacao) return null;
-    console.log('designação', designacao)
-
+    
     return {
       numero_portaria: designacao.numero_portaria,
       ano_vigente: designacao.ano_vigente,
