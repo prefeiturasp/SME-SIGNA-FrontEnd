@@ -321,6 +321,12 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...insubsistenciaItems(record));
     }
 
+
+    return filtrarItemsDuplicadas(items, record);
+  };
+
+
+  const filtrarItemsDuplicadas = (items: ItemType[], record: ListagemAtosAdministrativosResponse) => {
     // remove as funções que ja foram executadas e não podem ser duplicadas
     // não pode cessar 2 vezes o mesmo ato
     if (record.cessacao) {
@@ -328,7 +334,8 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         item?.key !== '2'
       )
     }
-
+   
+   
     //não pode insubsistir 2 vezes o mesmo ato 
     // 3 'Tornar insubsistente',
     // 6 'Anular Apostila',
@@ -338,11 +345,8 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         item?.key !== '3' && item?.key !== '6' && item?.key !== '7'
       )
     }
-
     return items;
-
-  };
-
+  }
   const getTooltipContent = (record: ListagemAtosAdministrativosResponse) => {
     const [data, hora] = formatarDataHora(record.criado_em).split(', ');
 
