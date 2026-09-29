@@ -136,7 +136,7 @@ function BotaoSalvarPortariaApostila({
       className="w-full flex items-center justify-center px-6"
       variant="destructive"
       data-testid="button-salvar-portaria-apostila"
-      disabled={!isValid}
+       disabled={!isValid}
     >
       <p className="text-[16px] font-bold">Salvar</p>
     </Button>
@@ -259,7 +259,7 @@ export default function ApostilaPage() {
 
       const valorDoCampo = values[field as keyof formSchemaApostilaData];
       // remove campos da apostila
-      if (valorDoCampo === undefined || field.includes("apostila") ) {
+      if ((["", undefined, null].includes(valorDoCampo)) || field.includes("apostila") ) {
         return;
       }
 

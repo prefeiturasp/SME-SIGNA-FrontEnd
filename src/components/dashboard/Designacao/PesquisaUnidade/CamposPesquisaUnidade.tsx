@@ -62,8 +62,8 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
 
   const populaCodigoHierarquico = async (codigo_ue: string) => {
     const response = await mutateAsync(codigo_ue);
-    if (response.success) {      
-      setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
+    if (response.success) {            
+      setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
     }
   }
 
@@ -92,7 +92,7 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
               (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) =>
                 String(dre.codigoDRE) === value
             );
-            setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
+            setValue("dre_nome", dreSelecionada?.nomeDRE ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
           }}
         />
       </div>
@@ -126,7 +126,7 @@ const CamposPesquisaUnidade = ({ disabled }: Props) => {
                         (ue: { codigoEscola: string; nomeEscola: string; siglaTipoEscola: string }) =>
                           ue.codigoEscola === value
                       );
-                      setValue("ue_nome", ueSelecionada ? `${ueSelecionada.siglaTipoEscola} - ${ueSelecionada.nomeEscola}` : "");
+                      setValue("ue_nome", ueSelecionada ? `${ueSelecionada.siglaTipoEscola} - ${ueSelecionada.nomeEscola}` : "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                       if (ueSelecionada) populaCodigoHierarquico(ueSelecionada.codigoEscola);
                     }}
                   />

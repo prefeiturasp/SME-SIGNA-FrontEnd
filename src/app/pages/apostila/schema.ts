@@ -15,7 +15,15 @@ const formSchemaApostila = z.object({
     numero_sei: z.string().min(1, "Digite o número do SEI"),
     doc: z.string().optional(),
     observacao: z.string().optional(),
-    numero_portaria: z.string().min(1, "Digite o número da Portaria"),
+    numero_portaria: z
+    .string()
+    .min(1, "Digite o número da Portaria de Apostila")
+    .max(NUMERO_PORTARIA_MAX_DIGITOS, `A Portaria de Apostila deve ter no máximo ${NUMERO_PORTARIA_MAX_DIGITOS} dígitos`)
+    .regex(/^\d*$/, "A Portaria de Apostila deve conter apenas números")
+    .refine(
+        (valor) => !excedeNumeroPortaria(valor),
+        `A Portaria de Apostila deve ser no máximo ${NUMERO_PORTARIA_MAX_LABEL}`
+    ),
   }),
 
   // campos Designacao
