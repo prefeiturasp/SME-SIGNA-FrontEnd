@@ -80,6 +80,7 @@ vi.mock("@/assets/icons/Delete", () => ({
 
 const row: CargosBaseResponse = {
   id: 10,
+  codigo_cargo: "3360",
   grupamento: "Docentes",
   descricao_resumida: "Professor",
   descricao_completa: "Professor de educacao basica",

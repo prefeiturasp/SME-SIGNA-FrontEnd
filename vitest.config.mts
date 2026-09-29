@@ -28,7 +28,6 @@ export default defineConfig({
         "**/.next/**",
         "src/components/ui/**",
         "src/const.ts",
-        "src/app/api/*",
         "*/types/*",
         "next.config.mjs",
         "postcss.config.mjs",

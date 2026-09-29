@@ -15,7 +15,15 @@ const formSchemaApostila = z.object({
     numero_sei: z.string().min(1, "Digite o número do SEI"),
     doc: z.string().optional(),
     observacao: z.string().optional(),
-    numero_portaria: z.string().min(1, "Digite o número da Portaria"),
+    numero_portaria: z
+    .string()
+    .min(1, "Digite o número da Portaria de Apostila")
+    .max(NUMERO_PORTARIA_MAX_DIGITOS, `A Portaria de Apostila deve ter no máximo ${NUMERO_PORTARIA_MAX_DIGITOS} dígitos`)
+    .regex(/^\d*$/, "A Portaria de Apostila deve conter apenas números")
+    .refine(
+        (valor) => !excedeNumeroPortaria(valor),
+        `A Portaria de Apostila deve ser no máximo ${NUMERO_PORTARIA_MAX_LABEL}`
+    ),
   }),
 
   // campos Designacao
@@ -25,9 +33,9 @@ const formSchemaApostila = z.object({
   a_partir_de: z.date(),
   designacao_data_final: z.date().optional().nullable(),
   impedimento_substituicao: z.string().optional().nullable(),
-  carater_especial: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
+  carater_excepcional: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
   com_afastamento: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
-  com_pendencia: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
+  possui_pendencia: z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
   numero_sei: z.string().min(1, "Digite o número do SEI"),
   motivo_afastamento: z.string(),
   ano: z.string().min(1, "Selecione o ano"),

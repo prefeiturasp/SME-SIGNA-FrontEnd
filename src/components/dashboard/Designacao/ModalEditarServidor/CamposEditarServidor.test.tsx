@@ -39,11 +39,18 @@ vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
     register: registerMock,
     control: controlMock,
-    watch: (name: keyof WatchValues) => {
-      watchMock(name);
-      return watchValues[name];
-    },
   }),
+  useWatch: ({ name }: { name: keyof WatchValues | Array<keyof WatchValues> }) => {
+    if (Array.isArray(name)) {
+      return name.map((fieldName) => {
+        watchMock(fieldName);
+        return watchValues[fieldName];
+      });
+    }
+
+    watchMock(name);
+    return watchValues[name];
+  },
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({

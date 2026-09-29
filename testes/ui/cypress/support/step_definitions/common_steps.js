@@ -1,4 +1,3 @@
-// Step Definitions Comuns para todos os testes
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 // Contexto - Navegação
@@ -128,11 +127,7 @@ When('o usuário clica no menu de usuário', () => {
 // ─── Steps Genéricos Comuns ─────────────────────────────────────────────────
 
 Given('que o usuário está na página do dashboard', () => {
-  // Navegação já realizada no Contexto via sidebar — apenas valida o estado atual.
-  // Migração do menu lateral (commit b7f0f32): o submenu "Designação" não navega
-  // mais para /pages/listagem-designacoes — a listagem foi unificada em
-  // /pages/atos-administrativos (mesma tabela usada por atos_novos/filtra_atos,
-  // filtrada por tipo "Designação").
+  // Listagem de Designação foi unificada em /pages/atos-administrativos.
   cy.url({ timeout: 40000 }).should('include', 'atos-administrativos')
   cy.get('main', { timeout: 40000 }).should('be.visible')
   cy.get('.loading, .spinner, .loader').should('not.exist')
@@ -166,35 +161,12 @@ Given('navega até o menu lateral e seleciona {string}', (menuItem) => {
 })
 
 Given('seleciona o submenu {string}', (submenu) => {
-  // Filtra por :visible para não colidir com a cópia oculta do popup do menu
-  // (mesma questão descrita acima em "navega até o menu lateral e seleciona").
-  //
-  // Escopado em "aside, nav" (não em todo o body): após a migração do menu
-  // lateral (commit b7f0f32) o item "Designações" passou a navegar direto
-  // para /pages/atos-administrativos, sem mais abrir um submenu com "Designação"
-  // como item próprio. Um cy.contains(...) sem escopo casava, em vez disso, com
-  // o <span> de valor selecionado do filtro "Tipo" daquela página (que também
-  // exibe o texto "Designação"), e o click({force:true}) abria o dropdown do
-  // filtro ao invés de navegar — confirmado em execução real (screenshot: menu
-  // lateral já achatado, filtro Tipo aberto mostrando "Designação" marcado).
-  // Escopando em aside/nav este engano fica impossível.
-  //
-  // {force: true}: o <span> do submenu fica com "pointer-events: none"
-  // enquanto a transição CSS do menu Ant Design (abertura do acordeão do
-  // item pai, clicado no step anterior) ainda está em andamento — condição
-  // de corrida confirmada em execução real (CypressError "has CSS
-  // pointer-events: none" no cenário de Visualizar, hoje mesclado em
-  // consulta_atos_adminstra.feature, mesmo com o cy.wait(800) do step anterior já
-  // ter passado). Todo o resto do projeto
-  // já usa force:true nos cliques do menu lateral por este mesmo motivo
-  // (ver "navega até o menu lateral e seleciona {string}" logo acima);
-  // este era o único click() sem force.
+  // Escopado em "aside, nav": sem escopo, cy.contains casava com o <span> de
+  // valor selecionado do filtro "Tipo" (que também exibe "Designação").
   cy.get('aside, nav', { timeout: 10000 })
     .contains('span:visible, a:visible, div:visible', new RegExp(`^${submenu}$`, 'i'), { timeout: 15000 })
     .should('be.visible')
     .click({ force: true })
-  // Ver comentário em "que o usuário está na página do dashboard": listagem
-  // agora vive em /pages/atos-administrativos, não mais /pages/listagem-designacoes.
   cy.url({ timeout: 25000 }).should('include', 'atos-administrativos')
   cy.get('main', { timeout: 15000 }).should('be.visible')
   cy.log(`✓ Submenu "${submenu}" selecionado — listagem carregada`)
@@ -236,16 +208,8 @@ Then('o sistema exibe a Tela {string}', (tela) => {
         cy.log(`✓ Tela "${tela}" validada`)
       })
   }
-  // Validação específica para tela de Visualizar/Editar Designação
-  // "Editar" (e "Detalhar", hoje unificado no mesmo item de menu) abre a
-  // MESMA tela do passo 2 do assistente de designação (/pages/designacoes/
-  // designacoes-passo-2?id={id}) — confirmado em execução real (log com
-  // navegação de sucesso para essa URL). Não existe uma tela somente-leitura
-  // separada "Detalhes da designação"; esse texto nunca aparece na página, só
-  // o título genérico "Designação" (h1), o mesmo usado no restante do
-  // assistente (ver designacao_steps.js, ex. linha 152/496). "Editar
-  // Designação"/"Visualizar Designação" nos nomes dos steps são só rótulos
-  // semânticos de qual ação disparou a navegação.
+  // "Editar"/"Visualizar" abrem a MESMA tela do passo 2 do assistente de
+  // designação — não existe tela somente-leitura separada.
   else if (telaLower.includes('visualizar') || telaLower.includes('editar')) {
     cy.log(`🔍 Validando tela de "${tela}" (assistente de Designação, passo 2)`)
 
@@ -259,12 +223,8 @@ Then('o sistema exibe a Tela {string}', (tela) => {
   // URL real: /pages/apostila?id=XX  (sem "r" final)
   // Texto real na página: "Apostila" (breadcrumb e título da seção)
   else if (telaLower.includes('apostil')) {
-    // "Anular apostila" pode não navegar quando a portaria buscada não tem
-    // apostila vinculada (ver "valida se a portaria possui apostila
-    // vinculada para anular", atos_administrativos_steps.js) — resultado de
-    // negócio válido, não uma falha. O flag é setado explicitamente por
-    // aquele step antes deste rodar, então aqui só false (não undefined)
-    // deve pular.
+    // "Anular apostila" pode não navegar quando a portaria não tem apostila
+    // vinculada — resultado de negócio válido, não falha.
     if (Cypress.env('apostilaCessacaoTemDados') === false) {
       cy.log('⚠️ Skip: portaria sem apostila vinculada — não há tela de apostila para validar')
       return

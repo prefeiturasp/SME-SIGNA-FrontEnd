@@ -35,18 +35,32 @@ import { montarDadosTextoSeiCessacao } from "@/utils/cessacao/montarDadosTextoSe
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
+import { Cessacao } from "@/types/designacao";
 
+
+export const gerarFormValuesCessacao = (cessacao: Cessacao | undefined) => {
+  return {
+    numero_portaria: cessacao?.numero_portaria?.toString() ?? "",
+    ano: cessacao?.ano_vigente ?? new Date().getFullYear().toString(),
+    numero_sei: cessacao?.sei_numero ?? "",
+    a_pedido: cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    data_inicio: cessacao?.data_cessacao ? new Date(cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
+    remocao: cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    aposentadoria: cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    doc: cessacao?.doc ?? "",
+  };
+};
 export default function CessacaoPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const salvarCessacao = useSalvarCessacao();
   const router = useRouter();
   const notification = useAppNotification();
-
+  
 
   const { data: designacao, isLoading } =
     useFetchDesignacoesById(Number(id));
-
+  
   const form = useForm<formSchemaCessacaoData>({
     resolver: zodResolver(formSchemaCessacao),
     defaultValues: {
@@ -103,7 +117,7 @@ export default function CessacaoPage() {
       data_inicio: designacao.data_inicio,
       data_fim: designacao.data_fim,
       carater_excepcional: designacao.carater_excepcional,
-      impedimento_substituicao: designacao.impedimento_substituicao,
+      impedimento_substituicao: designacao.impedimento_display,
       motivo_afastamento: designacao.motivo_afastamento,
       pendencias: designacao.pendencias,
     };
@@ -115,19 +129,10 @@ export default function CessacaoPage() {
   );
 
   useEffect(() => {
-    if (!designacao) return;
+    if (!designacao) return;   
 
     form.reset({
-      cessacao: {
-        numero_portaria: "",
-        numero_sei: "",
-        ano: "",
-        doc: "",
-        data_inicio: new Date(),
-        a_pedido: EnumCheckbox.NAO,
-        remocao: EnumCheckbox.NAO,
-        aposentadoria: EnumCheckbox.NAO,
-      },
+      cessacao: gerarFormValuesCessacao(designacao?.cessacao ?? undefined)
     });
   }, [designacao, form]);
 
@@ -166,7 +171,7 @@ export default function CessacaoPage() {
       await salvarCessacao.mutateAsync({
         values,
         designacaoId: Number(id),
-        id: null,
+        id: designacao?.cessacao?.id.toString() || null,
         textoSei,
         modeloPortaria: modeloPortariaId,
       });

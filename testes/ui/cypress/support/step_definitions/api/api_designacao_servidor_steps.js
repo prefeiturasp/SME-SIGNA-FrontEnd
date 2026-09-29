@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
-import { RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO } from '../../utils/dados_designacao'
 
 // ============================================================================
 // AUTENTICAÇÃO — API SIGNA (compartilhado entre as features de designação)
@@ -34,37 +33,6 @@ When('eu busco o servidor pelo RF {string}', (rf) => {
     cy.wrap(res).as('response')
     cy.wrap(res).as('servidorResponse')
     Cypress.log({ name: 'POST', message: `servidor RF ${rf} → HTTP ${res.status}` })
-  })
-})
-
-// RF real em QA confirmado sem cargo sobreposto nem local de exercício —
-// usado para reproduzir de forma determinística o cenário de "ausência de
-// dados da integração" (ver RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO em
-// dados_designacao.js).
-Given('que busco o servidor pelo RF conhecido sem cargo sobreposto e local de exercício', () => {
-  cy.signa_api_post('/designacao/servidor', { rf: RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO }).then(
-    (res) => {
-      cy.wrap(res).as('response')
-      cy.wrap(res).as('servidorResponse')
-      Cypress.log({
-        name: 'POST',
-        message: `servidor RF ${RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO} → HTTP ${res.status}`,
-      })
-    }
-  )
-})
-
-Then('o servidor retornado não deve ter cargo sobreposto nem local de exercício', () => {
-  cy.get('@servidorResponse').then((res) => {
-    expect(res.status, 'busca do servidor deveria retornar 200').to.eq(200)
-    expect(
-      res.body.cargo_sobreposto_funcao_atividade,
-      'cargo sobreposto deveria estar ausente (null) — se a QA mudou esse dado, escolha outro RF de referência'
-    ).to.be.oneOf([null, undefined, ''])
-    expect(
-      res.body.local_de_exercicio,
-      'local de exercício deveria estar ausente (null) — se a QA mudou esse dado, escolha outro RF de referência'
-    ).to.be.oneOf([null, undefined, ''])
   })
 })
 

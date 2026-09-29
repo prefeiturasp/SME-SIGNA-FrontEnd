@@ -89,12 +89,6 @@ Then('a resposta do SIGNA deve ser um array', () => {
 // ============================================================================
 // CRIAÇÃO — POST /designacao/designacoes/
 // ============================================================================
-// Monta o payload no mesmo formato de mapearPayloadDesignacao
-// (src/utils/designacao/mapearPayload.ts): dados do indicado vêm da busca de
-// servidor (@servidorResponse, já preenchida pelo step "eu busco um servidor
-// válido do pool de RFs conhecidos" em api_designacao_servidor_steps.js),
-// dados de unidade vêm de UNIDADE_REFERENCIA (combinação real e conhecida em
-// QA), tipo_vaga=VAGO evita precisar de um segundo servidor "titular".
 
 When('monto o payload de criação da designação com os dados coletados', () => {
   cy.get('@servidorResponse').then((res) => {
@@ -111,6 +105,20 @@ Given('removo o campo de cargo sobreposto do indicado no payload', () => {
     Cypress.log({
       name: 'Payload ajustado',
       message: 'cargo sobreposto do indicado removido do payload',
+    })
+  })
+})
+
+// A API passou a devolver local_de_exercicio como placeholder em vez de
+// null, então reproduzimos a ausência removendo o campo manualmente.
+Given('removo o campo de local de exercício do indicado no payload', () => {
+  cy.get('@payloadDesignacao').then((payload) => {
+    delete payload.indicado_local_exercicio
+
+    cy.wrap(payload).as('payloadDesignacao')
+    Cypress.log({
+      name: 'Payload ajustado',
+      message: 'local de exercício do indicado removido do payload',
     })
   })
 })

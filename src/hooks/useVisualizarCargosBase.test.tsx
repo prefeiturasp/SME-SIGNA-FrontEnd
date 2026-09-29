@@ -57,6 +57,7 @@ const resultadoMock: CargosBasePaginada = {
   results: [
       {
       id: 1,
+      codigo_cargo: "3360",
       grupamento: "Docentes",
       descricao_resumida: "Resumo",
       descricao_completa: "Descrição completa",

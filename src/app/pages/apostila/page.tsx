@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useForm, FormProvider, FieldValues, UseFormReturn } from "react-hook-form";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm, FormProvider, FieldValues, UseFormReturn, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
 import { Loader2 } from "lucide-react";
 import { nameToCamelCase, formatarRF } from "@/utils/portarias/formatadores";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useSearchParams,useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
@@ -23,10 +23,11 @@ import { SelectField, EnumCheckbox, InputField } from "@/components/ui/FieldsFor
 import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/components/ui/form";
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
-import { DesignacaoResponse } from "@/types/designacao";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
-import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
+import { ApostilaAlteracoes, ApostilaBody, ApostilaDetailRead } from "@/types/apostila";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
+import { gerarFormValuesCessacao } from "../cessacao/page";
+import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
 
 
 const defaultValues = {
@@ -48,17 +49,17 @@ const defaultValues = {
   detalhe_para_quadro_de_historico_por_ano: true,
 
   portaria_designacao: "",
-  ano: "",
+  ano: new Date().getFullYear().toString(),
   numero_sei: "",
   doc: "",
   a_partir_de: new Date(),
   designacao_data_final: null,
-  carater_especial: EnumCheckbox.NAO,
+  carater_excepcional: EnumCheckbox.NAO,
   impedimento_substituicao: "",
   impedimento_label: "",
   com_afastamento: EnumCheckbox.NAO,
   motivo_afastamento: "",
-  com_pendencia: EnumCheckbox.NAO,
+  possui_pendencia: EnumCheckbox.NAO,
   motivo_pendencia: "",
 
   // campos cargo disponível
@@ -97,20 +98,79 @@ const normalizarDetalheParaQuadroDeHistoricoPorAno = (value: unknown) => {
   return true;
 };
 
+function BotaoGerarTextoSei({
+  form,
+  onClick,
+}: Readonly<{
+  form: UseFormReturn<formSchemaApostilaData>;
+  onClick: () => Promise<void>;
+}>) {
+  const { isValid } = useFormState({ control: form.control });
+
+  
+  return (
+    <Button
+      type="button"
+      size="lg"
+      className="w-full flex items-center justify-center gap-6"
+      variant="destructive"
+      disabled={!isValid}
+      onClick={onClick}
+    >
+      Gerar texto SEI
+    </Button>
+  );
+}
+
+function BotaoSalvarPortariaApostila({
+  form,
+}: Readonly<{
+  form: UseFormReturn<formSchemaApostilaData>;
+}>) {
+  const { isValid } = useFormState({ control: form.control });
+
+  return (
+    <Button
+      type="submit"
+      size="lg"
+      className="w-full flex items-center justify-center px-6"
+      variant="destructive"
+      data-testid="button-salvar-portaria-apostila"
+       disabled={!isValid}
+    >
+      <p className="text-[16px] font-bold">Salvar</p>
+    </Button>
+  );
+}
+
+
+
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const apostilaId = searchParams.get("apostila_id");
   const origem = searchParams.get("origem");
   const router = useRouter();
   const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
   const notification = useAppNotification();
   const salvarApostila = useSalvarApostila();
-  const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
+  const { data: apostilaData, isLoading: isLoadingApostila } = useFetchApostilaById(Number(apostilaId));
+
+  const { data: designacaoData, isLoading: isLoadingDesignacao } = useFetchDesignacoesById(Number(id));
+  const cessacao = apostilaData ? apostilaData.cessacao : designacaoData?.cessacao;
+  const designacao = apostilaData ? apostilaData.designacao : designacaoData;
+
+
   const { data: cargosData = [] } = useFetchCargos();
-  const cargos = cargosData.map(cargo => ({
-    value: cargo.codigoCargo.toString(),
-    label: cargo.nomeCargo,
-  }));
+  const cargos = useMemo(
+    () =>
+      cargosData.map(cargo => ({
+        value: cargo.codigoCargo.toString(),
+        label: cargo.nomeCargo,
+      })),
+    [cargosData]
+  );
+
 
 
   const form = useForm<formSchemaApostilaData>({
@@ -128,13 +188,14 @@ export default function ApostilaPage() {
   const [mostrarEditor, setMostrarEditor] = useState(false);
 
 
-  const handleGerarPortaria = () => {
+  const handleClickGerarTextoSei = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (!isValid) return;
     setMostrarEditor(true);
-  };
+  }, [form]);
 
   const getCampoMapeadoCessacao = (field: string) => {
     const camposCessacao = {
-      "numero_portaria": "numero_portaria",
       "ano": "ano_vigente",
       "numero_sei": "sei_numero",
       "data_inicio": "data_cessacao",
@@ -146,20 +207,14 @@ export default function ApostilaPage() {
 
 
   const getCampoMapeadoDesignacao = (field: string) => {
-    const camposDesignação = {
+    const camposDesignacao = {
       "portaria_designacao": "numero_portaria",
       "ano": "ano_vigente",
 
 
       "numero_sei": "sei_numero",
-      "doc": "doc",
       "a_partir_de": "data_inicio",
       "designacao_data_final": "data_fim",
-
-
-      "carater_especial": "carater_excepcional",
-
-      "com_pendencia": "possui_pendencia",
 
       "motivo_pendencia": "pendencias",
       "ue_nome": "unidade_proponente",
@@ -174,37 +229,37 @@ export default function ApostilaPage() {
 
     }
 
-    const campoMapeado = camposDesignação[field as keyof typeof camposDesignação];
+    const campoMapeado = camposDesignacao[field as keyof typeof camposDesignacao];
     return campoMapeado || field;
   };
   const gerarAlteracoes = (formValues: formSchemaApostilaData) => {
+
     delete formValues.impedimento_label;
-    
     const values = {
       ...formValues,
       "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
       "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
       "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
-      "carater_especial": formValues.carater_especial === "sim" ? "True" : "False",
+      "carater_excepcional": formValues.carater_excepcional === EnumCheckbox.SIM ? "True" : "False",
 
-      "com_afastamento": formValues.com_afastamento === "sim" ? "True" : "False",
-      "com_pendencia": formValues.com_pendencia === "sim" ? "True" : "False",
+      "com_afastamento": formValues.com_afastamento === EnumCheckbox.SIM ? "True" : "False",
+      "possui_pendencia": formValues.possui_pendencia === EnumCheckbox.SIM ? "True" : "False",
       "cessacao": {
         ...formValues.cessacao,
-        "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
+        "a_pedido": formValues.cessacao.a_pedido === EnumCheckbox.SIM ? "True" : "False",
         "data_inicio": formValues.cessacao.data_inicio ? formValues.cessacao.data_inicio.toISOString().split("T")[0] : null,
-        "remocao": formValues.cessacao.remocao === "sim" ? "True" : "False",
-        "aposentadoria": formValues.cessacao.aposentadoria === "sim" ? "True" : "False",
+        "remocao": formValues.cessacao.remocao === EnumCheckbox.SIM ? "True" : "False",
+        "aposentadoria": formValues.cessacao.aposentadoria === EnumCheckbox.SIM ? "True" : "False",
       },
     };
+    
 
-    const alteracoes: ApostilaAlteracoes[] = [];
+    const alteracoes: ApostilaAlteracoes[] = [];    
     Object.keys(form.formState.dirtyFields).forEach(field => {
 
       const valorDoCampo = values[field as keyof formSchemaApostilaData];
-
-      // remove campos vazios, undefined ou null ou campos da apostila
-      if (["", undefined, null].includes(valorDoCampo) || field.includes("apostila")) {
+      // remove campos da apostila
+      if ((["", undefined, null].includes(valorDoCampo)) || field.includes("apostila") ) {
         return;
       }
 
@@ -225,7 +280,7 @@ export default function ApostilaPage() {
       }
 
 
-      //to-do remover mapeamento de campo e trocar os nomes dos campos
+
       const campoMapeado = getCampoMapeadoDesignacao(field);
 
       // campos da portaria de designação na apostila de cessação
@@ -252,20 +307,41 @@ export default function ApostilaPage() {
   }
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
+      let body: ApostilaBody;
       const alteracoes = gerarAlteracoes(values);
+      if (apostilaId) {
+        // edição somente dos campos de portaria de apostila e texto SEI
+
+        body = {
+          id: Number(apostilaId),
+          sei_numero: values.apostila.numero_sei,
+          numero_portaria: values.apostila.numero_portaria,
+          doc: values.apostila.doc,
+          observacao: values.apostila.observacao,
+          texto_sei: values.texto_portaria,
+          alteracoes: alteracoes,
+        };
+      } else {
+        // criação de apostila é obrigatório ter ao menos uma alteração       
+        if (alteracoes.length === 0) {
+          notification.error({ title: "Não há alterações para salvar", description: "Adicione ao menos uma alteração para salvar a apostila" });
+          return;
+        }
+
+        const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
+
+        body = {
+          ato_pai: ato_pai,
+          sei_numero: values.apostila.numero_sei,
+          numero_portaria: values.apostila.numero_portaria,
+          doc: values.apostila.doc,
+          observacao: values.apostila.observacao,
+          alteracoes: alteracoes,
+          texto_sei: values.texto_portaria,
+        };
+      }
 
 
-      const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
-      const body: ApostilaBody = {
-        ato_pai: ato_pai,
-        sei_numero: values.apostila.numero_sei,
-        numero_portaria: values.apostila.numero_portaria,
-        doc: values.apostila.doc,
-        observacao: values.apostila.observacao,
-        alteracoes: alteracoes,
-        texto_sei: values.texto_portaria,
-
-      };
       await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
@@ -275,16 +351,13 @@ export default function ApostilaPage() {
     }
   };
 
-  const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
+
+  const gerarFormValuesApostila = (apostila: ApostilaDetailRead | undefined) => {
     return {
-      numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
-      ano: designacao?.cessacao?.ano_vigente ?? "",
-      numero_sei: designacao?.cessacao?.sei_numero ?? "",
-      a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-      data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
-      remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-      aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-      doc: designacao?.cessacao?.doc ?? "",
+      numero_portaria: apostila?.numero_portaria?.toString() ?? "",
+      numero_sei: apostila?.sei_numero ?? "",
+      doc: apostila?.doc ?? "",
+      observacao: apostila?.observacao ?? "",
     };
   };
 
@@ -292,11 +365,13 @@ export default function ApostilaPage() {
     if (designacao && !form.formState.isDirty) {
 
 
-      const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
+      const cessacaoFieldsValues = gerarFormValuesCessacao(cessacao ?? undefined);
+      const apostilaFieldsValues = gerarFormValuesApostila(apostilaData);
+
       
       form.reset({
         ...defaultValues,
-        texto_portaria: "A presente portaria apostilada,",
+
         ato_apostilado: origem ?? "",
 
         // campos portaria de designacao
@@ -306,11 +381,11 @@ export default function ApostilaPage() {
         doc: designacao?.doc ?? "",
         a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
         designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
-        carater_especial: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        carater_excepcional: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         impedimento_substituicao: designacao?.impedimento_substituicao?.toString() ?? null,
         com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_afastamento: designacao?.motivo_afastamento,
-        com_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        possui_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
         motivo_pendencia: designacao?.pendencias,
         informacoes_adicionais: designacao?.informacoes_adicionais,
         detalhe_para_quadro_de_historico_por_ano: normalizarDetalheParaQuadroDeHistoricoPorAno(
@@ -345,12 +420,16 @@ export default function ApostilaPage() {
 
         // campos portaria de cessação
         cessacao: cessacaoFieldsValues,
-      },);
 
-
-
+        // campos apostila
+        apostila: apostilaFieldsValues,
+        texto_portaria: apostilaData?.texto_sei ?? "A presente portaria apostilada,",
+      });
     }
-  }, [designacao, form, origem]);
+  }, [designacao, cessacao, apostilaData, form, origem]);
+ 
+  
+  
 
   return (
     <>
@@ -362,7 +441,7 @@ export default function ApostilaPage() {
       />
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          {isLoading ? (
+          {isLoadingDesignacao || isLoadingApostila ? (
             <div className="flex justify-center items-center h-[60vh]">
               <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
             </div>
@@ -394,7 +473,8 @@ export default function ApostilaPage() {
                     value="portarias-designacao"
                   >
                     <PortariaDesigacaoFields
-                      isLoading={isLoading}
+                      disabled={false}
+                      isLoading={isLoadingDesignacao}
                     />
                   </CustomAccordionItem>
 
@@ -403,7 +483,7 @@ export default function ApostilaPage() {
                     color="blue"
                     value="unidade-proponente"
                   >
-                    <CamposPesquisaUnidade />
+                    <CamposPesquisaUnidade disabled={false} />
                   </CustomAccordionItem>
 
                   <CustomAccordionItem
@@ -412,6 +492,7 @@ export default function ApostilaPage() {
                     value="servidor-indicado"
                   >
                     <CamposEditarServidor
+                      disabled={false}
                     />
                   </CustomAccordionItem>
 
@@ -459,7 +540,7 @@ export default function ApostilaPage() {
 
                   {origem === "cessacao" && (
                     <CustomAccordionItem title="Portaria de cessação" value="portarias-cessacao" color="silver">
-                      <PortariaCessacaoFields />
+                      <PortariaCessacaoFields disabled={false} />
                     </CustomAccordionItem>
                   )}
 
@@ -481,19 +562,7 @@ export default function ApostilaPage() {
 
               <div className="w-full flex justify-end pt-8">
                 <div className="w-50">
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="w-full flex items-center justify-center gap-6"
-                    variant="destructive"
-                    disabled={!form.formState.isValid}
-                    onClick={async () => {
-                      const isValid = await form.trigger();
-                      if (!isValid) return;
-                      handleGerarPortaria();
-                    }}>
-                    Gerar texto SEI
-                  </Button>
+                  <BotaoGerarTextoSei form={form} onClick={handleClickGerarTextoSei} />
                 </div>
               </div>
 
@@ -501,7 +570,6 @@ export default function ApostilaPage() {
               {mostrarEditor && (
                 <div className="mb-2 mt-4">
                   <FormField
-                    {...form.register('texto_portaria')}
                     control={form.control}
                     name="texto_portaria"
                     render={({ field, fieldState }) => (
@@ -527,17 +595,7 @@ export default function ApostilaPage() {
                   />
                   <div className="w-full flex justify-end pt-8">
                     <div >
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full flex items-center justify-center px-6"
-                        variant="destructive"
-                        data-testid="button-salvar-portaria-apostila"
-                        disabled={!form.formState.isValid}
-
-                      >
-                        <p className="text-[16px] font-bold">Salvar</p>
-                      </Button>
+                      <BotaoSalvarPortariaApostila form={form} />
                     </div>
                   </div>
                 </div>

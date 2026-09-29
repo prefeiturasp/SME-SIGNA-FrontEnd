@@ -14,14 +14,22 @@ type FormValues = {
   codigo_hierarquico: string;
 };
 
-const { useFetchDREsMock, useFetchUEsMock } = vi.hoisted(() => ({
+const { useFetchDREsMock, useFetchUEsMock, mutateAsyncMock } = vi.hoisted(() => ({
   useFetchDREsMock: vi.fn(),
   useFetchUEsMock: vi.fn(),
+  mutateAsyncMock: vi.fn(),
 }));
 
 vi.mock("@/hooks/useUnidades", () => ({
   useFetchDREs: useFetchDREsMock,
   useFetchUEs: useFetchUEsMock,
+}));
+
+vi.mock("@/hooks/useDesignacaoUnidade", () => ({
+  default: () => ({
+    mutateAsync: mutateAsyncMock,
+    isPending: false,
+  }),
 }));
 
 vi.mock("lucide-react", () => ({
@@ -37,14 +45,16 @@ vi.mock("@/components/ui/FieldsForm", async (importOriginal) => {
       name,
       label,
       dataTestId,
+      "data-testid": dataTestIdAttr,
     }: {
       name: string;
       label: ReactNode;
       dataTestId?: string;
+      "data-testid"?: string;
     }) => (
       <label>
         {label}
-        <input data-testid={dataTestId ?? name} name={name} />
+        <input data-testid={dataTestId ?? dataTestIdAttr ?? name} name={name} />
       </label>
     ),
   };
@@ -222,6 +232,10 @@ describe("CamposPesquisaUnidade", () => {
       data: ueOptions,
       isLoading: false,
     });
+    mutateAsyncMock.mockResolvedValue({
+      success: true,
+      data: { codigo_hierarquico: "109300013692" },
+    });
   });
 
   it("renderiza os campos com o valor de DRE vindo do formulário", () => {
@@ -261,6 +275,7 @@ describe("CamposPesquisaUnidade", () => {
         dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
         ue: "",
         ue_nome: "",
+        codigo_hierarquico: "",
       }),
     );
   });
@@ -271,10 +286,12 @@ describe("CamposPesquisaUnidade", () => {
 
     await user.click(screen.getByTestId("combobox-item-ue-2"));
 
+    expect(mutateAsyncMock).toHaveBeenCalledWith("ue-2");
     expect(getFormValues()).toEqual(
       expect.objectContaining({
         ue: "ue-2",
         ue_nome: "EMEF - Escola Dois",
+        codigo_hierarquico: "109300013692",
       }),
     );
   });
@@ -296,5 +313,25 @@ describe("CamposPesquisaUnidade", () => {
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
     expect(screen.queryByTestId("select-ue")).not.toBeInTheDocument();
+  });
+
+  it("não preenche codigo_hierarquico quando a busca da unidade falha", async () => {
+    mutateAsyncMock.mockResolvedValue({
+      success: false,
+      error: "Falha simulada",
+    });
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.click(screen.getByTestId("combobox-item-ue-2"));
+
+    expect(mutateAsyncMock).toHaveBeenCalledWith("ue-2");
+    expect(getFormValues()).toEqual(
+      expect.objectContaining({
+        ue: "ue-2",
+        ue_nome: "EMEF - Escola Dois",
+        codigo_hierarquico: "",
+      }),
+    );
   });
 });

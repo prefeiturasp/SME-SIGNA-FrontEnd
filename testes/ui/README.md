@@ -30,6 +30,8 @@ Para padrões de desenvolvimento, convenções de código e boas práticas de se
 
 [PADRAO_PROJETO.md](./PADRAO_PROJETO.md) - Guia completo do projeto
 
+[GUIA_DASHBOARD.md](./GUIA_DASHBOARD.md) - Como gerar e usar o dashboard de resultados dos testes
+
 ## Executando os Testes
 
 ### Modo Interativo (Cypress UI)
