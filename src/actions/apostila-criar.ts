@@ -1,9 +1,16 @@
 "use server";
 
 import { ApostilaBody } from "@/types/apostila";
-import { postWithAuth } from "@/lib/serverRequest";
+import { patchWithAuth, postWithAuth } from "@/lib/serverRequest";
 
 export async function ApostilaAction(payload: ApostilaBody) {
+  if(payload.id) {
+    return patchWithAuth(
+      `/designacao/apostilas/${payload.id}/`,
+      payload,
+      "Erro ao salvar apostila"
+    );
+  }
   return postWithAuth(
     "/designacao/apostilas/",
     payload,

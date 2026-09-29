@@ -35,19 +35,19 @@ import { montarDadosTextoSeiCessacao } from "@/utils/cessacao/montarDadosTextoSe
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
-import { DesignacaoResponse } from "@/types/designacao";
+import { Cessacao } from "@/types/designacao";
 
 
-export const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
+export const gerarFormValuesCessacao = (cessacao: Cessacao | undefined) => {
   return {
-    numero_portaria: designacao?.cessacao?.numero_portaria?.toString() ?? "",
-    ano: designacao?.cessacao?.ano_vigente ?? "",
-    numero_sei: designacao?.cessacao?.sei_numero ?? "",
-    a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-    data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
-    remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-    aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
-    doc: designacao?.cessacao?.doc ?? "",
+    numero_portaria: cessacao?.numero_portaria?.toString() ?? "",
+    ano: cessacao?.ano_vigente ?? new Date().getFullYear().toString(),
+    numero_sei: cessacao?.sei_numero ?? "",
+    a_pedido: cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    data_inicio: cessacao?.data_cessacao ? new Date(cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
+    remocao: cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    aposentadoria: cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+    doc: cessacao?.doc ?? "",
   };
 };
 export default function CessacaoPage() {
@@ -117,7 +117,7 @@ export default function CessacaoPage() {
       data_inicio: designacao.data_inicio,
       data_fim: designacao.data_fim,
       carater_excepcional: designacao.carater_excepcional,
-      impedimento_substituicao: designacao.impedimento_substituicao,
+      impedimento_substituicao: designacao.impedimento_display,
       motivo_afastamento: designacao.motivo_afastamento,
       pendencias: designacao.pendencias,
     };
@@ -132,7 +132,7 @@ export default function CessacaoPage() {
     if (!designacao) return;   
 
     form.reset({
-      cessacao: gerarFormValuesCessacao(designacao)
+      cessacao: gerarFormValuesCessacao(designacao?.cessacao ?? undefined)
     });
   }, [designacao, form]);
 

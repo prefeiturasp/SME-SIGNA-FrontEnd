@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VisualizarApostilaPage from "./page";
 import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
+import type { ApostilaDetailRead } from "@/types/apostila";
+import type { Cessacao, DesignacaoResponse } from "@/types/designacao";
 
 const pageHeaderSpy = vi.fn();
 const resumoPortariaEIndicadoSpy = vi.fn();
@@ -10,11 +12,7 @@ const resumoPortariaApostilaSpy = vi.fn();
 const customAccordionItemSpy = vi.fn();
 const accordionSpy = vi.fn();
 const editorSEISpy = vi.fn();
-const preencherTemplateSpy = vi.fn();
-const formatarRFSpy = vi.fn();
-const nameToCamelCaseSpy = vi.fn();
-const nameToCamelCaseUeSpy = vi.fn();
-const formatarDataSpy = vi.fn();
+const gerarHtmlPortariaSpy = vi.fn((html: string) => html);
 
 const useParamsMock = vi.fn();
 const pushMock = vi.fn();
@@ -115,54 +113,51 @@ vi.mock(
       editorSEISpy(props);
       return <div data-testid="editor-sei" />;
     },
-    gerarHtmlPortaria: (html: string) => html,
+    gerarHtmlPortaria: (html: string) => gerarHtmlPortariaSpy(html),
   }),
 );
 
-vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: (...args: [string, Record<string, string>]) =>
-    preencherTemplateSpy(...args),
-}));
+type ApostilaFetchData =
+  | ApostilaDetailRead
+  | (Omit<ApostilaDetailRead, "designacao"> & {
+      designacao?: DesignacaoResponse | null;
+    })
+  | undefined;
 
-vi.mock("@/utils/portarias/templates", () => ({
-  TEMPLATE_APOSTILA: "TEMPLATE-APOSTILA",
-}));
-
-vi.mock("@/utils/portarias/formatadores", () => ({
-  formatarRF: (value: string) => formatarRFSpy(value),
-  nameToCamelCase: (value: string) => nameToCamelCaseSpy(value),
-  nameToCamelCaseUe: (value: string) => nameToCamelCaseUeSpy(value),
-}));
-
-vi.mock("@/lib/utils", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/utils")>("@/lib/utils");
-  return {
-    ...actual,
-    formatarData: (value: string) => formatarDataSpy(value),
-  };
-});
-
-type UseFetchApostilaByIdReturn = ReturnType<typeof useFetchApostilaById>;
-const mockUseFetchApostilaByIdReturn = ({
-  data,
-  isLoading,
-  error,
-}: {
-  data: unknown;
+function mockUseFetchApostilaById(state: {
+  data: ApostilaFetchData;
   isLoading: boolean;
-  error: { message: string } | null;
-}): UseFetchApostilaByIdReturn =>
-  ({
-    data,
-    isLoading,
-    error,
-  }) as unknown as UseFetchApostilaByIdReturn;
+  error: Error | null;
+}) {
+  vi.mocked(useFetchApostilaById).mockReturnValue(
+    state as ReturnType<typeof useFetchApostilaById>,
+  );
+}
 
 describe("VisualizarApostila page", () => {
-  const designacaoMock = {
+  const cessacaoMock: Cessacao = {
+    id: 88,
+    numero_portaria: 10,
+    ano_vigente: "2025",
+    sei_numero: "6016.2025/0001-1",
+    a_pedido: false,
+    remocao: false,
+    aposentadoria: false,
+    data_cessacao: "2025-10-10",
+    doc: "2025-10-11",
+    criado_em: "2025-10-11T10:00:00Z",
+    status: "cessada",
+    ato_pai_id: 70,
+    apostilas: [],
+    insubsistencia: null,
+    texto_sei: "Texto da cessação",
+    modelo_portaria: 1,
+  };
+
+  const designacaoMock: DesignacaoResponse = {
     id: 20,
     tipo: "DESIGNACAO",
-    status: "ativa",
+    status: "ativo",
     ato_pai_id: null,
     ato_raiz_id: null,
     impedimento_substituicao_detail: null,
@@ -199,7 +194,7 @@ describe("VisualizarApostila page", () => {
     titular_codigo_cargo_sobreposto: 0,
     titular_local_exercicio: "",
     titular_local_servico: "",
-    numero_portaria: "001",
+    numero_portaria: 1,
     ano_vigente: "2026",
     sei_numero: "6016.2026/0001-2",
     portaria: "PORTARIA-1",
@@ -218,27 +213,14 @@ describe("VisualizarApostila page", () => {
     criado_em: "2026-01-01T10:00:00Z",
     apostilas: [],
     insubsistencia: null,
-    cessacao: {
-      id: 88,
-      numero_portaria: "010",
-      ano_vigente: "2025",
-      sei_numero: "6016.2025/0001-1",
-      a_pedido: false,
-      remocao: false,
-      aposentadoria: false,
-      data_cessacao: "2025-10-10",
-      doc: "2025-10-11",
-      criado_em: "2025-10-11T10:00:00Z",
-      status: "cessada",
-      ato_pai_id: 70,
-      apostilas: [],
-      insubsistencia: null,
-    },
+    cessacao: cessacaoMock,
+    texto_sei: "Texto da designação",
+    modelo_portaria: 1,
   };
 
-  const apostilaMock = {
+  const apostilaMock: ApostilaDetailRead = {
     id: 12,
-    numero_portaria: "001",
+    numero_portaria: 1,
     tipo: "APOSTILA",
     ato_apostilado: "CESSACAO",
     ato_apostilado_display: "Cessação",
@@ -248,28 +230,23 @@ describe("VisualizarApostila page", () => {
     observacao: "Observação",
     criado_em: "2026-01-01T10:00:00Z",
     designacao: designacaoMock,
-    cessacao: designacaoMock.cessacao,
+    cessacao: cessacaoMock,
+    texto_sei: "Texto da apostila pronto vindo do backend",
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
     useParamsMock.mockReturnValue({ id: "12" });
     pushMock.mockReset();
-    formatarRFSpy.mockImplementation((value) => `RF-${value}`);
-    nameToCamelCaseSpy.mockImplementation((value) => `camel-${value}`);
-    nameToCamelCaseUeSpy.mockImplementation((value) => `ue-${value}`);
-    formatarDataSpy.mockImplementation((value) => `data-${value}`);
-    preencherTemplateSpy.mockImplementation(
-      (_template: string, dados: Record<string, string>) => JSON.stringify(dados),
-    );
+    gerarHtmlPortariaSpy.mockImplementation((html: string) => html);
   });
 
   it("renderiza loading quando consulta está carregando", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+    mockUseFetchApostilaById({
       data: undefined,
       isLoading: true,
       error: null,
-    }));
+    });
 
     render(<VisualizarApostilaPage />);
 
@@ -279,11 +256,11 @@ describe("VisualizarApostila page", () => {
   });
 
   it("renderiza mensagem de erro quando a consulta falha", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+    mockUseFetchApostilaById({
       data: undefined,
       isLoading: false,
-      error: { message: "Erro ao carregar" },
-    }));
+      error: new Error("Erro ao carregar"),
+    });
 
     render(<VisualizarApostilaPage />);
 
@@ -291,11 +268,11 @@ describe("VisualizarApostila page", () => {
   });
 
   it("renderiza o conteúdo completo quando há apostila e designação", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+    mockUseFetchApostilaById({
       data: apostilaMock,
       isLoading: false,
       error: null,
-    }));
+    });
 
     render(<VisualizarApostilaPage />);
 
@@ -316,6 +293,12 @@ describe("VisualizarApostila page", () => {
         defaultValues: apostilaMock,
       }),
     );
+    expect(resumoPortariaEIndicadoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        designacao: designacaoMock,
+        isLoadingDesignacao: false,
+      }),
+    );
     expect(editorSEISpy).toHaveBeenCalledWith(
       expect.objectContaining({
         titulo: "PORTARIA",
@@ -325,30 +308,46 @@ describe("VisualizarApostila page", () => {
   });
 
   it("navega ao clicar em consultar histórico", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+    mockUseFetchApostilaById({
       data: apostilaMock,
       isLoading: false,
       error: null,
-    }));
+    });
 
     render(<VisualizarApostilaPage />);
 
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo_display=da apostila&numero_portaria=001&servidor_indicado=Servidor & Nome",
+      "/pages/historico-ato-administrativo?id=12&tipo_display=da apostila&numero_portaria=1&servidor_indicado=Servidor & Nome",
+    );
+  });
+
+  it("usa fallbacks no histórico quando apostila ou designação estão ausentes", () => {
+    mockUseFetchApostilaById({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    });
+
+    render(<VisualizarApostilaPage />);
+
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenCalledWith(
+      "/pages/historico-ato-administrativo?id=12&tipo_display=da apostila&numero_portaria=undefined&servidor_indicado=undefined",
     );
   });
 
   it("não renderiza accordion quando não há designação", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+    mockUseFetchApostilaById({
       data: {
         ...apostilaMock,
         designacao: null,
       },
       isLoading: false,
       error: null,
-    }));
+    });
 
     render(<VisualizarApostilaPage />);
 
@@ -356,177 +355,52 @@ describe("VisualizarApostila page", () => {
     expect(screen.getByTestId("editor-sei")).toBeInTheDocument();
   });
 
-  it("gera HTML inicial com escape, negrito e filtros da apostila", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
-      data: {
-        ...apostilaMock,
-        designacao: {
-          ...designacaoMock,
-          indicado_nome_servidor: "Servidor & Nome",
-        },
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarApostilaPage />);
-
-    const dados = preencherTemplateSpy.mock.calls[0][1] as Record<string, string>;
-
-    expect(formatarRFSpy).toHaveBeenCalledWith("1234567");
-    expect(nameToCamelCaseSpy).toHaveBeenCalledWith("PROFESSOR");
-    expect(nameToCamelCaseUeSpy).toHaveBeenCalledWith("EMEF TESTE");
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-APOSTILA",
-      expect.objectContaining({
-        nome_indicado: "<strong>Servidor &amp; Nome</strong>",
-        portaria_designacao: "010",
-        sei_designacao: "6016.2025/0001-1",
-        rf: "RF-1234567",
-        cargo_base: "camel-PROFESSOR",
-        ue: "ue-EMEF TESTE",
-      }),
-    );
-    expect(Object.values(dados)).not.toContain(undefined);
-    expect(Object.values(dados)).not.toContain(null);
-    expect(editorSEISpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        html: expect.stringContaining("<strong>Servidor &amp; Nome</strong>"),
-      }),
-    );
-  });
-
-  it("usa fallback '-' quando valor da designação vem ausente", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
-      data: {
-        ...apostilaMock,
-        designacao: {
-          ...designacaoMock,
-          dre_nome: undefined,
-          codigo_hierarquico: undefined,
-          indicado_vinculo: undefined,
-        },
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarApostilaPage />);
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-APOSTILA",
-      expect.objectContaining({
-        dre: "-",
-        eh: "-",
-        vinculo: "-",
-      }),
-    );
-  });
-
-  it("usa dados da designação quando ato_apostilado não é CESSACAO", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
-      data: {
-        ...apostilaMock,
-        ato_apostilado: "DESIGNACAO",
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarApostilaPage />);
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-APOSTILA",
-      expect.objectContaining({
-        portaria_designacao: "001",
-        sei_designacao: "6016.2026/0001-2",
-      }),
-    );
-  });
-
-  it("aplica fallbacks quando a fonte de dados da apostila está ausente", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
-      data: {
-        ...apostilaMock,
-        doc: "",
-        observacao: null,
-        ato_apostilado: "CESSACAO",
-        cessacao: undefined,
-        designacao: {
-          ...designacaoMock,
-          indicado_nome_servidor: "",
-        },
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarApostilaPage />);
-
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-APOSTILA",
-      expect.objectContaining({
-        doc: "",
-        ano: "-",
-        sei_designacao: "-",
-        doc_designacao: "",
-        portaria_designacao: "-",
-        observacao: "",
-        nome_indicado: "",
-      }),
-    );
-  });
-
-  it("aplica fallback '-' nos dados do servidor quando a designação vem vazia", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
-      data: {
-        ...apostilaMock,
-        designacao: {},
-      },
-      isLoading: false,
-      error: null,
-    }));
-
-    render(<VisualizarApostilaPage />);
-
-    expect(formatarRFSpy).toHaveBeenCalledWith("-");
-    expect(nameToCamelCaseSpy).toHaveBeenCalledWith("-");
-    expect(nameToCamelCaseUeSpy).toHaveBeenCalledWith("-");
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "TEMPLATE-APOSTILA",
-      expect.objectContaining({
-        rf: "RF--",
-        cargo_base: "camel--",
-        ue: "ue--",
-        cargo: "camel--",
-        nome_indicado: "<strong>-</strong>",
-      }),
-    );
-  });
-
-  it("descarta campos indefinidos antes de preencher o template", () => {
-    formatarDataSpy.mockReturnValue(undefined);
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+  it("exibe o texto_sei do backend no editor, sem montar template no cliente", () => {
+    mockUseFetchApostilaById({
       data: apostilaMock,
       isLoading: false,
       error: null,
-    }));
+    });
 
     render(<VisualizarApostilaPage />);
 
-    const dados = preencherTemplateSpy.mock.calls[0][1] as Record<string, string>;
-    expect(dados).not.toHaveProperty("doc");
+    expect(gerarHtmlPortariaSpy).toHaveBeenCalledWith(apostilaMock.texto_sei);
+    expect(editorSEISpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: apostilaMock.texto_sei,
+        titulo: "PORTARIA",
+        mostrarBotao: false,
+      }),
+    );
+  });
+
+  it("repassa string vazia para gerarHtmlPortaria quando texto_sei ainda não veio", () => {
+    mockUseFetchApostilaById({
+      data: { ...apostilaMock, texto_sei: "" },
+      isLoading: false,
+      error: null,
+    });
+
+    render(<VisualizarApostilaPage />);
+
+    expect(gerarHtmlPortariaSpy).toHaveBeenCalledWith("");
+    expect(editorSEISpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: "",
+      }),
+    );
   });
 
   it("mantém editor com html vazio quando não há apostila", () => {
-    vi.mocked(useFetchApostilaById).mockReturnValue(mockUseFetchApostilaByIdReturn({
+    mockUseFetchApostilaById({
       data: undefined,
       isLoading: false,
       error: null,
-    }));
+    });
 
     render(<VisualizarApostilaPage />);
 
+    expect(gerarHtmlPortariaSpy).toHaveBeenCalledWith("");
     expect(editorSEISpy).toHaveBeenCalledWith(
       expect.objectContaining({
         html: "",
