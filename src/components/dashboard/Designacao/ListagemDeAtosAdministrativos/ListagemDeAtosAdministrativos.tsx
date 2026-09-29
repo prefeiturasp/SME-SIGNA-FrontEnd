@@ -275,6 +275,17 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     return items;
   };
 
+  const anularApostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
+    {
+      key: '4',
+      label: 'Editar',
+      icon: <Editar width={20} height={20} color="#9CA3B9" />,
+      onClick: () => {
+        router.push(`/pages/anular-apostila/editar?id=${record.id}&atoPai=${record.ato_pai_id}`);
+      },
+    },
+  ]
+
   const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     return [
       {
@@ -291,36 +302,50 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
 
 
+  // Cada tipo de ato escolhe seu submenu pelo status de publicação; a
+  // insubsistência ainda varia conforme o ato que ela atinge.
+  const porStatus = (
+    record: ListagemAtosAdministrativosResponse,
+    publicada: (r: ListagemAtosAdministrativosResponse) => ItemType[],
+    naoPublicada: (r: ListagemAtosAdministrativosResponse) => ItemType[]
+  ): ItemType[] => {
+    if (record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      return publicada(record);
+    }
+
+    if (record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      return naoPublicada(record);
+    }
+
+    return [];
+  };
+
+  const insubsistenciaMenuItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    const tipoDoAtoAtingido = record.tipo_insubsistencia ?? '';
+
+    if (["DESIGNACAO", "CESSACAO"].includes(tipoDoAtoAtingido)) {
+      return insubsistenciaItems(record);
+    }
+
+    if (tipoDoAtoAtingido === 'APOSTILA') {
+      return porStatus(record, () => [], anularApostilaNaoPublicadaItems);
+    }
+
+    return [];
+  };
+
   const getItems = (record: ListagemAtosAdministrativosResponse): MenuProps['items'] => {
+    const construtoresPorTipo: Record<
+      string,
+      (r: ListagemAtosAdministrativosResponse) => ItemType[]
+    > = {
+      DESIGNACAO: (r) => porStatus(r, designacaoPublicadaItems, desigacaoNaoPublicadaItems),
+      CESSACAO: (r) => porStatus(r, cessacaoPublicadaItems, cessacaoNaoPublicadaItems),
+      APOSTILA: (r) => porStatus(r, apostilaPublicadaItems, apostilaNaoPublicadaItems),
+      INSUBSISTENCIA: insubsistenciaMenuItems,
+    };
 
-    let items: ItemType[] = [];
-    if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
-      items.push(...designacaoPublicadaItems(record));
-    }
-
-    if (record.tipo === 'DESIGNACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
-      items.push(...desigacaoNaoPublicadaItems(record));
-    }
-
-    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
-      items.push(...cessacaoPublicadaItems(record));
-    }
-
-    if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
-      items.push(...cessacaoNaoPublicadaItems(record));
-    }
-    
-    if (record.tipo === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
-      items.push(...apostilaPublicadaItems(record));
-    }
-
-    if (record.tipo === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
-      items.push(...apostilaNaoPublicadaItems(record));
-    }
-    if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) {
-      items.push(...insubsistenciaItems(record));
-    }
-
+    const items = construtoresPorTipo[record.tipo]?.(record) ?? [];
 
     return filtrarItemsDuplicadas(items, record);
   };
