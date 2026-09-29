@@ -22,9 +22,10 @@ interface SelectAnoFieldProps {
   name: string;
   label?: string;
   opcoes?: { codigo: string; nome: string }[];
+  disabled?: boolean;
 }
 
-export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAnoFieldProps) => {
+export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }: SelectAnoFieldProps) => {
   const { control, setValue } = useFormContext();
   const valorSelecionado = useWatch({ control, name });
   const [pendingValue, setPendingValue] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAn
     <FormField
       control={control}
       name={name}
-      defaultValue={currentYear}
+      
       render={({ field }) => {
         const handleValueChange = (value: string) => {
           if (!opcoes && value !== currentYear) {
@@ -71,9 +72,9 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAn
               {label}*
             </FormLabel>
             <FormControl>
-              <Select
-                value={field.value || currentYear}
-                onValueChange={handleValueChange}
+              <Select                
+                value={field.value !=="" ? field.value : currentYear}                
+                disabled={disabled}
               >
                 <SelectTrigger data-testid="select-ano">
                   <SelectValue placeholder="Selecione um ano" />
@@ -81,7 +82,9 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes }: SelectAn
 
                 <SelectContent>
                   {anos.map((ano) => (
-                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`}>
+                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`} onClick={() => {
+                      handleValueChange(ano.codigo);
+                    }}>
                       {ano.nome}
                     </SelectItem>
                   ))}

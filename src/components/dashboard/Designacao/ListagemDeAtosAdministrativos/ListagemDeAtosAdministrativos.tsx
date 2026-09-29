@@ -243,7 +243,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     ...cessacaoPublicadaItems(record),    
   ]
 
-  const apostilaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+  const apostilaPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     const items: ItemType[] = [
       {
         key: '6',
@@ -254,6 +254,23 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
           router.push(`/pages/anular-apostila?id=${record.id}`);
         },
       }
+    ]
+    return items;
+  };
+  const apostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    const origem = record?.tipo_de_ato.includes("Cessação") ? 'cessacao' : 'designacao';
+    
+    const items: ItemType[] = [
+      {
+        key: '4',
+        label: 'Editar Apostila',
+        icon: <Editar width={20} height={20} color="#9CA3B9" />,
+        onClick: (e) => {
+          e.domEvent.preventDefault();
+          router.push(`/pages/apostila?origem=${origem}&apostila_id=${record.id}`);
+        },        
+      },
+      ...apostilaPublicadaItems(record),      
     ]
     return items;
   };
@@ -296,7 +313,6 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...desigacaoNaoPublicadaItems(record));
     }
 
-
     if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
       items.push(...cessacaoPublicadaItems(record));
     }
@@ -304,12 +320,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     if (record.tipo === 'CESSACAO' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
       items.push(...cessacaoNaoPublicadaItems(record));
     }
-
     
-    if (record.tipo === 'APOSTILA') {
-      items.push(...apostilaItems(record));
+    if (record.tipo === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+      items.push(...apostilaPublicadaItems(record));
     }
 
+    if (record.tipo === 'APOSTILA' && record.status_publicacao === StatusAtosAdministrativos.NAO_PUBLICADO) {
+      items.push(...apostilaNaoPublicadaItems(record));
+    }
     if (record.tipo === 'INSUBSISTENCIA' && record.tipo_insubsistencia && ["DESIGNACAO", "CESSACAO"].includes(record.tipo_insubsistencia)) {
       items.push(...insubsistenciaItems(record));
     }
@@ -318,6 +336,11 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
       items.push(...anularApostilaNaoPublicadaItems(record));
     }
 
+    return filtrarItemsDuplicadas(items, record);
+  };
+
+
+  const filtrarItemsDuplicadas = (items: ItemType[], record: ListagemAtosAdministrativosResponse) => {
     // remove as funções que ja foram executadas e não podem ser duplicadas
     // não pode cessar 2 vezes o mesmo ato
     if (record.cessacao) {
@@ -325,7 +348,8 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         item?.key !== '2'
       )
     }
-
+   
+   
     //não pode insubsistir 2 vezes o mesmo ato 
     // 3 'Tornar insubsistente',
     // 6 'Anular Apostila',
@@ -335,11 +359,8 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
         item?.key !== '3' && item?.key !== '6' && item?.key !== '7'
       )
     }
-
     return items;
-
-  };
-
+  }
   const getTooltipContent = (record: ListagemAtosAdministrativosResponse) => {
     const [data, hora] = formatarDataHora(record.criado_em).split(', ');
 
