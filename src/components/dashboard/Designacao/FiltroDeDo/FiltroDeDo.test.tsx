@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import FiltroDeDo from "./FiltroDeDo";
 
 const watchValues: Record<string, string> = {};
-const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
+const onChangeByField: Record<string, Mock<(value: string) => void>> = {};
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
@@ -48,6 +48,37 @@ vi.mock("@/components/ui/form", () => ({
   FormMessage: () => <span data-testid="form-message" />,
   FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
   FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+
+vi.mock("@/components/ui/SelectAnoField", () => ({
+  SelectAnoField: ({
+    name,
+    opcoes,
+  }: {
+    name: string;
+    opcoes?: Array<{ codigo: string; nome: string }>;
+  }) => {
+    if (!onChangeByField[name]) {
+      onChangeByField[name] = vi.fn<(value: string) => void>();
+    }
+
+    return (
+      <div>
+        <button
+          type="button"
+          data-testid="select-ano"
+          onClick={() => {
+            onChangeByField[name]?.("mock-value");
+          }}
+        >
+          trigger-select
+        </button>
+        {(opcoes ?? []).map((opcao) => (
+          <span key={opcao.codigo}>{opcao.nome}</span>
+        ))}
+      </div>
+    );
+  },
 }));
 
 vi.mock("@/components/ui/select", () => ({

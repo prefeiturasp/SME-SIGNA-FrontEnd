@@ -178,7 +178,7 @@ describe("formSchemaApostila", () => {
       ]);
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
         "Digite o número do SEI",
-        "Digite o número da Portaria",
+        "Digite o número da Portaria de Apostila",
       ]);
     }
   });

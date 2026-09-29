@@ -13,10 +13,10 @@ import ModalListaCursosTitulos from "../ModalListaCursosTitulo/ModalListaCursosT
 
 
 
-
-const CamposEditarServidor = (
-
-) => {
+interface Props {
+  disabled?: boolean;
+}
+const CamposEditarServidor = ({ disabled }: Props) => { 
 
   const { register, control } = useFormContext();
   const [
@@ -58,6 +58,7 @@ const CamposEditarServidor = (
       <div className="grid gap-4 lg:grid-cols-2 lg:items-center xl:grid-cols-4 " >
         <div className="w-full">
           <InputField
+            disabled={disabled}
             register={register}
             control={control}
             name="nome_servidor"
@@ -68,6 +69,7 @@ const CamposEditarServidor = (
         </div>
         <div className="w-full">
           <InputField
+            disabled={disabled}
             register={register}
             control={control}
             name="nome_civil"
