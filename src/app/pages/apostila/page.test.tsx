@@ -1,13 +1,16 @@
-import React from "react";
 import type { ReactNode } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApostilaPage from "./page";
 import type { formSchemaApostilaData } from "./schema";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 let mockIsLoading = false;
 let mockId: string | null = "1";
 let mockOrigem: string | null = null;
+let mockIsDirty = false;
+let mockIsValid = true;
+let mockDirtyFields: Record<string, unknown> = {};
 
 type DesignacaoMock = {
   numero_portaria?: string;
@@ -20,7 +23,16 @@ type DesignacaoMock = {
   indicado_cargo_base?: string;
   indicado_cargo_sobreposto?: string;
   indicado_local_exercicio?: string;
+  indicado_nome_civil?: string;
+  indicado_lotacao?: string;
+  indicado_categoria?: string;
+  cargo_vaga?: number | null;
+  tipo_vaga?: "VAGO" | "DISPONIVEL" | string;
+  titular_cargo_sobreposto?: string;
+  dre?: string;
   dre_nome?: string;
+  ue?: string;
+  unidade_proponente?: string;
   codigo_hierarquico?: string;
   data_inicio?: string;
   data_fim?: string | null;
@@ -28,12 +40,21 @@ type DesignacaoMock = {
   impedimento_substituicao?: string | null;
   com_afastamento?: boolean;
   motivo_afastamento?: string;
+  possui_pendencia?: boolean;
   pendencias?: string;
+  informacoes_adicionais?: string;
+  detalhe_para_quadro_de_historico_por_ano?: boolean | string;
+  titular_cargo_base?: string;
   cessacao?: {
     numero_portaria?: string;
     ano_vigente?: string;
     sei_numero?: string;
     doc?: string;
+    a_pedido?: boolean;
+    data_cessacao?: string;
+    remocao?: boolean;
+    aposentadoria?: boolean;
+    id?: number;
   } | null;
 } | null;
 
@@ -48,8 +69,12 @@ const designacaoPadrao: NonNullable<DesignacaoMock> = {
   indicado_cargo_base: "PROFESSOR",
   indicado_cargo_sobreposto: "COORDENADOR",
   indicado_local_exercicio: "ESCOLA",
+  dre: "108200",
   dre_nome: "DRE",
+  ue: "UE-1",
+  unidade_proponente: "UE Teste",
   codigo_hierarquico: "EH",
+  tipo_vaga: "VAGO",
   cessacao: null,
 };
 
@@ -57,19 +82,41 @@ let mockDesignacaoAtual: DesignacaoMock = designacaoPadrao;
 
 const valoresPadrao: formSchemaApostilaData = {
   ato_apostilado: "designação",
+  apostila: {
+    numero_sei: "",
+    numero_portaria: "",
+    doc: "",
+    observacao: "",
+  },
+  dre: "",
+  dre_nome: "",
+  ue: "",
+  ue_nome: "",
+  codigo_hierarquico: "",
   informacoes_adicionais: "",
   detalhe_para_quadro_de_historico_por_ano: false,
-  texto_para_apostila: "",
+  texto_portaria: "",
+  nome_servidor: "",
   portaria_designacao: "",
   numero_sei: "",
   a_partir_de: new Date(),
   ano: "",
-  carater_especial: "",
-  com_afastamento: "",
+  carater_especial: EnumCheckbox.NAO,
+  com_afastamento: EnumCheckbox.NAO,
+  com_pendencia: EnumCheckbox.NAO,
   motivo_afastamento: "",
-  impedimento_label: "",  
-  com_pendencia: "",
+  impedimento_label: "",
   motivo_pendencia: "",
+  cessacao: {
+    numero_portaria: "",
+    ano: "",
+    numero_sei: "",
+    doc: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: new Date(),
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+  },  
 };
 
 const {
@@ -79,30 +126,60 @@ const {
   handleSubmitMock,
   notificationSuccessMock,
   notificationErrorMock,
-  gerarHtmlPortariaMock,
   pageHeaderSpy,
   accordionSpy,
   customAccordionItemSpy,
+  portariaApostilaFieldsSpy,
   portariaDesignacaoFieldsSpy,
+  portariaCessacaoFieldsSpy,
   informacoesAdicionaisSpy,
-  textoPraApostilaSpy,
+  camposPesquisaUnidadeSpy,
+  camposEditarServidorSpy,
+  selectFieldSpy,
+  inputFieldSpy,
+  simpleEditorSpy,
+  editorOnChangeMock,
   resetMock,
+  salvarApostilaMutateAsyncMock,
 } = vi.hoisted(() => {
-  const getValuesMock = vi.fn((): formSchemaApostilaData => ({
+  const getValuesMock = vi.fn((): formSchemaApostilaData => ( 
+    {
     ato_apostilado: "designação",
+    apostila: {
+      numero_sei: "",
+      numero_portaria: "",
+      doc: "",
+      observacao: "",
+    },
+    dre: "",
+    dre_nome: "",
+    ue: "",
+    ue_nome: "",
+    codigo_hierarquico: "",
     informacoes_adicionais: "",
     detalhe_para_quadro_de_historico_por_ano: false,
-    texto_para_apostila: "",
+    texto_portaria: "",
+    nome_servidor: "",
     portaria_designacao: "",
     numero_sei: "",
     a_partir_de: new Date(),
     ano: "",
-    carater_especial: "",
-    com_afastamento: "",
+    carater_especial: EnumCheckbox.NAO,
+    com_afastamento: EnumCheckbox.NAO,
+    com_pendencia: EnumCheckbox.NAO,
     motivo_afastamento: "",
     impedimento_label: "",
-    com_pendencia: "",
     motivo_pendencia: "",
+    cessacao: {
+      numero_portaria: "",
+      ano: "",
+      numero_sei: "",
+      doc: "",
+      a_pedido: EnumCheckbox.NAO,
+      data_inicio: new Date(),
+      remocao: EnumCheckbox.NAO,
+      aposentadoria: EnumCheckbox.NAO,
+    },
   }));
 
   return {
@@ -118,14 +195,21 @@ const {
     ),
     notificationSuccessMock: vi.fn(),
     notificationErrorMock: vi.fn(),
-    gerarHtmlPortariaMock: vi.fn((texto: string) => `HTML:${texto}`),
     pageHeaderSpy: vi.fn(),
     accordionSpy: vi.fn(),
     customAccordionItemSpy: vi.fn(),
+    portariaApostilaFieldsSpy: vi.fn(),
     portariaDesignacaoFieldsSpy: vi.fn(),
+    portariaCessacaoFieldsSpy: vi.fn(),
     informacoesAdicionaisSpy: vi.fn(),
-    textoPraApostilaSpy: vi.fn(),
+    camposPesquisaUnidadeSpy: vi.fn(),
+    camposEditarServidorSpy: vi.fn(),
+    selectFieldSpy: vi.fn(),
+    inputFieldSpy: vi.fn(),
+    simpleEditorSpy: vi.fn(),
+    editorOnChangeMock: vi.fn(),
     resetMock: vi.fn(),
+    salvarApostilaMutateAsyncMock: vi.fn(),
   };
 });
 
@@ -158,21 +242,24 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
   }),
 }));
 
-vi.mock("@/utils/portarias/templates", () => ({
-  TEMPLATE_APOSTILA: "TEMPLATE {{nome_indicado}} {{portaria_designacao}} {{sei_designacao}}",
+vi.mock("@/hooks/useCargos", () => ({
+  useFetchCargos: () => ({
+    data: [
+      { codigoCargo: 10, nomeCargo: "Professor" },
+      { codigoCargo: 20, nomeCargo: "Coordenador" },
+    ],
+  }),
+}));
+
+vi.mock("@/hooks/useSalvarApostila", () => ({
+  useSalvarApostila: () => ({
+    mutateAsync: salvarApostilaMutateAsyncMock,
+  }),
 }));
 
 vi.mock("@/utils/portarias/formatadores", () => ({
   nameToCamelCase: (valor: string) => valor,
-  nameToCamelCaseUe: (valor: string) => valor,
   formatarRF: (valor: string) => valor,
-  formatarDataPtBr: (valor?: string) => valor ?? "-",
-}));
-
-vi.mock("@/components/dashboard/EditorTextoSEI/EditorTextoSEI", () => ({
-  __esModule: true,
-  default: ({ html }: { html: string }) => <div data-testid="editor">{html}</div>,
-  gerarHtmlPortaria: (texto: string) => gerarHtmlPortariaMock(texto),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -209,6 +296,13 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
   },
 }));
 
+vi.mock("@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields", () => ({
+  default: () => {
+    portariaApostilaFieldsSpy();
+    return <div data-testid="portaria-apostila-fields" />;
+  },
+}));
+
 vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields", () => ({
   default: (props: { isLoading: boolean }) => {
     portariaDesignacaoFieldsSpy(props);
@@ -216,10 +310,24 @@ vi.mock("@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesig
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/TextoPraApostila/TextoPraApostila", () => ({
-  default: (props: { disableFields: boolean }) => {
-    textoPraApostilaSpy(props);
-    return <div data-testid="texto-pra-apostila" />;
+vi.mock("@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields", () => ({
+  default: () => {
+    portariaCessacaoFieldsSpy();
+    return <div data-testid="portaria-cessacao-fields" />;
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade", () => ({
+  default: () => {
+    camposPesquisaUnidadeSpy();
+    return <div data-testid="campos-pesquisa-unidade" />;
+  },
+}));
+
+vi.mock("@/components/dashboard/Designacao/ModalEditarServidor/CamposEditarServidor", () => ({
+  default: () => {
+    camposEditarServidorSpy();
+    return <div data-testid="campos-editar-servidor" />;
   },
 }));
 
@@ -247,9 +355,85 @@ vi.mock("@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdic
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
-    <button {...props}>{children}</button>
+  Button: ({
+    children,
+    type,
+    onClick,
+    disabled,
+    "data-testid": dataTestId,
+  }: {
+    children: ReactNode;
+    type?: "button" | "submit" | "reset";
+    onClick?: () => void | Promise<void>;
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => (
+    <button type={type} onClick={() => void onClick?.()} disabled={disabled} data-testid={dataTestId}>
+      {children}
+    </button>
   ),
+}));
+
+vi.mock("@/components/ui/FieldsForm", () => ({
+  EnumCheckbox: {
+    SIM: "sim",
+    NAO: "nao",
+  },
+  SelectField: (props: {
+    name: string;
+    label: string;
+    options: Array<{ value: string; label: string }>;
+    disabled?: boolean;
+  }) => {
+    selectFieldSpy(props);
+    return <div data-testid="select-codigo-cargo-eol">{props.label}</div>;
+  },
+  InputField: (props: {
+    name: string;
+    label: string;
+    disabled?: boolean;
+    "data-testid"?: string;
+  }) => {
+    inputFieldSpy(props);
+    return <input aria-label={props.label} data-testid={props["data-testid"]} disabled={props.disabled} />;
+  },
+}));
+
+vi.mock("@/components/ui/form", () => ({
+  FormField: ({
+    render,
+  }: {
+    render: (args: {
+      field: { value: string; onChange: (value: string) => void };
+      fieldState: { error?: { message: string } };
+    }) => ReactNode;
+  }) =>
+    render({
+      field: {
+        value: "Texto SEI inicial",
+        onChange: editorOnChangeMock,
+      },
+      fieldState: {},
+    }),
+  FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
+  FormMessage: () => <div data-testid="form-message" />,
+}));
+
+vi.mock("@/components/ui/tiptap-templates/simple/simple-editor", () => ({
+  SimpleEditor: (props: {
+    hasError: boolean;
+    content: string;
+    onChange: (value: string) => void;
+  }) => {
+    simpleEditorSpy(props);
+    return (
+      <button type="button" data-testid="simple-editor" onClick={() => props.onChange("Texto editado")}>
+        {props.content}
+      </button>
+    );
+  },
 }));
 
 vi.mock("antd", () => ({
@@ -268,7 +452,12 @@ vi.mock("react-hook-form", async () => {
     useForm: () => ({
       handleSubmit: handleSubmitMock,
       control: {},
-      formState: { errors: {} },
+      formState: {
+        errors: {},
+        isDirty: mockIsDirty,
+        isValid: mockIsValid,
+        dirtyFields: mockDirtyFields,
+      },
       trigger: triggerMock,
       getValues: getValuesMock,
       register: vi.fn(),
@@ -284,9 +473,13 @@ describe("ApostilaPage", () => {
     mockIsLoading = false;
     mockId = "1";
     mockOrigem = null;
+    mockIsDirty = false;
+    mockIsValid = true;
+    mockDirtyFields = {};
     mockDesignacaoAtual = designacaoPadrao;
     triggerMock.mockResolvedValue(true);
     getValuesMock.mockReturnValue({ ...valoresPadrao });
+    salvarApostilaMutateAsyncMock.mockResolvedValue({ id: 1 });
     notificationSuccessMock.mockReset();
     notificationErrorMock.mockReset();
   });
@@ -297,19 +490,21 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("loading")).toBeInTheDocument();
-    expect(screen.queryByTestId("texto-pra-apostila")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
   });
 
   it("renderiza o título de apostila de designação por padrão", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de designação");
-    expect(screen.getByText("Texto para a apostila")).toBeInTheDocument();
     expect(screen.getByText("Informações adicionais")).toBeInTheDocument();
     expect(screen.getByTestId("accordion")).toBeInTheDocument();
-    expect(screen.getByTestId("custom-accordion-item")).toBeInTheDocument();
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(5);
+    expect(screen.getByTestId("portaria-apostila-fields")).toBeInTheDocument();
     expect(screen.getByTestId("portaria-designacao-fields")).toBeInTheDocument();
-    expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
+    expect(screen.getByTestId("campos-pesquisa-unidade")).toBeInTheDocument();
+    expect(screen.getByTestId("campos-editar-servidor")).toBeInTheDocument();
+    expect(screen.getByTestId("select-codigo-cargo-eol")).toBeInTheDocument();
     expect(screen.getByTestId("informacoes-adicionais")).toBeInTheDocument();
     expect(pageHeaderSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -320,18 +515,31 @@ describe("ApostilaPage", () => {
         ],
       }),
     );
-    expect(textoPraApostilaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ disableFields: false }),
-    );
     expect(informacoesAdicionaisSpy).toHaveBeenCalledWith(
       expect.objectContaining({ disableFields: false }),
     );
     expect(accordionSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         type: "multiple",
-        defaultValue: ["portarias-designacao", "servidor-indicado"],
+        defaultValue: [
+          "portaria-apostila",
+          "portarias-designacao",
+          "unidade-proponente",
+          "servidor-indicado",
+          "cargo-disponivel",
+          "cargo-vago",
+          "portarias-cessacao",
+        ],
       }),
     );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portaria de Apostila",
+        color: "silver",
+        value: "portaria-apostila",
+      }),
+    );
+    expect(portariaApostilaFieldsSpy).toHaveBeenCalledTimes(1);
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Portarias de designação",
@@ -340,6 +548,37 @@ describe("ApostilaPage", () => {
       }),
     );
     expect(portariaDesignacaoFieldsSpy).toHaveBeenCalledWith({ isLoading: false });
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Unidade Proponente",
+        color: "blue",
+        value: "unidade-proponente",
+      }),
+    );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Servidor Indicado",
+        color: "gold",
+        value: "servidor-indicado",
+      }),
+    );
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Cargo vago",
+        color: "green",
+        value: "cargo-vago",
+      }),
+    );
+    expect(selectFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "cd_cargo_base",
+        label: "Cargo",
+        options: [
+          { value: "10", label: "Professor" },
+          { value: "20", label: "Coordenador" },
+        ],
+      }),
+    );
   });
 
   it("renderiza o título de apostila de cessação quando a origem é cessacao", () => {
@@ -348,12 +587,49 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de cessação");
+    expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(6);
+    expect(screen.getByTestId("portaria-cessacao-fields")).toBeInTheDocument();
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portaria de cessação",
+        color: "silver",
+        value: "portarias-cessacao",
+      }),
+    );
+    expect(portariaCessacaoFieldsSpy).toHaveBeenCalledTimes(1);
     expect(pageHeaderSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         breadcrumbs: [
           { title: "Início", href: "/" },
           { title: "Apostila de cessação" },
         ],
+      }),
+    );
+  });
+
+  it("renderiza cargo disponível como campo desabilitado quando tipo_vaga é DISPONIVEL", () => {
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      tipo_vaga: "DISPONIVEL",
+      titular_cargo_sobreposto: "Diretor",
+    };
+
+    render(<ApostilaPage />);
+
+    expect(screen.queryByTestId("select-codigo-cargo-eol")).not.toBeInTheDocument();
+    expect(screen.getByTestId("input-cargo-base")).toBeDisabled();
+    expect(customAccordionItemSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Cargo disponível",
+        color: "green",
+        value: "cargo-disponivel",
+      }),
+    );
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "titular_cargo_sobreposto",
+        label: "Cargo",
+        disabled: true,
       }),
     );
   });
@@ -368,6 +644,190 @@ describe("ApostilaPage", () => {
         title: "Apostila salva com sucesso!",
       });
       expect(pushMock).toHaveBeenCalledWith("/pages/atos-administrativos");
+    });
+  });
+
+  it("envia payload de apostila de designação com alterações mapeadas", async () => {
+    mockId = "42";
+    mockOrigem = "designacao";
+    mockDirtyFields = {
+      apostila: { numero_sei: true },
+      portaria_designacao: true,
+      com_afastamento: true,
+      detalhe_para_quadro_de_historico_por_ano: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "DOC-APOSTILA",
+        observacao: "Observação apostila",
+      },
+      portaria_designacao: "654",
+      com_afastamento: EnumCheckbox.SIM,
+      detalhe_para_quadro_de_historico_por_ano: false,
+      texto_portaria: "Texto SEI apostila",
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: {
+          ato_pai: 42,
+          sei_numero: "SEI-APOSTILA",
+          numero_portaria: "321",
+          doc: "DOC-APOSTILA",
+          observacao: "Observação apostila",
+          texto_sei: "Texto SEI apostila",
+          alteracoes: [
+            {
+              campo_alterado: "numero_portaria",
+              valor_novo: "654",
+            },
+            {
+              campo_alterado: "com_afastamento",
+              valor_novo: "True",
+            },
+            {
+              campo_alterado: "detalhe_para_quadro_de_historico_por_ano",
+              valor_novo: "False",
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  it("mapeia datas e flags positivas nas alterações da designação", async () => {
+    mockId = "42";
+    mockOrigem = "designacao";
+    mockDirtyFields = {
+      a_partir_de: true,
+      designacao_data_final: true,
+      carater_especial: true,
+      com_pendencia: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "",
+        observacao: "",
+      },
+      a_partir_de: new Date("2026-04-05"),
+      designacao_data_final: new Date("2026-05-06"),
+      detalhe_para_quadro_de_historico_por_ano: true,
+      carater_especial: EnumCheckbox.SIM,
+      com_pendencia: EnumCheckbox.SIM,
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: expect.objectContaining({
+          alteracoes: [
+            {
+              campo_alterado: "data_inicio",
+              valor_novo: "2026-04-05",
+            },
+            {
+              campo_alterado: "data_fim",
+              valor_novo: "2026-05-06",
+            },
+            {
+              campo_alterado: "carater_excepcional",
+              valor_novo: "True",
+            },
+            {
+              campo_alterado: "possui_pendencia",
+              valor_novo: "True",
+            },
+          ],
+        }),
+      });
+    });
+  });
+
+  it("envia payload de apostila de cessação com alterações do ato pai e da designação", async () => {
+    mockOrigem = "cessacao";
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      cessacao: {
+        id: 77,
+        numero_portaria: "987",
+        ano_vigente: "2025",
+        sei_numero: "SEI-CESS",
+      },
+    };
+    mockDirtyFields = {
+      cessacao: true,
+      numero_sei: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA-CESS",
+        numero_portaria: "998",
+        doc: "",
+        observacao: "",
+      },
+      numero_sei: "SEI-DESIGNACAO-NOVO",
+      cessacao: {
+        numero_portaria: "456",
+        ano: "2026",
+        numero_sei: "SEI-CESS-NOVO",
+        doc: "",
+        a_pedido: EnumCheckbox.SIM,
+        data_inicio: new Date("2026-02-10"),
+        remocao: EnumCheckbox.SIM,
+        aposentadoria: EnumCheckbox.SIM,
+      },
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: expect.objectContaining({
+          ato_pai: 77,
+          sei_numero: "SEI-APOSTILA-CESS",
+          numero_portaria: "998",
+          alteracoes: expect.arrayContaining([
+            {
+              campo_alterado: "numero_portaria",
+              valor_novo: "456",
+            },
+            {
+              campo_alterado: "ano_vigente",
+              valor_novo: "2026",
+            },
+            {
+              campo_alterado: "sei_numero",
+              valor_novo: "SEI-CESS-NOVO",
+            },
+            {
+              campo_alterado: "data_cessacao",
+              valor_novo: "2026-02-10",
+            },
+            {
+              campo_alterado: "remocao",
+              valor_novo: "True",
+            },
+            {
+              campo_alterado: "sei_numero",
+              tipo_ato_alvo: "DESIGNACAO",
+              valor_novo: "SEI-DESIGNACAO-NOVO",
+            },
+          ]),
+        }),
+      });
     });
   });
 
@@ -398,17 +858,17 @@ describe("ApostilaPage", () => {
     });
   });
 
-  it("gera o texto SEI e mostra o editor", async () => {
+  it("gera o texto SEI e mostra o SimpleEditor", async () => {
     render(<ApostilaPage />);
 
     fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("editor")).toBeInTheDocument();
+      expect(screen.getByTestId("simple-editor")).toBeInTheDocument();
     });
-    expect(gerarHtmlPortariaMock).toHaveBeenCalledTimes(1);
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("<strong>João</strong>");
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("123");
+    expect(screen.getByText("Texto SEI*")).toBeInTheDocument();
+    expect(screen.getByTestId("simple-editor")).toHaveTextContent("Texto SEI inicial");
+    expect(screen.getByTestId("button-salvar-portaria-apostila")).toBeEnabled();
   });
 
   it("não gera o texto SEI se o formulário for inválido", async () => {
@@ -420,70 +880,7 @@ describe("ApostilaPage", () => {
     await waitFor(() => {
       expect(triggerMock).toHaveBeenCalled();
     });
-    expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
-  });
-
-  it("usa dados da cessação ao gerar o texto quando o ato é cessação", async () => {
-    mockOrigem = "cessacao";
-    mockDesignacaoAtual = {
-      ...designacaoPadrao,
-      cessacao: {
-        numero_portaria: "999",
-        ano_vigente: "2025",
-        sei_numero: "888",
-        doc: "DOC_CESSACAO",
-      },
-    };
-    getValuesMock.mockReturnValue({
-      ...valoresPadrao,
-      ato_apostilado: "cessação",
-    });
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    const texto = gerarHtmlPortariaMock.mock.calls[0][0];
-    expect(texto).toContain("999");
-    expect(texto).toContain("888");
-  });
-
-  it("usa fallback '-' quando os dados da designação estão ausentes", async () => {
-    mockDesignacaoAtual = {
-      cessacao: null,
-    };
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("-");
-  });
-
-  it("usa fallback quando o tipo é cessação mas não existe cessação", async () => {
-    getValuesMock.mockReturnValue({
-      ...valoresPadrao,
-      ato_apostilado: "cessação",
-    });
-    mockDesignacaoAtual = {
-      ...designacaoPadrao,
-      cessacao: null,
-    };
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    expect(gerarHtmlPortariaMock.mock.calls[0][0]).toContain("-");
+    expect(screen.queryByTestId("simple-editor")).not.toBeInTheDocument();
   });
 
   it("não quebra quando a designação é nula", () => {
@@ -492,7 +889,7 @@ describe("ApostilaPage", () => {
     render(<ApostilaPage />);
 
     expect(screen.getByTestId("page-header")).toBeInTheDocument();
-    expect(screen.getByTestId("texto-pra-apostila")).toBeInTheDocument();
+    expect(resetMock).not.toHaveBeenCalled();
   });
 
   it("reseta o formulário com dados completos da designação", () => {
@@ -504,12 +901,32 @@ describe("ApostilaPage", () => {
       impedimento_substituicao: "LICENCA",
       com_afastamento: true,
       motivo_afastamento: "Afastamento",
+      possui_pendencia: true,
       pendencias: "Pendência",
+      informacoes_adicionais: "Info",
+      detalhe_para_quadro_de_historico_por_ano: "false",
+      cargo_vaga: 20,
+      indicado_nome_civil: "Maria Civil",
+      indicado_lotacao: "Lotação",
+      indicado_categoria: "A",
+      titular_cargo_sobreposto: "SUPERVISOR",
+      cessacao: {
+        numero_portaria: "987",
+        ano_vigente: "2025",
+        sei_numero: "SEI-CESS",
+        doc: "DOC-CESS",
+        a_pedido: true,
+        data_cessacao: "2026-03-15",
+        remocao: true,
+        aposentadoria: true,
+      },
     };
 
     render(<ApostilaPage />);
 
-    expect(resetMock).toHaveBeenCalledWith({
+    expect(resetMock).toHaveBeenCalledWith(expect.objectContaining({
+      texto_portaria: "A presente portaria apostilada,",
+      ato_apostilado: "",
       portaria_designacao: "123",
       ano: "2024",
       numero_sei: "999",
@@ -517,12 +934,42 @@ describe("ApostilaPage", () => {
       a_partir_de: new Date("2026/01/10"),
       designacao_data_final: new Date("2026/12/20"),
       carater_especial: "sim",
-      impedimento_substituicao: "sim",
+      impedimento_substituicao: "LICENCA",
       com_afastamento: "sim",
       motivo_afastamento: "Afastamento",
       com_pendencia: "sim",
       motivo_pendencia: "Pendência",
-    });
+      informacoes_adicionais: "Info",
+      detalhe_para_quadro_de_historico_por_ano: false,
+      dre: "108200",
+      dre_nome: "DRE",
+      ue: "UE-1",
+      ue_nome: "UE Teste",
+      codigo_hierarquico: "EH",
+      nome_civil: "Maria Civil",
+      nome_servidor: "João",
+      rf: "123456",
+      vinculo: "CLT",
+      cargo_base: "PROFESSOR",
+      cd_cargo_base: "20",
+      cargo_sobreposto_funcao_atividade: "COORDENADOR",
+      local_de_exercicio: "ESCOLA",
+      lotacao: "Lotação",
+      categoria: "A",
+      cursos_titulos: "-",
+      laudo_medico: "Indisponível",
+      titular_cargo_sobreposto: "SUPERVISOR",
+      cessacao: {
+        numero_portaria: "987",
+        ano: "2025",
+        numero_sei: "SEI-CESS",
+        a_pedido: "sim",
+        data_inicio: new Date("2026/03/15"),
+        remocao: "sim",
+        aposentadoria: "sim",
+        doc: "DOC-CESS",
+      },
+    }));
   });
 
   it("reseta o formulário com fallbacks quando a designação vem incompleta", () => {
@@ -534,7 +981,10 @@ describe("ApostilaPage", () => {
       impedimento_substituicao: null,
       com_afastamento: false,
       motivo_afastamento: "",
+      possui_pendencia: false,
       pendencias: "",
+      detalhe_para_quadro_de_historico_por_ano: undefined,
+      titular_cargo_base: "BASE",
     };
 
     render(<ApostilaPage />);
@@ -547,14 +997,87 @@ describe("ApostilaPage", () => {
         doc: "",
         designacao_data_final: null,
         carater_especial: "nao",
-        impedimento_substituicao: "nao",
+        impedimento_substituicao: null,
         com_afastamento: "nao",
         motivo_afastamento: "",
         com_pendencia: "nao",
         motivo_pendencia: "",
+        dre: "-",
+        ue: "-",
+        nome_civil: "",
+        nome_servidor: "-",
+        rf: "-",
+        vinculo: "-",
+        cargo_base: "-",
+        cd_cargo_base: "",
+        cargo_sobreposto_funcao_atividade: "-",
+        local_de_exercicio: "-",
+        lotacao: "-",
+        categoria: "-",
+        titular_cargo_sobreposto: "BASE",
+        cessacao: {
+          numero_portaria: "",
+          ano: "",
+          numero_sei: "",
+          a_pedido: "nao",
+          data_inicio: undefined,
+          remocao: "nao",
+          aposentadoria: "nao",
+          doc: "",
+        },
       }),
     );
     expect(resetMock.mock.calls[0][0].a_partir_de).toBeInstanceOf(Date);
+  });
+
+  it("normaliza detalhe booleano ao resetar dados carregados", () => {
+    mockDesignacaoAtual = {
+      ...designacaoPadrao,
+      detalhe_para_quadro_de_historico_por_ano: false,
+    };
+
+    render(<ApostilaPage />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detalhe_para_quadro_de_historico_por_ano: false,
+      }),
+    );
+  });
+
+  it("não reseta dados carregados quando o formulário está sujo", () => {
+    mockIsDirty = true;
+
+    render(<ApostilaPage />);
+
+    expect(resetMock).not.toHaveBeenCalled();
+  });
+
+  it("desabilita os botões de gerar e salvar quando o formulário é inválido", async () => {
+    mockIsValid = false;
+
+    render(<ApostilaPage />);
+
+    expect(screen.getByRole("button", { name: "Gerar texto SEI" })).toBeDisabled();
+  });
+
+  it("propaga alteração do editor de texto SEI", async () => {
+    render(<ApostilaPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simple-editor")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("simple-editor"));
+
+    expect(editorOnChangeMock).toHaveBeenCalledWith("Texto editado");
+    expect(simpleEditorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hasError: false,
+        content: "Texto SEI inicial",
+      }),
+    );
   });
 
   it("executa os callbacks de informações adicionais", () => {
@@ -569,19 +1092,4 @@ describe("ApostilaPage", () => {
     consoleLogSpy.mockRestore();
   });
 
-  it("substitui valor nulo por string vazia ao gerar o texto", async () => {
-    const objectEntriesSpy = vi.spyOn(Object, "entries").mockImplementationOnce(() => [
-      ["nome_indicado", "Servidor"],
-      ["portaria_designacao", null],
-    ]);
-
-    render(<ApostilaPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Gerar texto SEI" }));
-
-    await waitFor(() => {
-      expect(gerarHtmlPortariaMock).toHaveBeenCalled();
-    });
-
-    objectEntriesSpy.mockRestore();
-  });
 });

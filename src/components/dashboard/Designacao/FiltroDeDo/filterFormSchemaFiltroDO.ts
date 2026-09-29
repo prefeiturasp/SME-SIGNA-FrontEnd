@@ -5,9 +5,15 @@ export const filterFormSchemaFiltroDO = z
     numero_sei: z.string().optional(),
     ano: z.string().optional(),
     tipo: z.string().optional(),
-    portaria_inicial: z.string().optional(),
+    portaria_inicial: z
+      .string()
+      .regex(/^\d*$/, "A Portaria inicial deve conter apenas números")
+      .optional(),
 
-    portaria_final: z.string().optional(),
+    portaria_final: z
+      .string()
+      .regex(/^\d*$/, "A Portaria final deve conter apenas números")
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const numeroSei = data.numero_sei?.trim();

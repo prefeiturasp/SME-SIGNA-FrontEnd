@@ -130,10 +130,10 @@ describe("InformacoesAdicionais", () => {
     });
   });
 
-  it("não passa valor para o select quando detalhe inicia indefinido", () => {
+  it("usa Contabilizar como padrão quando detalhe inicia indefinido", () => {
     renderComFormulario({ defaultDetalhe: undefined });
 
-    expect(screen.getByTestId("select-value")).toBeEmptyDOMElement();
+    expect(screen.getByTestId("select-value")).toHaveTextContent("true");
   });
 
   it("aplica className extra no container da descrição", () => {

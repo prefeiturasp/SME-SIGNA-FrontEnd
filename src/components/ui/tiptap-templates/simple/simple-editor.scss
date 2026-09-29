@@ -54,8 +54,7 @@ body,
   font-family: "DM Sans", sans-serif;
 }
 
-.simple-editor-wrapper {
-  margin-top: 50px;
+.simple-editor-wrapper {  
   width: 100%;
   height: 40vh;
   overflow: auto;
@@ -85,18 +84,10 @@ body,
 }
 
 
-// .simple-editor-content{
-//   margin: 0px !important;
-//   max-width: 90% !important;
-// }
-
-// .simple-editor-wrapper{
-//   width: 88vw !important;
-// }
+ 
 
 .simple-editor-content {
   max-width: 90%;
-
   margin: 10px auto 0 auto;
   height: 100%;
   display: flex;

@@ -12,8 +12,7 @@ const customAccordionItemSpy = vi.fn();
 const accordionSpy = vi.fn();
 const infoItemSpy = vi.fn();
 const editorSEISpy = vi.fn();
-const preencherTemplateSpy = vi.fn();
-const gerarDadosPortariaSpy = vi.fn();
+const gerarHtmlPortariaSpy = vi.fn((html: string) => html);
 const informacoesAdicionaisSpy = vi.fn();
 
 const useParamsMock = vi.fn();
@@ -142,21 +141,9 @@ vi.mock(
       editorSEISpy(props);
       return <div data-testid="editor-sei" />;
     },
-    gerarHtmlPortaria: (html: string) => html,
+    gerarHtmlPortaria: (html: string) => gerarHtmlPortariaSpy(html),
   })
 );
-
-vi.mock("@/utils/portarias/preencherTemplate", () => ({
-  preencherTemplate: (...args: [string, Record<string, string>]) => preencherTemplateSpy(...args),
-}));
-
-vi.mock("@/utils/portarias/gerarDadosPortaria", () => ({
-  gerarDadosPortaria: (...args: unknown[]) => gerarDadosPortariaSpy(...args),
-}));
-
-vi.mock("@/utils/portarias/templates", () => ({
-  TEMPLATE_DESIGNACAO: "",
-}));
 
 vi.mock(
   "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais",
@@ -211,14 +198,15 @@ describe("VisualizarDesignacao page", () => {
     titular_codigo_cargo_sobreposto: 4,
     titular_local_servico: "Servico T",
     titular_local_exercicio: "Exercicio T",
+    texto_sei: "Texto da portaria pronto vindo do backend",
+    modelo_portaria: 1,
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
     useParamsMock.mockReturnValue({ id: "12" });
     pushMock.mockReset();
-    preencherTemplateSpy.mockReturnValue("");
-    gerarDadosPortariaSpy.mockReturnValue({});
+    gerarHtmlPortariaSpy.mockImplementation((html: string) => html);
   });
 
   it("renderiza loading quando consulta está carregando", () => {
@@ -367,18 +355,7 @@ describe("VisualizarDesignacao page", () => {
     expect(screen.getAllByTestId("resumo-servidor")).toHaveLength(1);
   });
 
-  it("gera html da portaria com escape, negrito e filtro de nulos", () => {
-    gerarDadosPortariaSpy.mockReturnValue({
-      nome_indicado: "Servidor & Nome",
-      autoridade: "Autoridade > Direção",
-      portaria: "Portaria 123",
-      sei: "SEI 999",
-      campo_nulo: null,
-      campo_undefined: undefined,
-      descricao: "Texto <b>não html</b>",
-    });
-    preencherTemplateSpy.mockImplementation((_template, dados) => JSON.stringify(dados));
-
+  it("exibe o texto da portaria retornado pelo backend, sem remontá-lo no cliente", () => {
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
       data: designacaoMock,
       isLoading: false,
@@ -387,28 +364,26 @@ describe("VisualizarDesignacao page", () => {
 
     render(<VisualizarDesignacao />);
 
-    expect(gerarDadosPortariaSpy).toHaveBeenCalled();
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "",
-      expect.objectContaining({
-        nome_indicado: "<strong>Servidor &amp; Nome</strong>",
-        autoridade: "<strong>Autoridade &gt; Direção</strong>",
-        portaria: "<strong>Portaria 123</strong>",
-        sei: "<strong>SEI 999</strong>",
-        descricao: "Texto <b&gt;não html</b&gt;",
-      }),
-    );
-    expect(preencherTemplateSpy).toHaveBeenCalledWith(
-      "",
-      expect.not.objectContaining({
-        campo_nulo: expect.anything(),
-        campo_undefined: expect.anything(),
-      }),
-    );
+    expect(gerarHtmlPortariaSpy).toHaveBeenCalledWith(designacaoMock.texto_sei);
     expect(editorSEISpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        html: expect.stringContaining("<strong>Servidor &amp; Nome</strong>"),
+        html: designacaoMock.texto_sei,
       }),
+    );
+  });
+
+  it("não chama a montagem de html quando o backend ainda não retornou texto_sei", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, texto_sei: "" },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    expect(gerarHtmlPortariaSpy).not.toHaveBeenCalled();
+    expect(editorSEISpy).toHaveBeenCalledWith(
+      expect.objectContaining({ html: "" }),
     );
   });
 
@@ -427,12 +402,6 @@ describe("VisualizarDesignacao page", () => {
     } as never);
 
     render(<VisualizarDesignacao />);
-
-    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dadosTitular: null,
-      }),
-    );
 
     type ResumoServidorProps = {
       defaultValues?: {
@@ -458,83 +427,4 @@ describe("VisualizarDesignacao page", () => {
     expect(titular?.defaultValues?.cd_cargo_sobreposto_funcao_atividade).toBe(0);
   });
 
-  it("converte impedimento_substituicao para string no mapeamento da portaria", () => {
-    vi.mocked(useFetchDesignacoesById).mockReturnValue({
-      data: {
-        ...designacaoMock,
-        impedimento_substituicao: 123,
-      },
-      isLoading: false,
-      error: null,
-    } as never);
-
-    render(<VisualizarDesignacao />);
-
-    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        impedimento_substituicao: "123",
-      }),
-    );
-  });
-
-  it("passa impedimento_label como impedimento_display quando há impedimento", () => {
-    vi.mocked(useFetchDesignacoesById).mockReturnValue({
-      data: {
-        ...designacaoMock,
-        impedimento_substituicao: "2",
-        impedimento_display: "Licença Médica",
-      },
-      isLoading: false,
-      error: null,
-    } as never);
-
-    render(<VisualizarDesignacao />);
-
-    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        impedimento_label: "Licença Médica",
-      }),
-    );
-  });
-
-  it("passa impedimento_label como undefined quando não há impedimento", () => {
-    vi.mocked(useFetchDesignacoesById).mockReturnValue({
-      data: {
-        ...designacaoMock,
-        impedimento_substituicao: null,
-        impedimento_display: "",
-      },
-      isLoading: false,
-      error: null,
-    } as never);
-
-    render(<VisualizarDesignacao />);
-
-    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        impedimento_label: undefined,
-      }),
-    );
-  });
-
-  it("passa indicado_categoria no mapeamento do servidor indicado", () => {
-    vi.mocked(useFetchDesignacoesById).mockReturnValue({
-      data: {
-        ...designacaoMock,
-        indicado_categoria: "3",
-      },
-      isLoading: false,
-      error: null,
-    } as never);
-
-    render(<VisualizarDesignacao />);
-
-    expect(gerarDadosPortariaSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        servidorIndicado: expect.objectContaining({
-          categoria: "3",
-        }),
-      }),
-    );
-  });
 });

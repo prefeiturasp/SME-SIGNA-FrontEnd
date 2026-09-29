@@ -5,140 +5,268 @@ import { useForm, FormProvider, FieldValues, UseFormReturn } from "react-hook-fo
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "antd";
 import { Loader2 } from "lucide-react";
-
-import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
-import { nameToCamelCase, nameToCamelCaseUe, formatarRF, formatarDataPtBr } from "@/utils/portarias/formatadores";
-
+import { nameToCamelCase, formatarRF } from "@/utils/portarias/formatadores";
 import { Button } from "@/components/ui/button";
-
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-
-
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams,useRouter } from "next/navigation";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
-
 import formSchemaApostila, { formSchemaApostilaData } from "./schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
-import TextoPraApostila from "@/components/dashboard/Designacao/TextoPraApostila/TextoPraApostila";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import PortariaDesigacaoFields from "@/components/dashboard/Designacao/PortariaDesigacaoFields/PortariaDesigacaoFields";
+import CamposPesquisaUnidade from "@/components/dashboard/Designacao/PesquisaUnidade/CamposPesquisaUnidade";
+import CamposEditarServidor from "@/components/dashboard/Designacao/ModalEditarServidor/CamposEditarServidor";
+import { useFetchCargos } from "@/hooks/useCargos";
+import { SelectField, EnumCheckbox, InputField } from "@/components/ui/FieldsForm";
+import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/components/ui/form";
+import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
+import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
+import { DesignacaoResponse } from "@/types/designacao";
+import { useSalvarApostila } from "@/hooks/useSalvarApostila";
+import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
+import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
+
+
+const defaultValues = {
+
+  apostila: {
+    numero_sei: "",
+    doc: "",
+    observacao: "",
+    numero_portaria: "",
+  },
+
+  dre: "",
+  dre_nome: "",
+  ue: "",
+  ue_nome: "",
+  codigo_hierarquico: "",
+
+  informacoes_adicionais: "",
+  detalhe_para_quadro_de_historico_por_ano: true,
+
+  portaria_designacao: "",
+  ano: "",
+  numero_sei: "",
+  doc: "",
+  a_partir_de: new Date(),
+  designacao_data_final: null,
+  carater_especial: EnumCheckbox.NAO,
+  impedimento_substituicao: "",
+  impedimento_label: "",
+  com_afastamento: EnumCheckbox.NAO,
+  motivo_afastamento: "",
+  com_pendencia: EnumCheckbox.NAO,
+  motivo_pendencia: "",
+
+  // campos cargo disponível
+  nome_civil: "",
+  nome_servidor: "",
+  rf: "",
+  vinculo: 0,
+  cargo_base: "",
+  cargo_sobreposto_funcao_atividade: "",
+  local_de_exercicio: "",
+  lotacao: "",
+  categoria: "",
+  cursos_titulos: "",
+  laudo_medico: "",
+  cd_cargo_base: "",
+  titular_cargo_sobreposto: "",
+
+
+  cessacao: {
+    numero_portaria: "",
+    ano: new Date().getFullYear().toString(),
+    numero_sei: "",
+    a_pedido: EnumCheckbox.NAO,
+    data_inicio: new Date(),
+    remocao: EnumCheckbox.NAO,
+    aposentadoria: EnumCheckbox.NAO,
+    doc: "",
+  },
+
+};
+
+const normalizarDetalheParaQuadroDeHistoricoPorAno = (value: unknown) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+
+  return true;
+};
 
 export default function ApostilaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const origem = searchParams.get("origem");
-  const atoApostiladoPadrao = origem === "cessacao" ? "cessação" : "designação";
   const router = useRouter();
+  const atoApostiladoDisplay = origem === "cessacao" ? "cessação" : "designação";
   const notification = useAppNotification();
-
+  const salvarApostila = useSalvarApostila();
   const { data: designacao, isLoading } = useFetchDesignacoesById(Number(id));
+  const { data: cargosData = [] } = useFetchCargos();
+  const cargos = cargosData.map(cargo => ({
+    value: cargo.codigoCargo.toString(),
+    label: cargo.nomeCargo,
+  }));
+
 
   const form = useForm<formSchemaApostilaData>({
     resolver: zodResolver(formSchemaApostila),
     defaultValues: {
-      informacoes_adicionais: "",
-      detalhe_para_quadro_de_historico_por_ano: false,
-      texto_para_apostila: "",
-      ato_apostilado: atoApostiladoPadrao,
-
-
-      portaria_designacao: "",
-      ano: "",
-      numero_sei: "",
-      doc: "",
-      a_partir_de: new Date(),
-      designacao_data_final: null,
-      carater_especial: "nao",
-      impedimento_substituicao: "nao",
-      com_afastamento: "nao",
-      motivo_afastamento: "",
-      com_pendencia: "nao",
-      motivo_pendencia: "",
+      ...defaultValues, ato_apostilado: origem ?? "",
     },
     mode: "onChange",
   });
 
 
 
-  useEffect(() => {
-    if (designacao) {
-      form.reset({
-
-        portaria_designacao: designacao?.numero_portaria ?? "",
-        ano: designacao?.ano_vigente,
-        numero_sei: designacao?.sei_numero ?? "",
-
-        doc: designacao?.doc ?? "",
-        a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
-        designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
-        carater_especial: designacao?.carater_excepcional ? "sim" : "nao",
-        impedimento_substituicao: designacao?.impedimento_substituicao ? "sim" : "nao",
-        com_afastamento: designacao?.com_afastamento ? "sim" : "nao",
-        motivo_afastamento: designacao?.motivo_afastamento,
-        com_pendencia: designacao?.pendencias ? "sim" : "nao",
-        motivo_pendencia: designacao?.pendencias,
-
-      },);
-
-    }
-  }, [designacao, form]);
-
 
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
-  const [htmlPortaria, setHtmlPortaria] = useState("");
 
-  const gerarDados = (values: formSchemaApostilaData) => {
-    const isCessacao = values.ato_apostilado === "cessação";
-
-    const fonteDados = isCessacao ? designacao?.cessacao : designacao;
-
-    return {
-      sei: "",
-      dre: designacao?.dre_nome ?? "-",
-      eh: designacao?.codigo_hierarquico ?? "-",
-      doc: "",
-      ato_apostilado: "",
-
-      portaria_designacao: fonteDados?.numero_portaria ?? "-",
-      ano: fonteDados?.ano_vigente ?? "-",
-      doc_designacao: formatarDataPtBr(fonteDados?.doc),
-      sei_designacao: isCessacao ? designacao?.cessacao?.sei_numero : designacao?.sei_numero ?? "-",
-
-      nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-      rf: formatarRF(designacao?.indicado_rf ?? "-"),
-      vinculo: designacao?.indicado_vinculo ?? "-",
-      cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
-      cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-      ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
-      observacao: "",
-    };
-  };
 
   const handleGerarPortaria = () => {
-    const values = form.getValues();
-    const dados = gerarDados(values);
-
-    let texto = TEMPLATE_APOSTILA;
-
-    Object.entries(dados).forEach(([key, value]) => {
-      let val = String(value ?? "");
-      if (["nome_indicado"].includes(key)) {
-        val = `<strong>${val}</strong>`;
-      }
-      texto = texto.replaceAll(`{{${key}}}`, val);
-    });
-
-    setHtmlPortaria(gerarHtmlPortaria(texto));
     setMostrarEditor(true);
   };
 
+  const getCampoMapeadoCessacao = (field: string) => {
+    const camposCessacao = {
+      "numero_portaria": "numero_portaria",
+      "ano": "ano_vigente",
+      "numero_sei": "sei_numero",
+      "data_inicio": "data_cessacao",
+    }
+
+    const campoMapeado = camposCessacao[field as keyof typeof camposCessacao];
+    return campoMapeado || field;
+  };
+
+
+  const getCampoMapeadoDesignacao = (field: string) => {
+    const camposDesignação = {
+      "portaria_designacao": "numero_portaria",
+      "ano": "ano_vigente",
+
+
+      "numero_sei": "sei_numero",
+      "doc": "doc",
+      "a_partir_de": "data_inicio",
+      "designacao_data_final": "data_fim",
+
+
+      "carater_especial": "carater_excepcional",
+
+      "com_pendencia": "possui_pendencia",
+
+      "motivo_pendencia": "pendencias",
+      "ue_nome": "unidade_proponente",
+      "texto_portaria": "texto_sei",
+
+      "cd_cargo_base": "cargo_vaga",
+
+      "nome_civil": "indicado_nome_civil",
+      "nome_servidor": "indicado_nome_servidor",
+      "impedimento_substituicao": "impedimento_substituicao_id",
+
+
+    }
+
+    const campoMapeado = camposDesignação[field as keyof typeof camposDesignação];
+    return campoMapeado || field;
+  };
+  const gerarAlteracoes = (formValues: formSchemaApostilaData) => {
+    delete formValues.impedimento_label;
+    
+    const values = {
+      ...formValues,
+      "a_partir_de": formValues.a_partir_de.toISOString().split("T")[0],
+      "detalhe_para_quadro_de_historico_por_ano": formValues.detalhe_para_quadro_de_historico_por_ano ? "True" : "False",
+      "designacao_data_final": formValues.designacao_data_final ? formValues.designacao_data_final.toISOString().split("T")[0] : null,
+      "carater_especial": formValues.carater_especial === "sim" ? "True" : "False",
+
+      "com_afastamento": formValues.com_afastamento === "sim" ? "True" : "False",
+      "com_pendencia": formValues.com_pendencia === "sim" ? "True" : "False",
+      "cessacao": {
+        ...formValues.cessacao,
+        "a_pedido": formValues.cessacao.a_pedido === "sim" ? "True" : "False",
+        "data_inicio": formValues.cessacao.data_inicio ? formValues.cessacao.data_inicio.toISOString().split("T")[0] : null,
+        "remocao": formValues.cessacao.remocao === "sim" ? "True" : "False",
+        "aposentadoria": formValues.cessacao.aposentadoria === "sim" ? "True" : "False",
+      },
+    };
+
+    const alteracoes: ApostilaAlteracoes[] = [];
+    Object.keys(form.formState.dirtyFields).forEach(field => {
+
+      const valorDoCampo = values[field as keyof formSchemaApostilaData];
+
+      // remove campos vazios, undefined ou null ou campos da apostila
+      if (["", undefined, null].includes(valorDoCampo) || field.includes("apostila")) {
+        return;
+      }
+
+      // campos da portaria de cessação
+      if (field.includes("cessacao")) {
+
+        return Object.keys(values['cessacao']).forEach(cessacaoField => {
+          const valorDoCampoCessacao = values['cessacao'][cessacaoField];
+          if (["", undefined, null].includes(valorDoCampoCessacao)) {
+            return;
+          }
+          const campoMapeadoCessacao = getCampoMapeadoCessacao(cessacaoField);
+          alteracoes.push({
+            "campo_alterado": campoMapeadoCessacao,
+            "valor_novo": valorDoCampoCessacao,
+          });
+        });
+      }
+
+
+      //to-do remover mapeamento de campo e trocar os nomes dos campos
+      const campoMapeado = getCampoMapeadoDesignacao(field);
+
+      // campos da portaria de designação na apostila de cessação
+      if (origem === "cessacao" && !field.includes("cessacao")) {
+        return alteracoes.push({
+          "campo_alterado": campoMapeado,
+          "valor_novo": values[field as keyof formSchemaApostilaData],
+          "tipo_ato_alvo": "DESIGNACAO"
+        });
+
+      }
+
+
+
+      // campos default
+      alteracoes.push({
+        "campo_alterado": campoMapeado,
+        "valor_novo": values[field as keyof formSchemaApostilaData]
+      });
+
+    });
+
+    return alteracoes;
+  }
   const onSubmit = async (values: formSchemaApostilaData) => {
     try {
-      console.log(values);
+      const alteracoes = gerarAlteracoes(values);
+
+
+      const ato_pai = origem === "designacao" ? Number(id) : designacao?.cessacao?.id ?? 0;
+      const body: ApostilaBody = {
+        ato_pai: ato_pai,
+        sei_numero: values.apostila.numero_sei,
+        numero_portaria: values.apostila.numero_portaria,
+        doc: values.apostila.doc,
+        observacao: values.apostila.observacao,
+        alteracoes: alteracoes,
+        texto_sei: values.texto_portaria,
+
+      };
+      await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
@@ -147,14 +275,89 @@ export default function ApostilaPage() {
     }
   };
 
+  const gerarFormValuesCessacao = (designacao: DesignacaoResponse) => {
+    return {
+      numero_portaria: designacao?.cessacao?.numero_portaria ?? "",
+      ano: designacao?.cessacao?.ano_vigente ?? "",
+      numero_sei: designacao?.cessacao?.sei_numero ?? "",
+      a_pedido: designacao?.cessacao?.a_pedido ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+      data_inicio: designacao?.cessacao?.data_cessacao ? new Date(designacao.cessacao.data_cessacao.replaceAll("-", '/')) : undefined,
+      remocao: designacao?.cessacao?.remocao ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+      aposentadoria: designacao?.cessacao?.aposentadoria ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+      doc: designacao?.cessacao?.doc ?? "",
+    };
+  };
 
+  useEffect(() => {
+    if (designacao && !form.formState.isDirty) {
+
+
+      const cessacaoFieldsValues = gerarFormValuesCessacao(designacao);
+      
+      form.reset({
+        ...defaultValues,
+        texto_portaria: "A presente portaria apostilada,",
+        ato_apostilado: origem ?? "",
+
+        // campos portaria de designacao
+        portaria_designacao: String(designacao?.numero_portaria ?? ""),
+        ano: designacao?.ano_vigente,
+        numero_sei: designacao?.sei_numero ?? "",
+        doc: designacao?.doc ?? "",
+        a_partir_de: designacao?.data_inicio ? new Date(designacao.data_inicio.replaceAll("-", '/')) : new Date(),
+        designacao_data_final: designacao?.data_fim ? new Date(designacao.data_fim.replaceAll("-", '/')) : null,
+        carater_especial: designacao?.carater_excepcional ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        impedimento_substituicao: designacao?.impedimento_substituicao?.toString() ?? null,
+        com_afastamento: designacao?.com_afastamento ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        motivo_afastamento: designacao?.motivo_afastamento,
+        com_pendencia: designacao?.possui_pendencia ? EnumCheckbox.SIM : EnumCheckbox.NAO,
+        motivo_pendencia: designacao?.pendencias,
+        informacoes_adicionais: designacao?.informacoes_adicionais,
+        detalhe_para_quadro_de_historico_por_ano: normalizarDetalheParaQuadroDeHistoricoPorAno(
+          designacao.detalhe_para_quadro_de_historico_por_ano,
+        ),
+        // campos unidade proponente
+        dre: designacao?.dre ?? '-',
+        dre_nome: designacao?.dre_nome,
+        ue: designacao?.ue ?? '-',
+        ue_nome: designacao?.unidade_proponente,
+        codigo_hierarquico: designacao?.codigo_hierarquico,
+
+
+        // campos servidor indicado
+        nome_civil: designacao?.indicado_nome_civil ?? "",
+        nome_servidor: designacao?.indicado_nome_servidor ?? "-",
+        rf: formatarRF(designacao?.indicado_rf ?? "-"),
+        vinculo: designacao?.indicado_vinculo ?? "-",
+        cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
+
+        cd_cargo_base: designacao?.cargo_vaga?.toString() ?? "",
+        cargo_sobreposto_funcao_atividade: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
+        local_de_exercicio: nameToCamelCase(designacao?.indicado_local_exercicio ?? "-"),
+        lotacao: nameToCamelCase(designacao?.indicado_lotacao ?? "-"),
+        categoria: designacao?.indicado_categoria ?? "-",
+        cursos_titulos: "-",
+        laudo_medico: "Indisponível",
+
+        // campos servidor titular
+        titular_cargo_sobreposto: nameToCamelCase(designacao.titular_cargo_sobreposto ? designacao.titular_cargo_sobreposto : designacao.titular_cargo_base),
+
+
+        // campos portaria de cessação
+        cessacao: cessacaoFieldsValues,
+      },);
+
+
+
+    }
+  }, [designacao, form, origem]);
 
   return (
     <>
       <PageHeader
-        title={`Apostila de ${atoApostiladoPadrao}`}
+        title={`Apostila de ${atoApostiladoDisplay}`}
         breadcrumbs={[{ title: "Início", href: "/" },
-        { title: `Apostila de ${atoApostiladoPadrao}` }]}
+        { title: `Apostila de ${atoApostiladoDisplay}` }]}
         showBackButton={true}
       />
       <FormProvider {...form}>
@@ -170,7 +373,7 @@ export default function ApostilaPage() {
               className="mt-4 m-0"
               title={
                 <div className="flex justify-between items-center">
-                  <span className="text-[#333] text-[14px] font-bold">{nameToCamelCase(atoApostiladoPadrao)}</span>
+                  <span className="text-[#333] text-[14px] font-bold">{nameToCamelCase(atoApostiladoDisplay)}</span>
                 </div>
               }
             >
@@ -178,11 +381,12 @@ export default function ApostilaPage() {
 
                 <Accordion
                   type="multiple"
-                  defaultValue={["portarias-designacao", "servidor-indicado"]}
+                  defaultValue={["portaria-apostila", "portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
                 >
 
-
-
+                  <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="silver">
+                    <PortariaApostilaFields />
+                  </CustomAccordionItem>
 
                   <CustomAccordionItem
                     title="Portarias de designação"
@@ -194,15 +398,72 @@ export default function ApostilaPage() {
                     />
                   </CustomAccordionItem>
 
+                  <CustomAccordionItem
+                    title="Unidade Proponente"
+                    color="blue"
+                    value="unidade-proponente"
+                  >
+                    <CamposPesquisaUnidade />
+                  </CustomAccordionItem>
+
+                  <CustomAccordionItem
+                    title="Servidor Indicado"
+                    color="gold"
+                    value="servidor-indicado"
+                  >
+                    <CamposEditarServidor
+                    />
+                  </CustomAccordionItem>
+
+                  {designacao?.tipo_vaga === "VAGO" && (
+                    <CustomAccordionItem
+                      title="Cargo vago"
+                      color="green"
+                      value="cargo-vago"
+                    >
+                      <div className="grid grid-cols-4 " >
+                        <SelectField
+                          register={form.register}
+                          control={form.control}
+                          name="cd_cargo_base"
+                          label="Cargo"
+                          placeholder="Selecione"
+                          data-testid="select-codigo-cargo-eol"
+                          options={cargos}
+                          showBlankSpace={false}
+                          disabled={false}
+                        />
+                      </div>
+                    </CustomAccordionItem>
+                  )}
+
+                  {designacao?.tipo_vaga === "DISPONIVEL" && (
+                    <CustomAccordionItem
+                      title="Cargo disponível"
+                      color="green"
+                      value="cargo-disponivel"
+                    >
+                      <div className="grid grid-cols-4 " >
+                        <InputField
+                          register={form.register}
+                          control={form.control}
+                          name="titular_cargo_sobreposto"
+                          label="Cargo"
+                          data-testid="input-cargo-base"
+                          disabled
+                        />
+                      </div>
+                    </CustomAccordionItem>
+                  )}
+
+
+                  {origem === "cessacao" && (
+                    <CustomAccordionItem title="Portaria de cessação" value="portarias-cessacao" color="silver">
+                      <PortariaCessacaoFields />
+                    </CustomAccordionItem>
+                  )}
+
                 </Accordion>
-
-
-
-                <span className="text-[#333] text-[14px] font-bold">Texto para a apostila</span>
-                <TextoPraApostila
-                  form={form as unknown as UseFormReturn<FieldValues>}
-                  disableFields={false}
-                />
 
                 <span className="text-[#333] text-[14px] font-bold">Informações adicionais</span>
                 <InformacoesAdicionais
@@ -218,13 +479,14 @@ export default function ApostilaPage() {
                 />
               </div>
 
-              <div className="w-full flex justify-end pt-[2rem]">
-                <div className="w-[200px]">
+              <div className="w-full flex justify-end pt-8">
+                <div className="w-50">
                   <Button
                     type="button"
                     size="lg"
                     className="w-full flex items-center justify-center gap-6"
                     variant="destructive"
+                    disabled={!form.formState.isValid}
                     onClick={async () => {
                       const isValid = await form.trigger();
                       if (!isValid) return;
@@ -235,18 +497,56 @@ export default function ApostilaPage() {
                 </div>
               </div>
 
-              {mostrarEditor && (
-                <EditorSEI
-                  html={htmlPortaria}
-                  titulo="PORTARIA"
-                  labelBotao="Salvar"
-                  tipoBotao="submit"
-                  testId="botao-proximo"
-                />
-              )}
-            </Card>
 
+              {mostrarEditor && (
+                <div className="mb-2 mt-4">
+                  <FormField
+                    {...form.register('texto_portaria')}
+                    control={form.control}
+                    name="texto_portaria"
+                    render={({ field, fieldState }) => (
+                      <FormItem >
+                        <div className="flex flex-col gap-2 mb-4 mt-4">
+                          <FormLabel className="required text-[#313131] font-bold">
+                            Texto SEI*
+                          </FormLabel>
+                          <FormLabel className="required font-normal">
+                            Digite o texto SEI que será publicado no Diário Oficial (D.O).
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <SimpleEditor
+                            hasError={!!fieldState.error}
+                            onChange={field.onChange}
+                            content={field.value}
+                          />
+                        </FormControl>
+                        <FormMessage showBlankSpace />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="w-full flex justify-end pt-8">
+                    <div >
+                      <Button
+                        type="submit"
+                        size="lg"
+                        className="w-full flex items-center justify-center px-6"
+                        variant="destructive"
+                        data-testid="button-salvar-portaria-apostila"
+                        disabled={!form.formState.isValid}
+
+                      >
+                        <p className="text-[16px] font-bold">Salvar</p>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+            </Card>
           )}
+
         </form>
       </FormProvider>
     </>

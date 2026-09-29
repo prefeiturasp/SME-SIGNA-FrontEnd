@@ -34,6 +34,13 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // `testes/ui` é um projeto Cypress separado, com package.json próprio, instalado
+    // e executado pelo Jenkins dentro de um container isolado. Ele é CommonJS por
+    // opção e nunca passa pelo build do frontend, então as regras daqui não se
+    // aplicam a ele. O vitest.config.ts já o exclui da mesma forma.
+    "testes/**",
+    // Relatório de cobertura gerado pelo vitest (já ignorado no .gitignore).
+    "coverage/**",
   ]),
 ]);
 

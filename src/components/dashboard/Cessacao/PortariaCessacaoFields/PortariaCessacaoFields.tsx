@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/FieldsForm";
 
 import {SelectAnoField} from "@/components/ui/SelectAnoField"
+import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 interface Props {
   isLoading?: boolean;
@@ -25,6 +26,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
       label: "Portaria de cessação*",
       placeholder: "Nº da portaria",
       type: "number",
+      maxLength: NUMERO_PORTARIA_MAX_DIGITOS,
     },
     {
       name: "cessacao.numero_sei",
@@ -67,6 +69,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
                 type={field.type}
                 disabled={field.disabled}
                 mask={field.mask}
+                maxLength={field.maxLength}
                 />
               ))}
 

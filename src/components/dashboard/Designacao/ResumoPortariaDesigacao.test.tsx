@@ -3,7 +3,7 @@ import ResumoPortariaDesigacao from "./ResumoPortariaDesigacao";
 
 describe("ResumoPortariaDesigacao", () => {
   const baseDefaultValues = {
-    numero_portaria: "77",
+    numero_portaria: 77,
     ano_vigente: "2026",
     sei_numero: "6016.2026/0001111-1",
     doc: "DOC 01",

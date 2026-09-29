@@ -112,9 +112,9 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
             </span>
           </div>
         }
-        <div className="w-[100%] flex justify-end items-end">
+        <div className="w-full flex justify-end items-end">
 
-          <div className="w-[200px] py-[2rem]">
+          <div className="w-[200px] py-8">
             {isListagemDo ?
               
               <Button
