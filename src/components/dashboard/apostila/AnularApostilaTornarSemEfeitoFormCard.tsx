@@ -21,7 +21,8 @@ type AnularApostilaTornarSemEfeitoFormCardProps<TFieldValues extends FieldValues
   dadosPortaria: BlocosDesignacaoProps["dadosPortaria"];
   dadosPortariaCessacao: BlocosDesignacaoProps["dadosPortariaCessacao"];
   triggerField: Path<TFieldValues>;
-  onGerarPortaria: () => void;
+  onGerarPortaria: () => void | Promise<void>;
+  gerandoPreview?: boolean;
   mostrarEditor: boolean;
   htmlPortaria: string;
   showTextoParaApostila?: boolean;
@@ -38,6 +39,7 @@ export default function AnularApostilaTornarSemEfeitoFormCard<TFieldValues exten
   dadosPortariaCessacao,
   triggerField,
   onGerarPortaria,
+  gerandoPreview = false,
   mostrarEditor,
   htmlPortaria,
   showTextoParaApostila,
@@ -85,10 +87,11 @@ export default function AnularApostilaTornarSemEfeitoFormCard<TFieldValues exten
                     size="lg"
                     className="w-full flex items-center justify-center gap-6"
                     variant="destructive"
+                    disabled={gerandoPreview}
                     onClick={async () => {
                       const isValid = await form.trigger(triggerField);
                       if (!isValid) return;
-                      onGerarPortaria();
+                      await onGerarPortaria();
                     }}
                   >
                     Gerar texto SEI

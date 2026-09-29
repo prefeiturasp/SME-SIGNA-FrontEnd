@@ -764,6 +764,44 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByText("-")).toBeInTheDocument();
   });
 
+  it("monta menu de anulação de apostila não publicada e navega para edição", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    const { rerender } = render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "INSUBSISTENCIA",
+          tipo_insubsistencia: "APOSTILA",
+          ato_pai_id: 77,
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-4")).toHaveTextContent("Editar");
+    screen.getByTestId("menu-item-4").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/anular-apostila/editar?id=1&atoPai=77");
+
+    rerender(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "INSUBSISTENCIA",
+          tipo_insubsistencia: "APOSTILA",
+          ato_pai_id: 77,
+          status_publicacao: StatusAtosAdministrativos.PUBLICADO,
+        })}
+      </>
+    );
+
+    expect(screen.queryByTestId("menu-item-4")).not.toBeInTheDocument();
+  });
+
   it("navega para tornar sem efeito ao acionar a ação de insubsistência", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
