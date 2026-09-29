@@ -58,6 +58,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
       
       render={({ field }) => {
         const handleValueChange = (value: string) => {
+          if (!value || value === field.value) return;
           if (!opcoes && value !== currentYear) {
             setPendingValue(value);
             setOpenConfirm(true);
@@ -72,8 +73,9 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
               {label}*
             </FormLabel>
             <FormControl>
-              <Select                
-                value={field.value !=="" ? field.value : currentYear}                
+              <Select
+                value={field.value || currentYear}
+                onValueChange={handleValueChange}
                 disabled={disabled}
               >
                 <SelectTrigger data-testid="select-ano">
@@ -82,9 +84,7 @@ export const SelectAnoField = ({ name, label = "Ano Vigente", opcoes, disabled }
 
                 <SelectContent>
                   {anos.map((ano) => (
-                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`} onClick={() => {
-                      handleValueChange(ano.codigo);
-                    }}>
+                    <SelectItem key={ano.codigo} value={ano.codigo} data-testid={`select-item-${ano.codigo}`}>
                       {ano.nome}
                     </SelectItem>
                   ))}
