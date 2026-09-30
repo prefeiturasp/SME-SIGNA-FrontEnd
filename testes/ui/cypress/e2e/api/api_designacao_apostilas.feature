@@ -41,8 +41,8 @@ Funcionalidade: API SIGNA - Apostilas
     Quando eu listo as apostilas sem token
     Então o status da resposta do SIGNA deve ser 401 ou 403
 
-  # ── Ciclo de vida — cria designação de apoio, cria apostila vinculada,
-  # consulta, exclui os dois ao final ─────────────────────────────────────
+  # Ciclo de vida — cria designação de apoio, cria apostila vinculada,
+  # consulta, exclui os dois ao final
   @critico @ciclo_de_vida @usa_designacao_de_apoio
   Cenário: Criar, consultar e excluir uma apostila
     Dado que existe uma designação de apoio válida para este teste
