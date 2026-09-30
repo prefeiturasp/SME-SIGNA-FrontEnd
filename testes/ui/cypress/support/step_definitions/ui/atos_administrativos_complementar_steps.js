@@ -7,7 +7,7 @@ import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { acoesListagemLocators } from '../../ui/locators/atos_administrativos_complementar_locators'
 import { atosAdministrativosPack } from '../../ui/locators/atos_administrativos_locators'
 
-// ─── Seleção de linha via filtro Tipo/Status ────────────────────────────────
+// Seleção de linha via filtro Tipo/Status
 // Filtra antes de escolher a linha: a listagem sem filtro esconde tipos raros
 // nas primeiras páginas por volume de dados de teste acumulado em QA.
 const aplicarFiltroTipoStatus = ({ tipo, status }) => {
@@ -98,7 +98,7 @@ When('seleciona uma insubsistência de forma aleatoria na listagem', () => {
   selecionarLinhaAleatoriaFiltrada('insubsistência', { tipo: 'Insubsistência de Designação' })
 })
 
-// ─── Seleção de linha por ausência de opção no menu (regras de negócio) ────
+// Seleção de linha por ausência de opção no menu (regras de negócio)
 // Não dá pra saber pela tabela se um ato já tem cessação/insubsistência
 // vinculada — só abrindo o próprio menu de ações (a opção já executada some).
 const linhaTemOpcaoNoMenu = (index, opcao) =>
@@ -165,7 +165,7 @@ When('seleciona um ato com insubsistência vinculada de forma aleatoria na lista
   selecionarLinhaSemOpcaoNoMenu('ato com insubsistência vinculada', 'Tornar insubsistente')
 })
 
-// ─── Validação dos dados carregados na tela de destino ─────────────────────
+// Validação dos dados carregados na tela de destino
 // Confirma que a tela chegou pré-carregada com o ato certo, comparando com o
 // nome do servidor OU o Nº SEI capturados na listagem antes de navegar — um
 // único critério fixo falha numa das famílias de tela (Apostila nunca exibe
@@ -230,7 +230,7 @@ Then('o sistema direciona para a tela de detalhes da insubsistência', () => {
   cy.wait(1000)
 })
 
-// ─── Excluir designação (Modal.confirm) ────────────────────────────────────
+// Excluir designação (Modal.confirm)
 
 Then('o sistema exibe o modal de confirmação {string}', (titulo) => {
   acoesListagemLocators.modalConfirm.container().should('be.visible')
@@ -281,7 +281,7 @@ Then('a designação permanece na listagem', () => {
   })
 })
 
-// ─── Regras de exibição do menu de ações ───────────────────────────────────
+// Regras de exibição do menu de ações
 // Roda logo após "navega para a seção Action" (cessacao_steps.js), que já
 // deixa o dropdown aberto.
 Then('o menu de ações exibe as opções:', (dataTable) => {

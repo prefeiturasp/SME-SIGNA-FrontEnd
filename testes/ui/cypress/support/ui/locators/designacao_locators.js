@@ -4,18 +4,18 @@
 
 export const designacaoLocators = {
 
-  // ─── Dashboard ─────────────────────────────────────────────────────────────
+  // Dashboard
   // Card do módulo Designação (primeiro card na grade)
   tituloCardDesignacao: 'h2.font-semibold:contains("Designação")',
   descricaoCardDesignacao: 'p.text-sm.text-gray-600:contains("Realize a pesquisa")',
   // Botão de abrir módulo (direto no card — seletor estrutural de fallback)
   botaoAbrirModulo: 'main > div > div > div:first-child button',
 
-  // ─── Lista de Designações ──────────────────────────────────────────────────
+  // Lista de Designações
   logoSigna: 'header img',
   botaoNovaDesignacao: 'button:contains("Nova designação")',
 
-  // ─── Nova Designação — Passo 1 ─────────────────────────────────────────────
+  // Nova Designação — Passo 1
   tituloPagina: 'h1:contains("Designação")',
   formDesignacao: '.bg-white',
 
@@ -27,7 +27,7 @@ export const designacaoLocators = {
   // Botão Pesquisar do card de servidor — localizado pelo texto dentro do ant-card
   botaoPesquisarServidor: '.ant-card-body button',
 
-  // ─── Accordion "Dados do servidor indicado" (Radix UI) ────────────────────
+  // Accordion "Dados do servidor indicado" (Radix UI)
   triggerAccordionServidor: 'button:contains("Dados do servidor indicado")',
   conteudoAccordionServidor: '[data-state="open"]',
 
@@ -46,7 +46,7 @@ export const designacaoLocators = {
   // Botão Editar (dentro do accordion aberto)
   botaoEditarServidor: 'button:contains("Editar")',
 
-  // ─── Modal "Editar dados servidor indicado" ────────────────────────────────
+  // Modal "Editar dados servidor indicado"
   modalEditar:         '[role="dialog"]',
   tituloModalEditar:   'h2:contains("Editar dados servidor indicado")',
   formularioEdicao:    '#editar-servidor-form',
@@ -65,7 +65,7 @@ export const designacaoLocators = {
   botaoCancelarModal: '#editar-servidor-form button:contains("Cancelar")',
   botaoSalvarModal:   '#editar-servidor-form button:contains("Salvar")',
 
-  // ─── Seção "Unidade Proponente" ────────────────────────────────────────────
+  // Seção "Unidade Proponente"
   tituloUnidadeProponente: 'span:contains("Unidade Proponente")',
   labelDRE:                'label:contains("DRE")',
   labelUnidadeProponente:  'label:contains("Unidade proponente")',
@@ -80,7 +80,7 @@ export const designacaoLocators = {
   // Itens do dropdown (renderizados via portal pelo Radix)
   opcoesDropdown: '[role="option"]',
 
-  // ─── Passo 2 — Cargo Vago ──────────────────────────────────────────────────
+  // Passo 2 — Cargo Vago
   // Usa seletor dinâmico: [id*="form-item"] busca qualquer ID que contenha "form-item"
   // Fallback: navega pela label 'Cargo Vago' se ID dinâmico não funcionar
   campoCargoVago:    '[id$="-form-item"]', // Seletor dinâmico: qualquer ID terminado em "-form-item"
@@ -88,7 +88,7 @@ export const designacaoLocators = {
   opcoesCargoVago:   'body [role="option"], body div[role="option"], body [role="listbox"] [role="option"], .ant-select-item, .ant-select-item-option, [class*="select-item"]',
 };
 
-// ─── Textos esperados ──────────────────────────────────────────────────────────
+// Textos esperados
 export const designacaoTextos = {
   tituloCard:              'Designação',
   descricaoCard:           'Realize a pesquisa e validação de servidores para verificar a aptidão e efetuar a designação para cargos ou funções disponíveis.',
@@ -99,14 +99,14 @@ export const designacaoTextos = {
   tituloUnidadeProponente: 'Unidade Proponente',
 };
 
-// ─── URLs ──────────────────────────────────────────────────────────────────────
+// URLs
 export const designacaoUrls = {
   dashboard:             '/pages',
   listaDesignacoes:      '/pages/designacoes',
   novaDesignacaoPasso1:  '/pages/designacoes/designacoes-passo-1',
 };
 
-// ─── Pack: Nova Designação — seletores resilientes baseados em texto ───────────
+// Pack: Nova Designação — seletores resilientes baseados em texto
 // Preferidos sobre seletores estruturais (ex.: "main > div:first-child > ...")
 // que quebram a qualquer mudança de layout.
 export const novaDesignacaoPack = {
