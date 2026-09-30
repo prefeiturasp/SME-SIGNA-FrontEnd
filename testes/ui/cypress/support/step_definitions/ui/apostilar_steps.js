@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { apostilarLocators, apostilarTextos } from '../../ui/locators/apostilar_locators'
 
-// ─── ETAPA 1 — Seleção aleatória da designação para apostilar ─────────────────
+// ETAPA 1 — Seleção aleatória da designação para apostilar
 
 Then('Seleciona uma das Designação de forma aleatoria para apostilar', () => {
   cy.get('table tbody tr.ant-table-row', { timeout: 30000 })
@@ -29,7 +29,7 @@ Then('Seleciona uma das Designação de forma aleatoria para apostilar', () => {
     })
 })
 
-// ─── ETAPA 4 — Abre o accordion "Portarias de Cessação" e define o flag ───────
+// ETAPA 4 — Abre o accordion "Portarias de Cessação" e define o flag
 // Cypress.env('apostilaCessacaoTemDados'): true = seção com dados, próximas
 // etapas seguem normal; false = vazia, próximas etapas são puladas com log.
 When('valida a existencia da aba {string}', (nomeAba) => {
@@ -139,7 +139,7 @@ When('Clica no botão apostilamento {string}', (textoBotao) => {
   cy.log(`✓ Botão "${textoBotao}" clicado`)
 })
 
-// ─── ETAPA 7 — Clique condicional em Salvar ──────────────────────────────────
+// ETAPA 7 — Clique condicional em Salvar
 
 When('Clica em salvar apostilamento', () => {
   if (Cypress.env('apostilaCessacaoTemDados') === false) {
@@ -151,7 +151,7 @@ When('Clica em salvar apostilamento', () => {
   cy.log('✓ Salvar clicado')
 })
 
-// ─── ETAPA 7 — Validação pós-salvar ──────────────────────────────────────────
+// ETAPA 7 — Validação pós-salvar
 
 Then('o sistema processa o apostilamento sem erros', () => {
   if (Cypress.env('apostilaCessacaoTemDados') === false) {

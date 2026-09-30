@@ -11,9 +11,7 @@ Funcionalidade: Cadastro de texto de portaria
     Dado que o usuário está logado no sistema
     E está na tela "Textos de portarias"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 1 — Cadastrar texto de portaria para o tipo "Designação"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico @smoke
   Cenário: Cadastrar um novo texto de portaria para o tipo "Designação"
     Quando clica no botão "Cadastrar novo texto"
@@ -34,9 +32,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Designação"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 2 — Cadastrar texto de portaria para o tipo "Cessação"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Cessação"
     Quando clica no botão "Cadastrar novo texto"
@@ -56,9 +52,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Cessação"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 3 — Cadastrar texto de portaria para o tipo "Insubsistência de Designação"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Insubsistência de Designação"
     Quando clica no botão "Cadastrar novo texto"
@@ -78,9 +72,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Insubsistência de Designação"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 4 — Cadastrar texto de portaria para o tipo "Insubsistência de Cessação"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Insubsistência de Cessação"
     Quando clica no botão "Cadastrar novo texto"
@@ -100,9 +92,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Insubsistência de Cessação"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 5 — Cadastrar texto de portaria para o tipo "Apostila de Designação"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Apostila de Designação"
     Quando clica no botão "Cadastrar novo texto"
@@ -122,9 +112,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Apostila de Designação"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 6 — Cadastrar texto de portaria para o tipo "Apostila de Cessação"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Apostila de Cessação"
     Quando clica no botão "Cadastrar novo texto"
@@ -144,9 +132,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Apostila de Cessação"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 7 — Cadastrar texto de portaria para o tipo "Anulação de Apostila"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Anulação de Apostila"
     Quando clica no botão "Cadastrar novo texto"
@@ -166,9 +152,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Anulação de Apostila"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 8 — Cadastrar texto de portaria para o tipo "Tornar sem efeito"
-  # ══════════════════════════════════════════════════════════════
   @cadastro_fluxo_completo @critico
   Cenário: Cadastrar um novo texto de portaria para o tipo "Tornar sem efeito"
     Quando clica no botão "Cadastrar novo texto"
@@ -188,9 +172,7 @@ Funcionalidade: Cadastro de texto de portaria
     E o sistema retorna para a listagem de textos de portaria
     E o novo modelo de texto aparece na listagem com o tipo "Tornar sem efeito"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 9 — Estrutura do modal e do formulário de cadastro
-  # ══════════════════════════════════════════════════════════════
   @validacao_estrutura @smoke
   Cenário: Validar estrutura do modal "Novo texto de portaria" e do formulário de cadastro
     Quando clica no botão "Cadastrar novo texto"
@@ -217,9 +199,7 @@ Funcionalidade: Cadastro de texto de portaria
     Quando clica no botão "Cancelar" do cadastro de texto de portaria
     Então o sistema retorna para a listagem de textos de portaria
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 10 — Cadastrar sem preencher nenhum campo obrigatório
-  # ══════════════════════════════════════════════════════════════
   @excecao @campos_obrigatorios
   Cenário: Tentar cadastrar texto de portaria sem preencher nenhum campo obrigatório
     Quando clica no botão "Cadastrar novo texto"
@@ -230,9 +210,7 @@ Funcionalidade: Cadastro de texto de portaria
     Então cada campo obrigatorio do cadastro de texto de portaria exibe a mensagem de campo obrigatorio
     E o sistema permanece na tela de cadastro de texto de portaria
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 11 — Variável selecionada sem o placeholder correspondente no texto
-  # ══════════════════════════════════════════════════════════════
   @excecao @validacao_variaveis
   Cenário: Selecionar uma variável sem manter o placeholder correspondente no texto bloqueia o cadastro
     Quando clica no botão "Cadastrar novo texto"
@@ -254,9 +232,7 @@ Funcionalidade: Cadastro de texto de portaria
     Quando clica no botão "Revisar texto"
     Então o sistema permanece na tela de cadastro de texto de portaria
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 12 — Cancelar o cadastro descarta os dados preenchidos
-  # ══════════════════════════════════════════════════════════════
   @excecao @cancelar_cadastro
   Cenário: Cancelar o cadastro sem salvar descarta os dados preenchidos
     Quando clica no botão "Cadastrar novo texto"

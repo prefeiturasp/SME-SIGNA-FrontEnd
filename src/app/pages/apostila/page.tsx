@@ -185,6 +185,10 @@ export default function ApostilaPage() {
 
 
 
+  // lido no render para o react-hook-form inscrever o campo e manter o
+  // formState atualizado (ler só dentro do onSubmit pode retornar objeto antigo)
+  const { dirtyFields } = form.formState;
+
   const [mostrarEditor, setMostrarEditor] = useState(false);
 
 
@@ -255,7 +259,7 @@ export default function ApostilaPage() {
     
 
     const alteracoes: ApostilaAlteracoes[] = [];    
-    Object.keys(form.formState.dirtyFields).forEach(field => {
+    Object.keys(dirtyFields).forEach(field => {
 
       const valorDoCampo = values[field as keyof formSchemaApostilaData];
       // remove campos da apostila

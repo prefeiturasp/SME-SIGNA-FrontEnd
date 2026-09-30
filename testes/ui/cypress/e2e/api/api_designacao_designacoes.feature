@@ -69,7 +69,7 @@ Funcionalidade: API SIGNA - Designações
       | cargos sobrepostos pareados  |
       | impedimentos                 |
 
-  # ── Ciclo de vida completo — cenário central ──────────────────────────────
+  # Ciclo de vida completo — cenário central
   # POST cria, GET confirma, PATCH atualiza, GET confirma a atualização,
   # DELETE remove e um último GET confirma que não existe mais.
   @critico @ciclo_de_vida
@@ -88,7 +88,7 @@ Funcionalidade: API SIGNA - Designações
     Então o status da resposta do SIGNA deve ser 200 ou 204
     E a designação excluída não deve mais ser encontrada
 
-  # ── Cargo sobreposto ausente — confirmado que o salvamento funciona ──────
+  # Cargo sobreposto ausente — confirmado que o salvamento funciona
   # Reproduz o comportamento de mapearPayloadDesignacao
   # (src/utils/designacao/mapearPayload.ts): quando a integração não retorna
   # cargo sobreposto do indicado, o campo fica ausente do payload — o
@@ -108,8 +108,7 @@ Funcionalidade: API SIGNA - Designações
     Quando eu excluo a designação criada
     Então o status da resposta do SIGNA deve ser 200 ou 204
 
-  # ── BUG CONHECIDO — local de exercício ausente sempre quebra o salvamento
-  # ────────────────────────────────────────────────────────────────────────
+  # BUG CONHECIDO — local de exercício ausente sempre quebra o salvamento
   @critico @bug_conhecido @dados_opcionais_ausentes
   Cenário: BUG - Salvar designação sem local de exercício do indicado
     Dado eu busco um servidor válido do pool de RFs conhecidos
