@@ -30,11 +30,9 @@ Funcionalidade: Pesquisa de Atos Administrativos
       | Limpar filtros |
       | Pesquisar      |
 
-  # ─── Cobertura mínima (suíte smoke) ──────────────────────────────────────
+  # Cobertura mínima (suíte smoke)
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 1 — Filtrar por Tipo                              [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Filtrar por Tipo [ATIVO]
   @critico @smoke
   Cenário: Filtrar por Tipo
 
@@ -44,9 +42,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Tipo"
     E a tabela apresenta resultado para "Anulação de Apostila"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 2 — Filtrar por Nº SEI                             [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Filtrar por Nº SEI [ATIVO]
   @critico @smoke
   Cenário: Filtrar por Nº SEI
 
@@ -56,9 +52,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Nº SEI"
     E a tabela apresenta resultado para "8642.097"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 3 — Filtrar por Status (Publicado)                 [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Filtrar por Status (Publicado) [ATIVO]
   @critico @smoke
   Cenário: Filtrar por Status (Publicado)
 
@@ -68,11 +62,9 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Status"
     E a tabela apresenta resultado para "Publicado"
 
-  # ─── Cobertura completa (suíte regressão) ────────────────────────────────
+  # Cobertura completa (suíte regressão)
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 4 — Filtrar por Portaria de designação
-  # ══════════════════════════════════════════════════════════════
   @critico @regressao
   Cenário: Filtrar por Portaria de designação
 
@@ -82,9 +74,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Portaria de designação"
     E a tabela apresenta resultado para "8147925"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 5 — Filtrar por Servidor
-  # ══════════════════════════════════════════════════════════════
   @critico @regressao
   Cenário: Filtrar por Servidor
 
@@ -94,9 +84,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Servidor"
     E a tabela apresenta resultado para "ADALBERTO PAVLIDIS DA SILVA"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 6 — Filtrar por Status (Aguardando publicação)
-  # ══════════════════════════════════════════════════════════════
   @critico @regressao
   Cenário: Filtrar por Status (Aguardando publicação)
 
@@ -106,13 +94,11 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Status"
     E a tabela apresenta resultado para "Aguardando publicação"
 
-  # ─── Bloqueados por bug no backend ───────────────────────────────────────
+  # Bloqueados por bug no backend
   # Bug conhecido: o backend não filtra corretamente por Servidor/RF — a
   # tabela retorna linhas que não correspondem ao valor pesquisado.
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 7 — Filtrar por Servidor (bloqueado por bug)       [@skip]
-  # ══════════════════════════════════════════════════════════════
   @critico @regressao @skip
   Cenário: Filtrar por Servidor - bloqueado por bug no backend
 
@@ -122,9 +108,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Servidor"
     E a tabela apresenta resultado para "ROSANGELA DA SILVA PRADO"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 8 — Filtrar por RF (bloqueado por bug)             [@skip]
-  # ══════════════════════════════════════════════════════════════
   @critico @regressao @skip
   Cenário: Filtrar por Registro Funcional (RF) - bloqueado por bug no backend
 
@@ -134,9 +118,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Registro Funcional (RF)"
     E a tabela apresenta resultado para "7443668"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 9 — Filtrar por período de publicação
-  # ══════════════════════════════════════════════════════════════
   @regressao @periodo
   Cenário: Filtrar por período de publicação
 
@@ -145,9 +127,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
 
     Então o sistema exibe os registros dentro do período
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 10 — Limpar filtros preenchidos
-  # ══════════════════════════════════════════════════════════════
   @regressao @limpar-filtros
   Cenário: Limpar filtros preenchidos
 
@@ -159,9 +139,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
 
   # Bug conhecido: a combinação de filtros não funciona como "E" (AND) —
   # nenhuma linha retornada satisfaz RF e Status ao mesmo tempo.
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 11 — Busca combinada RF + Status                   [@skip]
-  # ══════════════════════════════════════════════════════════════
   @regressao @busca-combinada @skip
   Cenário: Buscar combinando Registro Funcional e Status
 
@@ -176,9 +154,7 @@ Funcionalidade: Pesquisa de Atos Administrativos
   # retorna o estado vazio ("Não há dados") para um Nº SEI inexistente — a
   # tabela continua populada com linhas que não correspondem à busca. Skip
   # até correção no backend.
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 12 — Nº SEI inexistente (tabela sem resultados)    [@skip]
-  # ══════════════════════════════════════════════════════════════
   @regressao @busca-sem-resultado @skip
   Cenário: Pesquisar com Nº SEI inexistente exibe tabela sem resultados
 

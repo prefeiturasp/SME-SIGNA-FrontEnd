@@ -11,9 +11,7 @@ Funcionalidade: Cadastro de cargo base
     Dado que o usuário está logado no sistema
     E está na tela "Gestão de cargos base"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 1 — Cadastrar novo cargo base (fluxo completo)     [BLOQUEADO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Cadastrar novo cargo base (fluxo completo) [BLOQUEADO]
   # @skip: os 5 códigos do combobox "Código do cargo no EOL" já têm cargo
   # base cadastrado em QA (falta massa de dado, não bug — mesma causa dos
   # Cenários 4/5/6/7). Reativar quando algum código EOL for liberado.
@@ -37,9 +35,7 @@ Funcionalidade: Cadastro de cargo base
     E a notificação de sucesso do cadastro de cargo base deve exibir "O cargo base foi criado."
     E o sistema retorna para a listagem de cargos base
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 2 — Localizar na listagem o cargo base recém-cadastrado [ATIVO]
-  # ══════════════════════════════════════════════════════════════
   # Depende do Cenário 1 ter rodado antes, na mesma sessão (@testIsolation(false)).
   @cadastro_fluxo_completo @critico
   Cenário: Localizar na listagem o cargo base cadastrado no cenário anterior
@@ -47,9 +43,7 @@ Funcionalidade: Cadastro de cargo base
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "Cargo criado por automação de testes"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 3 — Título, campos, textos e botões do formulário    [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Título, campos, textos e botões do formulário [ATIVO]
   @validacao_estrutura @smoke
   Cenário: Validar título, campos, textos e botões do cadastro de cargo base
     Quando clica no botão "Cadastrar novo cargo"
@@ -83,9 +77,7 @@ Funcionalidade: Cadastro de cargo base
     Quando clica no botão "Cancelar" do cadastro de cargo base
     Então o sistema retorna para a listagem de cargos base
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 4 — Cadastrar cargo base com todas as opções de utilização [BLOQUEADO]
-  # ══════════════════════════════════════════════════════════════
   # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base selecionando todas as opções de utilização
@@ -113,9 +105,7 @@ Funcionalidade: Cadastro de cargo base
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "Cargo com todas as opcoes criado por automacao"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 5 — Cadastrar cargo base em situação "Cargo em comissão"  [BLOQUEADO]
-  # ══════════════════════════════════════════════════════════════
   # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base com situação funcional "Cargo em comissão"
@@ -140,9 +130,7 @@ Funcionalidade: Cadastro de cargo base
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "QA auto comissao ste"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 6 — Cadastrar cargo base com "Testar laudo?" habilitado  [BLOQUEADO]
-  # ══════════════════════════════════════════════════════════════
   # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base com a opção "Testar laudo?" habilitada
@@ -167,9 +155,7 @@ Funcionalidade: Cadastro de cargo base
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "QA auto testar laudo"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 7 — Cadastrar cargo base com "Pesquisar Licenças no SIGPEC" [BLOQUEADO]
-  # ══════════════════════════════════════════════════════════════
   # @skip: mesma causa do Cenário 1 — códigos EOL esgotados em QA.
   @cadastro_fluxo_completo @critico @skip
   Cenário: Cadastrar novo cargo base com a opção "Pesquisar Licenças no SIGPEC" habilitada
@@ -195,9 +181,7 @@ Funcionalidade: Cadastro de cargo base
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "QA auto licenca sigpec"
 
-  # ══════════════════════════════════════════════════════════════
   # CENÁRIO 8 — Cadastrar sem preencher nenhum campo obrigatório  [ATIVO]
-  # ══════════════════════════════════════════════════════════════
   @excecao @campos_obrigatorios
   Cenário: Tentar cadastrar cargo base sem preencher nenhum campo nem selecionar utilização
     Quando clica no botão "Cadastrar novo cargo"
@@ -207,9 +191,7 @@ Funcionalidade: Cadastro de cargo base
     Então cada campo obrigatorio do cargo base exibe a mensagem de campo obrigatorio
     E o sistema direciona para a tela de cadastro de cargo base
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 9 — Cancelar descarta os dados preenchidos            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 9 — Cancelar descarta os dados preenchidos [ATIVO]
   @excecao @cancelar_cadastro
   Cenário: Cancelar o cadastro sem salvar descarta os dados preenchidos
     Quando clica no botão "Cadastrar novo cargo"

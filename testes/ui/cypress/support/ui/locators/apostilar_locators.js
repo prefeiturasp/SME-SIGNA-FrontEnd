@@ -4,43 +4,43 @@
 
 export const apostilarLocators = {
 
-  // ─── Dashboard / Listagem ──────────────────────────────────────────────────
+  // Dashboard / Listagem
   tituloListagem:   'Lista de designações',
   tabela:           'table',
   // tr.ant-table-row → somente linhas de dados reais (exclui placeholder e measure rows)
   linhas:           'table tbody tr.ant-table-row',
   dropdownTrigger:  '.ant-dropdown-trigger, [class*="dropdown-trigger"]',
 
-  // ─── Tela Apostilar ────────────────────────────────────────────────────────
+  // Tela Apostilar
   tituloPagina: 'Apostilar',
 
-  // ─── Abas (Ant Design Tabs) ────────────────────────────────────────────────
+  // Abas (Ant Design Tabs)
   abaServidorIndicado:  '.ant-tabs-tab:contains("Servidor indicado")',
   abaPortariaDesignacao: '.ant-tabs-tab:contains("Portaria de designação")',
   abaPortariasCessacao:  '.ant-tabs-tab:contains("Portarias de Cessação")',
 
-  // ─── Tipo de Apostilar (Radix UI radio group) ─────────────────────────────
+  // Tipo de Apostilar (Radix UI radio group)
   textoTipoApostilar: 'Selecione o tipo de Apostila:',
   radioGroup:         '[role="radiogroup"]',
   radioDesignacao:    '[role="radio"][value*="designa"], [role="radiogroup"] label',
   radioCessacao:      '[role="radio"][value*="cessa"], [role="radiogroup"] label',
 
-  // ─── Formulário de Apostilamento ──────────────────────────────────────────
+  // Formulário de Apostilamento
   labelPortariaApostilar: 'Portaria de Apostilar',
   labelNroSEI:            'Nº SEI',
   labelDO:                'D.O',
 
-  // ─── Observações ──────────────────────────────────────────────────────────
+  // Observações
   labelObservacoes: 'Observações',
 
-  // ─── Botões ───────────────────────────────────────────────────────────────
+  // Botões
   botaoTrechosSEI: 'button:contains("Trechos para o SEI")',
   botaoSalvar:     'button:contains("Salvar")',
 
-  // ─── Texto da portaria (preview SEI) ──────────────────────────────────────
+  // Texto da portaria (preview SEI)
   textoPortaria: 'PORTARIA',
 
-  // ─── Helpers dinâmicos ────────────────────────────────────────────────────
+  // Helpers dinâmicos
 
   // Retorna o input de um label Ant Design pelo texto da label
   inputPorLabel: (label) => {
@@ -74,7 +74,7 @@ export const apostilarLocators = {
   },
 }
 
-// ─── Textos esperados ──────────────────────────────────────────────────────────
+// Textos esperados
 export const apostilarTextos = {
   tituloPagina:       'Apostilar',
   tituloListagem:     'Lista de designações',
@@ -82,7 +82,7 @@ export const apostilarTextos = {
   textoPortaria:      'PORTARIA',
 }
 
-// ─── URLs de referência ────────────────────────────────────────────────────────
+// URLs de referência
 export const apostilarUrls = {
   listagem: '/pages/listagem-designacoes',
   apostilar: 'apostila',

@@ -54,7 +54,7 @@ const xpathToCssSelector = (locator) => {
   return locator;
 };
 
-// ─── Given — Navegação ────────────────────────────────────────────────────────
+// Given — Navegação
 
 Given('que o usuário acessa a página de nova designação', () => {
   // Utilizado em cenários isolados: aceita URL atual pós-navegação via UI
@@ -62,7 +62,7 @@ Given('que o usuário acessa a página de nova designação', () => {
   cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-1');
 });
 
-// ─── Given — Pré-condições reutilizáveis (via "E" nos cenários de setup) ──────
+// Given — Pré-condições reutilizáveis (via "E" nos cenários de setup)
 
 Given('pesquisa pelo RF {string}', (rf) => {
   cy.get(designacaoLocators.campoRF, { timeout: 10000 })
@@ -74,7 +74,7 @@ Given('pesquisa pelo RF {string}', (rf) => {
     .should('be.visible');
 });
 
-// ─── When — Ações ─────────────────────────────────────────────────────────────
+// When — Ações
 
 When('clica para abrir o módulo {string}', (modulo) => {
   cy.contains('h2', modulo)
@@ -417,7 +417,7 @@ When('clica no botão Avançar', () => {
     .click();
 });
 
-// ─── Then — Asserções ──────────────────────────────────────────────────────────
+// Then — Asserções
 
 Then('deve visualizar o card do módulo {string}', (modulo) => {
   cy.contains('h2', modulo).should('be.visible');
@@ -573,9 +573,9 @@ Then('o sistema exibe a seção {string}', (titulo) => {
   cy.contains(titulo, { timeout: 15000 }).should('be.visible');
 });
 
-// ─── Passo 2 — Portarias de designação ────────────────────────────────────────
+// Passo 2 — Portarias de designação
 
-// ─── Lista de RFs para seleção aleatória ─────────────────────────────────────
+// Lista de RFs para seleção aleatória
 const rfList = [
   '7311559', '7704941', '5764521', '7443625',
   '7914229', '7209983', '7443668',
@@ -865,7 +865,7 @@ When('preenche o campo RF titular com {string}', (rf) => {
     .clear().type(rf, { delay: 100 });
 });
 
-// ── Passo 2 — step novo: clica + preenche RF do titular (aleatório da lista) ──
+// Passo 2 — step novo: clica + preenche RF do titular (aleatório da lista)
 When('clica e preenche o campo RF titular com um dos RF da lista', () => {
   const rf = rfList[Math.floor(Math.random() * rfList.length)];
   cy.log(`RF titular selecionado aleatoriamente: ${rf}`);
@@ -881,7 +881,7 @@ When('clica e preenche o campo RF titular com um dos RF da lista', () => {
     .click().clear().type(rf, { delay: 100 });
 });
 
-// ── Passo 2 — step novo: clica + preenche RF do titular ───────────────────────
+// Passo 2 — step novo: clica + preenche RF do titular
 When('clica e preenche o campo RF titular com {string}', (rf) => {
   // O campo RF Titular é identificado pelo label 'RF Titular'
   cy.contains('label', 'RF Titular', { timeout: 10000 })
@@ -894,7 +894,7 @@ When('clica e preenche o campo RF titular com {string}', (rf) => {
     .click().clear().type(rf, { delay: 100 });
 });
 
-// ── Passo 2 — step novo: valida e clica em pesquisar o titular ────────────────
+// Passo 2 — step novo: valida e clica em pesquisar o titular
 When('valida a existencia do botao e clica em pesquisar o titular', () => {
   // Sobe pelo DOM até o primeiro div que contém um botão (ancestor comum do label e do botão Pesquisar)
   cy.contains('label', 'RF Titular', { timeout: 10000 })
@@ -1003,7 +1003,7 @@ When('clica em Avançar no rodape do passo 2', () => {
     .click({ force: true });
 });
 
-// ─── Passo 3 — Resumo e confirmação ───────────────────────────────────────────
+// Passo 3 — Resumo e confirmação
 
 Then('o sistema direciona para a pagina de resumo da designacao', () => {
   cy.contains('PORTARIA', { timeout: 20000 }).should('exist');
@@ -1100,7 +1100,7 @@ Then('o sistema conclui e direciona para listagem de designacoes', () => {
   });
 });
 
-// ─── Cenários de Exceção ──────────────────────────────────────────────────────
+// Cenários de Exceção
 
 Then('o sistema exibe mensagem de servidor não encontrado', () => {
   // Aguarda a resposta da API de pesquisa

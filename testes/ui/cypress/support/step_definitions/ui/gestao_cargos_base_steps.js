@@ -2,8 +2,8 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { gestaoCargosBasePack, gestaoCargosBaseUrls } from '../../ui/locators/gestao_cargos_base_locators'
 import { textoPortariaPack, textoPortariaUrls } from '../../ui/locators/texto_portaria_locators'
 
-// ─── Login único por suíte (sessão reaproveitada entre os cenários desta
-// feature) ──────────────────────────────────────────────────────────────
+// Login único por suíte (sessão reaproveitada entre os cenários desta
+// feature)
 // Exige @testIsolation(false) na Funcionalidade, senão o Cypress reseta o
 // navegador entre cenários e este cache nunca é reaproveitado de verdade.
 let loginJaRealizado = false
@@ -71,11 +71,15 @@ const TELAS_SUPORTADAS = {
   },
 }
 
-Given('está na tela {string}', (tela) => {
+const obterConfigTela = (tela) => {
   const config = TELAS_SUPORTADAS[tela.trim().toLowerCase()]
   if (!config) {
     throw new Error(`Step "está na tela" não implementado para "${tela}". Telas suportadas: ${Object.keys(TELAS_SUPORTADAS).join(', ')}`)
   }
+  return config
+}
+
+const navegarPelaBarraLateral = (config) => {
 
   // NÃO usa cy.visit() direto pras rotas profundas de "Gestão": a aplicação
   // responde com 307 e redireciona de volta pra "/" (reload completo). A
@@ -118,6 +122,35 @@ Given('está na tela {string}', (tela) => {
     .click({ force: true })
 
   config.validarChegada()
+}
+
+Given('está na tela {string}', (tela) => {
+  navegarPelaBarraLateral(obterConfigTela(tela))
+})
+
+// Usa a barra lateral só no primeiro cenário; nos seguintes a tela já está
+// aberta (@testIsolation(false)) e basta clicar em "Limpar filtros" antes da
+// nova pesquisa.
+const telasJaAbertas = new Set()
+
+Given('está na tela {string} limpando os filtros entre os cenários', (tela) => {
+  const chave = tela.trim().toLowerCase()
+  const config = obterConfigTela(tela)
+
+  if (!telasJaAbertas.has(chave)) {
+    navegarPelaBarraLateral(config)
+    cy.then(() => telasJaAbertas.add(chave))
+    return
+  }
+
+  cy.get('body').then(($body) => {
+    if ($body.find('[role="dialog"], [role="listbox"]').length > 0) {
+      cy.get('body').type('{esc}')
+      cy.wait(300)
+    }
+  })
+  config.validarChegada()
+  cy.contains('button', 'Limpar filtros', { timeout: 10000 }).should('be.disabled')
 })
 
 Then('valida a existencia dos campos de filtro {string}', (camposParam) => {

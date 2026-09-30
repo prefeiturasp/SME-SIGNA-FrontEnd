@@ -124,7 +124,7 @@ When('o usuário clica no menu de usuário', () => {
   cy.get('[data-testid="menu-usuario"], .user-menu, .dropdown-user').click();
 });
 
-// ─── Steps Genéricos Comuns ─────────────────────────────────────────────────
+// Steps Genéricos Comuns
 
 Given('que o usuário está na página do dashboard', () => {
   // Listagem de Designação foi unificada em /pages/atos-administrativos.

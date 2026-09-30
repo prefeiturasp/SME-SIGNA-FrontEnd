@@ -1,7 +1,7 @@
 import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { textoPortariaPack, textoPortariaUrls, TIPOS_DE_PORTARIA, TIPO_PORTARIA_NA_LISTAGEM } from '../../ui/locators/texto_portaria_locators'
 
-// ─── Modal "Novo texto de portaria" ─────────────────────────────────────────
+// Modal "Novo texto de portaria"
 
 Then('o sistema exibe o modal de novo texto de portaria', () => {
   textoPortariaPack.modalNovoTexto.dialog().should('be.visible')
@@ -22,7 +22,7 @@ Then('a opção {string} já vem selecionada por padrão no modal de novo texto 
     .should('have.attr', 'aria-checked', 'true')
 })
 
-// ─── Navegação entre telas ──────────────────────────────────────────────────
+// Navegação entre telas
 
 Then('o sistema direciona para a tela de cadastro de texto de portaria', () => {
   cy.url({ timeout: 20000 }).should('include', textoPortariaUrls.cadastro)
@@ -46,7 +46,7 @@ When('clica no botão "Cancelar" do cadastro de texto de portaria', () => {
   textoPortariaPack.cadastro.botaoCancelar().should('be.visible').click({ force: true })
 })
 
-// ─── Preenchimento do formulário de cadastro ────────────────────────────────
+// Preenchimento do formulário de cadastro
 
 When('seleciona o tipo de portaria {string}', (tipo) => {
   if (!TIPOS_DE_PORTARIA.some((t) => t.toLowerCase() === tipo.toLowerCase())) {
@@ -121,7 +121,7 @@ When('apaga o conteúdo do texto da portaria mantendo as variáveis selecionadas
     .type('Texto sem os marcadores de variável', { delay: 20 })
 })
 
-// ─── Validações pós-submit ──────────────────────────────────────────────────
+// Validações pós-submit
 
 Then('cada campo obrigatorio do cadastro de texto de portaria exibe a mensagem de campo obrigatorio', () => {
   textoPortariaPack.cadastro.mensagensDeErro()

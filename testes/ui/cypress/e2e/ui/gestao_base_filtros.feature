@@ -11,9 +11,7 @@ Funcionalidade: Gestão de cargos base
     Dado que o usuário está logado no sistema
     E está na tela "Gestão de cargos base"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 1 — Título, campos de filtro, botões e lista        [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Título, campos de filtro, botões e lista [ATIVO]
   @validacao_estrutura @smoke
   Cenário: Validar título, campos de filtro, botões e lista de cargos base
     Então valida a existencia do Texto "Gestão de cargos base"
@@ -24,9 +22,7 @@ Funcionalidade: Gestão de cargos base
     E valida a existencia do Botão "Cadastrar novo cargo"
     Então os botões "Limpar filtros" e "Pesquisar" devem estar desabilitados
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 2 — Pesquisa combinando múltiplos filtros            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Pesquisa combinando múltiplos filtros [ATIVO]
   @pesquisa_filtros @smoke
   Cenário: Pesquisar cargos base combinando Grupamento, Descrição Resumida e Status
     # 1ª consulta: Grupamento + Descrição Resumida (texto livre) + Status
@@ -46,9 +42,7 @@ Funcionalidade: Gestão de cargos base
     Então a tabela exibe apenas cargos base com "EFETIVO"
     E a tabela exibe apenas cargos base com "ESCOLA"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 3 — Limpar filtros restaura a lista completa         [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Limpar filtros restaura a lista completa [ATIVO]
   @limpar_filtros @regressao
   Cenário: Limpar filtros restaura a lista completa de cargos base
     # 3ª consulta: aplica um filtro que restringe a lista, antes de limpar
@@ -60,45 +54,35 @@ Funcionalidade: Gestão de cargos base
     E os botões "Limpar filtros" e "Pesquisar" devem estar desabilitados
     E a tabela exibe mais de "1" cargo base cadastrado
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 4 — Filtrar somente por Grupamento                   [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 4 — Filtrar somente por Grupamento [ATIVO]
   @filtro_individual @regressao
   Cenário: Filtrar cargos base somente por Grupamento
     Quando seleciona a opção "Docentes" no filtro "Grupamento"
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "DOCENTES"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 5 — Filtrar somente por Descrição Resumida            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 5 — Filtrar somente por Descrição Resumida [ATIVO]
   @filtro_individual @regressao
   Cenário: Filtrar cargos base somente por Descrição Resumida
     Quando preenche o filtro "Descrição Resumida" com "apoio"
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "apoio"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 6 — Filtrar somente por Descrição Completa            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 6 — Filtrar somente por Descrição Completa [ATIVO]
   @filtro_individual @regressao
   Cenário: Filtrar cargos base somente por Descrição Completa
     Quando preenche o filtro "Descrição Completa" com "escola"
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "ESCOLA"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 7 — Filtrar somente por Situação Funcional            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 7 — Filtrar somente por Situação Funcional [ATIVO]
   @filtro_individual @regressao
   Cenário: Filtrar cargos base somente por Situação Funcional
     Quando seleciona a opção "Efetivo" no filtro "Situação Funcional"
     E clica no botão "Pesquisar"
     Então a tabela exibe apenas cargos base com "EFETIVO"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 8 — Filtrar somente por Status                        [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 8 — Filtrar somente por Status [ATIVO]
   @filtro_individual @regressao
   Cenário: Filtrar cargos base somente por Status
     Quando seleciona a opção "Ativo" no filtro "Status"
