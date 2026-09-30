@@ -346,11 +346,7 @@ export default function ApostilaPage() {
       }
 
 
-      // TO-DO(debug): remover após validar edição de apostila no ambiente
-      console.log("[apostila] dirtyFields", structuredClone(dirtyFields));
-      console.log("[apostila] body", structuredClone(body));
-      const resposta = await salvarApostila.mutateAsync({ body });
-      console.log("[apostila] resposta", resposta);
+      await salvarApostila.mutateAsync({ body });
       notification.success({ title: "Apostila salva com sucesso!" });
       router.push("/pages/atos-administrativos");
     } catch (error: unknown) {
