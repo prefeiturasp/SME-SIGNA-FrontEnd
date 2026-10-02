@@ -37,6 +37,7 @@ import { formatarData } from "@/lib/utils";
 import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 import { Cessacao, DesignacaoResponse } from "@/types/designacao";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
+import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
 
 // Mantida (e anida exportada) pois `visualizar-insubsistencia/[id]/page.tsx`
 // a importa para regerar o texto localmente de registros antigos, que
@@ -88,15 +89,28 @@ export const gerarDadosInsubsistencia = (values: formSchemaInsubsistenciaData, d
 export default function InsubsistenciaPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const id_insubsistencia = searchParams.get("id_insubsistencia");
+  
   const origem = searchParams.get("origem");
   const tipoInsubsistenciaPadrao = origem === "cessacao" ? "cessacao" : "designacao";
   const salvarInsubsistencia = useSalvarInsubsistencia();
   const router = useRouter();
   const notification = useAppNotification();
 
+  const { data: insubsistencia, isLoading: isLoadingInsubsistencia } =
+  useFetchInsubsistenciasById(Number(id_insubsistencia));
+  
 
-  const { data: designacao, isLoading } =
+  const { data: designacaoData, isLoading: isLoadingDesignacao } =
     useFetchDesignacoesById(Number(id));
+
+
+  // na edição os dados vem de insubsistencia, na criação vem de designacao
+  const designacao = id_insubsistencia ? insubsistencia?.designacao : designacaoData;
+
+  const cessacao = id_insubsistencia ? insubsistencia?.cessacao : designacaoData?.cessacao;
+  
+  
 
   const form = useForm<formSchemaInsubsistenciaData>({
     resolver: zodResolver(formSchemaInsubsistencia),
@@ -130,32 +144,32 @@ export default function InsubsistenciaPage() {
   }, [designacao]);
 
   const dadosPortariaCessacao = useMemo(() => {
-    if (!designacao?.cessacao) return null;
+    if (!cessacao) return null;
 
-    return designacao.cessacao;
-  }, [designacao]);
+    return cessacao;
+  }, [cessacao]);
 
   const dadosIndicado: Servidor | null = useMemo(
     () => getDadosIndicado(designacao),
     [designacao]
   );
   const desabilita_radio =
-    !!designacao?.cessacao?.insubsistencia || !dadosPortariaCessacao;
+    !!designacao?.cessacao?.insubsistencia || !dadosPortariaCessacao || !!id_insubsistencia;
 
   useEffect(() => {
     if (!designacao) return;
 
     form.reset({
       insubsistencia: {
-        numero_portaria: "",
-        numero_sei: "",
-        ano: new Date().getFullYear().toString(),
-        doc: "",
+        numero_portaria: insubsistencia?.numero_portaria?.toString() ?? "",
+        numero_sei: insubsistencia?.sei_numero ?? "",
+        ano: insubsistencia?.ano_vigente ?? new Date().getFullYear().toString(),
+        doc: insubsistencia?.doc ?? "",
         tipo_insubsistencia: tipoInsubsistenciaPadrao,
-        observacoes: "",
+        observacoes: insubsistencia?.observacoes ?? "",        
       },
     });
-  }, [designacao, form, tipoInsubsistenciaPadrao]);
+  }, [designacao, form, tipoInsubsistenciaPadrao, insubsistencia]);
 
   const [mostrarEditor, setMostrarEditor] = useState(false);
   const [htmlPortaria, setHtmlPortaria] = useState("");
@@ -191,14 +205,16 @@ export default function InsubsistenciaPage() {
 
   const onSubmit = async (values: formSchemaInsubsistenciaData) => {
     try {
-      const designacaoId = Number(id);
+      const designacaoId = designacao?.id ? Number(designacao?.id) : Number(id);
+
 
       await salvarInsubsistencia.mutateAsync({
         values,
         designacaoId: designacaoId,
-        cessacaoId: designacao?.cessacao?.id,
+        cessacaoId: cessacao?.id,
         textoSei,
         modeloPortaria: modeloPortariaId,
+        insubsistenciaId: id_insubsistencia ? Number(id_insubsistencia) : undefined,
       });
 
       notification.success({ title: "Insubsistência salva com sucesso!" });
@@ -234,7 +250,7 @@ export default function InsubsistenciaPage() {
         icon={<Designacao width={24} height={24} fill="#B22B2A" />}
         showBackButton={false}
       />
-      {isLoading ? (
+      {isLoadingDesignacao || isLoadingInsubsistencia ? (
         <div className="flex justify-center items-center h-[60vh]">
           <Loader2 className="h-10 w-10 animate-spin text-[#B22B2A]" />
         </div>
