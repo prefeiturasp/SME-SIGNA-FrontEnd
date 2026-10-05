@@ -392,6 +392,54 @@ describe("ListagemDeAtosAdministrativos", () => {
     expect(screen.getByTestId("menu-item-3")).toHaveTextContent("Tornar insubsistente");
   });
 
+  it("exibe Apostilar para designação publicada quando todas as apostilas foram anuladas", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.PUBLICADO,
+          apostilas: [
+            { id: 10, status: "insubsistente" },
+            { id: 11, status: "insubsistente" },
+          ],
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
+  });
+
+  it("não exibe Apostilar quando existe ao menos uma apostila válida entre anuladas", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: StatusAtosAdministrativos.PUBLICADO,
+          apostilas: [
+            { id: 10, status: "insubsistente" },
+            { id: 11, status: "ativo" },
+          ],
+        })}
+      </>
+    );
+
+    expect(screen.queryByTestId("menu-item-1")).not.toBeInTheDocument();
+  });
+
   it("monta menu de ações para designação não publicada", () => {
     render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
 
@@ -559,6 +607,27 @@ describe("ListagemDeAtosAdministrativos", () => {
 
     screen.getByTestId("menu-item-3").click();
     expect(pushMock).toHaveBeenCalledWith("/pages/insubsistencia?id=99&origem=cessacao");
+  });
+
+  it("exibe Apostilar para cessação quando a apostila foi anulada", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "CESSACAO",
+          ato_pai_id: 99,
+          apostilas: [{ id: 20, status: "insubsistente" }],
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-1")).toHaveTextContent("Apostilar");
   });
 
   it("não exibe itens de ação para tipo não mapeado", () => {
