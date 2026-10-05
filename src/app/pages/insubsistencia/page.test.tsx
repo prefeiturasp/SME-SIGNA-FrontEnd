@@ -1,11 +1,17 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import InsubsistenciaPage from "./page";
+import InsubsistenciaPage, { gerarDadosInsubsistencia } from "./page";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
+import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
+import type { formSchemaInsubsistenciaData } from "./schema";
+import type { Cessacao, DesignacaoResponse } from "@/types/designacao";
+import { formatarData } from "@/lib/utils";
+import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
+import { montarTrechoUnidade } from "@/utils/portarias/gerarDadosPortaria";
 
 const testControls = vi.hoisted(() => ({
   routerPush: vi.fn(),
@@ -70,6 +76,10 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
   useFetchDesignacoesById: vi.fn(),
 }));
 
+vi.mock("@/hooks/useVisualizarInsubsistencia", () => ({
+  useFetchInsubsistenciasById: vi.fn(),
+}));
+
 vi.mock("@/hooks/useSalvarInsubsistencia", () => ({
   useSalvarInsubsistencia: vi.fn(),
 }));
@@ -82,7 +92,17 @@ vi.mock("antd", () => ({
   Card: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card">{children}</div>
   ),
-  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Tooltip: ({
+    children,
+    title,
+  }: {
+    children: React.ReactNode;
+    title?: string;
+  }) => (
+    <div data-testid="tooltip-cessacao" data-title={title ?? ""}>
+      {children}
+    </div>
+  ),
 }));
 
 const notificationMocks = vi.hoisted(() => ({
@@ -268,6 +288,29 @@ const cessacaoMock = {
   insubsistencia: null as never,
 };
 
+const insubsistenciaMock = {
+  id: 39,
+  numero_portaria: 200,
+  ano_vigente: "2025",
+  sei_numero: "SEI-INSUB",
+  doc: "DOC-INSUB",
+  observacoes: "obs edição",
+  designacao: {
+    ...designacaoMock,
+    id: 36,
+    indicado_nome_servidor: "SERVIDOR EDICAO",
+    cessacao: cessacaoMock,
+  },
+  cessacao: cessacaoMock,
+};
+
+function mockSearchParams(params: Record<string, string | null> = { id: "5" }) {
+  testControls.searchParamsGet.mockImplementation((key?: string | undefined | null) => {
+    if (!key) return "";
+    return params[key] ?? "";
+  });
+}
+
 // ── Testes ────────────────────────────────────────────────────────────────────
 
 const textoPreviewPadrao = "PORTARIA Nº 100/2026\nSEI Nº SEI-INSUB\nTORNAR INSUBSISTENTE ...";
@@ -279,7 +322,12 @@ describe("InsubsistenciaPage", () => {
     vi.clearAllMocks();
     testControls.forceTriggerResult = null;
     testControls.forceUndefinedGetValues = false;
-    testControls.searchParamsGet.mockReturnValue("5");
+    mockSearchParams({ id: "5" });
+
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as never);
 
     vi.mocked(useSalvarInsubsistencia).mockReturnValue({
       mutateAsync: mutateAsyncMock,
@@ -476,9 +524,7 @@ describe("InsubsistenciaPage", () => {
   });
 
   it("pré-seleciona tipo 'cessação' quando a URL vem com origem=cessacao", async () => {
-    testControls.searchParamsGet.mockImplementation((key?: string) =>
-      key === "origem" ? "cessacao" : "5"
-    );
+    mockSearchParams({ id: "5", origem: "cessacao" });
 
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
       data: { ...designacaoMock, cessacao: cessacaoMock },
@@ -661,5 +707,356 @@ describe("InsubsistenciaPage", () => {
     fireEvent.click(screen.getByTestId("editar-servidor"));
 
     expect(screen.getByTestId("resumo-servidor-indicado")).toBeInTheDocument();
+  });
+
+  it("exibe loader enquanto a insubsistência de edição está carregando", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+    expect(screen.queryByTestId("accordion")).not.toBeInTheDocument();
+  });
+
+  it("usa designação e cessação da insubsistência na edição", async () => {
+    mockSearchParams({ id_insubsistencia: "39", origem: "designacao" });
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as never);
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: insubsistenciaMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    expect(useFetchInsubsistenciasById).toHaveBeenCalledWith(39);
+    expect(screen.getByText("SERVIDOR EDICAO")).toBeInTheDocument();
+    expect(screen.getByTestId("resumo-portaria-cessacao")).toBeInTheDocument();
+    expect(screen.getByTestId("radio-group")).toHaveAttribute("data-disabled", "true");
+    expect(screen.getByTestId("tooltip-cessacao")).toHaveAttribute(
+      "data-title",
+      "A cessação já possui insubsistência ou não foi encontrada.",
+    );
+  });
+
+  it("salva a edição repassando o id da insubsistência", async () => {
+    mutateAsyncMock.mockResolvedValue({ id: 39 });
+    mockSearchParams({ id_insubsistencia: "39", origem: "designacao" });
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as never);
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: insubsistenciaMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+    await waitFor(() => screen.getByTestId("botao-proximo"));
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          designacaoId: 36,
+          cessacaoId: 1,
+          insubsistenciaId: 39,
+        }),
+      );
+    });
+  });
+
+  it("usa o id da URL quando a designação não tem id", async () => {
+    mutateAsyncMock.mockResolvedValue({ id: 1 });
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, id: undefined },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+    await waitFor(() => screen.getByTestId("botao-proximo"));
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          designacaoId: 5,
+          insubsistenciaId: undefined,
+        }),
+      );
+    });
+  });
+
+  it("exibe mensagem genérica quando o erro do save não é uma Error", async () => {
+    mutateAsyncMock.mockRejectedValue("falha crua");
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+    await waitFor(() => screen.getByTestId("botao-proximo"));
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+
+    await waitFor(() => {
+      expect(notificationMocks.error).toHaveBeenCalledWith({ title: "Erro ao salvar" });
+    });
+  });
+
+  it("desabilita o botão de trechos enquanto a prévia está sendo gerada", async () => {
+    let resolvePreview!: (value: {
+      success: true;
+      data: { modelo_portaria_id: number; texto: string };
+    }) => void;
+
+    vi.mocked(gerarPreviewTextoSeiAction).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvePreview = resolve;
+        }),
+    );
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Trechos para o SEI").closest("button")).toBeDisabled();
+    });
+
+    resolvePreview({
+      success: true,
+      data: { modelo_portaria_id: 11, texto: textoPreviewPadrao },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("botao-proximo")).toBeInTheDocument();
+    });
+  });
+
+  it("gera a prévia com campos vazios quando getValues devolve insubsistência incompleta", async () => {
+    testControls.forceUndefinedGetValues = true;
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: designacaoMock,
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => {
+      expect(gerarPreviewTextoSeiAction).toHaveBeenCalled();
+    });
+
+    const chamada = vi.mocked(gerarPreviewTextoSeiAction).mock.calls.at(-1)?.[0];
+    expect(chamada?.dados.PORTARIA).toBe("");
+    expect(chamada?.dados.NUMERO_SEI).toBe("");
+  });
+
+  it("mantém tooltip da cessação vazio quando o radio está habilitado", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, cessacao: cessacaoMock },
+      isLoading: false,
+    } as never);
+
+    render(<InsubsistenciaPage />);
+
+    expect(screen.getByTestId("tooltip-cessacao")).toHaveAttribute("data-title", "");
+  });
+});
+
+const valuesInsubsistenciaMock: formSchemaInsubsistenciaData = {
+  insubsistencia: {
+    numero_portaria: "100",
+    ano: "2026",
+    numero_sei: "SEI-INSUB",
+    doc: "2026-02-10",
+    observacoes: "obs",
+    tipo_insubsistencia: "designacao",
+  },
+};
+
+describe("gerarDadosInsubsistencia", () => {
+  it("monta período determinado e cargo com categoria quando há data_fim", () => {
+    const designacao = {
+      data_inicio: "2026-01-01",
+      data_fim: "2026-01-31",
+      dre_nome: "DRE Centro",
+      numero_portaria: 1,
+      doc: "2026-01-11",
+      sei_numero: "6016.2026/0001-2",
+      indicado_nome_servidor: "Servidor Nome",
+      indicado_rf: "1234567",
+      indicado_vinculo: 2,
+      indicado_cargo_base: "PROFESSOR",
+      indicado_categoria: "3",
+      indicado_cargo_sobreposto: "COORDENADOR",
+      indicado_local_exercicio: "EMEF TESTE",
+      indicado_lotacao: "Lotacao X",
+      unidade_proponente: "EMEF Proponente",
+    } as DesignacaoResponse;
+
+    const cessacao = {
+      numero_portaria: 10,
+      doc: "2025-10-11",
+      sei_numero: "6016.2025/0001-1",
+    } as Cessacao;
+
+    expect(gerarDadosInsubsistencia(valuesInsubsistenciaMock, designacao, cessacao)).toEqual({
+      doc: "2026-02-10",
+      portaria: "100",
+      ano: "2026",
+      sei: "SEI-INSUB",
+      dre: "DRE Centro",
+      portaria_designacao: 1,
+      doc_designacao: formatarData("2026-01-11"),
+      sei_designacao: "6016.2026/0001-2",
+      portaria_cessacao: 10,
+      doc_cessacao: formatarData("2025-10-11"),
+      sei_cessacao: "6016.2025/0001-1",
+      nome_indicado: "Servidor Nome",
+      rf: formatarRF("1234567"),
+      vinculo: 2,
+      cargo_base: `${nameToCamelCase("PROFESSOR")} - Categoria 3`,
+      cargo: nameToCamelCase("COORDENADOR"),
+      ue: nameToCamelCaseUe("EMEF TESTE"),
+      periodo: ` no período de ${formatarData("2026-01-01")} a ${formatarData("2026-01-31")}`,
+      trecho_unidade: montarTrechoUnidade("Lotacao X", "EMEF Proponente", "DRE Centro"),
+    });
+  });
+
+  it("usa período indeterminado e fallbacks quando designação e cessação estão ausentes", () => {
+    expect(gerarDadosInsubsistencia(valuesInsubsistenciaMock, undefined, undefined)).toEqual({
+      doc: "2026-02-10",
+      portaria: "100",
+      ano: "2026",
+      sei: "SEI-INSUB",
+      dre: "-",
+      portaria_designacao: "-",
+      doc_designacao: formatarData(""),
+      sei_designacao: "-",
+      portaria_cessacao: "-",
+      doc_cessacao: formatarData(""),
+      sei_cessacao: "-",
+      nome_indicado: "-",
+      rf: formatarRF("-"),
+      vinculo: "-",
+      cargo_base: nameToCamelCase("-"),
+      cargo: nameToCamelCase("-"),
+      ue: nameToCamelCaseUe("-"),
+      periodo: ` a partir de ${formatarData("")}`,
+      trecho_unidade: montarTrechoUnidade("", "", ""),
+    });
+  });
+
+  it("usa data_inicio vazia quando o período é determinado mas a data inicial não veio", () => {
+    const designacao = {
+      id: 1,     
+      data_fim: "2026-12-31",
+      data_inicio: '2026-01-01',
+      
+      tipo: 'DESIGNACAO',
+      status: 'ativo',
+      ato_pai_id: 1,
+      ato_raiz_id: 1,
+      impedimento_substituicao_detail: null,
+      impedimento_substituicao: null,
+      impedimento_display: 'string',
+      tipo_vaga_display: 'string',
+      cargo_vaga_display: 'string',
+      dre_nome: 'string',
+      unidade_proponente: 'string',
+      dre: 'string',
+      ue: 'string',
+      funcionarios_da_unidade: 'string',
+      codigo_hierarquico: 'string',
+      indicado_nome_civil: 'string',
+      indicado_nome_servidor: 'string',
+      indicado_rf: 'string',
+      indicado_vinculo: 1,
+      indicado_cargo_base: 'string',
+      indicado_codigo_cargo_base: 1,
+      indicado_lotacao: 'string',
+      indicado_cargo_sobreposto: 'string',
+      indicado_codigo_cargo_sobreposto: 1,
+      indicado_local_exercicio: 'string',
+      indicado_local_servico: 'string',
+      indicado_categoria: 'string',
+      titular_nome_civil: 'string',
+      titular_nome_servidor: 'string',
+      titular_rf: 'string',
+      titular_vinculo: 1,
+      titular_cargo_base: 'string',
+      titular_codigo_cargo_base: 1,
+      titular_lotacao: 'string',
+      titular_cargo_sobreposto: 'string',
+      titular_codigo_cargo_sobreposto: 1,
+      titular_local_exercicio: 'string',
+      titular_local_servico: 'string',
+      numero_portaria: 1,
+      ano_vigente: 'string',
+      sei_numero: 'string',
+      portaria: 'string',
+      doc: 'string',
+      
+      
+      carater_excepcional: false,
+      com_afastamento: false,
+      possui_pendencia: false,
+      pendencias: 'string',
+      motivo_afastamento: 'string',
+      informacoes_adicionais: 'string',
+      detalhe_para_quadro_de_historico_por_ano: false,
+      tipo_vaga: 'string',
+      cargo_vaga: 1,
+      criado_em: 'string',
+      cessacao:  null,
+      apostilas: [],
+      insubsistencia: null,
+      texto_sei: 'string',
+      modelo_portaria: 1,
+    } as DesignacaoResponse;
+
+    const result = gerarDadosInsubsistencia(valuesInsubsistenciaMock, designacao, null);
+
+    expect(result.periodo).toBe(` no período de ${formatarData("2026-01-01")} a ${formatarData("2026-12-31")}`);
+  });
+
+  it("omite a categoria do cargo base quando ela não existe", () => {
+    const designacao = {
+      data_inicio: "2026-03-01",
+      data_fim: null,
+      indicado_cargo_base: "DIRETOR",
+      indicado_lotacao: "EMEF IGUAIS",
+      unidade_proponente: "EMEF IGUAIS",
+      dre_nome: "DRE Sul",
+    } as DesignacaoResponse;
+
+    const result = gerarDadosInsubsistencia(valuesInsubsistenciaMock, designacao, null);
+
+    expect(result.cargo_base).toBe(nameToCamelCase("DIRETOR"));
+    expect(result.periodo).toBe(` a partir de ${formatarData("2026-03-01")}`);
+    expect(result.trecho_unidade).toBe("na referida Unidade");
+    expect(result.portaria_cessacao).toBe("-");
   });
 });

@@ -11,12 +11,14 @@ export const useSalvarInsubsistencia = () => {
       cessacaoId,
       textoSei,
       modeloPortaria,
+      insubsistenciaId ,
     }: {
       values: formSchemaInsubsistenciaData;
       designacaoId?: number;
       cessacaoId?: number;
       textoSei?: string;
       modeloPortaria?: number | null;
+      insubsistenciaId?: number;
     }) => {
       const atoPai =
         values.insubsistencia.tipo_insubsistencia === "cessacao" && cessacaoId
@@ -38,7 +40,7 @@ export const useSalvarInsubsistencia = () => {
         modelo_portaria: modeloPortaria ?? null,
       };
 
-      const response = await insubsistenciaAction(payload);
+      const response = await insubsistenciaAction(payload, insubsistenciaId);
 
       if (!response.success) {
         throw new Error(response.error);

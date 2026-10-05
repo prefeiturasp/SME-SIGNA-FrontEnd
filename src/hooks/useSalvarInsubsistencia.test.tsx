@@ -4,6 +4,7 @@ import { waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 
+import type { formSchemaInsubsistenciaData } from "@/app/pages/insubsistencia/schema";
 import { useSalvarInsubsistencia } from "./useSalvarInsubsistencia";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -30,7 +31,7 @@ const createWrapper = () => {
   return Wrapper;
 };
 
-const valuesMock = {
+const valuesMock: formSchemaInsubsistenciaData = {
   insubsistencia: {
     numero_portaria: "001",
     ano: "2026",
@@ -59,16 +60,19 @@ describe("useSalvarInsubsistencia", () => {
       await result.current.mutateAsync({ values: valuesMock, designacaoId: 10 });
     });
 
-    expect(insubsistenciaAction).toHaveBeenCalledWith({
-      ato_pai: 10,
-      numero_portaria: 1,
-      ano_vigente: "2026",
-      sei_numero: "6016.2026/0001-1",
-      doc: "DOC-01",
-      observacoes: "obs teste",
-      texto_sei: "",
-      modelo_portaria: null,
-    });
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      {
+        ato_pai: 10,
+        numero_portaria: 1,
+        ano_vigente: "2026",
+        sei_numero: "6016.2026/0001-1",
+        doc: "DOC-01",
+        observacoes: "obs teste",
+        texto_sei: "",
+        modelo_portaria: null,
+      },
+      undefined,
+    );
   });
 
   it("repassa textoSei e modeloPortaria quando informados", async () => {
@@ -91,7 +95,8 @@ describe("useSalvarInsubsistencia", () => {
       expect.objectContaining({
         texto_sei: "Texto gerado pelo back.",
         modelo_portaria: 7,
-      })
+      }),
+      undefined,
     );
   });
 
@@ -102,7 +107,7 @@ describe("useSalvarInsubsistencia", () => {
       wrapper: createWrapper(),
     });
 
-    const valuesCessacao = {
+    const valuesCessacao: formSchemaInsubsistenciaData = {
       insubsistencia: { ...valuesMock.insubsistencia, tipo_insubsistencia: "cessacao" },
     };
 
@@ -115,7 +120,74 @@ describe("useSalvarInsubsistencia", () => {
     });
 
     expect(insubsistenciaAction).toHaveBeenCalledWith(
-      expect.objectContaining({ ato_pai: 55 })
+      expect.objectContaining({ ato_pai: 55 }),
+      undefined,
+    );
+  });
+
+  it("cai no designacaoId quando o tipo é cessacao mas cessacaoId não veio", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: { id: 1 } });
+
+    const { result } = renderHook(() => useSalvarInsubsistencia(), {
+      wrapper: createWrapper(),
+    });
+
+    const valuesCessacao: formSchemaInsubsistenciaData = {
+      insubsistencia: { ...valuesMock.insubsistencia, tipo_insubsistencia: "cessacao" },
+    };
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesCessacao,
+        designacaoId: 10,
+      });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ ato_pai: 10 }),
+      undefined,
+    );
+  });
+
+  it("omite doc quando o campo vem vazio", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: { id: 1 } });
+
+    const { result } = renderHook(() => useSalvarInsubsistencia(), {
+      wrapper: createWrapper(),
+    });
+
+    const valuesSemDoc: formSchemaInsubsistenciaData = {
+      insubsistencia: { ...valuesMock.insubsistencia, doc: "" },
+    };
+
+    await act(async () => {
+      await result.current.mutateAsync({ values: valuesSemDoc, designacaoId: 10 });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ doc: undefined }),
+      undefined,
+    );
+  });
+
+  it("repassa insubsistenciaId para a action na edição", async () => {
+    vi.mocked(insubsistenciaAction).mockResolvedValue({ success: true, data: { id: 39 } });
+
+    const { result } = renderHook(() => useSalvarInsubsistencia(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        values: valuesMock,
+        designacaoId: 10,
+        insubsistenciaId: 39,
+      });
+    });
+
+    expect(insubsistenciaAction).toHaveBeenCalledWith(
+      expect.objectContaining({ ato_pai: 10 }),
+      39,
     );
   });
 
