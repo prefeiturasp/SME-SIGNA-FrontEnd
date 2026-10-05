@@ -97,6 +97,9 @@ const parseStatusAtosAdministrativos = (
 
 
 
+const possuiApostilaValida = (record: ListagemAtosAdministrativosResponse): boolean =>
+  record.apostilas?.some((apostila) => apostila.status !== 'insubsistente') ?? false;
+
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
   isLoading?: boolean;
@@ -154,7 +157,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   };
 
   const designacaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
-    ...(record?.apostilas?.length && record?.apostilas?.length > 0 ? [] : [{
+    ...(possuiApostilaValida(record) ? [] : [{
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
@@ -211,7 +214,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     };
 
     return [
-      ...(record?.apostilas?.length && record?.apostilas?.length > 0 ? [] : [{
+      ...(possuiApostilaValida(record) ? [] : [{
         key: '1',
         label: 'Apostilar',
         icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
