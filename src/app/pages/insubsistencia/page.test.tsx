@@ -973,7 +973,8 @@ describe("gerarDadosInsubsistencia", () => {
     const designacao = {
       id: 1,     
       data_fim: "2026-12-31",
-
+      data_inicio: '2026-01-01',
+      
       tipo: 'DESIGNACAO',
       status: 'ativo',
       ato_pai_id: 1,
@@ -1017,7 +1018,7 @@ describe("gerarDadosInsubsistencia", () => {
       sei_numero: 'string',
       portaria: 'string',
       doc: 'string',
-      data_inicio: 'string',
+      
       
       carater_excepcional: false,
       com_afastamento: false,
@@ -1038,7 +1039,7 @@ describe("gerarDadosInsubsistencia", () => {
 
     const result = gerarDadosInsubsistencia(valuesInsubsistenciaMock, designacao, null);
 
-    expect(result.periodo).toBe(` no período de ${formatarData("")} a ${formatarData("2026-12-31")}`);
+    expect(result.periodo).toBe(` no período de ${formatarData("2026-01-01")} a ${formatarData("2026-12-31")}`);
   });
 
   it("omite a categoria do cargo base quando ela não existe", () => {
