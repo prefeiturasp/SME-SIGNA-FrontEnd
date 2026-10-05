@@ -3,6 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getDesignacaoByIdAction } from "@/actions/designacoes";
+import type { DesignacaoResponse } from "@/types/designacao";
 import { useFetchDesignacoesById } from "./useVisualizarDesignacoes";
 
 vi.mock("@/actions/designacoes", () => ({
@@ -28,10 +29,11 @@ describe("useFetchDesignacoesById", () => {
   });
 
   it("busca os dados quando o id é válido", async () => {
+    const designacao = { id: 8 } as DesignacaoResponse;
     vi.mocked(getDesignacaoByIdAction).mockResolvedValueOnce({
       success: true,
-      data: { id: 8 },
-    } as never);
+      data: designacao,
+    });
 
     const { result } = renderHook(() => useFetchDesignacoesById(8), { wrapper });
 
@@ -40,14 +42,14 @@ describe("useFetchDesignacoesById", () => {
     });
 
     expect(getDesignacaoByIdAction).toHaveBeenCalledWith(8);
-    expect(result.current.data).toEqual({ id: 8 });
+    expect(result.current.data).toEqual(designacao);
   });
 
   it("retorna erro quando a action devolve success false", async () => {
     vi.mocked(getDesignacaoByIdAction).mockResolvedValueOnce({
       success: false,
       error: "Falha ao buscar designação",
-    } as never);
+    });
 
     const { result } = renderHook(() => useFetchDesignacoesById(8), { wrapper });
 

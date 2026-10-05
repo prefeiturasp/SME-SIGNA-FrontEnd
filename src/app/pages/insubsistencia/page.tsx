@@ -49,7 +49,7 @@ export const gerarDadosInsubsistencia = (values: formSchemaInsubsistenciaData, d
 
 
   if(designacao?.data_fim){
-    periodo_insubsistencia = " no período de "+formatarData(designacao?.data_inicio ?? "")+" a "+formatarData(designacao?.data_fim ?? "");
+    periodo_insubsistencia = " no período de "+formatarData(designacao?.data_inicio ?? "")+" a "+formatarData(designacao.data_fim);
   } else {
     periodo_insubsistencia = " a partir de "+formatarData(designacao?.data_inicio ?? "");
   }
