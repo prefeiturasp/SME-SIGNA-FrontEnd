@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card } from "antd";
+import { Alert, Card } from "antd";
 
 // UI Components
 import { Accordion } from "@/components/ui/accordion";
@@ -36,7 +36,16 @@ import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalE
 import { Servidor } from "@/types/designacao-unidade";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useFetchCargos } from "@/hooks/useCargos";
-import { encontrarCargoPorNome, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
+import { encontrarCargoPorNome, getCargoVaga, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
+import {
+  avaliarSubstituicaoDiretor,
+  CODIGO_ELEICAO_NECESSARIA,
+  CODIGO_PERIODO_INSUFICIENTE,
+  MENSAGEM_DATA_FINAL_OBRIGATORIA,
+  MENSAGEM_ELEICAO_NECESSARIA,
+  MENSAGEM_PERIODO_INSUFICIENTE,
+  MENSAGEM_UNIDADE_DIFERENTE,
+} from "@/utils/designacao/substituicaoDiretor";
 import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 const BREADCRUMBS = [
@@ -157,6 +166,8 @@ export default function DesignacoesPasso2() {
           lotacao: d.indicado_lotacao,
           cargo_sobreposto_funcao_atividade: d.indicado_cargo_sobreposto,
           cd_cargo_sobreposto_funcao_atividade: d.indicado_codigo_cargo_sobreposto,
+          possui_cargo_sobreposto: d.indicado_possui_cargo_sobreposto ?? false,
+          cd_ue_lotacao: d.indicado_codigo_ue_lotacao ?? "",
           cursos_titulos: "-",
           local_de_exercicio: d.indicado_local_exercicio,
           laudo_medico: "Indisponível",
@@ -165,7 +176,7 @@ export default function DesignacoesPasso2() {
         },
       dre: d.dre ?? '-',
       dre_nome: formDesignacaoData?.dre_nome ?? d.dre_nome,
-      ue: d.ue ?? '-',
+      ue: d.ue ?? "",
       ue_nome: formDesignacaoData?.ue_nome ?? d.unidade_proponente,
       funcionarios_da_unidade: d.funcionarios_da_unidade ?? "-",
       quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
@@ -218,6 +229,8 @@ export default function DesignacoesPasso2() {
   const tipoCargo = useWatch({ control: form.control, name: "tipo_cargo" });
   const cargoVago = useWatch({ control: form.control, name: "cargo_vago_selecionado" });
   const rfTitular = useWatch({ control: form.control, name: "rf_titular" });
+  const aPartirDe = useWatch({ control: form.control, name: "a_partir_de" });
+  const dataFinal = useWatch({ control: form.control, name: "designacao_data_final" });
 
   const { data: cargosData = [], isLoading: isLoadingCargos } = useFetchCargos();
   const nomeCargoTitular = useMemo(
@@ -236,6 +249,32 @@ export default function DesignacoesPasso2() {
     () => obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular),
     [cargoTitularInvalido, nomeCargoTitular]
   );
+
+  const codigoCargoVaga = useMemo(
+    () =>
+      getCargoVaga(
+        { tipo_cargo: tipoCargo, cargo_vago_selecionado: cargoVago, dadosTitular },
+        cargosData
+      ),
+    [tipoCargo, cargoVago, dadosTitular, cargosData]
+  );
+  const substituicaoDiretor = useMemo(
+    () =>
+      avaliarSubstituicaoDiretor({
+        cargoVaga: codigoCargoVaga,
+        dataInicio: aPartirDe,
+        dataFim: dataFinal,
+        indicado: formDesignacaoData?.servidorIndicado,
+        codigoUe: formDesignacaoData?.ue,
+      }),
+    [codigoCargoVaga, aPartirDe, dataFinal, formDesignacaoData?.servidorIndicado, formDesignacaoData?.ue]
+  );
+  const mensagemDataFinal = useMemo(() => {
+    if (!substituicaoDiretor.aplica) return null;
+    if (!dataFinal) return MENSAGEM_DATA_FINAL_OBRIGATORIA;
+    if (substituicaoDiretor.erroPeriodo === CODIGO_PERIODO_INSUFICIENTE) return MENSAGEM_PERIODO_INSUFICIENTE;
+    return null;
+  }, [substituicaoDiretor, dataFinal]);
 
   const onBuscaTitular = useCallback(
     async (values: BuscaDesignacaoRequest) => {
@@ -261,7 +300,8 @@ export default function DesignacoesPasso2() {
     Object.keys(form.formState.errors).length === 0 &&
     (tipoCargo === "vago"
       ? !!cargoVago?.id
-      : (!!dadosTitular && !!rfTitular && !cargoTitularInvalido));
+      : (!!dadosTitular && !!rfTitular && !cargoTitularInvalido)) &&
+    !substituicaoDiretor.bloqueado;
 
   const onSubmitDesignacao = (values: formSchemaDesignacaoPasso2Data) => {
     if (values.tipo_cargo.toLowerCase() === "vago") {
@@ -404,7 +444,19 @@ export default function DesignacoesPasso2() {
                 >
                   <PortariaDesigacaoFields
                     isLoading={isLoadingDesignacao}
+                    diasPeriodo={substituicaoDiretor.aplica ? substituicaoDiretor.dias : null}
+                    mensagemDataFinal={mensagemDataFinal}
                   />
+                  {substituicaoDiretor.erroPeriodo === CODIGO_ELEICAO_NECESSARIA && (
+                    <Alert
+                      type="warning"
+                      showIcon
+                      className="mt-2"
+                      data-testid="alerta-eleicao-diretor"
+                      title="Necessária eleição para o cargo de Diretor"
+                      description={MENSAGEM_ELEICAO_NECESSARIA}
+                    />
+                  )}
                 </CustomAccordionItem>
                 <CustomAccordionItem
                   title="Dados do servidor indicado"
@@ -419,6 +471,15 @@ export default function DesignacoesPasso2() {
                     showLotacao={true}
                     onSubmitEditarServidor={onSubmitEditarServidor}
                   />
+                  {substituicaoDiretor.unidadeDiferente && (
+                    <Alert
+                      type="error"
+                      showIcon
+                      className="mt-2"
+                      data-testid="erro-unidade-indicado"
+                      title={MENSAGEM_UNIDADE_DIFERENTE}
+                    />
+                  )}
                 </CustomAccordionItem>
               </Accordion>
             )}

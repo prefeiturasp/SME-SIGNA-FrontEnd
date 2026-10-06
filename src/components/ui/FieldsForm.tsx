@@ -308,7 +308,7 @@ export const MultiSelectField = ({
 
 
 
-export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear, disabled }: PropsField<TFieldValues> & { onClear?: () => void; disabled?: boolean }) => {
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear, disabled, message }: PropsField<TFieldValues> & { onClear?: () => void; disabled?: boolean; message?: ReactNode }) => {
     return (
         <FormField
             control={control}
@@ -351,7 +351,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                             />
                         </FormControl>
 
-                        <FormMessage showBlankSpace={showBlankSpace} />
+                        <FormMessage showBlankSpace={showBlankSpace}>{message}</FormMessage>
                     </FormItem>
                 );
             }}

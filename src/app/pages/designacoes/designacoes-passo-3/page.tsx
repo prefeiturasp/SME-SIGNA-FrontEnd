@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { Card } from "antd";
+import { Alert, Card } from "antd";
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
@@ -22,6 +22,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import formSchemaDesignacaoPasso3, { formSchemaDesignacaoPasso3Data } from "./schema";
 import InformacoesAdicionais from "@/components/dashboard/Designacao/InformacoesAdicionais/InformacoesAdicionais";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
+import { useFetchCargos } from "@/hooks/useCargos";
+import { getCargoVaga } from "@/utils/designacao/mapearPayload";
+import {
+  avaliarSubstituicaoDiretor,
+  ErrosBackendSubstituicaoDiretor,
+} from "@/utils/designacao/substituicaoDiretor";
+
+class ErroSubstituicaoDiretor extends Error {
+  constructor(
+    message: string,
+    readonly erros: ErrosBackendSubstituicaoDiretor
+  ) {
+    super(message);
+  }
+}
 
 export default function DesignacoesPasso3() {
   const router = useRouter();
@@ -32,6 +47,22 @@ export default function DesignacoesPasso3() {
   const notification = useAppNotification();
 
   const [salvando, setSalvando] = useState(false);
+  const [errosSubstituicaoDiretor, setErrosSubstituicaoDiretor] =
+    useState<ErrosBackendSubstituicaoDiretor | null>(null);
+
+  // Mesmas regras do passo 2: protege contra dados antigos do localStorage.
+  const { data: cargosData = [] } = useFetchCargos();
+  const substituicaoDiretor = useMemo(
+    () =>
+      avaliarSubstituicaoDiretor({
+        cargoVaga: formDesignacaoData ? getCargoVaga(formDesignacaoData, cargosData) : undefined,
+        dataInicio: formDesignacaoData?.a_partir_de,
+        dataFim: formDesignacaoData?.designacao_data_final,
+        indicado: formDesignacaoData?.servidorIndicado,
+        codigoUe: formDesignacaoData?.ue,
+      }),
+    [formDesignacaoData, cargosData]
+  );
 
   const form = useForm<formSchemaDesignacaoPasso3Data>({
     resolver: zodResolver(formSchemaDesignacaoPasso3),
@@ -104,7 +135,12 @@ export default function DesignacoesPasso3() {
     };
 
     const result = await designacaoAction(payloadData, id);
-    if (!result.success) throw new Error(result.error);
+    if (!result.success) {
+      if (result.errosSubstituicaoDiretor) {
+        throw new ErroSubstituicaoDiretor(result.error, result.errosSubstituicaoDiretor);
+      }
+      throw new Error(result.error);
+    }
 
     return result.data;
   };
@@ -112,11 +148,16 @@ export default function DesignacoesPasso3() {
   const handleSalvar = async (id: string | null) => {
     try {
       setSalvando(true);
+      setErrosSubstituicaoDiretor(null);
       await salvarPortaria(id);
       notification.success({ title: "Portaria salva com sucesso!" });
       clearFormDesignacaoData();
       router.push("/pages/atos-administrativos");
     } catch (error) {
+      if (error instanceof ErroSubstituicaoDiretor) {
+        setErrosSubstituicaoDiretor(error.erros);
+        return;
+      }
       console.error("Erro ao salvar portaria:", error);
       const msg = error instanceof Error ? error.message : "Erro ao salvar a portaria!";
       notification.error({ title: `Erro ao salvar portaria: ${msg}` });
@@ -194,10 +235,41 @@ export default function DesignacoesPasso3() {
 
 
 
+      {errosSubstituicaoDiretor && (
+        <div className="flex flex-col gap-2 mt-4" data-testid="erros-substituicao-diretor">
+          {errosSubstituicaoDiretor.eleicao && (
+            <Alert
+              type="warning"
+              showIcon
+              title="Necessária eleição para o cargo de Diretor"
+              description={errosSubstituicaoDiretor.eleicao}
+            />
+          )}
+          {errosSubstituicaoDiretor.dataFim && (
+            <Alert
+              type="error"
+              showIcon
+              title="Período da designação (Até)"
+              description={errosSubstituicaoDiretor.dataFim}
+            />
+          )}
+          {errosSubstituicaoDiretor.indicado && (
+            <Alert
+              type="error"
+              showIcon
+              title="Dados do servidor indicado"
+              description={errosSubstituicaoDiretor.indicado}
+            />
+          )}
+        </div>
+      )}
+
       <div className="w-full flex flex-col mt-6">
         <BotoesDeNavegacao
           disableAnterior={false}
-          disableProximo={salvando || carregandoPreview || !!erroPreview}
+          disableProximo={
+            salvando || carregandoPreview || !!erroPreview || substituicaoDiretor.bloqueado
+          }
           labelProximo="Salvar"
           showAnterior
           onAnterior={voltarParaPasso2}

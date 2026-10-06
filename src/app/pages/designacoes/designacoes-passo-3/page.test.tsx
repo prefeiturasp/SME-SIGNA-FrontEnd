@@ -130,6 +130,16 @@ vi.mock("antd", () => ({
       {children}
     </article>
   ),
+  Alert: ({ title, description }: { title: ReactNode; description?: ReactNode }) => (
+    <div role="alert">
+      <strong>{title}</strong>
+      {description && <p>{description}</p>}
+    </div>
+  ),
+}));
+
+vi.mock("@/hooks/useCargos", () => ({
+  useFetchCargos: () => ({ data: [{ codigoCargo: 3360, nomeCargo: "DIRETOR DE ESCOLA" }] }),
 }));
 
 // ── Notification mock ───────────────────────────
@@ -351,6 +361,72 @@ describe("DesignacoesPasso3 - Testes", () => {
         title: "Erro ao salvar portaria: Erro teste",
       });
     });
+  });
+
+  it("mostra o alerta de eleição quando o backend retorna eleicao_necessaria", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Data fim: texto do backend",
+      errosSubstituicaoDiretor: { eleicao: "Mensagem de eleição do backend" },
+    });
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+    fireEvent.click(screen.getByText("Salvar"));
+
+    expect(await screen.findByText("Necessária eleição para o cargo de Diretor")).toBeInTheDocument();
+    expect(screen.getByText("Mensagem de eleição do backend")).toBeInTheDocument();
+    expect(notificationErrorMock).not.toHaveBeenCalled();
+    expect(h.pushMock).not.toHaveBeenCalled();
+  });
+
+  it("mostra os erros de período e de unidade retornados pelo backend", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "erro",
+      errosSubstituicaoDiretor: {
+        dataFim: "Erro de período do backend",
+        indicado: "Erro de unidade do backend",
+      },
+    });
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+    fireEvent.click(screen.getByText("Salvar"));
+
+    expect(await screen.findByText("Erro de período do backend")).toBeInTheDocument();
+    expect(screen.getByText("Erro de unidade do backend")).toBeInTheDocument();
+    expect(screen.queryByText("Necessária eleição para o cargo de Diretor")).not.toBeInTheDocument();
+  });
+
+  it("desabilita o Salvar quando a substituição do Diretor passa de 30 dias", async () => {
+    h.formData = {
+      ...defaultFormData,
+      tipo_cargo: "vago",
+      cargo_vago_selecionado: { id: 3360, label: "DIRETOR DE ESCOLA" },
+      a_partir_de: "2026-01-01T03:00:00.000Z",
+      designacao_data_final: "2026-01-31T03:00:00.000Z",
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+
+    expect(screen.getByText("Salvar")).toBeDisabled();
+  });
+
+  it("permite salvar substituição do Diretor de 30 dias", async () => {
+    h.formData = {
+      ...defaultFormData,
+      tipo_cargo: "vago",
+      cargo_vago_selecionado: { id: 3360, label: "DIRETOR DE ESCOLA" },
+      a_partir_de: "2026-01-01T03:00:00.000Z",
+      designacao_data_final: "2026-01-30T03:00:00.000Z",
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+
+    expect(screen.getByText("Salvar")).not.toBeDisabled();
   });
 
   it("navega ao clicar em Anterior", () => {
