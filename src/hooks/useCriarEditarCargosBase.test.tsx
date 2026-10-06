@@ -94,6 +94,9 @@ const payloadBase: createFormSchemaCargosBaseData = {
   testar_laudo: false,
   pesquisar_licencas_no_sigpec: true,
   quantidade_maxima_de_dias_de_licenca: "10",
+  permite_substituicao: false,
+  possui_periodo_fechado: false,
+  data_fim_periodo: null,
 };
 
 describe("hooks/useCriarEditarCargosBase", () => {
@@ -205,6 +208,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
           testar_laudo: false,
           pesquisar_licencas_no_sigpec: false,
           quantidade_maxima_de_dias_de_licenca: "15",
+          permite_substituicao: false,
+          possui_periodo_fechado: false,
+          data_fim_periodo: null,
         },
         mode: "onChange",
       }),
@@ -250,6 +256,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: true,
+      possui_periodo_fechado: true,
+      data_fim_periodo: new Date(2026, 0, 31),
     };
 
     renderHook(() => useCriarEditarCargosBase(null, customDefaults));
@@ -277,6 +286,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: 30,
       status: "ATIVO",
+      permite_substituicao: true,
+      possui_periodo_fechado: true,
+      data_fim_periodo: new Date(2026, 0, 31),
     };
     useBuscarCargosBaseByIdMock.mockReturnValue({
       data: cargoBase,
@@ -306,6 +318,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       status: "ATIVO",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     };
     useBuscarCargosBaseByIdMock.mockReturnValue({
       data: cargoBase,
@@ -359,6 +374,9 @@ describe("hooks/useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     };
 
     await act(async () => {

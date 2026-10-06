@@ -71,6 +71,9 @@ const resultadoMock: CargosBasePaginada = {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: false,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     },
   ],
 };
