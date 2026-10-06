@@ -128,6 +128,9 @@ describe("useCriarEditarCargosBase", () => {
           testar_laudo: false,
           pesquisar_licencas_no_sigpec: false,
           quantidade_maxima_de_dias_de_licenca: "15",
+          permite_substituicao: false,
+          possui_periodo_fechado: false,
+          data_fim_periodo: null,
         },
         mode: "onChange",
       }),
@@ -161,6 +164,9 @@ describe("useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: true,
+      possui_periodo_fechado: true,
+      data_fim_periodo: new Date(2026, 0, 31),
     };
 
     renderHook(() => useCriarEditarCargosBase(null, customDefaults));
@@ -188,6 +194,9 @@ describe("useCriarEditarCargosBase", () => {
       testar_laudo: true,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: 20,
+      permite_substituicao: true,
+      possui_periodo_fechado: true,
+      data_fim_periodo: new Date(2026, 0, 31),
     };
 
     const { useBuscarCargosBaseById } = await import("./useBuscarCargosBase");
@@ -227,6 +236,9 @@ describe("useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     };
 
     await act(async () => {
@@ -265,6 +277,9 @@ describe("useCriarEditarCargosBase", () => {
         testar_laudo: false,
         pesquisar_licencas_no_sigpec: true,
         quantidade_maxima_de_dias_de_licenca: "10",
+        permite_substituicao: false,
+        possui_periodo_fechado: false,
+        data_fim_periodo: null,
       });
     });
 
@@ -298,6 +313,9 @@ describe("useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     };
 
     await act(async () => {
@@ -318,6 +336,9 @@ describe("useCriarEditarCargosBase", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     });
     expect(successNotificationMock).toHaveBeenCalledWith({
       title: "Tudo certo por aqui!",
@@ -350,6 +371,9 @@ describe("useCriarEditarCargosBase", () => {
         testar_laudo: false,
         pesquisar_licencas_no_sigpec: true,
         quantidade_maxima_de_dias_de_licenca: "10",
+        permite_substituicao: false,
+        possui_periodo_fechado: false,
+        data_fim_periodo: null,
       });
     });
 

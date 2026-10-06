@@ -16,6 +16,10 @@ export const createFormSchemaCargosBase = z
     testar_laudo: z.boolean().default(false).nonoptional({ message: "Campo obrigatório." }),
     pesquisar_licencas_no_sigpec: z.boolean().default(false).nonoptional({ message: "Campo obrigatório." }) ,
     quantidade_maxima_de_dias_de_licenca: z.string().optional(),
+    permite_substituicao: z.boolean().default(false).nonoptional({ message: "Campo obrigatório." }),    
+    possui_periodo_fechado: z.boolean().default(false).nonoptional({ message: "Campo obrigatório." }),
+    data_fim_periodo: z.date().optional().nullable(),
+    
    }).superRefine((data, ctx) => {
     
     const quantidadeMaximaDeDiasDeLicenca = data.quantidade_maxima_de_dias_de_licenca==="" ? 0 : Number.parseInt(data.quantidade_maxima_de_dias_de_licenca ?? "0");
@@ -26,6 +30,14 @@ export const createFormSchemaCargosBase = z
         code: "custom",
         message: "A quantidade máxima de dias de licença deve ser maior que 0.",
         path: ["quantidade_maxima_de_dias_de_licenca"],
+      });
+    }
+
+    if (data.possui_periodo_fechado && !data.data_fim_periodo) {
+      ctx.addIssue({
+        code: "custom",
+        message: "A data final do período é obrigatória.",
+        path: ["data_fim_periodo"],
       });
     }
   });

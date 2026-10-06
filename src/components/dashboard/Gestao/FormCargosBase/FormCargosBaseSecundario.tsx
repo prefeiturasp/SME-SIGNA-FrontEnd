@@ -1,15 +1,22 @@
 
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { InputField, SwitchField } from '@/components/ui/FieldsForm';
+import { DateField, InputField, SwitchField } from '@/components/ui/FieldsForm';
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { Tooltip } from 'antd';
 
 
 const FormCargosBaseSecundario: React.FC = () => {
-  const { getValues, register, control } = useFormContext();
-  const pesquisarLicencasNoSigpec = getValues("pesquisar_licencas_no_sigpec");
+  const { register, control } = useFormContext();
+  const pesquisarLicencasNoSigpec = useWatch({
+    control,
+    name: "pesquisar_licencas_no_sigpec",
+  });
+  const possuiPeriodoFechado = useWatch({
+    control,
+    name: "possui_periodo_fechado",
+  });
   return (
     <>
       <SimpleTableHeader
@@ -84,35 +91,76 @@ const FormCargosBaseSecundario: React.FC = () => {
             showBlankSpace={false}
           />
         </div>
+        <div className="border-b border-gray-200">
+          <div className="pb-4">
+            <SwitchField
+              register={register}
+              control={control}
+              name="pesquisar_licencas_no_sigpec"
+              label="Pesquisar Licenças no SIGPEC"
+              description="Consulta licenças ativas antes da geração da Portaria."
+              dataTestId="input-pesquisar-licencas-no-sigpec"
+              showBlankSpace={false}
+            />
+          </div>
+          {pesquisarLicencasNoSigpec && (
+            <div className="pb-4 pl-8">
+              <InputField
+                register={register}
+                control={control}
+                name="quantidade_maxima_de_dias_de_licenca"
+                label={<>
+                  <span className='required'>Quantidade máxima de dias de licença*</span>
+                  <Tooltip title="Licenças maiores que esse período serão ignoradas." placement="right">
+                    <InfoCircleOutlined className='ml-2' style={{ color: "#B22B2A" }} />
+                  </Tooltip>
+                </>}
+                dataTestId="input-quantidade-maxima-de-dias-de-licenca"
+                showBlankSpace={false}
+                type="number"
+                maxLength={4}
+              />
+              <p className='pt-1'>Informe o número máximo de dias que o servidor pode permanecer de licença.</p>
+            </div>
+          )}
+
+        </div>
+
+        <div className="border-b border-gray-200 pb-4">
+          <SwitchField
+            register={register}
+            control={control}
+            name="permite_substituicao"
+            label="O cargo permite substituição"
+            description="Permite que haja substituição de servidores em caso de ausência."
+            dataTestId="input-permite-substituicao"
+            showBlankSpace={false}
+          />
+        </div>
+
         <div >
           <SwitchField
             register={register}
             control={control}
-            name="pesquisar_licencas_no_sigpec"
-            label="Pesquisar Licenças no SIGPEC"
-            description="Consulta licenças ativas antes da geração da Portaria."
-            dataTestId="input-pesquisar-licencas-no-sigpec"
+            name="possui_periodo_fechado"
+            label="Possui período fechado?"
+            description="Quando o cargo possui data de início e fim definidas, não é necessário realizar a cessação ao final do período."
+            dataTestId="input-possui-periodo-fechado"
             showBlankSpace={false}
           />
         </div>
-        {pesquisarLicencasNoSigpec && (
+        {possuiPeriodoFechado && (
           <div className="pb-4 pl-8">
-            <InputField
-              register={register}
-              control={control}
-              name="quantidade_maxima_de_dias_de_licenca"
-              label={<>
-                <span className='required'>Quantidade máxima de dias de licença*</span>
-                <Tooltip title="Licenças maiores que esse período serão ignoradas." placement="right">
-                  <InfoCircleOutlined className='ml-2' style={{ color: "#B22B2A" }} />
-                </Tooltip>
-              </>}
-              dataTestId="input-quantidade-maxima-de-dias-de-licenca"
-              showBlankSpace={false}
-              type="number"
-              maxLength={4}
-            />
-            <p className='pt-1'>Informe o número máximo de dias que o servidor pode permanecer de licença.</p>
+              <DateField
+                register={register}
+                control={control}
+                name="data_fim_periodo"
+                label={
+                  <span className='required'>Data final do período*</span>
+                }
+                allowClear={false}
+               />
+            <p className='pt-1'>Após a data selecionada, o cargo não possuirá mais validade administrativa.</p>
           </div>
         )}
       </div>
