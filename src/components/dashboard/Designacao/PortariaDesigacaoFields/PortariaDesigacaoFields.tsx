@@ -241,7 +241,7 @@ const PortariaDesigacaoFields = ({ isLoading, disabled, diasPeriodo, mensagemDat
                 data-testid="checkbox-com-afastamento"
                 onChange={(value) => {
                   if (value === EnumCheckbox.NAO) {
-                    setValue("motivo_afastamento", "");
+                    setValue("motivo_afastamento", "", { shouldDirty: true });
                   }
                 }}
                 disabled={disabled}
@@ -286,7 +286,7 @@ const PortariaDesigacaoFields = ({ isLoading, disabled, diasPeriodo, mensagemDat
                 data-testid="checkbox-possui-pendencia"
                 onChange={(value) => {
                   if (value === EnumCheckbox.NAO) {
-                    setValue("motivo_pendencia", "");
+                    setValue("motivo_pendencia", "", { shouldDirty: true });
                   }
                 }}
                 disabled={disabled}

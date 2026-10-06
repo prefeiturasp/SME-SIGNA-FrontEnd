@@ -68,7 +68,10 @@ const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
   cargo_base_ficticio: false,
   testar_laudo: false,
   pesquisar_licencas_no_sigpec: false,
-  quantidade_maxima_de_dias_de_licenca: '15'
+  quantidade_maxima_de_dias_de_licenca: '15',
+  permite_substituicao: false,
+  possui_periodo_fechado: false,
+  data_fim_periodo: null,
 };
 
 

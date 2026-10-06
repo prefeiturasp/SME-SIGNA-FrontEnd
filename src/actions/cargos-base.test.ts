@@ -38,6 +38,9 @@ describe("actions/cargos-base", () => {
       testar_laudo: false,
       pesquisar_licencas_no_sigpec: true,
       quantidade_maxima_de_dias_de_licenca: "10",
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     };
 
     vi.mocked(postWithAuth).mockResolvedValueOnce({
@@ -108,6 +111,11 @@ describe("actions/cargos-base", () => {
       utilizado_para_permutas: false,
       cargo_base_ficticio: false,
       status: "ATIVO",
+      testar_laudo: false,
+      pesquisar_licencas_no_sigpec: false,
+      permite_substituicao: false,
+      possui_periodo_fechado: false,
+      data_fim_periodo: null,
     };
 
     vi.mocked(fetchWithClient).mockResolvedValueOnce({

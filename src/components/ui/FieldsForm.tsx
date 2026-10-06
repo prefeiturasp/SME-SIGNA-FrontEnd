@@ -307,13 +307,15 @@ export const MultiSelectField = ({
 };
 
 
+  
+
 
 export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear, disabled, message }: PropsField<TFieldValues> & { onClear?: () => void; disabled?: boolean; message?: ReactNode }) => {
     return (
         <FormField
             control={control}
             name={name}
-            render={({ field }) => {
+            render={({ field, fieldState}) => {
                 const value =
                     isDate(field.value) && isValid(field.value)
                         ? dayjs(field.value)
@@ -333,6 +335,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 value={value}
                                 className={cn(
                                     disabled && "opacity-50",
+                                    fieldState?.error && "border-destructive!",
                                 )}
                                 placeholder={placeholder ?? "Selecione a data"}
                                 onKeyDown={(event) => {
@@ -346,7 +349,8 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 }}
                                 onBlur={field.onBlur}
                                 style={{ width: "100%" }}
-                                onClear={onClear}
+                                onClear={onClear}                              
+
                                 disabled={disabled}
                             />
                         </FormControl>

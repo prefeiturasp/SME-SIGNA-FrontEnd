@@ -46,6 +46,9 @@ export interface CargosBaseCamposComuns {
   status: string;
   pesquisar_licencas_no_sigpec: boolean;
   quantidade_maxima_de_dias_de_licenca?: string;
+  permite_substituicao: boolean;
+  possui_periodo_fechado: boolean;
+  data_fim_periodo: Date | null;
 }
 
 export interface CargosBaseResponse extends CargosBaseCamposComuns {
