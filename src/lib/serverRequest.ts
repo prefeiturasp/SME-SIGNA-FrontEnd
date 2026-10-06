@@ -14,6 +14,21 @@ export type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; field?: string };
 
+function primeiraMensagem(valor: unknown): string | undefined {
+  if (typeof valor === "string") return valor || undefined;
+  if (Array.isArray(valor)) {
+    for (const item of valor) {
+      const msg = primeiraMensagem(item);
+      if (msg) return msg;
+    }
+    return undefined;
+  }
+  if (valor && typeof valor === "object") {
+    return primeiraMensagem(Object.values(valor));
+  }
+  return undefined;
+}
+
 function extractErrorMessage(
   error: AxiosError<ErrorResponse>,
   defaultMessage: string
@@ -26,11 +41,8 @@ function extractErrorMessage(
   if (data?.detail) return { success: false, error: data.detail, field: data.field };
 
   if (data) {
-    const firstValue = Object.values(data).find(Boolean);
-    if (firstValue) {
-      const msg = Array.isArray(firstValue) ? firstValue[0] : String(firstValue);
-      return { success: false, error: msg };
-    }
+    const msg = primeiraMensagem(data);
+    if (msg) return { success: false, error: msg };
   }
 
   return { success: false, error: error.message || defaultMessage };
