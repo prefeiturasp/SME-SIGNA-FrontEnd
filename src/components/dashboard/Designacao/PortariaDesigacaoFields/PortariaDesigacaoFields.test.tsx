@@ -462,6 +462,42 @@ describe("PortariaDesigacaoFields", () => {
     expect(screen.queryByTestId("input-descricao-pendencia")).not.toBeInTheDocument();
   });
 
+  it("apaga e marca como alterados o motivo do afastamento e a descrição da pendência ao marcar 'Não'", () => {
+    let methods!: UseFormReturn<FieldValues>;
+    render(
+      <FormWrapper
+        onMethods={(m) => (methods = m)}
+        defaultValues={{
+          portaria_designacao: "",
+          numero_sei: "",
+          a_partir_de: undefined,
+          designacao_data_final: undefined,
+          ano: "",
+          doc: "",
+          carater_excepcional: "",
+          motivo_cancelamento: "",
+          impedimento_substituicao: "",
+          com_afastamento: "sim",
+          motivo_afastamento: "Licença médica",
+          possui_pendencia: "sim",
+          motivo_pendencia: "Pendência de documentação",
+        }}
+      >
+        <PortariaDesigacaoFields isLoading={false} />
+      </FormWrapper>
+    );
+
+    const radioGroups = screen.getAllByTestId("mock-radio-group");
+    fireEvent.click(within(radioGroups[1]).getByRole("button", { name: /marcar nao/i }));
+    fireEvent.click(within(radioGroups[2]).getByRole("button", { name: /marcar nao/i }));
+
+    // precisam ficar "dirty" para serem enviados na apostila
+    expect(methods.getValues("motivo_afastamento")).toBe("");
+    expect(methods.getFieldState("motivo_afastamento").isDirty).toBe(true);
+    expect(methods.getValues("motivo_pendencia")).toBe("");
+    expect(methods.getFieldState("motivo_pendencia").isDirty).toBe(true);
+  });
+
   it("renderiza sem dados de impedimentos e mantém select desabilitado quando pendente", () => {
     hooksState.data = undefined;
     hooksState.isPending = true;
