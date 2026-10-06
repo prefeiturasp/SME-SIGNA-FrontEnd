@@ -379,9 +379,11 @@ describe("DesignacoesPasso3 - Testes", () => {
     });
 
     render(<DesignacoesPasso3 />);
-    const editor = await screen.findByTestId("editor-sei");
+    await screen.findByTestId("editor-sei");
 
-    expect(editor.innerHTML).toContain("<br>");
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-sei").innerHTML).toContain("<br>");
+    });
   });
 
   it("não quebra com texto vazio", async () => {
