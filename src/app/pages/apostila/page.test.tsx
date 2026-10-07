@@ -803,6 +803,52 @@ describe("ApostilaPage", () => {
     });
   });
 
+  it("envia campos limpos como valor vazio nas alterações da designação", async () => {
+    mockId = "42";
+    mockOrigem = "designacao";
+    mockDirtyFields = {
+      designacao_data_final: true,
+      impedimento_substituicao: true,
+      possui_pendencia: true,
+      motivo_pendencia: true,
+      com_afastamento: true,
+      motivo_afastamento: true,
+    };
+    getValuesMock.mockReturnValue({
+      ...valoresPadrao,
+      apostila: {
+        numero_sei: "SEI-APOSTILA",
+        numero_portaria: "321",
+        doc: "",
+        observacao: "",
+      },
+      designacao_data_final: null,
+      impedimento_substituicao: null,
+      possui_pendencia: EnumCheckbox.NAO,
+      motivo_pendencia: "",
+      com_afastamento: EnumCheckbox.NAO,
+      motivo_afastamento: "",
+    });
+
+    render(<ApostilaPage />);
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
+        body: expect.objectContaining({
+          alteracoes: [
+            { campo_alterado: "data_fim", valor_novo: "" },
+            { campo_alterado: "impedimento_substituicao_id", valor_novo: "" },
+            { campo_alterado: "possui_pendencia", valor_novo: "False" },
+            { campo_alterado: "pendencias", valor_novo: "" },
+            { campo_alterado: "com_afastamento", valor_novo: "False" },
+            { campo_alterado: "motivo_afastamento", valor_novo: "" },
+          ],
+        }),
+      });
+    });
+  });
+
   it("envia payload de apostila de cessação com alterações do ato pai e da designação", async () => {
     mockOrigem = "cessacao";
     mockDesignacaoAtual = {
