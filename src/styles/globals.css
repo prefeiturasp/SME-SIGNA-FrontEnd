@@ -534,6 +534,14 @@ input[type="number"] {
   pointer-events: none;
 }
 
+.inactive-row > td {
+  background-color: #F9F9F9;
+}
+
+.inactive-row > td:not(:last-child) {
+  opacity: 0.5;
+}
+
 
 .ant-tabs-tab {
   font-weight: 700;
