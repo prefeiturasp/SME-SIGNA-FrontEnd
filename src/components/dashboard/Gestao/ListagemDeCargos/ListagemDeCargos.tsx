@@ -45,8 +45,6 @@ export const BadgeStatusCargosBase = (status: StatusCargosBase, key: string) => 
 };
 
 
-export const CLASSE_LINHA_INATIVA = "[&>td]:bg-[#F9F9F9] [&>td:not(:last-child)]:opacity-50";
-
 interface ListagemDeCargosProps {
   data: CargosBaseResponse[];
   isLoading?: boolean;
@@ -148,7 +146,7 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
           dataSource={data}
           rowKey={(record) => record.id.toString()}
           pagination={false}
-          rowClassName={(record: CargosBaseResponse) => record.status === StatusCargosBase.INATIVO ? CLASSE_LINHA_INATIVA : ""}
+          rowClassName={(record: CargosBaseResponse) => record.status === StatusCargosBase.INATIVO ? "inactive-row" : ""}
         />
         <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-between py-3">
           <MostrarRegistros page={page} total={total} />

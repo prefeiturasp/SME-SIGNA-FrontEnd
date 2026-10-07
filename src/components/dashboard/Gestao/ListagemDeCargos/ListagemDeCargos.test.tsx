@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode, SVGProps } from "react";
-import ListagemDeCargos, { CLASSE_LINHA_INATIVA } from "./ListagemDeCargos";
+import ListagemDeCargos from "./ListagemDeCargos";
 import { CargosBaseResponse, StatusCargosBase } from "@/types/gestao";
 
 const tableMock = vi.fn<(props: TableProps<CargosBaseResponse>) => ReactNode>();
@@ -215,7 +215,7 @@ describe("ListagemDeCargos", () => {
         ...row,
         status: StatusCargosBase.INATIVO,
       }),
-    ).toBe(CLASSE_LINHA_INATIVA);
+    ).toBe("inactive-row");
     expect((tableProps.rowClassName as (record: CargosBaseResponse) => string)(row)).toBe("");
   });
 
