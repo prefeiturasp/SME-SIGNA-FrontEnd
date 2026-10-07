@@ -288,7 +288,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       status: "ATIVO",
       permite_substituicao: true,
       possui_periodo_fechado: true,
-      data_fim_periodo: new Date(2026, 0, 31),
+      data_fim_periodo: "2026-01-31",
     };
     useBuscarCargosBaseByIdMock.mockReturnValue({
       data: cargoBase,
@@ -299,6 +299,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     expect(useBuscarCargosBaseByIdMock).toHaveBeenCalledWith(44);
     expect(formResetMock).toHaveBeenCalledWith({
       ...cargoBase,
+      data_fim_periodo: new Date("2026/01/31"),
       quantidade_maxima_de_dias_de_licenca: "30",
     });
   });
@@ -427,5 +428,64 @@ describe("hooks/useCriarEditarCargosBase", () => {
       description: "erro ao editar",
       clearPrevious: true,
     });
+  });
+
+  it("formata a data final do período ao editar o cargo", async () => {
+    vi.mocked(editarCargosBaseAction).mockResolvedValueOnce({
+      success: true,
+      data: { id: 44 },
+    });
+
+    const dataFim = new Date(2026, 5, 15);
+    const { result } = renderHook(() => useCriarEditarCargosBase(44));
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        ...payloadBase,
+        possui_periodo_fechado: true,
+        data_fim_periodo: dataFim,
+      });
+    });
+
+    expect(editarCargosBaseAction).toHaveBeenCalledWith(
+      44,
+      expect.objectContaining({
+        data_fim_periodo: dataFim.toISOString().split("T")[0],
+      }),
+    );
+  });
+
+  it("usa a mensagem padrão de criação quando a falha não é um Error", async () => {
+    vi.mocked(criarCargosBaseAction).mockRejectedValueOnce("falha crua");
+
+    const { result } = renderHook(() => useCriarEditarCargosBase());
+
+    await act(async () => {
+      await result.current.onSubmitForm(payloadBase);
+    });
+
+    expect(errorNotificationMock).toHaveBeenCalledWith({
+      title: "Erro!",
+      description: "Não conseguimos criar o cargo base. Por favor, tente novamente.",
+      clearPrevious: true,
+    });
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("usa a mensagem padrão de edição quando a falha não é um Error", async () => {
+    vi.mocked(editarCargosBaseAction).mockRejectedValueOnce("falha crua");
+
+    const { result } = renderHook(() => useCriarEditarCargosBase(88));
+
+    await act(async () => {
+      await result.current.onSubmitForm(payloadBase);
+    });
+
+    expect(errorNotificationMock).toHaveBeenCalledWith({
+      title: "Erro!",
+      description: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      clearPrevious: true,
+    });
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
