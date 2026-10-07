@@ -193,13 +193,13 @@ describe("FormCargosBaseSecundario", () => {
     expect(setValueMock).toHaveBeenCalledWith("quantidade_maxima_de_dias_de_licenca", "0");
   });
 
-  it("mantém a quantidade de dias ao ligar a pesquisa de licenças no SIGPEC", () => {
+  it("define a quantidade padrão de 15 dias ao ligar a pesquisa de licenças no SIGPEC", () => {
     render(<FormCargosBaseSecundario />);
 
     const campo = screen.getByTestId("input-pesquisar-licencas-no-sigpec");
     fireEvent.click(campo.querySelectorAll("button")[0]);
 
-    expect(setValueMock).not.toHaveBeenCalled();
+    expect(setValueMock).toHaveBeenCalledWith("quantidade_maxima_de_dias_de_licenca", "15");
   });
 
   it("limpa a data final ao desligar o período fechado", () => {
