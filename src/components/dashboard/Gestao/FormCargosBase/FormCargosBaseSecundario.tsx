@@ -102,10 +102,10 @@ const FormCargosBaseSecundario: React.FC = () => {
               dataTestId="input-pesquisar-licencas-no-sigpec"
               showBlankSpace={false}
               onChange={(value: boolean) => {
-                if (!value) {
-                  setValue("quantidade_maxima_de_dias_de_licenca", "0");
-                }else{
+                if (value) {
                   setValue("quantidade_maxima_de_dias_de_licenca", "15");
+                }else{
+                  setValue("quantidade_maxima_de_dias_de_licenca", "0");                  
                 }
 
               }}
