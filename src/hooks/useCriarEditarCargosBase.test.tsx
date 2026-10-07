@@ -137,7 +137,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     });
 
     const { result } = renderHook(() => useCriarCargosBase());
-    const response = await result.current.mutateAsync({ values: payloadBase });
+    const response = await result.current.mutateAsync({ values: { ...payloadBase, data_fim_periodo: payloadBase.data_fim_periodo?.toISOString().split("T")[0] ?? null } });
 
     expect(useMutationMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -156,7 +156,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     });
 
     const { result } = renderHook(() => useCriarCargosBase());
-    await expect(result.current.mutateAsync({ values: payloadBase })).rejects.toThrow("erro ao criar");
+    await expect(result.current.mutateAsync({ values: { ...payloadBase, data_fim_periodo: payloadBase.data_fim_periodo?.toISOString().split("T")[0] ?? null } })).rejects.toThrow("erro ao criar");
   });
 
   it("configura useEditarCargosBase e retorna dados no sucesso", async () => {

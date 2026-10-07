@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
-import { CargosBaseCamposComuns } from "@/types/gestao";
+import { CargosBaseCriarEditar } from "@/types/gestao";
 
 export const useCriarCargosBase = () => {
   const queryClient = useQueryClient();
@@ -16,7 +16,7 @@ export const useCriarCargosBase = () => {
     mutationFn: async ({
       values
     }: {
-      values: createFormSchemaCargosBaseData;
+      values: CargosBaseCriarEditar;
     }) => {
       const response = await criarCargosBaseAction(values);
 
@@ -40,7 +40,7 @@ export const useEditarCargosBase = () => {
       values
     }: {
       id: number;
-      values: Partial<CargosBaseCamposComuns>;
+      values: Partial<CargosBaseCriarEditar>;
     }) => {
       const response = await editarCargosBaseAction(id, values);
 
@@ -69,7 +69,7 @@ const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
   cargo_base_ficticio: false,
   testar_laudo: false,
   pesquisar_licencas_no_sigpec: false,
-  quantidade_maxima_de_dias_de_licenca: '15',
+  quantidade_maxima_de_dias_de_licenca: '0',
   permite_substituicao: false,
   possui_periodo_fechado: false,
   data_fim_periodo: null,
@@ -114,6 +114,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
+      const data_fim_periodo_formatada = values.data_fim_periodo ? values.data_fim_periodo.toISOString().split("T")[0] : null;
       let successMessage = "O cargo base foi criado.";
       if (id) {             
         const partialValues: Partial<createFormSchemaCargosBaseData> = {
@@ -123,8 +124,8 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
         delete partialValues["descricao_completa"];
         delete partialValues["codigo_cargo"];
 
-        const data_fim_periodo_formatada = values.data_fim_periodo ? values.data_fim_periodo.toISOString().split("T")[0] : null;
         
+
         await editarCargosBase.mutateAsync({
           id,
           values: { ...partialValues, data_fim_periodo: data_fim_periodo_formatada},
@@ -132,7 +133,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
         successMessage = "As alterações foram salvas.";
       } else {
         await criarCargosBase.mutateAsync({
-          values
+          values: { ...values, data_fim_periodo: data_fim_periodo_formatada},
         });
       }
 

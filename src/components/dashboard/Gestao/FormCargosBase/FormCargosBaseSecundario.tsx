@@ -104,7 +104,10 @@ const FormCargosBaseSecundario: React.FC = () => {
               onChange={(value: boolean) => {
                 if (!value) {
                   setValue("quantidade_maxima_de_dias_de_licenca", "0");
+                }else{
+                  setValue("quantidade_maxima_de_dias_de_licenca", "15");
                 }
+
               }}
             />
           </div>
