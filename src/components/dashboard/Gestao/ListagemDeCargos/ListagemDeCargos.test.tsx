@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaginationProps, TableProps } from "antd";
 import type { ReactNode, SVGProps } from "react";
-import ListagemDeCargos from "./ListagemDeCargos";
+import ListagemDeCargos, { CLASSE_LINHA_INATIVA } from "./ListagemDeCargos";
 import { CargosBaseResponse, StatusCargosBase } from "@/types/gestao";
 
 const tableMock = vi.fn<(props: TableProps<CargosBaseResponse>) => ReactNode>();
@@ -215,7 +215,7 @@ describe("ListagemDeCargos", () => {
         ...row,
         status: StatusCargosBase.INATIVO,
       }),
-    ).toBe("disabled-row");
+    ).toBe(CLASSE_LINHA_INATIVA);
     expect((tableProps.rowClassName as (record: CargosBaseResponse) => string)(row)).toBe("");
   });
 
@@ -230,5 +230,17 @@ describe("ListagemDeCargos", () => {
     expect(screen.getByTestId("edit-icon-button")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("edit-icon-button"));
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=10");
+  });
+
+  it("permite editar cargo inativo", () => {
+    render(<ListagemDeCargos data={[row]} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
+    const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
+
+    render(<>{actionRender?.({ ...row, id: 20, status: StatusCargosBase.INATIVO })}</>);
+    fireEvent.click(screen.getByTestId("edit-icon-button"));
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=20");
   });
 });
