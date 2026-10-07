@@ -8,6 +8,7 @@ import { useEffect } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
+import { CargosBaseCamposComuns } from "@/types/gestao";
 
 export const useCriarCargosBase = () => {
   const queryClient = useQueryClient();
@@ -39,7 +40,7 @@ export const useEditarCargosBase = () => {
       values
     }: {
       id: number;
-      values: Partial<createFormSchemaCargosBaseData>;
+      values: Partial<CargosBaseCamposComuns>;
     }) => {
       const response = await editarCargosBaseAction(id, values);
 
@@ -99,9 +100,11 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   useEffect(() => {
     if (cargoBase) {
+      const data_fim_periodo = cargoBase.data_fim_periodo ? new Date(cargoBase.data_fim_periodo.toString().replaceAll("-", '/')) : null;
       form.reset(
         {
           ...cargoBase,
+          data_fim_periodo: data_fim_periodo,
           quantidade_maxima_de_dias_de_licenca:
             cargoBase.quantidade_maxima_de_dias_de_licenca?.toString() ?? "0"
         });
@@ -112,13 +115,19 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
       let successMessage = "O cargo base foi criado.";
-      if (id) {
-        const partialValues: Partial<createFormSchemaCargosBaseData> = { ...values };
+      if (id) {             
+        const partialValues: Partial<createFormSchemaCargosBaseData> = {
+          ...values,
+        };
+
         delete partialValues["descricao_completa"];
         delete partialValues["codigo_cargo"];
+
+        const data_fim_periodo_formatada = values.data_fim_periodo ? values.data_fim_periodo.toISOString().split("T")[0] : null;
+        
         await editarCargosBase.mutateAsync({
           id,
-          values: { ...partialValues },
+          values: { ...partialValues, data_fim_periodo: data_fim_periodo_formatada},
         });
         successMessage = "As alterações foram salvas.";
       } else {
@@ -137,21 +146,21 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
     } catch (error) {
       console.log("error: ", error);
       let message = "Não conseguimos criar o cargo base. Por favor, tente novamente.";
-      
+
       if (id) {
         message = "Não conseguimos salvar as alterações. Por favor, tente novamente.";
-      }      
-      
-      if(error instanceof Error) {
+      }
+
+      if (error instanceof Error) {
         message = error.message;
-      }      
-      
+      }
+
       notification.error({
         title: "Erro!",
         description: message,
         clearPrevious: true,
       });
-     
+
     }
   };
 

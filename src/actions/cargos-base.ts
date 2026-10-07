@@ -5,7 +5,7 @@ import { ICargoType } from "@/types/cargos";
 import { fetchWithClient } from "./http";
 import { postWithAuth, patchWithAuth } from "@/lib/serverRequest";
 import { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
-import { CargosBaseResponse } from "@/types/gestao";
+import { CargosBaseCamposComuns, CargosBaseResponse } from "@/types/gestao";
  
 
 export async function criarCargosBaseAction(payload: createFormSchemaCargosBaseData) {
@@ -16,7 +16,7 @@ export async function criarCargosBaseAction(payload: createFormSchemaCargosBaseD
   );
 }
 
-export async function editarCargosBaseAction(id: number, payload: Partial<createFormSchemaCargosBaseData>) {
+export async function editarCargosBaseAction(id: number, payload: Partial<CargosBaseCamposComuns>) {
   return patchWithAuth(
     `/gestao/cargos-base/${id}/`,
     payload,

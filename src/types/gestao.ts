@@ -48,7 +48,7 @@ export interface CargosBaseCamposComuns {
   quantidade_maxima_de_dias_de_licenca?: string;
   permite_substituicao: boolean;
   possui_periodo_fechado: boolean;
-  data_fim_periodo: Date | null;
+  data_fim_periodo: Date | null | string;
 }
 
 export interface CargosBaseResponse extends CargosBaseCamposComuns {

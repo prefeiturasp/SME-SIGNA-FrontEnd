@@ -8,7 +8,7 @@ import { Tooltip } from 'antd';
 
 
 const FormCargosBaseSecundario: React.FC = () => {
-  const { register, control } = useFormContext();
+  const { register, control, setValue } = useFormContext();
   const pesquisarLicencasNoSigpec = useWatch({
     control,
     name: "pesquisar_licencas_no_sigpec",
@@ -101,6 +101,11 @@ const FormCargosBaseSecundario: React.FC = () => {
               description="Consulta licenças ativas antes da geração da Portaria."
               dataTestId="input-pesquisar-licencas-no-sigpec"
               showBlankSpace={false}
+              onChange={(value: boolean) => {
+                if (!value) {
+                  setValue("quantidade_maxima_de_dias_de_licenca", "0");
+                }
+              }}
             />
           </div>
           {pesquisarLicencasNoSigpec && (
@@ -147,6 +152,11 @@ const FormCargosBaseSecundario: React.FC = () => {
             description="Quando o cargo possui data de início e fim definidas, não é necessário realizar a cessação ao final do período."
             dataTestId="input-possui-periodo-fechado"
             showBlankSpace={false}
+            onChange={(value: boolean) => {
+              if (!value) {
+                setValue("data_fim_periodo", null);
+              }
+            }}
           />
         </div>
         {possuiPeriodoFechado && (
