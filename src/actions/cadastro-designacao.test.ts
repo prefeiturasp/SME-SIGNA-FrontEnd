@@ -178,6 +178,34 @@ describe("designacaoAction", () => {
         });
     });
 
+    it("retorna o bloqueio do Assistente de Diretor quando o backend envia assistente_diretor", async () => {
+        mockCookies("token");
+
+        const mensagem =
+            "O servidor não pode ser designado para o cargo de Diretor por já possuir o cargo sobreposto de Assistente de Diretor.";
+        mockedAxios.post.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    indicado_codigo_cargo_sobreposto: [mensagem],
+                    codes: { indicado_codigo_cargo_sobreposto: ["assistente_diretor"] },
+                    detail: mensagem,
+                },
+            },
+            message: "Request failed",
+        });
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error: mensagem,
+            field: undefined,
+            errosSubstituicaoDiretor: { indicado: mensagem },
+        });
+    });
+
     it("retorna campo field quando presente na resposta de erro", async () => {
         mockCookies("token");
 

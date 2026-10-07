@@ -27,6 +27,7 @@ import { getCargoVaga } from "@/utils/designacao/mapearPayload";
 import {
   avaliarSubstituicaoDiretor,
   ErrosBackendSubstituicaoDiretor,
+  MENSAGEM_ASSISTENTE_DIRETOR,
 } from "@/utils/designacao/substituicaoDiretor";
 
 class ErroSubstituicaoDiretor extends Error {
@@ -234,6 +235,17 @@ export default function DesignacoesPasso3() {
       </Card>
 
 
+
+      {substituicaoDiretor.assistenteDiretor && !errosSubstituicaoDiretor && (
+        <Alert
+          type="error"
+          showIcon
+          className="mt-4"
+          data-testid="erro-assistente-diretor-indicado"
+          title="Dados do servidor indicado"
+          description={MENSAGEM_ASSISTENTE_DIRETOR}
+        />
+      )}
 
       {errosSubstituicaoDiretor && (
         <div className="flex flex-col gap-2 mt-4" data-testid="erros-substituicao-diretor">

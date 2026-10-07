@@ -399,6 +399,47 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(screen.queryByText("Necessária eleição para o cargo de Diretor")).not.toBeInTheDocument();
   });
 
+  it("desabilita o Salvar e mostra o bloqueio quando o indicado é Assistente de Diretor", async () => {
+    h.formData = {
+      ...defaultFormData,
+      tipo_cargo: "vago",
+      cargo_vago_selecionado: { id: 3360, label: "DIRETOR DE ESCOLA" },
+      a_partir_de: "2026-01-01T03:00:00.000Z",
+      designacao_data_final: "2026-01-20T03:00:00.000Z",
+      servidorIndicado: {
+        ...defaultFormData.servidorIndicado,
+        cd_cargo_sobreposto_funcao_atividade: 3085,
+        possui_cargo_sobreposto: true,
+      },
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+
+    expect(
+      screen.getByText(
+        "O servidor não pode ser designado para o cargo de Diretor por já possuir o cargo sobreposto de Assistente de Diretor."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("Salvar")).toBeDisabled();
+  });
+
+  it("mostra o bloqueio do Assistente de Diretor retornado pelo backend", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "erro",
+      errosSubstituicaoDiretor: { indicado: "Mensagem do AD do backend" },
+    });
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+    fireEvent.click(screen.getByText("Salvar"));
+
+    expect(await screen.findByText("Mensagem do AD do backend")).toBeInTheDocument();
+    expect(notificationErrorMock).not.toHaveBeenCalled();
+    expect(h.pushMock).not.toHaveBeenCalled();
+  });
+
   it("desabilita o Salvar quando a substituição do Diretor passa de 30 dias", async () => {
     h.formData = {
       ...defaultFormData,
@@ -421,6 +462,13 @@ describe("DesignacoesPasso3 - Testes", () => {
       cargo_vago_selecionado: { id: 3360, label: "DIRETOR DE ESCOLA" },
       a_partir_de: "2026-01-01T03:00:00.000Z",
       designacao_data_final: "2026-01-30T03:00:00.000Z",
+      ue: "090450",
+      servidorIndicado: {
+        ...defaultFormData.servidorIndicado,
+        cd_cargo_base: 3255,
+        possui_cargo_sobreposto: false,
+        cd_ue_lotacao: "090450",
+      },
     } as unknown as FormDesignacaoEServidorIndicado;
 
     render(<DesignacoesPasso3 />);

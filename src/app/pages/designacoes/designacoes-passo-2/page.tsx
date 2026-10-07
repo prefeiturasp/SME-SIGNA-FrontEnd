@@ -41,8 +41,10 @@ import {
   avaliarSubstituicaoDiretor,
   CODIGO_ELEICAO_NECESSARIA,
   CODIGO_PERIODO_INSUFICIENTE,
+  MENSAGEM_ASSISTENTE_DIRETOR,
   MENSAGEM_DATA_FINAL_OBRIGATORIA,
   MENSAGEM_ELEICAO_NECESSARIA,
+  MENSAGEM_INDICADO_NAO_PROFESSOR,
   MENSAGEM_PERIODO_INSUFICIENTE,
   MENSAGEM_UNIDADE_DIFERENTE,
 } from "@/utils/designacao/substituicaoDiretor";
@@ -176,7 +178,7 @@ export default function DesignacoesPasso2() {
         },
       dre: d.dre ?? '-',
       dre_nome: formDesignacaoData?.dre_nome ?? d.dre_nome,
-      ue: d.ue ?? "",
+      ue: formDesignacaoData?.ue || d.ue || "",
       ue_nome: formDesignacaoData?.ue_nome ?? d.unidade_proponente,
       funcionarios_da_unidade: d.funcionarios_da_unidade ?? "-",
       quantidade_turmas: formDesignacaoData?.quantidade_turmas ?? "-",
@@ -270,7 +272,7 @@ export default function DesignacoesPasso2() {
     [codigoCargoVaga, aPartirDe, dataFinal, formDesignacaoData?.servidorIndicado, formDesignacaoData?.ue]
   );
   const mensagemDataFinal = useMemo(() => {
-    if (!substituicaoDiretor.aplica) return null;
+    if (!substituicaoDiretor.aplica || substituicaoDiretor.assistenteDiretor) return null;
     if (!dataFinal) return MENSAGEM_DATA_FINAL_OBRIGATORIA;
     if (substituicaoDiretor.erroPeriodo === CODIGO_PERIODO_INSUFICIENTE) return MENSAGEM_PERIODO_INSUFICIENTE;
     return null;
@@ -471,6 +473,24 @@ export default function DesignacoesPasso2() {
                     showLotacao={true}
                     onSubmitEditarServidor={onSubmitEditarServidor}
                   />
+                  {substituicaoDiretor.assistenteDiretor && (
+                    <Alert
+                      type="error"
+                      showIcon
+                      className="mt-2"
+                      data-testid="erro-assistente-diretor-indicado"
+                      title={MENSAGEM_ASSISTENTE_DIRETOR}
+                    />
+                  )}
+                  {substituicaoDiretor.naoProfessor && (
+                    <Alert
+                      type="error"
+                      showIcon
+                      className="mt-2"
+                      data-testid="erro-nao-professor-indicado"
+                      title={MENSAGEM_INDICADO_NAO_PROFESSOR}
+                    />
+                  )}
                   {substituicaoDiretor.unidadeDiferente && (
                     <Alert
                       type="error"

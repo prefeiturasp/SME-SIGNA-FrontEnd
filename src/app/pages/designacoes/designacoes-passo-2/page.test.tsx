@@ -714,9 +714,8 @@ describe("DesignacoesPasso2", () => {
       expect(screen.queryByTestId("erro-unidade-indicado")).not.toBeInTheDocument();
     });
 
-    it("cargo sobreposto Coordenador (3379), de outra UE: permite avançar", async () => {
+    it("cargo sobreposto Coordenador (3379): bloqueio de não professor", async () => {
       contextoDiretor(new Date(2026, 0, 20), {
-        cd_ue_lotacao: "019999",
         cargo_sobreposto_funcao_atividade: "COORDENADOR PEDAGOGICO",
         cd_cargo_sobreposto_funcao_atividade: 3379,
         possui_cargo_sobreposto: true,
@@ -724,8 +723,94 @@ describe("DesignacoesPasso2", () => {
       render(<DesignacoesPasso2 />);
       fireEvent.click(screen.getByTestId("set-vago-diretor"));
 
-      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+      expect(await screen.findByTestId("erro-nao-professor-indicado")).toHaveTextContent(
+        "Somente professor pode ser designado para substituir o Diretor."
+      );
       expect(screen.queryByTestId("erro-unidade-indicado")).not.toBeInTheDocument();
+      expect(screen.getByTestId("proximo")).toBeDisabled();
+    });
+
+    it("não professor (Secretário 3182) da mesma UE: bloqueio de não professor", async () => {
+      contextoDiretor(new Date(2026, 0, 20), { cargo_base: "SECRETARIO DE ESCOLA", cd_cargo_base: 3182 });
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago-diretor"));
+
+      expect(await screen.findByTestId("erro-nao-professor-indicado")).toBeInTheDocument();
+      expect(screen.getByTestId("proximo")).toBeDisabled();
+    });
+
+    it("base professor + função/atividade, mesma UE: permite avançar", async () => {
+      contextoDiretor(new Date(2026, 0, 20), {
+        cargo_sobreposto_funcao_atividade: "COORDENADOR PEDAGOGICO",
+        cd_cargo_sobreposto_funcao_atividade: 3379,
+        possui_cargo_sobreposto: false,
+      });
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago-diretor"));
+
+      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+      expect(screen.queryByTestId("erro-nao-professor-indicado")).not.toBeInTheDocument();
+    });
+
+    const assistenteDiretor = {
+      cargo_sobreposto_funcao_atividade: "ASSISTENTE DE DIRETOR DE ESCOLA",
+      cd_cargo_sobreposto_funcao_atividade: 3085,
+      possui_cargo_sobreposto: true,
+    };
+
+    it("Assistente de Diretor (sobreposto 3085): bloqueio no bloco do indicado", async () => {
+      contextoDiretor(new Date(2026, 0, 20), assistenteDiretor);
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago-diretor"));
+
+      expect(await screen.findByTestId("erro-assistente-diretor-indicado")).toHaveTextContent(
+        "O servidor não pode ser designado para o cargo de Diretor por já possuir o cargo sobreposto de Assistente de Diretor."
+      );
+      expect(screen.getByTestId("proximo")).toBeDisabled();
+    });
+
+    it("Assistente de Diretor com período inválido: só a mensagem do AD aparece", async () => {
+      contextoDiretor(new Date(2026, 0, 31), { ...assistenteDiretor, cd_ue_lotacao: "019999" });
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago-diretor"));
+
+      expect(await screen.findByTestId("erro-assistente-diretor-indicado")).toBeInTheDocument();
+      expect(screen.queryByTestId("alerta-eleicao-diretor")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("mensagem-data-final")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("erro-unidade-indicado")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("erro-nao-professor-indicado")).not.toBeInTheDocument();
+      expect(screen.getByTestId("proximo")).toBeDisabled();
+    });
+
+    it("Assistente de Diretor + outra vaga: não bloqueia", async () => {
+      contextoDiretor(null, assistenteDiretor);
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago"));
+
+      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+      expect(screen.queryByTestId("erro-assistente-diretor-indicado")).not.toBeInTheDocument();
+    });
+
+    it("bloqueio do AD some ao trocar o cargo da vaga", async () => {
+      contextoDiretor(new Date(2026, 0, 20), assistenteDiretor);
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago-diretor"));
+      expect(await screen.findByTestId("erro-assistente-diretor-indicado")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("set-vago"));
+      await waitFor(() =>
+        expect(screen.queryByTestId("erro-assistente-diretor-indicado")).not.toBeInTheDocument()
+      );
+      expect(screen.getByTestId("proximo")).not.toBeDisabled();
+    });
+
+    it("3085 como função/atividade (sem cargo sobreposto): não bloqueia", async () => {
+      contextoDiretor(new Date(2026, 0, 20), { ...assistenteDiretor, possui_cargo_sobreposto: false });
+      render(<DesignacoesPasso2 />);
+      fireEvent.click(screen.getByTestId("set-vago-diretor"));
+
+      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+      expect(screen.queryByTestId("erro-assistente-diretor-indicado")).not.toBeInTheDocument();
     });
 
     it("outro cargo de vaga: nenhuma regra nova aparece", async () => {
@@ -737,6 +822,19 @@ describe("DesignacoesPasso2", () => {
       expect(screen.queryByTestId("dias-periodo")).not.toBeInTheDocument();
       expect(screen.queryByTestId("alerta-eleicao-diretor")).not.toBeInTheDocument();
       expect(screen.queryByTestId("erro-unidade-indicado")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("erro-nao-professor-indicado")).not.toBeInTheDocument();
+    });
+
+    it("edição: mantém a UE escolhida no passo 1 em vez da UE salva", async () => {
+      h.searchId = "55";
+      h.formDesignacaoData = { ue: "019999", ue_nome: "OUTRA UE" };
+      const { rerender } = render(<DesignacoesPasso2 />);
+      h.designacao = { ...designacaoCompleta, ue: "090450" } as unknown as DesignacaoResponse;
+      rerender(<DesignacoesPasso2 />);
+
+      await waitFor(() =>
+        expect(h.setFormDesignacaoData).toHaveBeenCalledWith(expect.objectContaining({ ue: "019999" }))
+      );
     });
 
     it("edição: carrega os campos da regra a partir do GET da designação", async () => {

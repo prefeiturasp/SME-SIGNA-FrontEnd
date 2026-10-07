@@ -5,6 +5,9 @@ import type { Servidor } from "@/types/designacao-unidade";
 // `DesignacaoService._validar_substituicao_diretor` no backend: qualquer
 // divergência faz o front bloquear algo que o backend aceita (ou o contrário).
 export const CODIGO_CARGO_DIRETOR = 3360;
+// Assistente de Diretor substitui o Diretor informalmente por até 15 dias,
+// por isso nunca pode ser designado formalmente para o cargo.
+export const CODIGO_CARGO_ASSISTENTE_DIRETOR = 3085;
 export const SUBSTITUICAO_DIRETOR_MIN_DIAS = 16;
 export const SUBSTITUICAO_DIRETOR_MAX_DIAS = 30;
 
@@ -28,11 +31,15 @@ export const CODIGOS_CARGO_PROFESSOR: ReadonlySet<number> = new Set([
 export const CODIGO_ELEICAO_NECESSARIA = "eleicao_necessaria";
 export const CODIGO_PERIODO_INSUFICIENTE = "periodo_insuficiente";
 export const CODIGO_UNIDADE_DIFERENTE = "unidade_diferente";
+export const CODIGO_ASSISTENTE_DIRETOR = "assistente_diretor";
+export const CODIGO_INDICADO_NAO_PROFESSOR = "indicado_nao_professor";
 
 export const MENSAGEM_PERIODO_INSUFICIENTE = `A designação para substituição do Diretor deve ter período de ${SUBSTITUICAO_DIRETOR_MIN_DIAS} a ${SUBSTITUICAO_DIRETOR_MAX_DIAS} dias.`;
 export const MENSAGEM_ELEICAO_NECESSARIA = `A substituição do Diretor não pode ultrapassar ${SUBSTITUICAO_DIRETOR_MAX_DIAS} dias. É necessária a realização de eleição para o cargo de Diretor.`;
 export const MENSAGEM_DATA_FINAL_OBRIGATORIA = "Para substituição do Diretor, a data final é obrigatória.";
 export const MENSAGEM_UNIDADE_DIFERENTE = "O professor designado para substituir o Diretor deve ser da mesma unidade escolar.";
+export const MENSAGEM_INDICADO_NAO_PROFESSOR = "Somente professor pode ser designado para substituir o Diretor.";
+export const MENSAGEM_ASSISTENTE_DIRETOR = "O servidor não pode ser designado para o cargo de Diretor por já possuir o cargo sobreposto de Assistente de Diretor.";
 
 export type ErroPeriodoSubstituicaoDiretor =
     | typeof CODIGO_ELEICAO_NECESSARIA
@@ -57,7 +64,9 @@ export type AvaliacaoSubstituicaoDiretor = {
     aplica: boolean;
     dias: number | null;
     erroPeriodo: ErroPeriodoSubstituicaoDiretor | null;
+    naoProfessor: boolean;
     unidadeDiferente: boolean;
+    assistenteDiretor: boolean;
     bloqueado: boolean;
 };
 
@@ -94,17 +103,24 @@ export function ehProfessor(indicado: IndicadoSubstituicao | null | undefined): 
     return CODIGOS_CARGO_PROFESSOR.has(Number(codigo));
 }
 
+// Só o cargo sobreposto conta: 3085 como função/atividade não bloqueia.
+export function ehAssistenteDiretor(indicado: IndicadoSubstituicao | null | undefined): boolean {
+    if (!indicado?.possui_cargo_sobreposto) return false;
+    const codigo = indicado.cd_cargo_sobreposto_funcao_atividade;
+    if (codigo === null || codigo === undefined || String(codigo).trim() === "") return false;
+    return Number(codigo) === CODIGO_CARGO_ASSISTENTE_DIRETOR;
+}
+
 // Ignora espaços e zeros à esquerda: o EOL devolve "090450" ou 90450.
 function normalizarCodigoUe(valor: string | number | null | undefined): string {
     return String(valor ?? "").trim().replace(/^0+/, "");
 }
 
-// Professor com algum código de UE ausente também é bloqueado, como no backend.
-export function professorDeOutraUnidade(
+// Algum código de UE ausente também bloqueia, como no backend.
+export function deOutraUnidade(
     indicado: IndicadoSubstituicao | null | undefined,
     codigoUe: string | number | null | undefined
 ): boolean {
-    if (!ehProfessor(indicado)) return false;
     const ue = normalizarCodigoUe(codigoUe);
     return !ue || normalizarCodigoUe(indicado?.cd_ue_lotacao) !== ue;
 }
@@ -115,18 +131,46 @@ export function avaliarSubstituicaoDiretor(
     const dias = contarDiasPeriodo(dados.dataInicio, dados.dataFim);
 
     if (!ehCargoDiretor(dados.cargoVaga)) {
-        return { aplica: false, dias, erroPeriodo: null, unidadeDiferente: false, bloqueado: false };
+        return {
+            aplica: false,
+            dias,
+            erroPeriodo: null,
+            naoProfessor: false,
+            unidadeDiferente: false,
+            assistenteDiretor: false,
+            bloqueado: false,
+        };
+    }
+
+    // O backend verifica o AD antes das demais regras e para ali; o front
+    // segue a mesma ordem para que só a mensagem do AD apareça.
+    if (ehAssistenteDiretor(dados.indicado)) {
+        return {
+            aplica: true,
+            dias,
+            erroPeriodo: null,
+            naoProfessor: false,
+            unidadeDiferente: false,
+            assistenteDiretor: true,
+            bloqueado: true,
+        };
     }
 
     const erroPeriodo = validarPeriodoSubstituicaoDiretor(dias);
-    const unidadeDiferente = professorDeOutraUnidade(dados.indicado, dados.codigoUe);
+    // Período e indicado aparecem em blocos diferentes da tela, então são
+    // avaliados juntos. Entre as regras do indicado vale a ordem do backend:
+    // a unidade só é conferida para quem é professor.
+    const naoProfessor = !ehProfessor(dados.indicado);
+    const unidadeDiferente = !naoProfessor && deOutraUnidade(dados.indicado, dados.codigoUe);
 
     return {
         aplica: true,
         dias,
         erroPeriodo,
+        naoProfessor,
         unidadeDiferente,
-        bloqueado: erroPeriodo !== null || unidadeDiferente,
+        assistenteDiretor: false,
+        bloqueado: erroPeriodo !== null || naoProfessor || unidadeDiferente,
     };
 }
 
@@ -154,6 +198,14 @@ export function interpretarErrosSubstituicaoDiretor(
     const codes = data?.codes;
     if (!codes || typeof codes !== "object") return null;
 
+    if (primeiroValor(codes.indicado_codigo_cargo_sobreposto) === CODIGO_ASSISTENTE_DIRETOR) {
+        const detail = typeof data?.detail === "string" ? data.detail : undefined;
+        return {
+            indicado:
+                primeiroValor(data?.indicado_codigo_cargo_sobreposto) ?? detail ?? MENSAGEM_ASSISTENTE_DIRETOR,
+        };
+    }
+
     const erros: ErrosBackendSubstituicaoDiretor = {};
     const codigoDataFim = primeiroValor(codes.data_fim);
     const mensagemDataFim = primeiroValor(data?.data_fim);
@@ -164,7 +216,14 @@ export function interpretarErrosSubstituicaoDiretor(
         erros.dataFim = mensagemDataFim ?? MENSAGEM_PERIODO_INSUFICIENTE;
     }
 
-    if (primeiroValor(codes.indicado_codigo_ue_lotacao) === CODIGO_UNIDADE_DIFERENTE) {
+    // `indicado_nao_professor` vem no campo do cargo considerado (sobreposto ou base).
+    const campoNaoProfessor = ["indicado_codigo_cargo_sobreposto", "indicado_codigo_cargo_base"].find(
+        (campo) => primeiroValor(codes[campo]) === CODIGO_INDICADO_NAO_PROFESSOR
+    );
+
+    if (campoNaoProfessor) {
+        erros.indicado = primeiroValor(data?.[campoNaoProfessor]) ?? MENSAGEM_INDICADO_NAO_PROFESSOR;
+    } else if (primeiroValor(codes.indicado_codigo_ue_lotacao) === CODIGO_UNIDADE_DIFERENTE) {
         erros.indicado = primeiroValor(data?.indicado_codigo_ue_lotacao) ?? MENSAGEM_UNIDADE_DIFERENTE;
     }
 
