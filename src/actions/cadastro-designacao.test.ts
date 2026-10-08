@@ -150,6 +150,62 @@ describe("designacaoAction", () => {
         });
     });
 
+    it("retorna os erros da substituição do Diretor quando o backend envia codes", async () => {
+        mockCookies("token");
+
+        const mensagem =
+            "A substituição do Diretor não pode ultrapassar 30 dias. É necessária a realização de eleição para o cargo de Diretor.";
+        mockedAxios.patch.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    data_fim: [mensagem],
+                    codes: { data_fim: ["eleicao_necessaria"] },
+                    detail: `data_fim: ${mensagem}`,
+                },
+            },
+            message: "Request failed",
+        });
+
+        const result = await designacaoAction(formDataMock, "10");
+
+        expect(result).toEqual({
+            success: false,
+            error: `Data fim: ${mensagem}`,
+            field: undefined,
+            errosSubstituicaoDiretor: { eleicao: mensagem },
+        });
+    });
+
+    it("retorna o bloqueio do Assistente de Diretor quando o backend envia assistente_diretor", async () => {
+        mockCookies("token");
+
+        const mensagem =
+            "O servidor não pode ser designado para o cargo de Diretor por já possuir o cargo sobreposto de Assistente de Diretor.";
+        mockedAxios.post.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    indicado_codigo_cargo_sobreposto: [mensagem],
+                    codes: { indicado_codigo_cargo_sobreposto: ["assistente_diretor"] },
+                    detail: mensagem,
+                },
+            },
+            message: "Request failed",
+        });
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error: mensagem,
+            field: undefined,
+            errosSubstituicaoDiretor: { indicado: mensagem },
+        });
+    });
+
     it("retorna campo field quando presente na resposta de erro", async () => {
         mockCookies("token");
 
