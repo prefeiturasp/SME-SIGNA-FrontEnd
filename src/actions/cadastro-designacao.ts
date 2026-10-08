@@ -6,15 +6,26 @@ import { cookies } from "next/headers";
 import { mapearPayloadDesignacao } from "@/utils/designacao/mapearPayload";
 import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 import { getCargos } from "@/actions/cargos";
+import {
+    ErrosBackendSubstituicaoDiretor,
+    interpretarErrosSubstituicaoDiretor,
+} from "@/utils/designacao/substituicaoDiretor";
 
 type DesignacaoErrorResponse = {
     detail?: string;
     field?: string;
+    codes?: Record<string, unknown>;
+    [campo: string]: unknown;
 };
 
 type DesignacaoResult =
     | { success: true; data: unknown }
-    | { success: false; error: string; field?: string };
+    | {
+          success: false;
+          error: string;
+          field?: string;
+          errosSubstituicaoDiretor?: ErrosBackendSubstituicaoDiretor;
+      };
 
 // O backend retorna `detail` já formatado como "campo_snake_case: mensagem"
 // (várias ocorrências separadas por "; "). Aqui só humanizamos o nome do
@@ -104,7 +115,16 @@ export async function designacaoAction(
         }
 
         const field = error.response?.data?.field;
+        const errosSubstituicaoDiretor =
+            error.response?.status === 400
+                ? interpretarErrosSubstituicaoDiretor(error.response.data)
+                : null;
 
-        return { success: false, error: message, field };
+        return {
+            success: false,
+            error: message,
+            field,
+            ...(errosSubstituicaoDiretor && { errosSubstituicaoDiretor }),
+        };
     }
 }

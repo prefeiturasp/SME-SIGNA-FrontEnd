@@ -12,6 +12,10 @@ export type Servidor = {
   cargo_base: string;
   cd_cargo_sobreposto_funcao_atividade: number;
   cargo_sobreposto_funcao_atividade: string;
+  // Diz se `cd_cargo_sobreposto_funcao_atividade` é cargo sobreposto (true) ou função/atividade (false).
+  possui_cargo_sobreposto?: boolean;
+  // Código da UE de lotação (do cargo sobreposto, se houver; senão do cargo base).
+  cd_ue_lotacao?: string | number | null;
   cursos_titulos: string;
   codigo_hierarquia?: string;
   lotacao_cargo_base?: string;
