@@ -455,6 +455,45 @@ describe("hooks/useCriarEditarCargosBase", () => {
     );
   });
 
+  it("mantém o mesmo dia ao formatar a data no início e no fim do dia", async () => {
+    vi.mocked(editarCargosBaseAction).mockResolvedValue({
+      success: true,
+      data: { id: 44 },
+    });
+
+    const { result } = renderHook(() => useCriarEditarCargosBase(44));
+
+    const inicioDoDia = new Date(2026, 4, 15, 0, 0, 0, 0);
+    const fimDoDia = new Date(2026, 4, 15, 23, 59, 59, 999);
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        ...payloadBase,
+        possui_periodo_fechado: true,
+        data_fim_periodo: inicioDoDia,
+      });
+    });
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        ...payloadBase,
+        possui_periodo_fechado: true,
+        data_fim_periodo: fimDoDia,
+      });
+    });
+
+    expect(editarCargosBaseAction).toHaveBeenNthCalledWith(
+      1,
+      44,
+      expect.objectContaining({ data_fim_periodo: "2026-05-15" }),
+    );
+    expect(editarCargosBaseAction).toHaveBeenNthCalledWith(
+      2,
+      44,
+      expect.objectContaining({ data_fim_periodo: "2026-05-15" }),
+    );
+  });
+
   it("usa a mensagem padrão de criação quando a falha não é um Error", async () => {
     vi.mocked(criarCargosBaseAction).mockRejectedValueOnce("falha crua");
 
