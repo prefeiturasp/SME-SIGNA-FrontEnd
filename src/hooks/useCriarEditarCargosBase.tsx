@@ -5,7 +5,7 @@ import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosB
 import { useRouter } from "next/navigation";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { useEffect } from "react";
-
+import dayjs from "dayjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 import { CargosBaseCriarEditar } from "@/types/gestao";
@@ -114,7 +114,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
-      const data_fim_periodo_formatada = values.data_fim_periodo ? values.data_fim_periodo.toISOString().split("T")[0] : null;
+      const data_fim_periodo_formatada = values.data_fim_periodo ? dayjs(values.data_fim_periodo).format("YYYY-MM-DD"): null;
       let successMessage = "O cargo base foi criado.";
       if (id) {             
         const partialValues: Partial<createFormSchemaCargosBaseData> = {

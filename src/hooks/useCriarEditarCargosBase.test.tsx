@@ -258,7 +258,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       quantidade_maxima_de_dias_de_licenca: "10",
       permite_substituicao: true,
       possui_periodo_fechado: true,
-      data_fim_periodo: new Date(2026, 0, 31),
+      data_fim_periodo: new Date(2026, 0, 31, 23, 59, 59, 999),
     };
 
     renderHook(() => useCriarEditarCargosBase(null, customDefaults));
