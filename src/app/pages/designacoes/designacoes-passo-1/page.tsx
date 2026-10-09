@@ -3,7 +3,7 @@
 import StepperDesignacao from "@/components/dashboard/Designacao/StepperDesignacao";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { Card } from "antd";
+import { Alert, Card } from "antd";
 import Designacao from "@/assets/icons/Designacao";
 import FormularioBuscaDesignacao from "@/components/dashboard/Designacao/BuscaDesignacao/FormularioBuscaDesignacao";
 import { BuscaDesignacaoRequest } from "@/types/designacao";
@@ -19,6 +19,8 @@ import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalEditarServidor/schema";
+
+const POSSUI_DESIGNACAO_ATIVA = "Atenção o servidor indicado já possui designação ativa, verifique se deseja registrar uma nova designação.";
 
 export default function DesignacoesPasso1() {
   const searchParams = useSearchParams();
@@ -188,6 +190,15 @@ export default function DesignacoesPasso1() {
               setDisableProximo={setDisableProximo}
               defaultValues={formDesignacaoData ?? {}}
             />
+            {formDesignacaoData?.servidorIndicado?.possui_designacao_ativa && (
+              <Alert
+                type="warning"
+                showIcon
+                className="mt-2"
+                data-testid="erro-servidor-indicado-designacao-ativa"
+                title={POSSUI_DESIGNACAO_ATIVA}
+              />
+            )}
           </CustomAccordionItem>
         </Accordion>
         </div>
