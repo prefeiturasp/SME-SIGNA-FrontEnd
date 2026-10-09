@@ -30,7 +30,11 @@ export type Servidor = {
 type Cargo = {
   codigo_cargo: number;
   nome_cargo: string;
-  modulo: string;
+  modulo: number;
+  // Calculado no backend (RF único, desconsidera afastados).
+  quantidade_servidores: number;
+  // true quando a quantidade de servidores no cargo excede o módulo da unidade.
+  excedente: boolean;
   servidores: Servidor[];
 };
 
