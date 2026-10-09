@@ -337,7 +337,7 @@ const FormularioPesquisaUnidade = forwardRef<
                                     ?.modulo;
 
                                 form.setValue("cargo_sobreposto", cargoSobreposto);
-                                form.setValue("modulos", modulo != null ? String(modulo) : "");
+                                form.setValue("modulos", modulo?.toString() ?? "");
                                 setDisableProximo(false);
                               }}
                             >
