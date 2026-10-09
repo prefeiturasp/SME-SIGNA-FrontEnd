@@ -137,7 +137,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     });
 
     const { result } = renderHook(() => useCriarCargosBase());
-    const response = await result.current.mutateAsync({ values: payloadBase });
+    const response = await result.current.mutateAsync({ values: { ...payloadBase, data_fim_periodo: payloadBase.data_fim_periodo?.toISOString().split("T")[0] ?? null } });
 
     expect(useMutationMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -156,7 +156,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     });
 
     const { result } = renderHook(() => useCriarCargosBase());
-    await expect(result.current.mutateAsync({ values: payloadBase })).rejects.toThrow("erro ao criar");
+    await expect(result.current.mutateAsync({ values: { ...payloadBase, data_fim_periodo: payloadBase.data_fim_periodo?.toISOString().split("T")[0] ?? null } })).rejects.toThrow("erro ao criar");
   });
 
   it("configura useEditarCargosBase e retorna dados no sucesso", async () => {
@@ -207,7 +207,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
           cargo_base_ficticio: false,
           testar_laudo: false,
           pesquisar_licencas_no_sigpec: false,
-          quantidade_maxima_de_dias_de_licenca: "15",
+          quantidade_maxima_de_dias_de_licenca: "0",
           permite_substituicao: false,
           possui_periodo_fechado: false,
           data_fim_periodo: null,
@@ -258,7 +258,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       quantidade_maxima_de_dias_de_licenca: "10",
       permite_substituicao: true,
       possui_periodo_fechado: true,
-      data_fim_periodo: new Date(2026, 0, 31),
+      data_fim_periodo: new Date(2026, 0, 31, 23, 59, 59, 999),
     };
 
     renderHook(() => useCriarEditarCargosBase(null, customDefaults));
@@ -288,7 +288,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       status: "ATIVO",
       permite_substituicao: true,
       possui_periodo_fechado: true,
-      data_fim_periodo: new Date(2026, 0, 31),
+      data_fim_periodo: "2026-01-31",
     };
     useBuscarCargosBaseByIdMock.mockReturnValue({
       data: cargoBase,
@@ -299,6 +299,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     expect(useBuscarCargosBaseByIdMock).toHaveBeenCalledWith(44);
     expect(formResetMock).toHaveBeenCalledWith({
       ...cargoBase,
+      data_fim_periodo: new Date("2026/01/31"),
       quantidade_maxima_de_dias_de_licenca: "30",
     });
   });
@@ -427,5 +428,103 @@ describe("hooks/useCriarEditarCargosBase", () => {
       description: "erro ao editar",
       clearPrevious: true,
     });
+  });
+
+  it("formata a data final do período ao editar o cargo", async () => {
+    vi.mocked(editarCargosBaseAction).mockResolvedValueOnce({
+      success: true,
+      data: { id: 44 },
+    });
+
+    const dataFim = new Date(2026, 5, 15);
+    const { result } = renderHook(() => useCriarEditarCargosBase(44));
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        ...payloadBase,
+        possui_periodo_fechado: true,
+        data_fim_periodo: dataFim,
+      });
+    });
+
+    expect(editarCargosBaseAction).toHaveBeenCalledWith(
+      44,
+      expect.objectContaining({
+        data_fim_periodo: dataFim.toISOString().split("T")[0],
+      }),
+    );
+  });
+
+  it("mantém o mesmo dia ao formatar a data no início e no fim do dia", async () => {
+    vi.mocked(editarCargosBaseAction).mockResolvedValue({
+      success: true,
+      data: { id: 44 },
+    });
+
+    const { result } = renderHook(() => useCriarEditarCargosBase(44));
+
+    const inicioDoDia = new Date(2026, 4, 15, 0, 0, 0, 0);
+    const fimDoDia = new Date(2026, 4, 15, 23, 59, 59, 999);
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        ...payloadBase,
+        possui_periodo_fechado: true,
+        data_fim_periodo: inicioDoDia,
+      });
+    });
+
+    await act(async () => {
+      await result.current.onSubmitForm({
+        ...payloadBase,
+        possui_periodo_fechado: true,
+        data_fim_periodo: fimDoDia,
+      });
+    });
+
+    expect(editarCargosBaseAction).toHaveBeenNthCalledWith(
+      1,
+      44,
+      expect.objectContaining({ data_fim_periodo: "2026-05-15" }),
+    );
+    expect(editarCargosBaseAction).toHaveBeenNthCalledWith(
+      2,
+      44,
+      expect.objectContaining({ data_fim_periodo: "2026-05-15" }),
+    );
+  });
+
+  it("usa a mensagem padrão de criação quando a falha não é um Error", async () => {
+    vi.mocked(criarCargosBaseAction).mockRejectedValueOnce("falha crua");
+
+    const { result } = renderHook(() => useCriarEditarCargosBase());
+
+    await act(async () => {
+      await result.current.onSubmitForm(payloadBase);
+    });
+
+    expect(errorNotificationMock).toHaveBeenCalledWith({
+      title: "Erro!",
+      description: "Não conseguimos criar o cargo base. Por favor, tente novamente.",
+      clearPrevious: true,
+    });
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("usa a mensagem padrão de edição quando a falha não é um Error", async () => {
+    vi.mocked(editarCargosBaseAction).mockRejectedValueOnce("falha crua");
+
+    const { result } = renderHook(() => useCriarEditarCargosBase(88));
+
+    await act(async () => {
+      await result.current.onSubmitForm(payloadBase);
+    });
+
+    expect(errorNotificationMock).toHaveBeenCalledWith({
+      title: "Erro!",
+      description: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      clearPrevious: true,
+    });
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });

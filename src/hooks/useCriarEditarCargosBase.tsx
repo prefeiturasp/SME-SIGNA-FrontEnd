@@ -5,9 +5,10 @@ import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosB
 import { useRouter } from "next/navigation";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { useEffect } from "react";
-
+import dayjs from "dayjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
+import { CargosBaseCriarEditar } from "@/types/gestao";
 
 export const useCriarCargosBase = () => {
   const queryClient = useQueryClient();
@@ -15,7 +16,7 @@ export const useCriarCargosBase = () => {
     mutationFn: async ({
       values
     }: {
-      values: createFormSchemaCargosBaseData;
+      values: CargosBaseCriarEditar;
     }) => {
       const response = await criarCargosBaseAction(values);
 
@@ -39,7 +40,7 @@ export const useEditarCargosBase = () => {
       values
     }: {
       id: number;
-      values: Partial<createFormSchemaCargosBaseData>;
+      values: Partial<CargosBaseCriarEditar>;
     }) => {
       const response = await editarCargosBaseAction(id, values);
 
@@ -68,7 +69,7 @@ const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
   cargo_base_ficticio: false,
   testar_laudo: false,
   pesquisar_licencas_no_sigpec: false,
-  quantidade_maxima_de_dias_de_licenca: '15',
+  quantidade_maxima_de_dias_de_licenca: '0',
   permite_substituicao: false,
   possui_periodo_fechado: false,
   data_fim_periodo: null,
@@ -99,9 +100,11 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   useEffect(() => {
     if (cargoBase) {
+      const data_fim_periodo = cargoBase.data_fim_periodo ? new Date(cargoBase.data_fim_periodo.toString().replaceAll("-", '/')) : null;
       form.reset(
         {
           ...cargoBase,
+          data_fim_periodo: data_fim_periodo,
           quantidade_maxima_de_dias_de_licenca:
             cargoBase.quantidade_maxima_de_dias_de_licenca?.toString() ?? "0"
         });
@@ -111,19 +114,26 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
+      const data_fim_periodo_formatada = values.data_fim_periodo ? dayjs(values.data_fim_periodo).format("YYYY-MM-DD"): null;
       let successMessage = "O cargo base foi criado.";
-      if (id) {
-        const partialValues: Partial<createFormSchemaCargosBaseData> = { ...values };
+      if (id) {             
+        const partialValues: Partial<createFormSchemaCargosBaseData> = {
+          ...values,
+        };
+
         delete partialValues["descricao_completa"];
         delete partialValues["codigo_cargo"];
+
+        
+
         await editarCargosBase.mutateAsync({
           id,
-          values: { ...partialValues },
+          values: { ...partialValues, data_fim_periodo: data_fim_periodo_formatada},
         });
         successMessage = "As alterações foram salvas.";
       } else {
         await criarCargosBase.mutateAsync({
-          values
+          values: { ...values, data_fim_periodo: data_fim_periodo_formatada},
         });
       }
 
@@ -137,21 +147,21 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
     } catch (error) {
       console.log("error: ", error);
       let message = "Não conseguimos criar o cargo base. Por favor, tente novamente.";
-      
+
       if (id) {
         message = "Não conseguimos salvar as alterações. Por favor, tente novamente.";
-      }      
-      
-      if(error instanceof Error) {
+      }
+
+      if (error instanceof Error) {
         message = error.message;
-      }      
-      
+      }
+
       notification.error({
         title: "Erro!",
         description: message,
         clearPrevious: true,
       });
-     
+
     }
   };
 

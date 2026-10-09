@@ -1,15 +1,17 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FormCargosBaseSecundario from "./FormCargosBaseSecundario";
 
 const {
   useWatchMock,
+  setValueMock,
   simpleTableHeaderSpy,
   switchFieldSpy,
   inputFieldSpy,
   dateFieldSpy,
 } = vi.hoisted(() => ({
   useWatchMock: vi.fn(),
+  setValueMock: vi.fn(),
   simpleTableHeaderSpy: vi.fn(),
   switchFieldSpy: vi.fn(),
   inputFieldSpy: vi.fn(),
@@ -39,6 +41,7 @@ vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
     register: vi.fn(),
     control: {},
+    setValue: setValueMock,
   }),
   useWatch: useWatchMock,
 }));
@@ -56,9 +59,23 @@ vi.mock("../../SimpleTableHeader/SimpleTableHeader", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
-  SwitchField: (props: { label: string; dataTestId?: string }) => {
+  SwitchField: (props: {
+    label: string;
+    dataTestId?: string;
+    onChange?: (value: boolean) => void;
+  }) => {
     switchFieldSpy(props);
-    return <div data-testid={props.dataTestId}>{props.label}</div>;
+    return (
+      <div data-testid={props.dataTestId}>
+        <button type="button" onClick={() => props.onChange?.(true)}>
+          ligar
+        </button>
+        <button type="button" onClick={() => props.onChange?.(false)}>
+          desligar
+        </button>
+        {props.label}
+      </div>
+    );
   },
   InputField: (props: { label: React.ReactNode; dataTestId?: string }) => {
     inputFieldSpy(props);
@@ -165,5 +182,41 @@ describe("FormCargosBaseSecundario", () => {
     );
     expect(screen.getByTestId("data-fim-periodo")).toHaveTextContent("Data final do período*");
     expect(screen.getByText("Após a data selecionada, o cargo não possuirá mais validade administrativa.")).toBeInTheDocument();
+  });
+
+  it("zera a quantidade de dias ao desligar a pesquisa de licenças no SIGPEC", () => {
+    render(<FormCargosBaseSecundario />);
+
+    const campo = screen.getByTestId("input-pesquisar-licencas-no-sigpec");
+    fireEvent.click(campo.querySelectorAll("button")[1]);
+
+    expect(setValueMock).toHaveBeenCalledWith("quantidade_maxima_de_dias_de_licenca", "0");
+  });
+
+  it("define a quantidade padrão de 15 dias ao ligar a pesquisa de licenças no SIGPEC", () => {
+    render(<FormCargosBaseSecundario />);
+
+    const campo = screen.getByTestId("input-pesquisar-licencas-no-sigpec");
+    fireEvent.click(campo.querySelectorAll("button")[0]);
+
+    expect(setValueMock).toHaveBeenCalledWith("quantidade_maxima_de_dias_de_licenca", "15");
+  });
+
+  it("limpa a data final ao desligar o período fechado", () => {
+    render(<FormCargosBaseSecundario />);
+
+    const campo = screen.getByTestId("input-possui-periodo-fechado");
+    fireEvent.click(campo.querySelectorAll("button")[1]);
+
+    expect(setValueMock).toHaveBeenCalledWith("data_fim_periodo", null);
+  });
+
+  it("mantém a data final ao ligar o período fechado", () => {
+    render(<FormCargosBaseSecundario />);
+
+    const campo = screen.getByTestId("input-possui-periodo-fechado");
+    fireEvent.click(campo.querySelectorAll("button")[0]);
+
+    expect(setValueMock).not.toHaveBeenCalled();
   });
 });

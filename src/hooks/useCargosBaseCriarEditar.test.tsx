@@ -127,7 +127,7 @@ describe("useCriarEditarCargosBase", () => {
           cargo_base_ficticio: false,
           testar_laudo: false,
           pesquisar_licencas_no_sigpec: false,
-          quantidade_maxima_de_dias_de_licenca: "15",
+          quantidade_maxima_de_dias_de_licenca: "0",
           permite_substituicao: false,
           possui_periodo_fechado: false,
           data_fim_periodo: null,
@@ -196,7 +196,7 @@ describe("useCriarEditarCargosBase", () => {
       quantidade_maxima_de_dias_de_licenca: 20,
       permite_substituicao: true,
       possui_periodo_fechado: true,
-      data_fim_periodo: new Date(2026, 0, 31),
+      data_fim_periodo: "2026-01-31",
     };
 
     const { useBuscarCargosBaseById } = await import("./useBuscarCargosBase");
@@ -209,6 +209,7 @@ describe("useCriarEditarCargosBase", () => {
 
     expect(formResetMock).toHaveBeenCalledWith({
       ...cargoBase,
+      data_fim_periodo: new Date("2026/01/31"),
       quantidade_maxima_de_dias_de_licenca: "20",
     });
   });
