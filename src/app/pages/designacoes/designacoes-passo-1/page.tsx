@@ -191,14 +191,14 @@ export default function DesignacoesPasso1() {
               defaultValues={formDesignacaoData ?? {}}
             />
             {formDesignacaoData?.servidorIndicado?.possui_designacao_ativa && (
-                    <Alert
-                      type="warning"
-                      showIcon
-                      className="mt-2"
-                      data-testid="erro-unidade-indicado"
-                      title={POSSUI_DESIGNACAO_ATIVA}
-                    />
-                  )}
+              <Alert
+                type="warning"
+                showIcon
+                className="mt-2"
+                data-testid="erro-servidor-indicado-designacao-ativa"
+                title={POSSUI_DESIGNACAO_ATIVA}
+              />
+            )}
           </CustomAccordionItem>
         </Accordion>
         </div>
