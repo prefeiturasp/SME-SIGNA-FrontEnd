@@ -23,6 +23,7 @@ export type Servidor = {
   local_de_servico: string;
   local_de_exercicio: string;
   categoria?: string;
+  possui_designacao_ativa?: boolean;
 }
 
 
