@@ -16,6 +16,7 @@ const mockClearFormDesignacaoData = vi.fn();
 let mockRfParam: string | null = null;
 let mockIdParam: string | null = null;
 let initialContextData: FormDesignacaoEServidorIndicado | null = {};
+let mockPossuiDesignacaoAtiva = false;
 const mockAccordionValueChange = vi.fn();
 
 const mockResponse = {
@@ -189,6 +190,19 @@ vi.mock("antd", () => ({
       {children}
     </div>
   ),
+  Alert: ({
+    title,
+    type,
+    "data-testid": dataTestId,
+  }: {
+    title: React.ReactNode;
+    type?: string;
+    "data-testid"?: string;
+  }) => (
+    <div data-testid={dataTestId} data-type={type}>
+      {title}
+    </div>
+  ),
 }));
 
 /* -------------------------- Resumo Mock ------------------------------------ */
@@ -327,9 +341,10 @@ describe("DesignacoesPasso1", () => {
     mockRfParam = null;
     mockIdParam = null;
     initialContextData = {};
+    mockPossuiDesignacaoAtiva = false;
     mockMutateAsync.mockResolvedValue({
       success: true,
-      data: mockResponse,
+      data: { ...mockResponse, possui_designacao_ativa: mockPossuiDesignacaoAtiva },
     });
   });
 
@@ -512,6 +527,66 @@ describe("DesignacoesPasso1", () => {
     await userEvent.click(screen.getByTestId("botao-proximo"));
 
     expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it("exibe alerta quando o servidor indicado possui designação ativa", async () => {
+    mockPossuiDesignacaoAtiva = true;
+    mockMutateAsync.mockResolvedValueOnce({
+      success: true,
+      data: { ...mockResponse, possui_designacao_ativa: true },
+    });
+
+    renderWithProvider();
+
+    expect(
+      screen.queryByTestId("erro-servidor-indicado-designacao-ativa")
+    ).not.toBeInTheDocument();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    const alerta = await screen.findByTestId(
+      "erro-servidor-indicado-designacao-ativa"
+    );
+
+    expect(alerta).toHaveTextContent(
+      "Atenção o servidor indicado já possui designação ativa, verifique se deseja registrar uma nova designação."
+    );
+    expect(alerta).toHaveAttribute("data-type", "warning");
+  });
+
+  it("não exibe alerta quando o servidor indicado não possui designação ativa", async () => {
+    mockMutateAsync.mockResolvedValueOnce({
+      success: true,
+      data: { ...mockResponse, possui_designacao_ativa: false },
+    });
+
+    renderWithProvider();
+
+    await userEvent.type(screen.getByTestId("input-rf"), "123");
+    await clicarPesquisarServidor();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.queryByTestId("erro-servidor-indicado-designacao-ativa")
+    ).not.toBeInTheDocument();
+  });
+
+  it("exibe alerta direto do contexto quando o servidor já possui designação ativa", () => {
+    initialContextData = {
+      servidorIndicado: { ...mockResponse, possui_designacao_ativa: true },
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    renderWithProvider();
+
+    expect(
+      screen.getByTestId("erro-servidor-indicado-designacao-ativa")
+    ).toHaveTextContent(
+      "Atenção o servidor indicado já possui designação ativa, verifique se deseja registrar uma nova designação."
+    );
   });
 
 });
