@@ -47,7 +47,7 @@ const mockFormValues: FormDesignacaoData = {
 };
 let mockGetValuesVazio = false;
 
-const isPending = false;
+let mockIsPending = false;
 
 /* -------------------------------------------------------------------------- */
 /*                                HOOK MOCK                                   */
@@ -57,7 +57,9 @@ vi.mock("@/hooks/useServidorDesignacao", () => ({
   __esModule: true,
   default: () => ({
     mutateAsync: mockMutateAsync,
-    isPending,
+    get isPending() {
+      return mockIsPending;
+    },
   }),
 }));
 
@@ -342,6 +344,7 @@ describe("DesignacoesPasso1", () => {
     mockIdParam = null;
     initialContextData = {};
     mockPossuiDesignacaoAtiva = false;
+    mockIsPending = false;
     mockMutateAsync.mockResolvedValue({
       success: true,
       data: { ...mockResponse, possui_designacao_ativa: mockPossuiDesignacaoAtiva },
@@ -587,6 +590,19 @@ describe("DesignacoesPasso1", () => {
     ).toHaveTextContent(
       "Atenção o servidor indicado já possui designação ativa, verifique se deseja registrar uma nova designação."
     );
+  });
+
+  it("não exibe alerta enquanto a busca do servidor está pendente", () => {
+    mockIsPending = true;
+    initialContextData = {
+      servidorIndicado: { ...mockResponse, possui_designacao_ativa: true },
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    renderWithProvider();
+
+    expect(
+      screen.queryByTestId("erro-servidor-indicado-designacao-ativa")
+    ).not.toBeInTheDocument();
   });
 
 });

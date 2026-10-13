@@ -190,7 +190,7 @@ export default function DesignacoesPasso1() {
               setDisableProximo={setDisableProximo}
               defaultValues={formDesignacaoData ?? {}}
             />
-            {formDesignacaoData?.servidorIndicado?.possui_designacao_ativa && (
+            {formDesignacaoData?.servidorIndicado?.possui_designacao_ativa && !isPending && (
               <Alert
                 type="warning"
                 showIcon
