@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import {
   SelectItem,
@@ -20,12 +20,13 @@ import {
 
 import { useFetchImpedimentos } from "@/hooks/useTiposImpedimentos";
 
-import { useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import {
   CheckboxField,
   DateField,
+  EnumCheckbox,
   InputField,
 } from "@/components/ui/FieldsForm";
 import {SelectAnoField} from "@/components/ui/SelectAnoField"
@@ -34,28 +35,32 @@ import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 interface Props {
   isLoading: boolean;
+  disabled?: boolean;
 }
 
-const PortariaDesigacaoFields = ({ isLoading }: Props) => {
-  const { register, control, watch, setValue } = useFormContext();
+const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
+  const { register, control, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
+  
+  const comAfastamento = useWatch({ control, name: "com_afastamento" });
+  const possuiPendencia = useWatch({ control, name: "possui_pendencia" });
+  const dataFinal = useWatch({ control, name: "designacao_data_final" });
 
-  const impedimentos =
-    data?.map((item) => ({
-      codigo: item.value.toString(),
-      nome: item.label,
-    })) ?? [];
-
-
-
-  const dataFinal = watch("designacao_data_final");
+  const impedimentos = useMemo(
+    () =>
+      data?.map((item) => ({
+        codigo: item.value.toString(),
+        nome: item.label,
+      })) ?? [],
+    [data]
+  );
 
   const isImpedimentoDisabled = !dataFinal;
 
 
   useEffect(() => {
     mutate();
-  }, []);
+  }, [mutate]);
 
   return (
     <>
@@ -79,11 +84,12 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 data-testid="input-portaria-designacao"
                 type="number"
                 maxLength={NUMERO_PORTARIA_MAX_DIGITOS}
+                disabled={disabled}
               />
             </div>
 
             <div className="w-full">
-              <SelectAnoField name="ano" label="Ano Vigente" />
+              <SelectAnoField name="ano" label="Ano Vigente" disabled={disabled} />
             </div>
 
             <div className="w-full">
@@ -96,6 +102,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 data-testid="input-numero-sei"
                 type="string"
                 mask="9999.9999/9999999-9"
+                disabled={disabled}
               />
             </div>
 
@@ -121,6 +128,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="a_partir_de"
                 label="A partir de"
                 allowClear={false}
+                disabled={disabled}
               />
             </div>
 
@@ -131,8 +139,9 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="designacao_data_final"
                 label="Até"
                 allowClear={true}
+                disabled={disabled}
                 onClear={() => {
-                  setValue("impedimento_substituicao", null);
+                  setValue("impedimento_substituicao", null, { shouldDirty: true });
                 }}
               />
             </div>
@@ -141,9 +150,10 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
               <CheckboxField
                 register={register}
                 control={control}
-                name="carater_especial"
+                name="carater_excepcional"
                 label="Carater Especial"
                 data-testid="checkbox-carater-especial"
+                disabled={disabled}
               />
             </div>
 
@@ -167,7 +177,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                           const selecionado = impedimentos.find(i => i.codigo === value);
                           setValue("impedimento_label", selecionado?.nome ?? "");
                         }}
-                        disabled={isImpedimentoDisabled || isPending}
+                        disabled={isImpedimentoDisabled || isPending || disabled}
                       > {isPending ? (
 
                         <div className="flex items-center justify-center">
@@ -213,13 +223,18 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                 name="com_afastamento"
                 label="Com afastamento?"
                 data-testid="checkbox-com-afastamento"
+                onChange={(value) => {
+                  if (value === EnumCheckbox.NAO) {
+                    setValue("motivo_afastamento", "");
+                  }
+                }}
+                disabled={disabled}
               />
             </div>
 
-            {watch("com_afastamento") === "sim" && (
+            {comAfastamento === EnumCheckbox.SIM && (
               <div className="w-full pt-1">
                 <FormField
-                  {...register("motivo_afastamento")}
                   control={control}
                   name="motivo_afastamento"
                   render={({ field }) => (
@@ -236,6 +251,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                             field.onChange(value.target.value)
                           }
                           data-testid="input-motivo-afastamento"
+                          disabled={disabled}
                         />
                       </FormControl>
                       <FormMessage />
@@ -249,16 +265,21 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
               <CheckboxField
                 register={register}
                 control={control}
-                name="com_pendencia"
+                name="possui_pendencia"
                 label="Possui pendência?"
                 data-testid="checkbox-possui-pendencia"
+                onChange={(value) => {
+                  if (value === EnumCheckbox.NAO) {
+                    setValue("motivo_pendencia", "");
+                  }
+                }}
+                disabled={disabled}
               />
             </div>
 
-            {watch("com_pendencia") === "sim" && (
+            {possuiPendencia === EnumCheckbox.SIM && (
               <div className="w-full pt-1">
                 <FormField
-                  {...register("motivo_pendencia")}
                   control={control}
                   name="motivo_pendencia"
                   render={({ field }) => (
@@ -275,6 +296,7 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
                             field.onChange(value.target.value)
                           }
                           data-testid="input-descricao-pendencia"
+                          disabled={disabled}
                         />
                       </FormControl>
                       <FormMessage />
@@ -290,4 +312,4 @@ const PortariaDesigacaoFields = ({ isLoading }: Props) => {
   );
 };
 
-export default PortariaDesigacaoFields;
+export default memo(PortariaDesigacaoFields);

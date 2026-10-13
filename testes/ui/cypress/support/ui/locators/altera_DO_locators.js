@@ -2,20 +2,14 @@
 // LOCATORS — ALTERAR DATA DO D.O (SIGNA)
 // =====================================================
 
-// ─── Estratégia de localização de campos em Next.js 16 + React 19 ───────────────
-// React 19 gera IDs via useId() — o Next.js serializa diferente no SSR vs cliente.
-// Após hydration o for/id do label pode divergir. shadcn/ui + react-hook-form
-// coloca <label> e o controle em branches DOM separadas.
-// inputPorLabel   → campos de texto (<input>)
-// dropdownPorLabel → campos de seleção (<button>/<select>/combobox)
+// React 19 gera IDs via useId() — o for/id do label pode divergir do
+// hidratado no cliente, por isso a busca em camadas abaixo.
 function inputPorLabel(labelMatcher) {
   return cy.contains('label', labelMatcher, { timeout: 10000 })
     .then($label => {
       const labelEl = $label[0]
       const doc     = labelEl.ownerDocument
 
-      // Retorna um Cypress chain com jQuery backing válido para .clear()/.type()
-      // cy.wrap(domElement) em Cypress 14 não garante jQuery wrapper — usar cy.get()
       function cyEl(el) {
         if (el.id) return cy.get(`[id="${el.id}"]`)
         return cy.wrap(Cypress.$(el))
@@ -47,9 +41,8 @@ function inputPorLabel(labelMatcher) {
         }
       }
 
-      // Camada 3: sobe na árvore DOM parando antes de sair do escopo do form-item
-      // Para quando encontra outros labels (container com múltiplos campos).
-      // Guarda o melhor input antes desse ponto — evita capturar inputs de outros campos.
+      // Camada 3: sobe na árvore parando ao encontrar outro label (evita
+      // capturar input de outro campo).
       let bestInput = null
       let ancestor  = labelEl.parentElement
       for (let depth = 0; depth < 6 && ancestor; depth++) {
@@ -70,8 +63,6 @@ function inputPorLabel(labelMatcher) {
     })
 }
 
-// Localiza o trigger de dropdown (button/select/combobox) associado a um label.
-// Usado para campos que abrem um picker ao clique (ex: Ano*).
 function dropdownPorLabel(labelMatcher) {
   return cy.contains('label', labelMatcher, { timeout: 10000 })
     .then($label => {
@@ -110,11 +101,11 @@ function dropdownPorLabel(labelMatcher) {
 
 export const alterarDOLocators = {
 
-  // ─── Título da Página ──────────────────────────────────────────────────────
+  // Título da Página
   tituloPagina: () =>
     cy.contains('Alterar data do D.O', { timeout: 15000 }),
 
-  // ─── Filtros ──────────────────────────────────────────────────────────────
+  // Filtros
   filtros: {
 
     secaoFiltros: () =>
@@ -132,7 +123,7 @@ export const alterarDOLocators = {
       cy.contains('button', 'Limpar filtros', { timeout: 10000 }),
   },
 
-  // ─── Tabela de Portarias ──────────────────────────────────────────────────
+  // Tabela de Portarias
   tabela: {
 
     container: () =>
@@ -147,9 +138,7 @@ export const alterarDOLocators = {
     checkboxLinha: (index) =>
       cy.get('tbody tr').eq(index).find('input[type="checkbox"]'),
 
-    // Retorna a primeira linha real (ant-table-row) onde D.O (td[5]) é "-".
-    // Prioriza portarias conhecidas sem D.O antes de cair no fallback genérico.
-    // td[0]=checkbox  td[1]=PORTARIA  td[5]=D.O
+    // Primeira linha onde D.O (td[5]) é "-". td[0]=checkbox td[1]=PORTARIA
     linhaSemDO: () => {
       const candidatas = [
         '323232', '3333', '9297169', '9900842',
@@ -186,24 +175,22 @@ export const alterarDOLocators = {
       cy.get('.ant-empty, .ant-table-empty, [class*="empty"]', { timeout: 10000 }),
   },
 
-  // ─── Campo de Data de Publicação ──────────────────────────────────────────
-  // Sobe um nível a partir do <label> (Tailwind form, sem .ant-form-item).
-  // O .ant-picker irmão do label está dentro desse mesmo pai.
+  // Campo de Data de Publicação
   dataPublicacao: () =>
     cy.contains('label', 'Data da publicação no Diário Oficial (D.O)', { timeout: 15000 })
       .parent()
       .find('.ant-picker')
       .first(),
 
-  // ─── Seleção de Hoje no datepicker Ant Design ─────────────────────────────
+  // Seleção de Hoje no datepicker Ant Design
   selecionarHoje: () =>
     cy.get('.ant-picker-dropdown', { timeout: 15000 }).contains('Hoje'),
 
-  // ─── Botão de Alteração ───────────────────────────────────────────────────
+  // Botão de Alteração
   botaoAlterar: () =>
     cy.contains('button', 'Alterar data', { timeout: 15000 }),
 
-  // ─── Feedback / Confirmação ───────────────────────────────────────────────
+  // Feedback / Confirmação
   mensagemSucesso: () =>
     cy.get(
       '.ant-message-success, .ant-notification-notice-success, [class*="success"]',
@@ -217,13 +204,13 @@ export const alterarDOLocators = {
     ),
 }
 
-// ─── Textos esperados ─────────────────────────────────────────────────────────
+// Textos esperados
 export const alterarDOTextos = {
   tituloPagina:  'Alterar data do D.O',
   secaoFiltros:  'Filtros',
 }
 
-// ─── URLs de referência ───────────────────────────────────────────────────────
+// URLs de referência
 export const alterarDOUrls = {
   paginaAlterarDO: 'alterar-data-do',
 }

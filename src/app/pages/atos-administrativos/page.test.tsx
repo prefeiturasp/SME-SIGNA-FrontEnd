@@ -9,7 +9,6 @@ const hookSpy = vi.fn();
 const novoAtoHookSpy = vi.fn();
 const modalBuscaPortariaSpy = vi.fn();
 const filtroSpy = vi.fn();
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
 const onPageChangeMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
@@ -226,6 +225,16 @@ describe("Página de atos administrativos", () => {
     expect(onPageChangeMock).toHaveBeenCalledWith(9);
 
     expect(listagemSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("submete o filtro e permite limpar os campos", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.submit(document.querySelector("form")!);
+    expect(onSubmitFilterFormMock).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText("limpar filtro"));
+    expect(handleClearMock).toHaveBeenCalledTimes(1);
   });
 
   it("rebusca os atos administrativos ao excluir uma designação", () => {

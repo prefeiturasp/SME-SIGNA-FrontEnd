@@ -16,7 +16,6 @@ export default function TextoPraApostila({ className = "", disableFields = false
   return (
       <div className={`w-full ${className}`}>
         <FormField
-          {...form.register("texto_para_apostila")}
           control={form.control}
           name="texto_para_apostila"
           render={({ field }) => (

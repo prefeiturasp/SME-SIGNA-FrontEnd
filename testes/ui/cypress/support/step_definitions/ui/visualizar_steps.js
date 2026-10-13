@@ -15,17 +15,9 @@ Then('valida a existencia da seção {string}', (nomeSecao) => {
   cy.wait(500)
 })
 
-// A tela "Detalhes da designação" é somente leitura — não tem o rádio
-// "Cargo Disponível"/"Cargo Vago" que a tela de edição tem (ver
-// editar_designacao_steps.js). Aqui não há como perguntar "qual tipo está
-// selecionado"; o accordion "Dados do Servidor Titular" simplesmente não é
-// renderizado quando a designação não tem titular (tipo "Cargo Disponível")
-// — confirmado em execução real (screenshot da tela real, id=135, mostra
-// só "Unidade Proponente" / "Portarias de designação" / "Dados do servidor
-// indicado", sem "Dados do Servidor Titular"). Por isso o critério aqui é
-// só "a seção existe? valida — senão, pula com log", sem depender de outro
-// campo pra decidir. Mesmo padrão de tolerância a dado ausente usado em
-// "... com skip se vazio" (apostilar_steps.js/insubsistente_steps.js).
+// O accordion "Dados do Servidor Titular" não é renderizado quando a
+// designação não tem titular (tipo "Cargo Disponível") — critério aqui é só
+// "a seção existe? valida — senão, pula com log".
 Then('valida a existencia da seção {string} quando aplicável a esta designação', (nomeSecao) => {
   cy.log(`Validando seção (se aplicável): "${nomeSecao}"`)
 

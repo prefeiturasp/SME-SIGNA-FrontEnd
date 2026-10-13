@@ -1,0 +1,78 @@
+// TEMPORÁRIO — voltar para o ESLint quando o TypeScript 7.1 sair.
+//
+// Motivo da troca: o TypeScript 7 removeu a API programática do pacote npm
+// (require("typescript") devolve apenas { version }), e o typescript-eslint
+// depende dela. Peer atual: ">=4.8.4 <6.1.0", inclusive na canary. A issue
+// typescript-eslint#12518 foi fechada como "not planned" — a API estável só
+// chega no TS 7.1. O oxlint não usa o pacote typescript (roda sobre o
+// typescript-go, via oxlint-tsgolint), então destrava o TS 7.
+//
+// COMO REVERTER quando o 7.1 sair:
+//   1. Conferir se a API voltou:
+//        npm view typescript dist-tags
+//        node -e "console.log(require('typescript/package.json').exports)"
+//      Precisa existir "." -> lib/typescript.js, e não lib/version.cjs.
+//   2. Conferir o peer do typescript-eslint:
+//        npm view @typescript-eslint/typescript-estree peerDependencies
+//   3. Reinstalar eslint + eslint-config-next, restaurar o script
+//      "lint": "eslint" e o `eslint --fix` no lint-staged.config.mjs.
+//   4. O eslint.config.mjs foi mantido no repositório justamente para isso.
+//   5. Apagar este arquivo.
+//
+// O QUE SE PERDE ENQUANTO ESTIVERMOS NO OXLINT:
+//   - As regras do Next aqui são reimplementações do oxlint, não os plugins
+//     da Vercel. Podem divergir quando o Next for atualizado.
+//   - Não há API de plugin estável: `jsPlugins` (que roda plugins ESLint
+//     dentro do oxlint) existe, mas está em alpha e explicitamente fora do
+//     semver. Se um dia o projeto precisar de uma regra custom, avaliar.
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+
+  "plugins": ["typescript", "react", "nextjs", "jsx-a11y", "vitest"],
+
+  "rules": {
+    // O projeto usa o JSX transform novo (tsconfig: "jsx": "react-jsx"),
+    // então não é preciso ter React em escopo.
+    "react/react-in-jsx-scope": "off",
+
+    // Exigiria anotar o tipo em toda chamada de vi.mock; ruído sem ganho.
+    "vitest/require-mock-type-parameters": "off",
+
+    // Paridade com o eslint-plugin-react-hooks, que tinha esta regra como erro.
+    // Atenção ao nome: no oxlint ela vive no plugin `react`, não em
+    // `react-hooks` como no ESLint. Não vem ligada por padrão.
+    "react/set-state-in-effect": "error",
+
+    // Proíbe asserções de tipo em objetos literais (`{} as Foo`), que desligam
+    // a checagem de propriedades excedentes/faltantes. Equivale à regra
+    // @typescript-eslint/consistent-type-assertions do eslint.config.mjs.
+    "typescript/consistent-type-assertions": [
+      "error",
+      {
+        "assertionStyle": "as",
+        "objectLiteralTypeAssertions": "allow-as-parameter"
+      }
+    ]
+  },
+
+  "overrides": [
+    {
+      // Mocks de teste montam objetos parciais de propósito (ex.: `{} as never`)
+      // só para satisfazer um tipo que o teste não usa.
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "typescript/consistent-type-assertions": "off"
+      }
+    }
+  ],
+
+  "ignorePatterns": [
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    // Projeto Cypress separado, mantido pela equipe de QA.
+    "testes/**",
+    "coverage/**"
+  ]
+}

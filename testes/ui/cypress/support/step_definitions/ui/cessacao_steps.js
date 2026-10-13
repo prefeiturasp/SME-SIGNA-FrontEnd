@@ -58,12 +58,8 @@ Then('Seleciona uma das Designação de forma aleatoria', () => {
 })
 
 Then('navega para a seção Action', () => {
-  // A coluna de ações da tabela unificada de Atos Administrativos não tem
-  // cabeçalho de texto "Action" (é a última coluna, só com ícone/dropdown) —
-  // confirmado em execução real (colunas atuais: Tipo, Nº SEI, Observações,
-  // Portaria do ato, Servidor indicado, Registro Funcional (RF), Status).
-  // Por isso não validamos mais o texto do th, só localizamos o dropdown
-  // trigger na linha selecionada.
+  // A coluna de ações não tem cabeçalho de texto "Action" (só ícone/dropdown)
+  // — localiza o dropdown trigger direto na linha, sem validar o th.
   cy.get('@designacaoIndex').then(index => {
     cy.log(`Buscando ação na linha: ${index}`)
     
@@ -88,17 +84,14 @@ Then('navega para a seção Action', () => {
 
 Then('clica e seleciona a opção {string}', (opcao) => {
   const MAX_TENTATIVAS = 4
-  // "Editar" navega para /pages/designacoes/designacoes-passo-2?id={id} —
-  // confirmado em execução real (log com ids 159, 158, 157, 156). A
-  // suposição anterior (rota /visualizar-designacao/{id}) estava
-  // desatualizada: o polling nunca via essa URL, esgotava as 8 checagens em
-  // toda designação e acabava estourando as 4 tentativas mesmo com a
-  // navegação funcionando de verdade.
-  const paginaEsperada = opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
+  // "Editar" navega para /pages/designacoes/designacoes-passo-2?id={id}.
+  const paginaEsperada = opcao.toLowerCase().includes('sem efeito') ? 'tornar-sem-efeito'
+    : opcao.toLowerCase().includes('insubsist') ? 'insubsistencia'
     : opcao.toLowerCase().includes('apostil') ? 'apostila'
     : opcao.toLowerCase().includes('editar') ? 'designacoes-passo-2'
     : 'cessacao'
-  const chaveEnv = opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
+  const chaveEnv = opcao.toLowerCase().includes('sem efeito') ? 'tornarSemEfeitoTentadas'
+    : opcao.toLowerCase().includes('insubsist') ? 'insubsistenciasTentadas'
     : opcao.toLowerCase().includes('apostil') ? 'apostilarTentadas'
     : opcao.toLowerCase().includes('editar') ? 'editarTentadas'
     : 'designacoesTentadas'
@@ -183,14 +176,17 @@ Then('clica e seleciona a opção {string}', (opcao) => {
         return
       }
 
-      // Polling em vez de um wait(3000) fixo seguido de checagem única: sob
-      // ambiente de QA lento (mesmo padrão de instabilidade já visto com
-      // 500 esporádico nas DREs), a navegação real pode levar mais que 3s
-      // para trocar a URL — um wait fixo curto demais queima as 4 tentativas
-      // em falso negativo (linha descartada por lentidão, não por estar
-      // realmente indisponível), gerando "Esgotadas N tentativas" mesmo com
-      // o app funcionando. Confere a cada 1s, até 8s no total, antes de
-      // desistir da linha atual.
+      // "Excluir" não navega — abre um Modal.confirm do antd na própria tela
+      // (handleExcluirDesignacao, ListagemDeAtosAdministrativos.tsx). Sem
+      // este branch a checagem de URL abaixo nunca resolveria.
+      if (opcao.trim().toLowerCase() === 'excluir') {
+        cy.get('.ant-modal-confirm', { timeout: 10000 }).should('be.visible')
+        cy.log('✓ Modal de confirmação de exclusão exibido')
+        return
+      }
+
+      // Polling em vez de wait fixo: em QA lento a navegação pode levar mais
+      // que alguns segundos — um wait curto geraria falso negativo.
       const MAX_CHECAGENS_URL = 8
       const aguardarNavegacao = (checagem) => {
         cy.wait(1000)

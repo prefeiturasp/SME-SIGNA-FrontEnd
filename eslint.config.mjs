@@ -1,3 +1,13 @@
+// INATIVO — mantido no repositório de propósito.
+//
+// O lint do projeto está temporariamente no oxlint (ver .oxlintrc.json), porque
+// o TypeScript 7 removeu a API programática de que o typescript-eslint depende.
+// Este arquivo é a configuração para a qual devemos voltar assim que o TS 7.1
+// sair e o typescript-eslint passar a suportá-lo. Não apagar.
+//
+// Ao reverter: reinstalar `eslint` e `eslint-config-next`, restaurar o script
+// "lint": "eslint" no package.json e o `eslint --fix` no lint-staged.config.mjs.
+
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";

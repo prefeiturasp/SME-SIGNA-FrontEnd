@@ -1,9 +1,7 @@
 # language: pt
 Funcionalidade: Alteração de senha
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 1 — Validar campos obrigatórios do formulário     [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 1 — Validar campos obrigatórios do formulário [ATIVO]
   Cenário: Usuário valida os campos obrigatórios no formulário de alteração de senha
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema
@@ -16,9 +14,7 @@ Funcionalidade: Alteração de senha
     E valida a existencia dos botões "Cancelar" e "Salvar senha"
     E clica no botão "Cancelar"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 2 — Acessar modal e cancelar sem preencher         [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 2 — Acessar modal e cancelar sem preencher [ATIVO]
   Cenário: Usuário acessa o modal de alteração de senha e cancela sem preencher
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema
@@ -32,9 +28,7 @@ Funcionalidade: Alteração de senha
     E clica no botão "Cancelar"
     E valida o texto "Meus Dados"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 3 — Preencher senha e voltar sem salvar            [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 3 — Preencher senha e voltar sem salvar [ATIVO]
   Cenário: Usuário preenche os campos de senha e retorna para a página inicial sem salvar
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema
@@ -51,9 +45,7 @@ Funcionalidade: Alteração de senha
     E clica no botão "Cancelar"
     E clica no botão "voltar"
 
-  # ══════════════════════════════════════════════════════════════
-  # CENÁRIO 4 — Usuário realiza a alteração da senha           [ATIVO]
-  # ══════════════════════════════════════════════════════════════
+  # CENÁRIO 4 — Usuário realiza a alteração da senha [ATIVO]
   Cenário: Usuário realiza a alteração da senha
     Dado que o usuário realizou o login com sucesso
     E o usuário está na página principal do sistema

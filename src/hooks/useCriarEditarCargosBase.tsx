@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { useEffect } from "react";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 
 export const useCriarCargosBase = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       values
@@ -23,11 +24,15 @@ export const useCriarCargosBase = () => {
       }
       return response.data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-cargos"] });
+    },
   });
 };
 
 
 export const useEditarCargosBase = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       id,
@@ -42,6 +47,9 @@ export const useEditarCargosBase = () => {
         throw new Error(response.error);
       }
       return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-cargos"] });
     },
   });
 };

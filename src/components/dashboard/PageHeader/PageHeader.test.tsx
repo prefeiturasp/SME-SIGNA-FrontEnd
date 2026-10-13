@@ -46,7 +46,7 @@ describe("PageHeader", () => {
     expect(screen.getByTestId("home-icon")).toBeInTheDocument();
     expect(screen.getByText("Início")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Designação");
-    expect(screen.getAllByTestId("arrow-circle-dark")).toHaveLength(1);
+    expect(document.body).toContainOneByTestId("arrow-circle-dark");
     expect(screen.getByTestId("header-icon")).toBeInTheDocument();
   });
 

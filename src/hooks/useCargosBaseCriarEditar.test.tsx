@@ -42,11 +42,18 @@ vi.mock("@hookform/resolvers/zod", () => ({
 vi.mock("@tanstack/react-query", () => ({
   useMutation: ({
     mutationFn,
+    onSuccess,
   }: {
     mutationFn: (params: unknown) => Promise<unknown>;
+    onSuccess?: () => void;
   }) => ({
-    mutateAsync: (params: unknown) => mutationFn(params),
+    mutateAsync: async (params: unknown) => {
+      const result = await mutationFn(params);
+      onSuccess?.();
+      return result;
+    },
   }),
+  useQueryClient: () => ({ invalidateQueries: vi.fn() }),
 }));
 
 vi.mock("@/actions/cargos-base", () => ({

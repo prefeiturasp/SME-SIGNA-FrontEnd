@@ -2,7 +2,6 @@
 import { useMemo, useRef } from "react";
 import { Card } from "antd";
 import { Button } from "@/components/ui/button";
-
 import { Accordion } from "@/components/ui/accordion";
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
@@ -16,19 +15,9 @@ import EditorSEI, {
   gerarHtmlPortaria,
   EditorSEIHandle,
 } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
-import { preencherTemplate } from "@/utils/portarias/preencherTemplate";
-import { TEMPLATE_APOSTILA } from "@/utils/portarias/templates";
-import { formatarRF, nameToCamelCaseUe, nameToCamelCase } from "@/utils/portarias/formatadores";
 import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
 import ResumoPortariaApostila from "@/components/dashboard/Designacao/ResumoPortariaApostila";
-import { ApostilaDetailRead } from "@/types/apostila";
-import { formatarData } from "@/lib/utils";
 
-const CAMPOS_NEGRITO = ["nome_indicado"] as const;
-
-function escapeHtml(s: string) {
-  return s.replaceAll("&", "&amp;").replaceAll("<​", "&lt;").replaceAll(">", "&gt;");
-}
 
 export default function VisualizarApostilaPage() {
 
@@ -46,52 +35,8 @@ export default function VisualizarApostilaPage() {
 
 
   const htmlInicial = useMemo(() => {
-    const gerarDados = (apostila: ApostilaDetailRead) => {
-      const isCessacao = apostila.ato_apostilado === "CESSACAO";
-      
-      const fonteDados = isCessacao ? apostila?.cessacao : designacao;
-
-      return {
-        sei: apostila.sei_numero,
-        dre: designacao?.dre_nome ?? "-",
-        eh: designacao?.codigo_hierarquico ?? "-",
-        doc: apostila.doc? formatarData(apostila.doc) : "",
-        ato_apostilado: apostila.ato_apostilado,
-        
-        
-        ano: fonteDados?.ano_vigente ?? "-",
-        sei_designacao: fonteDados?.sei_numero ? fonteDados?.sei_numero : "-",               
-        doc_designacao: fonteDados?.doc ? formatarData(fonteDados.doc) : "",
-        portaria_designacao: fonteDados?.numero_portaria ?? "-",
-        
-        rf: formatarRF(designacao?.indicado_rf ?? "-"),        
-        cargo_base: nameToCamelCase(designacao?.indicado_cargo_base ?? "-"),
-        ue: nameToCamelCaseUe(designacao?.indicado_local_exercicio ?? "-"),
-        cargo: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? "-"),
-        nome_indicado: designacao?.indicado_nome_servidor ?? "-",
-        vinculo: designacao?.indicado_vinculo ?? "-",
-        observacao: apostila.observacao ?? "",
-      };
-    };
-    
-    if (!designacao || !apostila) return "";
-
-    const dadosPuros = gerarDados(apostila);
-
-
-    const dadosEscapados: Record<string, string> = {};
-    for (const [k, v] of Object.entries(dadosPuros)) {
-      if (v === undefined || v === null) continue;
-      dadosEscapados[k] = escapeHtml(String(v));
-    }
-
-    for (const campo of CAMPOS_NEGRITO) {
-      const val = dadosEscapados[campo];
-      if (val) dadosEscapados[campo] = `<strong>${val}</strong>`;
-    }
-
-    return gerarHtmlPortaria(preencherTemplate(TEMPLATE_APOSTILA, dadosEscapados));
-  }, [designacao, apostila]);
+    return gerarHtmlPortaria(apostila?.texto_sei ?? "");
+  }, [apostila]);
 
 
   const router = useRouter();

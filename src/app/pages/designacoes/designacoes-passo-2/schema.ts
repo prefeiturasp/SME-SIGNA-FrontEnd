@@ -4,6 +4,7 @@ import {
   NUMERO_PORTARIA_MAX_LABEL,
   excedeNumeroPortaria,
 } from "@/utils/portarias/numeroPortaria";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 const formSchemaDesignacaoPasso2 = z
   .object({
@@ -23,10 +24,10 @@ const formSchemaDesignacaoPasso2 = z
     doc: z.string().optional(),
     impedimento_substituicao: z.string().optional().nullable(),
     impedimento_label: z.string().optional(),
-    carater_especial: z.string().min(1, "selecione se possui carater especial "),
-    com_afastamento: z.string().min(1, "selecione se possui afastamento"),
+    carater_excepcional:  z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
+    com_afastamento:  z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
     motivo_afastamento: z.string(),
-    com_pendencia: z.string().min(1, "Selecione se possui pendêcia"),
+    possui_pendencia:  z.enum([EnumCheckbox.SIM, EnumCheckbox.NAO]),
     motivo_pendencia: z.string(),
     tipo_cargo: z.enum(["vago", "disponivel"]),
     rf_titular: z.string().optional(),

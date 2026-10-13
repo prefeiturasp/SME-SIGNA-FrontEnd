@@ -192,7 +192,6 @@ export default function CriarTextosDePortaria() {
         /> 
           <div className="mb-2 mt-4">
             <FormField
-              {...filterForm.register('texto_portaria')}
               control={filterForm.control}
               name="texto_portaria"
 

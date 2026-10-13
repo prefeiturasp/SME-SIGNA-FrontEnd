@@ -1,11 +1,22 @@
 "use server";
 
 import { InsubsistenciaBody, InsubsistenciaRead } from "@/types/insubsistencia";
-import { postWithAuth } from "@/lib/serverRequest";
+import { patchWithAuth, postWithAuth } from "@/lib/serverRequest";
 
 import { fetchWithClient } from "./http";
 
-export async function insubsistenciaAction(payload: InsubsistenciaBody) {
+export async function insubsistenciaAction(
+  payload: InsubsistenciaBody,
+  id?: number | null
+) {
+  if (id) {
+    return patchWithAuth(
+      `/designacao/insubsistencias/${id}/`,
+      payload,
+      "Erro ao salvar insubsistência"
+    );
+  }
+
   return postWithAuth(
     "/designacao/insubsistencias/",
     payload,

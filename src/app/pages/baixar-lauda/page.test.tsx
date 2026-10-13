@@ -1,31 +1,40 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BaixarLaudaPage from "./page";
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
 import type { ListagemPortariasResponse } from "@/types/designacao";
+import { colunasListagemDeDo } from "@/components/dashboard/Designacao/ListagemDeDo/colunasListagemDeDo";
 
 const {
   usePortariasDOMock,
   handleClearMock,
   onSubmitFilterFormMock,
   handleSubmitMock,
+  downloadCSVMock,
+  baixarLaudaMock,
+  setSalvandoMock,
+  notificationErrorMock,
 } = vi.hoisted(() => ({
   usePortariasDOMock: vi.fn(),
   handleClearMock: vi.fn(),
   onSubmitFilterFormMock: vi.fn(),
   handleSubmitMock: vi.fn(),
+  downloadCSVMock: vi.fn(),
+  baixarLaudaMock: vi.fn(),
+  setSalvandoMock: vi.fn(),
+  notificationErrorMock: vi.fn(),
 }));
 
 const selectedRowsMock: ListagemPortariasResponse[] = [
   {
     id: 1,
     numero_portaria: 100,
-    doc: "DOC",
+    doc: "2026-01-10",
     tipo_de_ato: "DESIGNACAO_CESSACAO",
     nome: "Servidor A",
     cargo: "Diretor",
-    data_designacao: null,
+    data_designacao: "2026-02-05",
     data_cessacao: null,
     sei_numero: "SEI-1",
   },
@@ -33,6 +42,20 @@ const selectedRowsMock: ListagemPortariasResponse[] = [
 
 vi.mock("../../../hooks/usePortariasDO", () => ({
   usePortariasDO: () => usePortariasDOMock(),
+}));
+
+vi.mock("@/utils/export/exportCSV", () => ({
+  downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
+}));
+
+vi.mock("@/utils/export/baixarLauda", () => ({
+  baixarLauda: (...args: unknown[]) => baixarLaudaMock(...args),
+}));
+
+vi.mock("@/components/providers/NotificationProvider", () => ({
+  useAppNotification: () => ({
+    error: notificationErrorMock,
+  }),
 }));
 
 vi.mock("react-hook-form", () => ({
@@ -95,10 +118,22 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
       <span data-testid="listagem-data-publicacao">{data_publicacao.toISOString().slice(0, 10)}</span>
       <span data-testid="is-disabled-listagem">{String(isDisabled)}</span>
       <button
-        data-testid="submit-main-action"
+        data-testid="baixar-csv"
+        onClick={() => onClickBaixarLauda?.(selectedRowsMock, "CSV")}
+      >
+        Baixar CSV
+      </button>
+      <button
+        data-testid="baixar-pdf"
         onClick={() => onClickBaixarLauda?.(selectedRowsMock, "PDF")}
       >
-        Baixar
+        Baixar PDF
+      </button>
+      <button
+        data-testid="baixar-word"
+        onClick={() => onClickBaixarLauda?.(selectedRowsMock, "WORD")}
+      >
+        Baixar Word
       </button>
     </div>
   ),
@@ -124,6 +159,7 @@ describe("BaixarLauda page", () => {
       },
       onSubmitFilterForm: onSubmitFilterFormMock,
       salvando: true,
+      setSalvando: setSalvandoMock,
     });
   });
 
@@ -153,11 +189,71 @@ describe("BaixarLauda page", () => {
     expect(onSubmitFilterFormMock).toHaveBeenCalledWith({ ano: "2026", numero_sei: "" });
   });
 
-  it("aciona callback de baixar lauda com as linhas selecionadas", () => {
-    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+  it("baixa CSV com as colunas da tabela e datas formatadas", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-09-16T10:00:00"));
+
     render(<BaixarLaudaPage />);
-    fireEvent.click(screen.getByTestId("submit-main-action"));
-    expect(consoleLogSpy).toHaveBeenCalledWith("selectedRows", selectedRowsMock, "PDF");
+    fireEvent.click(screen.getByTestId("baixar-csv"));
+
+    expect(downloadCSVMock).toHaveBeenCalledTimes(1);
+    expect(downloadCSVMock).toHaveBeenCalledWith(
+      [
+        {
+          ...selectedRowsMock[0],
+          doc: "10/01/2026",
+          data_designacao: "05/02/2026",
+          data_cessacao: "-",
+        },
+      ],
+      colunasListagemDeDo,
+      "lauda-2026-09-16_10-00-00.csv"
+    );
+
+    vi.useRealTimers();
+  });
+
+  it("baixa PDF com os ids selecionados e controla o estado de carregamento", async () => {
+    baixarLaudaMock.mockResolvedValueOnce({ success: true });
+
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("baixar-pdf"));
+
+    await waitFor(() => expect(setSalvandoMock).toHaveBeenLastCalledWith(false));
+
+    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "PDF");
+    expect(setSalvandoMock).toHaveBeenNthCalledWith(1, true);
+    expect(setSalvandoMock).toHaveBeenNthCalledWith(2, false);
+    expect(downloadCSVMock).not.toHaveBeenCalled();
+    expect(notificationErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("baixa Word com os ids selecionados", async () => {
+    baixarLaudaMock.mockResolvedValueOnce({ success: true });
+
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("baixar-word"));
+
+    await waitFor(() => expect(setSalvandoMock).toHaveBeenLastCalledWith(false));
+
+    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "WORD");
+    expect(downloadCSVMock).not.toHaveBeenCalled();
+    expect(notificationErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("exibe notificação de erro quando o download do PDF falha", async () => {
+    baixarLaudaMock.mockResolvedValueOnce({ success: false, error: "Atos já publicados: 1" });
+
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("baixar-pdf"));
+
+    await waitFor(() =>
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro ao baixar lauda",
+        description: "Atos já publicados: 1",
+      })
+    );
+    expect(setSalvandoMock).toHaveBeenLastCalledWith(false);
   });
 
   it("envia array vazio para listagem quando resultado for nulo", () => {
@@ -171,6 +267,7 @@ describe("BaixarLauda page", () => {
       },
       onSubmitFilterForm: onSubmitFilterFormMock,
       salvando: false,
+      setSalvando: setSalvandoMock,
     });
 
     render(<BaixarLaudaPage />);

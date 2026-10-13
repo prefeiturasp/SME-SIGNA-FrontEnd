@@ -33,6 +33,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    // Ignore Next internals and static assets from /public (images, svgs, icons, etc.)
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    // Ignora os internos do Next e os estáticos de /public (imagens, svgs, ícones etc.).
+    // `download` são route handlers que baixam arquivos: precisam responder 401 em
+    // JSON, e não o redirect para "/", senão o cliente salvaria o HTML da home.
+    matcher: ["/((?!api|download|_next/static|_next/image|favicon.ico).*)"],
 };

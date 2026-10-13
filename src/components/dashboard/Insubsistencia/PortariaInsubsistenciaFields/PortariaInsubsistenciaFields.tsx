@@ -85,7 +85,6 @@ const PortariaInsubsistenciaFields = ({ isLoading }: Props) => {
           </div>          
            <div className="w-full pt-4">
                 <FormField
-                  {...register("insubsistencia.observacoes")}
                   control={control}
                   name="insubsistencia.observacoes"
                   render={({ field }) => (

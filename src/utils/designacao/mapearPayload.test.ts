@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mapearPayloadDesignacao } from "./mapearPayload";
 import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
+import { EnumCheckbox } from "@/components/ui/FieldsForm";
 
 // ── Helpers ──────────────────────────────────────
 
@@ -47,10 +48,10 @@ const formBase: FormDesignacaoEServidorIndicado = {
     doc: "DOC-001",
     a_partir_de: new Date("2024-01-15T00:00:00"),
     designacao_data_final: new Date("2024-12-31T00:00:00"),
-    carater_especial: "sim",
-    com_afastamento: "nao",
+    carater_excepcional: EnumCheckbox.SIM,
+    com_afastamento: EnumCheckbox.NAO,
     motivo_afastamento: "",
-    com_pendencia: "nao",
+    possui_pendencia: EnumCheckbox.NAO,
     motivo_pendencia: "",
     tipo_cargo: "vago",
     cargo_vago_selecionado: null,
@@ -260,24 +261,24 @@ describe("mapearPayloadDesignacao", () => {
     });
 
     it("mapeia carater_excepcional como boolean", () => {
-        const comCarater = mapearPayloadDesignacao({ ...formBase, carater_especial: "sim" });
-        const semCarater = mapearPayloadDesignacao({ ...formBase, carater_especial: "nao" });
+        const comCarater = mapearPayloadDesignacao({ ...formBase, carater_excepcional: EnumCheckbox.SIM });
+        const semCarater = mapearPayloadDesignacao({ ...formBase, carater_excepcional: EnumCheckbox.NAO });
 
         expect(comCarater?.carater_excepcional).toBe(true);
         expect(semCarater?.carater_excepcional).toBe(false);
     });
 
     it("mapeia com_afastamento como boolean", () => {
-        const com = mapearPayloadDesignacao({ ...formBase, com_afastamento: "sim" });
-        const sem = mapearPayloadDesignacao({ ...formBase, com_afastamento: "nao" });
+        const com = mapearPayloadDesignacao({ ...formBase, com_afastamento: EnumCheckbox.SIM });
+        const sem = mapearPayloadDesignacao({ ...formBase, com_afastamento: EnumCheckbox.NAO });
 
         expect(com?.com_afastamento).toBe(true);
         expect(sem?.com_afastamento).toBe(false);
     });
 
     it("mapeia possui_pendencia como boolean", () => {
-        const com = mapearPayloadDesignacao({ ...formBase, com_pendencia: "sim" });
-        const sem = mapearPayloadDesignacao({ ...formBase, com_pendencia: "nao" });
+        const com = mapearPayloadDesignacao({ ...formBase, possui_pendencia: EnumCheckbox.SIM });
+        const sem = mapearPayloadDesignacao({ ...formBase, possui_pendencia: EnumCheckbox.NAO });
 
         expect(com?.possui_pendencia).toBe(true);
         expect(sem?.possui_pendencia).toBe(false);

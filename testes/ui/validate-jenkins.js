@@ -22,13 +22,13 @@ function check(label, fn) {
   }
 }
 
-// ─── Leitura de arquivos ───────────────────────────────────────────────────────
+// Leitura de arquivos
 
 const pkg          = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const jenkinsRaw   = fs.readFileSync('./Jenkinsfile_qa', 'utf8');
 const allDeps      = { ...pkg.dependencies, ...pkg.devDependencies };
 
-// ─── CHECK 1: Sintaxe cypress.config.js ───────────────────────────────────────
+// CHECK 1: Sintaxe cypress.config.js
 check('Sintaxe cypress.config.js', () => {
   // apaga cache para forçar reload
   delete require.cache[require.resolve('./cypress.config.js')];
@@ -36,7 +36,7 @@ check('Sintaxe cypress.config.js', () => {
   return { status: PASS, detail: 'Sem erros de sintaxe/importação' };
 });
 
-// ─── CHECK 2: Carregamento com CI=true (simula Docker) ────────────────────────
+// CHECK 2: Carregamento com CI=true (simula Docker)
 check('Carregamento com CI=true (simula Docker)', () => {
   const prev = process.env.CI;
   process.env.CI = 'true';
@@ -47,7 +47,7 @@ check('Carregamento com CI=true (simula Docker)', () => {
   return { status: PASS, detail: 'Carregou com CI=true sem exceção' };
 });
 
-// ─── CHECK 3: cypress-cloud versão Jenkinsfile vs package.json ────────────────
+// CHECK 3: cypress-cloud versão Jenkinsfile vs package.json
 check('cypress-cloud: versão pinada no Jenkinsfile', () => {
   const match = jenkinsRaw.match(/cypress-cloud@([\w.\-]+)/);
   if (!match) throw new Error('cypress-cloud não encontrado no Jenkinsfile_qa');
@@ -63,7 +63,7 @@ check('cypress-cloud: versão pinada no Jenkinsfile', () => {
   };
 });
 
-// ─── CHECK 4: cypress versão Jenkinsfile vs package.json ──────────────────────
+// CHECK 4: cypress versão Jenkinsfile vs package.json
 check('cypress: versão pinada no Jenkinsfile', () => {
   const match = jenkinsRaw.match(/cypress@(\d[\w.\-]+)/);
   if (!match) throw new Error('cypress@<versão> não encontrado no Jenkinsfile_qa');
@@ -77,7 +77,7 @@ check('cypress: versão pinada no Jenkinsfile', () => {
   };
 });
 
-// ─── CHECK 5: currents.config.js ──────────────────────────────────────────────
+// CHECK 5: currents.config.js
 check('currents.config.js (projectId, recordKey, cloudServiceUrl)', () => {
   const c = require('./currents.config.js');
   const required = ['projectId', 'recordKey', 'cloudServiceUrl'];
@@ -89,7 +89,7 @@ check('currents.config.js (projectId, recordKey, cloudServiceUrl)', () => {
   };
 });
 
-// ─── CHECK 6: allure-mocha versão pinada no Jenkinsfile ───────────────────────
+// CHECK 6: allure-mocha versão pinada no Jenkinsfile
 check('allure-mocha: versão pinada no Jenkinsfile', () => {
   const match = jenkinsRaw.match(/allure-mocha@?([\w.\-]+)?/);
   if (!match) throw new Error('allure-mocha não encontrado no Jenkinsfile_qa');
@@ -102,7 +102,7 @@ check('allure-mocha: versão pinada no Jenkinsfile', () => {
   return { status: PASS, detail: `allure-mocha@${ver} pinada` };
 });
 
-// ─── CHECK 7: crypto-js presente no package.json ──────────────────────────────
+// CHECK 7: crypto-js presente no package.json
 check('crypto-js: declarado no package.json', () => {
   const inJenkins = /crypto-js@[\w.\-]+/.test(jenkinsRaw);
   const inPkg     = !!allDeps['crypto-js'];
@@ -116,7 +116,7 @@ check('crypto-js: declarado no package.json', () => {
   return { status: PASS, detail: 'crypto-js declarado em package.json' };
 });
 
-// ─── Exibe resultado ───────────────────────────────────────────────────────────
+// Exibe resultado
 
 const COL_W = 52;
 console.log('\n' + '═'.repeat(80));

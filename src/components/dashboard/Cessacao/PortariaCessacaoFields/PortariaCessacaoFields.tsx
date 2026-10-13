@@ -15,9 +15,10 @@ import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 
 interface Props {
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
-const PortariaCessacaoFields = ({ isLoading }: Props) => {
+const PortariaCessacaoFields = ({ isLoading, disabled }: Props) => {
   const { register, control } = useFormContext();
 
   const inputFields = [
@@ -27,6 +28,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
       placeholder: "Nº da portaria",
       type: "number",
       maxLength: NUMERO_PORTARIA_MAX_DIGITOS,
+      disabled: disabled,
     },
     {
       name: "cessacao.numero_sei",
@@ -34,6 +36,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
       placeholder: "Número SEI",
       type: "string",
       mask: "9999.9999/9999999-9",
+      disabled: disabled,
     },
     {
       name: "cessacao.doc",
@@ -44,9 +47,9 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
   ];
 
   const checkboxFields = [
-    { name: "cessacao.a_pedido", label: "A pedido?*" },
-    { name: "cessacao.remocao", label: "Remoção?*" },
-    { name: "cessacao.aposentadoria", label: "Aposentadoria?*" },
+    { name: "cessacao.a_pedido", label: "A pedido?*", disabled: disabled },
+    { name: "cessacao.remocao", label: "Remoção?*", disabled: disabled },
+    { name: "cessacao.aposentadoria", label: "Aposentadoria?*", disabled: disabled },
   ];
 
   return (
@@ -73,7 +76,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
                 />
               ))}
 
-              <SelectAnoField name="cessacao.ano" label="Ano Vigente" />
+              <SelectAnoField name="cessacao.ano" label="Ano Vigente" disabled={disabled} />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4 mt-4">
@@ -82,6 +85,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
               control={control}
               name="cessacao.data_inicio"
               label="Cessação a partir de:*"
+              disabled={disabled}
             />
 
             {checkboxFields.map((field) => (
@@ -91,6 +95,7 @@ const PortariaCessacaoFields = ({ isLoading }: Props) => {
                 control={control}
                 name={field.name}
                 label={field.label}
+                disabled={field.disabled}
               />
             ))}
           </div>

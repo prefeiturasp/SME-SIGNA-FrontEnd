@@ -1,14 +1,9 @@
 // ============================================================================
 // CONFIGURAÇÕES DA API EOL - SME Integração
 // ============================================================================
-// Este arquivo é carregado pelo esbuild (contexto browser).
-// NÃO usar process.env aqui — os valores vêm de Cypress.env() em runtime.
-// As env vars são carregadas pelo cypress.config.js (Node.js) via dotenv.
-//
-// Adicione no .env:
-//   API_EOL_KEY=7eee2750-89f4-4928-bb4e-52bad9a85efd
-//   API_RF_LOGIN=7704941
-// ============================================================================
+// Carregado pelo esbuild (contexto browser) — não usar process.env aqui, os
+// valores vêm de Cypress.env() em runtime (dotenv via cypress.config.js).
+// Adicione no .env: API_EOL_KEY=<sua-chave-aqui>
 
 const API_EOL_CONFIG = {
   BASE_URL: 'https://qa-smeintegracaoapi.sme.prefeitura.sp.gov.br',

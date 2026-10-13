@@ -1,23 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchCargosBaseAction, fetchCargosBaseActionByIdAction } from "@/actions/cargos-base";
+import { fetchCargosBase } from "@/actions/gestao";
 
-
-
- 
+// Limite máximo de página aceito por CargoBasePagination no backend.
+const PAGE_SIZE_TODOS_CARGOS_CADASTRADOS = 100;
 
 export function useBuscarCargosBase() {
     return useQuery({
         queryKey: ["get-cargos-base"],
         queryFn: async () => {
-            const response = await fetchCargosBaseAction();
-            if (!response.success) {
-                throw new Error(response.error);
+            const [cargosEol, cargosCadastrados] = await Promise.all([
+                fetchCargosBaseAction(),
+                fetchCargosBase({ page_size: PAGE_SIZE_TODOS_CARGOS_CADASTRADOS }),
+            ]);
+
+            if (!cargosEol.success) {
+                throw new Error(cargosEol.error);
             }
-            if (response.data[0]?.codigoCargo===0) {
+            if (cargosEol.data[0]?.codigoCargo===0) {
                 return [];
             }
 
-            return response.data;
+            if (!cargosCadastrados.success) {
+                return cargosEol.data;
+            }
+
+            const codigosJaCadastrados = new Set(
+                cargosCadastrados.data.results.map((cargo) => cargo.codigo_cargo)
+            );
+
+            return cargosEol.data.filter(
+                (cargo) => !codigosJaCadastrados.has(String(cargo.codigoCargo))
+            );
         },
         refetchOnWindowFocus: false,
         staleTime: 0,

@@ -72,7 +72,7 @@ export function MultiSelect({
                     className={cn(
                         "flex min-h-10 w-full items-start justify-between gap-2 rounded-lg border border-[#dadada] bg-background px-3 py-2 text-sm ring-offset-background",
                         "focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                        disabled && "cursor-not-allowed opacity-50 disabled:bg-[#9CA3B9]",
+                        disabled && "cursor-not-allowed opacity-50 disabled:bg-[var(--ant-color-bg-container-disabled)]",
                         !disabled && "cursor-pointer",
                         className
                     )}

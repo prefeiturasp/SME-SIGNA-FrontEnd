@@ -18,9 +18,6 @@ h1{margin:0;font-size:22px}
 .delta-eq{color:#999}
 .resumo{display:flex;gap:32px;padding:24px 32px;flex-wrap:wrap;align-items:center}
 .resumo-cards{display:flex;gap:16px;flex-wrap:wrap}
-.tendencia{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:14px 18px}
-.tendencia-titulo{display:block;color:#999;font-size:12px;margin-bottom:6px}
-.tendencia-legenda{display:flex;justify-content:space-between;color:#999;font-size:12px;margin-top:2px}
 .stat{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:16px 20px;min-width:140px}
 .stat .valor{font-size:26px;font-weight:700}
 .stat .rotulo{color:#999;font-size:13px}
@@ -70,10 +67,17 @@ main{padding:0 32px 48px}
 .filtros button.ativo{background:#274D9B;border-color:#274D9B;color:#fff}
 .filtros select{background:#1c1c1c;border:1px solid #2a2a2a;color:#ccc;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px;max-width:280px}
 .filtros select.ativo{border-color:#274D9B;color:#fff}
+.busca-wrap{position:relative}
+.busca-wrap input{background:#1c1c1c;border:1px solid #2a2a2a;color:#e8e8e8;padding:8px 14px 8px 32px;border-radius:20px;font-size:13px;width:220px}
+.busca-wrap input:focus{outline:none;border-color:#274D9B}
+.busca-wrap input.ativo{border-color:#274D9B}
+.busca-wrap::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6;pointer-events:none}
+.sem-resultado{color:#777;font-size:14px;padding:24px 0;text-align:center;font-style:italic}
 .rodape{padding:20px 32px 32px;color:#666;font-size:11px}
 @media (prefers-color-scheme: light){
   body{background:#f5f5f5;color:#222}
-  header.topo,.stat,.card,.filtros button,.filtros select,.pr-info,.pr-refresh,.comparacao,.tendencia{background:#fff;border-color:#ddd}
+  header.topo,.stat,.card,.filtros button,.filtros select,.busca-wrap input,.pr-info,.pr-refresh,.comparacao{background:#fff;border-color:#ddd}
+  .busca-wrap input{color:#222}
   .card-header:hover{background:#f0f0f0}
   .donut-label{fill:#222}
   .pr-info{color:#333}
@@ -84,10 +88,10 @@ main{padding:0 32px 48px}
 <header class="topo">
   <div>
     <h1>Dashboard de Automação - SIGNA</h1>
-    <span class="gerado-em">Gerado em 26/08/2026 14:49 - 31 features (11 UI / 20 API)</span>
+    <span class="gerado-em">Gerado em 11/09/2026 19:53 - 34 features (14 UI / 20 API)</span>
   </div>
   <div class="pr-container">
-    <span id="pr-badge" class="pr-info"><a href="https://github.com/prefeiturasp/SME-SIGNA-FrontEnd/pull/218" target="_blank" rel="noopener">PR #218 — Qa test — Aberto — Sem revisão</a></span>
+    <span id="pr-badge" class="pr-info"><a href="https://github.com/prefeiturasp/SME-SIGNA-FrontEnd/pull/218" target="_blank" rel="noopener">PR #218 — Qa test — Mesclado — Aprovado</a></span>
     <button id="pr-refresh-btn" class="pr-refresh" onclick="atualizarPR()" title="Consultar API do GitHub agora">↻</button>
   </div>
 </header>
@@ -96,33 +100,33 @@ main{padding:0 32px 48px}
   <div class="donuts">
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="307.70 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="6.46 314.16" stroke-dashoffset="-307.70" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">98%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="314.16 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">100%</text>
     </svg><span>Geral</span></div>
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="302.52 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="11.64 314.16" stroke-dashoffset="-302.52" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">96%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="314.16 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">100%</text>
     </svg><span>UI</span></div>
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="310.28 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#C62828" stroke-width="16" stroke-dasharray="3.88 314.16" stroke-dashoffset="-310.28" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">99%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="314.16 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">100%</text>
     </svg><span>API</span></div>
   </div>
   <div class="resumo-cards">
-    <div class="stat"><div class="valor">98%</div><div class="rotulo">Sucesso geral</div></div>
-    <div class="stat"><div class="valor">243</div><div class="rotulo">Cenarios executados</div></div>
-    <div class="stat stat-clicavel" data-status="passed" onclick="filtrarStatus('passed')"><div class="valor">238</div><div class="rotulo">Passaram</div></div>
-    <div class="stat stat-clicavel" data-status="failed" onclick="filtrarStatus('failed')"><div class="valor">5</div><div class="rotulo">Falharam</div></div>
-    <div class="stat"><div class="valor">31m 47s</div><div class="rotulo">Tempo total</div></div>
+    <div class="stat"><div class="valor">100%</div><div class="rotulo">Sucesso geral</div></div>
+    <div class="stat"><div class="valor">273</div><div class="rotulo">Cenarios executados</div></div>
+    <div class="stat stat-clicavel" data-status="passed" onclick="filtrarStatus('passed')"><div class="valor">273</div><div class="rotulo">Passaram</div></div>
+    <div class="stat stat-clicavel" data-status="failed" onclick="filtrarStatus('failed')"><div class="valor">0</div><div class="rotulo">Falharam</div></div>
+    <div class="stat stat-clicavel stat-pendente" data-status="pending" onclick="filtrarStatus('pending')" title="Cenários tagueados @skip — não entram na execução, mas aparecem nos cards das features abaixo"><div class="valor">16</div><div class="rotulo">Pendentes</div></div>
+    <div class="stat"><div class="valor">42m 8s</div><div class="rotulo">Tempo total</div></div>
   </div>
-  
 </section>
 
 <div class="filtros">
-  <button data-filtro="todos" class="ativo" onclick="filtrar('todos')">Todas (31)</button>
-  <button data-filtro="UI" onclick="filtrar('UI')">UI (11)</button>
+  <button data-filtro="todos" class="ativo" onclick="filtrar('todos')">Todas (34)</button>
+  <button data-filtro="UI" onclick="filtrar('UI')">UI (14)</button>
   <button data-filtro="API" onclick="filtrar('API')">API (20)</button>
   <select id="filtro-feature" onchange="filtrarFeature(this.value)">
     <option value="todos">Todas as features</option>
@@ -149,6 +153,9 @@ main{padding:0 32px 48px}
 <option value="ui/alteracao_email.feature">UI — Alteração de e-mail</option>
 <option value="ui/alterar_senha.feature">UI — Alteração de senha</option>
 <option value="ui/login.feature">UI — Autenticação no Sistema SIGNA</option>
+<option value="ui/atos_administrativos_complementar.feature">UI — Ações da listagem de Atos Administrativos</option>
+<option value="ui/gestao_cargo.feature">UI — Cadastro de cargo base</option>
+<option value="ui/texto_portaria.feature">UI — Cadastro de texto de portaria</option>
 <option value="ui/signa_carga.feature">UI — Carga e performance do sistema SIGNA</option>
 <option value="ui/atos_novos.feature">UI — Criação de atos administrativos</option>
 <option value="ui/consulta_atos_adminstra.feature">UI — Editar e visualizar designação de servidor</option>
@@ -158,12 +165,15 @@ main{padding:0 32px 48px}
 <option value="ui/filtra_atos.feature">UI — Pesquisa de Atos Administrativos</option>
 <option value="ui/signa_stress.feature">UI — Stress e cenários de limite do sistema SIGNA</option>
   </select>
-  <span class="comparacao delta-down" title="Desde 21/08/2026 10:32: 98% → 98% de sucesso (+1 cenários)">▼ 0%</span>
+  <span class="busca-wrap">
+    <input type="search" id="busca-feature" placeholder="Buscar feature..." oninput="buscarFeature(this.value)">
+  </span>
+  <span class="comparacao delta-down" title="Desde 10/09/2026 14:34: 100% → 100% de sucesso (+12 cenários)">▼ 0%</span>
 </div>
 
 <main>
 
-    <article class="card" id="feature-0" data-estados="passed" data-feature="api/api_abrangencia.feature">
+    <article class="card" id="feature-0" data-estados="passed" data-feature="api/api_abrangencia.feature" data-busca-nome="api eol - abrangencia">
       <header class="card-header" onclick="toggle(0)">
         <div>
           <span class="tag tag-api">API</span>
@@ -172,7 +182,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
-          <span class="duracao">22.0s</span>
+          <span class="duracao">27.4s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -189,7 +199,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-1" data-estados="passed" data-feature="api/api_acessos.feature">
+    <article class="card" id="feature-1" data-estados="passed" data-feature="api/api_acessos.feature" data-busca-nome="api eol - acessos">
       <header class="card-header" onclick="toggle(1)">
         <div>
           <span class="tag tag-api">API</span>
@@ -198,7 +208,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
-          <span class="duracao">15.7s</span>
+          <span class="duracao">15.6s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -215,7 +225,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-2" data-estados="passed" data-feature="api/api_autenticacao_sgp.feature">
+    <article class="card" id="feature-2" data-estados="passed" data-feature="api/api_autenticacao_sgp.feature" data-busca-nome="api eol - autenticacaosgp">
       <header class="card-header" onclick="toggle(2)">
         <div>
           <span class="tag tag-api">API</span>
@@ -224,7 +234,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
-          <span class="duracao">17.3s</span>
+          <span class="duracao">16.8s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -241,7 +251,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-3" data-estados="passed" data-feature="api/api_cargo.feature">
+    <article class="card" id="feature-3" data-estados="passed" data-feature="api/api_cargo.feature" data-busca-nome="api eol - cargos">
       <header class="card-header" onclick="toggle(3)">
         <div>
           <span class="tag tag-api">API</span>
@@ -250,7 +260,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>4/4 cenarios</span>
-          <span class="duracao">12.3s</span>
+          <span class="duracao">12.0s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -265,7 +275,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-4" data-estados="passed" data-feature="api/api_cenarios_negativos.feature">
+    <article class="card" id="feature-4" data-estados="passed" data-feature="api/api_cenarios_negativos.feature" data-busca-nome="api eol - cenarios negativos">
       <header class="card-header" onclick="toggle(4)">
         <div>
           <span class="tag tag-api">API</span>
@@ -274,7 +284,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>15/15 cenarios</span>
-          <span class="duracao">33.2s</span>
+          <span class="duracao">32.8s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -300,7 +310,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-5" data-estados="passed" data-feature="api/api_dre_escola.feature">
+    <article class="card" id="feature-5" data-estados="passed" data-feature="api/api_dre_escola.feature" data-busca-nome="api eol - dre e escola">
       <header class="card-header" onclick="toggle(5)">
         <div>
           <span class="tag tag-api">API</span>
@@ -309,7 +319,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>7/7 cenarios</span>
-          <span class="duracao">21.1s</span>
+          <span class="duracao">20.8s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -327,7 +337,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-6" data-estados="passed" data-feature="api/api_diretoria_regional.feature">
+    <article class="card" id="feature-6" data-estados="passed" data-feature="api/api_diretoria_regional.feature" data-busca-nome="api eol - diretoriaregionaleducacao">
       <header class="card-header" onclick="toggle(6)">
         <div>
           <span class="tag tag-api">API</span>
@@ -376,7 +386,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-7" data-estados="passed" data-feature="api/api_designacao_apostilas.feature">
+    <article class="card" id="feature-7" data-estados="passed" data-feature="api/api_designacao_apostilas.feature" data-busca-nome="api signa - apostilas">
       <header class="card-header" onclick="toggle(7)">
         <div>
           <span class="tag tag-api">API</span>
@@ -385,7 +395,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>5/5 cenarios</span>
-          <span class="duracao">21.5s</span>
+          <span class="duracao">18.6s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -401,7 +411,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-8" data-estados="passed" data-feature="api/api_designacao_atos_administrativos.feature">
+    <article class="card" id="feature-8" data-estados="passed" data-feature="api/api_designacao_atos_administrativos.feature" data-busca-nome="api signa - atos administrativos (visao consolidada)">
       <header class="card-header" onclick="toggle(8)">
         <div>
           <span class="tag tag-api">API</span>
@@ -410,7 +420,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>3/3 cenarios</span>
-          <span class="duracao">10.2s</span>
+          <span class="duracao">8.9s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -424,7 +434,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-9" data-estados="passed" data-feature="api/api_designacao_servidor.feature">
+    <article class="card" id="feature-9" data-estados="passed" data-feature="api/api_designacao_servidor.feature" data-busca-nome="api signa - busca de servidor para designacao">
       <header class="card-header" onclick="toggle(9)">
         <div>
           <span class="tag tag-api">API</span>
@@ -433,7 +443,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>5/5 cenarios</span>
-          <span class="duracao">17.5s</span>
+          <span class="duracao">15.2s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -449,7 +459,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-10" data-estados="passed" data-feature="api/api_designacao_cessacoes.feature">
+    <article class="card" id="feature-10" data-estados="passed" data-feature="api/api_designacao_cessacoes.feature" data-busca-nome="api signa - cessacoes">
       <header class="card-header" onclick="toggle(10)">
         <div>
           <span class="tag tag-api">API</span>
@@ -458,7 +468,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>7/7 cenarios</span>
-          <span class="duracao">24.3s</span>
+          <span class="duracao">23.2s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -476,7 +486,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-11" data-estados="failed,passed" data-feature="api/api_designacao_designacoes.feature">
+    <article class="card" id="feature-11" data-estados="passed" data-feature="api/api_designacao_designacoes.feature" data-busca-nome="api signa - designacoes">
       <header class="card-header" onclick="toggle(11)">
         <div>
           <span class="tag tag-api">API</span>
@@ -484,10 +494,10 @@ main{padding:0 32px 48px}
           <span class="spec-path">api/api_designacao_designacoes.feature</span>
         </div>
         <div class="card-resumo">
-          <span>11/12 cenarios</span>
-          <span class="duracao">45.1s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:92%;background:#C62828"></div></div>
-          <span class="pct">92%</span><span class="delta delta-up" title="Era 91% na execução anterior">▲1</span>
+          <span>12/12 cenarios</span>
+          <span class="duracao">44.4s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-11">
@@ -500,7 +510,7 @@ main{padding:0 32px 48px}
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar listagens auxiliares de designação (example #3)</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar, consultar, atualizar e excluir uma designação</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Salvar designação sem cargo sobreposto do indicado</div></li>
-<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>BUG - Salvar designação para servidor sem local de exercício (RF 7936460)</div><div class="erro-msg">AssertionError: local de exercício deveria estar ausente (null) — se a QA mudou esse dado, escolha outro RF de referência: expected &#x27;Indisponível no EOL&#x27; to be one of [ null, undefined, &#x27;&#x27; ]</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>BUG - Salvar designação sem local de exercício do indicado</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar designação sem o RF do indicado</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Criar designação sem autenticação</div></li></ul>
         <h4>Evidencias</h4>
@@ -508,7 +518,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-12" data-estados="passed" data-feature="api/api_designacao_insubsistencias.feature">
+    <article class="card" id="feature-12" data-estados="passed" data-feature="api/api_designacao_insubsistencias.feature" data-busca-nome="api signa - insubsistencias">
       <header class="card-header" onclick="toggle(12)">
         <div>
           <span class="tag tag-api">API</span>
@@ -517,7 +527,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>7/7 cenarios</span>
-          <span class="duracao">25.0s</span>
+          <span class="duracao">23.2s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -535,7 +545,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-13" data-estados="passed" data-feature="api/api_designacao_portarias.feature">
+    <article class="card" id="feature-13" data-estados="passed" data-feature="api/api_designacao_portarias.feature" data-busca-nome="api signa - portarias">
       <header class="card-header" onclick="toggle(13)">
         <div>
           <span class="tag tag-api">API</span>
@@ -544,7 +554,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>2/2 cenarios</span>
-          <span class="duracao">6.6s</span>
+          <span class="duracao">6.0s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -557,7 +567,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-14" data-estados="failed,passed" data-feature="api/api_designacao_unidade.feature">
+    <article class="card" id="feature-14" data-estados="passed" data-feature="api/api_designacao_unidade.feature" data-busca-nome="api signa - unidade">
       <header class="card-header" onclick="toggle(14)">
         <div>
           <span class="tag tag-api">API</span>
@@ -565,15 +575,15 @@ main{padding:0 32px 48px}
           <span class="spec-path">api/api_designacao_unidade.feature</span>
         </div>
         <div class="card-resumo">
-          <span>3/4 cenarios</span>
-          <span class="duracao">17.0s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:75%;background:#C62828"></div></div>
-          <span class="pct">75%</span>
+          <span>4/4 cenarios</span>
+          <span class="duracao">14.7s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
         </div>
       </header>
       <div class="card-body" id="body-14">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar dados de uma unidade por código UE conhecido</div></li>
-<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Buscar dados de unidade com código UE inexistente</div><div class="erro-msg">AssertionError: status deveria ser 404 ou 400: expected 200 to be one of [ 404, 400 ]</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar dados de unidade com código UE inexistente</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Buscar dados de unidade sem autenticação</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Listar cargos possíveis de unidade</div></li></ul>
         <h4>Evidencias</h4>
@@ -581,7 +591,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-15" data-estados="passed" data-feature="api/api_dre_codigo_dre.feature">
+    <article class="card" id="feature-15" data-estados="passed" data-feature="api/api_dre_codigo_dre.feature" data-busca-nome="testes da api de detalhes de dre por codigo">
       <header class="card-header" onclick="toggle(15)">
         <div>
           <span class="tag tag-api">API</span>
@@ -607,7 +617,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-16" data-estados="passed" data-feature="api/api_dre_escolas.feature">
+    <article class="card" id="feature-16" data-estados="passed" data-feature="api/api_dre_escolas.feature" data-busca-nome="testes da api de escolas por dre e tipo">
       <header class="card-header" onclick="toggle(16)">
         <div>
           <span class="tag tag-api">API</span>
@@ -616,7 +626,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>8/8 cenarios</span>
-          <span class="duracao">16.2s</span>
+          <span class="duracao">15.6s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -635,7 +645,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-17" data-estados="passed" data-feature="api/api_dre_supervisores.feature">
+    <article class="card" id="feature-17" data-estados="passed" data-feature="api/api_dre_supervisores.feature" data-busca-nome="testes da api de supervisores por dre">
       <header class="card-header" onclick="toggle(17)">
         <div>
           <span class="tag tag-api">API</span>
@@ -644,7 +654,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>18/18 cenarios</span>
-          <span class="duracao">31.3s</span>
+          <span class="duracao">31.2s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -673,7 +683,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-18" data-estados="passed" data-feature="api/api_dre_unidades_codigo_integracao.feature">
+    <article class="card" id="feature-18" data-estados="passed" data-feature="api/api_dre_unidades_codigo_integracao.feature" data-busca-nome="testes da api de unidades com codigo de integracao por dre">
       <header class="card-header" onclick="toggle(18)">
         <div>
           <span class="tag tag-api">API</span>
@@ -682,7 +692,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
-          <span class="duracao">19.9s</span>
+          <span class="duracao">19.8s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -699,7 +709,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-19" data-estados="passed" data-feature="api/api_dre_unidades.feature">
+    <article class="card" id="feature-19" data-estados="passed" data-feature="api/api_dre_unidades.feature" data-busca-nome="testes da api de unidades por dre">
       <header class="card-header" onclick="toggle(19)">
         <div>
           <span class="tag tag-api">API</span>
@@ -708,7 +718,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>6/6 cenarios</span>
-          <span class="duracao">57.6s</span>
+          <span class="duracao">40.8s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -725,7 +735,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-20" data-estados="passed" data-feature="ui/alteracao_email.feature">
+    <article class="card" id="feature-20" data-estados="passed" data-feature="ui/alteracao_email.feature" data-busca-nome="alteracao de e-mail">
       <header class="card-header" onclick="toggle(20)">
         <div>
           <span class="tag tag-ui">UI</span>
@@ -734,7 +744,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>3/3 cenarios</span>
-          <span class="duracao">1m 27s</span>
+          <span class="duracao">1m 26s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -748,7 +758,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-21" data-estados="passed" data-feature="ui/alterar_senha.feature">
+    <article class="card" id="feature-21" data-estados="passed" data-feature="ui/alterar_senha.feature" data-busca-nome="alteracao de senha">
       <header class="card-header" onclick="toggle(21)">
         <div>
           <span class="tag tag-ui">UI</span>
@@ -772,7 +782,7 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-22" data-estados="passed" data-feature="ui/login.feature">
+    <article class="card" id="feature-22" data-estados="passed" data-feature="ui/login.feature" data-busca-nome="autenticacao no sistema signa">
       <header class="card-header" onclick="toggle(22)">
         <div>
           <span class="tag tag-ui">UI</span>
@@ -781,7 +791,7 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>4/4 cenarios</span>
-          <span class="duracao">38.6s</span>
+          <span class="duracao">38.4s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
@@ -796,8 +806,103 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-23" data-estados="passed" data-feature="ui/signa_carga.feature">
+    <article class="card" id="feature-23" data-estados="passed,pending" data-feature="ui/atos_administrativos_complementar.feature" data-busca-nome="acoes da listagem de atos administrativos">
       <header class="card-header" onclick="toggle(23)">
+        <div>
+          <span class="tag tag-ui">UI</span>
+          <strong>Ações da listagem de Atos Administrativos</strong>
+          <span class="spec-path">ui/atos_administrativos_complementar.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>12/12 cenarios (+2 pendentes)</span>
+          <span class="duracao">3m 7s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-23">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Apostilar uma designação publicada a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cessar uma designação publicada a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tornar insubsistente uma designação a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Apostilar uma cessação a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tornar insubsistente uma cessação a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Anular uma apostila a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tornar sem efeito uma insubsistência a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Excluir uma designação não publicada a partir do menu de ações da listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cancelar a exclusão de uma designação mantém o registro na listagem</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Menu de ações de uma designação publicada não oferece Editar nem Excluir</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Menu de ações de uma designação não publicada oferece Editar e Excluir</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Menu de ações de uma designação já cessada não exibe a opção Cessar novamente</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Menu de ações de um ato já com insubsistência vinculada não exibe Tornar insubsistente novamente</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Anular uma apostila de cessação a partir do menu de ações da listagem</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/atos_administrativos_complementar.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>Ações da listagem de Atos Administrativos -- Anular uma apostila a partir do menu de ações da listagem (failed).png</li><li>Ações da listagem de Atos Administrativos -- Anular uma apostila de cessação a partir do menu de ações da listagem (failed) (attempt 2).png</li><li>Ações da listagem de Atos Administrativos -- Anular uma apostila de cessação a partir do menu de ações da listagem (failed).png</li><li>Ações da listagem de Atos Administrativos -- Apostilar uma cessação a partir do menu de ações da listagem (failed) (attempt 2).png</li><li>Ações da listagem de Atos Administrativos -- Apostilar uma cessação a partir do menu de ações da listagem (failed).png</li><li>Ações da listagem de Atos Administrativos -- Apostilar uma designação publicada a partir do menu de ações da listagem (failed) (attempt 2).png</li></ul>
+      </div>
+    </article>
+
+    <article class="card" id="feature-24" data-estados="passed,pending" data-feature="ui/gestao_cargo.feature" data-busca-nome="cadastro de cargo base">
+      <header class="card-header" onclick="toggle(24)">
+        <div>
+          <span class="tag tag-ui">UI</span>
+          <strong>Cadastro de cargo base</strong>
+          <span class="spec-path">ui/gestao_cargo.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>4/4 cenarios (+5 pendentes)</span>
+          <span class="duracao">1m 19s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-24">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Localizar na listagem o cargo base cadastrado no cenário anterior</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar título, campos, textos e botões do cadastro de cargo base</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentar cadastrar cargo base sem preencher nenhum campo nem selecionar utilização</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cancelar o cadastro sem salvar descarta os dados preenchidos</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Cadastrar novo cargo base selecionando múltiplas opções de utilização</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Cadastrar novo cargo base selecionando todas as opções de utilização</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Cadastrar novo cargo base com situação funcional &quot;Cargo em comissão&quot;</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Cadastrar novo cargo base com a opção &quot;Testar laudo?&quot; habilitada</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Cadastrar novo cargo base com a opção &quot;Pesquisar Licenças no SIGPEC&quot; habilitada</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/gestao_cargo.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>Cadastro de cargo base -- Cadastrar novo cargo base com a opção Pesquisar Licenças no SIGPEC habilitada (failed) (attempt 2).png</li><li>Cadastro de cargo base -- Cadastrar novo cargo base com a opção Pesquisar Licenças no SIGPEC habilitada (failed).png</li><li>Cadastro de cargo base -- Cadastrar novo cargo base com a opção Testar laudo habilitada (failed) (attempt 2).png</li><li>Cadastro de cargo base -- Cadastrar novo cargo base com a opção Testar laudo habilitada (failed).png</li><li>Cadastro de cargo base -- Cadastrar novo cargo base com situação funcional Cargo em comissão (failed) (attempt 2).png</li><li>Cadastro de cargo base -- Cadastrar novo cargo base com situação funcional Cargo em comissão (failed).png</li></ul>
+      </div>
+    </article>
+
+    <article class="card" id="feature-25" data-estados="passed" data-feature="ui/texto_portaria.feature" data-busca-nome="cadastro de texto de portaria">
+      <header class="card-header" onclick="toggle(25)">
+        <div>
+          <span class="tag tag-ui">UI</span>
+          <strong>Cadastro de texto de portaria</strong>
+          <span class="spec-path">ui/texto_portaria.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>12/12 cenarios</span>
+          <span class="duracao">5m 34s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-25">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Designação&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Cessação&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Insubsistência de Designação&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Insubsistência de Cessação&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Apostila de Designação&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Apostila de Cessação&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Anulação de Apostila&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cadastrar um novo texto de portaria para o tipo &quot;Tornar sem efeito&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura do modal &quot;Novo texto de portaria&quot; e do formulário de cadastro</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentar cadastrar texto de portaria sem preencher nenhum campo obrigatório</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Selecionar uma variável sem manter o placeholder correspondente no texto bloqueia o cadastro</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cancelar o cadastro sem salvar descarta os dados preenchidos</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-26" data-estados="passed" data-feature="ui/signa_carga.feature" data-busca-nome="carga e performance do sistema signa">
+      <header class="card-header" onclick="toggle(26)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Carga e performance do sistema SIGNA</strong>
@@ -810,7 +915,7 @@ main{padding:0 32px 48px}
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-23">
+      <div class="card-body" id="body-26">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>5 acessos simultâneos autenticados à API não degradam o tempo de resposta</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>15 acessos simultâneos autenticados à API mantêm taxa de sucesso aceitável</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>30 acessos simultâneos autenticados à API mantêm taxa de sucesso mínima</div></li>
@@ -824,33 +929,40 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-24" data-estados="passed" data-feature="ui/atos_novos.feature">
-      <header class="card-header" onclick="toggle(24)">
+    <article class="card" id="feature-27" data-estados="passed,pending" data-feature="ui/atos_novos.feature" data-busca-nome="criacao de atos administrativos">
+      <header class="card-header" onclick="toggle(27)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Criação de atos administrativos</strong>
           <span class="spec-path">ui/atos_novos.feature</span>
         </div>
         <div class="card-resumo">
-          <span>5/5 cenarios</span>
-          <span class="duracao">5m 9s</span>
+          <span>7/7 cenarios (+5 pendentes)</span>
+          <span class="duracao">5m 12s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-24">
-        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova designação através de Atos Administrativos</div></li>
-<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova cessação através de Atos Administrativos</div></li>
-<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova insubsistência através de Atos Administrativos</div></li>
-<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova apostila através de Atos Administrativos</div></li>
-<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar anulação de apostila através de Atos Administrativos</div></li></ul>
+      <div class="card-body" id="body-27">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova designação com cargo vago através de Atos Administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar servidor com RF inexistente ao iniciar nova designação</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentar avançar o Passo 2 sem preencher a portaria obrigatória</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Iniciar nova insubsistência do tipo Cessação através de Atos Administrativos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar título da página e opções do menu &quot;Novo ato&quot;</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentar buscar portaria de cessação sem selecionar o ano</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Tentar buscar portaria de designação ou cessação sem selecionar o ano</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Iniciar nova designação através de Atos Administrativos</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Iniciar nova cessação através de Atos Administrativos</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Iniciar nova insubsistência através de Atos Administrativos</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Iniciar nova apostila através de Atos Administrativos</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Iniciar anulação de apostila através de Atos Administrativos</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-25" data-estados="passed" data-feature="ui/consulta_atos_adminstra.feature">
-      <header class="card-header" onclick="toggle(25)">
+    <article class="card" id="feature-28" data-estados="passed" data-feature="ui/consulta_atos_adminstra.feature" data-busca-nome="editar e visualizar designacao de servidor">
+      <header class="card-header" onclick="toggle(28)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Editar e visualizar designação de servidor</strong>
@@ -858,12 +970,12 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>2/2 cenarios</span>
-          <span class="duracao">1m 18s</span>
+          <span class="duracao">1m 17s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-25">
+      <div class="card-body" id="body-28">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar designação e validar todas as seções do formulário</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Visualizar designação existente e validar todos os dados</div></li></ul>
         <h4>Evidencias</h4>
@@ -871,8 +983,8 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-26" data-estados="passed" data-feature="ui/esqueci_senha.feature">
-      <header class="card-header" onclick="toggle(26)">
+    <article class="card" id="feature-29" data-estados="passed" data-feature="ui/esqueci_senha.feature" data-busca-nome="fluxo esqueci a senha no sistema signa">
+      <header class="card-header" onclick="toggle(29)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Fluxo esqueci a senha no sistema SIGNA</strong>
@@ -880,12 +992,12 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>2/2 cenarios</span>
-          <span class="duracao">52.6s</span>
+          <span class="duracao">52.4s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-26">
+      <div class="card-body" id="body-29">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF válido</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF inválido</div></li></ul>
         <h4>Evidencias</h4>
@@ -893,24 +1005,24 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-27" data-estados="failed,passed" data-feature="ui/signa_extra.feature">
-      <header class="card-header" onclick="toggle(27)">
+    <article class="card" id="feature-30" data-estados="passed" data-feature="ui/signa_extra.feature" data-busca-nome="fluxos avancados e casos de borda do sistema signa">
+      <header class="card-header" onclick="toggle(30)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Fluxos avançados e casos de borda do sistema SIGNA</strong>
           <span class="spec-path">ui/signa_extra.feature</span>
         </div>
         <div class="card-resumo">
-          <span>15/16 cenarios</span>
-          <span class="duracao">3m 49s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:94%;background:#C62828"></div></div>
-          <span class="pct">94%</span>
+          <span>16/16 cenarios</span>
+          <span class="duracao">3m 30s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-27">
+      <div class="card-body" id="body-30">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login seguido de logout retorna à tela de login</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Sessão permanece ativa após recarregar a página</div></li>
-<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Acessar a URL de login estando autenticado não exibe o formulário novamente</div><div class="erro-msg">AssertionError: Timed out retrying after 10000ms: Expected &lt;input#_r_g_-form-item.flex.h-[40px].w-full.border.border-[#dadada].bg-background.px-3.py-2.text-sm.font-medium.ring-0.ring-offset-0.shadow-none.outline-none.focus:outline-none.focus:ring-0.focus:ring-offset-0.focus:shadow-none.focus:bg-[#E8…</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar a URL de login estando autenticado não exibe o formulário novamente</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login com RF em formato inválido não autentica</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar Atos Administrativos com filtro contendo apenas espaços não quebra a tela</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Navegar entre Atos Administrativos e o menu lateral preservando a sessão</div></li>
@@ -925,12 +1037,12 @@ main{padding:0 32px 48px}
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Payload de SQL Injection no campo de login não autentica</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Sessão expirada redireciona para tela de login ao navegar</div></li></ul>
         <h4>Evidencias</h4>
-        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_extra.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (1).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (1).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente.png</li></ul>
+        <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_extra.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (1).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (3).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (1).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (2).png</li><li>failed-Acessar_a_URL_de_login_estando_autenticado_não_exibe_o_formulário_novamente (attempt 2) (3).png</li></ul>
       </div>
     </article>
 
-    <article class="card" id="feature-28" data-estados="passed" data-feature="ui/gestao_base_filtros.feature">
-      <header class="card-header" onclick="toggle(28)">
+    <article class="card" id="feature-31" data-estados="passed" data-feature="ui/gestao_base_filtros.feature" data-busca-nome="gestao de cargos base">
+      <header class="card-header" onclick="toggle(31)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Gestão de cargos base</strong>
@@ -938,12 +1050,12 @@ main{padding:0 32px 48px}
         </div>
         <div class="card-resumo">
           <span>8/8 cenarios</span>
-          <span class="duracao">1m 59s</span>
+          <span class="duracao">1m 60s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-28">
+      <div class="card-body" id="body-31">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar título, campos de filtro, botões e lista de cargos base</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar cargos base combinando Grupamento, Descrição Resumida e Status</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros restaura a lista completa de cargos base</div></li>
@@ -957,21 +1069,21 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-29" data-estados="passed" data-feature="ui/filtra_atos.feature">
-      <header class="card-header" onclick="toggle(29)">
+    <article class="card" id="feature-32" data-estados="passed,pending" data-feature="ui/filtra_atos.feature" data-busca-nome="pesquisa de atos administrativos">
+      <header class="card-header" onclick="toggle(32)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Pesquisa de Atos Administrativos</strong>
           <span class="spec-path">ui/filtra_atos.feature</span>
         </div>
         <div class="card-resumo">
-          <span>8/8 cenarios</span>
-          <span class="duracao">1m 40s</span>
+          <span>8/8 cenarios (+4 pendentes)</span>
+          <span class="duracao">1m 39s</span>
           <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-29">
+      <div class="card-body" id="body-32">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Tipo</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Nº SEI</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Publicado)</div></li>
@@ -979,57 +1091,41 @@ main{padding:0 32px 48px}
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Servidor</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Aguardando publicação)</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por período de publicação</div></li>
-<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros preenchidos</div></li></ul>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros preenchidos</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Filtrar por Servidor - bloqueado por bug no backend</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Filtrar por Registro Funcional (RF) - bloqueado por bug no backend</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Buscar combinando Registro Funcional e Status</div></li>
+<li data-estado="pending"><div class="cenario-linha"><span class="badge" style="background:#B8860B">Pendente</span>Pesquisar com Nº SEI inexistente exibe tabela sem resultados</div></li></ul>
         <h4>Evidencias</h4>
         <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
       </div>
     </article>
 
-    <article class="card" id="feature-30" data-estados="failed,passed" data-feature="ui/signa_stress.feature">
-      <header class="card-header" onclick="toggle(30)">
+    <article class="card" id="feature-33" data-estados="passed" data-feature="ui/signa_stress.feature" data-busca-nome="stress e cenarios de limite do sistema signa">
+      <header class="card-header" onclick="toggle(33)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Stress e cenários de limite do sistema SIGNA</strong>
           <span class="spec-path">ui/signa_stress.feature</span>
         </div>
         <div class="card-resumo">
-          <span>19/21 cenarios</span>
-          <span class="duracao">2m 28s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:90%;background:#C62828"></div></div>
-          <span class="pct">90%</span>
+          <span>21/21 cenarios</span>
+          <span class="duracao">3m 37s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-30">
+      <div class="card-body" id="body-33">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Rajada de requisições simultâneas acima da carga normal</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Oscilação de carga entre picos e vales de tráfego</div></li>
-<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Requisição travada (hanging) não trava a interface indefinidamente</div><div class="erro-msg">CypressError: An invalid RouteMatcher was supplied to `cy.intercept()`. `resourceType` must be a string or a regular expression.
-
-You passed: {
-  &quot;url&quot;: &quot;**&quot;,
-  &quot;resourceType&quot;: [
-    &quot;xhr&quot;,
-    &quot;fetch&quot;
-  ]
-}
-
-https://on.cypress.io/intercept</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Requisição travada (hanging) não trava a interface indefinidamente</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Cancelamento em massa de requisições pendentes pelo usuário</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Campo de filtro aceita ou rejeita graciosamente um payload gigante</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Campo de filtro aceita ou rejeita graciosamente caracteres unicode extremos</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Campo numérico aceita ou rejeita graciosamente um valor no limite superior</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Payload de API com JSON profundamente aninhado</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Falhas de rede repetidas durante uma requisição</div></li>
-<li data-estado="failed"><div class="cenario-linha"><span class="badge" style="background:#C62828">Falhou</span>Latência extrema não trava a aplicação de forma irrecuperável</div><div class="erro-msg">CypressError: An invalid RouteMatcher was supplied to `cy.intercept()`. `resourceType` must be a string or a regular expression.
-
-You passed: {
-  &quot;url&quot;: &quot;**&quot;,
-  &quot;resourceType&quot;: [
-    &quot;xhr&quot;,
-    &quot;fetch&quot;
-  ]
-}
-
-https://on.cypress.io/intercept</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Latência extrema não trava a aplicação de forma irrecuperável</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pool de conexões do banco de dados saturado</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Query lenta no backend não trava a aplicação</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Registro com dados corrompidos ou inconsistentes retornado pela API</div></li>
@@ -1045,11 +1141,12 @@ https://on.cypress.io/intercept</div></li>
         <p class="evidencias-nota">Screenshots disponiveis localmente em <code>cypress/screenshots/ui/signa_stress.feature</code> (nao versionados no git):</p><ul class="evidencias-lista"><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável (1).png</li><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável (attempt 2) (1).png</li><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável (attempt 2).png</li><li>failed-Latência_extrema_não_trava_a_aplicação_de_forma_irrecuperável.png</li><li>failed-Múltiplas_tentativas_de_força_bruta_no_login_não_concedem_acesso (attempt 2).png</li><li>failed-Múltiplas_tentativas_de_força_bruta_no_login_não_concedem_acesso.png</li></ul>
       </div>
     </article>
+<p id="sem-resultado" class="sem-resultado" style="display:none">Nenhuma feature encontrada para os filtros atuais.</p>
 </main>
 
-<div class="rodape">Gerado por scripts/gerar_dashboard_html.py v1.1.0 - execucao 100% local, nao roda no CI/CD</div>
+<div class="rodape">Gerado por scripts/gerar_dashboard_html.py v1.2.0 - execucao 100% local, nao roda no CI/CD</div>
 
-<script type="application/json" id="dashboard-snapshot">{"gerado_em": "26/08/2026 14:49", "total_cenarios": 243, "total_passou": 238, "total_falhou": 5, "total_pendente": 0, "pct_geral": 97.9, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 11, "falhou": 1, "total": 12, "pct": 91.7}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 3, "falhou": 1, "total": 4, "pct": 75.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 15, "falhou": 1, "total": 16, "pct": 93.8}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 19, "falhou": 2, "total": 21, "pct": 90.5}}, "fonte_hash": "ac8fa09acea4dc93252004ebb76cedcc2a047299", "baseline": {"gerado_em": "21/08/2026 10:32", "total_cenarios": 242, "pct_geral": 97.9, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 10, "falhou": 1, "total": 11, "pct": 90.9}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 3, "falhou": 1, "total": 4, "pct": 75.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 15, "falhou": 1, "total": 16, "pct": 93.8}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 19, "falhou": 2, "total": 21, "pct": 90.5}}}, "versao_script": "1.1.0"}</script>
+<script type="application/json" id="dashboard-snapshot">{"gerado_em": "11/09/2026 19:53", "total_cenarios": 273, "total_passou": 273, "total_falhou": 0, "total_pendente": 0, "pct_geral": 100.0, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/atos_administrativos_complementar.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/gestao_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/texto_portaria.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 16, "falhou": 0, "total": 16, "pct": 100.0}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 21, "falhou": 0, "total": 21, "pct": 100.0}}, "fonte_hash": "bd4360ea2b0b86621d07daeb3d3c7564c27d4bac", "baseline": {"gerado_em": "10/09/2026 14:34", "total_cenarios": 261, "pct_geral": 100.0, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/atos_administrativos_complementar.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/gestao_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 16, "falhou": 0, "total": 16, "pct": 100.0}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 21, "falhou": 0, "total": 21, "pct": 100.0}}}, "versao_script": "1.2.0"}</script>
 
 <script>
 var PR_OWNER_REPO = "prefeiturasp/SME-SIGNA-FrontEnd";
@@ -1058,6 +1155,7 @@ var PR_BRANCH = "qa_test";
 var filtroSistema = 'todos';
 var filtroStatus = 'todos';
 var filtroFeature = 'todos';
+var filtroBusca = '';
 
 function toggle(i){
   document.getElementById('body-' + i).classList.toggle('aberto');
@@ -1086,24 +1184,44 @@ function filtrarFeature(spec){
   aplicarFiltros();
 }
 
+// Remove acentuacao pra "designacao" achar "Designação" e vice-versa —
+// pesquisa nao deveria depender do usuario digitar o acento certo.
+function normalizarBusca(texto){
+  return (texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
+function buscarFeature(texto){
+  filtroBusca = normalizarBusca(texto);
+  document.getElementById('busca-feature').classList.toggle('ativo', filtroBusca !== '');
+  aplicarFiltros();
+}
+
 function aplicarFiltros(){
+  var algumVisivel = false;
   document.querySelectorAll('.card').forEach(function(card){
     var tagOk = filtroSistema === 'todos' || card.querySelector('.tag').textContent === filtroSistema;
     var estados = (card.dataset.estados || '').split(',');
     var statusOk = filtroStatus === 'todos' || estados.indexOf(filtroStatus) !== -1;
     var featureOk = filtroFeature === 'todos' || card.dataset.feature === filtroFeature;
-    var mostra = tagOk && statusOk && featureOk;
+    var buscaOk = filtroBusca === '' ||
+      (card.dataset.buscaNome || '').indexOf(filtroBusca) !== -1 ||
+      (card.dataset.feature || '').toLowerCase().indexOf(filtroBusca) !== -1;
+    var mostra = tagOk && statusOk && featureOk && buscaOk;
     card.style.display = mostra ? '' : 'none';
+    if (mostra) algumVisivel = true;
 
     var indice = card.id.replace('feature-', '');
     var corpo = document.getElementById('body-' + indice);
-    if (mostra && (filtroStatus !== 'todos' || filtroFeature !== 'todos')) {
+    if (mostra && (filtroStatus !== 'todos' || filtroFeature !== 'todos' || filtroBusca !== '')) {
       corpo.classList.add('aberto');
     }
     corpo.querySelectorAll('li[data-estado]').forEach(function(li){
       li.classList.toggle('destaque', filtroStatus !== 'todos' && li.dataset.estado === filtroStatus);
     });
   });
+
+  var aviso = document.getElementById('sem-resultado');
+  if (aviso) aviso.style.display = algumVisivel ? 'none' : '';
 }
 
 function escapeHtml(texto){
@@ -1165,6 +1283,17 @@ function atualizarPR(){
     btn.textContent = '↻';
   });
 }
+
+
+(function(){
+  var linha1 = '[ QA ] ' + "Dashboard de Automa\u00e7\u00e3o - SIGNA";
+  var traco = '\u2500'.repeat(Math.max(linha1.length, 24));
+  console.log(
+    '%c' + linha1 + '\n' + traco + '\n%cAssinatura de origem: 86d24a45-0b0a-4f6f-9e16-d8ab545d7dbe',
+    'font-weight:600;color:inherit',
+    'font-size:11px;color:#888'
+  );
+})();
 
 </script>
 </body>

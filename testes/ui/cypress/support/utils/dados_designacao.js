@@ -1,24 +1,15 @@
 // ============================================================================
 // DADOS REUTILIZÁVEIS — testes de API de Designação
 // ============================================================================
-// Centraliza dados de teste hoje duplicados dentro de step definitions de UI
-// (cypress/support/step_definitions/ui/designacao_steps.js e
-// cessacao_steps.js), para os novos steps de API reaproveitarem sem repetir
-// a lista. Não altera os arquivos de UI existentes.
-// ============================================================================
 
-// Mesmo pool de RFs já validado pela suíte de UI
-// (designacao_steps.js:607-610) — servidores reais existentes em QA.
+// Servidores reais existentes em QA.
 const RF_POOL = [
   '7311559', '7704941', '5764521', '7443625',
   '7914229', '7209983', '7443668',
 ]
 
-// Unidade de referência real, obtida de uma designação já existente em QA
-// (GET /designacao/designacoes/buscar-por-portaria/?portaria=5791346&ano=2026,
-// verificado manualmente antes de escrever estes testes). Serve só como
-// combinação válida e conhecida de dre/ue/codigo_hierarquico para montar o
-// payload de criação — não referencia nem altera esse registro.
+// Combinação válida e conhecida de dre/ue/codigo_hierarquico, obtida de uma
+// designação já existente em QA — não referencia nem altera esse registro.
 const UNIDADE_REFERENCIA = {
   dre: '108500',
   dre_nome: 'DIRETORIA REGIONAL DE EDUCACAO GUAIANASES',
@@ -28,30 +19,12 @@ const UNIDADE_REFERENCIA = {
   funcionarios_da_unidade: '3085',
 }
 
-// RF real em QA cujo retorno de POST /designacao/servidor NÃO tem cargo
-// sobreposto nem local de exercício (cargo_sobreposto_funcao_atividade e
-// local_de_exercicio vêm null) — confirmado manualmente contra QA em
-// 2026-08-21. Usado para reproduzir de forma determinística o cenário de
-// "ausência de dados opcionais/obrigatórios da integração" sem depender de
-// sorteio no pool de RFs.
-const RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO = '7936460'
-
-// Portaria/ano de uma designação já existente em QA, usada nos cenários de
-// "buscar por portaria" (mesmo dado já usado em cypress/e2e/ui/atos_novos.feature).
 const PORTARIA_EXISTENTE = { portaria: '5791346', ano: '2026' }
-
-// Portaria/ano de uma cessação já existente em QA (GET /designacao/cessacoes/,
-// verificado manualmente), usada no cenário de "buscar cessação por portaria".
 const PORTARIA_CESSACAO_EXISTENTE = { portaria: '3', ano: '2026' }
-
-// Portaria/ano de uma insubsistência já existente em QA (GET
-// /designacao/insubsistencias/, verificado manualmente), usada no cenário de
-// "buscar insubsistência por portaria".
 const PORTARIA_INSUBSISTENCIA_EXISTENTE = { portaria: '8857671', ano: '2026' }
 
-// Cargo de referência para o payload de criação com tipo_vaga=VAGO (evita
-// depender de um segundo servidor "titular" para montar o payload) — código
-// confirmado em GET /designacao/designacoes/cargos-sobrepostos-pareados/.
+// Cargo de referência pra montar payload com tipo_vaga=VAGO, evitando
+// depender de um segundo servidor "titular".
 const CARGO_VAGA_REFERENCIA = { codigo: 3085, nome: 'ASSISTENTE DE DIRETOR DE ESCOLA' }
 
 function numeroAleatorio(digitos = 7) {
@@ -64,15 +37,8 @@ function rfAleatorio() {
   return RF_POOL[Math.floor(Math.random() * RF_POOL.length)]
 }
 
-// Monta o payload de POST /designacao/designacoes/ no mesmo formato de
-// mapearPayloadDesignacao (src/utils/designacao/mapearPayload.ts), a partir
-// dos dados de um servidor (resposta de POST /designacao/servidor).
-//
-// IMPORTANTE: campos opcionais (doc, data_fim, impedimento_substituicao,
-// motivo_afastamento, pendencias, detalhe_para_quadro_de_historico_por_ano)
-// são OMITIDOS de propósito — confirmado manualmente contra QA que a API
-// responde 400 ("Este campo pode não ser nulo.") quando eles são enviados
-// como null explícito.
+// Campos opcionais (doc, data_fim, impedimento_substituicao, etc.) são
+// OMITIDOS de propósito: a API responde 400 quando enviados como null.
 function montarPayloadDesignacao(servidor, overrides = {}) {
   return {
     dre_nome: UNIDADE_REFERENCIA.dre_nome,
@@ -114,7 +80,6 @@ function montarPayloadDesignacao(servidor, overrides = {}) {
 
 module.exports = {
   RF_POOL,
-  RF_SEM_CARGO_SOBREPOSTO_E_LOCAL_EXERCICIO,
   UNIDADE_REFERENCIA,
   PORTARIA_EXISTENTE,
   PORTARIA_CESSACAO_EXISTENTE,

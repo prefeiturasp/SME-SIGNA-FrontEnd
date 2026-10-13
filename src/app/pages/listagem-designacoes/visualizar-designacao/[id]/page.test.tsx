@@ -352,7 +352,7 @@ describe("VisualizarDesignacao page", () => {
       label: "Nome do Cargo Disponível",
       value: "Professor Adjunto",
     });
-    expect(screen.getAllByTestId("resumo-servidor")).toHaveLength(1);
+    expect(document.body).toContainOneByTestId("resumo-servidor");
   });
 
   it("exibe o texto da portaria retornado pelo backend, sem remontá-lo no cliente", () => {

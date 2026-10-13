@@ -10,6 +10,8 @@ export default {
 
     if (filtered.length === 0) return [];
 
-    return [`eslint --fix ${filtered.join(" ")}`];
+    // TEMPORÁRIO: oxlint no lugar do eslint enquanto estivermos no TypeScript 7.
+    // Voltar para `eslint --fix` quando o TS 7.1 sair — ver .oxlintrc.json.
+    return [`oxlint --fix ${filtered.join(" ")}`];
   },
 };

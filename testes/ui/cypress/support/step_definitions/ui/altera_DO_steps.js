@@ -6,7 +6,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { alterarDOLocators } from '../../ui/locators/altera_DO_locators'
 
-// ─── Contexto — Navegação via menu lateral ────────────────────────────────────
+// Contexto — Navegação via menu lateral
 // Após o login o usuário está no root ("/"). Nenhuma rota protegida aceita
 // cy.visit direto — todas retornam 307. O acesso deve ser sempre via sidebar.
 
@@ -49,7 +49,7 @@ function navegarParaAlterarDO () {
   cy.log('✓ Tela "Alterar data do D.O" carregada')
 }
 
-// ─── Cenário 1: Filtros ───────────────────────────────────────────────────────
+// Cenário 1: Filtros
 
 Then('o sistema exibe os filtros de busca', () => {
   alterarDOLocators.filtros.secaoFiltros().should('be.visible')
@@ -89,7 +89,7 @@ Then('o sistema exibe a lista de portarias filtradas', () => {
   cy.log('✓ Lista de portarias filtradas exibida')
 })
 
-// ─── Cenário 2: Seleção e Alteração ──────────────────────────────────────────
+// Cenário 2: Seleção e Alteração
 
 When('o usuário seleciona a data atual no campo de data', () => {
   alterarDOLocators.dataPublicacao()
@@ -150,7 +150,7 @@ Then('o usuário rola a página até o final', () => {
   cy.log('✓ Página rolada até o final')
 })
 
-// ─── Cenários de Filtro por Campo ────────────────────────────────────────────
+// Cenários de Filtro por Campo
 
 When('preenche o campo de filtro {string} com {string}', (campo, valor) => {
   const mapa = {
@@ -180,8 +180,6 @@ Then('o sistema exibe a tabela sem resultados', () => {
   alterarDOLocators.tabela.estadoVazio().should('be.visible')
   cy.log('✓ Tabela exibida sem resultados para o filtro informado')
 })
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 Then('o sistema processa a alteração sem erros', () => {
   cy.wait(5000)
