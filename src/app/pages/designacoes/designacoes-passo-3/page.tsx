@@ -140,7 +140,7 @@ export default function DesignacoesPasso3() {
       if (result.errosSubstituicaoDiretor) {
         throw new ErroSubstituicaoDiretor(result.error, result.errosSubstituicaoDiretor);
       }
-      throw new Error(result.error);
+      throw new Error(result.erroPeriodoSobreposto ?? result.error);
     }
 
     return result.data;

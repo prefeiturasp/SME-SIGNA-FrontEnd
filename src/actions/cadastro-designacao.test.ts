@@ -206,6 +206,34 @@ describe("designacaoAction", () => {
         });
     });
 
+    it("retorna o bloqueio de período sobreposto quando o backend envia periodo_sobreposto", async () => {
+        mockCookies("token");
+
+        const mensagem =
+            "Já existe designação em substituição a este titular, para este cargo nesta unidade, vigente até 31/01/2024. A nova designação só pode iniciar a partir do dia seguinte ao término da anterior (01/02/2024).";
+        mockedAxios.post.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    data_inicio: [mensagem],
+                    codes: { data_inicio: ["periodo_sobreposto"] },
+                    detail: `data_inicio: ${mensagem}`,
+                },
+            },
+            message: "Request failed",
+        });
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error: `Data inicio: ${mensagem}`,
+            field: undefined,
+            erroPeriodoSobreposto: mensagem,
+        });
+    });
+
     it("retorna campo field quando presente na resposta de erro", async () => {
         mockCookies("token");
 
