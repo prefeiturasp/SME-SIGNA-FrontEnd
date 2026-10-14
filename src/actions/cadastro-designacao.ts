@@ -104,34 +104,38 @@ export async function designacaoAction(
           
         return { success: true,  data };
     } catch (err) {
-        const error = toAxiosError<DesignacaoErrorResponse>(err);
-
-        let message = "Erro ao salvar designação";
-
-        if (error.response?.status === 500) {
-            message = "Erro interno no servidor";
-        } else if (error.response?.data?.detail) {
-            message = humanizarDetail(error.response.data.detail);
-        } else if (error.message) {
-            message = error.message;
-        }
-
-        const field = error.response?.data?.field;
-        const errosSubstituicaoDiretor =
-            error.response?.status === 400
-                ? interpretarErrosSubstituicaoDiretor(error.response.data)
-                : null;
-        const erroPeriodoSobreposto =
-            error.response?.status === 400
-                ? interpretarErroPeriodoSobreposto(error.response.data)
-                : null;
-
-        return {
-            success: false,
-            error: message,
-            field,
-            ...(errosSubstituicaoDiretor && { errosSubstituicaoDiretor }),
-            ...(erroPeriodoSobreposto && { erroPeriodoSobreposto }),
-        };
+        return montarResultadoErro(err);
     }
+}
+
+function montarResultadoErro(err: unknown): DesignacaoResult {
+    const error = toAxiosError<DesignacaoErrorResponse>(err);
+
+    let message = "Erro ao salvar designação";
+
+    if (error.response?.status === 500) {
+        message = "Erro interno no servidor";
+    } else if (error.response?.data?.detail) {
+        message = humanizarDetail(error.response.data.detail);
+    } else if (error.message) {
+        message = error.message;
+    }
+
+    const field = error.response?.data?.field;
+    const dadosErro400 =
+        error.response?.status === 400 ? error.response.data : null;
+    const errosSubstituicaoDiretor = dadosErro400
+        ? interpretarErrosSubstituicaoDiretor(dadosErro400)
+        : null;
+    const erroPeriodoSobreposto = dadosErro400
+        ? interpretarErroPeriodoSobreposto(dadosErro400)
+        : null;
+
+    return {
+        success: false,
+        error: message,
+        field,
+        ...(errosSubstituicaoDiretor && { errosSubstituicaoDiretor }),
+        ...(erroPeriodoSobreposto && { erroPeriodoSobreposto }),
+    };
 }
