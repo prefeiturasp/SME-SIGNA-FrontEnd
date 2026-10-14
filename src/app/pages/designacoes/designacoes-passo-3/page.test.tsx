@@ -399,6 +399,25 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(screen.queryByText("Necessária eleição para o cargo de Diretor")).not.toBeInTheDocument();
   });
 
+  it("mostra no toast de erro a mensagem de período sobreposto retornada pelo backend", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Data inicio: texto do backend",
+      erroPeriodoSobreposto: "Mensagem de sobreposição do backend",
+    });
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+    fireEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => {
+      expect(notificationErrorMock).toHaveBeenCalledWith({
+        title: "Erro ao salvar portaria: Mensagem de sobreposição do backend",
+      });
+    });
+    expect(h.pushMock).not.toHaveBeenCalled();
+  });
+
   it("desabilita o Salvar e mostra o bloqueio quando o indicado é Assistente de Diretor", async () => {
     h.formData = {
       ...defaultFormData,
