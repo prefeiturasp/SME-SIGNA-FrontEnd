@@ -10,6 +10,7 @@ import {
     ErrosBackendSubstituicaoDiretor,
     interpretarErrosSubstituicaoDiretor,
 } from "@/utils/designacao/substituicaoDiretor";
+import { interpretarErroPeriodoSobreposto } from "@/utils/designacao/periodoSobreposto";
 
 type DesignacaoErrorResponse = {
     detail?: string;
@@ -25,6 +26,7 @@ type DesignacaoResult =
           error: string;
           field?: string;
           errosSubstituicaoDiretor?: ErrosBackendSubstituicaoDiretor;
+          erroPeriodoSobreposto?: string;
       };
 
 // O backend retorna `detail` já formatado como "campo_snake_case: mensagem"
@@ -119,12 +121,17 @@ export async function designacaoAction(
             error.response?.status === 400
                 ? interpretarErrosSubstituicaoDiretor(error.response.data)
                 : null;
+        const erroPeriodoSobreposto =
+            error.response?.status === 400
+                ? interpretarErroPeriodoSobreposto(error.response.data)
+                : null;
 
         return {
             success: false,
             error: message,
             field,
             ...(errosSubstituicaoDiretor && { errosSubstituicaoDiretor }),
+            ...(erroPeriodoSobreposto && { erroPeriodoSobreposto }),
         };
     }
 }
