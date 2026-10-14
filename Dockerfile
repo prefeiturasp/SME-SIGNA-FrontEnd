@@ -6,12 +6,12 @@ RUN chown node:node /app
 
 USER node
 
-COPY --chown=node:node tsconfig.json tailwind.config.js postcss.config.mjs package.json next.config.mjs components.json /app/
+COPY --chown=node:node tsconfig.json postcss.config.mjs package.json package-lock.json next.config.mjs components.json /app/
 
 COPY --chown=node:node src /app/src
 
-RUN yarn install
+RUN npm ci
 
 EXPOSE 3000
 
-ENTRYPOINT [ "yarn", "dev", "-p", "3000" ]
+ENTRYPOINT [ "npm", "run", "dev", "--", "-p", "3000" ]

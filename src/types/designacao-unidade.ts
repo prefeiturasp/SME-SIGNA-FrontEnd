@@ -12,6 +12,10 @@ export type Servidor = {
   cargo_base: string;
   cd_cargo_sobreposto_funcao_atividade: number;
   cargo_sobreposto_funcao_atividade: string;
+  // Diz se `cd_cargo_sobreposto_funcao_atividade` é cargo sobreposto (true) ou função/atividade (false).
+  possui_cargo_sobreposto?: boolean;
+  // Código da UE de lotação (do cargo sobreposto, se houver; senão do cargo base).
+  cd_ue_lotacao?: string | number | null;
   cursos_titulos: string;
   codigo_hierarquia?: string;
   lotacao_cargo_base?: string;
@@ -19,6 +23,7 @@ export type Servidor = {
   local_de_servico: string;
   local_de_exercicio: string;
   categoria?: string;
+  possui_designacao_ativa?: boolean;
 }
 
 
@@ -26,7 +31,11 @@ export type Servidor = {
 type Cargo = {
   codigo_cargo: number;
   nome_cargo: string;
-  modulo: string;
+  modulo: number;
+  // Calculado no backend (RF único, desconsidera afastados).
+  quantidade_servidores: number;
+  // true quando a quantidade de servidores no cargo excede o módulo da unidade.
+  excedente: boolean;
   servidores: Servidor[];
 };
 

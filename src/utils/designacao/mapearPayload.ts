@@ -16,6 +16,14 @@ function formatarData(valor: unknown): string | null {
     return null;
 }
 
+// Os códigos do EOL podem chegar como texto; o backend espera número.
+function paraCodigoNumerico<T>(valor: T): T | number {
+    if (typeof valor === "string" && valor.trim() !== "" && !Number.isNaN(Number(valor))) {
+        return Number(valor);
+    }
+    return valor;
+}
+
 // Resolve pelo nome pois o código do EOL não bate com o de CargoBase.
 export function encontrarCargoPorNome(
     nomeCargo: string | null | undefined,
@@ -32,8 +40,8 @@ export function obterNomeCargoTitular(
     return titular?.cargo_sobreposto_funcao_atividade ?? titular?.cargo_base;
 }
 
-function getCargoVaga(
-    form: FormDesignacaoEServidorIndicado,
+export function getCargoVaga(
+    form: Pick<FormDesignacaoEServidorIndicado, "tipo_cargo" | "cargo_vago_selecionado" | "dadosTitular">,
     cargosDisponiveis: ICargoType[]
 ): number | undefined {
     const tipo = form.tipo_cargo?.toLowerCase();
@@ -87,10 +95,13 @@ export function mapearPayloadDesignacao(
         indicado_rf: servidorIndicado.rf,
         indicado_vinculo: servidorIndicado.vinculo,
         indicado_cargo_base: servidorIndicado.cargo_base,
-        indicado_codigo_cargo_base: servidorIndicado.cd_cargo_base,
+        indicado_codigo_cargo_base: paraCodigoNumerico(servidorIndicado.cd_cargo_base),
         indicado_lotacao: servidorIndicado.lotacao,
         indicado_cargo_sobreposto: servidorIndicado.cargo_sobreposto_funcao_atividade ?? "",
-        indicado_codigo_cargo_sobreposto: servidorIndicado.cd_cargo_sobreposto_funcao_atividade,
+        indicado_codigo_cargo_sobreposto: paraCodigoNumerico(servidorIndicado.cd_cargo_sobreposto_funcao_atividade),
+        indicado_possui_cargo_sobreposto: servidorIndicado.possui_cargo_sobreposto ?? false,
+        indicado_codigo_ue_lotacao:
+            servidorIndicado.cd_ue_lotacao == null ? "" : String(servidorIndicado.cd_ue_lotacao).trim(),
         indicado_local_exercicio: servidorIndicado.local_de_exercicio,
         indicado_local_servico: servidorIndicado.local_de_servico ?? "",
         indicado_categoria: servidorIndicado.categoria ?? "",

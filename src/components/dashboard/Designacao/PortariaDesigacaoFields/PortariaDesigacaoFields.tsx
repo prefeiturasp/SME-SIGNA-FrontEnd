@@ -36,9 +36,12 @@ import { NUMERO_PORTARIA_MAX_DIGITOS } from "@/utils/portarias/numeroPortaria";
 interface Props {
   isLoading: boolean;
   disabled?: boolean;
+  // Contagem de dias do período, exibida ao lado da data final.
+  diasPeriodo?: number | null;
+  mensagemDataFinal?: string | null;
 }
 
-const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
+const PortariaDesigacaoFields = ({ isLoading, disabled, diasPeriodo, mensagemDataFinal }: Props) => {
   const { register, control, setValue } = useFormContext();
   const { mutate, data, isPending } = useFetchImpedimentos();
   
@@ -137,7 +140,20 @@ const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
                 register={register}
                 control={control}
                 name="designacao_data_final"
-                label="Até"
+                label={
+                  <>
+                    Até
+                    {diasPeriodo != null && (
+                      <span
+                        className="ml-2 font-normal text-[#6F777C]"
+                        data-testid="contagem-dias-periodo"
+                      >
+                        ({diasPeriodo} {diasPeriodo === 1 ? "dia" : "dias"})
+                      </span>
+                    )}
+                  </>
+                }
+                message={mensagemDataFinal}
                 allowClear={true}
                 disabled={disabled}
                 onClear={() => {
@@ -225,7 +241,7 @@ const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
                 data-testid="checkbox-com-afastamento"
                 onChange={(value) => {
                   if (value === EnumCheckbox.NAO) {
-                    setValue("motivo_afastamento", "");
+                    setValue("motivo_afastamento", "", { shouldDirty: true });
                   }
                 }}
                 disabled={disabled}
@@ -270,7 +286,7 @@ const PortariaDesigacaoFields = ({ isLoading, disabled }: Props) => {
                 data-testid="checkbox-possui-pendencia"
                 onChange={(value) => {
                   if (value === EnumCheckbox.NAO) {
-                    setValue("motivo_pendencia", "");
+                    setValue("motivo_pendencia", "", { shouldDirty: true });
                   }
                 }}
                 disabled={disabled}
