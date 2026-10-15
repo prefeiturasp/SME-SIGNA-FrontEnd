@@ -53,11 +53,6 @@ lerna-debug.log*
 
 # Integrações externas (não configuradas)
 
-
-# Saída local da extensão Playwright MCP (logs de console e snapshots de
-# página gerados durante inspeção manual) — não faz parte da automação.
-.playwright-mcp/
-
 # Planilha de apoio local, não referenciada por nenhum teste/código.
 cypress/e2e/api/planilha_automacao.xlsx
 
@@ -75,8 +70,10 @@ cypress/support/locators/unidade_proponente_locators.js
 cypress/e2e/ui/criaçao
 cypress/e2e/ui/criacao
 
-# Step definitions do SIGNA ainda não subidas ao repositório. Remova estas
-# linhas quando decidir versionar de fato.
+# Features e step definitions do SIGNA ainda não subidas ao repositório.
+# Remova estas linhas quando decidir versionar de fato.
+cypress/e2e/ui/signa_extra.feature
+cypress/e2e/ui/signa_stress.feature
 cypress/support/step_definitions/ui/signa_extra_steps.js
 cypress/support/step_definitions/ui/signa_carga_steps.js
 cypress/support/step_definitions/ui/signa_stress_steps.js
@@ -112,9 +109,6 @@ CORRECAO_*.md
 IMPLEMENTACAO_*.md
 SECURITY_CHECKLIST.md
 PADRAO_PROJETO.md
-
-# Prompts do Copilot - uso local (não subir ao repositório)
-.github/prompts/
 
 # Variáveis de ambiente e credenciais
 .env

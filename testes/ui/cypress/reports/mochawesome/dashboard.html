@@ -88,10 +88,10 @@ main{padding:0 32px 48px}
 <header class="topo">
   <div>
     <h1>Dashboard de Automação - SIGNA</h1>
-    <span class="gerado-em">Gerado em 11/09/2026 19:53 - 34 features (14 UI / 20 API)</span>
+    <span class="gerado-em">Gerado em 15/10/2026 09:57 - 36 features (16 UI / 20 API)</span>
   </div>
   <div class="pr-container">
-    <span id="pr-badge" class="pr-info"><a href="https://github.com/prefeiturasp/SME-SIGNA-FrontEnd/pull/218" target="_blank" rel="noopener">PR #218 — Qa test — Mesclado — Aprovado</a></span>
+    <span id="pr-badge" class="pr-info"><a href="https://github.com/prefeiturasp/SME-SIGNA-FrontEnd/pull/250" target="_blank" rel="noopener">PR #250 — Qa test — Mesclado — Aprovado</a></span>
     <button id="pr-refresh-btn" class="pr-refresh" onclick="atualizarPR()" title="Consultar API do GitHub agora">↻</button>
   </div>
 </header>
@@ -100,13 +100,13 @@ main{padding:0 32px 48px}
   <div class="donuts">
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="314.16 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">100%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="297.68 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#B8860B" stroke-width="16" stroke-dasharray="16.48 314.16" stroke-dashoffset="-297.68" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">95%</text>
     </svg><span>Geral</span></div>
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
-    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="314.16 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" />
-    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">100%</text>
+    <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2E7D32" stroke-width="16" stroke-dasharray="279.01 314.16" stroke-dashoffset="-0.00" transform="rotate(-90 60.0 60.0)" /><circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#B8860B" stroke-width="16" stroke-dasharray="35.15 314.16" stroke-dashoffset="-279.01" transform="rotate(-90 60.0 60.0)" />
+    <text x="60.0" y="60.0" class="donut-label" text-anchor="middle" dominant-baseline="central">89%</text>
     </svg><span>UI</span></div>
     <div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120" class="donut">
     <circle cx="60.0" cy="60.0" r="50.0" fill="none" stroke="#2a2a2a" stroke-width="16" />
@@ -115,18 +115,18 @@ main{padding:0 32px 48px}
     </svg><span>API</span></div>
   </div>
   <div class="resumo-cards">
-    <div class="stat"><div class="valor">100%</div><div class="rotulo">Sucesso geral</div></div>
-    <div class="stat"><div class="valor">273</div><div class="rotulo">Cenarios executados</div></div>
-    <div class="stat stat-clicavel" data-status="passed" onclick="filtrarStatus('passed')"><div class="valor">273</div><div class="rotulo">Passaram</div></div>
+    <div class="stat"><div class="valor">95%</div><div class="rotulo">Sucesso geral</div></div>
+    <div class="stat"><div class="valor">289</div><div class="rotulo">Cenarios executados</div></div>
+    <div class="stat stat-clicavel" data-status="passed" onclick="filtrarStatus('passed')"><div class="valor">289</div><div class="rotulo">Passaram</div></div>
     <div class="stat stat-clicavel" data-status="failed" onclick="filtrarStatus('failed')"><div class="valor">0</div><div class="rotulo">Falharam</div></div>
     <div class="stat stat-clicavel stat-pendente" data-status="pending" onclick="filtrarStatus('pending')" title="Cenários tagueados @skip — não entram na execução, mas aparecem nos cards das features abaixo"><div class="valor">16</div><div class="rotulo">Pendentes</div></div>
-    <div class="stat"><div class="valor">42m 8s</div><div class="rotulo">Tempo total</div></div>
+    <div class="stat"><div class="valor">48m 24s</div><div class="rotulo">Tempo total</div></div>
   </div>
 </section>
 
 <div class="filtros">
-  <button data-filtro="todos" class="ativo" onclick="filtrar('todos')">Todas (34)</button>
-  <button data-filtro="UI" onclick="filtrar('UI')">UI (14)</button>
+  <button data-filtro="todos" class="ativo" onclick="filtrar('todos')">Todas (36)</button>
+  <button data-filtro="UI" onclick="filtrar('UI')">UI (16)</button>
   <button data-filtro="API" onclick="filtrar('API')">API (20)</button>
   <select id="filtro-feature" onchange="filtrarFeature(this.value)">
     <option value="todos">Todas as features</option>
@@ -158,17 +158,19 @@ main{padding:0 32px 48px}
 <option value="ui/texto_portaria.feature">UI — Cadastro de texto de portaria</option>
 <option value="ui/signa_carga.feature">UI — Carga e performance do sistema SIGNA</option>
 <option value="ui/atos_novos.feature">UI — Criação de atos administrativos</option>
+<option value="ui/editar_atos.feature">UI — Editar Designação e Cessação a partir de Atos Administrativos</option>
 <option value="ui/consulta_atos_adminstra.feature">UI — Editar e visualizar designação de servidor</option>
 <option value="ui/esqueci_senha.feature">UI — Fluxo esqueci a senha no sistema SIGNA</option>
 <option value="ui/signa_extra.feature">UI — Fluxos avançados e casos de borda do sistema SIGNA</option>
 <option value="ui/gestao_base_filtros.feature">UI — Gestão de cargos base</option>
 <option value="ui/filtra_atos.feature">UI — Pesquisa de Atos Administrativos</option>
+<option value="ui/filtra_texto_portaria.feature">UI — Pesquisa de Textos de Portaria</option>
 <option value="ui/signa_stress.feature">UI — Stress e cenários de limite do sistema SIGNA</option>
   </select>
   <span class="busca-wrap">
     <input type="search" id="busca-feature" placeholder="Buscar feature..." oninput="buscarFeature(this.value)">
   </span>
-  <span class="comparacao delta-down" title="Desde 10/09/2026 14:34: 100% → 100% de sucesso (+12 cenários)">▼ 0%</span>
+  <span class="comparacao delta-up" title="Desde 15/10/2026 09:47: 95% → 95% de sucesso (+6 cenários)">▲ 0%</span>
 </div>
 
 <main>
@@ -814,10 +816,10 @@ main{padding:0 32px 48px}
           <span class="spec-path">ui/atos_administrativos_complementar.feature</span>
         </div>
         <div class="card-resumo">
-          <span>12/12 cenarios (+2 pendentes)</span>
+          <span>12/14 cenarios (2 pendentes)</span>
           <span class="duracao">3m 7s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
-          <span class="pct">100%</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:86%;background:#B8860B"></div></div>
+          <span class="pct">86%</span>
         </div>
       </header>
       <div class="card-body" id="body-23">
@@ -848,10 +850,10 @@ main{padding:0 32px 48px}
           <span class="spec-path">ui/gestao_cargo.feature</span>
         </div>
         <div class="card-resumo">
-          <span>4/4 cenarios (+5 pendentes)</span>
+          <span>4/9 cenarios (5 pendentes)</span>
           <span class="duracao">1m 19s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
-          <span class="pct">100%</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:44%;background:#B8860B"></div></div>
+          <span class="pct">44%</span>
         </div>
       </header>
       <div class="card-body" id="body-24">
@@ -937,10 +939,10 @@ main{padding:0 32px 48px}
           <span class="spec-path">ui/atos_novos.feature</span>
         </div>
         <div class="card-resumo">
-          <span>7/7 cenarios (+5 pendentes)</span>
+          <span>7/12 cenarios (5 pendentes)</span>
           <span class="duracao">5m 12s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
-          <span class="pct">100%</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:58%;background:#B8860B"></div></div>
+          <span class="pct">58%</span>
         </div>
       </header>
       <div class="card-body" id="body-27">
@@ -961,8 +963,34 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-28" data-estados="passed" data-feature="ui/consulta_atos_adminstra.feature" data-busca-nome="editar e visualizar designacao de servidor">
+    <article class="card" id="feature-28" data-estados="passed" data-feature="ui/editar_atos.feature" data-busca-nome="editar designacao e cessacao a partir de atos administrativos">
       <header class="card-header" onclick="toggle(28)">
+        <div>
+          <span class="tag tag-ui">UI</span>
+          <strong>Editar Designação e Cessação a partir de Atos Administrativos</strong>
+          <span class="spec-path">ui/editar_atos.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>6/6 cenarios</span>
+          <span class="duracao">4m 7s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-28">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar a designação da portaria 3546645 e confirmar a alteração do Nº SEI</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar Nº SEI, afastamento e pendência da portaria 3546645 e salvar</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar os campos e textos da tela Editar Designação da portaria 3546645</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar a cessação da portaria 45666 e confirmar a alteração do Nº SEI</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar Nº SEI, A pedido e Remoção da cessação da portaria 45666 e salvar</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar os campos e textos da tela de edição da cessação da portaria 45666</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-29" data-estados="passed" data-feature="ui/consulta_atos_adminstra.feature" data-busca-nome="editar e visualizar designacao de servidor">
+      <header class="card-header" onclick="toggle(29)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Editar e visualizar designação de servidor</strong>
@@ -975,7 +1003,7 @@ main{padding:0 32px 48px}
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-28">
+      <div class="card-body" id="body-29">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Editar designação e validar todas as seções do formulário</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Visualizar designação existente e validar todos os dados</div></li></ul>
         <h4>Evidencias</h4>
@@ -983,8 +1011,8 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-29" data-estados="passed" data-feature="ui/esqueci_senha.feature" data-busca-nome="fluxo esqueci a senha no sistema signa">
-      <header class="card-header" onclick="toggle(29)">
+    <article class="card" id="feature-30" data-estados="passed" data-feature="ui/esqueci_senha.feature" data-busca-nome="fluxo esqueci a senha no sistema signa">
+      <header class="card-header" onclick="toggle(30)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Fluxo esqueci a senha no sistema SIGNA</strong>
@@ -997,7 +1025,7 @@ main{padding:0 32px 48px}
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-29">
+      <div class="card-body" id="body-30">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF válido</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Fluxo esqueci a senha com RF inválido</div></li></ul>
         <h4>Evidencias</h4>
@@ -1005,8 +1033,8 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-30" data-estados="passed" data-feature="ui/signa_extra.feature" data-busca-nome="fluxos avancados e casos de borda do sistema signa">
-      <header class="card-header" onclick="toggle(30)">
+    <article class="card" id="feature-31" data-estados="passed" data-feature="ui/signa_extra.feature" data-busca-nome="fluxos avancados e casos de borda do sistema signa">
+      <header class="card-header" onclick="toggle(31)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Fluxos avançados e casos de borda do sistema SIGNA</strong>
@@ -1019,7 +1047,7 @@ main{padding:0 32px 48px}
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-30">
+      <div class="card-body" id="body-31">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Login seguido de logout retorna à tela de login</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Sessão permanece ativa após recarregar a página</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Acessar a URL de login estando autenticado não exibe o formulário novamente</div></li>
@@ -1041,8 +1069,8 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-31" data-estados="passed" data-feature="ui/gestao_base_filtros.feature" data-busca-nome="gestao de cargos base">
-      <header class="card-header" onclick="toggle(31)">
+    <article class="card" id="feature-32" data-estados="passed" data-feature="ui/gestao_base_filtros.feature" data-busca-nome="gestao de cargos base">
+      <header class="card-header" onclick="toggle(32)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Gestão de cargos base</strong>
@@ -1055,7 +1083,7 @@ main{padding:0 32px 48px}
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-31">
+      <div class="card-body" id="body-32">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar título, campos de filtro, botões e lista de cargos base</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar cargos base combinando Grupamento, Descrição Resumida e Status</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros restaura a lista completa de cargos base</div></li>
@@ -1069,21 +1097,21 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-32" data-estados="passed,pending" data-feature="ui/filtra_atos.feature" data-busca-nome="pesquisa de atos administrativos">
-      <header class="card-header" onclick="toggle(32)">
+    <article class="card" id="feature-33" data-estados="passed,pending" data-feature="ui/filtra_atos.feature" data-busca-nome="pesquisa de atos administrativos">
+      <header class="card-header" onclick="toggle(33)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Pesquisa de Atos Administrativos</strong>
           <span class="spec-path">ui/filtra_atos.feature</span>
         </div>
         <div class="card-resumo">
-          <span>8/8 cenarios (+4 pendentes)</span>
+          <span>8/12 cenarios (4 pendentes)</span>
           <span class="duracao">1m 39s</span>
-          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
-          <span class="pct">100%</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:67%;background:#B8860B"></div></div>
+          <span class="pct">67%</span>
         </div>
       </header>
-      <div class="card-body" id="body-32">
+      <div class="card-body" id="body-33">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Tipo</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Nº SEI</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Publicado)</div></li>
@@ -1101,8 +1129,38 @@ main{padding:0 32px 48px}
       </div>
     </article>
 
-    <article class="card" id="feature-33" data-estados="passed" data-feature="ui/signa_stress.feature" data-busca-nome="stress e cenarios de limite do sistema signa">
-      <header class="card-header" onclick="toggle(33)">
+    <article class="card" id="feature-34" data-estados="passed" data-feature="ui/filtra_texto_portaria.feature" data-busca-nome="pesquisa de textos de portaria">
+      <header class="card-header" onclick="toggle(34)">
+        <div>
+          <span class="tag tag-ui">UI</span>
+          <strong>Pesquisa de Textos de Portaria</strong>
+          <span class="spec-path">ui/filtra_texto_portaria.feature</span>
+        </div>
+        <div class="card-resumo">
+          <span>10/10 cenarios</span>
+          <span class="duracao">2m 9s</span>
+          <div class="barra-fundo"><div class="barra-preenchida" style="width:100%;background:#2E7D32"></div></div>
+          <span class="pct">100%</span>
+        </div>
+      </header>
+      <div class="card-body" id="body-34">
+        <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Tipo de portaria</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Nome do Modelo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Ativo)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar por Status (Inativo)</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Filtrar combinando Tipo de portaria e Nome do Modelo</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar sucessivamente por diferentes modelos de texto limpando os filtros entre cada busca</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar sucessivamente por modelos do tipo Apostila de Designação limpando os filtros entre cada busca</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Validar estrutura do filtro de textos de portaria</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Limpar filtros preenchidos</div></li>
+<li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Pesquisar por Nome do Modelo inexistente exibe tabela sem resultados</div></li></ul>
+        <h4>Evidencias</h4>
+        <p class="sem-evidencia">Sem evidencia de falha para a execucao mais recente.</p>
+      </div>
+    </article>
+
+    <article class="card" id="feature-35" data-estados="passed" data-feature="ui/signa_stress.feature" data-busca-nome="stress e cenarios de limite do sistema signa">
+      <header class="card-header" onclick="toggle(35)">
         <div>
           <span class="tag tag-ui">UI</span>
           <strong>Stress e cenários de limite do sistema SIGNA</strong>
@@ -1115,7 +1173,7 @@ main{padding:0 32px 48px}
           <span class="pct">100%</span>
         </div>
       </header>
-      <div class="card-body" id="body-33">
+      <div class="card-body" id="body-35">
         <ul class="lista-cenarios"><li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Rajada de requisições simultâneas acima da carga normal</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Oscilação de carga entre picos e vales de tráfego</div></li>
 <li data-estado="passed"><div class="cenario-linha"><span class="badge" style="background:#2E7D32">Passou</span>Requisição travada (hanging) não trava a interface indefinidamente</div></li>
@@ -1144,9 +1202,9 @@ main{padding:0 32px 48px}
 <p id="sem-resultado" class="sem-resultado" style="display:none">Nenhuma feature encontrada para os filtros atuais.</p>
 </main>
 
-<div class="rodape">Gerado por scripts/gerar_dashboard_html.py v1.2.0 - execucao 100% local, nao roda no CI/CD</div>
+<div class="rodape">Gerado por scripts/gerar_dashboard_html.py v1.3.0 - execucao 100% local, nao roda no CI/CD</div>
 
-<script type="application/json" id="dashboard-snapshot">{"gerado_em": "11/09/2026 19:53", "total_cenarios": 273, "total_passou": 273, "total_falhou": 0, "total_pendente": 0, "pct_geral": 100.0, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/atos_administrativos_complementar.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/gestao_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/texto_portaria.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 16, "falhou": 0, "total": 16, "pct": 100.0}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 21, "falhou": 0, "total": 21, "pct": 100.0}}, "fonte_hash": "bd4360ea2b0b86621d07daeb3d3c7564c27d4bac", "baseline": {"gerado_em": "10/09/2026 14:34", "total_cenarios": 261, "pct_geral": 100.0, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/atos_administrativos_complementar.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/gestao_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 16, "falhou": 0, "total": 16, "pct": 100.0}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 21, "falhou": 0, "total": 21, "pct": 100.0}}}, "versao_script": "1.2.0"}</script>
+<script type="application/json" id="dashboard-snapshot">{"gerado_em": "15/10/2026 09:57", "total_cenarios": 289, "total_passou": 289, "total_falhou": 0, "total_pendente": 0, "pct_geral": 94.8, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/atos_administrativos_complementar.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 85.7}, "ui/gestao_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 44.4}, "ui/texto_portaria.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 58.3}, "ui/editar_atos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 16, "falhou": 0, "total": 16, "pct": 100.0}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 66.7}, "ui/filtra_texto_portaria.feature": {"passou": 10, "falhou": 0, "total": 10, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 21, "falhou": 0, "total": 21, "pct": 100.0}}, "fonte_hash": "65e8a8e4a0ad0305e79a2c64ac0c649ad5b4e60b", "baseline": {"gerado_em": "15/10/2026 09:47", "total_cenarios": 283, "pct_geral": 94.6, "features": {"api/api_abrangencia.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_acessos.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_autenticacao_sgp.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_cenarios_negativos.feature": {"passou": 15, "falhou": 0, "total": 15, "pct": 100.0}, "api/api_dre_escola.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_diretoria_regional.feature": {"passou": 29, "falhou": 0, "total": 29, "pct": 100.0}, "api/api_designacao_apostilas.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_atos_administrativos.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "api/api_designacao_servidor.feature": {"passou": 5, "falhou": 0, "total": 5, "pct": 100.0}, "api/api_designacao_cessacoes.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_designacoes.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "api/api_designacao_insubsistencias.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 100.0}, "api/api_designacao_portarias.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "api/api_designacao_unidade.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "api/api_dre_codigo_dre.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_escolas.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "api/api_dre_supervisores.feature": {"passou": 18, "falhou": 0, "total": 18, "pct": 100.0}, "api/api_dre_unidades_codigo_integracao.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "api/api_dre_unidades.feature": {"passou": 6, "falhou": 0, "total": 6, "pct": 100.0}, "ui/alteracao_email.feature": {"passou": 3, "falhou": 0, "total": 3, "pct": 100.0}, "ui/alterar_senha.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/login.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 100.0}, "ui/atos_administrativos_complementar.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 85.7}, "ui/gestao_cargo.feature": {"passou": 4, "falhou": 0, "total": 4, "pct": 44.4}, "ui/texto_portaria.feature": {"passou": 12, "falhou": 0, "total": 12, "pct": 100.0}, "ui/signa_carga.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/atos_novos.feature": {"passou": 7, "falhou": 0, "total": 7, "pct": 58.3}, "ui/consulta_atos_adminstra.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/esqueci_senha.feature": {"passou": 2, "falhou": 0, "total": 2, "pct": 100.0}, "ui/signa_extra.feature": {"passou": 16, "falhou": 0, "total": 16, "pct": 100.0}, "ui/gestao_base_filtros.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 100.0}, "ui/filtra_atos.feature": {"passou": 8, "falhou": 0, "total": 8, "pct": 66.7}, "ui/filtra_texto_portaria.feature": {"passou": 10, "falhou": 0, "total": 10, "pct": 100.0}, "ui/signa_stress.feature": {"passou": 21, "falhou": 0, "total": 21, "pct": 100.0}}}, "versao_script": "1.3.0"}</script>
 
 <script>
 var PR_OWNER_REPO = "prefeiturasp/SME-SIGNA-FrontEnd";
