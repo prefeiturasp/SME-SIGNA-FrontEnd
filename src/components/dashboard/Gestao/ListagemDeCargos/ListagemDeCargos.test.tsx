@@ -94,6 +94,9 @@ const row: CargosBaseResponse = {
   testar_laudo: false,
   pesquisar_licencas_no_sigpec: false,
   quantidade_maxima_de_dias_de_licenca: "10",
+  permite_substituicao: false,
+  possui_periodo_fechado: false,
+  data_fim_periodo: null,
 };
 
 describe("ListagemDeCargos", () => {
@@ -212,7 +215,7 @@ describe("ListagemDeCargos", () => {
         ...row,
         status: StatusCargosBase.INATIVO,
       }),
-    ).toBe("disabled-row");
+    ).toBe("inactive-row");
     expect((tableProps.rowClassName as (record: CargosBaseResponse) => string)(row)).toBe("");
   });
 
@@ -227,5 +230,17 @@ describe("ListagemDeCargos", () => {
     expect(screen.getByTestId("edit-icon-button")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("edit-icon-button"));
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=10");
+  });
+
+  it("permite editar cargo inativo", () => {
+    render(<ListagemDeCargos data={[row]} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
+    const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
+
+    render(<>{actionRender?.({ ...row, id: 20, status: StatusCargosBase.INATIVO })}</>);
+    fireEvent.click(screen.getByTestId("edit-icon-button"));
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=20");
   });
 });

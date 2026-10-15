@@ -307,13 +307,15 @@ export const MultiSelectField = ({
 };
 
 
+  
 
-export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear, disabled }: PropsField<TFieldValues> & { onClear?: () => void; disabled?: boolean }) => {
+
+export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ control, name, label, placeholder, allowClear = true, showBlankSpace = true, onClear, disabled, message }: PropsField<TFieldValues> & { onClear?: () => void; disabled?: boolean; message?: ReactNode }) => {
     return (
         <FormField
             control={control}
             name={name}
-            render={({ field }) => {
+            render={({ field, fieldState}) => {
                 const value =
                     isDate(field.value) && isValid(field.value)
                         ? dayjs(field.value)
@@ -333,6 +335,7 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 value={value}
                                 className={cn(
                                     disabled && "opacity-50",
+                                    fieldState?.error && "border-destructive!",
                                 )}
                                 placeholder={placeholder ?? "Selecione a data"}
                                 onKeyDown={(event) => {
@@ -346,12 +349,13 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 }}
                                 onBlur={field.onBlur}
                                 style={{ width: "100%" }}
-                                onClear={onClear}
+                                onClear={onClear}                              
+
                                 disabled={disabled}
                             />
                         </FormControl>
 
-                        <FormMessage showBlankSpace={showBlankSpace} />
+                        <FormMessage showBlankSpace={showBlankSpace}>{message}</FormMessage>
                     </FormItem>
                 );
             }}
@@ -485,8 +489,9 @@ export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
     dataTestId,
     disabled = false,
     showBlankSpace = true,
-    description
-}: PropsField<TFieldValues>) => {
+    description,
+    onChange,
+}: PropsField<TFieldValues> & { onChange?: (value: boolean) => void }) => {
     return (
         <FormField
             control={control}
@@ -506,7 +511,10 @@ export const SwitchField = <TFieldValues extends FieldValues = FieldValues,>({
                         <FormControl className="min-w-[22px]">
                             <Switch
                                 checked={!!field.value}
-                                onChange={(checked) => field.onChange(checked)}
+                                onChange={(checked) => {
+                                    field.onChange(checked);
+                                    onChange?.(checked as boolean);
+                                }}
                                 disabled={disabled}
                                 data-testid={dataTestId}
                                 checkedChildren="Sim" unCheckedChildren="Não"

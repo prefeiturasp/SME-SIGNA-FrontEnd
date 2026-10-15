@@ -41,6 +41,7 @@ import { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/Designa
 import { CargoAPI, CargoSelect } from "@/types/designacao";
 import SearchButton from "../../SearchButton/SearchButton";
 import { SelectField } from "@/components/ui/FieldsForm";
+import { Alert } from "antd";
 
 
 export interface FormularioPesquisaUnidadeRef {
@@ -149,6 +150,9 @@ const FormularioPesquisaUnidade = forwardRef<
     setDisableProximo(true);
   }
   const codigoEstrutura = form.watch("codigo_hierarquico");
+  const cargoSelecionado = values.funcionarios_da_unidade
+    ? designacaoUnidade?.funcionarios_unidade[values.funcionarios_da_unidade]
+    : undefined;
 
   useEffect(() => {
     if (defaultValues?.ue) {
@@ -330,10 +334,10 @@ const FormularioPesquisaUnidade = forwardRef<
                                     ?.servidores[0]?.cargo_sobreposto_funcao_atividade ?? "-";
                                 const modulo =
                                   designacaoUnidade?.funcionarios_unidade[value]
-                                    ?.modulo ?? "";
+                                    ?.modulo;
 
                                 form.setValue("cargo_sobreposto", cargoSobreposto);
-                                form.setValue("modulos", modulo);
+                                form.setValue("modulos", modulo?.toString() ?? "");
                                 setDisableProximo(false);
                               }}
                             >
@@ -409,6 +413,16 @@ const FormularioPesquisaUnidade = forwardRef<
                   <InfoItem label="Módulos" value={form.watch("modulos")} />
                 </div>
               </div>
+            )}
+
+            {cargoSelecionado?.excedente && (
+              <Alert
+                type="warning"
+                showIcon
+                data-testid="alerta-excedente-modulo"
+                title="Módulo excedido"
+                description={`A unidade possui ${cargoSelecionado.quantidade_servidores} servidor(es) no cargo ${cargoSelecionado.nome_cargo}, excedendo o limite de ${cargoSelecionado.modulo} módulo(s).`}
+              />
             )}
           </form>
         </Form>

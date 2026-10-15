@@ -185,6 +185,10 @@ export default function ApostilaPage() {
 
 
 
+  // lido no render para o react-hook-form inscrever o campo e manter o
+  // formState atualizado (ler só dentro do onSubmit pode retornar objeto antigo)
+  const { dirtyFields } = form.formState;
+
   const [mostrarEditor, setMostrarEditor] = useState(false);
 
 
@@ -255,13 +259,14 @@ export default function ApostilaPage() {
     
 
     const alteracoes: ApostilaAlteracoes[] = [];    
-    Object.keys(form.formState.dirtyFields).forEach(field => {
+    Object.keys(dirtyFields).forEach(field => {
 
       const valorDoCampo = values[field as keyof formSchemaApostilaData];
       // remove campos da apostila
-      if ((["", undefined, null].includes(valorDoCampo)) || field.includes("apostila") ) {
+      if (valorDoCampo === undefined || field.includes("apostila")) {
         return;
       }
+      const valorNovo = valorDoCampo ?? "";
 
       // campos da portaria de cessação
       if (field.includes("cessacao")) {
@@ -287,7 +292,7 @@ export default function ApostilaPage() {
       if (origem === "cessacao" && !field.includes("cessacao")) {
         return alteracoes.push({
           "campo_alterado": campoMapeado,
-          "valor_novo": values[field as keyof formSchemaApostilaData],
+          "valor_novo": valorNovo,
           "tipo_ato_alvo": "DESIGNACAO"
         });
 
@@ -298,7 +303,7 @@ export default function ApostilaPage() {
       // campos default
       alteracoes.push({
         "campo_alterado": campoMapeado,
-        "valor_novo": values[field as keyof formSchemaApostilaData]
+        "valor_novo": valorNovo
       });
 
     });

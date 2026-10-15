@@ -16,6 +16,9 @@ const validPayload: createFormSchemaCargosBaseData = {
   testar_laudo: false,
   pesquisar_licencas_no_sigpec: true,
   quantidade_maxima_de_dias_de_licenca: "15",
+  permite_substituicao: false,
+  possui_periodo_fechado: false,
+  data_fim_periodo: null,
 };
 
 describe("createFormSchemaCargosBase", () => {
@@ -75,6 +78,34 @@ describe("createFormSchemaCargosBase", () => {
     );
   });
 
+  it("exige data final quando o cargo possui período fechado", () => {
+    const result = createFormSchemaCargosBase.safeParse({
+      ...validPayload,
+      possui_periodo_fechado: true,
+      data_fim_periodo: null,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: "A data final do período é obrigatória.",
+          path: ["data_fim_periodo"],
+        }),
+      ]),
+    );
+  });
+
+  it("aceita data final válida quando o cargo possui período fechado", () => {
+    const result = createFormSchemaCargosBase.safeParse({
+      ...validPayload,
+      possui_periodo_fechado: true,
+      data_fim_periodo: new Date(2026, 0, 31),
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("exige campos booleanos", () => {
     const result = createFormSchemaCargosBase.safeParse({
       codigo_cargo: "1",
@@ -93,6 +124,12 @@ describe("createFormSchemaCargosBase", () => {
         }),
         expect.objectContaining({
           path: ["pesquisar_licencas_no_sigpec"],
+        }),
+        expect.objectContaining({
+          path: ["permite_substituicao"],
+        }),
+        expect.objectContaining({
+          path: ["possui_periodo_fechado"],
         }),
       ]),
     );
