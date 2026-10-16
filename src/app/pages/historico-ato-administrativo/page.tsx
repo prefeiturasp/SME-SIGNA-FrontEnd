@@ -9,6 +9,7 @@ import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import { AtosAdministrativosFiltros } from "@/types/designacao";
 import FiltroDeHistoricoDeAtosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos";
+import ListagemDeDesignacao from "@/components/dashboard/Designacao/ListagemDeDesignacao/ListagemDeDesignacao";
 
 
 export default function AtosAdministrativos() {
@@ -16,8 +17,7 @@ export default function AtosAdministrativos() {
   const searchParams = useSearchParams();
 
   const id = searchParams.get("id");
-  const tipo_display = searchParams.get("tipo_display");
-  const numero_portaria = searchParams.get("numero_portaria") ?? "";
+  const ue = searchParams.get("ue") ?? "Alipio Correa Neto, Prof.";
   const servidor_indicado = searchParams.get("servidor_indicado") ?? "";
             
   const defaultValues: AtosAdministrativosFiltros = {
@@ -53,12 +53,12 @@ export default function AtosAdministrativos() {
       <PageHeader
         showBackButton={true}
         title={
-          `Histórico ${tipo_display}`
+          `Histórico da unidade proponente`
         }
         breadcrumbs={[
           { title: "Início", href: "/" },
           {
-            title: `Detalhes ${tipo_display}`,
+            title: `Detalhes designação`,
             href: "#",
             onClick: (event) => {
               event.preventDefault();
@@ -78,13 +78,17 @@ export default function AtosAdministrativos() {
             <FiltroDeHistoricoDeAtosAdministrativos onClear={handleClear} />
           </form>
         </FormProvider>
+        </ FundoBranco>
+
+
+        <FundoBranco >
 
         <div className="mt-4">
-          <ListagemDeAtosAdministrativos
-            portaria={numero_portaria}
+          <ListagemDeDesignacao
+            ue={ue}
             servidor_indicado={servidor_indicado}
-            titulo={`Histórico ${tipo_display}`}
-            subtitulo={`Todos os atos administrativos têm origem em uma designação. Consulte abaixo o histórico completo de atos realizados a partir desta designação.`}
+            titulo={`Histórico`}
+            subtitulo={`Consulte as designações e os atos administrativos relacionados a esta unidade educacional.`}
             onPageChange={onPageChange}
             key={tabelaKey}
             data={resultado?.results ?? []}

@@ -5,8 +5,6 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
 import { StatusAtosAdministrativos } from '@/types/designacao';
-import { StatusPublicacaoSelectField } from './FiltroDeHistoricoDeAtosAdministrativos';
-
 interface Props {
   onClear?: () => void;
 }
@@ -25,8 +23,8 @@ export const AtosOpcoes = [
 
 
 export const StatusPublicacaoOpcoes = [
-  { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: 'Aguardando publicação' },
-  { codigo: StatusAtosAdministrativos.PUBLICADO, nome: 'Publicado' },
+  { value: StatusAtosAdministrativos.NAO_PUBLICADO, label: 'Aguardando publicação' },
+  { value: StatusAtosAdministrativos.PUBLICADO, label: 'Publicado' },
 ]
 
 export const TipoAtoSelectField: React.FC<{ label?: string, name?: string, AtosOpcoes: { codigo: string, nome: string }[] }> = ({ label= "Tipo", name="tipo", AtosOpcoes }) => { 
@@ -84,6 +82,7 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
             mask="9999.9999/9999999-9"
           />
         </div>
+        
         <div className="w-[33%]">
           <DateRangePickerField
             register={register}
@@ -93,8 +92,6 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
             placeholder="Selecione um período"
           />
         </div>
-
-
       </div>
 
       <div className="w-full flex gap-4">
@@ -138,7 +135,17 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
           />
         </div>
         <div className="w-[50%]">
-        <StatusPublicacaoSelectField StatusPublicacaoOpcoes={StatusPublicacaoOpcoes} />
+        <SelectField
+            register={register}
+            control={control}
+            name="status_publicacao"
+            label="Status"
+            placeholder="Selecione"
+            data-testid="select-status-publicacao"
+            options={StatusPublicacaoOpcoes}
+            showBlankSpace={false}
+            disabled={false}
+          />
         </div>
       </div>
 
