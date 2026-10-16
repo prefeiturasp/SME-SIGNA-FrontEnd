@@ -26,6 +26,8 @@ Se ainda não tiver essa versão instalada, instale antes com `nvm install`.
 
 O `npm` é o gerenciador oficial do projeto: é ele quem builda a aplicação nos ambientes de qa, homolog e prod (veja `Dockerfile` e `Dockerfile.production`, que rodam `npm ci`). **Sempre que uma dependência for adicionada/removida/atualizada, commite o `package-lock.json` resultante junto com o `package.json`.** Não use `yarn` nem `pnpm`, para não gerar outros lockfiles.
 
+**Scripts de instalação:** o npm 11.19+ só executa scripts de instalação de pacotes listados em `allowScripts` no `package.json`. `esbuild`, `sharp` e `@parcel/watcher` estão bloqueados (`false`): os scripts deles servem só para compilar do código-fonte quando não há binário pronto, e os binários prontos cobrem Linux x64 e Alpine. Se um pacote novo pedir para rodar script, avalie antes com `npm install-scripts ls` e registre a decisão com `npm install-scripts approve|deny <pacote>`.
+
 ## 🚀 Executando o projeto sem Docker
 
 ### Instale as dependências do projeto
