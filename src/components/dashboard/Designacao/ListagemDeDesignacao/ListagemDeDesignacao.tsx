@@ -478,6 +478,14 @@ const ListagemDeDesignacao: React.FC<ListagemDeAtosAdministrativosProps> = ({
   };
   const atos = [
     {
+      id: -1,
+      data: "",
+      portaria: "",
+      titulo: "",
+      descricao: "",
+      principal: false,
+    },
+    {
       id: 1,
       data: "03/04/2026",
       portaria: "7625148/2026",
@@ -491,6 +499,14 @@ const ListagemDeDesignacao: React.FC<ListagemDeAtosAdministrativosProps> = ({
       portaria: "7625148/2026",
       titulo: "Apostila",
       descricao: "Alteração de período informado na portaria.",
+      principal: false,
+    },
+    {
+      id: 0,
+      data: "",
+      portaria: "",
+      titulo: "",
+      descricao: "",
       principal: false,
     },
   ];
