@@ -43,10 +43,7 @@ export default function LoginForm() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const onSubmit = async (values: LoginRequest) => {
-    const response = await doLogin({
-      seu_rf: "7311559",
-      senha: "Sgp1559",
-    });
+    const response = await doLogin(values);
     if (!response.success) {
       setErrorMessage(response.error);
     }
