@@ -224,13 +224,22 @@ layer(base);
 
  
 .ant-steps {
-    --steps-item-solid-line-color: #9CA3B9;
+    --steps-item-solid-line-color: #DADADA;
 }
 
-.ant-steps .ant-steps-item-rail {
+.ant-steps-item-rail .ant-steps-item-rail-wait {
     border-color: var(--steps-item-solid-line-color) !important;
 }
 
+
+
+.ant-steps .ant-steps-item-rail-process {
+  --steps-item-solid-line-color: #B22B2A !important;
+}
+
+.ant-steps-item-wait .ant-steps-item-icon {
+    color: #FFFFFF;    
+}
  
 .ant-timeline .ato-relacionado-principal .ant-steps-item-icon {
     background-color: #B22B2A;
