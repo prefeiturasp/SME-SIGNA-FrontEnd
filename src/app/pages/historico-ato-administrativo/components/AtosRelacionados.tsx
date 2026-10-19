@@ -1,6 +1,5 @@
 "use client";
 
-import { useId } from "react";
 import Link from "next/link";
 import { ChevronRight, FileText, LoaderCircle } from "lucide-react";
 
@@ -20,7 +19,6 @@ interface Props {
 }
 
 export default function AtosRelacionados({ atos = [], isLoading = false }: Props) {
-    const headingId = useId();
     const atosVisiveis = atos.filter((ato) =>
         [ato.data, ato.portaria, ato.titulo, ato.descricao].some((valor) => valor?.trim())
     );
@@ -76,9 +74,9 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
     };
 
     return (
-        <section className="atos-relacionados-section" aria-labelledby={headingId} aria-busy={isLoading}>
+        <section className="atos-relacionados-section" aria-busy={isLoading}>
             <div className="atos-relacionados-header">
-                <h2 id={headingId} className="atos-relacionados-heading">Atos relacionados</h2>
+                <h2 className="atos-relacionados-heading">Atos relacionados</h2>
                 {!isLoading && (
                     <span className="atos-relacionados-count">
                         {atosVisiveis.length} {atosVisiveis.length === 1 ? "registro" : "registros"}
