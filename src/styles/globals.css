@@ -231,10 +231,7 @@ layer(base);
     border-color: var(--steps-item-solid-line-color) !important;
 }
 
-/* Timeline "Atos relacionados": só o ato principal recebe a cor da marca.
-   O Timeline do antd v6 é um Steps com type="dot" e, com variant="filled",
-   a prop `color` do item é ignorada (o fundo vem de colorPrimary para todos).
-   Por isso a distinção entre principal e secundário é feita aqui. */
+ 
 .ant-timeline .ato-relacionado-principal .ant-steps-item-icon {
     background-color: #B22B2A;
     border-color: #B22B2A;
@@ -250,18 +247,7 @@ layer(base);
   border-color: #FFFFFF;
 }
 
-/* Atos sem data (placeholder) e o ato que os antecede: o rail fica com metade
-   do comprimento, sempre encostado no dot de um ato com dados.
-
-   O antd posiciona o rail com `top` e `bottom` em calc(); somando os dois, o
-   rail-offset se cancela e a altura natural fica
-   (100% - icon-size - padding-top - 2 * rail-margin). Cada regra abaixo fixa
-   metade desse valor e libera uma das âncoras, porque com top + height +
-   bottom definidos o CSS ignora o `bottom`:
-   - no próprio ato sem data liberamos `top`: o rail encosta no dot do PRÓXIMO
-     ato e sobra espaço antes dele;
-   - no ato anterior liberamos `bottom`: o rail encosta no próprio dot e sobra
-     espaço depois dele. */
+ 
 .ant-timeline .ato-relacionado-vazio .ant-steps-item-rail {
   height: calc(
     (
