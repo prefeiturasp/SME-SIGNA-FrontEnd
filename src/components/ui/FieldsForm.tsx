@@ -252,7 +252,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
-                                {extraContent && <div className="text-[12px] text-[#9CA3B9] font-normal pt-0 pb-8">{extraContent}</div>}
+                                {extraContent && <>{extraContent}</>}  
                             </Select>
                         )}
                         

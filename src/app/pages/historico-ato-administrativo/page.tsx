@@ -2,14 +2,13 @@
 
 
 import { useRouter, useSearchParams } from "next/navigation";
-import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import { AtosAdministrativosFiltros } from "@/types/designacao";
 import FiltroDeHistoricoDeAtosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos";
-import ListagemDeDesignacao from "@/components/dashboard/Designacao/ListagemDeDesignacao/ListagemDeDesignacao";
+import ListagemDeDesignacaoDaUnidade from "@/components/dashboard/Designacao/ListagemDeDesignacaoDaUnidade/ListagemDeDesignacaoDaUnidade";
 
 
 export default function AtosAdministrativos() {
@@ -84,18 +83,13 @@ export default function AtosAdministrativos() {
         <FundoBranco >
 
         <div className="mt-4">
-          <ListagemDeDesignacao
+          <ListagemDeDesignacaoDaUnidade
             ue={ue}
-            servidor_indicado={servidor_indicado}
             titulo={`Histórico`}
             subtitulo={`Consulte as designações e os atos administrativos relacionados a esta unidade educacional.`}
-            onPageChange={onPageChange}
             key={tabelaKey}
             data={resultado?.results ?? []}
-            total={resultado?.count ?? 0}
-            page={page}
             isLoading={isPending}
-            showCamposExtras={false}
           />
         </div>
       </ FundoBranco>
