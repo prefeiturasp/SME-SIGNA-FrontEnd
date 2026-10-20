@@ -17,6 +17,13 @@ interface Props {
     readonly isLoading: boolean;
 }
 
+const rotuloDetalhes = (ato: IAtosAdministrativosType): string => {
+    const titulo = ato.titulo || "ato administrativo";
+    const portaria = ato.portaria ? `, portaria ${ato.portaria}` : "";
+
+    return `Ver detalhes de ${titulo}${portaria}`;
+};
+
 export default function AtosRelacionados({ atos = [], isLoading = false }: Props) {
     const atosVisiveis = atos.filter((ato) =>
         [ato.data, ato.portaria, ato.titulo, ato.descricao].some((valor) => valor?.trim())
@@ -61,7 +68,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                             <Link
                                 href={`/pages/listagem-designacoes/visualizar-designacao/${ato.id}`}
                                 className="atos-relacionados-details"
-                                aria-label={`Ver detalhes de ${ato.titulo || "ato administrativo"}${ato.portaria ? `, portaria ${ato.portaria}` : ""}`}
+                                aria-label={rotuloDetalhes(ato)}
                             >
                                 Detalhes <ChevronRight size={16} aria-hidden="true" />
                             </Link>
