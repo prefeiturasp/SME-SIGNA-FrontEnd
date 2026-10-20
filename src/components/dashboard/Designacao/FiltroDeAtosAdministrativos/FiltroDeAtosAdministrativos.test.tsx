@@ -12,6 +12,16 @@ const watchValues: Record<string, unknown> = {};
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
 const filtroAcoesMock = vi.fn();
 
+type SelectFieldProps = {
+  name: string;
+  label: string;
+  dataTestId?: string;
+  "data-testid"?: string;
+  options: { value: string; label: string }[];
+};
+
+const selectFieldProps: SelectFieldProps[] = [];
+
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
     register: vi.fn(),
@@ -41,22 +51,21 @@ vi.mock("@/components/ui/FieldsForm", () => ({
     name,
     label,
     dataTestId,
+    "data-testid": testId,
     options,
-  }: {
-    name: string;
-    label: string;
-    dataTestId?: string;
-    options: { value: string; label: string }[];
-  }) => (
-    <div data-testid={dataTestId ?? `select-${name}`}>
-      {label}
-      {options.map((option) => (
-        <div key={option.value} data-testid={`select-item-${option.value}`}>
-          {option.label}
-        </div>
-      ))}
-    </div>
-  ),
+  }: SelectFieldProps) => {
+    selectFieldProps.push({ name, label, dataTestId, "data-testid": testId, options });
+    return (
+      <div data-testid={dataTestId ?? testId ?? `select-${name}`}>
+        {label}
+        {options.map((option) => (
+          <div key={option.value} data-testid={`select-item-${option.value}`}>
+            {option.label}
+          </div>
+        ))}
+      </div>
+    );
+  },
 }));
 
 vi.mock("@/components/ui/form", () => ({
@@ -122,6 +131,7 @@ describe("FiltroDeAtosAdministrativos", () => {
     vi.clearAllMocks();
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
+    selectFieldProps.length = 0;
   });
 
   it("renderiza campos, opcoes de tipo e status, e envia hasFilters=false ao FiltroAcoes", () => {
@@ -155,13 +165,17 @@ describe("FiltroDeAtosAdministrativos", () => {
     );
   });
 
-  it("propaga alteracoes do select de status para o react-hook-form", () => {
+  it("renderiza o select de status com as opções de publicação e o name do formulário", () => {
     render(<FiltroDeAtosAdministrativos />);
 
-    const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
-    fireEvent.click(triggerButtons[0]);
+    const status = selectFieldProps.find((props) => props.name === "status_publicacao");
 
-    expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
+    expect(status).toBeDefined();
+    expect(status?.label).toBe("Status");
+    expect(status?.options).toEqual(StatusPublicacaoOpcoes);
+    expect(screen.getByTestId("select-status-publicacao")).toHaveTextContent("Status");
+    expect(screen.getByTestId("select-status-publicacao")).toHaveTextContent("Aguardando publicação");
+    expect(screen.getByTestId("select-status-publicacao")).toHaveTextContent("Publicado");
   });
 
   it("marca hasFilters=true quando algum filtro estiver preenchido e executa onClear", () => {
@@ -192,8 +206,8 @@ describe("FiltroDeAtosAdministrativos", () => {
       { codigo: "INSUBSISTENCIA_INSUBSISTENCIA", nome: "Tornar sem efeito" },
     ]);
     expect(StatusPublicacaoOpcoes).toEqual([
-      { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: "Aguardando publicação" },
-      { codigo: StatusAtosAdministrativos.PUBLICADO, nome: "Publicado" },
+      { value: StatusAtosAdministrativos.NAO_PUBLICADO, label: "Aguardando publicação" },
+      { value: StatusAtosAdministrativos.PUBLICADO, label: "Publicado" },
     ]);
   });
 

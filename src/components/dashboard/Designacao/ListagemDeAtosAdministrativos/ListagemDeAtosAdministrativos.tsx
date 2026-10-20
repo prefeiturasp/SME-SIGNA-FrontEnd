@@ -19,7 +19,7 @@ import { useAppNotification } from '@/components/providers/NotificationProvider'
 
 
 
-const SimpleTag = ({ titulo, valor }: { titulo: string, valor: string }) => {
+export const SimpleTag = ({ titulo, valor }: { titulo: string, valor: string }) => {
   return (
     <div className="flex flex-row gap-1 border border-[#B22B2A] rounded-md  px-2 w-fit">
       <span className="text-[14px] font-bold text-[#B22B2A] py-1 ">{titulo}:</span>

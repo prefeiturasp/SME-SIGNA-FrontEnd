@@ -200,6 +200,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     showBlankSpace = true,
     onValueChange,
     isLoading = false,
+    extraContent,
 }: {
     control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
@@ -211,6 +212,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     showBlankSpace?: boolean;
     onValueChange?: (value: string) => void;
     isLoading?: boolean;
+    extraContent?: ReactNode;
     [key: string]: unknown;
 }) => {
     return (
@@ -250,8 +252,10 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
+                                {extraContent && <>{extraContent}</>}  
                             </Select>
                         )}
+                        
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
                     
