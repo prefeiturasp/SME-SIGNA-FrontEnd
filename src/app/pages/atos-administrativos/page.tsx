@@ -6,6 +6,7 @@ import { Dropdown } from "antd";
 
 import ListagemDeAtosAdministrativos from "@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos";
 import ModalBuscaPortaria from "@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria";
+import ModalNovaDesignacao, { OpcaoNovaDesignacao } from "@/components/dashboard/Designacao/ModalNovaDesignacao/ModalNovaDesignacao";
 import Plus from "@/assets/icons/Plus";
 import Cancelar from "@/assets/icons/Cancelar";
 import DocumentoErro from "@/assets/icons/DocumentoErro";
@@ -76,7 +77,14 @@ export default function AtosAdministrativos() {
 
   const { buscar, isLoading, errorMessage, limparErro } = useNovoAto();
   const [tipoModalAberto, setTipoModalAberto] = useState<TipoNovoAto | null>(null);
+  const [modalNovaDesignacaoAberto, setModalNovaDesignacaoAberto] = useState(false);
   const router = useRouter();
+
+  const handleContinuarNovaDesignacao = (opcao: OpcaoNovaDesignacao) => {
+    if (opcao === "novo_cadastro") {
+      router.push("/pages/designacoes/designacoes-passo-1");
+    }
+  };
 
   const handleOpenChangeModal = (open: boolean) => {
     if (!open) {
@@ -111,7 +119,7 @@ export default function AtosAdministrativos() {
                 key: '5',
                 label: 'Nova designação',
                 icon: <Designacao width={20} height={20} color="#9CA3B9" />,
-                onClick: () => router.push("/pages/designacoes/designacoes-passo-1"),
+                onClick: () => setModalNovaDesignacaoAberto(true),
               },
               {
                 icon: <Cancelar width={20} height={20} color="#9CA3B9" />,
@@ -155,6 +163,12 @@ export default function AtosAdministrativos() {
             </Button>
           </Dropdown>
         }
+      />
+
+      <ModalNovaDesignacao
+        open={modalNovaDesignacaoAberto}
+        onOpenChange={setModalNovaDesignacaoAberto}
+        onContinuar={handleContinuarNovaDesignacao}
       />
 
       {tipoModalAberto && (

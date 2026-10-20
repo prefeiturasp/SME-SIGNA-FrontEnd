@@ -62,6 +62,32 @@ vi.mock("@/components/dashboard/Designacao/ModalBuscaPortaria/ModalBuscaPortaria
   },
 }));
 
+vi.mock("@/components/dashboard/Designacao/ModalNovaDesignacao/ModalNovaDesignacao", () => ({
+  default: (props: GenericProps) =>
+    props.open ? (
+      <div data-testid="modal-nova-designacao">
+        <button
+          data-testid="modal-nova-designacao-fechar"
+          onClick={() => (props.onOpenChange as (open: boolean) => void)(false)}
+        >
+          voltar
+        </button>
+        <button
+          data-testid="modal-nova-designacao-novo-cadastro"
+          onClick={() => (props.onContinuar as (opcao: string) => void)("novo_cadastro")}
+        >
+          novo cadastro
+        </button>
+        <button
+          data-testid="modal-nova-designacao-unidade-cadastrada"
+          onClick={() => (props.onContinuar as (opcao: string) => void)("unidade_cadastrada")}
+        >
+          unidade cadastrada
+        </button>
+      </div>
+    ) : null,
+}));
+
 vi.mock("react-hook-form", () => ({
   FormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
@@ -269,13 +295,43 @@ describe("Página de atos administrativos", () => {
     expect(screen.getByTestId("modal-ano-field-label")).toHaveTextContent(anoFieldLabel);
   });
 
-  it("navega direto para o fluxo de nova designação, sem abrir modal de busca", () => {
+  it("abre o modal de nova designação, sem abrir modal de busca", () => {
     render(<AtosAdministrativos />);
+
+    expect(screen.queryByTestId("modal-nova-designacao")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("menu-item-5"));
 
-    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
+    expect(screen.getByTestId("modal-nova-designacao")).toBeInTheDocument();
+    expect(pushMock).not.toHaveBeenCalled();
     expect(screen.queryByTestId("modal-busca-portaria")).not.toBeInTheDocument();
+  });
+
+  it("navega para o fluxo de designação ao continuar com 'novo cadastro'", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-5"));
+    fireEvent.click(screen.getByTestId("modal-nova-designacao-novo-cadastro"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
+  });
+
+  it("não navega ao continuar com 'unidade cadastrada'", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-5"));
+    fireEvent.click(screen.getByTestId("modal-nova-designacao-unidade-cadastrada"));
+
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("fecha o modal de nova designação ao chamar onOpenChange(false)", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-5"));
+    fireEvent.click(screen.getByTestId("modal-nova-designacao-fechar"));
+
+    expect(screen.queryByTestId("modal-nova-designacao")).not.toBeInTheDocument();
   });
 
   it("chama buscar do useNovoAto com o tipo, a portaria e o ano informados", () => {
