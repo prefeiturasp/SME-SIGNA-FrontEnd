@@ -60,7 +60,7 @@ const ListagemDeDesignacaoDaUnidade: React.FC<ListagemDeAtosAdministrativosProps
 
       <div className="w-full pb-2">
         {data && (
-          <AtosRelacionados atos={atos} isEditing={false} isLoading={isLoading} />
+          <AtosRelacionados atos={atos} isLoading={isLoading} />
         )}
       </div>
     </div>

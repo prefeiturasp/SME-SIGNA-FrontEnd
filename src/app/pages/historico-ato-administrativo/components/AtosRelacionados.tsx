@@ -13,8 +13,7 @@ interface IAtosAdministrativosType {
 }
 
 interface Props {
-    readonly atos: IAtosAdministrativosType[];
-    readonly isEditing: boolean;
+    readonly atos: IAtosAdministrativosType[];    
     readonly isLoading: boolean;
 }
 
