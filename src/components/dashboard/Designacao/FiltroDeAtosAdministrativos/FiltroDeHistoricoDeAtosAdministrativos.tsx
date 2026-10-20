@@ -85,6 +85,7 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) =>
     "periodo",
     "observacao",
     "status_publicacao",
+    "cargo",
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
   const CargoOpcoes = [
@@ -100,7 +101,7 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) =>
 
       <div className="w-full grid grid-cols-3 gap-4">
         <div className="col-span-1">
-          <TipoAtoSelectField AtosOpcoes={[{ codigo: 'TODOS', nome: 'Todos os atos' }, ...AtosOpcoes]} />
+          <TipoAtoSelectField label="Tipo de ato administrativo" AtosOpcoes={[{ codigo: 'TODOS', nome: 'Todos os atos' }, ...AtosOpcoes]} />
         </div>
         <div className="col-span-1">
           <DateRangePickerField

@@ -211,8 +211,9 @@ layer(base);
 
 
 .ant-steps-item-wait .ant-steps-item-icon {
-    background-color: #d9d9d9 !important;
-    border-color: #d9d9d9 !important;
+    background-color: #d9d9d9;
+    border-color: #d9d9d9;
+    color: #FFF;    
 }
 
 .medium-input {
@@ -237,53 +238,8 @@ layer(base);
   --steps-item-solid-line-color: #B22B2A !important;
 }
 
-.ant-steps-item-wait .ant-steps-item-icon {
-    color: #FFFFFF;    
-}
  
-.ant-timeline .ato-relacionado-principal .ant-steps-item-icon {
-    background-color: #B22B2A;
-    border-color: #B22B2A;
-}
-
-.ant-timeline .ato-relacionado-secundario .ant-steps-item-icon {
-    background-color: #9CA3B9;
-    border-color: #9CA3B9;
-}
-
-.ant-timeline .ato-relacionado-vazio .ant-steps-item-icon {
-  background-color: #FFFFFF;
-  border-color: #FFFFFF;
-}
-
  
-.ant-timeline .ato-relacionado-vazio .ant-steps-item-rail {
-  height: calc(
-    (
-        100% - var(--ant-cmp-steps-icon-size) -
-          var(--ant-cmp-steps-item-wrapper-padding-top) -
-          var(--ant-cmp-steps-vertical-rail-margin) * 2
-      ) /
-      2
-  );
-  top: auto;
-}
-
- 
-.ant-timeline
-  .ant-steps-item:has(+ .ato-relacionado-vazio):not(.ato-relacionado-vazio)
-  .ant-steps-item-rail {
-  height: calc(
-    (
-        100% - var(--ant-cmp-steps-icon-size) -
-          var(--ant-cmp-steps-item-wrapper-padding-top) -
-          var(--ant-cmp-steps-vertical-rail-margin) * 2
-      ) /
-      2
-  );
-  bottom: auto;
-}
-
 
 
 .tabela-principal .ant-table {
