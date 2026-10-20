@@ -46,7 +46,6 @@ describe("ListagemDeDesignacaoDaUnidade", () => {
         { id: 1, data: "03/04/2026", portaria: "7625148/2026", titulo: "Apostila", descricao: "Alteração de período informado na portaria.", principal: true },
         { id: 2, data: "03/04/2026", portaria: "7625148/2026", titulo: "Apostila", descricao: "Alteração de período informado na portaria.", principal: false },
       ],
-      isEditing: false,
       isLoading: false,
     });
   });
