@@ -66,11 +66,13 @@ export function CustomAccordionItem({
     <AccordionItem value={value} className={`border-b-0 mb-5 ${className}`}>
       <AccordionTrigger
         className={
-        `mb-0 pr-4 ${variant.bg} 
+        `
+        
         rounded-t-md  
-        data-[state=open]:rounded-b-none
-        data-[state=closed]:rounded-b-[10px]
-        border-l-4 ${variant.border}`}
+ 
+        border-l-2
+        border-l-[#EBB466]
+        `}
       >
         <div className="flex items-center justify-between w-full">
           <span className={`pl-4 text-lg ${variant.text}`}>

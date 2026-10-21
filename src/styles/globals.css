@@ -707,12 +707,14 @@ input[type="number"] {
     line-height: 16px;
 }
 
-/* Card: o `.ant-card` aplica background, borda e `border-radius: 8px`. */
-.designacao-card.ant-card {
+
+.designacao-card {
     background: #F1F5F9;
     border: 1px solid #D0D0D0;
     border-left: 2px solid #B22B2A;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px 0 0 0;
+    border-left-width: 2px;
+
 }
 
 /* O padding do body é controlado pelos blocos internos (cabeçalho e detalhes).

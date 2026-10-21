@@ -71,7 +71,14 @@ export default function DesignacaoCard({
 
   return (
     <>
-      <Card className="designacao-card">
+      <div className="rounded-t-md border-l-2 border-l-[#B22B2A] 
+       border-r border-[#D0D0D0] border-b border-[#D0D0D0]      
+       
+       
+
+      ">        
+      
+
         <div className="designacao-card-cabecalho">
           <div className="designacao-card-info">
             <Text strong className="designacao-card-titulo">
@@ -100,10 +107,10 @@ export default function DesignacaoCard({
             items={items}
           />
         </div>
-      </Card>
+      </div>
       <div className="designacao-card-atos">
         <AtosRelacionados atos={atos} isLoading={isLoading} />
-      </div>
+      </div>   
     </>
   );
 }
