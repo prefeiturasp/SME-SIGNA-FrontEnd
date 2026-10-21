@@ -31,20 +31,7 @@ export function TagStatusDesignacao({ status, dataCessacao }: TagStatusDesignaca
     status === 'CESSADA' && dataCessacao ? `${config.name} em ${dataCessacao}` : config.name;
 
   return (
-    <Tag
-      className="
-      !m-0
-      !flex
-      !items-center
-      !gap-1.5
-      !rounded-md
-      !border-0
-      !px-2
-      !py-0.5
-      !text-xs
-    "
-      style={{ background: config.background }}
-    >
+    <Tag className="designacao-status-tag" style={{ background: config.background }}>
       <Badge color={config.color} />
       {texto}
     </Tag>
@@ -68,48 +55,32 @@ export default function DesignacaoCard({
     {
       key: "1",
       label: "Nº de portaria",
-      children: <Text className="text-[#313131]">1234567/2026</Text>,
+      children: <Text className="designacao-card-valor">1234567/2026</Text>,
     },
     {
       key: "2",
       label: "Cargo",
-      children: <Text className="text-[#313131]">DIRETOR DE ESCOLA</Text>,
+      children: <Text className="designacao-card-valor">DIRETOR DE ESCOLA</Text>,
     },
     {
       key: "3",
       label: "Servidor indicado",
-      children: <Text className="text-[#313131]">TATIANE CRISTINA MARQUES</Text>,
+      children: <Text className="designacao-card-valor">TATIANE CRISTINA MARQUES</Text>,
     },
   ];
 
   return (
     <>
-      <Card
-        className="
-        !bg-[#F1F5F9]
-        !border-l-2
-        !border-l-[#B22B2A]        
-        !border-t-[#D0D0D0]
-        !border-r-[#D0D0D0]                       
-        !rounded-t-lg !rounded-b-none               
-      "
-       
-        styles={{
-          body: {
-            padding: 0,
-          },
-        }}
-      >
-        <div className="flex items-start justify-between p-4">
-          <div className="flex flex-col gap-1">
-            <Text strong className="!text-lg">
+      <Card className="designacao-card">
+        <div className="designacao-card-cabecalho">
+          <div className="designacao-card-info">
+            <Text strong className="designacao-card-titulo">
               Designação
             </Text>
 
-            <div className="flex items-center gap-1.5">
-              
-              <Calendar className="text-[#313131]" />
-              <Text className="!text-xs">
+            <div className="designacao-card-realizacao">
+              <Calendar />
+              <Text className="designacao-card-data">
                 Realizada em 15/02/2026
               </Text>
             </div>
@@ -118,9 +89,9 @@ export default function DesignacaoCard({
           <TagStatusDesignacao status={status} dataCessacao={dataCessacao} />
         </div>
 
-        <div className="border-t border-[#C8C8C8]" />
+        <div className="designacao-card-divisor" />
 
-        <div className="px-3 py-2.5">
+        <div className="designacao-card-detalhes">
           <Descriptions
             layout="vertical"
             column={{ xs: 1, sm: 3 }}
@@ -130,15 +101,7 @@ export default function DesignacaoCard({
           />
         </div>
       </Card>
-      <div 
-      className="
-        !border-b
-        !border-x        
-        !border-[#D0D0D0]              
-        !rounded-b-md        
-        p-4
-        pt-8
-      ">
+      <div className="designacao-card-atos">
         <AtosRelacionados atos={atos} isLoading={isLoading} />
       </div>
     </>

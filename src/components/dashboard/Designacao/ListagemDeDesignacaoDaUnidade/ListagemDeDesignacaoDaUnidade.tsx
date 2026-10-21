@@ -2,7 +2,6 @@
  
 import { ListagemAtosAdministrativosResponse } from '@/types/designacao';
 import { SimpleTag } from '../ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos';
-import AtosRelacionados from '@/app/pages/historico-ato-administrativo/components/AtosRelacionados';
 import DesignacaoCard from '@/app/pages/historico-ato-administrativo/components/DesignacaoCard';
  
 
@@ -45,23 +44,23 @@ const ListagemDeDesignacaoDaUnidade: React.FC<ListagemDeAtosAdministrativosProps
   ];
 
   return (
-    <div className="flex flex-col gap-1 bg-white  ">
-      <div className="flex flex-row justify-between gap-2 pb-8">
+    <div className="listagem-designacao-unidade">
+      <div className="listagem-designacao-unidade-cabecalho">
         <div>
-          <p className="text-[20px] font-bold pt-1 pb-1">{titulo}</p>
-          <p className="text-[14px] font-normal pt-1 ">{subtitulo}</p>
+          <p className="listagem-designacao-unidade-titulo">{titulo}</p>
+          <p className="listagem-designacao-unidade-subtitulo">{subtitulo}</p>
         </div>
 
-        <div className='flex flex-col justify-end'>
+        <div className="listagem-designacao-unidade-ue">
           {ue && (
             <SimpleTag titulo="Unidade Educacional" valor={ue} />
           )}
         </div>
       </div>
 
-      <div className="w-full pb-2">
-        {data && (          
-          <DesignacaoCard atos={atos} isLoading={isLoading} />                   
+      <div className="listagem-designacao-unidade-corpo">
+        {data && (
+          <DesignacaoCard atos={atos} isLoading={isLoading} />
         )}
       </div>
     </div>

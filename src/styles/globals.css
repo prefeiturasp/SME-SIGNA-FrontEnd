@@ -640,3 +640,135 @@ input[type="number"] {
 .atos-relacionados-item[data-principal="true"]::before {
     background: #B22B2A;
 }
+
+/* ==========================================================================
+   Histórico de designações da unidade
+   ========================================================================== */
+.listagem-designacao-unidade {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: #fff;
+}
+
+.listagem-designacao-unidade-cabecalho {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 32px;
+}
+
+.listagem-designacao-unidade-titulo {
+    margin: 0;
+    padding: 4px 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.listagem-designacao-unidade-subtitulo {
+    margin: 0;
+    padding-top: 4px;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.listagem-designacao-unidade-ue {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.listagem-designacao-unidade-corpo {
+    width: 100%;
+    padding-bottom: 8px;
+}
+
+/* ==========================================================================
+   Card de designação (histórico do ato administrativo)
+
+   Aqui não usamos `!important`. O CSS injetado pelo antd entra em uma `@layer`
+   e, para vencer as regras dele também fora de layer, cada seletor combina a
+   classe própria com a classe do antd (`.ant-card`, `.ant-card-body`,
+   `.ant-tag`, `.ant-typography`), o que dá especificidade suficiente.
+   ========================================================================== */
+
+/* Tag de status: o `.ant-tag` define padding, borda, raio, `display: inline-block`
+   e `font-size: 12px`; sobrescrevemos apenas o que difere do layout. */
+.designacao-status-tag.ant-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 2px 8px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+/* Card: o `.ant-card` aplica background, borda e `border-radius: 8px`. */
+.designacao-card.ant-card {
+    background: #F1F5F9;
+    border: 1px solid #D0D0D0;
+    border-left: 2px solid #B22B2A;
+    border-radius: 8px 8px 0 0;
+}
+
+/* O padding do body é controlado pelos blocos internos (cabeçalho e detalhes).
+   Especificidade acima da regra global `.ant-card .ant-card-body`. */
+.designacao-card.ant-card > .ant-card-body {
+    padding: 0;
+}
+
+.designacao-card-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px;
+}
+
+.designacao-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* `.ant-typography` define o font-size base (14px). */
+.designacao-card .designacao-card-titulo.ant-typography {
+    font-size: 18px;
+    line-height: 28px;
+}
+
+.designacao-card-realizacao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #313131;
+}
+
+.designacao-card .designacao-card-data.ant-typography {
+    font-size: 12px;
+    line-height: 16px;
+    color: #313131;
+}
+
+.designacao-card .designacao-card-valor.ant-typography {
+    color: #313131;
+}
+
+.designacao-card-divisor {
+    border-top: 1px solid #C8C8C8;
+}
+
+.designacao-card-detalhes {
+    padding: 10px 12px;
+}
+
+/* Fecha o card por baixo e envelopa os atos relacionados. */
+.designacao-card-atos {
+    padding: 32px 16px 16px;
+    border: 1px solid #D0D0D0;
+    border-top: 0;
+    border-radius: 0 0 6px 6px;
+}
