@@ -3,6 +3,7 @@
 import { ListagemAtosAdministrativosResponse } from '@/types/designacao';
 import { SimpleTag } from '../ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos';
 import AtosRelacionados from '@/app/pages/historico-ato-administrativo/components/AtosRelacionados';
+import DesignacaoCard from '@/app/pages/historico-ato-administrativo/components/DesignacaoCard';
  
 
  
@@ -59,8 +60,8 @@ const ListagemDeDesignacaoDaUnidade: React.FC<ListagemDeAtosAdministrativosProps
       </div>
 
       <div className="w-full pb-2">
-        {data && (
-          <AtosRelacionados atos={atos} isLoading={isLoading} />
+        {data && (          
+          <DesignacaoCard atos={atos} isLoading={isLoading} />                   
         )}
       </div>
     </div>

@@ -238,6 +238,17 @@ layer(base);
   --steps-item-solid-line-color: #B22B2A !important;
 }
 
+/*
+ * O antd fixa `font-weight: 400` na label do Descriptions e não expõe um token
+ * de componente para esse peso. O `fontWeightStrong: 700` declarado em
+ * `theme.components.Descriptions` gera a CSS var escopada
+ * `--ant-font-weight-strong` no próprio `.ant-descriptions`; aqui só ligamos
+ * a label nessa var (fora de `@layer`, para vencer a regra do antd).
+ */
+.ant-descriptions .ant-descriptions-item-label {
+  font-weight: var(--ant-font-weight-strong, 700);
+}
+
  
  
 
@@ -536,18 +547,14 @@ input[type="number"] {
   font-weight: 700;
 }
 
-/* Atos relacionados */
-.atos-relacionados-section {
-    margin-bottom: 24px;
-    color: #333;
-}
+
 
 .atos-relacionados-header {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 1rem;
 }
 
 .atos-relacionados-heading { margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; }
