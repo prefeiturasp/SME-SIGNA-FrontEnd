@@ -34,27 +34,75 @@ describe("ListagemDeDesignacaoDaUnidade", () => {
 
   it.each([undefined, ""])("omite identificação quando a unidade é %s", (ue) => {
     render(<ListagemDeDesignacaoDaUnidade data={[]} ue={ue} />);
+
     expect(screen.queryByText(/Unidade Educacional/)).not.toBeInTheDocument();
-    expect(screen.getByTestId("atos-relacionados")).toBeInTheDocument();
+    expect(screen.getAllByTestId("atos-relacionados")).toHaveLength(2);
   });
 
-  it("encaminha os atos fixos atuais com edição e carregamento desativados por padrão", () => {
+  it("renderiza um card de designação para cada ato principal da unidade", () => {
     render(<ListagemDeDesignacaoDaUnidade data={[]} />);
 
-    expect(atosRelacionadosMock).toHaveBeenCalledWith({
+    expect(screen.getAllByText("Designação")).toHaveLength(2);
+    expect(document.querySelectorAll(".ant-card.designacao-card")).toHaveLength(2);
+  });
+
+  it("encaminha os atos relacionados de cada ato principal, sem carregamento por padrão", () => {
+    render(<ListagemDeDesignacaoDaUnidade data={[]} />);
+
+    expect(atosRelacionadosMock).toHaveBeenCalledTimes(2);
+
+    expect(atosRelacionadosMock).toHaveBeenNthCalledWith(1, {
       atos: [
-        { id: 1, data: "03/04/2026", portaria: "7625148/2026", titulo: "Apostila", descricao: "Alteração de período informado na portaria.", principal: true },
-        { id: 2, data: "03/04/2026", portaria: "7625148/2026", titulo: "Apostila", descricao: "Alteração de período informado na portaria.", principal: false },
+        {
+          id: 1,
+          data: "03/04/2026",
+          portaria: "7625148/2026",
+          titulo: "Apostila",
+          descricao: "Alteração de período informado na portaria.",
+          principal: true,
+          esta_vigente: true,
+        },
+        {
+          id: 2,
+          data: "03/04/2026",
+          portaria: "7625148/2026",
+          titulo: "Apostila",
+          descricao: "Alteração de período informado na portaria.",
+          principal: false,
+          esta_vigente: false,
+        },
       ],
       isLoading: false,
     });
+
+    expect(atosRelacionadosMock).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      atos: expect.arrayContaining([
+        expect.objectContaining({ id: 5, principal: true, esta_vigente: true }),
+        expect.objectContaining({ id: 6, principal: false, esta_vigente: false }),
+      ]),
+      isLoading: false,
+    }));
+  });
+
+  it("exibe a tag de status conforme a vigência de cada ato principal", () => {
+    render(<ListagemDeDesignacaoDaUnidade data={[]} />);
+
+    expect(screen.getByText("Em vigência")).toBeInTheDocument();
+    expect(screen.getByText("Cessada em 03/04/2026")).toBeInTheDocument();
   });
 
   it("propaga as mudanças de carregamento para os atos relacionados", () => {
     const { rerender } = render(<ListagemDeDesignacaoDaUnidade data={[]} isLoading />);
-    expect(atosRelacionadosMock).toHaveBeenLastCalledWith(expect.objectContaining({ isLoading: true }));
 
+    expect(atosRelacionadosMock).toHaveBeenCalledWith(
+      expect.objectContaining({ isLoading: true }),
+    );
+
+    vi.clearAllMocks();
     rerender(<ListagemDeDesignacaoDaUnidade data={[]} isLoading={false} />);
-    expect(atosRelacionadosMock).toHaveBeenLastCalledWith(expect.objectContaining({ isLoading: false }));
+
+    expect(atosRelacionadosMock).toHaveBeenCalledWith(
+      expect.objectContaining({ isLoading: false }),
+    );
   });
 });

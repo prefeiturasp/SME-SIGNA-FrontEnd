@@ -71,13 +71,13 @@ export default function AtosAdministrativos() {
 
 
 
-      {/* <FundoBranco className="mb-4 mt-8">
+      <FundoBranco className="mb-4 mt-8">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
             <FiltroDeHistoricoDeAtosAdministrativos onClear={handleClear} />
           </form>
         </FormProvider>
-        </ FundoBranco> */}
+        </ FundoBranco>
 
 
         <FundoBranco >

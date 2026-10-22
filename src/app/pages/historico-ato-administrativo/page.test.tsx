@@ -136,6 +136,39 @@ describe("Página de histórico de ato administrativo", () => {
     expect(screen.getByTestId("list-ue")).toHaveTextContent("EMEF Machado de Assis");
   });
 
+  it("monta os filtros iniciais com o ato_id numérico da query string", () => {
+    render(<AtosAdministrativos />);
+
+    expect(hookSpy).toHaveBeenCalledTimes(1);
+    expect(hookSpy.mock.calls[0][0]).toEqual({
+      tipo: "TODOS",
+      portaria: "",
+      numero_sei: "",
+      nome_titular_e_indicado: "",
+      status_publicacao: "",
+      periodo_before: "",
+      rf: "",
+      ato_id: 42,
+      observacao: "",
+    });
+  });
+
+  it("deixa o ato_id indefinido quando a query string não informa id", () => {
+    searchParamsGetMock.mockReturnValue(null);
+
+    render(<AtosAdministrativos />);
+
+    expect(hookSpy.mock.calls[0][0]).toMatchObject({ ato_id: undefined });
+  });
+
+  it("usa a unidade padrão quando a query string não informa ue", () => {
+    searchParamsGetMock.mockReturnValue(null);
+
+    render(<AtosAdministrativos />);
+
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("Alipio Correa Neto, Prof.");
+  });
+
   it("aciona handleClear quando o filtro dispara onClear", () => {
     render(<AtosAdministrativos />);
 

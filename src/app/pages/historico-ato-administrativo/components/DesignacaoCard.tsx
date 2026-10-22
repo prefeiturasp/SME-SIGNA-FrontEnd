@@ -1,5 +1,5 @@
 import { Card, Typography, Tag, Badge, Descriptions } from "antd";
-import AtosRelacionados, { IAtosAdministrativosType } from "./AtosRelacionados";
+import AtosRelacionados, { IAtosAdministrativosPrincipalType } from "./AtosRelacionados";
 import Calendar from "@/assets/icons/CustomCalendar";
 
 const { Text } = Typography;
@@ -21,7 +21,7 @@ export type StatusDesignacao = keyof typeof NameColorStatusDesignacao;
 
 interface TagStatusDesignacaoProps {
   readonly status: StatusDesignacao;
-  readonly dataCessacao?: string;
+  readonly dataCessacao?: string | null;
 }
 
 export function TagStatusDesignacao({ status, dataCessacao }: TagStatusDesignacaoProps) {
@@ -39,17 +39,13 @@ export function TagStatusDesignacao({ status, dataCessacao }: TagStatusDesignaca
 }
 
 interface Props {
-  readonly atos: IAtosAdministrativosType[];
+  readonly ato: IAtosAdministrativosPrincipalType;
   readonly isLoading: boolean;
-  readonly status?: StatusDesignacao;
-  readonly dataCessacao?: string;
 }
 
 export default function DesignacaoCard({
-  atos,
-  isLoading,
-  status = 'EM_VIGENCIA',
-  dataCessacao,
+  ato,
+  isLoading,  
 }: Props) {
   const items = [
     {
@@ -70,15 +66,8 @@ export default function DesignacaoCard({
   ];
 
   return (
-    <>
-      <div className="rounded-t-md border-l-2 border-l-[#B22B2A] 
-       border-r border-[#D0D0D0] border-b border-[#D0D0D0]      
-       
-       
-
-      ">        
-      
-
+    <div>
+      <Card className="designacao-card ">
         <div className="designacao-card-cabecalho">
           <div className="designacao-card-info">
             <Text strong className="designacao-card-titulo">
@@ -88,12 +77,12 @@ export default function DesignacaoCard({
             <div className="designacao-card-realizacao">
               <Calendar />
               <Text className="designacao-card-data">
-                Realizada em 15/02/2026
+                Realizada em {ato.realizada_em}
               </Text>
             </div>
           </div>
 
-          <TagStatusDesignacao status={status} dataCessacao={dataCessacao} />
+          <TagStatusDesignacao status={ato.status} dataCessacao={ato.data_cessacao} />
         </div>
 
         <div className="designacao-card-divisor" />
@@ -107,10 +96,11 @@ export default function DesignacaoCard({
             items={items}
           />
         </div>
-      </div>
+      </Card>
       <div className="designacao-card-atos">
-        <AtosRelacionados atos={atos} isLoading={isLoading} />
-      </div>   
-    </>
+        <AtosRelacionados atos={ato.atos_relacionados} isLoading={isLoading} />
+      </div>
+      
+    </div>
   );
 }

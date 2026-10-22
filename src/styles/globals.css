@@ -682,19 +682,12 @@ input[type="number"] {
 .listagem-designacao-unidade-corpo {
     width: 100%;
     padding-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-/* ==========================================================================
-   Card de designação (histórico do ato administrativo)
-
-   Aqui não usamos `!important`. O CSS injetado pelo antd entra em uma `@layer`
-   e, para vencer as regras dele também fora de layer, cada seletor combina a
-   classe própria com a classe do antd (`.ant-card`, `.ant-card-body`,
-   `.ant-tag`, `.ant-typography`), o que dá especificidade suficiente.
-   ========================================================================== */
-
-/* Tag de status: o `.ant-tag` define padding, borda, raio, `display: inline-block`
-   e `font-size: 12px`; sobrescrevemos apenas o que difere do layout. */
+ 
 .designacao-status-tag.ant-tag {
     display: inline-flex;
     align-items: center;
@@ -707,14 +700,12 @@ input[type="number"] {
     line-height: 16px;
 }
 
-
-.designacao-card {
+/* Card: o `.ant-card` aplica background, borda e `border-radius: 8px`. */
+.designacao-card.ant-card {
     background: #F1F5F9;
     border: 1px solid #D0D0D0;
     border-left: 2px solid #B22B2A;
-    border-radius: 8px 0 0 0;
-    border-left-width: 2px;
-
+    border-radius: 8px 8px 0 0;
 }
 
 /* O padding do body é controlado pelos blocos internos (cabeçalho e detalhes).

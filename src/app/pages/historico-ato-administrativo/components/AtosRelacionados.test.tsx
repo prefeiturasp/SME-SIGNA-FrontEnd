@@ -9,8 +9,17 @@ const ato = {
   titulo: "Apostila",
   descricao: "Alteração de período informado na portaria.",
   principal: true,
+  esta_vigente: true,
 };
-const atoVazio = { id: 99, data: "", portaria: "", titulo: "", descricao: "", principal: false };
+const atoVazio = {
+  id: 99,
+  data: "",
+  portaria: "",
+  titulo: "",
+  descricao: "",
+  principal: false,
+  esta_vigente: true,
+};
 
 describe("AtosRelacionados", () => {
   it("exibe carregamento sem contagem ou registros enquanto busca os atos", () => {
@@ -81,6 +90,29 @@ describe("AtosRelacionados", () => {
     render(<AtosRelacionados atos={[{ ...atoVazio, descricao: "Observação" }]} isLoading={false} />);
     expect(screen.getByRole("link", { name: "Ver detalhes de ato administrativo" })).toHaveAttribute("href", "/pages/listagem-designacoes/visualizar-designacao/99");
     expect(screen.queryByText("Data do ato")).not.toBeInTheDocument();
+  });
+
+  it("risca o título do ato que não está mais vigente", () => {
+    render(
+      <AtosRelacionados
+        atos={[
+          { ...ato, id: 1, titulo: "Cessada", esta_vigente: false },
+          { ...ato, id: 2, titulo: "Vigente", esta_vigente: true },
+        ]}
+        isLoading={false}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Cessada" })).toHaveClass("line-through");
+    expect(screen.getByRole("heading", { name: "Vigente" })).not.toHaveClass("line-through");
+  });
+
+  it("marca como principal apenas o item sinalizado pela API", () => {
+    render(<AtosRelacionados atos={[ato, { ...ato, id: 43, principal: false }]} isLoading={false} />);
+
+    const itens = screen.getAllByRole("listitem");
+    expect(itens[0]).toHaveAttribute("data-principal", "true");
+    expect(itens[1]).toHaveAttribute("data-principal", "false");
   });
 
   it("substitui o carregamento pelos registros ao concluir a busca", () => {
