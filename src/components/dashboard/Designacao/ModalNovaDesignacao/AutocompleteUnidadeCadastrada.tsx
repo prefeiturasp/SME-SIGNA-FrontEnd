@@ -13,7 +13,7 @@ const LIMITE_RESULTADOS = 50;
 // original para que os índices do destaque continuem válidos.
 const normalizar = (texto: string) =>
   Array.from(texto)
-    .map((c) => c.normalize("NFD").replace(/\p{M}/gu, "").charAt(0) || c)
+    .map((c) => c.normalize("NFD").replaceAll(/\p{M}/gu, "").charAt(0) || c)
     .join("")
     .toLowerCase();
 
