@@ -76,7 +76,10 @@ interface CellWithChildren {
 
 const hasChildrenProp = (content: unknown): content is CellWithChildren =>
   typeof content === 'object' && content !== null && 'children' in content;
- 
+
+// o `render` da Table do antd pode retornar um objeto de célula mesclada ({ children, props })
+// em vez de um nó comum; ReactNode em si não tem um formato checável em runtime,
+// então esse cast final é o limite aceitável para "o que quer que a função de render retorne".
 const getColumnContent = (content: unknown): React.ReactNode => {
   if (hasChildrenProp(content)) {
     return content.children ?? '-';
