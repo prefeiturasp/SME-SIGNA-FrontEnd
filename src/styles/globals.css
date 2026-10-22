@@ -83,14 +83,7 @@ layer(base);
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+ 
 @layer base {
   *,
   ::after,
@@ -238,13 +231,7 @@ layer(base);
   --steps-item-solid-line-color: #B22B2A !important;
 }
 
-/*
- * O antd fixa `font-weight: 400` na label do Descriptions e não expõe um token
- * de componente para esse peso. O `fontWeightStrong: 700` declarado em
- * `theme.components.Descriptions` gera a CSS var escopada
- * `--ant-font-weight-strong` no próprio `.ant-descriptions`; aqui só ligamos
- * a label nessa var (fora de `@layer`, para vencer a regra do antd).
- */
+
 .ant-descriptions .ant-descriptions-item-label {
   font-weight: var(--ant-font-weight-strong, 700);
 }
@@ -641,9 +628,7 @@ input[type="number"] {
     background: #B22B2A;
 }
 
-/* ==========================================================================
-   Histórico de designações da unidade
-   ========================================================================== */
+ 
 .listagem-designacao-unidade {
     display: flex;
     flex-direction: column;
@@ -700,7 +685,6 @@ input[type="number"] {
     line-height: 16px;
 }
 
-/* Card: o `.ant-card` aplica background, borda e `border-radius: 8px`. */
 .designacao-card.ant-card {
     background: #F1F5F9;
     border: 1px solid #D0D0D0;
@@ -708,8 +692,7 @@ input[type="number"] {
     border-radius: 8px 8px 0 0;
 }
 
-/* O padding do body é controlado pelos blocos internos (cabeçalho e detalhes).
-   Especificidade acima da regra global `.ant-card .ant-card-body`. */
+
 .designacao-card.ant-card > .ant-card-body {
     padding: 0;
 }
@@ -727,7 +710,6 @@ input[type="number"] {
     gap: 4px;
 }
 
-/* `.ant-typography` define o font-size base (14px). */
 .designacao-card .designacao-card-titulo.ant-typography {
     font-size: 18px;
     line-height: 28px;
@@ -758,7 +740,6 @@ input[type="number"] {
     padding: 10px 12px;
 }
 
-/* Fecha o card por baixo e envelopa os atos relacionados. */
 .designacao-card-atos {
     padding: 32px 16px 16px;
     border: 1px solid #D0D0D0;
