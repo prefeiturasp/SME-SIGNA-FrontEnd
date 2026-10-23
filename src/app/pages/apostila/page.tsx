@@ -24,7 +24,7 @@ import { FormLabel, FormItem, FormControl, FormField, FormMessage } from "@/comp
 import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor";
 import PortariaCessacaoFields from "@/components/dashboard/Cessacao/PortariaCessacaoFields/PortariaCessacaoFields";
 import { useSalvarApostila } from "@/hooks/useSalvarApostila";
-import { ApostilaAlteracoes, ApostilaBody, ApostilaDetailRead } from "@/types/apostila";
+import { ApostilaAlteracoes, ApostilaBody } from "@/types/apostila";
 import PortariaApostilaFields from "@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields";
 import { gerarFormValuesCessacao } from "../cessacao/page";
 import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
@@ -33,10 +33,9 @@ import { useFetchApostilaById } from "@/hooks/useVisualizarApostila";
 const defaultValues = {
 
   apostila: {
+    numero_portaria: "",
     numero_sei: "",
     doc: "",
-    observacao: "",
-    numero_portaria: "",
   },
 
   dre: "",
@@ -262,7 +261,7 @@ export default function ApostilaPage() {
     Object.keys(dirtyFields).forEach(field => {
 
       const valorDoCampo = values[field as keyof formSchemaApostilaData];
-      // remove campos da apostila
+      // remove campos da apostila (somente leitura) e o tipo do ato apostilado
       if (valorDoCampo === undefined || field.includes("apostila")) {
         return;
       }
@@ -315,14 +314,8 @@ export default function ApostilaPage() {
       let body: ApostilaBody;
       const alteracoes = gerarAlteracoes(values);
       if (apostilaId) {
-        // edição somente dos campos de portaria de apostila e texto SEI
-
         body = {
           id: Number(apostilaId),
-          sei_numero: values.apostila.numero_sei,
-          numero_portaria: values.apostila.numero_portaria,
-          doc: values.apostila.doc,
-          observacao: values.apostila.observacao,
           texto_sei: values.texto_portaria,
           alteracoes: alteracoes,
         };
@@ -337,10 +330,6 @@ export default function ApostilaPage() {
 
         body = {
           ato_pai: ato_pai,
-          sei_numero: values.apostila.numero_sei,
-          numero_portaria: values.apostila.numero_portaria,
-          doc: values.apostila.doc,
-          observacao: values.apostila.observacao,
           alteracoes: alteracoes,
           texto_sei: values.texto_portaria,
         };
@@ -357,21 +346,11 @@ export default function ApostilaPage() {
   };
 
 
-  const gerarFormValuesApostila = (apostila: ApostilaDetailRead | undefined) => {
-    return {
-      numero_portaria: apostila?.numero_portaria?.toString() ?? "",
-      numero_sei: apostila?.sei_numero ?? "",
-      doc: apostila?.doc ?? "",
-      observacao: apostila?.observacao ?? "",
-    };
-  };
-
   useEffect(() => {
     if (designacao && !form.formState.isDirty) {
 
 
       const cessacaoFieldsValues = gerarFormValuesCessacao(cessacao ?? undefined);
-      const apostilaFieldsValues = gerarFormValuesApostila(apostilaData);
 
       
       form.reset({
@@ -426,8 +405,16 @@ export default function ApostilaPage() {
         // campos portaria de cessação
         cessacao: cessacaoFieldsValues,
 
-        // campos apostila
-        apostila: apostilaFieldsValues,
+        // campos apostila: portaria e SEI herdados do ato pai, D.O da publicação
+        apostila: {
+          numero_portaria: origem === "cessacao"
+            ? cessacaoFieldsValues.numero_portaria
+            : String(designacao?.numero_portaria ?? ""),
+          numero_sei: origem === "cessacao"
+            ? cessacaoFieldsValues.numero_sei
+            : designacao?.sei_numero ?? "",
+          doc: apostilaData?.doc ?? "",
+        },
         texto_portaria: apostilaData?.texto_sei ?? "A presente portaria apostilada,",
       });
     }
@@ -468,8 +455,8 @@ export default function ApostilaPage() {
                   defaultValue={["portaria-apostila", "portarias-designacao", "unidade-proponente", "servidor-indicado", "cargo-disponivel", "cargo-vago", "portarias-cessacao"]}
                 >
 
-                  <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="silver">
-                    <PortariaApostilaFields />
+                  <CustomAccordionItem title="Dados da apostila" value="portaria-apostila" color="silver">
+                    <PortariaApostilaFields origem={origem} />
                   </CustomAccordionItem>
 
                   <CustomAccordionItem
