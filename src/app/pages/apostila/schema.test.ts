@@ -16,12 +16,6 @@ const cessacaoValida: formSchemaApostilaData["cessacao"] = {
 
 const payloadValido: formSchemaApostilaData = {
   ato_apostilado: "designacao",
-  apostila: {
-    numero_sei: "SEI-123",
-    numero_portaria: "123",
-    doc: "DOC-123",
-    observacao: "Observação",
-  },
   dre: "108200",
   dre_nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
   ue: "123456",
@@ -58,10 +52,6 @@ describe("formSchemaApostila", () => {
   it("aceita campos opcionais ausentes ou nulos", () => {
     const result = formSchemaApostila.safeParse({
       ato_apostilado: "designacao",
-      apostila: {
-        numero_sei: "SEI-123",
-        numero_portaria: "123",
-      },
       portaria_designacao: "123",
       numero_sei: "SEI-123",
       a_partir_de: new Date("2026-01-10"),
@@ -161,26 +151,15 @@ describe("formSchemaApostila", () => {
     }
   });
 
-  it("retorna erros dos campos obrigatórios de apostila", () => {
-    const result = formSchemaApostila.safeParse({
+  it("não exige portaria, SEI e D.O da apostila (herdados do ato pai)", () => {
+    const vazios = formSchemaApostila.safeParse({
       ...payloadValido,
-      apostila: {
-        numero_sei: "",
-        numero_portaria: "",
-      },
+      apostila: { numero_sei: "", numero_portaria: "", doc: "" },
     });
+    const ausentes = formSchemaApostila.safeParse(payloadValido);
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.map((issue) => issue.path.join("."))).toEqual([
-        "apostila.numero_sei",
-        "apostila.numero_portaria",
-      ]);
-      expect(result.error.issues.map((issue) => issue.message)).toEqual([
-        "Digite o número do SEI",
-        "Digite o número da Portaria de Apostila",
-      ]);
-    }
+    expect(vazios.success).toBe(true);
+    expect(ausentes.success).toBe(true);
   });
 
   it("aceita portaria no limite do integer", () => {

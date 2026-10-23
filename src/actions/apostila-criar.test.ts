@@ -14,9 +14,6 @@ vi.mock("@/lib/serverRequest", () => ({
 
 const payloadCriacao: ApostilaBody = {
   ato_pai: 10,
-  sei_numero: "SEI-123",
-  numero_portaria: "123",
-  doc: "DOC-123",
   observacao: "Observação",
   texto_sei: "Texto SEI",
   alteracoes: [
