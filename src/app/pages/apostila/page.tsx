@@ -97,6 +97,27 @@ const normalizarDetalheParaQuadroDeHistoricoPorAno = (value: unknown) => {
   return true;
 };
 
+// portaria e SEI da apostila são herdados do ato pai; o D.O é o da publicação
+const gerarFormValuesApostila = (
+  origem: string | null,
+  designacao: { numero_portaria?: number | string | null; sei_numero?: string | null },
+  cessacao: { numero_portaria: string; numero_sei: string },
+  doc: string | null | undefined,
+) => {
+  if (origem === "cessacao") {
+    return {
+      numero_portaria: cessacao.numero_portaria,
+      numero_sei: cessacao.numero_sei,
+      doc: doc ?? "",
+    };
+  }
+  return {
+    numero_portaria: String(designacao.numero_portaria ?? ""),
+    numero_sei: designacao.sei_numero ?? "",
+    doc: doc ?? "",
+  };
+};
+
 function BotaoGerarTextoSei({
   form,
   onClick,
@@ -406,15 +427,12 @@ export default function ApostilaPage() {
         cessacao: cessacaoFieldsValues,
 
         // campos apostila: portaria e SEI herdados do ato pai, D.O da publicação
-        apostila: {
-          numero_portaria: origem === "cessacao"
-            ? cessacaoFieldsValues.numero_portaria
-            : String(designacao?.numero_portaria ?? ""),
-          numero_sei: origem === "cessacao"
-            ? cessacaoFieldsValues.numero_sei
-            : designacao?.sei_numero ?? "",
-          doc: apostilaData?.doc ?? "",
-        },
+        apostila: gerarFormValuesApostila(
+          origem,
+          designacao,
+          cessacaoFieldsValues,
+          apostilaData?.doc,
+        ),
         texto_portaria: apostilaData?.texto_sei ?? "A presente portaria apostilada,",
       });
     }
