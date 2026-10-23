@@ -79,7 +79,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                                     </div>
                                 </dl>
                                 <div className="atos-relacionados-content">
-                                <h3 className={`atos-relacionados-title ${!ato.esta_vigente ? "line-through" : ""}`}>{ato.titulo?.trim() || "Ato administrativo"}</h3>
+                                    <h3 className={`atos-relacionados-title ${ato.esta_vigente ? "" : "line-through"}`}>{ato.titulo?.trim() || "Ato administrativo"}</h3>
                                     {ato.descricao?.trim() && <p className="atos-relacionados-description">{ato.descricao}</p>}
                                 </div>
                                 <Link
