@@ -122,4 +122,67 @@ describe("CustomAccordionItem", () => {
       expect(trigger).toHaveClass("bg-[#F9F9F9]");
     },
   );
+
+  it("aplica as classes de layout e o estado fechado no trigger", () => {
+    renderWithAccordion(
+      <CustomAccordionItem title="Estilo" value="item-1">
+        Conteúdo
+      </CustomAccordionItem>,
+    );
+
+    const trigger = screen.getByRole("button", { name: /estilo/i });
+
+    expect(trigger).toHaveClass("mb-0", "pr-4", "rounded-t-md", "border-l-4");
+    expect(trigger).toHaveAttribute("data-state", "closed");
+  });
+
+  it("atualiza o estado do trigger ao abrir o item", async () => {
+    const user = userEvent.setup();
+
+    renderWithAccordion(
+      <CustomAccordionItem title="Abrir" value="item-1">
+        Conteúdo aberto
+      </CustomAccordionItem>,
+    );
+
+    const trigger = screen.getByRole("button", { name: /abrir/i });
+    await user.click(trigger);
+
+    expect(trigger).toHaveAttribute("data-state", "open");
+    expect(screen.getByText("Conteúdo aberto")).toBeVisible();
+  });
+
+  it("envolve o conteúdo em um Card do antd com as classes da variante", async () => {
+    const user = userEvent.setup();
+
+    renderWithAccordion(
+      <CustomAccordionItem title="Card" value="item-1" color="blue">
+        <div data-testid="child">Filho</div>
+      </CustomAccordionItem>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /card/i }));
+
+    const card = screen.getByTestId("child").closest(".ant-card");
+    expect(card).not.toBeNull();
+    expect(card).toHaveClass(
+      "m-0",
+      "border-l-4",
+      "bg-[#F9F9F9]",
+      "border-l-[#6F8CC7]",
+      "rounded-b-md",
+      "rounded-t-none",
+    );
+  });
+
+  it("não adiciona classes de variante quando o className extra é vazio", () => {
+    renderWithAccordion(
+      <CustomAccordionItem title="Sem extra" value="item-1">
+        Conteúdo
+      </CustomAccordionItem>,
+    );
+
+    const item = screen.getByRole("button", { name: /sem extra/i }).closest("[data-state]");
+    expect(item?.className).not.toContain("undefined");
+  });
 });
