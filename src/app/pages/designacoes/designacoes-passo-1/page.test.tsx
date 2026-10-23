@@ -15,6 +15,8 @@ const mockRouterPush = vi.fn();
 const mockClearFormDesignacaoData = vi.fn();
 let mockRfParam: string | null = null;
 let mockIdParam: string | null = null;
+let mockUnidadeParams: Record<string, string> = {};
+const mockFormularioUnidadeProps = vi.fn();
 let initialContextData: FormDesignacaoEServidorIndicado | null = {};
 let mockPossuiDesignacaoAtiva = false;
 const mockAccordionValueChange = vi.fn();
@@ -112,7 +114,7 @@ vi.mock("next/navigation", () => ({
     get: (key: string) => {
       if (key === "rf") return mockRfParam;
       if (key === "id") return mockIdParam;
-      return null;
+      return mockUnidadeParams[key] ?? null;
     },
   }),
 }));
@@ -243,13 +245,15 @@ vi.mock(
   () => ({
     __esModule: true,
     default: React.forwardRef(function MockFormularioPesquisaUnidade(
-      {
-        setDisableProximo,
-      }: {
+      props: {
         setDisableProximo: (disable: boolean) => void;
+        defaultValues?: Partial<FormDesignacaoEServidorIndicado>;
+        unidadeBloqueada?: boolean;
       },
       ref: React.ForwardedRef<{ getValues: () => FormDesignacaoData | undefined }>
     ) {
+      const { setDisableProximo } = props;
+      mockFormularioUnidadeProps(props);
       const [dre, setDre] = React.useState("");
       const [ue, setUe] = React.useState("");
 
@@ -342,6 +346,7 @@ describe("DesignacoesPasso1", () => {
     mockGetValuesVazio = false;
     mockRfParam = null;
     mockIdParam = null;
+    mockUnidadeParams = {};
     initialContextData = {};
     mockPossuiDesignacaoAtiva = false;
     mockIsPending = false;
@@ -603,6 +608,71 @@ describe("DesignacoesPasso1", () => {
     expect(
       screen.queryByTestId("erro-servidor-indicado-designacao-ativa")
     ).not.toBeInTheDocument();
+  });
+
+
+  describe("unidade já cadastrada vinda da URL", () => {
+    const unidadeUrl = {
+      dre: "108800",
+      dre_nome: "DRE BUTANTA",
+      ue: "019453",
+      ue_nome: "EMEF - ALIPIO CORREA NETO, PROF.",
+    };
+
+    const ultimasProps = () =>
+      mockFormularioUnidadeProps.mock.calls.at(-1)?.[0] as {
+        defaultValues?: Partial<FormDesignacaoEServidorIndicado>;
+        unidadeBloqueada?: boolean;
+      };
+
+    it("preenche DRE/UE com os dados da URL e bloqueia a edição", () => {
+      mockUnidadeParams = unidadeUrl;
+      renderWithProvider();
+
+      expect(ultimasProps().defaultValues).toMatchObject(unidadeUrl);
+      expect(ultimasProps().unidadeBloqueada).toBe(true);
+    });
+
+    it("não bloqueia quando só um dos códigos vem na URL", () => {
+      mockUnidadeParams = { ue: "019453" };
+      renderWithProvider();
+
+      expect(ultimasProps().unidadeBloqueada).toBe(false);
+      expect(ultimasProps().defaultValues?.ue).toBeUndefined();
+    });
+
+    it("não bloqueia no fluxo de novo cadastro", () => {
+      renderWithProvider();
+
+      expect(ultimasProps().unidadeBloqueada).toBe(false);
+    });
+
+    it("mantém o bloqueio ao voltar do passo 2 (flag no contexto)", () => {
+      mockRfParam = "123";
+      initialContextData = { dre: "108800", ue: "019453", unidade_bloqueada: true };
+      renderWithProvider();
+
+      expect(ultimasProps().unidadeBloqueada).toBe(true);
+    });
+
+    it("salva o flag de bloqueio no contexto ao avançar", async () => {
+      mockUnidadeParams = unidadeUrl;
+      renderWithProvider();
+
+      await userEvent.type(screen.getByTestId("input-rf"), "123");
+      await clicarPesquisarServidor();
+      await waitFor(() => {
+        expect(screen.getByTestId("resumo-designacao")).toBeInTheDocument();
+      });
+
+      await userEvent.selectOptions(screen.getByTestId("select-dre"), "dre-1");
+      await userEvent.selectOptions(screen.getByTestId("select-ue"), "ue-1");
+      await userEvent.click(screen.getByTestId("botao-proximo"));
+
+      await waitFor(() => {
+        expect(ultimasProps().defaultValues?.unidade_bloqueada).toBe(true);
+      });
+    });
   });
 
 });
