@@ -27,6 +27,19 @@ export default function DesignacoesPasso1() {
   const rf = searchParams.get("rf");
   const id = searchParams.get("id");
 
+  // Preenchida quando a designação parte de uma unidade já cadastrada
+  const ueParam = searchParams.get("ue");
+  const dreParam = searchParams.get("dre");
+  const unidadeDaUrl =
+    ueParam && dreParam
+      ? {
+          dre: dreParam,
+          dre_nome: searchParams.get("dre_nome") ?? "",
+          ue: ueParam,
+          ue_nome: searchParams.get("ue_nome") ?? "",
+        }
+      : null;
+
   const { mutateAsync, isPending } = useServidorDesignacao();
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +49,7 @@ export default function DesignacoesPasso1() {
   const { formDesignacaoData, setFormDesignacaoData, clearFormDesignacaoData } =
     useDesignacaoContext();
   const [disableProximo, setDisableProximo] = useState(!formDesignacaoData?.designacaoUnidade);
+  const unidadeBloqueada = !!unidadeDaUrl || !!formDesignacaoData?.unidade_bloqueada;
 
   const router = useRouter();
 
@@ -88,6 +102,7 @@ export default function DesignacoesPasso1() {
       rf_titular: prevState?.rf_titular,
       dadosTitular: prevState?.dadosTitular,
       tipo_cargo: prevState?.tipo_cargo,
+      unidade_bloqueada: unidadeBloqueada,
     }
     });  
 
@@ -188,7 +203,8 @@ export default function DesignacoesPasso1() {
               isLoading={isPending}
               ref={formularioPesquisaUnidadeRef}
               setDisableProximo={setDisableProximo}
-              defaultValues={formDesignacaoData ?? {}}
+              defaultValues={{ ...formDesignacaoData, ...unidadeDaUrl }}
+              unidadeBloqueada={unidadeBloqueada}
             />
             {formDesignacaoData?.servidorIndicado?.possui_designacao_ativa && !isPending && (
               <Alert

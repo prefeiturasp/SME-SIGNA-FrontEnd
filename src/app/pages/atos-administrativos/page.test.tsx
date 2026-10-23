@@ -74,13 +74,26 @@ vi.mock("@/components/dashboard/Designacao/ModalNovaDesignacao/ModalNovaDesignac
         </button>
         <button
           data-testid="modal-nova-designacao-novo-cadastro"
-          onClick={() => (props.onContinuar as (opcao: string) => void)("novo_cadastro")}
+          onClick={() => (props.onContinuar as (opcao: string, unidade: unknown) => void)("novo_cadastro", null)}
         >
           novo cadastro
         </button>
         <button
+          data-testid="modal-nova-designacao-unidade-sem-selecao"
+          onClick={() => (props.onContinuar as (opcao: string, unidade: unknown) => void)("unidade_cadastrada", null)}
+        >
+          unidade sem seleção
+        </button>
+        <button
           data-testid="modal-nova-designacao-unidade-cadastrada"
-          onClick={() => (props.onContinuar as (opcao: string) => void)("unidade_cadastrada")}
+          onClick={() =>
+            (props.onContinuar as (opcao: string, unidade: unknown) => void)("unidade_cadastrada", {
+              dre: "108800",
+              dre_nome: "DRE BUTANTA",
+              ue: "019453",
+              ue_nome: "EMEF - ALIPIO CORREA NETO, PROF.",
+            })
+          }
         >
           unidade cadastrada
         </button>
@@ -316,11 +329,27 @@ describe("Página de atos administrativos", () => {
     expect(pushMock).toHaveBeenCalledWith("/pages/designacoes/designacoes-passo-1");
   });
 
-  it("não navega ao continuar com 'unidade cadastrada'", () => {
+  it("navega para o passo 1 com a unidade cadastrada na URL", () => {
     render(<AtosAdministrativos />);
 
     fireEvent.click(screen.getByTestId("menu-item-5"));
     fireEvent.click(screen.getByTestId("modal-nova-designacao-unidade-cadastrada"));
+
+    const url = new URL(pushMock.mock.calls[0][0], "http://localhost");
+    expect(url.pathname).toBe("/pages/designacoes/designacoes-passo-1");
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      dre: "108800",
+      dre_nome: "DRE BUTANTA",
+      ue: "019453",
+      ue_nome: "EMEF - ALIPIO CORREA NETO, PROF.",
+    });
+  });
+
+  it("não navega com 'unidade cadastrada' sem unidade", () => {
+    render(<AtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("menu-item-5"));
+    fireEvent.click(screen.getByTestId("modal-nova-designacao-unidade-sem-selecao"));
 
     expect(pushMock).not.toHaveBeenCalled();
   });

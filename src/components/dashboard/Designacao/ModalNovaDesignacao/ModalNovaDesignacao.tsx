@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { UnidadeCadastrada } from "@/types/designacao-unidade";
+import AutocompleteUnidadeCadastrada from "./AutocompleteUnidadeCadastrada";
 
 export type OpcaoNovaDesignacao = "novo_cadastro" | "unidade_cadastrada";
 
@@ -39,7 +41,7 @@ const OPCOES: {
 interface ModalNovaDesignacaoProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onContinuar: (opcao: OpcaoNovaDesignacao) => void;
+  onContinuar: (opcao: OpcaoNovaDesignacao, unidade: UnidadeCadastrada | null) => void;
 }
 
 export default function ModalNovaDesignacao({
@@ -48,14 +50,31 @@ export default function ModalNovaDesignacao({
   onContinuar,
 }: Readonly<ModalNovaDesignacaoProps>) {
   const [opcaoSelecionada, setOpcaoSelecionada] = useState<OpcaoNovaDesignacao | null>(null);
+  const [unidadeSelecionada, setUnidadeSelecionada] = useState<UnidadeCadastrada | null>(null);
+
+  const podeContinuar =
+    opcaoSelecionada === "novo_cadastro" ||
+    (opcaoSelecionada === "unidade_cadastrada" && !!unidadeSelecionada);
 
   const handleOpenChange = (aberto: boolean) => {
-    if (!aberto) setOpcaoSelecionada(null);
+    if (!aberto) {
+      setOpcaoSelecionada(null);
+      setUnidadeSelecionada(null);
+    }
     onOpenChange(aberto);
   };
 
+  const handleSelecionarOpcao = (opcao: OpcaoNovaDesignacao) => {
+    setOpcaoSelecionada(opcao);
+    if (opcao !== "unidade_cadastrada") setUnidadeSelecionada(null);
+  };
+
   const handleContinuar = () => {
-    if (opcaoSelecionada) onContinuar(opcaoSelecionada);
+    if (!opcaoSelecionada || !podeContinuar) return;
+    onContinuar(
+      opcaoSelecionada,
+      opcaoSelecionada === "unidade_cadastrada" ? unidadeSelecionada : null
+    );
   };
 
   return (
@@ -73,32 +92,43 @@ export default function ModalNovaDesignacao({
           {OPCOES.map((opcao) => {
             const selecionada = opcaoSelecionada === opcao.value;
             return (
-              <label
+              <div
                 key={opcao.value}
                 className={cn(
-                  "flex cursor-pointer items-start gap-4 rounded-lg border p-4 text-left transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B22B2A]",
+                  "rounded-lg border p-4 transition-colors has-[input[type=radio]:focus-visible]:ring-2 has-[input[type=radio]:focus-visible]:ring-[#B22B2A]",
                   selecionada
                     ? "border-[#B22B2A] bg-[#FDF2F2]"
                     : "border-[#DADADA] hover:border-[#B22B2A]"
                 )}
               >
-                <input
-                  type="radio"
-                  name="opcao-nova-designacao"
-                  value={opcao.value}
-                  checked={selecionada}
-                  onChange={() => setOpcaoSelecionada(opcao.value)}
-                  data-testid={`opcao-${opcao.value}`}
-                  className="sr-only"
-                />
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FDECEC] text-[#B22B2A]">
-                  {opcao.icon}
-                </span>
-                <span className="flex flex-col gap-1">
-                  <span className="text-[14px] font-bold text-[#313131]">{opcao.title}</span>
-                  <span className="text-[14px] text-[#9CA3B9]">{opcao.description}</span>
-                </span>
-              </label>
+                <label className="flex cursor-pointer items-start gap-4 text-left">
+                  <input
+                    type="radio"
+                    name="opcao-nova-designacao"
+                    value={opcao.value}
+                    checked={selecionada}
+                    onChange={() => handleSelecionarOpcao(opcao.value)}
+                    data-testid={`opcao-${opcao.value}`}
+                    className="sr-only"
+                  />
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FDECEC] text-[#B22B2A]">
+                    {opcao.icon}
+                  </span>
+                  <span className="flex flex-col gap-1">
+                    <span className="text-[14px] font-bold text-[#313131]">{opcao.title}</span>
+                    <span className="text-[14px] text-[#9CA3B9]">{opcao.description}</span>
+                  </span>
+                </label>
+
+                {selecionada && opcao.value === "unidade_cadastrada" && (
+                  <div className="mt-4 pl-12">
+                    <AutocompleteUnidadeCadastrada
+                      value={unidadeSelecionada}
+                      onChange={setUnidadeSelecionada}
+                    />
+                  </div>
+                )}
+              </div>
             );
           })}
         </fieldset>
@@ -117,7 +147,7 @@ export default function ModalNovaDesignacao({
             type="button"
             size="lg"
             variant="destructive"
-            disabled={!opcaoSelecionada}
+            disabled={!podeContinuar}
             onClick={handleContinuar}
             data-testid="botao-continuar-nova-designacao"
           >
