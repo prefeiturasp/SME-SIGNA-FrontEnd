@@ -95,7 +95,7 @@ export default function VisualizarApostilaPage() {
                 isLoadingDesignacao={isLoadingApostila}
               />
 
-              <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
+              <CustomAccordionItem title="Dados da apostila" value="portaria-apostila" color="purple">
                 <ResumoPortariaApostila defaultValues={apostila} />
               </CustomAccordionItem>
 
