@@ -3,6 +3,27 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
 import ModalNovaDesignacao from "./ModalNovaDesignacao";
+import type { UnidadeCadastrada } from "@/types/designacao-unidade";
+
+const UNIDADE: UnidadeCadastrada = {
+  dre: "108800",
+  dre_nome: "DRE BUTANTA",
+  ue: "019453",
+  ue_nome: "EMEF - ALIPIO CORREA NETO, PROF.",
+};
+
+vi.mock("./AutocompleteUnidadeCadastrada", () => ({
+  default: ({ onChange }: { onChange: (unidade: UnidadeCadastrada | null) => void }) => (
+    <div data-testid="autocomplete-unidade">
+      <button type="button" data-testid="selecionar-unidade" onClick={() => onChange(UNIDADE)}>
+        selecionar
+      </button>
+      <button type="button" data-testid="limpar-unidade" onClick={() => onChange(null)}>
+        limpar
+      </button>
+    </div>
+  ),
+}));
 
 const onOpenChange = vi.fn();
 const onContinuar = vi.fn();
@@ -74,17 +95,60 @@ describe("ModalNovaDesignacao", () => {
     expect(screen.getByTestId("botao-continuar-nova-designacao")).toBeDisabled();
   });
 
-  it.each(["novo_cadastro", "unidade_cadastrada"])(
-    "chama onContinuar com a opção %s",
-    async (opcao) => {
-      renderModal();
+  it("chama onContinuar com novo_cadastro e sem unidade", async () => {
+    renderModal();
 
-      await userEvent.click(screen.getByTestId(`opcao-${opcao}`));
-      await userEvent.click(screen.getByTestId("botao-continuar-nova-designacao"));
+    await userEvent.click(screen.getByTestId("opcao-novo_cadastro"));
+    await userEvent.click(screen.getByTestId("botao-continuar-nova-designacao"));
 
-      expect(onContinuar).toHaveBeenCalledWith(opcao);
-    }
-  );
+    expect(onContinuar).toHaveBeenCalledWith("novo_cadastro", null);
+  });
+
+  it("mostra o autocomplete só quando 'unidade já cadastrada' está selecionada", async () => {
+    renderModal();
+
+    expect(screen.queryByTestId("autocomplete-unidade")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId("opcao-unidade_cadastrada"));
+    expect(screen.getByTestId("autocomplete-unidade")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId("opcao-novo_cadastro"));
+    expect(screen.queryByTestId("autocomplete-unidade")).not.toBeInTheDocument();
+  });
+
+  it("exige a escolha de uma unidade antes de continuar com 'unidade já cadastrada'", async () => {
+    renderModal();
+
+    await userEvent.click(screen.getByTestId("opcao-unidade_cadastrada"));
+    expect(screen.getByTestId("botao-continuar-nova-designacao")).toBeDisabled();
+
+    await userEvent.click(screen.getByTestId("selecionar-unidade"));
+    expect(screen.getByTestId("botao-continuar-nova-designacao")).toBeEnabled();
+
+    await userEvent.click(screen.getByTestId("limpar-unidade"));
+    expect(screen.getByTestId("botao-continuar-nova-designacao")).toBeDisabled();
+  });
+
+  it("chama onContinuar com a unidade selecionada", async () => {
+    renderModal();
+
+    await userEvent.click(screen.getByTestId("opcao-unidade_cadastrada"));
+    await userEvent.click(screen.getByTestId("selecionar-unidade"));
+    await userEvent.click(screen.getByTestId("botao-continuar-nova-designacao"));
+
+    expect(onContinuar).toHaveBeenCalledWith("unidade_cadastrada", UNIDADE);
+  });
+
+  it("descarta a unidade ao trocar para 'novo cadastro'", async () => {
+    renderModal();
+
+    await userEvent.click(screen.getByTestId("opcao-unidade_cadastrada"));
+    await userEvent.click(screen.getByTestId("selecionar-unidade"));
+    await userEvent.click(screen.getByTestId("opcao-novo_cadastro"));
+    await userEvent.click(screen.getByTestId("opcao-unidade_cadastrada"));
+
+    expect(screen.getByTestId("botao-continuar-nova-designacao")).toBeDisabled();
+  });
 
   it("chama onOpenChange(false) ao clicar em Voltar", async () => {
     renderModal();
