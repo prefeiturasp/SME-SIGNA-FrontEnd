@@ -238,6 +238,11 @@ layer(base);
   --steps-item-solid-line-color: #B22B2A !important;
 }
 
+
+.ant-descriptions .ant-descriptions-item-label {
+  font-weight: var(--ant-font-weight-strong, 700);
+}
+
  
  
 
@@ -536,18 +541,14 @@ input[type="number"] {
   font-weight: 700;
 }
 
-/* Atos relacionados */
-.atos-relacionados-section {
-    margin-bottom: 24px;
-    color: #333;
-}
+
 
 .atos-relacionados-header {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 1rem;
 }
 
 .atos-relacionados-heading { margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; }
@@ -632,4 +633,123 @@ input[type="number"] {
 
 .atos-relacionados-item[data-principal="true"]::before {
     background: #B22B2A;
+}
+
+ 
+.listagem-designacao-unidade {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: #fff;
+}
+
+.listagem-designacao-unidade-cabecalho {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 32px;
+}
+
+.listagem-designacao-unidade-titulo {
+    margin: 0;
+    padding: 4px 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.listagem-designacao-unidade-subtitulo {
+    margin: 0;
+    padding-top: 4px;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.listagem-designacao-unidade-ue {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.listagem-designacao-unidade-corpo {
+    width: 100%;
+    padding-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+ 
+.designacao-status-tag.ant-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 2px 8px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.designacao-card.ant-card {
+    background: #F1F5F9;
+    border: 1px solid #D0D0D0;
+    border-left: 2px solid #B22B2A;
+    border-radius: 8px 8px 0 0;
+}
+
+
+.designacao-card.ant-card > .ant-card-body {
+    padding: 0;
+}
+
+.designacao-card-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px;
+}
+
+.designacao-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.designacao-card .designacao-card-titulo.ant-typography {
+    font-size: 18px;
+    line-height: 28px;
+}
+
+.designacao-card-realizacao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #313131;
+}
+
+.designacao-card .designacao-card-data.ant-typography {
+    font-size: 12px;
+    line-height: 16px;
+    color: #313131;
+}
+
+.designacao-card .designacao-card-valor.ant-typography {
+    color: #313131;
+}
+
+.designacao-card-divisor {
+    border-top: 1px solid #C8C8C8;
+}
+
+.designacao-card-detalhes {
+    padding: 10px 12px;
+}
+
+.designacao-card-atos {
+    padding: 32px 16px 16px;
+    border: 1px solid #D0D0D0;
+    border-top: 0;
+    border-radius: 0 0 6px 6px;
 }
