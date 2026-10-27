@@ -1,7 +1,11 @@
 
 import { DateRangePickerField, InputField, SelectField } from '@/components/ui/FieldsForm';
 
-import React from 'react';
+import { Combobox } from '@/components/ui/Combobox';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useFetchDREs, useFetchUEs } from '@/hooks/useUnidades';
+import { Loader2 } from 'lucide-react';
+import React, { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
 import { StatusAtosAdministrativos } from '@/types/designacao';
@@ -46,8 +50,11 @@ export const TipoAtoSelectField: React.FC<{ label?: string, name?: string, AtosO
   );
 };
 
+type DREOption = { codigoDRE: string; nomeDRE: string; siglaDRE: string };
+type UEOption = { codigoEscola: string; nomeEscola: string; siglaTipoEscola: string };
+
 const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
-  const { register, control, watch } = useFormContext();
+  const { register, control, watch, setValue } = useFormContext();
   const watchedValues = watch([
     "tipo",
     "portaria",
@@ -57,96 +64,160 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
     "periodo",
     "numero_sei",
     "rf",
+    "codigo_dre",
+    "codigo_ue",
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
+
+  const codigoDre = watch("codigo_dre");
+  const { data: dreOptions = [], isLoading: isLoadingDREs } = useFetchDREs();
+  const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(codigoDre ?? "");
+
+  const dreSelectOptions = useMemo(
+    () =>
+      dreOptions.map((dre: DREOption) => ({
+        label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
+        value: dre.codigoDRE,
+      })),
+    [dreOptions]
+  );
+  const ueSelectOptions = useMemo(
+    () =>
+      ueOptions.map((ue: UEOption) => ({
+        label: `${ue.siglaTipoEscola} - ${ue.nomeEscola}`,
+        value: ue.codigoEscola,
+      })),
+    [ueOptions]
+  );
 
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
       <p className="text-[14px] font-normal pt-1 pb-8">Selecione os campos para buscar as portarias disponíveis.</p>
 
-      <div className="w-full flex gap-4">
-        <div className="w-[33%]">
-          <TipoAtoSelectField AtosOpcoes={AtosOpcoes} />
+      <div className="w-full grid grid-cols-3 gap-4">
+        <TipoAtoSelectField AtosOpcoes={AtosOpcoes} />
 
-        </div>
-        <div className="w-[34%]">
-          <InputField
-            register={register}
-            control={control}
-            name="numero_sei"
-            label="Nº SEI"
-            placeholder="1234.5678/9012345-6"
-            data-testid="input-numero_sei"
-            type="string"
-            mask="9999.9999/9999999-9"
-          />
-        </div>
-        
-        <div className="w-[33%]">
-          <DateRangePickerField
-            register={register}
-            control={control}
-            name="periodo"
-            label="Período"
-            placeholder="Selecione um período"
-          />
-        </div>
-      </div>
+        <InputField
+          register={register}
+          control={control}
+          name="numero_sei"
+          label="Nº SEI"
+          placeholder="1234.5678/9012345-6"
+          data-testid="input-numero_sei"
+          type="string"
+          mask="9999.9999/9999999-9"
+        />
 
-      <div className="w-full flex gap-4">
-        <div className="w-[50%]">
-          <InputField
-            register={register}
-            control={control}
-            name="portaria"
-            label="Portaria de designação"
-            placeholder="Exemplo: 1234"
-            data-testid="input-portaria"
-            type="text"
-          />
+        <DateRangePickerField
+          register={register}
+          control={control}
+          name="periodo"
+          label="Período"
+          placeholder="Selecione um período"
+        />
 
-        </div>
-        <div className="w-[50%]">
-          <InputField
-            register={register}
-            control={control}
-            name="nome_titular_e_indicado"
-            label="Servidor"
-            placeholder="Exemplo: João da Silva"
-            data-testid="input-nome-titular-e-indicado"
-            type="text"
-          />
+        <InputField
+          register={register}
+          control={control}
+          name="portaria"
+          label="Portaria de designação"
+          placeholder="Exemplo: 1234"
+          data-testid="input-portaria"
+          type="text"
+        />
 
-        </div>
+        <InputField
+          register={register}
+          control={control}
+          name="nome_titular_e_indicado"
+          label="Servidor indicado/titular"
+          placeholder="Exemplo: João da Silva"
+          data-testid="input-nome-titular-e-indicado"
+          type="text"
+        />
 
-      </div>
-      <div className="w-full flex gap-4">
+        <InputField
+          register={register}
+          control={control}
+          name="rf"
+          label="Registro Funcional (RF)"
+          placeholder="1234567"
+          data-testid="input-rf"
+          type="number"
+        />
 
-        <div className="w-[50%]">
-          <InputField
-            register={register}
-            control={control}
-            name="rf"
-            label="Registro Funcional (RF)"
-            placeholder="Entre com o RF"
-            data-testid="input-rf"
-            type="number"
-          />
-        </div>
-        <div className="w-[50%]">
+        <FormField
+          control={control}
+          name="codigo_dre"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-[#313131] font-bold">
+                Diretoria Regional de Educação (DRE)
+              </FormLabel>
+              <FormControl>
+                {isLoadingDREs ? (
+                  <div className="flex h-10 items-center justify-center">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <Combobox
+                    placeholder="Selecione"
+                    data-testid="select-codigo-dre"
+                    value={field.value ?? ""}
+                    options={dreSelectOptions}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      setValue("codigo_ue", "");
+                    }}
+                  />
+                )}
+              </FormControl>
+              <FormMessage showBlankSpace={false} />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="codigo_ue"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-[#313131] font-bold">
+                Unidade Proponente
+              </FormLabel>
+              <FormControl>
+                {isLoadingUEs ? (
+                  <div className="flex h-10 items-center justify-center">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <Combobox
+                    placeholder="Exemplo: EMEF João da Silva"
+                    disabled={!codigoDre}
+                    data-testid="select-codigo-ue"
+                    value={field.value ?? ""}
+                    options={ueSelectOptions}
+                    onChange={field.onChange}
+                  />
+                )}
+              </FormControl>
+              <FormMessage showBlankSpace={false} />
+            </FormItem>
+          )}
+        />
+
         <SelectField
-            register={register}
-            control={control}
-            name="status_publicacao"
-            label="Status"
-            placeholder="Selecione"
-            data-testid="select-status-publicacao"
-            options={StatusPublicacaoOpcoes}
-            showBlankSpace={false}
-            disabled={false}
-          />
-        </div>
+          register={register}
+          control={control}
+          name="status_publicacao"
+          label="Status"
+          placeholder="Selecione"
+          data-testid="select-status-publicacao"
+          options={StatusPublicacaoOpcoes}
+          showBlankSpace={false}
+          disabled={false}
+        />
       </div>
 
       <FiltroAcoes hasFilters={hasFilters} onClear={onClear} />
