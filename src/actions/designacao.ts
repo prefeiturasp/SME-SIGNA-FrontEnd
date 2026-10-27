@@ -7,6 +7,10 @@ import {
   AtosAdministrativosFiltros,
 } from "@/types/designacao";
 import { ApostilaDetailRead } from "@/types/apostila";
+import {
+  DesignacaoHistorico,
+  HistoricoDeDesignacoesFiltros,
+} from "@/types/historico-designacoes";
 import { fetchWithClient } from "./http";
 
 export const fetchPortariasDO = async (
@@ -36,6 +40,20 @@ export const fetchAtosAdministrativos = async (
   );
 };
 
+
+export const fetchHistoricoDeDesignacoes = async (
+  codigoUe: string,
+  filtros: HistoricoDeDesignacoesFiltros = {}
+): Promise<
+  | { success: true; data: DesignacaoHistorico[] }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<DesignacaoHistorico[]>(
+    `/designacao/historico-de-designacoes/${encodeURIComponent(codigoUe)}/`,
+    filtros,
+    "Erro ao buscar o histórico de designações da unidade"
+  );
+};
 
 export const fetchApostilasByIdAction = async (
   id: number

@@ -155,6 +155,7 @@ describe("VisualizarInsubsistenciaPage", () => {
     observacoes: "Observação",
     texto_apostila: "Texto apostila",
     designacao: {
+      ue: "014591",
       indicado_nome_servidor: "Servidor Teste",
       numero_portaria: "001",
       ano_vigente: "2025",
@@ -231,7 +232,7 @@ describe("VisualizarInsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo=INSUBSISTENCIA&tipo_display=de insubsistência&numero_portaria=100&servidor_indicado=Servidor Teste",
+      "/pages/historico-ato-administrativo?id=12&ue=014591&tipo=INSUBSISTENCIA&tipo_display=de insubsistência&numero_portaria=100&servidor_indicado=Servidor Teste",
     );
   });
 

@@ -319,7 +319,7 @@ describe("VisualizarApostila page", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo_display=da apostila&numero_portaria=1&servidor_indicado=Servidor & Nome",
+      "/pages/historico-ato-administrativo?id=12&ue=UE&tipo_display=da apostila&numero_portaria=1&servidor_indicado=Servidor & Nome",
     );
   });
 
@@ -335,7 +335,7 @@ describe("VisualizarApostila page", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo_display=da apostila&numero_portaria=undefined&servidor_indicado=undefined",
+      "/pages/historico-ato-administrativo?id=12&ue=undefined&tipo_display=da apostila&numero_portaria=undefined&servidor_indicado=undefined",
     );
   });
 

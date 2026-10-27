@@ -158,6 +158,7 @@ vi.mock(
 
 describe("VisualizarDesignacao page", () => {
   const designacaoMock = {
+    ue: "014591",
     dre_nome: "DRE Centro",
     unidade_proponente: "EMEF Teste",
     codigo_hierarquico: "1234",
@@ -289,7 +290,7 @@ describe("VisualizarDesignacao page", () => {
 
     fireEvent.click(screen.getByText("Consultar histórico"));
 
-    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?id=12&tipo_display=da designação&numero_portaria=001&servidor_indicado=INDICADO");
+    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?id=12&ue=014591&tipo_display=da designação&numero_portaria=001&servidor_indicado=INDICADO");
   });
 
   it("aplica fallback vazio no resumo da unidade quando campos vêm indefinidos", () => {

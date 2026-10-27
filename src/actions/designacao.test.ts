@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cookies } from "next/headers";
 import {
     fetchAtosAdministrativos,
+    fetchHistoricoDeDesignacoes,
     fetchPortariasDO,
 } from "./designacao";
 import {
@@ -226,6 +227,57 @@ describe("fetchAtosAdministrativos", () => {
         expect(result).toEqual({
             success: false,
             error: "Erro ao buscar os atos administrativos",
+        });
+    });
+});
+
+describe("fetchHistoricoDeDesignacoes", () => {
+    const mockAxiosInstance = { get: vi.fn() };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
+    });
+
+    it("busca o histórico pelo código da unidade", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: [] });
+
+        const result = await fetchHistoricoDeDesignacoes("014591");
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/historico-de-designacoes/014591/",
+            { params: {} }
+        );
+        expect(result).toEqual({ success: true, data: [] });
+    });
+
+    it("envia apenas filtros preenchidos", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: [] });
+
+        await fetchHistoricoDeDesignacoes("014591", {
+            tipo: "APOSTILA",
+            portaria: "",
+            observacao: "13",
+        });
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/historico-de-designacoes/014591/",
+            { params: { tipo: "APOSTILA", observacao: "13" } }
+        );
+    });
+
+    it("retorna erro tratado quando a requisição falha", async () => {
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 500 },
+        });
+
+        const result = await fetchHistoricoDeDesignacoes("014591");
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro interno no servidor",
         });
     });
 });

@@ -140,7 +140,7 @@ export default function VisualizarInsubsistenciaPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo=${insubsistencia?.tipo}&tipo_display=${tipo_display}&numero_portaria=${insubsistencia?.numero_portaria}&servidor_indicado=${insubsistencia?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?id=${id}&ue=${insubsistencia?.designacao?.ue}&tipo=${insubsistencia?.tipo}&tipo_display=${tipo_display}&numero_portaria=${insubsistencia?.numero_portaria}&servidor_indicado=${insubsistencia?.designacao?.indicado_nome_servidor}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>

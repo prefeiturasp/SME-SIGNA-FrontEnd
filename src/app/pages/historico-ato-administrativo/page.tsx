@@ -1,24 +1,25 @@
 "use client";
 
 
+import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
+import { useHistoricoDeDesignacoes } from "@/hooks/useHistoricoDeDesignacoes";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import { AtosAdministrativosFiltros } from "@/types/designacao";
 import FiltroDeHistoricoDeAtosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos";
 import ListagemDeDesignacaoDaUnidade from "@/components/dashboard/Designacao/ListagemDeDesignacaoDaUnidade/ListagemDeDesignacaoDaUnidade";
+import { mapearHistoricoParaAtosPrincipais } from "./mappers";
 
+const UE_PADRAO = "014591";
 
 export default function AtosAdministrativos() {
 
   const searchParams = useSearchParams();
 
-  const id = searchParams.get("id");
-  const ue = searchParams.get("ue") ?? "Alipio Correa Neto, Prof.";
-  const servidor_indicado = searchParams.get("servidor_indicado") ?? "";
-            
+  const codigoUe = searchParams.get("ue") ?? UE_PADRAO;
+
   const defaultValues: AtosAdministrativosFiltros = {
     tipo: "TODOS",
     portaria: "",
@@ -27,7 +28,6 @@ export default function AtosAdministrativos() {
     status_publicacao: "",
     periodo_before: "",
     rf: "",
-    ato_id: id ?  Number.parseInt(id) : undefined,
     observacao: "",
   };
 
@@ -35,17 +35,19 @@ export default function AtosAdministrativos() {
     isPending,
     tabelaKey,
     resultado,
-    onPageChange,
-    page,
     filterForm,
     onSubmitFilterForm,
     handleClear,
-  } = useAtosAdministrativos(defaultValues);
+  } = useHistoricoDeDesignacoes(codigoUe, defaultValues);
 
+  const atosPrincipais = useMemo(
+    () => mapearHistoricoParaAtosPrincipais(resultado ?? []),
+    [resultado]
+  );
 
+  const nomeUnidade = resultado?.[0]?.unidade_proponente?.trim() || codigoUe;
 
   const router = useRouter();
-
 
   return (
     <>
@@ -66,7 +68,6 @@ export default function AtosAdministrativos() {
           },
           { title: "Histórico" },
         ]}
-
       />
 
 
@@ -77,18 +78,18 @@ export default function AtosAdministrativos() {
             <FiltroDeHistoricoDeAtosAdministrativos onClear={handleClear} />
           </form>
         </FormProvider>
-        </ FundoBranco>
+      </ FundoBranco>
 
 
         <FundoBranco >
 
         <div className="mt-4">
           <ListagemDeDesignacaoDaUnidade
-            ue={ue}
+            ue={nomeUnidade}
             titulo={`Histórico`}
             subtitulo={`Consulte as designações e os atos administrativos relacionados a esta unidade educacional.`}
             key={tabelaKey}
-            data={resultado?.results ?? []}
+            data={atosPrincipais}
             isLoading={isPending}
           />
         </div>

@@ -72,7 +72,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                             <article className="atos-relacionados-row">
                                 <dl className="atos-relacionados-metadata">
                                     <div>
-                                        {ato.data?.trim() && <><dt>Data do ato</dt><dd>{ato.data}</dd></>}
+                                    <dt>Data do ato</dt>{ato.data?.trim() && <dd>{ato.data}</dd>}
                                     </div>
                                     <div>
                                         {ato.portaria?.trim() && <><dt>Portaria</dt><dd>{ato.portaria}</dd></>}
