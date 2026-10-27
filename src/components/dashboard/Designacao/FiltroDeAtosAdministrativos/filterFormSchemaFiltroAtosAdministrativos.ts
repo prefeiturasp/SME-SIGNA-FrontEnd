@@ -21,6 +21,8 @@ export const filterFormSchemaFiltroAtosAdministrativos = z
       .nullable()
       .optional(),
     rf: z.string().optional(),
+    codigo_dre: z.string().optional(),
+    codigo_ue: z.string().optional(),
    });
    
 export type filterFormSchemaFiltroAtosAdministrativosData = z.infer<typeof filterFormSchemaFiltroAtosAdministrativos>;

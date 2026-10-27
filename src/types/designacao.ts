@@ -176,6 +176,8 @@ export interface AtosAdministrativosFiltros {
   rf?: string;
   ato_id?: number;  
   observacao?: string;
+  codigo_dre?: string;
+  codigo_ue?: string;
 }
 
 
