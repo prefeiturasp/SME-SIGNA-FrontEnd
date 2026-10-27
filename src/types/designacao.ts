@@ -158,6 +158,7 @@ export interface PortariasDOFiltros {
 }
 
 export interface AtosAdministrativosFiltros {
+  cargo?: string;
   numero_sei?: string;
   portaria?: string;
   nome_titular_e_indicado?: string;

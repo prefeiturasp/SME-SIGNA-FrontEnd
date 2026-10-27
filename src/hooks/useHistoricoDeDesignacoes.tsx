@@ -14,6 +14,7 @@ import {
 
 const defaultValuesFilters: AtosAdministrativosFiltros = {
   tipo: "TODOS",
+  cargo: "TODOS",
   portaria: "",
   numero_sei: "",
   nome_titular_e_indicado: "",
@@ -48,6 +49,7 @@ export function useHistoricoDeDesignacoes(
     const periodoTo = values.periodo?.to;
 
     return {
+      cargo: values.cargo === "TODOS" ? undefined : values.cargo,
       tipo: values.tipo === "TODOS" ? undefined : values.tipo,
       portaria: values.portaria,
       numero_sei: values.numero_sei,
@@ -71,6 +73,11 @@ export function useHistoricoDeDesignacoes(
     values: filterFormSchemaFiltroAtosAdministrativosData,
     ue: string = codigoUe
   ) => {
+    if (!ue) {
+      setResultado([]);
+      return;
+    }
+
     startTransition(async () => {
       const response = await buscarHistoricoDeDesignacoes(values, ue);
 

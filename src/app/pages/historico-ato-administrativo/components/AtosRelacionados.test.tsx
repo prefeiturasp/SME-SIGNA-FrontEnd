@@ -58,18 +58,19 @@ describe("AtosRelacionados", () => {
     expect(screen.getByRole("link", { name: "Ver detalhes de Cessação, portaria 123/2026" })).toHaveAttribute("href", "/pages/listagem-designacoes/visualizar-designacao/43");
   });
 
-  it("exclui registros vazios ou com apenas espaços da lista e da contagem", () => {
+  it("inclui todos os registros recebidos na lista e na contagem", () => {
       render(<AtosRelacionados atos={[atoVazio, { ...atoVazio, id: 100, data: " ", titulo: "\t", descricao: "\n", portaria: " " }, ato]} isLoading={false} />);
 
-    expect(screen.getByText("1 registro")).toBeInTheDocument();
-    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.getByText("3 registros")).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
     expect(screen.getByRole("heading", { name: "Apostila" })).toBeInTheDocument();
   });
 
-  it("exibe estado vazio quando todos os registros estão vazios", () => {
+  it("renderiza o registro mesmo quando seus campos estão vazios", () => {
     render(<AtosRelacionados atos={[atoVazio]} isLoading={false} />);
-    expect(screen.getByText("Nenhum ato relacionado encontrado.")).toBeInTheDocument();
-    expect(screen.getByText("0 registros")).toBeInTheDocument();
+    expect(screen.queryByText("Nenhum ato relacionado encontrado.")).not.toBeInTheDocument();
+    expect(screen.getByText("1 registro")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ato administrativo" })).toBeInTheDocument();
   });
 
   it.each(["data", "portaria", "titulo", "descricao"] as const)("mantém um ato quando apenas %s está preenchido", (campo) => {
@@ -89,7 +90,7 @@ describe("AtosRelacionados", () => {
   it("usa nome acessível padrão no link quando o ato não possui título nem portaria", () => {
     render(<AtosRelacionados atos={[{ ...atoVazio, descricao: "Observação" }]} isLoading={false} />);
     expect(screen.getByRole("link", { name: "Ver detalhes de ato administrativo" })).toHaveAttribute("href", "/pages/listagem-designacoes/visualizar-designacao/99");
-    expect(screen.queryByText("Data do ato")).not.toBeInTheDocument();
+    expect(screen.getByText("Data do ato")).toBeInTheDocument();
   });
 
   it("risca o título do ato que não está mais vigente", () => {

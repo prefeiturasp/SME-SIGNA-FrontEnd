@@ -115,7 +115,7 @@ describe("ListagemDeDesignacaoDaUnidade", () => {
   it("exibe estado vazio quando não há designações e não está carregando", () => {
     render(<ListagemDeDesignacaoDaUnidade data={[]} />);
 
-    expect(screen.getByText("Nenhuma designação encontrada para esta unidade.")).toBeInTheDocument();
+    expect(screen.getByText("Não há dados.")).toBeInTheDocument();
   });
 
   it("exibe estado de carregamento enquanto busca as designações", () => {

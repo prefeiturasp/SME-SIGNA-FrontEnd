@@ -47,8 +47,8 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
 }));
 
 vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos", () => ({
-  default: ({ onClear }: { onClear?: () => void }) => {
-    filtroSpy({ onClear });
+  default: ({ codigoUe, onClear }: { codigoUe: string; onClear?: () => void }) => {
+    filtroSpy({ codigoUe, onClear });
     return (
       <button type="button" data-testid="filtro-clear" onClick={onClear}>
         limpar filtro
@@ -139,7 +139,7 @@ describe("Página de histórico de ato administrativo", () => {
 
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("0");
     expect(screen.getByTestId("list-loading")).toHaveTextContent("false");
-    expect(screen.getByTestId("list-ue")).toHaveTextContent("014591");
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("undefined");
     expect(screen.getByTestId("list-titulo")).toHaveTextContent("Histórico");
     expect(screen.getByTestId("list-subtitulo")).toHaveTextContent(
       "Consulte as designações e os atos administrativos relacionados a esta unidade educacional."
@@ -154,16 +154,17 @@ describe("Página de histórico de ato administrativo", () => {
     render(<AtosAdministrativos />);
 
     expect(hookSpy.mock.calls[0][0]).toBe("123456");
-    expect(screen.getByTestId("list-ue")).toHaveTextContent("123456");
+    expect(filtroSpy).toHaveBeenCalledWith({ codigoUe: "123456", onClear: handleClearMock });
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("undefined");
   });
 
-  it("usa o código padrão quando a query string não informa ue", () => {
+  it("não usa uma unidade padrão quando a query string não informa ue", () => {
     searchParamsGetMock.mockReturnValue(null);
 
     render(<AtosAdministrativos />);
 
-    expect(hookSpy.mock.calls[0][0]).toBe("014591");
-    expect(screen.getByTestId("list-ue")).toHaveTextContent("014591");
+    expect(hookSpy.mock.calls[0][0]).toBe("");
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("undefined");
   });
 
   it("exibe o nome da unidade proponente retornado pela API", () => {
@@ -185,21 +186,11 @@ describe("Página de histórico de ato administrativo", () => {
     );
   });
 
-  it("monta os filtros iniciais para o hook de histórico", () => {
+  it("usa os filtros padrão do hook para a UE da query string", () => {
     render(<AtosAdministrativos />);
 
     expect(hookSpy).toHaveBeenCalledTimes(1);
-    expect(hookSpy.mock.calls[0][0]).toBe("014591");
-    expect(hookSpy.mock.calls[0][1]).toEqual({
-      tipo: "TODOS",
-      portaria: "",
-      numero_sei: "",
-      nome_titular_e_indicado: "",
-      status_publicacao: "",
-      periodo_before: "",
-      rf: "",
-      observacao: "",
-    });
+    expect(hookSpy).toHaveBeenCalledWith("014591");
   });
 
   it("aciona handleClear quando o filtro dispara onClear", () => {

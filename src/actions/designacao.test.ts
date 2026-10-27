@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cookies } from "next/headers";
 import {
     fetchAtosAdministrativos,
+    fetchCargosVigentes,
     fetchHistoricoDeDesignacoes,
     fetchPortariasDO,
 } from "./designacao";
@@ -49,6 +50,17 @@ const samplePortariasResponse: ListagemPortariasResponse[] = [
         sei_numero: "SEI-100",
     },
 ];
+
+describe("fetchCargosVigentes", () => {
+    it("busca os cargos vigentes com o cliente autenticado", async () => {
+        const data = [{ codigoCargo: null, nomeCargo: "Todos os cargos", quantidade_designacoes_vigentes: 0 }];
+        const client = { get: vi.fn().mockResolvedValue({ data }) };
+        vi.mocked(getApiClient).mockResolvedValue(client as unknown as Awaited<ReturnType<typeof getApiClient>>);
+
+        expect(await fetchCargosVigentes("014591")).toEqual({ success: true, data });
+        expect(client.get).toHaveBeenCalledWith("/designacao/designacoes/cargos-vigentes/", { params: { ue: "014591" } });
+    });
+});
 
 describe("fetchPortariasDO", () => {
     const mockAxiosInstance = { get: vi.fn() };
@@ -256,6 +268,7 @@ describe("fetchHistoricoDeDesignacoes", () => {
         mockAxiosInstance.get.mockResolvedValue({ data: [] });
 
         await fetchHistoricoDeDesignacoes("014591", {
+            cargo: "3360",
             tipo: "APOSTILA",
             portaria: "",
             observacao: "13",
@@ -263,7 +276,7 @@ describe("fetchHistoricoDeDesignacoes", () => {
 
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
             "/designacao/historico-de-designacoes/014591/",
-            { params: { tipo: "APOSTILA", observacao: "13" } }
+            { params: { cargo: "3360", tipo: "APOSTILA", observacao: "13" } }
         );
     });
 

@@ -40,7 +40,7 @@ const ListagemDeDesignacaoDaUnidade: React.FC<ListagemDeDesignacaoDaUnidadeProps
         )}
 
         {!isLoading && data.length === 0 && (
-          <p className="listagem-designacao-unidade-vazio">Nenhuma designação encontrada para esta unidade.</p>
+          <p className="listagem-designacao-unidade-vazio">Não há dados.</p>
         )}
 
         {data.map((ato) => (

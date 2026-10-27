@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FiltroDeHistoricoDeAtosAdministrativos, { CargoSelectField, StatusPublicacaoSelectField } from "./FiltroDeHistoricoDeAtosAdministrativos";
+import FiltroDeHistoricoDeAtosAdministrativos from "./FiltroDeHistoricoDeAtosAdministrativos";
+import { fetchCargosVigentes } from "@/actions/designacao";
+
+vi.mock("@/actions/designacao", () => ({
+  fetchCargosVigentes: vi.fn(),
+}));
 
 const watchValues: Record<string, unknown> = {};
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
@@ -120,12 +125,13 @@ vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
 describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fetchCargosVigentes).mockImplementation(() => new Promise(() => {}));
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
   });
 
   it("renderiza campos e envia hasFilters=false ao FiltroAcoes", () => {
-    render(<FiltroDeHistoricoDeAtosAdministrativos />);
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
 
     expect(screen.getByText("Filtros")).toBeInTheDocument();
     expect(screen.getByTestId("select-listar-para")).toBeInTheDocument();
@@ -143,22 +149,11 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     );
   });
 
-  it("propaga alteracoes do select de status para o react-hook-form", () => {
-    render(<StatusPublicacaoSelectField StatusPublicacaoOpcoes={[{ codigo: "PUBLICADO", nome: "Publicado" }]} />);
-
-    expect(screen.getByText("Status")).toBeInTheDocument();
-    expect(screen.getByTestId("select-item-PUBLICADO")).toHaveTextContent("Publicado");
-    const triggers = screen.getAllByRole("button", { name: "trigger-select" });
-    triggers.forEach((button) => fireEvent.click(button));
-
-    expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
-  });
-
   it("marca hasFilters=true e dispara onClear", () => {
     const onClear = vi.fn();
     watchValues.observacao = "texto";
 
-    render(<FiltroDeHistoricoDeAtosAdministrativos onClear={onClear} />);
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" onClear={onClear} />);
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -170,16 +165,53 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 
-  it("renderiza as opções de cargo e o texto de orientação", () => {
-    render(<FiltroDeHistoricoDeAtosAdministrativos />);
+  it("renderiza as opções retornadas pelo backend e mapeia o código nulo para TODOS", async () => {
+    vi.mocked(fetchCargosVigentes).mockResolvedValue({
+      success: true,
+      data: [
+        { codigoCargo: null, nomeCargo: "Todos os cargos", quantidade_designacoes_vigentes: 2 },
+        { codigoCargo: 9999, nomeCargo: "Cargo retornado pela API", quantidade_designacoes_vigentes: 2 },
+        { codigoCargo: 8888, nomeCargo: "Cargo sem designações", quantidade_designacoes_vigentes: 0 },
+      ],
+    });
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
 
     const cargo = within(screen.getByTestId("select-codigo-cargo-eol"));
-    ["Todos os cargos", "Cargo 1", "Cargo 2", "Cargo 3"].forEach((opcao) => {
-      expect(cargo.getByText(opcao)).toBeInTheDocument();
-    });
-    expect(cargo.getByText(/O número entre parênteses indica/)).toBeInTheDocument();
+    expect(await cargo.findByTestId("select-item-9999")).toHaveTextContent(/^Cargo retornado pela API \(2\)$/);
+    expect(cargo.getByTestId("select-item-TODOS")).toHaveTextContent(/^Todos os cargos \(2\)$/);
+    expect(cargo.getByTestId("select-item-8888")).toHaveTextContent(/^Cargo sem designações$/);
+    expect(cargo.queryByTestId("select-item-3085")).not.toBeInTheDocument();
+    expect(fetchCargosVigentes).toHaveBeenCalledTimes(1);
+    expect(fetchCargosVigentes).toHaveBeenCalledWith("014591");
     expect(screen.getByText("Utilize os filtros para refinar a sua busca.")).toBeInTheDocument();
     expect(screen.getByText("Aguardando publicação")).toBeInTheDocument();
+  });
+
+  it("consulta novamente ao trocar a unidade proponente", () => {
+    const { rerender } = render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+    expect(fetchCargosVigentes).toHaveBeenLastCalledWith("014591");
+
+    rerender(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="019453" />);
+    expect(fetchCargosVigentes).toHaveBeenLastCalledWith("019453");
+    expect(fetchCargosVigentes).toHaveBeenCalledTimes(2);
+  });
+
+  it("não consulta cargos sem unidade proponente", () => {
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="" />);
+    expect(fetchCargosVigentes).not.toHaveBeenCalled();
+  });
+
+  it("exibe o erro quando a API não retorna os cargos", async () => {
+    vi.mocked(fetchCargosVigentes).mockResolvedValue({ success: false, error: "Erro ao buscar os cargos vigentes" });
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Erro ao buscar os cargos vigentes");
+    expect(screen.queryByTestId("select-item-3085")).not.toBeInTheDocument();
+  });
+
+  it("trata falhas inesperadas ao carregar cargos", async () => {
+    vi.mocked(fetchCargosVigentes).mockRejectedValue(new Error("Falha de conexão"));
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Erro ao buscar os cargos vigentes");
   });
 
   it.each([
@@ -189,18 +221,18 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     ["status_publicacao", "PUBLICADO"],
   ])("marca hasFilters=true quando %s está preenchido", (campo, valor) => {
     watchValues[campo as string] = valor;
-    render(<FiltroDeHistoricoDeAtosAdministrativos />);
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({ hasFilters: true }),
     );
   });
 
-  it.each([undefined, null, ""])("ignora filtros com valor %s", (valor) => {
+  it.each([undefined, null, "", "TODOS"])("ignora filtros com valor %s", (valor) => {
     ["tipo", "periodo", "observacao", "status_publicacao"].forEach((campo) => {
       watchValues[campo] = valor;
     });
-    render(<FiltroDeHistoricoDeAtosAdministrativos />);
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
 
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({ hasFilters: false }),
@@ -209,22 +241,12 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
 
   it("atualiza hasFilters após limpar os valores observados", () => {
     watchValues.tipo = "DESIGNACAO";
-    const { rerender } = render(<FiltroDeHistoricoDeAtosAdministrativos />);
+    const { rerender } = render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
     expect(screen.getByTestId("mock-filtro-acoes")).toHaveTextContent("true");
 
     watchValues.tipo = "";
-    rerender(<FiltroDeHistoricoDeAtosAdministrativos />);
+    rerender(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
     expect(screen.getByTestId("mock-filtro-acoes")).toHaveTextContent("false");
-  });
-
-  it("renderiza cargos personalizados e propaga a seleção ao formulário", () => {
-    render(<CargoSelectField CargoOpcoes={[{ codigo: "42", nome: "Diretor (2)" }]} />);
-
-    expect(screen.getByText("Cargo")).toBeInTheDocument();
-    expect(screen.getByTestId("select-cargo")).toHaveTextContent("Selecione");
-    expect(screen.getByTestId("select-item-42")).toHaveTextContent("Diretor (2)");
-    fireEvent.click(screen.getByRole("button", { name: "trigger-select" }));
-    expect(onChangeByField.cargo).toHaveBeenCalledWith("mock-value");
   });
 
 });

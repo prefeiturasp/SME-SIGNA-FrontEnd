@@ -232,7 +232,7 @@ describe("VisualizarInsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&ue=014591&tipo=INSUBSISTENCIA&tipo_display=de insubsistência&numero_portaria=100&servidor_indicado=Servidor Teste",
+      "/pages/historico-ato-administrativo?ue=014591",
     );
   });
 

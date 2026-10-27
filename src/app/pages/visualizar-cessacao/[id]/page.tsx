@@ -56,7 +56,7 @@ export default function VisualizarCessacaoPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&ue=${cessacao?.designacao?.ue}&tipo_display=da cessação&numero_portaria=${cessacao?.numero_portaria}&servidor_indicado=${cessacao?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?${new URLSearchParams({ ue: cessacao?.designacao?.ue ?? "" })}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>

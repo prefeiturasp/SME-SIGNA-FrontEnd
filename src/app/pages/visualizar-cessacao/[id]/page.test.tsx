@@ -261,7 +261,7 @@ describe("VisualizarCessacao page", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&ue=014591&tipo_display=da cessação&numero_portaria=001&servidor_indicado=Servidor Indicado",
+      "/pages/historico-ato-administrativo?ue=014591",
     );
   });
 

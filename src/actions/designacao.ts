@@ -12,6 +12,15 @@ import {
   HistoricoDeDesignacoesFiltros,
 } from "@/types/historico-designacoes";
 import { fetchWithClient } from "./http";
+import { CargoVigente } from "@/types/cargos";
+
+export const fetchCargosVigentes = async (ue: string) => {
+  return fetchWithClient<CargoVigente[]>(
+    "/designacao/designacoes/cargos-vigentes/",
+    { ue },
+    "Erro ao buscar os cargos vigentes"
+  );
+};
 
 export const fetchPortariasDO = async (
   filtros: PortariasDOFiltros
@@ -67,7 +76,5 @@ export const fetchApostilasByIdAction = async (
     "Erro ao buscar as apostilas"
   );
 };
-
-
 
 

@@ -41,10 +41,6 @@ const rotuloDetalhes = (ato: IAtosAdministrativosType): string => {
 };
 
 export default function AtosRelacionados({ atos = [], isLoading = false }: Props) {
-    const atosVisiveis = atos.filter((ato) =>
-        [ato.data, ato.portaria, ato.titulo, ato.descricao].some((valor) => valor?.trim())
-    );
-
     const renderConteudo = () => {
         if (isLoading) {
             return (
@@ -55,7 +51,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
             );
         }
 
-        if (atosVisiveis.length === 0) {
+        if (atos.length === 0) {
             return (
                 <div className="atos-relacionados-message">
                     <FileText size={22} aria-hidden="true" />
@@ -67,7 +63,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
         return (
             <div >
                 <ol className="atos-relacionados-timeline">
-                    {atosVisiveis.map((ato) => (
+                    {atos.map((ato) => (
                         <li key={ato.id} className="atos-relacionados-item" data-principal={ato.principal}>
                             <article className="atos-relacionados-row">
                                 <dl className="atos-relacionados-metadata">
@@ -104,7 +100,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                 <h2 className="atos-relacionados-heading">Atos relacionados</h2>
                 {!isLoading && (
                     <span className="atos-relacionados-count">
-                        {atosVisiveis.length} {atosVisiveis.length === 1 ? "registro" : "registros"}
+                        {atos.length} {atos.length === 1 ? "registro" : "registros"}
                     </span>
                 )}
             </div>

@@ -290,7 +290,7 @@ describe("VisualizarDesignacao page", () => {
 
     fireEvent.click(screen.getByText("Consultar histórico"));
 
-    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?id=12&ue=014591&tipo_display=da designação&numero_portaria=001&servidor_indicado=INDICADO");
+    expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?ue=014591");
   });
 
   it("aplica fallback vazio no resumo da unidade quando campos vêm indefinidos", () => {

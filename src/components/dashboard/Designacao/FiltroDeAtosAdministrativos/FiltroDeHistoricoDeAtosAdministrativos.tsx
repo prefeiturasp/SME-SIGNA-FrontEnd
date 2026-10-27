@@ -1,85 +1,56 @@
 
 import { DateRangePickerField, InputField, SelectField } from '@/components/ui/FieldsForm';
-import { FormControl, FormLabel, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchCargosVigentes } from '@/actions/designacao';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
 import { AtosOpcoes, StatusPublicacaoOpcoes, TipoAtoSelectField } from './FiltroDeAtosAdministrativos';
 
 interface Props {
+  codigoUe: string;
   onClear?: () => void;
 }
 
-export const CargoSelectField: React.FC<{ CargoOpcoes: { codigo: string, nome: string }[] }> = ({ CargoOpcoes }) => {
-  const { control } = useFormContext();
-
-  return (
-    <FormField
-      control={control}
-      name="cargo"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-[#313131] font-bold">Cargo</FormLabel>
-          <FormControl>
-
-            <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-              <SelectTrigger data-testid="select-cargo">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {CargoOpcoes.map((item) => (
-                  <SelectItem key={item.codigo} value={item.codigo}>
-                    {item.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-              <p className="text-[12px] text-[#9CA3B9] font-normal pt-0 pb-8">O número entre parênteses indica a quantidade de atos registrados para cada cargo.</p>
-            </Select>
-          </FormControl>
-          <FormMessage />
-
-        </FormItem>
-      )}
-    />
-  );
-};
-
-export const StatusPublicacaoSelectField: React.FC<{ StatusPublicacaoOpcoes: { codigo: string, nome: string }[] }> = ({ StatusPublicacaoOpcoes }) => {
-  const { control } = useFormContext();
-
-  return (
-    <FormField
-      control={control}
-      name="status_publicacao"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-[#313131] font-bold">Status</FormLabel>
-          <FormControl>
-            <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
-              <SelectTrigger data-testid="select-status-publicacao">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {StatusPublicacaoOpcoes.map((item) => (
-                  <SelectItem key={item.codigo} value={item.codigo}>
-                    {item.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-};
-
-
-const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
+const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ codigoUe, onClear }) => {
   const { register, control, watch } = useFormContext();
+  const [cargoOpcoes, setCargoOpcoes] = useState<{ value: string; label: string }[]>([]);
+  const [carregandoCargos, setCarregandoCargos] = useState(true);
+  const [erroCargos, setErroCargos] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ativo = true;
+
+    const carregarCargos = async () => {
+      setCargoOpcoes([]);
+      setErroCargos(null);
+      setCarregandoCargos(!!codigoUe);
+      if (!codigoUe) return;
+
+      try {
+        const response = await fetchCargosVigentes(codigoUe);
+        if (!ativo) return;
+
+        if (response.success) {
+          setCargoOpcoes(response.data.map((cargo) => ({
+            value: cargo.codigoCargo === null ? 'TODOS' : String(cargo.codigoCargo),
+            label: cargo.quantidade_designacoes_vigentes > 0
+              ? `${cargo.nomeCargo} (${cargo.quantidade_designacoes_vigentes})`
+              : cargo.nomeCargo,
+          })));
+        } else {
+          setErroCargos(response.error);
+        }
+      } catch {
+        if (ativo) setErroCargos('Erro ao buscar os cargos vigentes');
+      } finally {
+        if (ativo) setCarregandoCargos(false);
+      }
+    };
+
+    void carregarCargos();
+    return () => { ativo = false; };
+  }, [codigoUe]);
   const watchedValues = watch([
     "tipo",
     "periodo",
@@ -87,13 +58,7 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) =>
     "status_publicacao",
     "cargo",
   ]);
-  const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
-  const CargoOpcoes = [
-    { value: 'TODOS', label: 'Todos os cargos' },
-    { value: '1', label: 'Cargo 1' },
-    { value: '2', label: 'Cargo 2' },
-    { value: '3', label: 'Cargo 3' },
-  ]
+  const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null && v !== "TODOS");
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
@@ -149,11 +114,11 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ onClear }) =>
             label="Cargo"
             placeholder="Selecione"
             data-testid="select-codigo-cargo-eol"
-            options={CargoOpcoes}
+            options={cargoOpcoes}
             showBlankSpace={false}
-            disabled={false}
-            extraContent={<p className="text-[12px] text-[#9CA3B9] font-normal p-0">O número entre parênteses indica a quantidade de atos registrados para cada cargo.</p>}
+            disabled={!codigoUe || carregandoCargos || !!erroCargos}
           />
+          {erroCargos && <p role="alert" className="text-sm text-destructive">{erroCargos}</p>}
         </div>
 
       </div>

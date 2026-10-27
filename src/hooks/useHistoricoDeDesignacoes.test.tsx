@@ -70,6 +70,7 @@ describe("useHistoricoDeDesignacoes", () => {
 
     await waitFor(() => {
       expect(fetchHistoricoDeDesignacoesMock).toHaveBeenCalledWith("014591", {
+        cargo: undefined,
         tipo: undefined,
         portaria: "",
         numero_sei: "",
@@ -145,6 +146,7 @@ describe("useHistoricoDeDesignacoes", () => {
 
     await waitFor(() => {
       expect(fetchHistoricoDeDesignacoesMock).toHaveBeenLastCalledWith("014591", {
+        cargo: undefined,
         tipo: "APOSTILA",
         portaria: "100",
         numero_sei: "1234.5678/9012345-6",
@@ -190,6 +192,7 @@ describe("useHistoricoDeDesignacoes", () => {
 
     expect(resetMock).toHaveBeenCalledWith({
       tipo: "TODOS",
+      cargo: "TODOS",
       portaria: "",
       numero_sei: "",
       nome_titular_e_indicado: "",
@@ -209,4 +212,25 @@ describe("useHistoricoDeDesignacoes", () => {
     expect(result.current.filterForm).toBeDefined();
     expect(typeof result.current.buscar).toBe("function");
   });
+  it.each(["3085", "3379", "3360", "3182"])("envia o código de cargo %s ao backend e limpa o filtro", async (cargo) => {
+    const data = [3085, 3379, 3360, 3182].map((cargo_vaga) => ({ id: cargo_vaga, cargo_vaga }));
+    fetchHistoricoDeDesignacoesMock.mockResolvedValue({ success: true, data });
+    const { result } = renderHook(() => useHistoricoDeDesignacoes("014591"));
+    await waitFor(() => expect(result.current.resultado).toEqual(data));
+    const filtrado = [{ id: Number(cargo) }];
+    fetchHistoricoDeDesignacoesMock.mockResolvedValueOnce({ success: true, data: filtrado });
+    await act(async () => result.current.onSubmitFilterForm({ cargo }));
+    expect(fetchHistoricoDeDesignacoesMock).toHaveBeenLastCalledWith("014591", expect.objectContaining({ cargo }));
+    expect(result.current.resultado).toEqual(filtrado);
+    await act(async () => result.current.handleClear());
+    expect(fetchHistoricoDeDesignacoesMock).toHaveBeenLastCalledWith("014591", expect.objectContaining({ cargo: undefined }));
+    expect(result.current.resultado).toEqual(data);
+  });
+
+  it("não busca uma unidade arbitrária quando a UE está ausente", async () => {
+    const { result } = renderHook(() => useHistoricoDeDesignacoes(""));
+    await waitFor(() => expect(result.current.resultado).toEqual([]));
+    expect(fetchHistoricoDeDesignacoesMock).not.toHaveBeenCalled();
+  });
+
 });

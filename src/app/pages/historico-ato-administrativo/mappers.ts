@@ -38,7 +38,7 @@ const mapearAtoRelacionado = (
   titulo: ato.tipo_de_ato ?? "",
   descricao: ato.observacoes ?? "",
   principal: Boolean(ato.ultimo_ato_vigente),
-  esta_vigente: Boolean(ato.ativo || ato.ultimo_ato_vigente),
+  esta_vigente: Boolean(ato.ativo),
 });
 
 export const mapearHistoricoParaAtosPrincipais = (
@@ -55,8 +55,8 @@ export const mapearHistoricoParaAtosPrincipais = (
     numero_portaria:
       designacao.portaria ?? String(designacao.numero_portaria ?? ""),
     cargo_display: designacao.cargo ?? "",
-    nome_servidor_indicado: designacao.nome?.trim() || designacao.indicado_nome_servidor || "",
-    nome_social_servidor_indicado: "",
+    nome_servidor_indicado: designacao.indicado_nome_servidor || "",
+    nome_social_servidor_indicado: designacao.nome?.trim() || "",
     atos_relacionados: (designacao.atos_relacionados ?? []).map(
       mapearAtoRelacionado
     ),

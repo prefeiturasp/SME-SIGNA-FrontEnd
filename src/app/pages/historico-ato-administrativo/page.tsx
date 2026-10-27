@@ -7,29 +7,16 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { useHistoricoDeDesignacoes } from "@/hooks/useHistoricoDeDesignacoes";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import { AtosAdministrativosFiltros } from "@/types/designacao";
 import FiltroDeHistoricoDeAtosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos";
 import ListagemDeDesignacaoDaUnidade from "@/components/dashboard/Designacao/ListagemDeDesignacaoDaUnidade/ListagemDeDesignacaoDaUnidade";
 import { mapearHistoricoParaAtosPrincipais } from "./mappers";
 
-const UE_PADRAO = "014591";
 
 export default function AtosAdministrativos() {
 
   const searchParams = useSearchParams();
 
-  const codigoUe = searchParams.get("ue") ?? UE_PADRAO;
-
-  const defaultValues: AtosAdministrativosFiltros = {
-    tipo: "TODOS",
-    portaria: "",
-    numero_sei: "",
-    nome_titular_e_indicado: "",
-    status_publicacao: "",
-    periodo_before: "",
-    rf: "",
-    observacao: "",
-  };
+  const codigoUe = searchParams.get("ue")?.trim() ?? "";
 
   const {
     isPending,
@@ -38,7 +25,7 @@ export default function AtosAdministrativos() {
     filterForm,
     onSubmitFilterForm,
     handleClear,
-  } = useHistoricoDeDesignacoes(codigoUe, defaultValues);
+  } = useHistoricoDeDesignacoes(codigoUe);
 
   const atosPrincipais = useMemo(
     () => mapearHistoricoParaAtosPrincipais(resultado ?? []),
@@ -75,7 +62,7 @@ export default function AtosAdministrativos() {
       <FundoBranco className="mb-4 mt-8">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-            <FiltroDeHistoricoDeAtosAdministrativos onClear={handleClear} />
+            <FiltroDeHistoricoDeAtosAdministrativos codigoUe={codigoUe} onClear={handleClear} />
           </form>
         </FormProvider>
       </ FundoBranco>
