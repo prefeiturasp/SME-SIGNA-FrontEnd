@@ -97,6 +97,9 @@ const parseStatusAtosAdministrativos = (
 
 
 
+const possuiApostilaValida = (record: ListagemAtosAdministrativosResponse): boolean =>
+  record.apostilas?.some((apostila) => apostila.status !== 'insubsistente') ?? false;
+
 interface ListagemDeAtosAdministrativosProps {
   data: ListagemAtosAdministrativosResponse[];
   isLoading?: boolean;
@@ -154,7 +157,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   };
 
   const designacaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => [
-    ...(record?.apostilas?.length && record?.apostilas?.length > 0 ? [] : [{
+    ...(possuiApostilaValida(record) ? [] : [{
       key: '1',
       label: 'Apostilar',
       icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
@@ -211,7 +214,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     };
 
     return [
-      ...(record?.apostilas?.length && record?.apostilas?.length > 0 ? [] : [{
+      ...(possuiApostilaValida(record) ? [] : [{
         key: '1',
         label: 'Apostilar',
         icon: <Apostilar width={20} height={20} color="#9CA3B9" />,
@@ -286,7 +289,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     },
   ]
 
-  const insubsistenciaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+  const insubsistenciaItemsPublicada = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
     return [
       {
         key: '7',
@@ -299,6 +302,20 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     ];
   };
 
+
+  const insubsistenciaItemsNaoPublicada = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
+    return [      
+      {
+        key: '8',
+        label: 'Editar',
+        icon: <Editar width={20} height={20} color="#9CA3B9" />,
+        onClick: () => {
+          router.push(`/pages/insubsistencia?id_insubsistencia=${record.id}&origem=${record.tipo_de_ato.includes("Cessação") ? "cessacao" : "designacao"}`);
+        },
+      },
+      ...insubsistenciaItemsPublicada(record),
+    ];
+  };
 
 
 
@@ -324,7 +341,10 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     const tipoDoAtoAtingido = record.tipo_insubsistencia ?? '';
 
     if (["DESIGNACAO", "CESSACAO"].includes(tipoDoAtoAtingido)) {
-      return insubsistenciaItems(record);
+      if (record.status_publicacao === StatusAtosAdministrativos.PUBLICADO) {
+        return insubsistenciaItemsPublicada(record);
+      }
+      return insubsistenciaItemsNaoPublicada(record);
     }
 
     if (tipoDoAtoAtingido === 'APOSTILA') {

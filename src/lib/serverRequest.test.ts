@@ -161,6 +161,25 @@ describe("lib/serverRequest", () => {
     });
   });
 
+  it("retorna a primeira mensagem de erros aninhados", async () => {
+    mockCookies("token");
+    mockedAxios.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: { alteracoes: [{}, { valor_novo: ["Data inválida"] }] },
+      },
+      message: "request failed",
+    } as never);
+
+    const result = await postWithAuth<ITestPayload>("/rota", { nome: "X" }, "fallback");
+
+    expect(result).toEqual({
+      success: false,
+      error: "Data inválida",
+    });
+  });
+
   it("usa error.message quando não há dados úteis na resposta", async () => {
     mockCookies("token");
     mockedAxios.post.mockRejectedValueOnce({
