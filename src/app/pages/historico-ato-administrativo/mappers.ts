@@ -27,10 +27,16 @@ const mapearAtoRelacionado = (
   ato: AtoRelacionadoHistorico
 ): IAtosAdministrativosType => ({
   id: ato.id,
-  data: formatarDataDoAto(ato.data_do_ato),
+  data: formatarDataDoAto(
+    ato.tipo === "CESSACAO" ||
+      ato.tipo_apostila === "CESSACAO" ||
+      ato.tipo_insubsistencia === "CESSACAO"
+      ? ato.data_cessacao
+      : ato.data_designacao
+  ),
   portaria: ato.portaria ?? "",
   titulo: ato.tipo_de_ato ?? "",
-  descricao: ato.observacao ?? "",
+  descricao: ato.observacoes ?? "",
   principal: Boolean(ato.ultimo_ato_vigente),
   esta_vigente: Boolean(ato.ativo || ato.ultimo_ato_vigente),
 });
@@ -40,7 +46,7 @@ export const mapearHistoricoParaAtosPrincipais = (
 ): IAtosAdministrativosPrincipalType[] =>
   designacoes.map((designacao) => ({
     id: designacao.id,
-    tipo_ato_display: "Designação",
+    tipo_ato_display: designacao.tipo_de_ato || "Designação",
     realizada_em: formatarDataDoAto(designacao.data_inicio),
     data_cessacao: formatarDataDoAto(
       designacao.cessada_em ?? designacao.data_fim
@@ -49,7 +55,7 @@ export const mapearHistoricoParaAtosPrincipais = (
     numero_portaria:
       designacao.portaria ?? String(designacao.numero_portaria ?? ""),
     cargo_display: designacao.cargo ?? "",
-    nome_servidor_indicado: designacao.servidor_indicado ?? "",
+    nome_servidor_indicado: designacao.nome?.trim() || designacao.indicado_nome_servidor || "",
     nome_social_servidor_indicado: "",
     atos_relacionados: (designacao.atos_relacionados ?? []).map(
       mapearAtoRelacionado

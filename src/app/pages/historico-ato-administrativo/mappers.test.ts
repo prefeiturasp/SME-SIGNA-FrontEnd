@@ -16,7 +16,17 @@ const designacaoBase: DesignacaoHistorico = {
   unidade_proponente: "EMEI - BENEDICTO CASTRUCCI, PROF.",
   codigo_hierarquico: "162100000140000",
   cargo: "DIRETOR DE ESCOLA",
-  servidor_indicado: "VANESSA GUSTAVO DA SILVA",
+  nome: "VANESSA GUSTAVO DA SILVA",
+  indicado_nome_servidor: "VANESSA GUSTAVO DA SILVA",
+  indicado_nome_civil: "",
+  tipo: "DESIGNACAO",
+  tipo_de_ato: "Designação",
+  status_publicacao: "NAO_PUBLICADO",
+  ato_pai_id: null,
+  ato_raiz_id: null,
+  criado_em: "2026-09-30T12:38:15.722045-03:00",
+  criado_por_nome: "ADALBERTO PAVLIDIS DA SILVA",
+  rf: "7914229",
   indicado_rf: "7914229",
   data_inicio: "2012-09-30",
   data_fim: null,
@@ -26,30 +36,54 @@ const designacaoBase: DesignacaoHistorico = {
     {
       id: 2,
       ato_pai_id: 1,
+      ato_raiz_id: 1,
+      cargo: "DIRETOR DE ESCOLA",
+      rf: "7914229",
+      status: "insubsistente",
+      status_publicacao: "NAO_PUBLICADO",
+      sei_numero: "12",
+      doc: null,
+      criado_em: "2026-09-30T12:38:42.772457-03:00",
+      criado_por_nome: "ADALBERTO PAVLIDIS DA SILVA",
+      tipo_apostila: null,
+      tipo_insubsistencia: null,
+      data_cessacao: null,
       tipo: "APOSTILA",
-      tipo_de_ato: "Apostila",
+      tipo_de_ato: "Apostila de Designação",
       nivel: 1,
-      data_do_ato: null,
+      data_designacao: "2012-09-30",
       numero_portaria: 11,
       ano_vigente: "",
       portaria: "11",
-      nome_display: "VANESSA GUSTAVO DA SILVA",
-      observacao: "",
+      nome: "VANESSA GUSTAVO DA SILVA",
+      observacoes: "",
       ativo: false,
       ultimo_ato_vigente: false,
     },
     {
       id: 35,
       ato_pai_id: 1,
+      ato_raiz_id: 1,
+      cargo: "DIRETOR DE ESCOLA",
+      rf: "7914229",
+      status: "insubsistente",
+      status_publicacao: "NAO_PUBLICADO",
+      sei_numero: "12",
+      doc: null,
+      criado_em: "2026-09-30T12:38:42.772457-03:00",
+      criado_por_nome: "ADALBERTO PAVLIDIS DA SILVA",
+      tipo_apostila: null,
+      tipo_insubsistencia: null,
+      data_cessacao: null,
       tipo: "INSUBSISTENCIA",
-      tipo_de_ato: "Insubsistência",
+      tipo_de_ato: "Insubsistência de Designação",
       nivel: 1,
-      data_do_ato: "2013-05-10",
+      data_designacao: "2012-09-30",
       numero_portaria: 13,
       ano_vigente: "2013",
       portaria: "13/2013",
-      nome_display: "VANESSA GUSTAVO DA SILVA",
-      observacao: "13",
+      nome: "VANESSA GUSTAVO DA SILVA",
+      observacoes: "13",
       ativo: true,
       ultimo_ato_vigente: true,
     },
@@ -97,23 +131,62 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     expect(atoPrincipal.atos_relacionados).toEqual([
       {
         id: 2,
-        data: "",
+        data: "30/09/2012",
         portaria: "11",
-        titulo: "Apostila",
+        titulo: "Apostila de Designação",
         descricao: "",
         principal: false,
         esta_vigente: false,
       },
       {
         id: 35,
-        data: "10/05/2013",
+        data: "30/09/2012",
         portaria: "13/2013",
-        titulo: "Insubsistência",
+        titulo: "Insubsistência de Designação",
         descricao: "13",
         principal: true,
         esta_vigente: true,
       },
     ]);
+  });
+
+  it("usa o nome do indicado quando o nome de exibição está vazio", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([
+      { ...designacaoBase, nome: " " },
+    ]);
+
+    expect(ato.nome_servidor_indicado).toBe(designacaoBase.indicado_nome_servidor);
+  });
+
+  it.each([
+    ["CESSACAO", null, null],
+    ["APOSTILA", "CESSACAO", null],
+    ["INSUBSISTENCIA", null, "CESSACAO"],
+  ])("usa a data de cessação para %s de cessação", (tipo, tipo_apostila, tipo_insubsistencia) => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      atos_relacionados: [{
+        ...designacaoBase.atos_relacionados[0],
+        tipo,
+        tipo_apostila,
+        tipo_insubsistencia,
+        data_cessacao: "2020-03-04",
+      }],
+    }]);
+
+    expect(ato.atos_relacionados[0].data).toBe("04/03/2020");
+  });
+
+  it("aceita datas nulas nos atos relacionados", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      atos_relacionados: [{
+        ...designacaoBase.atos_relacionados[0],
+        data_designacao: null,
+      }],
+    }]);
+
+    expect(ato.atos_relacionados[0].data).toBe("");
   });
 
   it("retorna lista vazia quando não recebe designações", () => {

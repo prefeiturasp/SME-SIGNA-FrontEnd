@@ -45,7 +45,7 @@ export default function AtosAdministrativos() {
     [resultado]
   );
 
-  const nomeUnidade = resultado?.[0]?.unidade_proponente?.trim() || codigoUe;
+  const nomeUnidade = resultado?.[0]?.unidade_proponente?.trim();
 
   const router = useRouter();
 
