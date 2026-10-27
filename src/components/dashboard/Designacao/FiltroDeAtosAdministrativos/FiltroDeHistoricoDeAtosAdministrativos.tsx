@@ -2,7 +2,7 @@
 import { DateRangePickerField, InputField, SelectField } from '@/components/ui/FieldsForm';
 
 import React, { useEffect, useState } from 'react';
-import { fetchCargosVigentes } from '@/actions/designacao';
+import { fetchCargosDesignacoes } from '@/actions/designacao';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
 import { AtosOpcoes, StatusPublicacaoOpcoes, TipoAtoSelectField } from './FiltroDeAtosAdministrativos';
@@ -28,21 +28,21 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ codigoUe, onC
       if (!codigoUe) return;
 
       try {
-        const response = await fetchCargosVigentes(codigoUe);
+        const response = await fetchCargosDesignacoes(codigoUe);
         if (!ativo) return;
 
         if (response.success) {
           setCargoOpcoes(response.data.map((cargo) => ({
             value: cargo.codigoCargo === null ? 'TODOS' : String(cargo.codigoCargo),
-            label: cargo.quantidade_designacoes_vigentes > 0
-              ? `${cargo.nomeCargo} (${cargo.quantidade_designacoes_vigentes})`
+            label: cargo.quantidade_designacoes > 0
+              ? `${cargo.nomeCargo} (${cargo.quantidade_designacoes})`
               : cargo.nomeCargo,
           })));
         } else {
           setErroCargos(response.error);
         }
       } catch {
-        if (ativo) setErroCargos('Erro ao buscar os cargos vigentes');
+        if (ativo) setErroCargos('Erro ao buscar os cargos das designações');
       } finally {
         if (ativo) setCarregandoCargos(false);
       }

@@ -3,8 +3,8 @@ export interface ICargoType {
     nomeCargo: string;  
 }
 
-export interface CargoVigente {
+export interface CargoDesignacoes {
     codigoCargo: number | null;
     nomeCargo: string;
-    quantidade_designacoes_vigentes: number;
+    quantidade_designacoes: number;
 }

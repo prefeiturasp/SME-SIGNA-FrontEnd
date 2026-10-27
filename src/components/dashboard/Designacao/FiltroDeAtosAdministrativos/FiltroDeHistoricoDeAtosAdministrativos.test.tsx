@@ -2,10 +2,10 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FiltroDeHistoricoDeAtosAdministrativos from "./FiltroDeHistoricoDeAtosAdministrativos";
-import { fetchCargosVigentes } from "@/actions/designacao";
+import { fetchCargosDesignacoes } from "@/actions/designacao";
 
 vi.mock("@/actions/designacao", () => ({
-  fetchCargosVigentes: vi.fn(),
+  fetchCargosDesignacoes: vi.fn(),
 }));
 
 const watchValues: Record<string, unknown> = {};
@@ -125,7 +125,7 @@ vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
 describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(fetchCargosVigentes).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(fetchCargosDesignacoes).mockImplementation(() => new Promise(() => {}));
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
   });
@@ -166,12 +166,12 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
   });
 
   it("renderiza as opções retornadas pelo backend e mapeia o código nulo para TODOS", async () => {
-    vi.mocked(fetchCargosVigentes).mockResolvedValue({
+    vi.mocked(fetchCargosDesignacoes).mockResolvedValue({
       success: true,
       data: [
-        { codigoCargo: null, nomeCargo: "Todos os cargos", quantidade_designacoes_vigentes: 2 },
-        { codigoCargo: 9999, nomeCargo: "Cargo retornado pela API", quantidade_designacoes_vigentes: 2 },
-        { codigoCargo: 8888, nomeCargo: "Cargo sem designações", quantidade_designacoes_vigentes: 0 },
+        { codigoCargo: null, nomeCargo: "Todos os cargos", quantidade_designacoes: 2 },
+        { codigoCargo: 9999, nomeCargo: "Cargo retornado pela API", quantidade_designacoes: 2 },
+        { codigoCargo: 8888, nomeCargo: "Cargo sem designações", quantidade_designacoes: 0 },
       ],
     });
     render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
@@ -181,37 +181,37 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     expect(cargo.getByTestId("select-item-TODOS")).toHaveTextContent(/^Todos os cargos \(2\)$/);
     expect(cargo.getByTestId("select-item-8888")).toHaveTextContent(/^Cargo sem designações$/);
     expect(cargo.queryByTestId("select-item-3085")).not.toBeInTheDocument();
-    expect(fetchCargosVigentes).toHaveBeenCalledTimes(1);
-    expect(fetchCargosVigentes).toHaveBeenCalledWith("014591");
+    expect(fetchCargosDesignacoes).toHaveBeenCalledTimes(1);
+    expect(fetchCargosDesignacoes).toHaveBeenCalledWith("014591");
     expect(screen.getByText("Utilize os filtros para refinar a sua busca.")).toBeInTheDocument();
     expect(screen.getByText("Aguardando publicação")).toBeInTheDocument();
   });
 
   it("consulta novamente ao trocar a unidade proponente", () => {
     const { rerender } = render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
-    expect(fetchCargosVigentes).toHaveBeenLastCalledWith("014591");
+    expect(fetchCargosDesignacoes).toHaveBeenLastCalledWith("014591");
 
     rerender(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="019453" />);
-    expect(fetchCargosVigentes).toHaveBeenLastCalledWith("019453");
-    expect(fetchCargosVigentes).toHaveBeenCalledTimes(2);
+    expect(fetchCargosDesignacoes).toHaveBeenLastCalledWith("019453");
+    expect(fetchCargosDesignacoes).toHaveBeenCalledTimes(2);
   });
 
   it("não consulta cargos sem unidade proponente", () => {
     render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="" />);
-    expect(fetchCargosVigentes).not.toHaveBeenCalled();
+    expect(fetchCargosDesignacoes).not.toHaveBeenCalled();
   });
 
   it("exibe o erro quando a API não retorna os cargos", async () => {
-    vi.mocked(fetchCargosVigentes).mockResolvedValue({ success: false, error: "Erro ao buscar os cargos vigentes" });
+    vi.mocked(fetchCargosDesignacoes).mockResolvedValue({ success: false, error: "Erro ao buscar os cargos das designações" });
     render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("Erro ao buscar os cargos vigentes");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Erro ao buscar os cargos das designações");
     expect(screen.queryByTestId("select-item-3085")).not.toBeInTheDocument();
   });
 
   it("trata falhas inesperadas ao carregar cargos", async () => {
-    vi.mocked(fetchCargosVigentes).mockRejectedValue(new Error("Falha de conexão"));
+    vi.mocked(fetchCargosDesignacoes).mockRejectedValue(new Error("Falha de conexão"));
     render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("Erro ao buscar os cargos vigentes");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Erro ao buscar os cargos das designações");
   });
 
   it.each([

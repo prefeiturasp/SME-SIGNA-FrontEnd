@@ -12,13 +12,13 @@ import {
   HistoricoDeDesignacoesFiltros,
 } from "@/types/historico-designacoes";
 import { fetchWithClient } from "./http";
-import { CargoVigente } from "@/types/cargos";
+import { CargoDesignacoes } from "@/types/cargos";
 
-export const fetchCargosVigentes = async (ue: string) => {
-  return fetchWithClient<CargoVigente[]>(
-    "/designacao/designacoes/cargos-vigentes/",
+export const fetchCargosDesignacoes = async (ue: string) => {
+  return fetchWithClient<CargoDesignacoes[]>(
+    "/designacao/designacoes/cargos-designacoes/",
     { ue },
-    "Erro ao buscar os cargos vigentes"
+    "Erro ao buscar os cargos das designações"
   );
 };
 
