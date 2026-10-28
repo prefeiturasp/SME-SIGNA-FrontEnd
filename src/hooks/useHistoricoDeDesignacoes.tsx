@@ -1,4 +1,4 @@
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -11,6 +11,28 @@ import {
   DesignacaoHistorico,
   HistoricoDeDesignacoesFiltros,
 } from "@/types/historico-designacoes";
+
+const HISTORICO_VAZIO: DesignacaoHistorico[] = [];
+
+const gerarFiltros = (
+  values: filterFormSchemaFiltroAtosAdministrativosData
+): HistoricoDeDesignacoesFiltros => {
+  const periodoFrom = values.periodo?.from;
+  const periodoTo = values.periodo?.to;
+
+  return {
+    cargo: values.cargo === "TODOS" ? undefined : values.cargo,
+    tipo: values.tipo === "TODOS" ? undefined : values.tipo,
+    portaria: values.portaria,
+    numero_sei: values.numero_sei,
+    nome_titular_e_indicado: values.nome_titular_e_indicado,
+    status_publicacao: values.status_publicacao,
+    periodo_after: periodoFrom ? format(periodoFrom, "yyyy-MM-dd") : undefined,
+    periodo_before: periodoTo ? format(periodoTo, "yyyy-MM-dd") : undefined,
+    rf: values.rf,
+    observacao: values.observacao,
+  };
+};
 
 const defaultValuesFilters: AtosAdministrativosFiltros = {
   tipo: "TODOS",
@@ -41,43 +63,19 @@ export function useHistoricoDeDesignacoes(
     defaultValues: { ...defaultValues },
     mode: "onChange",
   });
+  const { getValues } = filterForm;
 
-  const gerarFiltros = (
-    values: filterFormSchemaFiltroAtosAdministrativosData
-  ): HistoricoDeDesignacoesFiltros => {
-    const periodoFrom = values.periodo?.from;
-    const periodoTo = values.periodo?.to;
-
-    return {
-      cargo: values.cargo === "TODOS" ? undefined : values.cargo,
-      tipo: values.tipo === "TODOS" ? undefined : values.tipo,
-      portaria: values.portaria,
-      numero_sei: values.numero_sei,
-      nome_titular_e_indicado: values.nome_titular_e_indicado,
-      status_publicacao: values.status_publicacao,
-      periodo_after: periodoFrom ? format(periodoFrom, "yyyy-MM-dd") : undefined,
-      periodo_before: periodoTo ? format(periodoTo, "yyyy-MM-dd") : undefined,
-      rf: values.rf,
-      observacao: values.observacao,
-    };
-  };
-
-  const buscarHistoricoDeDesignacoes = async (
+  const buscarHistoricoDeDesignacoes = useCallback(async (
     values: filterFormSchemaFiltroAtosAdministrativosData,
     ue: string = codigoUe
   ) => {
     return fetchHistoricoDeDesignacoes(ue, gerarFiltros(values));
-  };
+  }, [codigoUe]);
 
-  const buscar = (
+  const carregarHistorico = useCallback((
     values: filterFormSchemaFiltroAtosAdministrativosData,
-    ue: string = codigoUe
+    ue: string
   ) => {
-    if (!ue) {
-      setResultado([]);
-      return;
-    }
-
     startTransition(async () => {
       const response = await buscarHistoricoDeDesignacoes(values, ue);
 
@@ -88,6 +86,18 @@ export function useHistoricoDeDesignacoes(
         console.error(response.error);
       }
     });
+  }, [buscarHistoricoDeDesignacoes, startTransition]);
+
+  const buscar = (
+    values: filterFormSchemaFiltroAtosAdministrativosData,
+    ue: string = codigoUe
+  ) => {
+    if (!ue) {
+      setResultado([]);
+      return;
+    }
+
+    carregarHistorico(values, ue);
   };
 
   const handleClear = () => {
@@ -103,14 +113,14 @@ export function useHistoricoDeDesignacoes(
   };
 
   useEffect(() => {
-    buscar(filterForm.getValues(), codigoUe);
-    // A busca inicial deve rodar apenas quando a unidade muda.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codigoUe]);
+    if (!codigoUe) return;
+
+    carregarHistorico(getValues(), codigoUe);
+  }, [codigoUe, getValues, carregarHistorico]);
 
   return {
     handleClear,
-    resultado,
+    resultado: codigoUe ? resultado : HISTORICO_VAZIO,
     tabelaKey,
     setTabelaKey,
     isPending,

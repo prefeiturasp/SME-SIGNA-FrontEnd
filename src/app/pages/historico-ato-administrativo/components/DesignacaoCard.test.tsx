@@ -24,9 +24,10 @@ const atoBase: IAtosAdministrativosPrincipalType = {
   cargo_display: "DIRETOR DE ESCOLA",
   nome_servidor_indicado: "TATIANE CRISTINA MARQUES",
   nome_social_servidor_indicado: "",
-  atos_relacionados: [
+    atos_relacionados: [
     {
       id: 10,
+      tipo: "APOSTILA",
       data: "03/04/2026",
       portaria: "7625148/2026",
       titulo: "Apostila",

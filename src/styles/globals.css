@@ -594,7 +594,7 @@ input[type="number"] {
 
 .atos-relacionados-metadata {
     display: grid;
-    grid-template-columns: 85px 87px;
+    grid-template-columns: 140px 140px;
     flex-shrink: 0;
     gap: 16px;
     margin: 0;

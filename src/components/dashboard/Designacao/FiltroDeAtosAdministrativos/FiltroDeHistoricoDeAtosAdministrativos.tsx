@@ -58,7 +58,10 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ codigoUe, onC
     "status_publicacao",
     "cargo",
   ]);
-  const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null && v !== "TODOS");
+  const hasFilters = watchedValues.some((value, index) => {
+    if (index === 1) return !!(value?.from || value?.to);
+    return value !== undefined && value !== "" && value !== null && value !== "TODOS";
+  });
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>
@@ -124,7 +127,7 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ codigoUe, onC
       </div>
 
 
-      <FiltroAcoes hasFilters={hasFilters} onClear={onClear} />
+      <FiltroAcoes hasFilters={hasFilters} onClear={onClear} allowSearchWithoutFilters />
     </>
   );
 };

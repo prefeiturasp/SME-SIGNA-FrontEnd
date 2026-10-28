@@ -740,7 +740,7 @@ describe("ListagemDeAtosAdministrativos", () => {
       },
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/pages//visualizar-cessacao/1");
+    expect(pushMock).toHaveBeenCalledWith("/pages/visualizar-cessacao/1");
   });
 
   it("não navega no clique da linha quando o clique vem de elemento com data-no-row-click", () => {

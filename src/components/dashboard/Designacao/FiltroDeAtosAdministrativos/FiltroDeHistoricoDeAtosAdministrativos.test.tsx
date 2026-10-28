@@ -111,16 +111,22 @@ vi.mock("@/components/ui/select", () => ({
   SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
 }));
 
-vi.mock("../FiltroAcoes/FiltroAcoes", () => ({
-  default: ({ hasFilters, onClear }: { hasFilters: boolean; onClear?: () => void }) => {
+vi.mock("../FiltroAcoes/FiltroAcoes", async () => {
+  const { default: FiltroAcoes } = await vi.importActual<typeof import("../FiltroAcoes/FiltroAcoes")>("../FiltroAcoes/FiltroAcoes");
+  return {
+  default: ({ hasFilters, onClear, allowSearchWithoutFilters }: { hasFilters: boolean; onClear?: () => void; allowSearchWithoutFilters?: boolean }) => {
     filtroAcoesMock({ hasFilters, onClear });
     return (
+      <>
+      <FiltroAcoes hasFilters={hasFilters} onClear={onClear} allowSearchWithoutFilters={allowSearchWithoutFilters} />
       <button type="button" data-testid="mock-filtro-acoes" onClick={onClear}>
         {String(hasFilters)}
       </button>
+      </>
     );
   },
-}));
+};
+});
 
 describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
   beforeEach(() => {
@@ -237,6 +243,32 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     expect(filtroAcoesMock).toHaveBeenCalledWith(
       expect.objectContaining({ hasFilters: false }),
     );
+  });
+
+  it.each([null, { from: undefined, to: undefined }])("mantém a pesquisa habilitada após limpar o período para %s", (periodoVazio) => {
+    watchValues.tipo = "TODOS";
+    watchValues.cargo = "TODOS";
+    watchValues.periodo = { from: new Date(2026, 3, 1), to: new Date(2026, 3, 30) };
+    const onClear = vi.fn(() => { watchValues.periodo = periodoVazio; });
+    const onSubmit = vi.fn((event) => event.preventDefault());
+    const form = (
+      <form onSubmit={onSubmit}>
+        <FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" onClear={onClear} />
+      </form>
+    );
+    const { rerender } = render(form);
+    expect(screen.getByTestId("btn-pesquisar")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("btn-limpar-filtros"));
+    rerender(
+      <form onSubmit={onSubmit}>
+        <FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" onClear={onClear} />
+      </form>
+    );
+    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("btn-limpar-filtros")).toBeDisabled();
+    expect(screen.getByTestId("btn-pesquisar")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("btn-pesquisar"));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
   it("atualiza hasFilters após limpar os valores observados", () => {

@@ -34,6 +34,7 @@ const dados: IAtosAdministrativosPrincipalType[] = [
     atos_relacionados: [
       {
         id: 1,
+        tipo: "APOSTILA",
         data: "03/04/2026",
         portaria: "7625148/2026",
         titulo: "Apostila",
@@ -43,6 +44,7 @@ const dados: IAtosAdministrativosPrincipalType[] = [
       },
       {
         id: 2,
+        tipo: "CESSACAO",
         data: "03/04/2026",
         portaria: "7625148/2026",
         titulo: "Apostila",
@@ -65,6 +67,7 @@ const dados: IAtosAdministrativosPrincipalType[] = [
     atos_relacionados: [
       {
         id: 5,
+        tipo: "APOSTILA",
         data: "03/04/2026",
         portaria: "7625148/2026",
         titulo: "Apostila",
@@ -74,6 +77,7 @@ const dados: IAtosAdministrativosPrincipalType[] = [
       },
       {
         id: 6,
+        tipo: "INSUBSISTENCIA",
         data: "03/04/2026",
         portaria: "7625148/2026",
         titulo: "Apostila",

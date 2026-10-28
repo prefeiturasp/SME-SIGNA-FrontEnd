@@ -1,4 +1,5 @@
 'use client'
+import { Empty } from 'antd';
  
 import { SimpleTag } from '../ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos';
 import DesignacaoCard from '@/app/pages/historico-ato-administrativo/components/DesignacaoCard';
@@ -40,7 +41,10 @@ const ListagemDeDesignacaoDaUnidade: React.FC<ListagemDeDesignacaoDaUnidadeProps
         )}
 
         {!isLoading && data.length === 0 && (
-          <p className="listagem-designacao-unidade-vazio">Não há dados.</p>
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="Não há dados."
+          />
         )}
 
         {data.map((ato) => (

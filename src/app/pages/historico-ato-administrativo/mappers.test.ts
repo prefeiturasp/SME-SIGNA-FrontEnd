@@ -131,7 +131,8 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     expect(atoPrincipal.atos_relacionados).toEqual([
       {
         id: 2,
-        data: "30/09/2012",
+        tipo: "APOSTILA",
+        data: "30/09/2026",
         portaria: "11",
         titulo: "Apostila de Designação",
         descricao: "",
@@ -140,7 +141,8 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
       },
       {
         id: 35,
-        data: "30/09/2012",
+        tipo: "INSUBSISTENCIA",
+        data: "30/09/2026",
         portaria: "13/2013",
         titulo: "Insubsistência de Designação",
         descricao: "13",
@@ -158,31 +160,42 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     expect(ato.nome_servidor_indicado).toBe(designacaoBase.indicado_nome_servidor);
   });
 
-  it.each([
-    ["CESSACAO", null, null],
-    ["APOSTILA", "CESSACAO", null],
-    ["INSUBSISTENCIA", null, "CESSACAO"],
-  ])("usa a data de cessação para %s de cessação", (tipo, tipo_apostila, tipo_insubsistencia) => {
+  it.each(["DESIGNACAO", "CESSACAO", "APOSTILA", "INSUBSISTENCIA"])(
+    "preserva o tipo %s para abrir a tela correspondente",
+    (tipo) => {
+      const [ato] = mapearHistoricoParaAtosPrincipais([{
+        ...designacaoBase,
+        atos_relacionados: [{
+          ...designacaoBase.atos_relacionados[0],
+          tipo,
+        }],
+      }]);
+
+      expect(ato.atos_relacionados[0].tipo).toBe(tipo);
+    }
+  );
+
+  it("usa a data de criação do ato relacionado", () => {
     const [ato] = mapearHistoricoParaAtosPrincipais([{
       ...designacaoBase,
       atos_relacionados: [{
         ...designacaoBase.atos_relacionados[0],
-        tipo,
-        tipo_apostila,
-        tipo_insubsistencia,
+        tipo: "CESSACAO",
         data_cessacao: "2020-03-04",
+        data_designacao: "2012-09-30",
+        criado_em: "2026-10-01T16:00:44.372070-03:00",
       }],
     }]);
 
-    expect(ato.atos_relacionados[0].data).toBe("04/03/2020");
+    expect(ato.atos_relacionados[0].data).toBe("01/10/2026");
   });
 
-  it("aceita datas nulas nos atos relacionados", () => {
+  it("aceita data de criação nula nos atos relacionados", () => {
     const [ato] = mapearHistoricoParaAtosPrincipais([{
       ...designacaoBase,
       atos_relacionados: [{
         ...designacaoBase.atos_relacionados[0],
-        data_designacao: null,
+        criado_em: null as unknown as string,
       }],
     }]);
 

@@ -14,6 +14,7 @@ import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
 import { useRouter } from 'next/navigation';
+import { pathDetalhesDoAto } from '@/utils/designacao/rotasAtosAdministrativos';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
 import { useAppNotification } from '@/components/providers/NotificationProvider';
 
@@ -468,17 +469,10 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   });
 
   const handleRowClick = (record: ListagemAtosAdministrativosResponse) => {
-    const rotasPorTipo: Record<string, string> = {
-      DESIGNACAO: 'listagem-designacoes/visualizar-designacao',
-      CESSACAO: '/visualizar-cessacao',
-      APOSTILA: '/visualizar-apostila',
-      INSUBSISTENCIA: '/visualizar-insubsistencia',
-    };
-
-    const path = rotasPorTipo[record.tipo];
+    const path = pathDetalhesDoAto(record);
 
     if (path) {
-      router.push(`/pages/${path}/${record.id}`);
+      router.push(path);
     }
   };
 

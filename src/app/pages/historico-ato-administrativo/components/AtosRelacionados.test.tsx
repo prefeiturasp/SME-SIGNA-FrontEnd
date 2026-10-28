@@ -4,6 +4,7 @@ import AtosRelacionados from "./AtosRelacionados";
 
 const ato = {
   id: 42,
+  tipo: "APOSTILA",
   data: "03/04/2026",
   portaria: "123/2026",
   titulo: "Apostila",
@@ -13,6 +14,7 @@ const ato = {
 };
 const atoVazio = {
   id: 99,
+  tipo: "DESIGNACAO",
   data: "",
   portaria: "",
   titulo: "",
@@ -42,20 +44,20 @@ describe("AtosRelacionados", () => {
   });
 
   it("renderiza os dados e o link acessível de cada ato na ordem recebida", () => {
-    render(<AtosRelacionados atos={[ato, { ...ato, id: 43, titulo: "Cessação", principal: false }]} isLoading={false} />);
+    render(<AtosRelacionados atos={[ato, { ...ato, id: 43, tipo: "CESSACAO", titulo: "Cessação", principal: false }]} isLoading={false} />);
 
     expect(screen.getByText("2 registros")).toBeInTheDocument();
     const itens = screen.getAllByRole("listitem");
     expect(itens).toHaveLength(2);
     expect(itens[0]).toHaveAttribute("data-principal", "true");
     expect(itens[1]).toHaveAttribute("data-principal", "false");
-    ["Data do ato", ato.data, "Portaria", ato.portaria, ato.descricao].forEach((texto) => {
+    ["Data da criação do ato", ato.data, "Portaria", ato.portaria, ato.descricao].forEach((texto) => {
       expect(within(itens[0]).getByText(texto)).toBeInTheDocument();
     });
     expect(within(itens[0]).getByRole("heading", { name: "Apostila" })).toBeInTheDocument();
     expect(within(itens[1]).getByRole("heading", { name: "Cessação" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ver detalhes de Apostila, portaria 123/2026" })).toHaveAttribute("href", "/pages/listagem-designacoes/visualizar-designacao/42");
-    expect(screen.getByRole("link", { name: "Ver detalhes de Cessação, portaria 123/2026" })).toHaveAttribute("href", "/pages/listagem-designacoes/visualizar-designacao/43");
+    expect(screen.getByRole("link", { name: "Ver detalhes de Apostila, portaria 123/2026" })).toHaveAttribute("href", "/pages/visualizar-apostila/42");
+    expect(screen.getByRole("link", { name: "Ver detalhes de Cessação, portaria 123/2026" })).toHaveAttribute("href", "/pages/visualizar-cessacao/43");
   });
 
   it("inclui todos os registros recebidos na lista e na contagem", () => {
@@ -84,13 +86,13 @@ describe("AtosRelacionados", () => {
     render(<AtosRelacionados atos={[{ ...atoVazio, data: ato.data, portaria: " ", titulo: " ", descricao: " " }]} isLoading={false} />);
     expect(screen.getByRole("heading", { name: "Ato administrativo" })).toBeInTheDocument();
     expect(screen.queryByText("Portaria")).not.toBeInTheDocument();
-    expect(screen.getByRole("article").querySelector("p")).not.toBeInTheDocument();
+    expect(screen.getByRole("article").querySelector("p")).toHaveTextContent("-");
   });
 
   it("usa nome acessível padrão no link quando o ato não possui título nem portaria", () => {
     render(<AtosRelacionados atos={[{ ...atoVazio, descricao: "Observação" }]} isLoading={false} />);
     expect(screen.getByRole("link", { name: "Ver detalhes de ato administrativo" })).toHaveAttribute("href", "/pages/listagem-designacoes/visualizar-designacao/99");
-    expect(screen.getByText("Data do ato")).toBeInTheDocument();
+    expect(screen.getByText("Data da criação do ato")).toBeInTheDocument();
   });
 
   it("risca o título do ato que não está mais vigente", () => {
@@ -106,6 +108,21 @@ describe("AtosRelacionados", () => {
 
     expect(screen.getByRole("heading", { name: "Cessada" })).toHaveClass("line-through");
     expect(screen.getByRole("heading", { name: "Vigente" })).not.toHaveClass("line-through");
+  });
+
+  it.each([
+    ["DESIGNACAO", "/pages/listagem-designacoes/visualizar-designacao/42"],
+    ["INSUBSISTENCIA", "/pages/visualizar-insubsistencia/42"],
+  ])("abre a tela de %s", (tipo, href) => {
+    render(<AtosRelacionados atos={[{ ...ato, tipo }]} isLoading={false} />);
+
+    expect(screen.getByRole("link", { name: "Ver detalhes de Apostila, portaria 123/2026" })).toHaveAttribute("href", href);
+  });
+
+  it("omite o link quando o tipo não possui tela", () => {
+    render(<AtosRelacionados atos={[{ ...ato, tipo: "OUTRO" }]} isLoading={false} />);
+
+    expect(screen.queryByRole("link", { name: /Ver detalhes/ })).not.toBeInTheDocument();
   });
 
   it("marca como principal apenas o item sinalizado pela API", () => {
