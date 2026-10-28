@@ -233,4 +233,18 @@ describe("useHistoricoDeDesignacoes", () => {
     expect(fetchHistoricoDeDesignacoesMock).not.toHaveBeenCalled();
   });
 
+  it("não consulta o histórico quando a unidade da busca está vazia", async () => {
+    fetchHistoricoDeDesignacoesMock.mockResolvedValue({ success: true, data: [{ id: 1 }] });
+    const { result } = renderHook(() => useHistoricoDeDesignacoes("014591"));
+
+    await waitFor(() => expect(result.current.resultado).toEqual([{ id: 1 }]));
+
+    await act(async () => {
+      result.current.buscar({ tipo: "TODOS", portaria: "" }, "");
+    });
+
+    expect(fetchHistoricoDeDesignacoesMock).toHaveBeenCalledTimes(1);
+    expect(result.current.resultado).toEqual([]);
+  });
+
 });

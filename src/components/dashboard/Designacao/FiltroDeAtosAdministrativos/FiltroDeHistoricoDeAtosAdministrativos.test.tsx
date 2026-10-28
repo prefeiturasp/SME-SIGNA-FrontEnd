@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FiltroDeHistoricoDeAtosAdministrativos from "./FiltroDeHistoricoDeAtosAdministrativos";
@@ -269,6 +269,42 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     expect(screen.getByTestId("btn-pesquisar")).toBeEnabled();
     fireEvent.click(screen.getByTestId("btn-pesquisar"));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignora a resposta de cargos depois que o filtro deixa de estar montado", async () => {
+    let resolveCargos: (value: Awaited<ReturnType<typeof fetchCargosDesignacoes>>) => void = () => undefined;
+    vi.mocked(fetchCargosDesignacoes).mockImplementation(
+      () => new Promise((resolve) => {
+        resolveCargos = resolve;
+      })
+    );
+
+    const { unmount } = render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+    unmount();
+
+    await act(async () => {
+      resolveCargos({ success: true, data: [] });
+    });
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("ignora falha de cargos depois que o filtro deixa de estar montado", async () => {
+    let rejectCargos: (reason: Error) => void = () => undefined;
+    vi.mocked(fetchCargosDesignacoes).mockImplementation(
+      () => new Promise((_, reject) => {
+        rejectCargos = reject;
+      })
+    );
+
+    const { unmount } = render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+    unmount();
+
+    await act(async () => {
+      rejectCargos(new Error("Falha de conexão"));
+    });
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("atualiza hasFilters após limpar os valores observados", () => {

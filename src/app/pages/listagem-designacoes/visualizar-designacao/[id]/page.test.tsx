@@ -293,6 +293,19 @@ describe("VisualizarDesignacao page", () => {
     expect(pushMock).toHaveBeenNthCalledWith(1, "/pages/historico-ato-administrativo?ue=014591");
   });
 
+  it("consulta o histórico sem unidade quando a designação não informa a UE", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, ue: undefined },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/historico-ato-administrativo?ue=");
+  });
+
   it("aplica fallback vazio no resumo da unidade quando campos vêm indefinidos", () => {
     vi.mocked(useFetchDesignacoesById).mockReturnValue({
       data: {

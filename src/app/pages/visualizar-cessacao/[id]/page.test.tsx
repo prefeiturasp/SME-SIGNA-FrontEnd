@@ -265,6 +265,22 @@ describe("VisualizarCessacao page", () => {
     );
   });
 
+  it("consulta o histórico sem unidade quando a designação da cessação não informa a UE", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: {
+        ...cessacaoBaseMock,
+        designacao: { ...designacaoBaseMock, ue: undefined },
+      },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/historico-ato-administrativo?ue=");
+  });
+
   it("não renderiza accordion quando não há designação", () => {
     vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: {

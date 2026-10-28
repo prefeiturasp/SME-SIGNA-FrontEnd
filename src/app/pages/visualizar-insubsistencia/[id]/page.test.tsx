@@ -352,4 +352,38 @@ describe("VisualizarInsubsistenciaPage", () => {
     expect(html).toContain("<strong>Servidor Teste</strong>");
     expect(html).toContain("50");
   });
+
+  it("consulta o histórico sem unidade quando a designação não informa a UE", () => {
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: {
+        ...dataMock,
+        designacao: { ...dataMock.designacao, ue: undefined },
+      },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/historico-ato-administrativo?ue=");
+  });
+
+  it("substitui valores nulos do texto da portaria por vazio", () => {
+    gerarDadosInsubsistenciaSpy.mockReturnValue({
+      nome_indicado: null,
+      portaria_apostilada: "valor-base",
+    });
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: { ...dataMock, texto_sei: "" },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+
+    const html = screen.getByTestId("editor-sei").textContent ?? "";
+    expect(html).toContain("<strong></strong>");
+    expect(html).not.toContain(">null<");
+  });
 });

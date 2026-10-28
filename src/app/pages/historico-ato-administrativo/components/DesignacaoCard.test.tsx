@@ -116,6 +116,27 @@ describe("DesignacaoCard", () => {
     });
   });
 
+  it("usa os textos padrão quando os dados do ato estão vazios", () => {
+    render(
+      <DesignacaoCard
+        ato={{
+          ...atoBase,
+          tipo_ato_display: "   ",
+          realizada_em: "",
+          numero_portaria: "",
+          cargo_display: "",
+          nome_social_servidor_indicado: "   ",
+          nome_servidor_indicado: "",
+        }}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText("Designação")).toBeInTheDocument();
+    expect(screen.getByText("Realizada em -")).toBeInTheDocument();
+    expect(screen.getAllByText("-")).toHaveLength(3);
+  });
+
   it("propaga o estado de carregamento para os atos relacionados", () => {
     const { rerender } = render(<DesignacaoCard ato={atoBase} isLoading />);
 

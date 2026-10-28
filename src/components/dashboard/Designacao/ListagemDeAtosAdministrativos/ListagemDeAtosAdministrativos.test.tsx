@@ -912,4 +912,105 @@ describe("ListagemDeAtosAdministrativos", () => {
       title: "Designação excluída com sucesso!",
     });
   });
+
+  it("edita apostila não publicada de designação e de cessação", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    const { rerender } = render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "APOSTILA",
+          tipo_de_ato: "Apostila de Designação",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-4")).toHaveTextContent("Editar Apostila");
+    screen.getByTestId("menu-item-4").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/apostila?origem=designacao&apostila_id=1");
+
+    rerender(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "APOSTILA",
+          tipo_de_ato: "Apostila de Cessação",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-4").click();
+    expect(pushMock).toHaveBeenCalledWith("/pages/apostila?origem=cessacao&apostila_id=1");
+  });
+
+  it("edita insubsistência não publicada de designação e de cessação", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    const { rerender } = render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "INSUBSISTENCIA",
+          tipo_insubsistencia: "DESIGNACAO",
+          tipo_de_ato: "Insubsistência de Designação",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    expect(screen.getByTestId("menu-item-8")).toHaveTextContent("Editar");
+    expect(screen.getByTestId("menu-item-7")).toHaveTextContent("Tornar sem efeito");
+    screen.getByTestId("menu-item-8").click();
+    expect(pushMock).toHaveBeenCalledWith(
+      "/pages/insubsistencia?id_insubsistencia=1&origem=designacao"
+    );
+
+    rerender(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "INSUBSISTENCIA",
+          tipo_insubsistencia: "CESSACAO",
+          tipo_de_ato: "Insubsistência de Cessação",
+          status_publicacao: StatusAtosAdministrativos.NAO_PUBLICADO,
+        })}
+      </>
+    );
+
+    screen.getByTestId("menu-item-8").click();
+    expect(pushMock).toHaveBeenCalledWith(
+      "/pages/insubsistencia?id_insubsistencia=1&origem=cessacao"
+    );
+  });
+
+  it("não exibe ações quando o status de publicação não é publicado nem não publicado", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const actionRender = columns[7]?.render as ((record: RowWithRelations) => ReactNode) | undefined;
+
+    render(
+      <>
+        {actionRender?.({
+          ...rows[0],
+          tipo: "DESIGNACAO",
+          status_publicacao: "RASCUNHO" as StatusAtosAdministrativos,
+        })}
+      </>
+    );
+
+    expect(screen.queryByTestId(/menu-item-/)).not.toBeInTheDocument();
+  });
 });

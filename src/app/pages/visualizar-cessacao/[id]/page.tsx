@@ -98,13 +98,7 @@ export default function VisualizarCessacaoPage() {
 
 
               <CustomAccordionItem title="Portarias de Cessação" value="portarias-cessacao" color="green">
-                {cessacao ? (
-                  <ResumoPortariaCessacao defaultValues={cessacao} showExtraFields={true} />
-                ) : (
-                  <div className="text-center text-[#777] p-4">
-                    Não há portaria de cessão
-                  </div>
-                )}
+                <ResumoPortariaCessacao defaultValues={cessacao!} showExtraFields={true} />
               </CustomAccordionItem>
 
             </Accordion>

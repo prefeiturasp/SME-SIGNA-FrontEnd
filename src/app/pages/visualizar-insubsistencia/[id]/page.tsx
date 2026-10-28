@@ -179,7 +179,7 @@ export default function VisualizarInsubsistenciaPage() {
                 isLoadingDesignacao={isLoadingInsubsistencia}
               />
 
-              <CustomAccordionItem title={`Portaria ${tipo_display}`} value="portaria-insubsistencia" color={cor_portaria ?? "purple"}>
+              <CustomAccordionItem title={`Portaria ${tipo_display}`} value="portaria-insubsistencia" color={cor_portaria}>
                 <ResumoPortariaInsubsistencia defaultValues={insubsistencia} titulo_portaria={`Portaria ${tipo_display}`} />
               </CustomAccordionItem>
             </Accordion>

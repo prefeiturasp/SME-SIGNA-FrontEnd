@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cookies } from "next/headers";
 import {
+    fetchApostilasByIdAction,
     fetchAtosAdministrativos,
     fetchCargosDesignacoes,
     fetchHistoricoDeDesignacoes,
@@ -291,6 +292,40 @@ describe("fetchHistoricoDeDesignacoes", () => {
         expect(result).toEqual({
             success: false,
             error: "Erro interno no servidor",
+        });
+    });
+});
+
+describe("fetchApostilasByIdAction", () => {
+    const mockAxiosInstance = { get: vi.fn() };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
+    });
+
+    it("busca a apostila pelo id", async () => {
+        const data = { id: 9 };
+        mockAxiosInstance.get.mockResolvedValue({ data });
+
+        const result = await fetchApostilasByIdAction(9);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith("/designacao/apostilas/9/", { params: {} });
+        expect(result).toEqual({ success: true, data });
+    });
+
+    it("retorna erro tratado quando a requisição falha", async () => {
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 400 },
+        });
+
+        const result = await fetchApostilasByIdAction(9);
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro ao buscar as apostilas",
         });
     });
 });

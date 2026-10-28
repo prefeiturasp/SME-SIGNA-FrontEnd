@@ -206,4 +206,50 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     expect(mapearHistoricoParaAtosPrincipais()).toEqual([]);
     expect(mapearHistoricoParaAtosPrincipais([])).toEqual([]);
   });
+
+  it("preenche os campos opcionais ausentes e preserva datas que não estão em ISO", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      tipo_de_ato: "",
+      portaria: null as unknown as string,
+      numero_portaria: null,
+      cargo: null as unknown as string,
+      data_inicio: "30/09/2012",
+      cessada_em: null,
+      data_fim: "04/03/2020",
+      atos_relacionados: null as unknown as DesignacaoHistorico["atos_relacionados"],
+    }]);
+
+    expect(ato).toMatchObject({
+      tipo_ato_display: "Designação",
+      realizada_em: "30/09/2012",
+      data_cessacao: "04/03/2020",
+      numero_portaria: "",
+      cargo_display: "",
+      atos_relacionados: [],
+    });
+  });
+
+  it("usa o número da portaria quando o texto da portaria está ausente", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      portaria: null as unknown as string,
+      numero_portaria: 44,
+      atos_relacionados: [{
+        ...designacaoBase.atos_relacionados[0],
+        criado_em: "não-iso",
+        portaria: null as unknown as string,
+        tipo_de_ato: null as unknown as string,
+        observacoes: null as unknown as string,
+      }],
+    }]);
+
+    expect(ato.numero_portaria).toBe("44");
+    expect(ato.atos_relacionados[0]).toMatchObject({
+      data: "não-iso",
+      portaria: "",
+      titulo: "",
+      descricao: "",
+    });
+  });
 });

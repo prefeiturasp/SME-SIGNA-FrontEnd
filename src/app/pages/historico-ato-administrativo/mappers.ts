@@ -28,7 +28,7 @@ const mapearAtoRelacionado = (
 ): IAtosAdministrativosType => ({
   id: ato.id,
   tipo: ato.tipo,
-  data: formatarDataDoAto(ato.criado_em) ?? "-",
+  data: formatarDataDoAto(ato.criado_em),
   portaria: ato.portaria ?? "",
   titulo: ato.tipo_de_ato ?? "",
   descricao: ato.observacoes ?? "",
