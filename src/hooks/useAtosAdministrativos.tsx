@@ -19,6 +19,8 @@ const defaultValuesFilters: AtosAdministrativosFiltros = {
   },
   periodo_before: "",
   rf: "",
+  codigo_dre: "",
+  codigo_ue: "",
 };
 
 export function useAtosAdministrativos(defaultValues: AtosAdministrativosFiltros = defaultValuesFilters) {
@@ -60,6 +62,8 @@ export function useAtosAdministrativos(defaultValues: AtosAdministrativosFiltros
         : undefined,
       rf: values.rf,
       observacao: values.observacao,
+      codigo_dre: values.codigo_dre,
+      codigo_ue: values.codigo_ue,
     };
   };
 

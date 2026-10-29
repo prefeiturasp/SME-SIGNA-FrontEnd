@@ -95,12 +95,6 @@ let mockApostilaAtual: ApostilaMock = null;
 
 const valoresPadrao: formSchemaApostilaData = {
   ato_apostilado: "designação",
-  apostila: {
-    numero_sei: "",
-    numero_portaria: "",
-    doc: "",
-    observacao: "",
-  },
   dre: "",
   dre_nome: "",
   ue: "",
@@ -158,12 +152,6 @@ const {
   const getValuesMock = vi.fn((): formSchemaApostilaData => ( 
     {
     ato_apostilado: "designação",
-    apostila: {
-      numero_sei: "",
-      numero_portaria: "",
-      doc: "",
-      observacao: "",
-    },
     dre: "",
     dre_nome: "",
     ue: "",
@@ -318,8 +306,8 @@ vi.mock("@/components/dashboard/Designacao/CustomAccordionItem", () => ({
 }));
 
 vi.mock("@/components/dashboard/apostila/PortariaApostilaFields/PortariaApostilaFields", () => ({
-  default: () => {
-    portariaApostilaFieldsSpy();
+  default: (props: { origem?: string | null }) => {
+    portariaApostilaFieldsSpy(props);
     return <div data-testid="portaria-apostila-fields" />;
   },
 }));
@@ -520,12 +508,6 @@ describe("ApostilaPage", () => {
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA",
-        numero_portaria: "321",
-        doc: "",
-        observacao: "",
-      },
       portaria_designacao: "654",
       texto_portaria: "Texto SEI apostila",
     });
@@ -581,12 +563,12 @@ describe("ApostilaPage", () => {
     );
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Portaria de Apostila",
+        title: "Dados da apostila",
         color: "silver",
         value: "portaria-apostila",
       }),
     );
-    expect(portariaApostilaFieldsSpy).toHaveBeenCalledTimes(1);
+    expect(portariaApostilaFieldsSpy).toHaveBeenCalledWith({ origem: null });
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Portarias de designação",
@@ -636,6 +618,7 @@ describe("ApostilaPage", () => {
     expect(screen.getByTestId("page-header")).toHaveTextContent("Apostila de cessação");
     expect(screen.getAllByTestId("custom-accordion-item")).toHaveLength(6);
     expect(screen.getByTestId("portaria-cessacao-fields")).toBeInTheDocument();
+    expect(portariaApostilaFieldsSpy).toHaveBeenCalledWith({ origem: "cessacao" });
     expect(customAccordionItemSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Portaria de cessação",
@@ -700,19 +683,13 @@ describe("ApostilaPage", () => {
     mockId = "42";
     mockOrigem = "designacao";
     mockDirtyFields = {
-      apostila: { numero_sei: true },
+      ato_apostilado: true,
       portaria_designacao: true,
       com_afastamento: true,
       detalhe_para_quadro_de_historico_por_ano: true,
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA",
-        numero_portaria: "321",
-        doc: "DOC-APOSTILA",
-        observacao: "Observação apostila",
-      },
       portaria_designacao: "654",
       com_afastamento: EnumCheckbox.SIM,
       detalhe_para_quadro_de_historico_por_ano: false,
@@ -726,10 +703,6 @@ describe("ApostilaPage", () => {
       expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
         body: {
           ato_pai: 42,
-          sei_numero: "SEI-APOSTILA",
-          numero_portaria: "321",
-          doc: "DOC-APOSTILA",
-          observacao: "Observação apostila",
           texto_sei: "Texto SEI apostila",
           alteracoes: [
             {
@@ -761,12 +734,6 @@ describe("ApostilaPage", () => {
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA",
-        numero_portaria: "321",
-        doc: "",
-        observacao: "",
-      },
       a_partir_de: new Date("2026-04-05"),
       designacao_data_final: new Date("2026-05-06"),
       detalhe_para_quadro_de_historico_por_ano: true,
@@ -816,12 +783,6 @@ describe("ApostilaPage", () => {
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA",
-        numero_portaria: "321",
-        doc: "",
-        observacao: "",
-      },
       designacao_data_final: null,
       impedimento_substituicao: null,
       possui_pendencia: EnumCheckbox.NAO,
@@ -866,12 +827,6 @@ describe("ApostilaPage", () => {
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA-CESS",
-        numero_portaria: "998",
-        doc: "",
-        observacao: "",
-      },
       numero_sei: "SEI-DESIGNACAO-NOVO",
       cessacao: {
         numero_portaria: "456",
@@ -892,8 +847,6 @@ describe("ApostilaPage", () => {
       expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
         body: expect.objectContaining({
           ato_pai: 77,
-          sei_numero: "SEI-APOSTILA-CESS",
-          numero_portaria: "998",
           alteracoes: expect.arrayContaining([
             {
               campo_alterado: "numero_portaria",
@@ -1023,6 +976,11 @@ describe("ApostilaPage", () => {
 
     expect(resetMock).toHaveBeenCalledWith(expect.objectContaining({
       texto_portaria: "A presente portaria apostilada,",
+      apostila: {
+        numero_portaria: "123",
+        numero_sei: "999",
+        doc: "",
+      },
       ato_apostilado: "",
       portaria_designacao: "123",
       ano: "2024",
@@ -1231,12 +1189,6 @@ describe("ApostilaPage", () => {
     expect(screen.getByTestId("input-cargo-base")).toBeDisabled();
     expect(resetMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        apostila: {
-          numero_portaria: "321",
-          numero_sei: "SEI-EDIT",
-          doc: "DOC-EDIT",
-          observacao: "Obs editada",
-        },
         texto_portaria: "Texto SEI da apostila",
         cessacao: expect.objectContaining({
           numero_portaria: "987",
@@ -1245,18 +1197,21 @@ describe("ApostilaPage", () => {
         }),
       }),
     );
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        apostila: {
+          numero_portaria: "987",
+          numero_sei: "SEI-CESS",
+          doc: "DOC-EDIT",
+        },
+      }),
+    );
   });
 
   it("bloqueia a criação quando não há alterações", async () => {
     mockDirtyFields = {};
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA",
-        numero_portaria: "321",
-        doc: "",
-        observacao: "",
-      },
     });
 
     render(<ApostilaPage />);
@@ -1278,12 +1233,6 @@ describe("ApostilaPage", () => {
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-EDIT",
-        numero_portaria: "321",
-        doc: "DOC-EDIT",
-        observacao: "Obs",
-      },
       texto_portaria: "Texto SEI editado",
     });
 
@@ -1294,10 +1243,6 @@ describe("ApostilaPage", () => {
       expect(salvarApostilaMutateAsyncMock).toHaveBeenCalledWith({
         body: {
           id: 88,
-          sei_numero: "SEI-EDIT",
-          numero_portaria: "321",
-          doc: "DOC-EDIT",
-          observacao: "Obs",
           texto_sei: "Texto SEI editado",
           alteracoes: [
             {
@@ -1321,12 +1266,6 @@ describe("ApostilaPage", () => {
     };
     getValuesMock.mockReturnValue({
       ...valoresPadrao,
-      apostila: {
-        numero_sei: "SEI-APOSTILA-CESS",
-        numero_portaria: "998",
-        doc: "",
-        observacao: "",
-      },
       cessacao: {
         numero_portaria: "456",
         ano: "",

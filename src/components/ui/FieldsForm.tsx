@@ -16,6 +16,7 @@ import {
 
 import { format, isValid } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
+import CustomCalendar from "@/assets/icons/CustomCalendar";
 import { cn } from "@/lib/utils";
 import { DatePicker, Switch } from "antd";
 import dayjs from "dayjs";
@@ -200,6 +201,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     showBlankSpace = true,
     onValueChange,
     isLoading = false,
+    extraContent,
 }: {
     control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
@@ -211,6 +213,7 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
     showBlankSpace?: boolean;
     onValueChange?: (value: string) => void;
     isLoading?: boolean;
+    extraContent?: ReactNode;
     [key: string]: unknown;
 }) => {
     return (
@@ -250,8 +253,10 @@ export const SelectField = <TFieldValues extends FieldValues = FieldValues,>({
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
+                                {extraContent && <>{extraContent}</>}  
                             </Select>
                         )}
+                        
                     </FormControl>
                     <FormMessage showBlankSpace={showBlankSpace} />
                     
@@ -350,7 +355,9 @@ export const DateField = <TFieldValues extends FieldValues = FieldValues,>({ con
                                 onBlur={field.onBlur}
                                 style={{ width: "100%" }}
                                 onClear={onClear}                              
-
+                                suffixIcon={
+                                    <CustomCalendar />
+                                }
                                 disabled={disabled}
                             />
                         </FormControl>

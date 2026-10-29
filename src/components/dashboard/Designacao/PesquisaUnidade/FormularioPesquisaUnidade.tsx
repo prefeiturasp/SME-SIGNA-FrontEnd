@@ -52,6 +52,7 @@ interface Props {
   readonly setDisableProximo: (disable: boolean) => void;
   isLoading: boolean;
   defaultValues?: Partial<FormDesignacaoEServidorIndicado>;
+  unidadeBloqueada?: boolean;
 }
 
 // to-do: Ajustar a novos campos
@@ -59,7 +60,7 @@ const FormularioPesquisaUnidade = forwardRef<
   FormularioPesquisaUnidadeRef,
   Props
 >(function FormularioPesquisaUnidade(
-  { setDisableProximo, isLoading, defaultValues }: Props,
+  { setDisableProximo, isLoading, defaultValues, unidadeBloqueada = false }: Props,
   ref,
 ) {
 
@@ -156,7 +157,7 @@ const FormularioPesquisaUnidade = forwardRef<
 
   useEffect(() => {
     if (defaultValues?.ue) {
-      (async () => {
+      void (async () => {
         await onSubmit({ ...form.getValues(), ...defaultValues });
         setDisableProximo(false);
       })();
@@ -215,7 +216,7 @@ const FormularioPesquisaUnidade = forwardRef<
                   control={control}
                   name="dre"
                   label="DRE"
-                  disabled={isLoadingDesiganaçãoUnidade}
+                  disabled={unidadeBloqueada || isLoadingDesiganaçãoUnidade}
                   options={dreOptions.map(
                     (dre: { codigoDRE: string; nomeDRE: string; siglaDRE: string }) => ({
                       label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
@@ -274,7 +275,7 @@ const FormularioPesquisaUnidade = forwardRef<
                               limpa_dados_funcionarios()
                             }}
                             placeholder="Digite o nome da UE"
-                            disabled={!values.dre || isLoadingDesiganaçãoUnidade}
+                            disabled={unidadeBloqueada || !values.dre || isLoadingDesiganaçãoUnidade}
                             data-testid="select-ue"
                           />
                         )}
@@ -289,7 +290,7 @@ const FormularioPesquisaUnidade = forwardRef<
                 <SearchButton
                   type="submit"
                   isLoading={isLoadingDesiganaçãoUnidade}
-                  disabled={isLoadingDesiganaçãoUnidade}
+                  disabled={unidadeBloqueada || isLoadingDesiganaçãoUnidade}
                   onClick={form.handleSubmit(onSubmit)}
                   data-testid="botao-pesquisar-unidade"
                 />

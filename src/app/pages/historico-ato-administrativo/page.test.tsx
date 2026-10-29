@@ -10,7 +10,6 @@ const hookSpy = vi.fn();
 const backMock = vi.fn();
 const searchParamsGetMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
-const onPageChangeMock = vi.fn();
 const handleClearMock = vi.fn();
 const handleSubmitMock = vi.fn((callback: (...args: unknown[]) => void) => (event?: Event) => {
   callback();
@@ -58,20 +57,16 @@ vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeH
   },
 }));
 
-vi.mock("@/components/dashboard/Designacao/ListagemDeAtosAdministrativos/ListagemDeAtosAdministrativos", () => ({
+vi.mock("@/components/dashboard/Designacao/ListagemDeDesignacaoDaUnidade/ListagemDeDesignacaoDaUnidade", () => ({
   default: (props: GenericProps) => {
     listagemSpy(props);
-    const onPageChange = props.onPageChange as ((page: number) => void) | undefined;
     return (
       <div data-testid="listagem">
         <span data-testid="list-data-length">{((props.data as unknown[]) ?? []).length}</span>
-        <span data-testid="list-total">{String(props.total)}</span>
-        <span data-testid="list-page">{String(props.page)}</span>
         <span data-testid="list-loading">{String(props.isLoading)}</span>
-        <span data-testid="list-show-campos-extras">{String(props.showCamposExtras)}</span>
-        <button type="button" onClick={() => onPageChange?.(9)}>
-          mudar pagina
-        </button>
+        <span data-testid="list-ue">{String(props.ue)}</span>
+        <span data-testid="list-titulo">{String(props.titulo)}</span>
+        <span data-testid="list-subtitulo">{String(props.subtitulo)}</span>
       </div>
     );
   },
@@ -94,8 +89,6 @@ describe("Página de histórico de ato administrativo", () => {
       isPending: false,
       tabelaKey: 1,
       resultado: undefined,
-      onPageChange: onPageChangeMock,
-      page: 1,
       filterForm: {
         handleSubmit: handleSubmitMock,
       },
@@ -104,15 +97,15 @@ describe("Página de histórico de ato administrativo", () => {
     });
   });
 
-  it("monta header com título dinâmico e breadcrumb de detalhes com retorno", () => {
+  it("monta header com título da unidade e breadcrumb de detalhes com retorno", () => {
     render(<AtosAdministrativos />);
 
     expect(pageHeaderSpy).toHaveBeenCalledTimes(1);
     const props = pageHeaderSpy.mock.calls[0][0];
-    expect(props.title).toBe("Histórico da designação");
+    expect(props.title).toBe("Histórico da unidade proponente");
     expect(props.showBackButton).toBe(true);
     expect(props.breadcrumbs).toHaveLength(3);
-    expect(props.breadcrumbs[1].title).toBe("Detalhes da designação");
+    expect(props.breadcrumbs[1].title).toBe("Detalhes designação");
 
     const event = { preventDefault: vi.fn() } as unknown as React.MouseEvent<HTMLAnchorElement>;
     props.breadcrumbs[1].onClick(event);
@@ -121,23 +114,66 @@ describe("Página de histórico de ato administrativo", () => {
     expect(backMock).toHaveBeenCalledTimes(1);
   });
 
-  it("repassa dados do hook para listagem com fallback e showCamposExtras=false", () => {
+  it("repassa dados do hook e a unidade padrão para a listagem", () => {
     render(<AtosAdministrativos />);
 
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("0");
-    expect(screen.getByTestId("list-total")).toHaveTextContent("0");
-    expect(screen.getByTestId("list-page")).toHaveTextContent("1");
     expect(screen.getByTestId("list-loading")).toHaveTextContent("false");
-    expect(screen.getByTestId("list-show-campos-extras")).toHaveTextContent("false");
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("Alipio Correa Neto, Prof.");
+    expect(screen.getByTestId("list-titulo")).toHaveTextContent("Histórico");
+    expect(screen.getByTestId("list-subtitulo")).toHaveTextContent(
+      "Consulte as designações e os atos administrativos relacionados a esta unidade educacional."
+    );
   });
 
-  it("propaga paginação e clear quando os componentes filhos disparam callbacks", () => {
+  it("usa a unidade educacional informada na query string", () => {
+    searchParamsGetMock.mockImplementation((key: string) =>
+      key === "ue" ? "EMEF Machado de Assis" : null
+    );
+
     render(<AtosAdministrativos />);
 
-    fireEvent.click(screen.getByText("mudar pagina"));
-    expect(onPageChangeMock).toHaveBeenCalledWith(9);
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("EMEF Machado de Assis");
+  });
+
+  it("monta os filtros iniciais com o ato_id numérico da query string", () => {
+    render(<AtosAdministrativos />);
+
+    expect(hookSpy).toHaveBeenCalledTimes(1);
+    expect(hookSpy.mock.calls[0][0]).toEqual({
+      tipo: "TODOS",
+      portaria: "",
+      numero_sei: "",
+      nome_titular_e_indicado: "",
+      status_publicacao: "",
+      periodo_before: "",
+      rf: "",
+      ato_id: 42,
+      observacao: "",
+    });
+  });
+
+  it("deixa o ato_id indefinido quando a query string não informa id", () => {
+    searchParamsGetMock.mockReturnValue(null);
+
+    render(<AtosAdministrativos />);
+
+    expect(hookSpy.mock.calls[0][0]).toMatchObject({ ato_id: undefined });
+  });
+
+  it("usa a unidade padrão quando a query string não informa ue", () => {
+    searchParamsGetMock.mockReturnValue(null);
+
+    render(<AtosAdministrativos />);
+
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("Alipio Correa Neto, Prof.");
+  });
+
+  it("aciona handleClear quando o filtro dispara onClear", () => {
+    render(<AtosAdministrativos />);
 
     fireEvent.click(screen.getByTestId("filtro-clear"));
+
     expect(handleClearMock).toHaveBeenCalledTimes(1);
   });
 
@@ -146,8 +182,6 @@ describe("Página de histórico de ato administrativo", () => {
       isPending: true,
       tabelaKey: 2,
       resultado: { count: 2, results: [{ id: 1 }, { id: 2 }] },
-      onPageChange: onPageChangeMock,
-      page: 4,
       filterForm: {
         handleSubmit: handleSubmitMock,
       },
@@ -163,8 +197,6 @@ describe("Página de histórico de ato administrativo", () => {
     expect(handleSubmitMock).toHaveBeenCalledWith(onSubmitFilterFormMock);
     expect(onSubmitFilterFormMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("2");
-    expect(screen.getByTestId("list-total")).toHaveTextContent("2");
-    expect(screen.getByTestId("list-page")).toHaveTextContent("4");
     expect(screen.getByTestId("list-loading")).toHaveTextContent("true");
   });
 });

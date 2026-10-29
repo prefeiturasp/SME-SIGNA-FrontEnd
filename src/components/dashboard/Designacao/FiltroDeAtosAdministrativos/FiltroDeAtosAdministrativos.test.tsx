@@ -11,11 +11,67 @@ import FiltroDeAtosAdministrativos, {
 const watchValues: Record<string, unknown> = {};
 const onChangeByField: Record<string, ReturnType<typeof vi.fn>> = {};
 const filtroAcoesMock = vi.fn();
+const setValueMock = vi.fn();
+
+const { useFetchDREsMock, useFetchUEsMock } = vi.hoisted(() => ({
+  useFetchDREsMock: vi.fn(),
+  useFetchUEsMock: vi.fn(),
+}));
+
+vi.mock("@/hooks/useUnidades", () => ({
+  useFetchDREs: useFetchDREsMock,
+  useFetchUEs: useFetchUEsMock,
+}));
+
+vi.mock("lucide-react", () => ({
+  Loader2: () => <div data-testid="loader" />,
+}));
+
+vi.mock("@/components/ui/Combobox", () => ({
+  Combobox: ({
+    disabled,
+    placeholder,
+    options,
+    onChange,
+    "data-testid": dataTestId,
+  }: {
+    onChange: (value: string) => void;
+    disabled?: boolean;
+    placeholder?: string;
+    options: { value: string; label: string }[];
+    "data-testid"?: string;
+  }) => (
+    <div data-testid={dataTestId} data-disabled={String(!!disabled)}>
+      {placeholder}
+      {options.map((option) => (
+        <button
+          type="button"
+          key={option.value}
+          data-testid={`combobox-item-${option.value}`}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  ),
+}));
+
+type SelectFieldProps = {
+  name: string;
+  label: string;
+  dataTestId?: string;
+  "data-testid"?: string;
+  options: { value: string; label: string }[];
+};
+
+const selectFieldProps: SelectFieldProps[] = [];
 
 vi.mock("react-hook-form", () => ({
   useFormContext: () => ({
     register: vi.fn(),
     control: {},
+    setValue: setValueMock,
     watch: (fields?: string | string[]) => {
       if (!fields) return {};
       if (Array.isArray(fields)) return fields.map((field) => watchValues[field] ?? "");
@@ -41,22 +97,21 @@ vi.mock("@/components/ui/FieldsForm", () => ({
     name,
     label,
     dataTestId,
+    "data-testid": testId,
     options,
-  }: {
-    name: string;
-    label: string;
-    dataTestId?: string;
-    options: { value: string; label: string }[];
-  }) => (
-    <div data-testid={dataTestId ?? `select-${name}`}>
-      {label}
-      {options.map((option) => (
-        <div key={option.value} data-testid={`select-item-${option.value}`}>
-          {option.label}
-        </div>
-      ))}
-    </div>
-  ),
+  }: SelectFieldProps) => {
+    selectFieldProps.push({ name, label, dataTestId, "data-testid": testId, options });
+    return (
+      <div data-testid={dataTestId ?? testId ?? `select-${name}`}>
+        {label}
+        {options.map((option) => (
+          <div key={option.value} data-testid={`select-item-${option.value}`}>
+            {option.label}
+          </div>
+        ))}
+      </div>
+    );
+  },
 }));
 
 vi.mock("@/components/ui/form", () => ({
@@ -122,6 +177,74 @@ describe("FiltroDeAtosAdministrativos", () => {
     vi.clearAllMocks();
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
+    selectFieldProps.length = 0;
+    useFetchDREsMock.mockReturnValue({
+      data: [{ codigoDRE: "108200", nomeDRE: "DRE IPIRANGA", siglaDRE: "IP" }],
+      isLoading: false,
+    });
+    useFetchUEsMock.mockReturnValue({
+      data: [{ codigoEscola: "000191", nomeEscola: "JOAO DA SILVA", siglaTipoEscola: "EMEF" }],
+      isLoading: false,
+    });
+  });
+
+  it("renderiza os filtros de DRE e Unidade Proponente com a unidade desabilitada sem DRE", () => {
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(screen.getByText("Diretoria Regional de Educação (DRE)")).toBeInTheDocument();
+    expect(screen.getByTestId("combobox-item-108200")).toHaveTextContent("IP - DRE IPIRANGA");
+
+    expect(screen.getByText("Unidade Proponente")).toBeInTheDocument();
+    expect(screen.getByTestId("select-codigo-ue")).toHaveAttribute("data-disabled", "true");
+    expect(useFetchUEsMock).toHaveBeenCalledWith("");
+  });
+
+  it("habilita a Unidade Proponente e lista as unidades da DRE selecionada", () => {
+    watchValues.codigo_dre = "108200";
+
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(useFetchUEsMock).toHaveBeenCalledWith("108200");
+    expect(screen.getByTestId("select-codigo-ue")).toHaveAttribute("data-disabled", "false");
+    expect(screen.getByTestId("combobox-item-000191")).toHaveTextContent("EMEF - JOAO DA SILVA");
+  });
+
+  it("limpa a Unidade Proponente ao trocar a DRE", () => {
+    render(<FiltroDeAtosAdministrativos />);
+
+    fireEvent.click(screen.getByTestId("combobox-item-108200"));
+
+    expect(onChangeByField.codigo_dre).toHaveBeenCalledWith("108200");
+    expect(setValueMock).toHaveBeenCalledWith("codigo_ue", "");
+  });
+
+  it("exibe loader enquanto carrega as unidades da DRE", () => {
+    watchValues.codigo_dre = "108200";
+    useFetchUEsMock.mockReturnValue({ data: undefined, isLoading: true });
+
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+    expect(screen.queryByTestId("select-codigo-ue")).not.toBeInTheDocument();
+  });
+
+  it("exibe loader enquanto carrega as DREs", () => {
+    useFetchDREsMock.mockReturnValue({ data: undefined, isLoading: true });
+
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+    expect(screen.queryByTestId("select-codigo-dre")).not.toBeInTheDocument();
+  });
+
+  it("considera a DRE selecionada como filtro preenchido", () => {
+    watchValues.codigo_dre = "108200";
+
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(filtroAcoesMock).toHaveBeenCalledWith(
+      expect.objectContaining({ hasFilters: true })
+    );
   });
 
   it("renderiza campos, opcoes de tipo e status, e envia hasFilters=false ao FiltroAcoes", () => {
@@ -155,13 +278,17 @@ describe("FiltroDeAtosAdministrativos", () => {
     );
   });
 
-  it("propaga alteracoes do select de status para o react-hook-form", () => {
+  it("renderiza o select de status com as opções de publicação e o name do formulário", () => {
     render(<FiltroDeAtosAdministrativos />);
 
-    const triggerButtons = screen.getAllByRole("button", { name: "trigger-select" });
-    fireEvent.click(triggerButtons[0]);
+    const status = selectFieldProps.find((props) => props.name === "status_publicacao");
 
-    expect(onChangeByField.status_publicacao).toHaveBeenCalledWith("mock-value");
+    expect(status).toBeDefined();
+    expect(status?.label).toBe("Status");
+    expect(status?.options).toEqual(StatusPublicacaoOpcoes);
+    expect(screen.getByTestId("select-status-publicacao")).toHaveTextContent("Status");
+    expect(screen.getByTestId("select-status-publicacao")).toHaveTextContent("Aguardando publicação");
+    expect(screen.getByTestId("select-status-publicacao")).toHaveTextContent("Publicado");
   });
 
   it("marca hasFilters=true quando algum filtro estiver preenchido e executa onClear", () => {
@@ -192,8 +319,8 @@ describe("FiltroDeAtosAdministrativos", () => {
       { codigo: "INSUBSISTENCIA_INSUBSISTENCIA", nome: "Tornar sem efeito" },
     ]);
     expect(StatusPublicacaoOpcoes).toEqual([
-      { codigo: StatusAtosAdministrativos.NAO_PUBLICADO, nome: "Aguardando publicação" },
-      { codigo: StatusAtosAdministrativos.PUBLICADO, nome: "Publicado" },
+      { value: StatusAtosAdministrativos.NAO_PUBLICADO, label: "Aguardando publicação" },
+      { value: StatusAtosAdministrativos.PUBLICADO, label: "Publicado" },
     ]);
   });
 
