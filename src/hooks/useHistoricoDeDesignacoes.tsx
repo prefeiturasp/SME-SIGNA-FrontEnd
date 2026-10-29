@@ -114,8 +114,8 @@ export function useHistoricoDeDesignacoes(
 
   useEffect(() => {
     if (!codigoUe) return;
-
-    carregarHistorico(getValues(), codigoUe);
+    const values = { ...getValues(), tipo: getValues().tipo === 'TODOS' ? undefined : getValues().tipo };
+    carregarHistorico(values, codigoUe);
   }, [codigoUe, getValues, carregarHistorico]);
 
   return {
