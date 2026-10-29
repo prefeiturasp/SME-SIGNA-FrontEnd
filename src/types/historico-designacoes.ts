@@ -27,7 +27,7 @@ export interface AtoRelacionadoHistorico {
 }
 
 export interface DesignacaoHistorico {
-  readonly cargo_vaga?: number | null;
+  readonly cargo_vaga_display?: string | null;
   readonly id: number;
   readonly status: string;
   readonly numero_portaria: number | null;

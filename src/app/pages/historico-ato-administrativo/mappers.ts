@@ -49,7 +49,7 @@ export const mapearHistoricoParaAtosPrincipais = (
     status: mapearStatus(designacao),
     numero_portaria:
       designacao.portaria ?? String(designacao.numero_portaria ?? ""),
-    cargo_display: designacao.cargo ?? "",
+    cargo_display: designacao.cargo_vaga_display ?? "",
     nome_servidor_indicado: designacao.indicado_nome_servidor || "",
     nome_social_servidor_indicado: designacao.nome?.trim() || "",
     atos_relacionados: (designacao.atos_relacionados ?? []).map(
