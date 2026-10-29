@@ -7,7 +7,20 @@ import {
   AtosAdministrativosFiltros,
 } from "@/types/designacao";
 import { ApostilaDetailRead } from "@/types/apostila";
+import {
+  DesignacaoHistorico,
+  HistoricoDeDesignacoesFiltros,
+} from "@/types/historico-designacoes";
 import { fetchWithClient } from "./http";
+import { CargoDesignacoes } from "@/types/cargos";
+
+export const fetchCargosDesignacoes = async (ue: string) => {
+  return fetchWithClient<CargoDesignacoes[]>(
+    "/designacao/designacoes/cargos-designacoes/",
+    { ue },
+    "Erro ao buscar os cargos das designações"
+  );
+};
 
 export const fetchPortariasDO = async (
   filtros: PortariasDOFiltros
@@ -37,6 +50,20 @@ export const fetchAtosAdministrativos = async (
 };
 
 
+export const fetchHistoricoDeDesignacoes = async (
+  codigoUe: string,
+  filtros: HistoricoDeDesignacoesFiltros = {}
+): Promise<
+  | { success: true; data: DesignacaoHistorico[] }
+  | { success: false; error: string }
+> => {
+  return fetchWithClient<DesignacaoHistorico[]>(
+    `/designacao/historico-de-designacoes/${encodeURIComponent(codigoUe)}/`,
+    filtros,
+    "Erro ao buscar o histórico de designações da unidade"
+  );
+};
+
 export const fetchApostilasByIdAction = async (
   id: number
 ): Promise<
@@ -49,7 +76,5 @@ export const fetchApostilasByIdAction = async (
     "Erro ao buscar as apostilas"
   );
 };
-
-
 
 

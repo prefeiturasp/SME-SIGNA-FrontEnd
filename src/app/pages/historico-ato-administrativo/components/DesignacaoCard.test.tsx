@@ -24,9 +24,10 @@ const atoBase: IAtosAdministrativosPrincipalType = {
   cargo_display: "DIRETOR DE ESCOLA",
   nome_servidor_indicado: "TATIANE CRISTINA MARQUES",
   nome_social_servidor_indicado: "",
-  atos_relacionados: [
+    atos_relacionados: [
     {
       id: 10,
+      tipo: "APOSTILA",
       data: "03/04/2026",
       portaria: "7625148/2026",
       titulo: "Apostila",
@@ -113,6 +114,27 @@ describe("DesignacaoCard", () => {
       atos: atoBase.atos_relacionados,
       isLoading: false,
     });
+  });
+
+  it("usa os textos padrão quando os dados do ato estão vazios", () => {
+    render(
+      <DesignacaoCard
+        ato={{
+          ...atoBase,
+          tipo_ato_display: "   ",
+          realizada_em: "",
+          numero_portaria: "",
+          cargo_display: "",
+          nome_social_servidor_indicado: "   ",
+          nome_servidor_indicado: "",
+        }}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText("Designação")).toBeInTheDocument();
+    expect(screen.getByText("Realizada em -")).toBeInTheDocument();
+    expect(screen.getAllByText("-")).toHaveLength(3);
   });
 
   it("propaga o estado de carregamento para os atos relacionados", () => {

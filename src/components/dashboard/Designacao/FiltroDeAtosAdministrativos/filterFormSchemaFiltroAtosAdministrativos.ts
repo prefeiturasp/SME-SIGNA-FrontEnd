@@ -2,6 +2,7 @@ import { z } from "zod";
  
 export const filterFormSchemaFiltroAtosAdministrativos = z
   .object({
+    cargo: z.string().optional(),
     numero_sei: z.string().optional(),
     tipo: z.string().optional(),
     portaria: z

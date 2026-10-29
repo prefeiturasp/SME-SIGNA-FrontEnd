@@ -1,51 +1,40 @@
 "use client";
 
 
+import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
-import { useAtosAdministrativos } from "@/hooks/useAtosAdministrativos";
+import { useHistoricoDeDesignacoes } from "@/hooks/useHistoricoDeDesignacoes";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
-import { AtosAdministrativosFiltros } from "@/types/designacao";
 import FiltroDeHistoricoDeAtosAdministrativos from "@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos";
 import ListagemDeDesignacaoDaUnidade from "@/components/dashboard/Designacao/ListagemDeDesignacaoDaUnidade/ListagemDeDesignacaoDaUnidade";
+import { mapearHistoricoParaAtosPrincipais } from "./mappers";
 
 
 export default function AtosAdministrativos() {
 
   const searchParams = useSearchParams();
 
-  const id = searchParams.get("id");
-  const ue = searchParams.get("ue") ?? "Alipio Correa Neto, Prof.";
-  const servidor_indicado = searchParams.get("servidor_indicado") ?? "";
-            
-  const defaultValues: AtosAdministrativosFiltros = {
-    tipo: "TODOS",
-    portaria: "",
-    numero_sei: "",
-    nome_titular_e_indicado: "",
-    status_publicacao: "",
-    periodo_before: "",
-    rf: "",
-    ato_id: id ?  Number.parseInt(id) : undefined,
-    observacao: "",
-  };
+  const codigoUe = searchParams.get("ue")?.trim() ?? "";
 
   const {
     isPending,
     tabelaKey,
     resultado,
-    onPageChange,
-    page,
     filterForm,
     onSubmitFilterForm,
     handleClear,
-  } = useAtosAdministrativos(defaultValues);
+  } = useHistoricoDeDesignacoes(codigoUe);
 
+  const atosPrincipais = useMemo(
+    () => mapearHistoricoParaAtosPrincipais(resultado ?? []),
+    [resultado]
+  );
 
+  const nomeUnidade = resultado?.[0]?.unidade_proponente?.trim();
 
   const router = useRouter();
-
 
   return (
     <>
@@ -66,7 +55,6 @@ export default function AtosAdministrativos() {
           },
           { title: "Histórico" },
         ]}
-
       />
 
 
@@ -74,21 +62,21 @@ export default function AtosAdministrativos() {
       <FundoBranco className="mb-4 mt-8">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-            <FiltroDeHistoricoDeAtosAdministrativos onClear={handleClear} />
+            <FiltroDeHistoricoDeAtosAdministrativos codigoUe={codigoUe} onClear={handleClear} />
           </form>
         </FormProvider>
-        </ FundoBranco>
+      </ FundoBranco>
 
 
         <FundoBranco >
 
         <div className="mt-4">
           <ListagemDeDesignacaoDaUnidade
-            ue={ue}
+            ue={nomeUnidade}
             titulo={`Histórico`}
             subtitulo={`Consulte as designações e os atos administrativos relacionados a esta unidade educacional.`}
             key={tabelaKey}
-            data={resultado?.results ?? []}
+            data={atosPrincipais}
             isLoading={isPending}
           />
         </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, FileText, LoaderCircle } from "lucide-react";
+import { pathDetalhesDoAto } from "@/utils/designacao/rotasAtosAdministrativos";
 import { StatusDesignacao } from "./DesignacaoCard";
 
 
@@ -20,6 +21,7 @@ export interface IAtosAdministrativosPrincipalType {
 
 export interface IAtosAdministrativosType {
     readonly id: number;
+    readonly tipo: string;
     readonly data: string;
     readonly portaria: string;
     readonly titulo: string;
@@ -41,10 +43,6 @@ const rotuloDetalhes = (ato: IAtosAdministrativosType): string => {
 };
 
 export default function AtosRelacionados({ atos = [], isLoading = false }: Props) {
-    const atosVisiveis = atos.filter((ato) =>
-        [ato.data, ato.portaria, ato.titulo, ato.descricao].some((valor) => valor?.trim())
-    );
-
     const renderConteudo = () => {
         if (isLoading) {
             return (
@@ -55,7 +53,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
             );
         }
 
-        if (atosVisiveis.length === 0) {
+        if (atos.length === 0) {
             return (
                 <div className="atos-relacionados-message">
                     <FileText size={22} aria-hidden="true" />
@@ -67,12 +65,15 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
         return (
             <div >
                 <ol className="atos-relacionados-timeline">
-                    {atosVisiveis.map((ato) => (
+                    {atos.map((ato) => {
+                        const href = pathDetalhesDoAto(ato);
+
+                        return (
                         <li key={ato.id} className="atos-relacionados-item" data-principal={ato.principal}>
                             <article className="atos-relacionados-row">
                                 <dl className="atos-relacionados-metadata">
                                     <div>
-                                        {ato.data?.trim() && <><dt>Data do ato</dt><dd>{ato.data}</dd></>}
+                                    <dt>Data da criação do ato</dt>{ato.data?.trim() && <dd>{ato.data}</dd>}
                                     </div>
                                     <div>
                                         {ato.portaria?.trim() && <><dt>Portaria</dt><dd>{ato.portaria}</dd></>}
@@ -80,18 +81,21 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                                 </dl>
                                 <div className="atos-relacionados-content">
                                     <h3 className={`atos-relacionados-title ${ato.esta_vigente ? "" : "line-through"}`}>{ato.titulo?.trim() || "Ato administrativo"}</h3>
-                                    {ato.descricao?.trim() && <p className="atos-relacionados-description">{ato.descricao}</p>}
+                                    {ato.descricao?.trim() ? <p className="atos-relacionados-description">{ato.descricao}</p> : <p className="atos-relacionados-description">-</p>}
                                 </div>
-                                <Link
-                                    href={`/pages/listagem-designacoes/visualizar-designacao/${ato.id}`}
-                                    className="atos-relacionados-details"
-                                    aria-label={rotuloDetalhes(ato)}
-                                >
-                                    Detalhes <ChevronRight size={16} aria-hidden="true" />
-                                </Link>
+                                {href && (
+                                    <Link
+                                        href={href}
+                                        className="atos-relacionados-details"
+                                        aria-label={rotuloDetalhes(ato)}
+                                    >
+                                        Detalhes <ChevronRight size={16} aria-hidden="true" />
+                                    </Link>
+                                )}
                             </article>
                         </li>
-                    ))}
+                        );
+                    })}
                 </ol>
             </div>
         );
@@ -104,7 +108,7 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                 <h2 className="atos-relacionados-heading">Atos relacionados</h2>
                 {!isLoading && (
                     <span className="atos-relacionados-count">
-                        {atosVisiveis.length} {atosVisiveis.length === 1 ? "registro" : "registros"}
+                        {atos.length} {atos.length === 1 ? "registro" : "registros"}
                     </span>
                 )}
             </div>

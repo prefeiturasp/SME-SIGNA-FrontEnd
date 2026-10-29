@@ -15,6 +15,11 @@ const NameColorStatusDesignacao = {
     name: 'Cessada',
     background: 'rgba(178, 43, 42, 0.10)',
   },
+  INSUBSISTENTE: {
+    color: '#B26A00',
+    name: 'Insubsistente',
+    background: 'rgba(178, 106, 0, 0.10)',
+  },
 };
 
 export type StatusDesignacao = keyof typeof NameColorStatusDesignacao;
@@ -51,17 +56,21 @@ export default function DesignacaoCard({
     {
       key: "1",
       label: "Nº de portaria",
-      children: <Text className="designacao-card-valor">1234567/2026</Text>,
+      children: <Text className="designacao-card-valor">{ato.numero_portaria || "-"}</Text>,
     },
     {
       key: "2",
       label: "Cargo",
-      children: <Text className="designacao-card-valor">DIRETOR DE ESCOLA</Text>,
+      children: <Text className="designacao-card-valor">{ato.cargo_display || "-"}</Text>,
     },
     {
       key: "3",
       label: "Servidor indicado",
-      children: <Text className="designacao-card-valor">TATIANE CRISTINA MARQUES</Text>,
+      children: (
+        <Text className="designacao-card-valor">
+          {ato.nome_social_servidor_indicado?.trim() || ato.nome_servidor_indicado || "-"}
+        </Text>
+      ),
     },
   ];
 
@@ -71,13 +80,13 @@ export default function DesignacaoCard({
         <div className="designacao-card-cabecalho">
           <div className="designacao-card-info">
             <Text strong className="designacao-card-titulo">
-              Designação
+              {ato.tipo_ato_display?.trim() || "Designação"}
             </Text>
 
             <div className="designacao-card-realizacao">
               <Calendar />
               <Text className="designacao-card-data">
-                Realizada em {ato.realizada_em}
+                Realizada em {ato.realizada_em || "-"}
               </Text>
             </div>
           </div>
