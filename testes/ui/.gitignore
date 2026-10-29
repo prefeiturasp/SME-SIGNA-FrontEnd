@@ -94,7 +94,7 @@ postman/
 debug_output*.txt
 test_output*.txt
 
-# Snapshots, screenshots e logs do Playwright MCP (inspeção manual no navegador)
+# Artefatos de inspeção manual do navegador (Playwright)
 .playwright-mcp/
 
 # Scripts utilitários locais (não subir ao repositório)
