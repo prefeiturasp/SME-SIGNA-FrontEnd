@@ -1,6 +1,6 @@
-// Steps do fluxo "editar_atos.feature": edição de uma designação ou cessação
-// localizada por uma portaria específica (não uma linha aleatória) — por isso não
-// reaproveita o step genérico "clica e seleciona a opção" (cessacao_steps.js),
+// Steps do fluxo "editar_atos.feature": edição de uma designação, cessação,
+// insubsistência ou apostila localizada por uma portaria específica (não uma linha
+// aleatória) — por isso não reaproveita o step genérico "clica e seleciona a opção" (cessacao_steps.js),
 // que em caso de falha reabre a listagem SEM filtro e tenta outra linha
 // qualquer. Aqui a portaria buscada é sempre a mesma; se "Editar" não estiver
 // disponível na linha filtrada, o cenário deve falhar de forma clara em vez
@@ -9,15 +9,38 @@
 import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { atosAdministrativosPack } from '../../ui/locators/atos_administrativos_locators'
 
+// "Informações adicionais" (passo 3 e consulta) usa o FormItem do antd, sem o
+// contexto de id do shadcn — o "for" do label não aponta para o textarea.
+const CAMPOS_SEM_LABEL_ASSOCIADO = {
+  'Informações adicionais': () =>
+    cy.contains('label', 'Insira informações que considerar importante', { timeout: 15000 })
+      .closest('.ant-form-item')
+      .find('textarea'),
+}
+
 // Campos do formulário (shadcn FormLabel) apontam via "for" para o id do
 // controle — input, textarea ou RadioGroup. O data-testid passado em
 // PortariaDesigacaoFields não chega ao DOM, por isso o label é a âncora.
-const campoDaEdicao = (label) =>
-  cy.contains('label', label, { timeout: 10000 })
-    .invoke('attr', 'for')
-    .then((inputId) => (inputId
-      ? cy.get(`#${CSS.escape(inputId)}`)
-      : cy.contains('label', label).parent().find('input, textarea').not('[type="hidden"]').first()))
+// Na apostila "Nº SEI" e "D.O" aparecem duas vezes: em "Dados da apostila"
+// (somente leitura) e em "Portarias de designação" — entre labels iguais
+// vale o primeiro controle habilitado, que é o editável.
+const campoDaEdicao = (label) => CAMPOS_SEM_LABEL_ASSOCIADO[label]
+  ? CAMPOS_SEM_LABEL_ASSOCIADO[label]()
+  : cy.contains('label', label, { timeout: 10000 })
+    .then(() => cy.get('label'))
+    .then(($labels) => {
+      const doc = $labels[0].ownerDocument
+      const todos = $labels.toArray()
+      const exatos = todos.filter((el) => textoExato(label).test(el.textContent))
+      const controles = (exatos.length ? exatos : todos.filter((el) => el.textContent.includes(label)))
+        .map((el) => el.getAttribute('for') && doc.getElementById(el.getAttribute('for')))
+        .filter(Boolean)
+      const alvo = controles.find((el) => !el.disabled) ?? controles[0]
+
+      return alvo
+        ? cy.get(`#${CSS.escape(alvo.id)}`)
+        : cy.contains('label', label).parent().find('input, textarea').not('[type="hidden"]').first()
+    })
 
 const aliasDoCampo = (campo) =>
   campo === 'Nº SEI' ? 'novoSeiEditado' : `valorEditado-${campo.replace(/[^a-zA-Z0-9]+/g, '-')}`
@@ -31,12 +54,31 @@ const valorDoRadio = (opcao) => {
 
 const escaparRegex = (texto) => texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+// Select do Radix (Impedimento, Detalhe para histórico): o Root não repassa o
+// id do FormControl ao DOM, então o trigger é achado a partir do label irmão.
+const comboDoCampo = (label) =>
+  cy.contains('label', label, { timeout: 15000 })
+    .parent()
+    .find('button[role="combobox"]', { timeout: 15000 })
+
+const TEXTO_DO_RADIO = { sim: 'Sim', nao: 'Não' }
+
+const formatarDataBR = (data) =>
+  [data.getDate(), data.getMonth() + 1].map((n) => String(n).padStart(2, '0')).concat(data.getFullYear()).join('/')
+
+// Formato do atributo "title" das células do calendário do antd.
+const formatarDataISO = (data) =>
+  [data.getFullYear(), data.getMonth() + 1, data.getDate()].map((n) => String(n).padStart(2, '0')).join('-')
+
 // Rotas abertas por cada tipo de ato: "Editar" de uma cessação abre a tela de
-// cessação pelo id da designação de origem (/pages/cessacao?id=<ato_pai_id>);
-// o clique na linha abre a tela de visualização do próprio ato.
+// cessação pelo id da designação de origem (/pages/cessacao?id=<ato_pai_id>),
+// já o de uma insubsistência ou apostila usa o id dela mesma; o clique na
+// linha abre a tela de visualização do próprio ato.
 const ROTAS_POR_TIPO = {
   'designação': { editar: 'designacoes-passo-2', consultar: 'visualizar-designacao' },
   'cessação': { editar: '/pages/cessacao?id=', consultar: 'visualizar-cessacao' },
+  'insubsistência': { editar: '/pages/insubsistencia?id_insubsistencia=', consultar: 'visualizar-insubsistencia' },
+  'apostila': { editar: '/pages/apostila?origem=designacao&apostila_id=', consultar: 'visualizar-apostila' },
 }
 
 // O conteúdo de um accordion Radix fica no elemento apontado pelo
@@ -50,10 +92,21 @@ const conteudoDaSecao = (secao) =>
 // ("Ano Vigente*") e um complemento entre parênteses que a UI acrescenta ao
 // label ("Até (16 dias)"); assim não passa por um texto maior que apenas
 // contenha o esperado.
+const textoExato = (texto) => new RegExp(`^\\s*${escaparRegex(texto)}\\s*\\*?\\s*(\\([^)]*\\))?\\s*$`)
+
+// Na consulta (e nas seções somente leitura da edição, como "Portaria de
+// designação" na insubsistência) cada dado é um InfoItem: o <p> do rótulo fica
+// numa div e o <p> do valor é o irmão seguinte dessa div.
+const valorDoItemDaConsulta = (secao, item) =>
+  conteudoDaSecao(secao)
+    .contains('p', textoExato(item), { timeout: 15000 })
+    .parent()
+    .next('p')
+
 const validarTextos = (escopo, dataTable) => {
   dataTable.raw().flat().map((t) => t.trim()).filter(Boolean).forEach((texto) => {
     escopo()
-      .contains(new RegExp(`^\\s*${escaparRegex(texto)}\\s*\\*?\\s*(\\([^)]*\\))?\\s*$`), { timeout: 15000 })
+      .contains(textoExato(texto), { timeout: 15000 })
       .scrollIntoView()
       .should('be.visible')
   })
@@ -62,11 +115,17 @@ const validarTextos = (escopo, dataTable) => {
 // Pré-requisito de massa de dado: a portaria buscada precisa estar com status
 // "Aguardando publicação" em QA — só atos não publicados oferecem a opção
 // "Editar" no menu de ações (ListagemDeAtosAdministrativos.tsx, itens
-// "desigacaoNaoPublicadaItems" e "cessacaoNaoPublicadaItems"). Se o ato virar
-// "Publicado", este step falha ao não achar "Editar" no menu em vez de
-// mascarar o problema tentando outra linha.
-When(/^clica no menu de ações e seleciona "([^"]+)" para a (designação|cessação) filtrada$/, (opcao, tipo) => {
+// "desigacaoNaoPublicadaItems", "cessacaoNaoPublicadaItems", "apostilaNaoPublicadaItems" e
+// "insubsistenciaItemsNaoPublicada"). O status é conferido antes de abrir o
+// menu para que, se o ato virar "Publicado", a falha aponte a massa de dado
+// em vez de um "Editar" ausente — e sem mascarar tentando outra linha.
+When(/^clica no menu de ações e seleciona "([^"]+)" para a (designação|cessação|insubsistência|apostila) filtrada$/, (opcao, tipo) => {
   atosAdministrativosPack.tabela.linhas().should('have.length.greaterThan', 0)
+
+  atosAdministrativosPack.tabela.linhas().first().should(($linha) => {
+    expect($linha.text(), `a ${tipo} filtrada deve estar "Aguardando publicação" para ser editável`)
+      .to.contain('Aguardando publicação')
+  })
 
   atosAdministrativosPack.tabela.linhas()
     .first()
@@ -120,7 +179,7 @@ Then('a tabela apresenta o novo valor do {string} editado', (campo) => {
   })
 })
 
-When(/^clica na (designação|cessação) encontrada na listagem para consultar$/, (tipo) => {
+When(/^clica na (designação|cessação|insubsistência|apostila) encontrada na listagem para consultar$/, (tipo) => {
   atosAdministrativosPack.tabela.linhas().should('have.length.greaterThan', 0)
 
   atosAdministrativosPack.tabela.linhas()
@@ -132,13 +191,24 @@ When(/^clica na (designação|cessação) encontrada na listagem para consultar$
   cy.url({ timeout: 15000 }).should('include', ROTAS_POR_TIPO[tipo].consultar)
 })
 
-Then('os dados exibidos confirmam a alteração do {string}', (campo) => {
-  if (campo !== 'Nº SEI') {
-    throw new Error(`Campo "${campo}" não suportado neste step — apenas "Nº SEI" está implementado.`)
-  }
+// Os rótulos da consulta diferem dos da edição ("Caráter Excepcional" x
+// "Carater Especial", "Cessar a partir de" x "Cessação a partir de"), por isso a
+// tabela liga cada item da consulta ao campo editado cujo valor foi guardado.
+Then('a seção {string} da consulta exibe os valores editados:', (secao, dataTable) => {
+  dataTable.hashes().forEach(({ 'item da consulta': item, 'campo editado': campo }) => {
+    cy.get(`@${aliasDoCampo(campo)}`).then((valorGuardado) => {
+      const esperado = TEXTO_DO_RADIO[valorGuardado] ?? valorGuardado
 
-  cy.get('@novoSeiEditado').then((novoSei) => {
-    cy.get('main', { timeout: 15000 }).should('contain.text', novoSei)
+      valorDoItemDaConsulta(secao, item).should(($valor) => {
+        expect($valor.text().trim(), `item "${item}" da consulta`).to.eq(esperado)
+      })
+    })
+  })
+})
+
+Then(/^a seção "([^"]+)" da (consulta|edição) exibe "([^"]*)" no item "([^"]+)"$/, (secao, tela, esperado, item) => {
+  valorDoItemDaConsulta(secao, item).should(($valor) => {
+    expect($valor.text().trim(), `item "${item}" da ${tela}`).to.eq(esperado)
   })
 })
 
@@ -232,7 +302,7 @@ When('preenche o campo de texto {string} com um texto único e guarda o valor pa
   cy.wrap(texto).as(aliasDoCampo(campo))
 })
 
-Then('o campo {string} da edição exibe o valor guardado', (campo) => {
+Then(/^o campo "([^"]+)" da (?:edição|consulta) exibe o valor guardado$/, (campo) => {
   cy.get(`@${aliasDoCampo(campo)}`).then((valorGuardado) => {
     campoDaEdicao(campo).should('have.value', valorGuardado)
   })
@@ -254,6 +324,28 @@ When('clica em tipo e seleciona {string}', (tipo) => {
 Then('o sistema exibe a tela de edição da cessação', () => {
   cy.url({ timeout: 15000 }).should('include', ROTAS_POR_TIPO['cessação'].editar)
   cy.contains('main button', 'Portaria de cessação', { timeout: 20000 }).should('be.visible')
+})
+
+Then('o sistema exibe a tela de edição da insubsistência', () => {
+  cy.url({ timeout: 15000 }).should('include', ROTAS_POR_TIPO['insubsistência'].editar)
+  cy.contains('main button', 'Portaria de Insubsistência', { timeout: 20000 }).should('be.visible')
+})
+
+Then('o sistema exibe a tela de edição da apostila', () => {
+  cy.url({ timeout: 15000 }).should('include', ROTAS_POR_TIPO['apostila'].editar)
+  cy.contains('main button', 'Dados da apostila', { timeout: 20000 }).should('be.visible')
+})
+
+// Na edição o tipo (Designação/Cessação) vem do ato original e o RadioGroup
+// fica desabilitado (insubsistencia/page.tsx, "desabilita_radio").
+Then('o tipo de insubsistência {string} está marcado e bloqueado para edição', (tipo) => {
+  cy.contains('label', 'Selecione o tipo de insubsistência', { timeout: 15000 })
+    .parent()
+    .contains('label', textoExato(tipo))
+    .invoke('attr', 'for')
+    .then((idRadio) => cy.get(`#${CSS.escape(idRadio)}`))
+    .should('have.attr', 'data-state', 'checked')
+    .and('be.disabled')
 })
 
 // Inverte o valor atual (Sim ↔ Não) para garantir que a edição muda de fato o
@@ -281,4 +373,130 @@ Then('a opção guardada está marcada no campo {string}', (campo) => {
       .find(`button[role="radio"][value="${valorGuardado}"]`, { timeout: 15000 })
       .should('have.attr', 'data-state', 'checked')
   })
+})
+
+const sortearEntre = (min, max) => min + Math.floor(Math.random() * (max - min + 1))
+
+// O DatePicker do antd bloqueia o Enter (DateField), então a data é digitada
+// para o calendário navegar até ela e confirmada clicando na célula.
+const editarCampoDeData = (campo, data) => {
+  const dataBR = formatarDataBR(data)
+
+  campoDaEdicao(campo)
+    .scrollIntoView()
+    .should('be.visible')
+    .and('not.be.disabled')
+    .click()
+    .type(`{selectall}{backspace}${dataBR}`, { delay: 50 })
+
+  cy.get('.ant-picker-dropdown:visible', { timeout: 10000 })
+    .find(`td[title="${formatarDataISO(data)}"]`, { timeout: 10000 })
+    .click()
+
+  campoDaEdicao(campo).should('have.value', dataBR)
+  cy.wrap(dataBR).as(aliasDoCampo(campo))
+}
+
+// Data sorteada a cada execução para que o salvamento altere o registro de fato.
+When(
+  'edita o campo de data {string} com uma data entre {int} e {int} dias após hoje e guarda o valor para conferência',
+  (campo, diasMin, diasMax) => {
+    const data = new Date()
+    data.setDate(data.getDate() + sortearEntre(diasMin, diasMax))
+    editarCampoDeData(campo, data)
+  }
+)
+
+// Substituição de Diretor (cargo 3360) só avança com período de 16 a 30 dias,
+// contando o primeiro e o último dia (utils/designacao/substituicaoDiretor.ts);
+// fora disso o "Avançar" fica desabilitado. Por isso a data final é sorteada a
+// partir da data inicial já editada, e não a partir de hoje.
+When(
+  'edita o campo de data {string} para um período de {int} a {int} dias contados de {string} e guarda o valor para conferência',
+  (campo, diasMin, diasMax, campoInicio) => {
+    cy.get(`@${aliasDoCampo(campoInicio)}`).then((inicioBR) => {
+      const [dia, mes, ano] = inicioBR.split('/').map(Number)
+      const data = new Date(ano, mes - 1, dia)
+      data.setDate(data.getDate() + sortearEntre(diasMin, diasMax) - 1)
+      editarCampoDeData(campo, data)
+    })
+  }
+)
+
+// Escolhe ao acaso uma opção diferente da atual; com duas opções
+// ("Contabilizar" / "Não contabilizar") equivale a inverter o valor.
+// O clique é feito por texto (cy.contains) e não no elemento já capturado: a
+// lista do Radix re-renderiza ao rolar até a opção (Impedimento tem ~23 itens)
+// e um elemento embrulhado com cy.wrap fica destacado do DOM.
+When('seleciona uma opção diferente no campo {string} e guarda o valor para conferência', (campo) => {
+  comboDoCampo(campo)
+    .scrollIntoView()
+    .should('be.visible')
+    .and('not.be.disabled')
+    .then(($trigger) => {
+      const valorAtual = $trigger.text().trim()
+      cy.wrap($trigger).click()
+
+      cy.get('[role="option"]', { timeout: 10000 })
+        .should('have.length.greaterThan', 0)
+        .then(($opcoes) => {
+          const diferentes = $opcoes.toArray().filter((el) => el.textContent.trim() !== valorAtual)
+          if (diferentes.length === 0) {
+            throw new Error(`Campo "${campo}" não tem opção diferente de "${valorAtual}" para selecionar.`)
+          }
+
+          const textoEscolhido = diferentes[Math.floor(Math.random() * diferentes.length)].textContent.trim()
+
+          cy.contains('[role="option"]', new RegExp(`^\\s*${escaparRegex(textoEscolhido)}\\s*$`)).click()
+          comboDoCampo(campo).should(($novo) => {
+            expect($novo.text().trim(), `campo "${campo}" após a seleção`).to.eq(textoEscolhido)
+          })
+          cy.wrap(textoEscolhido).as(aliasDoCampo(campo))
+        })
+    })
+})
+
+// SelectAnoField: trocar para um ano diferente do ano corrente abre o
+// Popconfirm "Tem certeza que deseja mudar o ano?" e o valor só é gravado ao
+// confirmar. O ano corrente fica fora do sorteio para que a confirmação sempre
+// apareça — o step não depende de checar se o popup abriu ou não.
+When('seleciona um ano diferente no campo {string} confirmando a mudança e guarda o valor para conferência', (campo) => {
+  const anoCorrente = new Date().getFullYear()
+
+  comboDoCampo(campo)
+    .scrollIntoView()
+    .should('be.visible')
+    .and('not.be.disabled')
+    .then(($trigger) => {
+      const anoAtual = $trigger.text().trim()
+      const candidatos = Array.from({ length: 10 }, (_, i) => String(anoCorrente - 1 - i))
+        .filter((ano) => ano !== anoAtual)
+      const anoEscolhido = candidatos[sortearEntre(0, candidatos.length - 1)]
+
+      cy.wrap($trigger).click()
+      cy.contains('[role="option"]', new RegExp(`^\\s*${anoEscolhido}\\s*$`), { timeout: 10000 }).click()
+
+      cy.contains('.ant-popconfirm', 'Tem certeza que deseja mudar o ano?', { timeout: 10000 })
+        .contains('button', 'Sim')
+        .should('be.visible')
+        .click()
+
+      comboDoCampo(campo).should(($novo) => {
+        expect($novo.text().trim(), `campo "${campo}" após confirmar a mudança`).to.eq(anoEscolhido)
+      })
+      cy.wrap(anoEscolhido).as(aliasDoCampo(campo))
+    })
+})
+
+Then('o campo {string} da edição exibe a opção guardada', (campo) => {
+  cy.get(`@${aliasDoCampo(campo)}`).then((valorGuardado) => {
+    comboDoCampo(campo).should(($trigger) => {
+      expect($trigger.text().trim(), `campo "${campo}"`).to.eq(valorGuardado)
+    })
+  })
+})
+
+Then('o sistema exibe a etapa de confirmação da edição da designação', () => {
+  cy.url({ timeout: 15000 }).should('include', 'designacoes-passo-3')
+  cy.contains('span', 'Informações adicionais', { timeout: 15000 }).should('be.visible')
 })

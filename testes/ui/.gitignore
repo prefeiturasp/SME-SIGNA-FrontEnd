@@ -94,6 +94,9 @@ postman/
 debug_output*.txt
 test_output*.txt
 
+# Snapshots, screenshots e logs do Playwright MCP (inspeção manual no navegador)
+.playwright-mcp/
+
 # Scripts utilitários locais (não subir ao repositório)
 limpar_emojis.ps1
 

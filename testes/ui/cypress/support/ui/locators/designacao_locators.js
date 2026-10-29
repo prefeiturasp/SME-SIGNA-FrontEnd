@@ -80,6 +80,16 @@ export const designacaoLocators = {
   // Itens do dropdown (renderizados via portal pelo Radix)
   opcoesDropdown: '[role="option"]',
 
+  // data-testid do FormularioPesquisaUnidade — preferíveis aos seletores
+  // estruturais acima, que quebram com mudança de layout.
+  selectDRE:             '[data-testid="select-dre"]',
+  selectUE:              '[data-testid="select-ue"]',
+  buscaCombobox:         'input[placeholder="Buscar..."]',
+  // O front usa o mesmo SearchButton (e o mesmo data-testid) na pesquisa por
+  // RF e na de unidade — escopar pelo <form> da unidade antes de clicar.
+  botaoPesquisar:        '[data-testid="botao-pesquisar-servidor"]',
+  botaoVisualizarTurmas: '[data-testid="btn-visualizar-turmas"]',
+
   // Passo 2 — Cargo Vago
   // Usa seletor dinâmico: [id*="form-item"] busca qualquer ID que contenha "form-item"
   // Fallback: navega pela label 'Cargo Vago' se ID dinâmico não funcionar
