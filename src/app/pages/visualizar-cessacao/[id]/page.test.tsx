@@ -143,6 +143,7 @@ const mockUseFetchCessacaoByIdReturn = ({
 
 describe("VisualizarCessacao page", () => {
   const designacaoBaseMock = {
+    ue: "014591",
     dre_nome: "DRE Centro",
     unidade_proponente: "EMEF Teste",
     numero_portaria: "345",
@@ -260,8 +261,24 @@ describe("VisualizarCessacao page", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo_display=da cessação&numero_portaria=001&servidor_indicado=Servidor Indicado",
+      "/pages/historico-ato-administrativo?ue=014591",
     );
+  });
+
+  it("consulta o histórico sem unidade quando a designação da cessação não informa a UE", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: {
+        ...cessacaoBaseMock,
+        designacao: { ...designacaoBaseMock, ue: undefined },
+      },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/historico-ato-administrativo?ue=");
   });
 
   it("não renderiza accordion quando não há designação", () => {

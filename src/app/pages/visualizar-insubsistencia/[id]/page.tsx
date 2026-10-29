@@ -140,7 +140,7 @@ export default function VisualizarInsubsistenciaPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo=${insubsistencia?.tipo}&tipo_display=${tipo_display}&numero_portaria=${insubsistencia?.numero_portaria}&servidor_indicado=${insubsistencia?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?${new URLSearchParams({ ue: insubsistencia?.designacao?.ue ?? "" })}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>
@@ -179,7 +179,7 @@ export default function VisualizarInsubsistenciaPage() {
                 isLoadingDesignacao={isLoadingInsubsistencia}
               />
 
-              <CustomAccordionItem title={`Portaria ${tipo_display}`} value="portaria-insubsistencia" color={cor_portaria ?? "purple"}>
+              <CustomAccordionItem title={`Portaria ${tipo_display}`} value="portaria-insubsistencia" color={cor_portaria}>
                 <ResumoPortariaInsubsistencia defaultValues={insubsistencia} titulo_portaria={`Portaria ${tipo_display}`} />
               </CustomAccordionItem>
             </Accordion>

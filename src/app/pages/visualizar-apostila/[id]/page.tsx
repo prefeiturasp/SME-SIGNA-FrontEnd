@@ -56,7 +56,7 @@ export default function VisualizarApostilaPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo_display=da apostila&numero_portaria=${apostila?.numero_portaria}&servidor_indicado=${apostila?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?${new URLSearchParams({ ue: apostila?.designacao?.ue ?? "" })}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>
@@ -95,7 +95,7 @@ export default function VisualizarApostilaPage() {
                 isLoadingDesignacao={isLoadingApostila}
               />
 
-              <CustomAccordionItem title="Portaria de Apostila" value="portaria-apostila" color="purple">
+              <CustomAccordionItem title="Dados da apostila" value="portaria-apostila" color="purple">
                 <ResumoPortariaApostila defaultValues={apostila} />
               </CustomAccordionItem>
 
