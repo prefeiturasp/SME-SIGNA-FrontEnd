@@ -29,8 +29,8 @@ vi.mock("react-hook-form", () => ({
   FormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/hooks/useAtosAdministrativos", () => ({
-  useAtosAdministrativos: (...args: unknown[]) => hookSpy(...args),
+vi.mock("@/hooks/useHistoricoDeDesignacoes", () => ({
+  useHistoricoDeDesignacoes: (...args: unknown[]) => hookSpy(...args),
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
@@ -47,8 +47,8 @@ vi.mock("@/components/dashboard/FundoBranco/QuadroBranco", () => ({
 }));
 
 vi.mock("@/components/dashboard/Designacao/FiltroDeAtosAdministrativos/FiltroDeHistoricoDeAtosAdministrativos", () => ({
-  default: ({ onClear }: { onClear?: () => void }) => {
-    filtroSpy({ onClear });
+  default: ({ codigoUe, onClear }: { codigoUe: string; onClear?: () => void }) => {
+    filtroSpy({ codigoUe, onClear });
     return (
       <button type="button" data-testid="filtro-clear" onClick={onClear}>
         limpar filtro
@@ -72,15 +72,35 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDesignacaoDaUnidade/Listage
   },
 }));
 
+const designacaoHistorico = {
+  id: 1,
+  status: "insubsistente",
+  numero_portaria: 12,
+  ano_vigente: "2021",
+  portaria: "12/2021",
+  sei_numero: "12",
+  doc: null,
+  ue: "014591",
+  dre: "108100",
+  dre_nome: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
+  unidade_proponente: "EMEI - BENEDICTO CASTRUCCI, PROF.",
+  codigo_hierarquico: "162100000140000",
+  cargo: "DIRETOR DE ESCOLA",
+  servidor_indicado: "VANESSA GUSTAVO DA SILVA",
+  indicado_rf: "7914229",
+  data_inicio: "2012-09-30",
+  data_fim: null,
+  vigente: false,
+  cessada_em: null,
+  atos_relacionados: [],
+};
+
 describe("Página de histórico de ato administrativo", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     searchParamsGetMock.mockImplementation((key: string) => {
       const params: Record<string, string> = {
-        id: "42",
-        tipo: "DESIGNACAO",
-        ato_raiz_id: "11",
-        tipo_display: "da designação",
+        ue: "014591",
       };
       return params[key] ?? null;
     });
@@ -88,7 +108,7 @@ describe("Página de histórico de ato administrativo", () => {
     hookSpy.mockReturnValue({
       isPending: false,
       tabelaKey: 1,
-      resultado: undefined,
+      resultado: null,
       filterForm: {
         handleSubmit: handleSubmitMock,
       },
@@ -114,59 +134,63 @@ describe("Página de histórico de ato administrativo", () => {
     expect(backMock).toHaveBeenCalledTimes(1);
   });
 
-  it("repassa dados do hook e a unidade padrão para a listagem", () => {
+  it("repassa dados do hook e a unidade para a listagem", () => {
     render(<AtosAdministrativos />);
 
     expect(screen.getByTestId("list-data-length")).toHaveTextContent("0");
     expect(screen.getByTestId("list-loading")).toHaveTextContent("false");
-    expect(screen.getByTestId("list-ue")).toHaveTextContent("Alipio Correa Neto, Prof.");
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("undefined");
     expect(screen.getByTestId("list-titulo")).toHaveTextContent("Histórico");
     expect(screen.getByTestId("list-subtitulo")).toHaveTextContent(
       "Consulte as designações e os atos administrativos relacionados a esta unidade educacional."
     );
   });
 
-  it("usa a unidade educacional informada na query string", () => {
+  it("usa o código da unidade informado na query string", () => {
     searchParamsGetMock.mockImplementation((key: string) =>
-      key === "ue" ? "EMEF Machado de Assis" : null
+      key === "ue" ? "123456" : null
     );
 
     render(<AtosAdministrativos />);
 
-    expect(screen.getByTestId("list-ue")).toHaveTextContent("EMEF Machado de Assis");
+    expect(hookSpy.mock.calls[0][0]).toBe("123456");
+    expect(filtroSpy).toHaveBeenCalledWith({ codigoUe: "123456", onClear: handleClearMock });
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("undefined");
   });
 
-  it("monta os filtros iniciais com o ato_id numérico da query string", () => {
+  it("não usa uma unidade padrão quando a query string não informa ue", () => {
+    searchParamsGetMock.mockReturnValue(null);
+
+    render(<AtosAdministrativos />);
+
+    expect(hookSpy.mock.calls[0][0]).toBe("");
+    expect(screen.getByTestId("list-ue")).toHaveTextContent("undefined");
+  });
+
+  it("exibe o nome da unidade proponente retornado pela API", () => {
+    hookSpy.mockReturnValue({
+      isPending: false,
+      tabelaKey: 1,
+      resultado: [designacaoHistorico],
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
+    });
+
+    render(<AtosAdministrativos />);
+
+    expect(screen.getByTestId("list-ue")).toHaveTextContent(
+      "EMEI - BENEDICTO CASTRUCCI, PROF."
+    );
+  });
+
+  it("usa os filtros padrão do hook para a UE da query string", () => {
     render(<AtosAdministrativos />);
 
     expect(hookSpy).toHaveBeenCalledTimes(1);
-    expect(hookSpy.mock.calls[0][0]).toEqual({
-      tipo: "TODOS",
-      portaria: "",
-      numero_sei: "",
-      nome_titular_e_indicado: "",
-      status_publicacao: "",
-      periodo_before: "",
-      rf: "",
-      ato_id: 42,
-      observacao: "",
-    });
-  });
-
-  it("deixa o ato_id indefinido quando a query string não informa id", () => {
-    searchParamsGetMock.mockReturnValue(null);
-
-    render(<AtosAdministrativos />);
-
-    expect(hookSpy.mock.calls[0][0]).toMatchObject({ ato_id: undefined });
-  });
-
-  it("usa a unidade padrão quando a query string não informa ue", () => {
-    searchParamsGetMock.mockReturnValue(null);
-
-    render(<AtosAdministrativos />);
-
-    expect(screen.getByTestId("list-ue")).toHaveTextContent("Alipio Correa Neto, Prof.");
+    expect(hookSpy).toHaveBeenCalledWith("014591");
   });
 
   it("aciona handleClear quando o filtro dispara onClear", () => {
@@ -181,7 +205,7 @@ describe("Página de histórico de ato administrativo", () => {
     hookSpy.mockReturnValue({
       isPending: true,
       tabelaKey: 2,
-      resultado: { count: 2, results: [{ id: 1 }, { id: 2 }] },
+      resultado: [designacaoHistorico, { ...designacaoHistorico, id: 2 }],
       filterForm: {
         handleSubmit: handleSubmitMock,
       },

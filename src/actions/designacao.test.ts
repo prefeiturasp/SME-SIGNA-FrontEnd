@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cookies } from "next/headers";
 import {
+    fetchApostilasByIdAction,
     fetchAtosAdministrativos,
+    fetchCargosDesignacoes,
+    fetchHistoricoDeDesignacoes,
     fetchPortariasDO,
 } from "./designacao";
 import {
@@ -48,6 +51,17 @@ const samplePortariasResponse: ListagemPortariasResponse[] = [
         sei_numero: "SEI-100",
     },
 ];
+
+describe("fetchCargosDesignacoes", () => {
+    it("busca os cargos das designações com o cliente autenticado", async () => {
+        const data = [{ codigoCargo: null, nomeCargo: "Todos os cargos", quantidade_designacoes: 0 }];
+        const client = { get: vi.fn().mockResolvedValue({ data }) };
+        vi.mocked(getApiClient).mockResolvedValue(client as unknown as Awaited<ReturnType<typeof getApiClient>>);
+
+        expect(await fetchCargosDesignacoes("014591")).toEqual({ success: true, data });
+        expect(client.get).toHaveBeenCalledWith("/designacao/designacoes/cargos-designacoes/", { params: { ue: "014591" } });
+    });
+});
 
 describe("fetchPortariasDO", () => {
     const mockAxiosInstance = { get: vi.fn() };
@@ -226,6 +240,92 @@ describe("fetchAtosAdministrativos", () => {
         expect(result).toEqual({
             success: false,
             error: "Erro ao buscar os atos administrativos",
+        });
+    });
+});
+
+describe("fetchHistoricoDeDesignacoes", () => {
+    const mockAxiosInstance = { get: vi.fn() };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
+    });
+
+    it("busca o histórico pelo código da unidade", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: [] });
+
+        const result = await fetchHistoricoDeDesignacoes("014591");
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/historico-de-designacoes/014591/",
+            { params: {} }
+        );
+        expect(result).toEqual({ success: true, data: [] });
+    });
+
+    it("envia apenas filtros preenchidos", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: [] });
+
+        await fetchHistoricoDeDesignacoes("014591", {
+            cargo: "3360",
+            tipo: "APOSTILA",
+            portaria: "",
+            observacao: "13",
+        });
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/historico-de-designacoes/014591/",
+            { params: { cargo: "3360", tipo: "APOSTILA", observacao: "13" } }
+        );
+    });
+
+    it("retorna erro tratado quando a requisição falha", async () => {
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 500 },
+        });
+
+        const result = await fetchHistoricoDeDesignacoes("014591");
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro interno no servidor",
+        });
+    });
+});
+
+describe("fetchApostilasByIdAction", () => {
+    const mockAxiosInstance = { get: vi.fn() };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_API_URL = "https://api.exemplo.com";
+        vi.mocked(getApiClient).mockResolvedValue(mockAxiosInstance as unknown as Awaited<ReturnType<typeof getApiClient>>);
+    });
+
+    it("busca a apostila pelo id", async () => {
+        const data = { id: 9 };
+        mockAxiosInstance.get.mockResolvedValue({ data });
+
+        const result = await fetchApostilasByIdAction(9);
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith("/designacao/apostilas/9/", { params: {} });
+        expect(result).toEqual({ success: true, data });
+    });
+
+    it("retorna erro tratado quando a requisição falha", async () => {
+        mockAxiosInstance.get.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 400 },
+        });
+
+        const result = await fetchApostilasByIdAction(9);
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro ao buscar as apostilas",
         });
     });
 });
