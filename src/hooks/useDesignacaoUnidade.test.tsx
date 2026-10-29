@@ -59,7 +59,9 @@ describe("use DesignacaoUnidade", () => {
                 "3360": {
                     "codigo_cargo": 3360,
                     "nome_cargo": "DIRETOR DE ESCOLA",
-                    "modulo": "1",
+                    "modulo": 1,
+                    "quantidade_servidores": 1,
+                    "excedente": false,
                     "servidores": [
                         {
                             "rf": "7726694",

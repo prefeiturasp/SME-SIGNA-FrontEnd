@@ -114,6 +114,37 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.indicado_local_exercicio).toBeNull();
     });
 
+    it("envia os campos da regra de substituição do Diretor", () => {
+        const payload = mapearPayloadDesignacao({
+            ...formBase,
+            ue: "090450",
+            servidorIndicado: {
+                ...servidorIndicado,
+                cd_cargo_base: "3212" as unknown as number,
+                cd_cargo_sobreposto_funcao_atividade: "3379" as unknown as number,
+                possui_cargo_sobreposto: true,
+                cd_ue_lotacao: 90450,
+            },
+        });
+
+        expect(payload).toMatchObject({
+            ue: "090450",
+            indicado_codigo_cargo_base: 3212,
+            indicado_codigo_cargo_sobreposto: 3379,
+            indicado_possui_cargo_sobreposto: true,
+            indicado_codigo_ue_lotacao: "90450",
+        });
+    });
+
+    it("usa defaults quando a busca do servidor não traz os campos novos", () => {
+        const payload = mapearPayloadDesignacao(formBase);
+
+        expect(payload).toMatchObject({
+            indicado_possui_cargo_sobreposto: false,
+            indicado_codigo_ue_lotacao: "",
+        });
+    });
+
     it("mapeia os campos gerais do form corretamente", () => {
         const result = mapearPayloadDesignacao({ ...formBase });
 

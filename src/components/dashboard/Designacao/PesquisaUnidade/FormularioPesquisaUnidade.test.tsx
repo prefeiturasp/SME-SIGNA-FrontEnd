@@ -467,6 +467,72 @@ describe("FormularioPesquisaUnidade", () => {
     expect(screen.getByText("4")).toBeInTheDocument();
   });
 
+  describe("alerta de excedente de módulo", () => {
+    const pesquisarESelecionarCargo = async (
+      funcionariosUnidade: Record<string, unknown>,
+      nomeCargo: string,
+    ) => {
+      const user = userEvent.setup();
+
+      getDesignacaoUnidadeSpy.mockResolvedValue({
+        success: true,
+        data: {
+          cargos: [
+            { codigoCargo: "cargo-1", nomeCargo: "Coordenador" },
+            { codigoCargo: "cargo-2", nomeCargo: "Professor" },
+          ],
+          funcionarios_unidade: funcionariosUnidade,
+        },
+      } as never);
+
+      renderWithQueryClient(
+        <FormularioPesquisaUnidade isLoading={false} setDisableProximo={vi.fn()} />
+      );
+
+      await selectDreAndUe(user);
+      await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+      const funcionariosSelect = await screen.findByTestId("select-funcionarios");
+      await user.click(funcionariosSelect);
+      await clickSelectOption(user, nomeCargo);
+    };
+
+    const cargoCoordenador = (excedente: boolean) => ({
+      "cargo-1": {
+        codigo_cargo: 1,
+        nome_cargo: "Coordenador",
+        modulo: 1,
+        quantidade_servidores: excedente ? 2 : 1,
+        excedente,
+        servidores: [{ rf: "123", nome: "Fulano" }],
+      },
+    });
+
+    it("exibe o alerta quando o cargo selecionado excede o módulo", async () => {
+      await pesquisarESelecionarCargo(cargoCoordenador(true), "Coordenador");
+
+      const alerta = await screen.findByTestId("alerta-excedente-modulo");
+      expect(alerta).toHaveTextContent("Módulo excedido");
+      expect(alerta).toHaveTextContent(
+        "A unidade possui 2 servidor(es) no cargo Coordenador, excedendo o limite de 1 módulo(s).",
+      );
+    });
+
+    it("não exibe o alerta quando o cargo selecionado não excede o módulo", async () => {
+      await pesquisarESelecionarCargo(cargoCoordenador(false), "Coordenador");
+
+      await waitFor(() => expect(screen.getByText("Módulos")).toBeInTheDocument());
+      expect(screen.queryByTestId("alerta-excedente-modulo")).not.toBeInTheDocument();
+    });
+
+    it("não exibe o alerta quando o cargo não existe em funcionarios_unidade", async () => {
+      await pesquisarESelecionarCargo(cargoCoordenador(true), "Professor");
+
+      await waitFor(() => expect(screen.getByText("Módulos")).toBeInTheDocument());
+      expect(screen.queryByTestId("alerta-excedente-modulo")).not.toBeInTheDocument();
+    });
+  });
+
   it("habilita visualização do servidor após selecionar funcionário e abre o modal", async () => {
     const user = userEvent.setup();
 
@@ -688,7 +754,7 @@ describe("FormularioPesquisaUnidade", () => {
     }
   });
 
-  it("quando API retorna success:false, trata erro ", async () => {
+  it("quando API retorna success:false, trata erro", async () => {
     const user = userEvent.setup();
 
 
@@ -716,7 +782,7 @@ describe("FormularioPesquisaUnidade", () => {
 
   });
 
-  it("quando API lança exceção, trata erro (catch)  ", async () => {
+  it("quando API lança exceção, trata erro (catch)", async () => {
     const user = userEvent.setup();
     const consoleLogSpy = vi
       .spyOn(console, "log")

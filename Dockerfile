@@ -1,13 +1,17 @@
-FROM node:22.22.1-alpine3.22 AS app
+FROM node:22.22.3-alpine3.22 AS app
 
 WORKDIR /app
 
-COPY tsconfig.json tailwind.config.js postcss.config.mjs package.json next.config.mjs components.json /app/
+RUN chown node:node /app
 
-COPY src /app/src
+USER node
 
-RUN yarn install
+COPY --chown=node:node tsconfig.json postcss.config.mjs package.json package-lock.json next.config.mjs components.json /app/
+
+COPY --chown=node:node src /app/src
+
+RUN npm ci
 
 EXPOSE 3000
 
-ENTRYPOINT [ "yarn", "dev", "-p", "3000" ]
+ENTRYPOINT [ "npm", "run", "dev", "--", "-p", "3000" ]
