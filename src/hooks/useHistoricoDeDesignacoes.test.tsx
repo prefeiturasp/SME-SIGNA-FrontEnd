@@ -177,6 +177,31 @@ describe("useHistoricoDeDesignacoes", () => {
     });
   });
 
+  it("envia o tipo escolhido no formulário mesmo quando o submit não repete o campo", async () => {
+    formValues.tipo = "CESSACAO";
+    fetchHistoricoDeDesignacoesMock.mockResolvedValue({ success: true, data: [] });
+
+    const { result } = renderHook(() => useHistoricoDeDesignacoes("014591"));
+
+    await waitFor(() => {
+      expect(fetchHistoricoDeDesignacoesMock).toHaveBeenCalledWith(
+        "014591",
+        expect.objectContaining({ tipo: "CESSACAO" })
+      );
+    });
+
+    await act(async () => {
+      result.current.onSubmitFilterForm({ observacao: "obs" });
+    });
+
+    await waitFor(() => {
+      expect(fetchHistoricoDeDesignacoesMock).toHaveBeenLastCalledWith(
+        "014591",
+        expect.objectContaining({ tipo: "CESSACAO", observacao: "obs" })
+      );
+    });
+  });
+
   it("limpa o formulário com os defaults e expõe a busca direta", async () => {
     fetchHistoricoDeDesignacoesMock.mockResolvedValue({ success: true, data: [] });
 

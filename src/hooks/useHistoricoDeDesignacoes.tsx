@@ -97,7 +97,8 @@ export function useHistoricoDeDesignacoes(
       return;
     }
 
-    carregarHistorico(values, ue);
+    const tipo = values.tipo || getValues().tipo;
+    carregarHistorico({ ...getValues(), ...values, tipo }, ue);
   };
 
   const handleClear = () => {
@@ -114,8 +115,8 @@ export function useHistoricoDeDesignacoes(
 
   useEffect(() => {
     if (!codigoUe) return;
-    const values = { ...getValues(), tipo: getValues().tipo === 'TODOS' ? undefined : getValues().tipo };
-    carregarHistorico(values, codigoUe);
+
+    carregarHistorico(getValues(), codigoUe);
   }, [codigoUe, getValues, carregarHistorico]);
 
   return {
