@@ -64,6 +64,32 @@ describe("montarDadosTextoSeiDesignacao", () => {
         expect(result.CARGO).toBe("Coordenador Pedagógico");
     });
 
+    it("monta CARGO_INDICADO com a categoria após o cargo base de professor", () => {
+        const result = montarDadosTextoSeiDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                cargo_base: "PROFESSOR DE ENSINO FUNDAMENTAL II E MEDIO",
+                cd_cargo_base: 3255,
+                possui_cargo_sobreposto: false,
+                categoria: "3",
+            } as FormDesignacaoEServidorIndicado["servidorIndicado"],
+        });
+        expect(result.CARGO_INDICADO).toBe("Professor de Ensino Fundamental Ii e Medio - Categoria 3");
+    });
+
+    it("monta CARGO_INDICADO com o cargo sobreposto quando o indicado possui um", () => {
+        const result = montarDadosTextoSeiDesignacao({
+            ...formBase,
+            servidorIndicado: {
+                ...servidorIndicado,
+                cd_cargo_base: 3255,
+                possui_cargo_sobreposto: true,
+            } as FormDesignacaoEServidorIndicado["servidorIndicado"],
+        });
+        expect(result.CARGO_INDICADO).toBe("Diretor de Escola");
+    });
+
     it("monta período com data final quando presente", () => {
         const result = montarDadosTextoSeiDesignacao({
             ...formBase,

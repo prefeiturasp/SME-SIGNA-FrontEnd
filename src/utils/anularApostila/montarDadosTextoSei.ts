@@ -3,9 +3,12 @@ import type { formSchemaAnularApostilaTornarSemEfeitoData } from "@/app/pages/an
 import {
     formatarDataPtBr,
     formatarRF,
-    nameToCamelCase,
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
+import {
+    montarCargoDaDesignacao,
+    montarCargoIndicadoDaDesignacao,
+} from "@/utils/portarias/cargoIndicado";
 
 /** Ato que foi apostilado (designação ou cessação de origem da apostila). */
 export interface AtoApostilado {
@@ -52,10 +55,9 @@ export function montarDadosTextoSeiAnularApostila(
             designacao?.indicado_vinculo == null
                 ? ""
                 : String(designacao.indicado_vinculo),
-        CARGO: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? ""),
-        CARGO_DESIGNACAO: nameToCamelCase(
-            designacao?.indicado_cargo_sobreposto ?? ""
-        ),
+        CARGO: montarCargoDaDesignacao(designacao),
+        CARGO_DESIGNACAO: montarCargoDaDesignacao(designacao),
+        CARGO_INDICADO: montarCargoIndicadoDaDesignacao(designacao),
         CATEGORIA: designacao?.indicado_categoria ?? "",
         UNIDADE: nameToCamelCaseUe(designacao?.indicado_lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(
