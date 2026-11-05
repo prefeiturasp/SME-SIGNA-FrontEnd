@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VisualizarCessacaoPage from "./page";
@@ -250,8 +250,19 @@ describe("VisualizarCessacao page", () => {
     );
   });
 
-  it("navega ao clicar em consultar histórico", () => {
+  it("renderiza o card com o título Cessação", () => {
     vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: cessacaoBaseMock,
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(within(screen.getByTestId("card")).getByText("Cessação")).toBeInTheDocument();
+  });
+
+  it("navega ao clicar em consultar histórico", () => {    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: cessacaoBaseMock,
       isLoading: false,
       error: null,

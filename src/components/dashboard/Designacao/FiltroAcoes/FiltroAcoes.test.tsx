@@ -27,4 +27,16 @@ describe("FiltroAcoes", () => {
     expect(screen.getByTestId("btn-limpar-filtros")).toBeDisabled();
     expect(screen.getByTestId("btn-pesquisar")).toBeEnabled();
   });
+
+  it("usa o botão de pesquisar como submit do formulário sem acionar a limpeza", () => {
+    const onClear = vi.fn();
+    render(<FiltroAcoes hasFilters onClear={onClear} />);
+
+    const pesquisar = screen.getByTestId("btn-pesquisar");
+    expect(pesquisar).toHaveAttribute("type", "submit");
+    expect(screen.getByTestId("btn-limpar-filtros")).toHaveAttribute("type", "button");
+
+    fireEvent.click(pesquisar);
+    expect(onClear).not.toHaveBeenCalled();
+  });
 });

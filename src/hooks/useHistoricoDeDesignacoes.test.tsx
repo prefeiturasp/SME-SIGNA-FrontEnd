@@ -272,4 +272,51 @@ describe("useHistoricoDeDesignacoes", () => {
     expect(result.current.resultado).toEqual([]);
   });
 
+  it("reaproveita os valores atuais do formulário ao buscar com poucos campos", async () => {
+    formValues.tipo = "APOSTILA";
+    formValues.observacao = "observação do formulário";
+    formValues.periodo = {
+      from: new Date("2026-01-10T12:00:00.000Z"),
+      to: new Date("2026-02-20T12:00:00.000Z"),
+    };
+    fetchHistoricoDeDesignacoesMock.mockResolvedValue({ success: true, data: [] });
+
+    const { result } = renderHook(() => useHistoricoDeDesignacoes("014591"));
+
+    await waitFor(() => expect(fetchHistoricoDeDesignacoesMock).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      result.current.buscar({ portaria: "100" });
+    });
+
+    await waitFor(() => {
+      expect(fetchHistoricoDeDesignacoesMock).toHaveBeenLastCalledWith("014591", {
+        cargo: undefined,
+        tipo: "APOSTILA",
+        portaria: "100",
+        numero_sei: "",
+        nome_titular_e_indicado: "",
+        status_publicacao: "",
+        periodo_after: "2026-01-10",
+        periodo_before: "2026-02-20",
+        rf: "",
+        observacao: "observação do formulário",
+      });
+    });
+  });
+
+  it("expõe setTabelaKey para forçar a remontagem da listagem", async () => {
+    fetchHistoricoDeDesignacoesMock.mockResolvedValue({ success: true, data: [] });
+
+    const { result } = renderHook(() => useHistoricoDeDesignacoes("014591"));
+
+    await waitFor(() => expect(result.current.tabelaKey).toBe(1));
+
+    await act(async () => {
+      result.current.setTabelaKey(7);
+    });
+
+    expect(result.current.tabelaKey).toBe(7);
+  });
+
 });

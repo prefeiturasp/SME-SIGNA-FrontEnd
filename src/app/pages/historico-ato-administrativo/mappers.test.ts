@@ -232,8 +232,7 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     });
   });
 
-  it("usa o número da portaria quando o texto da portaria está ausente", () => {
-    const [ato] = mapearHistoricoParaAtosPrincipais([{
+  it("usa o número da portaria quando o texto da portaria está ausente", () => {    const [ato] = mapearHistoricoParaAtosPrincipais([{
       ...designacaoBase,
       portaria: null as unknown as string,
       numero_portaria: 44,
@@ -253,5 +252,27 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
       titulo: "",
       descricao: "",
     });
+  });
+
+  it("considera cessada a designação com status desconhecido e data de início ausente", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      status: "outro",
+      vigente: false,
+      data_inicio: null,
+    }]);
+
+    expect(ato.status).toBe("CESSADA");
+    expect(ato.realizada_em).toBe("");
+  });
+
+  it("usa a data fim quando a cessação não informa a data de cessação", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      cessada_em: null,
+      data_fim: "2020-03-04",
+    }]);
+
+    expect(ato.data_cessacao).toBe("04/03/2020");
   });
 });
