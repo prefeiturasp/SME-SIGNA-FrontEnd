@@ -5,6 +5,7 @@ import {
     nameToCamelCase,
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
+import { montarCargoIndicado } from "@/utils/portarias/cargoIndicado";
 
 function getCargoIndicado(
     data: FormDesignacaoEServidorIndicado
@@ -54,6 +55,13 @@ export function montarDadosTextoSeiDesignacao(
                 : String(data.servidorIndicado.vinculo),
         CARGO: cargoIndicado,
         CARGO_DESIGNACAO: cargoIndicado,
+        CARGO_INDICADO: montarCargoIndicado({
+            cargoBase: data?.servidorIndicado?.cargo_base,
+            codigoCargoBase: data?.servidorIndicado?.cd_cargo_base,
+            cargoSobreposto: data?.servidorIndicado?.cargo_sobreposto_funcao_atividade,
+            possuiCargoSobreposto: data?.servidorIndicado?.possui_cargo_sobreposto,
+            categoria: data?.servidorIndicado?.categoria,
+        }),
         CATEGORIA: data?.servidorIndicado?.categoria ?? "",
         UNIDADE: nameToCamelCaseUe(data?.servidorIndicado?.lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(data?.ue_nome ?? ""),

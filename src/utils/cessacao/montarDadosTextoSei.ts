@@ -3,9 +3,12 @@ import type { formSchemaCessacaoData } from "@/app/pages/cessacao/schema";
 import {
     formatarDataPtBr,
     formatarRF,
-    nameToCamelCase,
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
+import {
+    montarCargoDaDesignacao,
+    montarCargoIndicadoDaDesignacao,
+} from "@/utils/portarias/cargoIndicado";
 
 /**
  * Monta o dicionário de variáveis para a prévia do texto SEI de uma
@@ -32,10 +35,9 @@ export function montarDadosTextoSeiCessacao(
             designacao?.indicado_vinculo == null
                 ? ""
                 : String(designacao.indicado_vinculo),
-        CARGO: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? ""),
-        CARGO_DESIGNACAO: nameToCamelCase(
-            designacao?.indicado_cargo_sobreposto ?? ""
-        ),
+        CARGO: montarCargoDaDesignacao(designacao),
+        CARGO_DESIGNACAO: montarCargoDaDesignacao(designacao),
+        CARGO_INDICADO: montarCargoIndicadoDaDesignacao(designacao),
         CATEGORIA: designacao?.indicado_categoria ?? "",
         UNIDADE: nameToCamelCaseUe(designacao?.indicado_lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(
