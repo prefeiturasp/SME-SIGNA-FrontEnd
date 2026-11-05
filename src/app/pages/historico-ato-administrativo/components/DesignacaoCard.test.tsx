@@ -137,6 +137,18 @@ describe("DesignacaoCard", () => {
     expect(screen.getAllByText("-")).toHaveLength(3);
   });
 
+  it("usa o nome social quando informado, com prioridade sobre o nome do servidor indicado", () => {
+    render(
+      <DesignacaoCard
+        ato={{ ...atoBase, nome_social_servidor_indicado: "  Tatiane Marques  " }}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText("Tatiane Marques")).toBeInTheDocument();
+    expect(screen.queryByText("TATIANE CRISTINA MARQUES")).not.toBeInTheDocument();
+  });
+
   it("propaga o estado de carregamento para os atos relacionados", () => {
     const { rerender } = render(<DesignacaoCard ato={atoBase} isLoading />);
 

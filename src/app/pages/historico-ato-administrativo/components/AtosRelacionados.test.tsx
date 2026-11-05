@@ -125,6 +125,20 @@ describe("AtosRelacionados", () => {
     expect(screen.queryByRole("link", { name: /Ver detalhes/ })).not.toBeInTheDocument();
   });
 
+  it("omite a data de criação em branco mantendo o rótulo", () => {
+    render(<AtosRelacionados atos={[{ ...atoVazio, data: "   ", titulo: "Apostila" }]} isLoading={false} />);
+
+    expect(screen.getByText("Data da criação do ato")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Apostila" })).toBeInTheDocument();
+    expect(screen.getByRole("article").querySelectorAll("dd")).toHaveLength(0);
+  });
+
+  it("indica que a seção não está carregando quando a lista está vazia", () => {
+    render(<AtosRelacionados atos={[]} isLoading={false} />);
+
+    expect(screen.getByText("Nenhum ato relacionado encontrado.").closest("section")).toHaveAttribute("aria-busy", "false");
+  });
+
   it("marca como principal apenas o item sinalizado pela API", () => {
     render(<AtosRelacionados atos={[ato, { ...ato, id: 43, principal: false }]} isLoading={false} />);
 

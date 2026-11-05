@@ -61,6 +61,23 @@ describe("fetchCargosDesignacoes", () => {
         expect(await fetchCargosDesignacoes("014591")).toEqual({ success: true, data });
         expect(client.get).toHaveBeenCalledWith("/designacao/designacoes/cargos-designacoes/", { params: { ue: "014591" } });
     });
+
+    it("retorna a mensagem padrão quando a busca dos cargos falha", async () => {
+        const client = {
+            get: vi.fn().mockRejectedValue({
+                isAxiosError: true,
+                response: { status: 400 },
+            }),
+        };
+        vi.mocked(getApiClient).mockResolvedValue(client as unknown as Awaited<ReturnType<typeof getApiClient>>);
+
+        const result = await fetchCargosDesignacoes("014591");
+
+        expect(result).toEqual({
+            success: false,
+            error: "Erro ao buscar os cargos das designações",
+        });
+    });
 });
 
 describe("fetchPortariasDO", () => {
@@ -229,6 +246,22 @@ describe("fetchAtosAdministrativos", () => {
         );
     });
 
+    it("não envia parâmetros nulos", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: sampleAtosResponse });
+
+        await fetchAtosAdministrativos({
+            numero_sei: null as unknown as string,
+            portaria_inicial: "10",
+            ano: "2026",
+            page: 1,
+        });
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/atos-administrativos/",
+            { params: { portaria_inicial: "10", ano: "2026", page: 1 } }
+        );
+    });
+
     it("retorna mensagem de erro tratada quando a requisição falha", async () => {
         mockAxiosInstance.get.mockRejectedValue({
             isAxiosError: true,
@@ -278,6 +311,17 @@ describe("fetchHistoricoDeDesignacoes", () => {
         expect(mockAxiosInstance.get).toHaveBeenCalledWith(
             "/designacao/historico-de-designacoes/014591/",
             { params: { cargo: "3360", tipo: "APOSTILA", observacao: "13" } }
+        );
+    });
+
+    it("codifica o código da unidade na URL", async () => {
+        mockAxiosInstance.get.mockResolvedValue({ data: [] });
+
+        await fetchHistoricoDeDesignacoes("014 591/2");
+
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+            "/designacao/historico-de-designacoes/014%20591%2F2/",
+            { params: {} }
         );
     });
 
