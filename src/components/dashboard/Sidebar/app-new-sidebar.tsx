@@ -11,7 +11,6 @@ import { Protocolo } from "@/assets/icons/Protocolo";
 import { Apoio } from "@/assets/icons/Apoio";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import HomeMenuIcon from "@/assets/icons/HomeMenu";
 import { Settings } from "@/assets/icons/Settings";
 
  
@@ -19,6 +18,8 @@ import { Settings } from "@/assets/icons/Settings";
 export type MenuItemSMEProps = {
   url?: string;
   title: React.ReactNode;
+  /** Título exibido quando o menu está retraído. Usa `title` quando não informado. */
+  collapsedTitle?: React.ReactNode;
   key: React.Key;
   icon?: React.ReactNode;
   children?: MenuItemSMEProps[];
@@ -40,36 +41,23 @@ export enum MenuEnum {
   ApoioAdministrativo,   
   ApoiosAdministrativos,
   Gestao,
+  GestaoDeCargosBase,
+  GestaoDeAcessos,
+  GestaoDeRemetentes,
   CargosBase,
-  TextosDePortaria
+  TextosDePortaria,
+  
+
 }
  
-
-export const MENU_INICIO: MenuItemConectaProps = {
-  key: MenuEnum.Inicio,
-  title: 'Início',
-  icon: <HomeMenuIcon />, 
-  children: [
-    {
-      key: MenuEnum.AtosAdministrativos,
-      title: 'Atos administrativos',
-      url: "/pages/atos-administrativos",
-    },
-  ],
-};
+ 
 
 
 export const MENU_MEUS_DADOS: MenuItemConectaProps = {
   key: MenuEnum.MeusDados,
   title: 'Meus dados',
-  icon: <User />, 
-  children: [
-    {
-      key: MenuEnum.ListarMeusDados,
-      title: 'Meus dados',
-      url: "/pages/meus-dados",
-    },
-  ],
+  icon: <User />,
+  url: "/pages/meus-dados",
 };
 
 export const MENU_DESIGNACAO: MenuItemConectaProps = {
@@ -78,66 +66,20 @@ export const MENU_DESIGNACAO: MenuItemConectaProps = {
   icon: <Designacao width={20} height={20} />,
   children: [
     {
+      key: MenuEnum.AtosAdministrativos,
+      title: 'Início',
+      url: "/pages/atos-administrativos",
+    },    
+    {
       key: MenuEnum.AlterarDataDoD,
-      title: 'Alterar data do D.O',
-      url: "/pages/alterar-data-do",
- 
+      title: 'Publicação no Diário Oficial',
+      url: "/pages/alterar-data-do", 
     },
     {
       key: MenuEnum.BaixarLauda,
-      title: 'Baixar lauda',
-      url: "/pages/baixar-lauda",
- 
+      title: 'Laudas',
+      url: "/pages/baixar-lauda", 
     },
-  ],
-};
-
-
-export const MENU_NOMEACAO: MenuItemConectaProps = {
-  key: MenuEnum.Nomeacao,
-  title: 'Nomeação',
-  icon: <Nomeacao />, 
-  children: [
-    {
-      key: MenuEnum.Nomeacoes,
-      title: 'Nomeações',
-      url: "/pages/nomeacao",
-    },
-  ],
-};
-
- 
-export const MENU_PROTOCOLO: MenuItemConectaProps = {
-  key: MenuEnum.Protocolo,
-  title: 'Protocolo',
-  icon: <Protocolo />, 
-  children: [
-    {
-      key: MenuEnum.Protocolos,
-      title: 'Protocolos',
-      url: "/pages/protocolo",
-    },
-  ],
-};
-
-export const MENU_APOIO_ADMINISTRATIVO: MenuItemConectaProps = {
-  key: MenuEnum.ApoioAdministrativo,
-  title: 'Apoio admin.',
-  icon: <Apoio />, 
-  children: [
-    {
-      key: MenuEnum.ApoiosAdministrativos,
-      title: 'Apoio administrativo',
-      url: "/pages/apoio-administrativo",
-    },
-  ],
-};
-
-export const MENU_GESTAO: MenuItemConectaProps = {
-  key: MenuEnum.Gestao,
-  title: 'Gestão',
-  icon: <Settings />, 
-  children: [
     {
       key: MenuEnum.CargosBase,
       title: 'Cargos base',
@@ -150,6 +92,48 @@ export const MENU_GESTAO: MenuItemConectaProps = {
     },
   ],
 };
+
+
+export const MENU_NOMEACAO: MenuItemConectaProps = {
+  key: MenuEnum.Nomeacao,
+  title: 'Nomeação',
+  icon: <Nomeacao />,
+  url: "/pages/nomeacao",
+};
+
+ 
+export const MENU_PROTOCOLO: MenuItemConectaProps = {
+  key: MenuEnum.Protocolo,
+  title: 'Protocolo',
+  icon: <Protocolo />,
+  url: "/pages/protocolo",
+};
+
+export const MENU_APOIO_ADMINISTRATIVO: MenuItemConectaProps = {
+  key: MenuEnum.ApoioAdministrativo,
+  title: 'Apoio administrativo',
+  collapsedTitle: 'Apoio admin.',
+  icon: <Apoio />,
+  url: "/pages/apoio-administrativo",
+};
+
+export const MENU_GESTAO: MenuItemConectaProps = {
+  key: MenuEnum.Gestao,
+  title: 'Gestão',
+  icon: <Settings />,
+  children: [
+    {
+      key: MenuEnum.GestaoDeAcessos,
+      title: 'Gestão de acessos',
+      url: "/pages/gestao/gestao-de-acessos",
+    },
+    {
+      key: MenuEnum.GestaoDeRemetentes,
+      title: 'Gestão de remetentes',
+      url: "/pages/gestao/gestao-de-remetentes",
+    },
+  ],
+};
  
 export interface MenuItemConectaProps extends MenuItemSMEProps {
   key: MenuEnum;
@@ -157,13 +141,13 @@ export interface MenuItemConectaProps extends MenuItemSMEProps {
 }
 
 export const menus: MenuItemConectaProps[] = [
-  MENU_INICIO,
-  MENU_MEUS_DADOS,
+  
   MENU_DESIGNACAO,
   MENU_NOMEACAO,
   MENU_PROTOCOLO,
   MENU_APOIO_ADMINISTRATIVO,
   MENU_GESTAO,
+  MENU_MEUS_DADOS,
 ];
  
 function collectMenuUrls(items: MenuItemSMEProps[]): string[] {

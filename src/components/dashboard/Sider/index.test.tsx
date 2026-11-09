@@ -37,6 +37,7 @@ const renderMockMenuItems = (
       <button
         key={item.key}
         data-testid={`menu-item-${String(item.key)}`}
+        data-classname={item.className}
         onClick={() => onClick?.({ key: String(item.key) })}
       >
         {item.label}
@@ -233,6 +234,84 @@ describe("Sider", () => {
 
     fireEvent.click(screen.getByTestId("trigger-on-mouse-leave"));
     expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+  });
+
+  it("usa o título reduzido quando o menu está retraído", () => {
+    const itemsComTituloReduzido: MenuItemSMEProps[] = [
+      {
+        key: "apoio",
+        title: "Apoio administrativo",
+        collapsedTitle: "Apoio admin.",
+        icon: <span>Icon Apoio</span>,
+        children: [{ key: "apoio-filho", title: "Ir para apoio", url: "/apoio" }],
+      },
+    ];
+
+    const { rerender } = render(<Sider onClick={vi.fn()} items={itemsComTituloReduzido} />);
+
+    expect(screen.getByText("Apoio admin.")).toBeInTheDocument();
+    expect(screen.queryByText("Apoio administrativo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+    rerender(<Sider onClick={vi.fn()} items={itemsComTituloReduzido} />);
+
+    expect(screen.queryByText("Apoio admin.")).not.toBeInTheDocument();
+    expect(screen.getByText("Apoio administrativo")).toBeInTheDocument();
+  });
+
+  it("aplica o título reduzido também em itens sem filhos", () => {
+    const itemSemFilhos: MenuItemSMEProps[] = [
+      {
+        key: "apoio",
+        title: "Apoio administrativo",
+        collapsedTitle: "Apoio admin.",
+        icon: <span>Icon Apoio</span>,
+        url: "/apoio",
+      },
+    ];
+
+    const { rerender } = render(<Sider onClick={vi.fn()} items={itemSemFilhos} />);
+
+    expect(screen.getByText("Apoio admin.")).toBeInTheDocument();
+    expect(screen.getByText("Icon Apoio")).toBeInTheDocument();
+    expect(screen.queryByText("Apoio administrativo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+    rerender(<Sider onClick={vi.fn()} items={itemSemFilhos} />);
+
+    expect(screen.queryByText("Apoio admin.")).not.toBeInTheDocument();
+    expect(screen.getByText("Apoio administrativo")).toBeInTheDocument();
+  });
+
+  it("aplica a classe de item raiz nos itens sem filhos e de submenu nos filhos", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const itemRaso = screen.getByTestId("menu-item-root-2");
+    expect(itemRaso).toHaveAttribute("data-classname", expect.stringContaining("is-root-leaf"));
+
+    const itemInterno = screen.getByTestId("menu-item-leaf");
+    expect(itemInterno).toHaveAttribute("data-classname", expect.stringContaining("is-submenu"));
+  });
+
+  it("exibe o ícone sanduíche nos itens raiz sem filhos quando retraído", () => {
+    const itensFolha: MenuItemSMEProps[] = [
+      { key: "protocolo", title: "Protocolo", icon: <span>Icon Protocolo</span>, url: "/pages/protocolo" },
+    ];
+
+    render(<Sider onClick={vi.fn()} items={itensFolha} />);
+
+    const item = screen.getByTestId("menu-item-protocolo");
+    expect(item.querySelector('[data-testid="bars-icon"]')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+
+    expect(item.querySelector('[data-testid="bars-icon"]')).not.toBeInTheDocument();
+  });
+
+  it("mantém o título padrão em itens sem filhos e sem título reduzido", () => {
+    render(<Sider onClick={vi.fn()} items={[{ key: "sem-filhos", title: "Item simples" }]} />);
+
+    expect(screen.getByText("Item simples")).toBeInTheDocument();
   });
 
   it("executa fluxos sem callbacks opcionais", () => {

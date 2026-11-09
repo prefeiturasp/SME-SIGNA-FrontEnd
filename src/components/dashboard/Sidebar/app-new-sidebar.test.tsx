@@ -7,7 +7,6 @@ import {
     MENU_APOIO_ADMINISTRATIVO,
     MENU_DESIGNACAO,
     MENU_GESTAO,
-    MENU_INICIO,
     MENU_MEUS_DADOS,
     MENU_NOMEACAO,
     MENU_PROTOCOLO,
@@ -92,13 +91,42 @@ describe("app-new-sidebar", () => {
         expect(MENU_GESTAO.key).toBe(MenuEnum.Gestao);
 
         expect(menus).toEqual([
-            MENU_INICIO,
-            MENU_MEUS_DADOS,
             MENU_DESIGNACAO,
             MENU_NOMEACAO,
             MENU_PROTOCOLO,
             MENU_APOIO_ADMINISTRATIVO,
             MENU_GESTAO,
+            MENU_MEUS_DADOS,
+        ]);
+    });
+
+    it("mantém Protocolo, Apoio administrativo, Meus dados e Nomeação sem filhos e com url própria", () => {
+        expect(MENU_PROTOCOLO.children).toBeUndefined();
+        expect(MENU_PROTOCOLO.url).toBe("/pages/protocolo");
+
+        expect(MENU_APOIO_ADMINISTRATIVO.children).toBeUndefined();
+        expect(MENU_APOIO_ADMINISTRATIVO.url).toBe("/pages/apoio-administrativo");
+
+        expect(MENU_MEUS_DADOS.children).toBeUndefined();
+        expect(MENU_MEUS_DADOS.url).toBe("/pages/meus-dados");
+
+        expect(MENU_NOMEACAO.children).toBeUndefined();
+        expect(MENU_NOMEACAO.url).toBe("/pages/nomeacao");
+    });
+
+    it("define Gestão com os filhos de acessos e remetentes", () => {
+        expect(MENU_GESTAO.url).toBeUndefined();
+        expect(MENU_GESTAO.children).toEqual([
+            {
+                key: MenuEnum.GestaoDeAcessos,
+                title: "Gestão de acessos",
+                url: "/pages/gestao/gestao-de-acessos",
+            },
+            {
+                key: MenuEnum.GestaoDeRemetentes,
+                title: "Gestão de remetentes",
+                url: "/pages/gestao/gestao-de-remetentes",
+            },
         ]);
     });
 
@@ -115,6 +143,10 @@ describe("app-new-sidebar", () => {
         expect(prefetchMock).toHaveBeenCalledWith("/pages/meus-dados");
         expect(prefetchMock).toHaveBeenCalledWith("/pages/gestao/cargos-base");
         expect(prefetchMock).toHaveBeenCalledWith("/pages/gestao/textos-de-portaria");
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/protocolo");
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/apoio-administrativo");
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/gestao/gestao-de-acessos");
+        expect(prefetchMock).toHaveBeenCalledWith("/pages/gestao/gestao-de-remetentes");
 
         fireEvent.click(screen.getByTestId("trigger-item-with-url"));
         expect(pushMock).toHaveBeenCalledWith("/pages/meus-dados");

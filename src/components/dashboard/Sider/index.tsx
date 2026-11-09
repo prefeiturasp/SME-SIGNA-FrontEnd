@@ -23,6 +23,8 @@ export type SiderSubMenuStylePros = {
 export type MenuItemSMEProps = {
   url?: string;
   title: React.ReactNode;
+  /** Título exibido quando o menu está retraído. Usa `title` quando não informado. */
+  collapsedTitle?: React.ReactNode;
   key: React.Key;
   icon?: React.ReactNode;
   children?: MenuItemSMEProps[];
@@ -92,7 +94,14 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
     return !isSubMenu && !itemIsSelected && !isOpen;
   };
 
-  const renderSubMenuLabel = (menuItem: MenuItemSMEProps, hasRedBackground: boolean) => (
+  const obterTituloDoItem = (menuItem: MenuItemSMEProps): React.ReactNode =>
+    collapsed ? menuItem?.collapsedTitle ?? menuItem?.title : menuItem?.title;
+
+  const renderMenuLabel = (
+    menuItem: MenuItemSMEProps,
+    hasRedBackground: boolean,
+    exibirIndicadorDeSubmenu = false,
+  ) => (
     <div
       className={`app-sider-menu-group relative flex items-center ${
         collapsed ? 'flex-col' : 'flex-row'
@@ -110,9 +119,9 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           collapsed ? 'text-[10px]' : 'text-sm'
         } ${hasRedBackground ? 'text-white' : 'text-[#B22B2A]'}`}
       >
-        {menuItem?.title}
+        {obterTituloDoItem(menuItem)}
       </div>
-      {collapsed && (
+      {collapsed && exibirIndicadorDeSubmenu && (
         <Bars width={16} height={16} opacity={0.5} style={{ top: 0, right: 6, position: 'absolute' }} />
       )}
     </div>
@@ -126,19 +135,26 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
       className: `app-sider-submenu ${
         collapsed ? 'is-collapsed' : 'is-expanded'
       } ${isSubMenu ? 'is-submenu' : 'is-root-submenu'}`,
-      label: renderSubMenuLabel(menuItem, hasRedBackground),
+      label: renderMenuLabel(menuItem, hasRedBackground, true),
       children: montarMenuItems(menuItem.children ?? [], true),
     };
   };
 
-  const buildLeafEntry = (menuItem: MenuItemSMEProps): MenuItemEntry => ({
+  const buildLeafEntry = (menuItem: MenuItemSMEProps, isSubMenu: boolean): MenuItemEntry => ({
     key: menuItem.key,
-    label: <div className='app-sider-menu-title'>{menuItem?.title}</div>,
+    className: `app-sider-leaf ${collapsed ? 'is-collapsed' : 'is-expanded'} ${
+      isSubMenu ? 'is-submenu' : 'is-root-leaf'
+    }`,
+    label: isSubMenu
+      ? <div className='app-sider-menu-title'>{obterTituloDoItem(menuItem)}</div>
+      : renderMenuLabel(menuItem, true, true),
   });
 
   const montarMenuItems = (list: MenuItemSMEProps[], isSubMenu = false): NonNullable<MenuProps['items']> =>
     list.map((menuItem) =>
-      menuItem?.children?.length ? buildSubMenuEntry(menuItem, isSubMenu) : buildLeafEntry(menuItem),
+      menuItem?.children?.length
+        ? buildSubMenuEntry(menuItem, isSubMenu)
+        : buildLeafEntry(menuItem, isSubMenu),
     );
 
   const handleMenuClick: NonNullable<MenuProps['onClick']> = (info) => {
@@ -209,6 +225,8 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           openKeys={openKeys}
           selectedKeys={currentSelectedKeys}
           onClick={handleMenuClick}
+          inlineIndent={13}
+
           onOpenChange={(newOpenKeys: string[]) => {
             if (collapsed) {
               const newValue = !collapsed;
