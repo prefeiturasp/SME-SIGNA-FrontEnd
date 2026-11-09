@@ -225,8 +225,6 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           openKeys={openKeys}
           selectedKeys={currentSelectedKeys}
           onClick={handleMenuClick}
-          inlineIndent={13}
-
           onOpenChange={(newOpenKeys: string[]) => {
             if (collapsed) {
               const newValue = !collapsed;

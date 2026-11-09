@@ -421,7 +421,7 @@ input[type="number"] {
 }
 
 .app-sider-submenu.ant-menu-submenu.is-root-submenu:not(.ant-menu-submenu-open) {
-  background: #b22b2a;
+  background: var(--sidebar-primary);
 }
 
 .app-sider-submenu.ant-menu-submenu.is-submenu:not(.ant-menu-submenu-open) {
@@ -461,11 +461,7 @@ input[type="number"] {
   color: var(--sidebar-primary) !important;
 }
 
-.app-sider-ant-menu.ant-menu .ant-menu-sub .ant-menu-item {
-  padding-left: 34px !important;
-  padding-right: 8px !important;
-}
-
+.app-sider-ant-menu.ant-menu .ant-menu-sub .ant-menu-item,
 .app-sider-submenu.ant-menu-submenu.is-submenu .ant-menu-item {
   padding-left: 34px !important;
   padding-right: 8px !important;
@@ -485,7 +481,7 @@ input[type="number"] {
 
 .app-sider-leaf.ant-menu-item.is-root-leaf {
   border-radius: 5px;
-  background: #b22b2a;
+  background: var(--sidebar-primary);
   color: white;
 }
 

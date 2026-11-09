@@ -114,6 +114,17 @@ describe("app-new-sidebar", () => {
         expect(MENU_NOMEACAO.url).toBe("/pages/nomeacao");
     });
 
+    it("define Designações com os filhos de atos, publicação, laudas, cargos base e textos de portaria", () => {
+        expect(MENU_DESIGNACAO.url).toBeUndefined();
+        expect(MENU_DESIGNACAO.children?.map(({ title, url }) => ({ title, url }))).toEqual([
+            { title: "Atos administrativos", url: "/pages/atos-administrativos" },
+            { title: "Publicação no Diário Oficial", url: "/pages/alterar-data-do" },
+            { title: "Laudas", url: "/pages/baixar-lauda" },
+            { title: "Cargos base", url: "/pages/gestao/cargos-base" },
+            { title: "Textos de portaria", url: "/pages/gestao/textos-de-portaria" },
+        ]);
+    });
+
     it("define Gestão com os filhos de acessos e remetentes", () => {
         expect(MENU_GESTAO.url).toBeUndefined();
         expect(MENU_GESTAO.children).toEqual([

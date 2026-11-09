@@ -2,6 +2,7 @@
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
+import SimpleTableHeader from "@/components/dashboard/SimpleTableHeader/SimpleTableHeader";
 
 export default function GestaoDeAcessos() {
   return (
@@ -11,16 +12,16 @@ export default function GestaoDeAcessos() {
         title="Gestão de acessos"
         breadcrumbs={[
           { title: "Início", href: "/" },
-          { title: "Gestão", href: "/pages/gestao/gestao-de-acessos" },
-          { title: "Gestão de acessos" },
+          { title: "Gestão", href: "/" },
+          { title: "Gestão de acessos", href: "" },
         ]}
       />
 
       <FundoBranco className="mb-4 mt-8">
-        <p className="text-[20px] font-bold pt-1 pb-1">Gestão de acessos</p>
-        <p className="text-[14px] font-normal pt-1">
-          Consulte e gerencie os acessos dos usuários ao sistema.
-        </p>
+        <SimpleTableHeader
+          title="Gestão de acessos"
+          subtitle="Consulte e gerencie os acessos dos usuários ao sistema."
+        />
       </FundoBranco>
     </>
   );
