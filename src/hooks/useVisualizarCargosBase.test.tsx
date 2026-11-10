@@ -61,6 +61,7 @@ const resultadoMock: CargosBasePaginada = {
       grupamento: "Docentes",
       descricao_resumida: "Resumo",
       descricao_completa: "Descrição completa",
+      descricao_eol: "Descrição completa",
       situacao_funcional: "EFETIVO",
       utilizado_para_funcoes: true,
       utilizado_para_designacoes: false,

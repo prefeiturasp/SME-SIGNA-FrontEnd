@@ -21,6 +21,11 @@ import formSchemaAnularApostilaTornarSemEfeito, {
 } from "@/app/pages/anular-apostila/schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { montarDadosTextoSeiAnularApostila } from "@/utils/anularApostila/montarDadosTextoSei";
+import {
+  MENSAGEM_ERRO_DESCRICOES_CARGOS,
+  useBuscarDescricoesCargosBase,
+} from "@/hooks/useBuscarDescricoesCargosBase";
+import { codigosCargosDaDesignacao, type DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 
@@ -101,6 +106,7 @@ export default function AnularApostilaForm({
   const [htmlPortariaGerado, setHtmlPortariaGerado] = useState("");
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
   const [gerandoPreview, setGerandoPreview] = useState(false);
+  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
 
   const htmlPortariaSalvo = useMemo(
     () => (textoSeiSalvo ? gerarHtmlPortaria(textoSeiSalvo) : ""),
@@ -122,13 +128,24 @@ export default function AnularApostilaForm({
     const values = form.getValues();
     const atoApostilado = tipoPortaria === "cessacao" ? ato?.cessacao : ato?.designacao;
 
+    setGerandoPreview(true);
+    let descricoes: DescricoesCargosBase;
+    try {
+      descricoes = await buscarDescricoesCargosBase(codigosCargosDaDesignacao(ato?.designacao));
+    } catch (error) {
+      console.error("Erro ao buscar cargos base:", error);
+      setGerandoPreview(false);
+      notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
+      return;
+    }
+
     const dados = montarDadosTextoSeiAnularApostila(
       ato?.designacao,
       atoApostilado,
-      values.apostila_insubsistencia
+      values.apostila_insubsistencia,
+      descricoes
     );
 
-    setGerandoPreview(true);
     const result = await gerarPreviewTextoSeiAction({
       tipo_portaria: "INSUBSISTENCIA",
       tipo_ato_pai: "APOSTILA",

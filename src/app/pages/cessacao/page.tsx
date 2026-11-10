@@ -32,6 +32,11 @@ import Designacao from "@/assets/icons/Designacao";
 
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { montarDadosTextoSeiCessacao } from "@/utils/cessacao/montarDadosTextoSei";
+import {
+  MENSAGEM_ERRO_DESCRICOES_CARGOS,
+  useBuscarDescricoesCargosBase,
+} from "@/hooks/useBuscarDescricoesCargosBase";
+import { codigosCargosDaDesignacao, type DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
@@ -141,12 +146,23 @@ export default function CessacaoPage() {
   const [textoSei, setTextoSei] = useState("");
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
   const [gerandoPreview, setGerandoPreview] = useState(false);
+  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
 
   const handleGerarPortaria = async () => {
     const values = form.getValues();
-    const dados = montarDadosTextoSeiCessacao(designacao, values.cessacao);
-
     setGerandoPreview(true);
+    let descricoes: DescricoesCargosBase;
+    try {
+      descricoes = await buscarDescricoesCargosBase(codigosCargosDaDesignacao(designacao));
+    } catch (error) {
+      console.error("Erro ao buscar cargos base:", error);
+      setGerandoPreview(false);
+      notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
+      return;
+    }
+
+    const dados = montarDadosTextoSeiCessacao(designacao, values.cessacao, descricoes);
+
     const result = await gerarPreviewTextoSeiAction({
       tipo_portaria: "CESSACAO",
       tipo_ato_pai: "DESIGNACAO",

@@ -30,6 +30,11 @@ import formSchemaInsubsistencia, { formSchemaInsubsistenciaData } from "./schema
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { montarDadosTextoSeiInsubsistencia } from "@/utils/insubsistencia/montarDadosTextoSei";
+import {
+  MENSAGEM_ERRO_DESCRICOES_CARGOS,
+  useBuscarDescricoesCargosBase,
+} from "@/hooks/useBuscarDescricoesCargosBase";
+import { codigosCargosDaDesignacao, type DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
@@ -176,13 +181,24 @@ export default function InsubsistenciaPage() {
   const [textoSei, setTextoSei] = useState("");
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
   const [gerandoPreview, setGerandoPreview] = useState(false);
+  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
 
   const handleGerarPortaria = async () => {
     const values = form.getValues();
-    const dados = montarDadosTextoSeiInsubsistencia(designacao, values.insubsistencia);
+    setGerandoPreview(true);
+    let descricoes: DescricoesCargosBase;
+    try {
+      descricoes = await buscarDescricoesCargosBase(codigosCargosDaDesignacao(designacao));
+    } catch (error) {
+      console.error("Erro ao buscar cargos base:", error);
+      setGerandoPreview(false);
+      notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
+      return;
+    }
+
+    const dados = montarDadosTextoSeiInsubsistencia(designacao, values.insubsistencia, descricoes);
     const tipoAtoPai = tipo_insubsistencia === "cessacao" ? "CESSACAO" : "DESIGNACAO";
 
-    setGerandoPreview(true);
     const result = await gerarPreviewTextoSeiAction({
       tipo_portaria: "INSUBSISTENCIA",
       tipo_ato_pai: tipoAtoPai,

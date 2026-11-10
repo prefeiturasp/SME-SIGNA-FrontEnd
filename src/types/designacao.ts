@@ -262,6 +262,7 @@ export interface DesignacaoResponse {
   indicado_local_servico: string;
   indicado_categoria: string;
   indicado_codigo_ue_lotacao?: string;
+  indicado_codigo_ue_cargo_base?: string;
   indicado_possui_cargo_sobreposto?: boolean;
   titular_nome_civil: string;
   titular_nome_servidor: string;

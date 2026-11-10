@@ -66,9 +66,10 @@ const ListagemDeCargos: React.FC<ListagemDeCargosProps> = ({
   const router = useRouter();
 
   const columnsBase: TableProps<CargosBaseResponse>['columns'] = [
-    { title: 'Grupamento', dataIndex: 'grupamento', key: 'grupamento', },
+    { title: 'Grupamento', dataIndex: 'grupamento_display', key: 'grupamento', },
     { title: 'Descrição resumida', dataIndex: 'descricao_resumida', key: 'descricao_resumida', },
     { title: 'Descrição completa', dataIndex: 'descricao_completa', key: 'descricao_completa', },
+    { title: 'Descrição EOL', dataIndex: 'descricao_eol', key: 'descricao_eol', },
     { title: 'Situação funcional', dataIndex: 'situacao_funcional', key: 'situacao_funcional', },
     {
       title: 'Usado em funções', dataIndex: 'utilizado_para_funcoes', key: 'utilizado_para_funcoes',
