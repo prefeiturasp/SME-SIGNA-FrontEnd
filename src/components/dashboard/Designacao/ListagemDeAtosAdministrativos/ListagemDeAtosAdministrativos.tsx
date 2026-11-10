@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { pathDetalhesDoAto } from '@/utils/designacao/rotasAtosAdministrativos';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
 import { useAppNotification } from '@/components/providers/NotificationProvider';
+import TagApostilada from '@/components/dashboard/Designacao/TagApostilada/TagApostilada';
 
 
 
@@ -407,7 +408,14 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
 
 
   const columnsBase: TableProps<ListagemAtosAdministrativosResponse>['columns'] = [
-    { title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', },
+    {
+      title: 'Tipo', dataIndex: 'tipo_de_ato', key: 'tipo_de_ato', render: (tipo: string, record) => (
+        <div className="flex flex-col items-start gap-1">
+          <span>{tipo}</span>
+          <TagApostilada apostilado={record.apostilado} />
+        </div>
+      ),
+    },
     { title: 'Nº SEI', dataIndex: 'sei_numero', key: 'sei_numero' },
     { title: 'Observações', dataIndex: 'observacoes', key: 'observacoes', width: '20%' },
     ...(

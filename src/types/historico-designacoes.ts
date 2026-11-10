@@ -15,6 +15,7 @@ export interface AtoRelacionadoHistorico {
   readonly rf: string;
   readonly status: string;
   readonly status_publicacao: string;
+  readonly apostilado?: boolean;
   readonly sei_numero: string;
   readonly doc: string | null;
   readonly criado_em: string;
@@ -44,6 +45,7 @@ export interface DesignacaoHistorico {
   readonly tipo: string;
   readonly tipo_de_ato: string;
   readonly status_publicacao: string;
+  readonly apostilado?: boolean;
   readonly ato_pai_id: number | null;
   readonly ato_raiz_id: number | null;
   readonly criado_em: string;

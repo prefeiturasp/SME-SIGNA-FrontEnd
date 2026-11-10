@@ -129,6 +129,7 @@ export interface ListagemAtosAdministrativosResponse {
   observacoes: string | null;
   numero_portaria: number | null;
   status_publicacao: string;
+  apostilado?: boolean;
   tipo: string;
   tipo_insubsistencia: string | null;
   tipo_de_ato: string;
@@ -218,6 +219,7 @@ export interface Cessacao {
   doc: string;
   criado_em: string;
   status: StatusDesignacaoV2;
+  apostilado?: boolean;
   ato_pai_id: number;
   apostilas: ApostilaRead[];
   insubsistencia: InsubsistenciaCessacaoRead | null;
@@ -236,6 +238,7 @@ export interface DesignacaoResponse {
   id: number;
   tipo: string;
   status: StatusDesignacaoV2;
+  apostilado?: boolean;
   ato_pai_id: number | null;
   ato_raiz_id: number | null;
   impedimento_substituicao_detail: string | null;
