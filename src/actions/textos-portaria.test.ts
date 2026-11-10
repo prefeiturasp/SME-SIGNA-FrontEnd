@@ -124,7 +124,7 @@ describe("actions/textos-portaria", () => {
       data: variaveis,
     });
 
-    const response = await fetchVariavelAction();
+    const response = await fetchVariavelAction( "CARGO_VAGO" );
 
     expect(fetchWithClient).toHaveBeenCalledWith(
       "/gestao/modelos-portaria/variaveis/",

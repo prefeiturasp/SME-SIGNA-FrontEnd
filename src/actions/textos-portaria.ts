@@ -4,6 +4,7 @@ import { fetchWithClient } from "./http";
 import { TextosDePortariasPaginada, TextosDePortariasResponse, Variavel } from "@/types/gestao";
 import { FormSchemaCriarTextosPortariaData } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormSchemaCriarTextosPortaria";
 import { postWithAuth } from "@/lib/serverRequest";
+import { TipoCargo } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormCriarTextosPortaria";
 
   
 
@@ -35,13 +36,14 @@ export const cadastrarTextosPortariaAction = async (payload: FormSchemaCriarText
 
 
 export const fetchVariavelAction = async (
+  tipoCargo: TipoCargo  
 ): Promise<
   | { success: true; data: Variavel[] }
   | { success: false; error: string }
 > => {
   return fetchWithClient<Variavel[]>(
     "/gestao/modelos-portaria/variaveis/",
-    {},
+    { tipo_cargo: tipoCargo },
     "Erro ao buscar as variáveis"
   );
 };

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { cadastrarTextosPortariaAction,fetchTextoPortariaByIdAction,fetchVariavelAction } from "@/actions/textos-portaria";
+import { TipoCargo } from "@/components/dashboard/Gestao/FormCriarTextosPortaria/FormCriarTextosPortaria";
 
 export function useFetchTextoPortariaById(id: number) {
   return useQuery({
@@ -26,11 +27,11 @@ export function useFetchTextoPortariaById(id: number) {
   });
 }    
 
-export function useBuscarVariavel() {
+export function useBuscarVariavel(tipoCargo: TipoCargo) {
   return useQuery({
       queryKey: ["get-variaveis"],
       queryFn: async () => {
-          const response = await fetchVariavelAction();
+          const response = await fetchVariavelAction(tipoCargo);
           if (!response.success) {
               throw new Error(response.error);
           }
@@ -39,6 +40,7 @@ export function useBuscarVariavel() {
       refetchOnWindowFocus: false,
       staleTime: 0,
       gcTime: 0,
+      enabled: !!tipoCargo,
   });
 }
 
@@ -79,7 +81,6 @@ export function useCriarTextosPortaria(id: number | null = null) {
     setIsModalOpen(false);
   };
  
-  const { data: variaveisOpcoes = [], isLoading: isLoadingVariavel } = useBuscarVariavel();
  
   const cadastrarTextosPortaria = useCadastrarTextosPortaria();
   const {isPending: isLoadingCadastrarTextoPortaria}=cadastrarTextosPortaria
@@ -95,6 +96,10 @@ export function useCriarTextosPortaria(id: number | null = null) {
     defaultValues: { ...defaultValues },
     mode: "onChange",
   });
+  const tipoCargo = filterForm.watch("tipo_cargo");
+
+  const { data: variaveisOpcoes = [], isLoading: isLoadingVariavel } = useBuscarVariavel(tipoCargo as TipoCargo);
+
 
   useEffect(() => {
     if (textoPortaria) {     

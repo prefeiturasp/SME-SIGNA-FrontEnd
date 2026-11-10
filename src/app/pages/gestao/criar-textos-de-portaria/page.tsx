@@ -98,13 +98,14 @@ export default function CriarTextosDePortaria() {
   );
 
   useEffect(() => {
+    
     const currentVariables = selectedVariablesKey ? selectedVariablesKey.split("|") : [];
     const previousVariables = previousVariablesRef.current;
     const variaveisAdicionadas = currentVariables.filter(
       (variable) => !previousVariables.includes(variable)
     );
     const variaveisRemovidas = previousVariables.filter(
-      (variable) => !currentVariables.includes(variable)
+      (variable) => !currentVariables.includes(variable)|| !variaveisOpcoes.find((v) => v.display_name === variable)?.display_name
     );
 
     if (!variaveisAdicionadas.length && !variaveisRemovidas.length) {
@@ -123,7 +124,7 @@ export default function CriarTextosDePortaria() {
         shouldDirty: true,
         shouldValidate: true,
       });
-    }
+    }  
 
     previousVariablesRef.current = currentVariables;
   }, [filterForm, selectedVariablesKey]);

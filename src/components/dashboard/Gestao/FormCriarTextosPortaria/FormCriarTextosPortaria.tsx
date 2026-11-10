@@ -16,7 +16,8 @@ export const StatusOpcoes = [
   { codigo: 'INATIVO', nome: 'Inativo' },
 ]
 
-export const TipoCargoOpcoes = [
+export type TipoCargo = "CARGO_VAGO" | "CARGO_DISPONIVEL"
+export const TipoCargoOpcoes: { codigo: TipoCargo; nome: string }[] = [
   { codigo: 'CARGO_VAGO', nome: 'Cargo vago' },
   { codigo: 'CARGO_DISPONIVEL', nome: 'Cargo disponível' },
 ]

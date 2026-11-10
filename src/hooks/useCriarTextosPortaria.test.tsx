@@ -205,7 +205,7 @@ describe("useBuscarVariavel", () => {
   });
 
   it("configura query com chave e opções esperadas", () => {
-    renderHook(() => useBuscarVariavel());
+    renderHook(() => useBuscarVariavel( "CARGO_VAGO" ));
 
     expect(useQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -223,7 +223,7 @@ describe("useBuscarVariavel", () => {
       data: variaveisOpcoes,
     });
 
-    renderHook(() => useBuscarVariavel());
+    renderHook(() => useBuscarVariavel( "CARGO_VAGO" ));
     const queryOptions = useQueryMock.mock.calls[0][0] as QueryOptions;
     const data = await queryOptions.queryFn();
 
@@ -236,7 +236,7 @@ describe("useBuscarVariavel", () => {
       error: "falha ao buscar variáveis",
     });
 
-    renderHook(() => useBuscarVariavel());
+    renderHook(() => useBuscarVariavel( "CARGO_VAGO" ));
     const queryOptions = useQueryMock.mock.calls[0][0] as QueryOptions;
 
     await expect(queryOptions.queryFn()).rejects.toThrow("falha ao buscar variáveis");
