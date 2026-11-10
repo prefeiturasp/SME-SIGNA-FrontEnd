@@ -367,9 +367,18 @@ input[type="number"] {
   border-radius: 4px;
 }
 
+.app-sider-menu {
+  overflow-x: hidden;
+}
+
 .app-sider-menu .ant-menu-light.ant-menu-root.ant-menu-inline {
   display: grid;
   justify-content: center;
+}
+
+/* Menu retraído nunca mostra o ramo aberto: os itens filhos não cabem nos 105px. */
+.app-sider-menu.is-collapsed .app-sider-ant-menu .ant-menu-sub {
+  display: none;
 }
 
 .app-sider-menu.is-collapsed .ant-menu-light.ant-menu-root.ant-menu-inline {

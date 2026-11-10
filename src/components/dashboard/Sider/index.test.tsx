@@ -388,8 +388,19 @@ describe("Sider", () => {
     expect(submenuInterno).toHaveAttribute("data-classname", expect.stringContaining("is-submenu"));
   });
 
-  it("recolhe o sider e limpa submenus ao sair com o mouse", () => {
+  it("fecha o submenu aberto ao retrair o sider pelo botão de alternância", () => {
     render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "root-2");
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+  });
+
+  it("recolhe o sider e limpa submenus ao sair com o mouse", () => {    render(<Sider onClick={vi.fn()} items={menuItems} />);
 
     fireEvent.click(screen.getByTestId("trigger-open-change"));
     expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "232");

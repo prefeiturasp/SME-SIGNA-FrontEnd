@@ -213,9 +213,10 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           icon={collapsed ? <MenuBurger width={18} height={12}  />
           : <X width={24} height={24} />}
           onClick={() => {
+            // Ao retrair também fecha o ramo aberto: um submenu aberto dentro do
+            // sider de 105px espremeria os filhos e criaria rolagem no menu.
+            setOpenKeys([]);
             setCollapsed(!collapsed);
-
-            if (collapsed) setOpenKeys([]);
 
             if (onClickMenuButtonToggle) onClickMenuButtonToggle(!collapsed);
           }}
