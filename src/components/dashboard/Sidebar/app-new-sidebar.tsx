@@ -138,7 +138,9 @@ export function AppNewSidebar() {
   const navigate = useRouter();
 
   React.useEffect(() => {
-    collectMenuUrls(menus).forEach((url) => navigate.prefetch(url));
+    // Um mesmo destino pode aparecer em mais de um menu; prefetch uma única vez.
+    const urls = new Set(collectMenuUrls(menus));
+    urls.forEach((url) => navigate.prefetch(url));
   }, [navigate]);
 
   const itemMenuEscolhido = (item: MenuItemSMEProps) => {

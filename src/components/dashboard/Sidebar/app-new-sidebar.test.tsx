@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
-import type { ImgHTMLAttributes, ReactNode } from "react";
+import type { ImgHTMLAttributes, Key, ReactNode } from "react";
 
 import {
     AppNewSidebar,
@@ -13,7 +13,7 @@ import {
     MenuEnum,
     menus,
 } from "./app-new-sidebar";
-import type { MenuItemSMEProps } from "./app-new-sidebar";
+import type { MenuItemConectaProps, MenuItemSMEProps } from "./app-new-sidebar";
 
 interface SiderMockProps {
     onClick: (item: MenuItemSMEProps) => void;
@@ -34,7 +34,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/image", () => ({
-    default: (props: ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+    default: ({ alt = "", ...props }: ImgHTMLAttributes<HTMLImageElement>) => {
+        // Mock do next/image: um <img> simples basta para os testes.
+        // oxlint-disable-next-line next/no-img-element
+        return <img alt={alt} {...props} />;
+    },
 }));
 
 vi.mock("@/assets/images/logo-signa-completo-branco.png", () => ({
@@ -106,6 +110,7 @@ describe("app-new-sidebar", () => {
 
         expect(MENU_APOIO_ADMINISTRATIVO.children).toBeUndefined();
         expect(MENU_APOIO_ADMINISTRATIVO.url).toBe("/pages/apoio-administrativo");
+        expect(MENU_APOIO_ADMINISTRATIVO.collapsedTitle).toBe("Apoio admin.");
 
         expect(MENU_MEUS_DADOS.children).toBeUndefined();
         expect(MENU_MEUS_DADOS.url).toBe("/pages/meus-dados");
@@ -164,5 +169,40 @@ describe("app-new-sidebar", () => {
 
         fireEvent.click(screen.getByTestId("trigger-item-without-url"));
         expect(pushMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("pré-carrega todas as rotas dos menus uma única vez", () => {
+        render(<AppNewSidebar />);
+
+        const urlsEsperadas = [
+            "/pages/atos-administrativos",
+            "/pages/alterar-data-do",
+            "/pages/baixar-lauda",
+            "/pages/gestao/cargos-base",
+            "/pages/gestao/textos-de-portaria",
+            "/pages/nomeacao",
+            "/pages/protocolo",
+            "/pages/apoio-administrativo",
+            "/pages/gestao/gestao-de-acessos",
+            "/pages/gestao/gestao-de-remetentes",
+            "/pages/meus-dados",
+        ];
+        const urlsPrefetchadas = prefetchMock.mock.calls.map(([url]) => url);
+
+        expect(urlsPrefetchadas).toHaveLength(urlsEsperadas.length);
+        expect(new Set(urlsPrefetchadas)).toEqual(new Set(urlsEsperadas));
+    });
+
+    it("mantém chaves únicas em todos os níveis do menu", () => {
+        const coletarChaves = (itens: MenuItemConectaProps[]): Key[] =>
+            itens.flatMap((item) => [
+                item.key,
+                ...(item.children ? coletarChaves(item.children) : []),
+            ]);
+
+        const chaves = coletarChaves(menus);
+
+        expect(chaves.length).toBeGreaterThan(0);
+        expect(new Set(chaves).size).toBe(chaves.length);
     });
 });

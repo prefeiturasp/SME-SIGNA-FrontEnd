@@ -7,19 +7,6 @@ import Bars from '@/assets/icons/Bars';
 import { X } from 'lucide-react';
 import MenuBurger from '@/assets/icons/MenuBurger';
 
-export type SiderMenuStylePros = {
-  collapsed: boolean;
-  $isSelected?: boolean;
-  $hasRedBackground?: boolean;
-  children?: React.ReactNode;
-  className?: string;
-};
-
-export type SiderSubMenuStylePros = {
-  collapsed: boolean;
-  isSubMenu: boolean;
-};
-
 export type MenuItemSMEProps = {
   url?: string;
   title: React.ReactNode;
@@ -51,12 +38,15 @@ export type MenuSMEProps = {
   menuProps?: MenuProps;
   styleSider?: CSSProperties;
   logoMenu?: React.ReactNode;
-  onClick: (item: MenuItemSMEProps) => void;
+  onClick?: (item: MenuItemSMEProps) => void;
   onClickMenuButtonToggle?: (collapsed: boolean) => void;
-  routePathname?: string;
 };
 
 type MenuItemEntry = NonNullable<MenuProps['items']>[number];
+
+/** Larguras do Sider, espelhadas nos estilos de `.app-sider` em `globals.css`. */
+const LARGURA_SIDER_RETRAIDO = 105;
+const LARGURA_SIDER_EXPANDIDO = 232;
 
 const findMenuItem = (list: MenuItemSMEProps[], key: React.Key): MenuItemSMEProps | undefined => {
   for (const item of list) {
@@ -162,22 +152,25 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
     if (!item) return;
 
     setOpenKeys([]);
-    setSelectedKeys([item?.key?.toString()]);
+    setSelectedKeys([item.key.toString()]);
 
-    if (!item?.children?.length && !collapsed) setCollapsed(!collapsed);
+    // Ao escolher uma folha, o menu retraído evita que o conteúdo fique coberto.
+    if (!item.children?.length && !collapsed) setCollapsed(true);
 
-    if (onClick) onClick(item);
+    onClick?.(item);
   };
 
-  if (!items?.length) return <></>;
+  if (!items?.length) return null;
 
   return (
     <Layout.Sider
       className={`app-sider ${collapsed ? 'is-collapsed' : 'is-expanded'}`}
-      width={collapsed ? 105 : 232}
+      width={collapsed ? LARGURA_SIDER_RETRAIDO : LARGURA_SIDER_EXPANDIDO}
       style={{ ...styleSider }}
       trigger={null}
       collapsible
+      // O estado visual é controlado por classes/width acima; o antd não deve
+      // aplicar o modo retraído dele (que fixaria a largura em 80px).
       collapsed={false}
       breakpoint='md'
       onCollapse={() => {
@@ -199,15 +192,16 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
         <Button
           type='text'
           className={`text-white! hover:text-white! ${collapsed ? '' : 'rounded-[24px]!'}`}
+          aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          aria-expanded={!collapsed}
           icon={collapsed ? <MenuBurger width={18} height={12}  />
           : <X width={24} height={24} />}
           onClick={() => {
-            const newValue = !collapsed;
-            setCollapsed(newValue);
+            setCollapsed(!collapsed);
 
-            if (newValue) setOpenKeys([]);
+            if (collapsed) setOpenKeys([]);
 
-            if (onClickMenuButtonToggle) onClickMenuButtonToggle(newValue);
+            if (onClickMenuButtonToggle) onClickMenuButtonToggle(!collapsed);
           }}
         />
       </div>
@@ -226,10 +220,7 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           selectedKeys={currentSelectedKeys}
           onClick={handleMenuClick}
           onOpenChange={(newOpenKeys: string[]) => {
-            if (collapsed) {
-              const newValue = !collapsed;
-              setCollapsed(newValue);
-            }
+            if (collapsed) setCollapsed(false);
 
             setOpenKeys(newOpenKeys);
 

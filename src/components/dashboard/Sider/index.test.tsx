@@ -50,12 +50,13 @@ vi.mock("antd", () => ({
     icon,
     onClick,
     className,
+    ...rest
   }: {
     icon?: React.ReactNode;
     onClick?: () => void;
     className?: string;
-  }) => (
-    <button data-testid="menu-toggle-button" className={className} onClick={onClick}>
+  } & Record<string, unknown>) => (
+    <button data-testid="menu-toggle-button" className={className} onClick={onClick} {...rest}>
       {icon}
     </button>
   ),
@@ -314,8 +315,79 @@ describe("Sider", () => {
     expect(screen.getByText("Item simples")).toBeInTheDocument();
   });
 
+  it("expõe nome acessível no botão de alternância e o atualiza ao retrair", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const botao = screen.getByTestId("menu-toggle-button");
+    expect(botao).toHaveAccessibleName("Expandir menu");
+    expect(botao).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(botao);
+
+    expect(botao).toHaveAccessibleName("Recolher menu");
+    expect(botao).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("expande o sider ao abrir um submenu retraído", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const layoutSider = screen.getByTestId("layout-sider");
+    expect(layoutSider).toHaveAttribute("data-width", "105");
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+
+    expect(layoutSider).toHaveAttribute("data-width", "232");
+    expect(layoutSider).toHaveAttribute("data-classname", expect.stringContaining("is-expanded"));
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "root-2");
+  });
+
+  it("seleciona a folha clicada, limpa submenus abertos e recolhe o sider", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "root-2");
+
+    fireEvent.click(screen.getByTestId("menu-item-leaf"));
+
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-selectedkeys", "leaf");
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
+  });
+
+  it("usa as chaves selecionadas internas quando menuProps.selectedKeys está vazio", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} menuProps={{ selectedKeys: [] }} />);
+
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-selectedkeys", "");
+
+    fireEvent.click(screen.getByTestId("menu-item-leaf"));
+
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-selectedkeys", "leaf");
+  });
+
+  it("distingue submenu raiz de submenu interno pelas classes aplicadas", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const [submenuRaiz, submenuInterno] = screen.getAllByTestId("submenu");
+
+    expect(submenuRaiz).toHaveAttribute("data-classname", expect.stringContaining("is-root-submenu"));
+    expect(submenuRaiz).toHaveAttribute("data-classname", expect.stringContaining("is-collapsed"));
+    expect(submenuInterno).toHaveAttribute("data-classname", expect.stringContaining("is-submenu"));
+  });
+
+  it("recolhe o sider e limpa submenus ao sair com o mouse", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "232");
+
+    fireEvent.click(screen.getByTestId("trigger-on-mouse-leave"));
+
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+  });
+
   it("executa fluxos sem callbacks opcionais", () => {
-    render(<Sider onClick={undefined as unknown as (item: MenuItemSMEProps) => void} items={menuItems} />);
+    render(<Sider items={menuItems} />);
 
     fireEvent.click(screen.getByTestId("menu-toggle-button"));
     fireEvent.click(screen.getByTestId("menu-item-leaf"));
