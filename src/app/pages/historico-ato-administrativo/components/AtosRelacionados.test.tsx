@@ -154,4 +154,13 @@ describe("AtosRelacionados", () => {
     expect(screen.getByText("1 registro")).toBeInTheDocument();
     expect(screen.getByRole("list").closest("section")).toHaveAttribute("aria-busy", "false");
   });
+
+  it("exibe a flag Apostilada só no ato relacionado apostilado", () => {
+    const cessacao = { ...atoVazio, id: 7, tipo: "CESSACAO", titulo: "Cessação", apostilado: true };
+    render(<AtosRelacionados atos={[cessacao, ato]} isLoading={false} />);
+
+    const [itemCessacao, itemApostila] = screen.getAllByRole("listitem");
+    expect(within(itemCessacao).getByText("Apostilada")).toBeInTheDocument();
+    expect(within(itemApostila).queryByText("Apostilada")).not.toBeInTheDocument();
+  });
 });
