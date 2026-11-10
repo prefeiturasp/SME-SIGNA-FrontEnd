@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Settings } from "@/assets/icons/Settings";
 
-export type { MenuItemSMEProps };
+export type { MenuItemSMEProps } from "../Sider";
 
 export enum MenuEnum {
   AtosAdministrativos,

@@ -354,6 +354,20 @@ describe("Sider", () => {
     expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
   });
 
+  it("mantém aceso apenas o último item clicado: abrir um submenu limpa a seleção anterior", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("menu-item-leaf"));
+
+    const menu = screen.getByTestId("menu-root");
+    expect(menu).toHaveAttribute("data-selectedkeys", "leaf");
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+
+    expect(menu).toHaveAttribute("data-openkeys", "root-2");
+    expect(menu).toHaveAttribute("data-selectedkeys", "");
+  });
+
   it("usa as chaves selecionadas internas quando menuProps.selectedKeys está vazio", () => {
     render(<Sider onClick={vi.fn()} items={menuItems} menuProps={{ selectedKeys: [] }} />);
 

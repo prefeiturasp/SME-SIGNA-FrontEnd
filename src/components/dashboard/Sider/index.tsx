@@ -59,6 +59,18 @@ const findMenuItem = (list: MenuItemSMEProps[], key: React.Key): MenuItemSMEProp
   return undefined;
 };
 
+/** Caminho (ancestrais + própria chave) até um item, para manter aberto só um ramo do menu. */
+const findItemPath = (list: MenuItemSMEProps[], key: React.Key): string[] | null => {
+  for (const item of list) {
+    if (item.key?.toString() === key?.toString()) return [item.key.toString()];
+    if (item.children?.length) {
+      const path = findItemPath(item.children, key);
+      if (path) return [item.key.toString(), ...path];
+    }
+  }
+  return null;
+};
+
 const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
   items,
   menuProps,
@@ -69,7 +81,9 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
 }) => {
   const { collapsed, setCollapsed, setOpenKeys, openKeys, selectedKeys, setSelectedKeys } =
     useContext(MenuContext);
-  const currentSelectedKeys = menuProps?.selectedKeys?.length ? menuProps?.selectedKeys : selectedKeys;
+  const selectedKeysFromProps = menuProps?.selectedKeys?.length ? menuProps.selectedKeys : selectedKeys;
+  // Com um submenu aberto, o destaque branco pertence apenas a ele.
+  const currentSelectedKeys = openKeys.length ? [] : selectedKeysFromProps;
 
   const hasSelectedChild = (item: MenuItemSMEProps): boolean => {
     if (currentSelectedKeys?.includes(item?.key?.toString())) return true;
@@ -132,6 +146,8 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
 
   const buildLeafEntry = (menuItem: MenuItemSMEProps, isSubMenu: boolean): MenuItemEntry => ({
     key: menuItem.key,
+    // Sobrescreve o recuo inline do antd com o valor definido pelo CSS do menu.
+    style: { paddingLeft: 'var(--app-sider-item-indent, 0px)' },
     className: `app-sider-leaf ${collapsed ? 'is-collapsed' : 'is-expanded'} ${
       isSubMenu ? 'is-submenu' : 'is-root-leaf'
     }`,
@@ -215,6 +231,7 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           className='app-sider-ant-menu'
           mode='inline'
           {...menuProps}
+          inlineIndent={0}
           items={montarMenuItems(items)}
           openKeys={openKeys}
           selectedKeys={currentSelectedKeys}
@@ -222,10 +239,16 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           onOpenChange={(newOpenKeys: string[]) => {
             if (collapsed) setCollapsed(false);
 
-            setOpenKeys(newOpenKeys);
+            // Mantém aberto apenas o ramo do último submenu clicado e limpa a
+            // seleção anterior, para que só um item tenha fundo branco.
+            const lastOpenKey = newOpenKeys[newOpenKeys.length - 1];
+            const nextOpenKeys = (lastOpenKey && items && findItemPath(items, lastOpenKey)) || [];
+
+            setOpenKeys(nextOpenKeys);
+            if (nextOpenKeys.length) setSelectedKeys([]);
 
             if (menuProps?.onOpenChange) {
-              menuProps.onOpenChange(newOpenKeys);
+              menuProps.onOpenChange(nextOpenKeys);
             }
           }}
         />
