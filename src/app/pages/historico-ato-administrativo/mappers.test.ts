@@ -139,6 +139,7 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
         descricao: "",
         principal: false,
         esta_vigente: false,
+        apostilado: false,
       },
       {
         id: 35,
@@ -149,6 +150,7 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
         descricao: "13",
         principal: true,
         esta_vigente: true,
+        apostilado: false,
       },
     ]);
   });
@@ -274,5 +276,24 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     }]);
 
     expect(ato.data_cessacao).toBe("04/03/2020");
+  });
+
+  it("repassa a flag apostilado da designação e dos atos relacionados", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([
+      {
+        ...designacaoBase,
+        apostilado: true,
+        atos_relacionados: [{ ...designacaoBase.atos_relacionados[0], apostilado: true }],
+      },
+    ]);
+
+    expect(ato.apostilado).toBe(true);
+    expect(ato.atos_relacionados[0].apostilado).toBe(true);
+  });
+
+  it("considera não apostilado quando o backend não envia a flag", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([designacaoBase]);
+
+    expect(ato.apostilado).toBe(false);
   });
 });
