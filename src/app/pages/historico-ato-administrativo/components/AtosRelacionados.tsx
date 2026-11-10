@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, FileText, LoaderCircle } from "lucide-react";
 import { pathDetalhesDoAto } from "@/utils/designacao/rotasAtosAdministrativos";
 import { StatusDesignacao } from "./DesignacaoCard";
+import TagApostilada from "@/components/dashboard/Designacao/TagApostilada/TagApostilada";
 
 
 export interface IAtosAdministrativosPrincipalType {
@@ -12,6 +13,7 @@ export interface IAtosAdministrativosPrincipalType {
     readonly realizada_em: string;
     readonly data_cessacao: string | null;
     readonly status: StatusDesignacao;
+    readonly apostilado?: boolean;
     readonly numero_portaria: string;
     readonly cargo_display: string;
     readonly nome_servidor_indicado: string;
@@ -28,6 +30,7 @@ export interface IAtosAdministrativosType {
     readonly descricao: string;
     readonly principal: boolean;
     readonly esta_vigente: boolean;
+    readonly apostilado?: boolean;
 }
 
 interface Props {
@@ -80,7 +83,10 @@ export default function AtosRelacionados({ atos = [], isLoading = false }: Props
                                     </div>
                                 </dl>
                                 <div className="atos-relacionados-content">
-                                    <h3 className={`atos-relacionados-title ${ato.esta_vigente ? "" : "line-through"}`}>{ato.titulo?.trim() || "Ato administrativo"}</h3>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className={`atos-relacionados-title ${ato.esta_vigente ? "" : "line-through"}`}>{ato.titulo?.trim() || "Ato administrativo"}</h3>
+                                        <TagApostilada apostilado={ato.apostilado} />
+                                    </div>
                                     {ato.descricao?.trim() ? <p className="atos-relacionados-description">{ato.descricao}</p> : <p className="atos-relacionados-description">-</p>}
                                 </div>
                                 {href && (

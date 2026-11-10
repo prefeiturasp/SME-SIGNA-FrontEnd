@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion } from "@/components/ui/accordion";
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
+import TagApostilada from "@/components/dashboard/Designacao/TagApostilada/TagApostilada";
 import ResumoPesquisaDaUnidade from "@/components/dashboard/Designacao/ResumoPesquisaDaUnidade";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import ResumoDesignacaoServidorIndicado from "@/components/dashboard/Designacao/ResumoDesignacaoServidorIndicado";
@@ -62,7 +63,12 @@ export default function VisualizarDesignacaoPage() {
   return (
     <>
       <PageHeader
-        title="Detalhes da designação"
+        title={
+          <span className="flex items-center gap-2">
+            Detalhes da designação
+            <TagApostilada apostilado={designacao?.apostilado} />
+          </span>
+        }
         breadcrumbs={[{ title: "Início", href: "/" },
         { title: "Detalhes da designação" }]}
         showBackButton={true}
