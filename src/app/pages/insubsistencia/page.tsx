@@ -30,12 +30,8 @@ import formSchemaInsubsistencia, { formSchemaInsubsistenciaData } from "./schema
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { montarDadosTextoSeiInsubsistencia } from "@/utils/insubsistencia/montarDadosTextoSei";
-import {
-  MENSAGEM_ERRO_DESCRICOES_CARGOS,
-  useBuscarDescricoesCargosBase,
-} from "@/hooks/useBuscarDescricoesCargosBase";
-import { codigosCargosDaDesignacao, type DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
-import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
+import { useGerarPreviewTextoSei } from "@/hooks/useGerarPreviewTextoSei";
+import { codigosCargosDaDesignacao } from "@/utils/portarias/cargoIndicado";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { formatarRF, nameToCamelCase, nameToCamelCaseUe } from "@/utils/portarias/formatadores";
 import { formatarData } from "@/lib/utils";
@@ -47,7 +43,7 @@ import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia
 // Mantida (e anida exportada) pois `visualizar-insubsistencia/[id]/page.tsx`
 // a importa para regerar o texto localmente de registros antigos, que
 // ainda não têm `texto_sei` salvo no banco. O fluxo de criação abaixo não usa
-// mais essa função — chama o backend via `gerarPreviewTextoSeiAction`.
+// mais essa função — chama o backend via `useGerarPreviewTextoSei`.
 export const gerarDadosInsubsistencia = (values: formSchemaInsubsistenciaData, designacao: DesignacaoResponse | undefined, cessacao: Cessacao | null | undefined) => {
   let periodo_insubsistencia = "";
 
@@ -180,41 +176,23 @@ export default function InsubsistenciaPage() {
   const [htmlPortaria, setHtmlPortaria] = useState("");
   const [textoSei, setTextoSei] = useState("");
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
-  const [gerandoPreview, setGerandoPreview] = useState(false);
-  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
+  const { gerandoPreview, gerarPreview } = useGerarPreviewTextoSei();
 
   const handleGerarPortaria = async () => {
     const values = form.getValues();
-    setGerandoPreview(true);
-    let descricoes: DescricoesCargosBase;
-    try {
-      descricoes = await buscarDescricoesCargosBase(codigosCargosDaDesignacao(designacao));
-    } catch (error) {
-      console.error("Erro ao buscar cargos base:", error);
-      setGerandoPreview(false);
-      notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
-      return;
-    }
-
-    const dados = montarDadosTextoSeiInsubsistencia(designacao, values.insubsistencia, descricoes);
-    const tipoAtoPai = tipo_insubsistencia === "cessacao" ? "CESSACAO" : "DESIGNACAO";
-
-    const result = await gerarPreviewTextoSeiAction({
+    const preview = await gerarPreview({
       tipo_portaria: "INSUBSISTENCIA",
-      tipo_ato_pai: tipoAtoPai,
+      tipo_ato_pai: tipo_insubsistencia === "cessacao" ? "CESSACAO" : "DESIGNACAO",
       tipo_cargo: mapTipoVagaParaTipoCargo(designacao?.tipo_vaga),
-      dados,
+      codigosCargos: codigosCargosDaDesignacao(designacao),
+      montarDados: (descricoes) =>
+        montarDadosTextoSeiInsubsistencia(designacao, values.insubsistencia, descricoes),
     });
-    setGerandoPreview(false);
+    if (!preview) return;
 
-    if (!result.success) {
-      notification.error({ title: `Erro ao gerar o texto da portaria: ${result.error}` });
-      return;
-    }
-
-    setTextoSei(result.data.texto);
-    setModeloPortariaId(result.data.modelo_portaria_id);
-    setHtmlPortaria(gerarHtmlPortaria(result.data.texto));
+    setTextoSei(preview.texto);
+    setModeloPortariaId(preview.modelo_portaria_id);
+    setHtmlPortaria(gerarHtmlPortaria(preview.texto));
     setMostrarEditor(true);
   };
 

@@ -32,13 +32,9 @@ import Designacao from "@/assets/icons/Designacao";
 
 import EditorSEI, { gerarHtmlPortaria } from "@/components/dashboard/EditorTextoSEI/EditorTextoSEI";
 import { montarDadosTextoSeiCessacao } from "@/utils/cessacao/montarDadosTextoSei";
-import {
-  MENSAGEM_ERRO_DESCRICOES_CARGOS,
-  useBuscarDescricoesCargosBase,
-} from "@/hooks/useBuscarDescricoesCargosBase";
-import { codigosCargosDaDesignacao, type DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
+import { useGerarPreviewTextoSei } from "@/hooks/useGerarPreviewTextoSei";
+import { codigosCargosDaDesignacao } from "@/utils/portarias/cargoIndicado";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
-import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { Cessacao } from "@/types/designacao";
 
@@ -145,40 +141,22 @@ export default function CessacaoPage() {
   const [htmlPortaria, setHtmlPortaria] = useState("");
   const [textoSei, setTextoSei] = useState("");
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
-  const [gerandoPreview, setGerandoPreview] = useState(false);
-  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
+  const { gerandoPreview, gerarPreview } = useGerarPreviewTextoSei();
 
   const handleGerarPortaria = async () => {
     const values = form.getValues();
-    setGerandoPreview(true);
-    let descricoes: DescricoesCargosBase;
-    try {
-      descricoes = await buscarDescricoesCargosBase(codigosCargosDaDesignacao(designacao));
-    } catch (error) {
-      console.error("Erro ao buscar cargos base:", error);
-      setGerandoPreview(false);
-      notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
-      return;
-    }
-
-    const dados = montarDadosTextoSeiCessacao(designacao, values.cessacao, descricoes);
-
-    const result = await gerarPreviewTextoSeiAction({
+    const preview = await gerarPreview({
       tipo_portaria: "CESSACAO",
       tipo_ato_pai: "DESIGNACAO",
       tipo_cargo: mapTipoVagaParaTipoCargo(designacao?.tipo_vaga),
-      dados,
+      codigosCargos: codigosCargosDaDesignacao(designacao),
+      montarDados: (descricoes) => montarDadosTextoSeiCessacao(designacao, values.cessacao, descricoes),
     });
-    setGerandoPreview(false);
+    if (!preview) return;
 
-    if (!result.success) {
-      notification.error({ title: `Erro ao gerar o texto da portaria: ${result.error}` });
-      return;
-    }
-
-    setTextoSei(result.data.texto);
-    setModeloPortariaId(result.data.modelo_portaria_id);
-    setHtmlPortaria(gerarHtmlPortaria(result.data.texto));
+    setTextoSei(preview.texto);
+    setModeloPortariaId(preview.modelo_portaria_id);
+    setHtmlPortaria(gerarHtmlPortaria(preview.texto));
     setMostrarEditor(true);
   };
 

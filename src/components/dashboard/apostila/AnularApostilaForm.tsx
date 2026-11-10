@@ -21,13 +21,9 @@ import formSchemaAnularApostilaTornarSemEfeito, {
 } from "@/app/pages/anular-apostila/schema";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import { montarDadosTextoSeiAnularApostila } from "@/utils/anularApostila/montarDadosTextoSei";
-import {
-  MENSAGEM_ERRO_DESCRICOES_CARGOS,
-  useBuscarDescricoesCargosBase,
-} from "@/hooks/useBuscarDescricoesCargosBase";
-import { codigosCargosDaDesignacao, type DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
+import { useGerarPreviewTextoSei } from "@/hooks/useGerarPreviewTextoSei";
+import { codigosCargosDaDesignacao } from "@/utils/portarias/cargoIndicado";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
-import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 
 export type AnularApostilaCampos =
   formSchemaAnularApostilaTornarSemEfeitoData["apostila_insubsistencia"];
@@ -105,8 +101,7 @@ export default function AnularApostilaForm({
   const [textoSeiGerado, setTextoSeiGerado] = useState("");
   const [htmlPortariaGerado, setHtmlPortariaGerado] = useState("");
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
-  const [gerandoPreview, setGerandoPreview] = useState(false);
-  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
+  const { gerandoPreview, gerarPreview } = useGerarPreviewTextoSei();
 
   const htmlPortariaSalvo = useMemo(
     () => (textoSeiSalvo ? gerarHtmlPortaria(textoSeiSalvo) : ""),
@@ -128,42 +123,19 @@ export default function AnularApostilaForm({
     const values = form.getValues();
     const atoApostilado = tipoPortaria === "cessacao" ? ato?.cessacao : ato?.designacao;
 
-    setGerandoPreview(true);
-    let descricoes: DescricoesCargosBase;
-    try {
-      descricoes = await buscarDescricoesCargosBase(codigosCargosDaDesignacao(ato?.designacao));
-    } catch (error) {
-      console.error("Erro ao buscar cargos base:", error);
-      setGerandoPreview(false);
-      notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
-      return;
-    }
-
-    const dados = montarDadosTextoSeiAnularApostila(
-      ato?.designacao,
-      atoApostilado,
-      values.apostila_insubsistencia,
-      descricoes
-    );
-
-    const result = await gerarPreviewTextoSeiAction({
+    const preview = await gerarPreview({
       tipo_portaria: "INSUBSISTENCIA",
       tipo_ato_pai: "APOSTILA",
       tipo_cargo: mapTipoVagaParaTipoCargo(ato?.designacao?.tipo_vaga),
-      dados,
+      codigosCargos: codigosCargosDaDesignacao(ato?.designacao),
+      montarDados: (descricoes) =>
+        montarDadosTextoSeiAnularApostila(ato?.designacao, atoApostilado, values.apostila_insubsistencia, descricoes),
     });
-    setGerandoPreview(false);
+    if (!preview) return;
 
-    if (!result.success) {
-      notification.error({
-        title: `Erro ao gerar o texto da portaria: ${result.error}`,
-      });
-      return;
-    }
-
-    setTextoSeiGerado(result.data.texto);
-    setModeloPortariaId(result.data.modelo_portaria_id);
-    setHtmlPortariaGerado(gerarHtmlPortaria(result.data.texto));
+    setTextoSeiGerado(preview.texto);
+    setModeloPortariaId(preview.modelo_portaria_id);
+    setHtmlPortariaGerado(gerarHtmlPortaria(preview.texto));
   };
 
   const onSubmit = async (values: formSchemaAnularApostilaTornarSemEfeitoData) => {

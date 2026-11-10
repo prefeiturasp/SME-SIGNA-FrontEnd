@@ -14,11 +14,8 @@ import {
   codigosCargosTextoSeiDesignacao,
   montarDadosTextoSeiDesignacao,
 } from "@/utils/designacao/montarDadosTextoSei";
-import {
-  MENSAGEM_ERRO_DESCRICOES_CARGOS,
-  useBuscarDescricoesCargosBase,
-} from "@/hooks/useBuscarDescricoesCargosBase";
-import type { DescricoesCargosBase } from "@/utils/portarias/cargoIndicado";
+import { MENSAGEM_ERRO_DESCRICOES_CARGOS } from "@/hooks/useBuscarDescricoesCargosBase";
+import { useBuscarDescricoesCargosParaPortaria } from "@/hooks/useBuscarDescricoesCargosParaPortaria";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { designacaoAction } from "@/actions/cadastro-designacao";
@@ -93,7 +90,7 @@ export default function DesignacoesPasso3() {
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
   const [carregandoPreview, setCarregandoPreview] = useState(true);
   const [erroPreview, setErroPreview] = useState<string | null>(null);
-  const buscarDescricoesCargosBase = useBuscarDescricoesCargosBase();
+  const buscarDescricoesCargos = useBuscarDescricoesCargosParaPortaria();
 
   const voltarParaPasso2 = useCallback(() => {
     const url = id
@@ -110,14 +107,10 @@ export default function DesignacoesPasso3() {
       setCarregandoPreview(true);
       setErroPreview(null);
 
-      let descricoes: DescricoesCargosBase;
-      try {
-        descricoes = await buscarDescricoesCargosBase(codigosCargosTextoSeiDesignacao(formDesignacaoData));
-      } catch (error) {
-        console.error("Erro ao buscar cargos base:", error);
+      const descricoes = await buscarDescricoesCargos(codigosCargosTextoSeiDesignacao(formDesignacaoData));
+      if (!descricoes) {
         setErroPreview(MENSAGEM_ERRO_DESCRICOES_CARGOS);
         setCarregandoPreview(false);
-        notification.error({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS });
         return;
       }
 
@@ -143,7 +136,7 @@ export default function DesignacoesPasso3() {
     };
 
     buscarPreview();
-  }, [formDesignacaoData, notification, voltarParaPasso2, buscarDescricoesCargosBase]);
+  }, [formDesignacaoData, notification, voltarParaPasso2, buscarDescricoesCargos]);
 
   const htmlTexto = useMemo(() => {
     if (!textoSei) return "";
