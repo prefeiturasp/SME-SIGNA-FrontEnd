@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
+import createFormSchemaCargosBase, { createFormSchemaCargosBaseData, editFormSchemaCargosBase } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import { useBuscarCargosBase, useBuscarCargosBaseById } from "./useBuscarCargosBase";
 import { useRouter } from "next/navigation";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 import { CargosBaseCriarEditar } from "@/types/gestao";
+import { CHAVE_DESCRICAO_CARGO_BASE } from "./useBuscarDescricoesCargosBase";
 
 export const useCriarCargosBase = () => {
   const queryClient = useQueryClient();
@@ -26,7 +27,8 @@ export const useCriarCargosBase = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-cargos"] });
+      void queryClient.invalidateQueries({ queryKey: ["get-cargos"] });
+      void queryClient.invalidateQueries({ queryKey: [CHAVE_DESCRICAO_CARGO_BASE] });
     },
   });
 };
@@ -50,7 +52,8 @@ export const useEditarCargosBase = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-cargos"] });
+      void queryClient.invalidateQueries({ queryKey: ["get-cargos"] });
+      void queryClient.invalidateQueries({ queryKey: [CHAVE_DESCRICAO_CARGO_BASE] });
     },
   });
 };
@@ -60,6 +63,8 @@ const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
   codigo_cargo: "",
   descricao_resumida: "",
   descricao_completa: "",
+  descricao_eol: "",
+  provimento: "",
   situacao_funcional: "",
   status: "",
   utilizado_para_funcoes: false,
@@ -93,7 +98,8 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
   const isPending = false;
 
   const form = useForm<createFormSchemaCargosBaseData>({
-    resolver: zodResolver(createFormSchemaCargosBase),
+    // O cast unifica os tipos: na edição descricao_eol é opcional, mas sai do payload em onSubmitForm.
+    resolver: zodResolver((id ? editFormSchemaCargosBase : createFormSchemaCargosBase) as typeof createFormSchemaCargosBase),
     defaultValues: { ...defaultValues },
     mode: "onChange",
   });
@@ -121,7 +127,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
           ...values,
         };
 
-        delete partialValues["descricao_completa"];
+        delete partialValues["descricao_eol"];
         delete partialValues["codigo_cargo"];
 
         
@@ -170,7 +176,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
   const pesquisarLicencasNoSigpec = form.watch("pesquisar_licencas_no_sigpec");
 
   useEffect(() => {
-    form.trigger(["quantidade_maxima_de_dias_de_licenca", "pesquisar_licencas_no_sigpec"]);
+    void form.trigger(["quantidade_maxima_de_dias_de_licenca", "pesquisar_licencas_no_sigpec"]);
   }, [quantidadeMaximaDeDiasDeLicenca, pesquisarLicencasNoSigpec, form]);
 
 
