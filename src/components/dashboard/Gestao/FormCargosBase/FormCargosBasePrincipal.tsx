@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { FormControl, FormField, FormLabel, FormItem, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/Combobox';
+import { Textarea } from '@/components/ui/textarea';
 import { StatusOpcoes, CargosBaseGrupamento, SituacaoFuncionalOpcoes } from '../FiltroDeCargosBase/FiltroDeCargosBase';
 import { ICargoType } from '@/types/cargos';
 
@@ -51,7 +52,9 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditi
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
-                      setValue("descricao_completa", CargosBaseOpcoes.find(cargo => cargo.codigoCargo.toString() === value)?.nomeCargo || "");
+                      const nomeCargo = CargosBaseOpcoes.find(cargo => cargo.codigoCargo.toString() === value)?.nomeCargo || "";
+                      setValue("descricao_completa", nomeCargo, { shouldValidate: true });
+                      setValue("descricao_eol", nomeCargo, { shouldValidate: true });
                     }}
                     placeholder="Selecione"
                     data-testid="select-codigo-cargo-eol"
@@ -60,6 +63,28 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditi
               <FormMessage showBlankSpace={false} />
             </FormItem>
           )}
+        />
+
+        <InputField
+          register={register}
+          control={control}
+          name="descricao_completa"
+          label="Descrição Completa"
+          placeholder="Digite ..."
+          dataTestId="input-descricao_completa"
+          type="text"
+          showBlankSpace={false}
+        />
+
+        <InputField
+          register={register}
+          control={control}
+          name="descricao_eol"
+          label="Descrição EOL"
+          dataTestId="input-descricao_eol"
+          type="text"
+          disabled
+          showBlankSpace={false}
         />
 
         <SelectField
@@ -117,6 +142,28 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditi
             label: item.nome,
           }))}
           showBlankSpace={false}
+        />
+
+        <FormField
+          control={control}
+          name="provimento"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-[#313131] font-bold">
+                Provimento
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  rows={4}
+                  value={field.value ?? ""}
+                  placeholder="Ex.: portando diploma de Pedagogia e experiência de 3 anos no Magistério"
+                  data-testid="input-provimento"
+                />
+              </FormControl>
+              <FormMessage showBlankSpace={false} />
+            </FormItem>
+          )}
         />
       </div>
     </>

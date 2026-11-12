@@ -162,4 +162,16 @@ describe("DesignacaoCard", () => {
       expect.objectContaining({ isLoading: false }),
     );
   });
+
+  it("exibe a flag Apostilada quando a designação foi apostilada", () => {
+    render(<DesignacaoCard ato={{ ...atoBase, apostilado: true }} isLoading={false} />);
+
+    expect(screen.getByText("Apostilada")).toBeInTheDocument();
+  });
+
+  it("não exibe a flag Apostilada quando a designação não foi apostilada", () => {
+    render(<DesignacaoCard ato={atoBase} isLoading={false} />);
+
+    expect(screen.queryByText("Apostilada")).not.toBeInTheDocument();
+  });
 });

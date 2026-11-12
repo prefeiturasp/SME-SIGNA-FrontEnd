@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import AnularApostilaForm from "./AnularApostilaForm";
 import type { AnularApostilaCampos, AtoAnulavel } from "./AnularApostilaForm";
+import { codigosCargosDaDesignacao } from "@/utils/portarias/cargoIndicado";
 
 const pushMock = vi.fn();
 const notificationSuccessMock = vi.fn();
@@ -29,6 +30,24 @@ vi.mock("@hookform/resolvers/zod", () => ({
 vi.mock("@/actions/textos-sei", () => ({
   gerarPreviewTextoSeiAction: (...args: unknown[]) => gerarPreviewMock(...args),
 }));
+
+// ── Descrições de Gestão de cargos base ─────────
+const { buscarDescricoesMock } = vi.hoisted(() => ({ buscarDescricoesMock: vi.fn() }));
+const MENSAGEM_ERRO_DESCRICOES_CARGOS = "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.";
+
+vi.mock("@/hooks/useBuscarDescricoesCargosBase", () => ({
+  MENSAGEM_ERRO_DESCRICOES_CARGOS: "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.",
+  useBuscarDescricoesCargosBase: () => buscarDescricoesMock,
+}));
+
+// Devolve "CARGO <código>" para todo código válido pedido.
+async function descricoesFalsas(codigos: unknown[]) {
+  return Object.fromEntries(
+    codigos
+      .filter((codigo) => codigo != null && String(codigo).trim() !== "" && Number(codigo) !== 0)
+      .map((codigo) => [String(Number(codigo)), `CARGO ${Number(codigo)}`])
+  );
+}
 
 vi.mock("@/utils/designacao/getDadosPortaria", () => ({
   getDadosPortaria: (value: unknown) => getDadosPortariaMock(value),
@@ -157,6 +176,7 @@ const renderForm = (props: Partial<Parameters<typeof AnularApostilaForm>[0]> = {
 describe("AnularApostilaForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    buscarDescricoesMock.mockImplementation(descricoesFalsas);
     formValues = {
       apostila_insubsistencia: {
         portaria: "999",
@@ -250,6 +270,28 @@ describe("AnularApostilaForm", () => {
         }),
       })
     );
+  });
+
+  it("busca as descrições dos cargos da designação antes de gerar o texto", async () => {
+    renderForm();
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() => expect(gerarPreviewMock).toHaveBeenCalled());
+    expect(buscarDescricoesMock).toHaveBeenCalledWith(codigosCargosDaDesignacao(atoDesignacao.designacao));
+  });
+
+  it("mostra erro e não gera o texto quando a consulta dos cargos falha", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    buscarDescricoesMock.mockRejectedValueOnce(new Error("falha de rede"));
+
+    renderForm();
+    fireEvent.click(screen.getByText("Gerar texto SEI"));
+
+    await waitFor(() =>
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS })
+    );
+    expect(gerarPreviewMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
   });
 
   it("avisa e não mostra o editor quando não há modelo de portaria cadastrado", async () => {

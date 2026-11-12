@@ -240,9 +240,8 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
           onOpenChange={(newOpenKeys: string[]) => {
             if (collapsed) setCollapsed(false);
 
-            // Mantém aberto apenas o ramo do último submenu clicado e limpa a
-            // seleção anterior, para que só um item tenha fundo branco.
-            const lastOpenKey = newOpenKeys[newOpenKeys.length - 1];
+  
+            const lastOpenKey = newOpenKeys.at(-1);
             const nextOpenKeys = (lastOpenKey && items && findItemPath(items, lastOpenKey)) || [];
 
             setOpenKeys(nextOpenKeys);

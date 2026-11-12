@@ -117,6 +117,24 @@ vi.mock("@/actions/textos-sei", () => ({
   gerarPreviewTextoSeiAction: vi.fn(),
 }));
 
+// ── Descrições de Gestão de cargos base ─────────
+const { buscarDescricoesMock } = vi.hoisted(() => ({ buscarDescricoesMock: vi.fn() }));
+const MENSAGEM_ERRO_DESCRICOES_CARGOS = "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.";
+
+vi.mock("@/hooks/useBuscarDescricoesCargosBase", () => ({
+  MENSAGEM_ERRO_DESCRICOES_CARGOS: "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.",
+  useBuscarDescricoesCargosBase: () => buscarDescricoesMock,
+}));
+
+// Devolve "CARGO <código>" para todo código válido pedido.
+async function descricoesFalsas(codigos: unknown[]) {
+  return Object.fromEntries(
+    codigos
+      .filter((codigo) => codigo != null && String(codigo).trim() !== "" && Number(codigo) !== 0)
+      .map((codigo) => [String(Number(codigo)), `CARGO ${Number(codigo)}`])
+  );
+}
+
 // ── Action de salvar ───────────────────────────
 vi.mock("@/actions/cadastro-designacao", () => ({
   designacaoAction: vi.fn(),
@@ -160,6 +178,7 @@ vi.mock("@/components/providers/NotificationProvider", () => ({
 describe("DesignacoesPasso3 - Testes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    buscarDescricoesMock.mockImplementation(descricoesFalsas);
     h.searchId = null;
     h.searchRf = "1234567";
     h.formData = { ...defaultFormData } as unknown as FormDesignacaoEServidorIndicado;
@@ -229,6 +248,40 @@ describe("DesignacoesPasso3 - Testes", () => {
     });
 
     expect(gerarPreviewTextoSeiAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("busca as descrições dos cargos antes da prévia e as usa nas variáveis de cargo", async () => {
+    h.formData = {
+      ...defaultFormData,
+      tipo_cargo: "vago",
+      cargo_vago_selecionado: { id: 3360, label: "Diretor (label da tela)" },
+      servidorIndicado: { nome_civil: "JOÃO SILVA", cd_cargo_base: 3212, categoria: "3" },
+    } as unknown as FormDesignacaoEServidorIndicado;
+
+    render(<DesignacoesPasso3 />);
+
+    await waitFor(() => expect(gerarPreviewTextoSeiAction).toHaveBeenCalledTimes(1));
+    expect(buscarDescricoesMock).toHaveBeenCalledWith([3360, 3212]);
+    expect(vi.mocked(gerarPreviewTextoSeiAction).mock.calls[0][0].dados).toMatchObject({
+      CARGO: "CARGO 3360",
+      CARGO_DESIGNACAO: "CARGO 3360",
+      CARGO_INDICADO: "CARGO 3212 - CATEGORIA 3",
+    });
+  });
+
+  it("mostra erro, não gera a prévia e não deixa salvar quando a consulta dos cargos falha", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    buscarDescricoesMock.mockRejectedValueOnce(new Error("falha de rede"));
+
+    render(<DesignacoesPasso3 />);
+
+    await waitFor(() =>
+      expect(notificationErrorMock).toHaveBeenCalledWith({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS })
+    );
+    expect(gerarPreviewTextoSeiAction).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent(MENSAGEM_ERRO_DESCRICOES_CARGOS);
+    expect(screen.getByRole("button", { name: "Salvar" })).toBeDisabled();
+    expect(h.pushMock).not.toHaveBeenCalled();
   });
 
   it("avisa que não há modelo de portaria e volta para o passo 2 quando a prévia falha", async () => {

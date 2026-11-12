@@ -6,6 +6,7 @@ import {
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
 import {
+    type DescricoesCargosBase,
     montarCargoDaDesignacao,
     montarCargoIndicadoDaDesignacao,
 } from "@/utils/portarias/cargoIndicado";
@@ -23,7 +24,8 @@ export interface AtoApostilado {
  * Monta o dicionário de variáveis para a prévia do texto SEI de uma
  * anulação de apostila, usando as mesmas chaves de
  * `ModeloPortaria.Variavel` no backend — quem consome é o endpoint
- * `textos-sei/preview/`.
+ * `textos-sei/preview/`. `descricoes` precisa trazer os códigos de
+ * `codigosCargosDaDesignacao`.
  *
  * Além das variáveis padrão, a anulação precisa descrever o ato que foi
  * apostilado e o texto da apostila. Essas chaves (`PORTARIA_APOSTILADA`,
@@ -38,7 +40,8 @@ export interface AtoApostilado {
 export function montarDadosTextoSeiAnularApostila(
     designacao: DesignacaoResponse | undefined,
     atoApostilado: AtoApostilado | null | undefined,
-    anulacao: formSchemaAnularApostilaTornarSemEfeitoData["apostila_insubsistencia"]
+    anulacao: formSchemaAnularApostilaTornarSemEfeitoData["apostila_insubsistencia"],
+    descricoes: DescricoesCargosBase
 ): Record<string, string> {
     const portariaApostilada =
         atoApostilado?.portaria ?? atoApostilado?.numero_portaria ?? "";
@@ -55,9 +58,9 @@ export function montarDadosTextoSeiAnularApostila(
             designacao?.indicado_vinculo == null
                 ? ""
                 : String(designacao.indicado_vinculo),
-        CARGO: montarCargoDaDesignacao(designacao),
-        CARGO_DESIGNACAO: montarCargoDaDesignacao(designacao),
-        CARGO_INDICADO: montarCargoIndicadoDaDesignacao(designacao),
+        CARGO: montarCargoDaDesignacao(designacao, descricoes),
+        CARGO_DESIGNACAO: montarCargoDaDesignacao(designacao, descricoes),
+        CARGO_INDICADO: montarCargoIndicadoDaDesignacao(designacao, descricoes),
         CATEGORIA: designacao?.indicado_categoria ?? "",
         UNIDADE: nameToCamelCaseUe(designacao?.indicado_lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(

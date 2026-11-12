@@ -5,7 +5,7 @@ import {
   useCriarEditarCargosBase,
   useEditarCargosBase,
 } from "./useCriarEditarCargosBase";
-import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
+import createFormSchemaCargosBase, { createFormSchemaCargosBaseData, editFormSchemaCargosBase } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
 import { criarCargosBaseAction, editarCargosBaseAction } from "@/actions/cargos-base";
 
 const {
@@ -84,6 +84,7 @@ const payloadBase: createFormSchemaCargosBaseData = {
   grupamento: "2",
   descricao_resumida: "Resumo",
   descricao_completa: "Completa",
+  descricao_eol: "Completa",
   situacao_funcional: "EFETIVO",
   status: "ATIVO",
   utilizado_para_funcoes: true,
@@ -198,6 +199,8 @@ describe("hooks/useCriarEditarCargosBase", () => {
           codigo_cargo: "",
           descricao_resumida: "",
           descricao_completa: "",
+          descricao_eol: "",
+          provimento: "",
           situacao_funcional: "",
           status: "",
           utilizado_para_funcoes: false,
@@ -228,6 +231,12 @@ describe("hooks/useCriarEditarCargosBase", () => {
     ]);
   });
 
+  it("usa o schema de edição quando recebe id", () => {
+    renderHook(() => useCriarEditarCargosBase(44));
+
+    expect(zodResolverMock).toHaveBeenCalledWith(editFormSchemaCargosBase);
+  });
+
   it("usa lista vazia quando a busca de cargos base ainda não retornou dados", () => {
     useBuscarCargosBaseMock.mockReturnValue({
       data: undefined,
@@ -246,6 +255,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       codigo_cargo: "9",
       descricao_resumida: "Resumo",
       descricao_completa: "Completa",
+      descricao_eol: "Completa",
       situacao_funcional: "1",
       status: "3",
       utilizado_para_funcoes: true,
@@ -276,6 +286,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       grupamento: "DOCENTES",
       descricao_resumida: "Resumo edição",
       descricao_completa: "Completa edição",
+      descricao_eol: "Completa edição",
       situacao_funcional: "EFETIVO",
       utilizado_para_funcoes: true,
       utilizado_para_designacoes: false,
@@ -289,6 +300,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       permite_substituicao: true,
       possui_periodo_fechado: true,
       data_fim_periodo: "2026-01-31",
+      provimento: "portando diploma de Pedagogia",
     };
     useBuscarCargosBaseByIdMock.mockReturnValue({
       data: cargoBase,
@@ -310,6 +322,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
       grupamento: "DOCENTES",
       descricao_resumida: "Resumo edição",
       descricao_completa: "Completa edição",
+      descricao_eol: "Completa edição",
       situacao_funcional: "EFETIVO",
       utilizado_para_funcoes: true,
       utilizado_para_designacoes: false,
@@ -365,6 +378,7 @@ describe("hooks/useCriarEditarCargosBase", () => {
     const expectedPartial = {
       grupamento: "2",
       descricao_resumida: "Resumo",
+      descricao_completa: "Completa",
       situacao_funcional: "EFETIVO",
       status: "ATIVO",
       utilizado_para_funcoes: true,
@@ -391,6 +405,34 @@ describe("hooks/useCriarEditarCargosBase", () => {
       description: "As alterações foram salvas.",
     });
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cargos-base");
+  });
+
+  it("envia provimento e descricao_eol no cadastro", async () => {
+    vi.mocked(criarCargosBaseAction).mockResolvedValueOnce({ success: true, data: { id: 1 } });
+
+    const { result } = renderHook(() => useCriarEditarCargosBase());
+
+    await act(async () => {
+      await result.current.onSubmitForm({ ...payloadBase, provimento: "portando diploma" });
+    });
+
+    expect(criarCargosBaseAction).toHaveBeenCalledWith(
+      expect.objectContaining({ descricao_eol: "Completa", provimento: "portando diploma" }),
+    );
+  });
+
+  it.each(["novo provimento", ""])("envia provimento %j na edição sem descricao_eol", async (provimento) => {
+    vi.mocked(editarCargosBaseAction).mockResolvedValueOnce({ success: true, data: { id: 44 } });
+
+    const { result } = renderHook(() => useCriarEditarCargosBase(44));
+
+    await act(async () => {
+      await result.current.onSubmitForm({ ...payloadBase, provimento });
+    });
+
+    const [, valores] = vi.mocked(editarCargosBaseAction).mock.calls[0];
+    expect(valores.provimento).toBe(provimento);
+    expect(valores).not.toHaveProperty("descricao_eol");
   });
 
   it("notifica erro quando criação falha", async () => {

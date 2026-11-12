@@ -1,6 +1,7 @@
 import { Card, Typography, Tag, Badge, Descriptions } from "antd";
 import AtosRelacionados, { IAtosAdministrativosPrincipalType } from "./AtosRelacionados";
 import Calendar from "@/assets/icons/CustomCalendar";
+import TagApostilada from "@/components/dashboard/Designacao/TagApostilada/TagApostilada";
 
 const { Text } = Typography;
 
@@ -91,7 +92,10 @@ export default function DesignacaoCard({
             </div>
           </div>
 
-          <TagStatusDesignacao status={ato.status} dataCessacao={ato.data_cessacao} />
+          <div className="flex items-center gap-2">
+            <TagApostilada apostilado={ato.apostilado} />
+            <TagStatusDesignacao status={ato.status} dataCessacao={ato.data_cessacao} />
+          </div>
         </div>
 
         <div className="designacao-card-divisor" />

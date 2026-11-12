@@ -21,9 +21,14 @@ export const StatusOpcoes = [
   { codigo: 'EXTINTO', nome: 'Extinto' },
 ]
 export const CargosBaseGrupamento = [
+  { codigo: 'ADMINISTRATIVOS_OUTROS', nome: 'Administrativos - outros' },
+  { codigo: 'ANALISTAS_OUTROS', nome: 'Analistas - outros' },
   { codigo: 'APOIO_EDUCACAO', nome: 'Apoio - educação' },
+  { codigo: 'APOIO_OUTROS', nome: 'Apoio - outros' },
   { codigo: 'DOCENTES', nome: 'Docentes' },
+  { codigo: 'ESPECIALISTAS_OUTROS', nome: 'Especialistas - outros' },
   { codigo: 'GESTORES_EDUCACAO', nome: 'Gestores - educação' },
+  { codigo: 'SAUDE', nome: 'Saúde' },
 ]
 
 const FiltroDeCargosBase: React.FC<Props> = ({ onClear }) => {

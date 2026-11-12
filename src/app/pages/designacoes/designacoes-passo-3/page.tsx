@@ -10,7 +10,12 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 import Designacao from "@/assets/icons/Designacao";
 import { useDesignacaoContext } from "../DesignacaoContext";
-import { montarDadosTextoSeiDesignacao } from "@/utils/designacao/montarDadosTextoSei";
+import {
+  codigosCargosTextoSeiDesignacao,
+  montarDadosTextoSeiDesignacao,
+} from "@/utils/designacao/montarDadosTextoSei";
+import { MENSAGEM_ERRO_DESCRICOES_CARGOS } from "@/hooks/useBuscarDescricoesCargosBase";
+import { useBuscarDescricoesCargosParaPortaria } from "@/hooks/useBuscarDescricoesCargosParaPortaria";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { designacaoAction } from "@/actions/cadastro-designacao";
@@ -85,6 +90,7 @@ export default function DesignacoesPasso3() {
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
   const [carregandoPreview, setCarregandoPreview] = useState(true);
   const [erroPreview, setErroPreview] = useState<string | null>(null);
+  const buscarDescricoesCargos = useBuscarDescricoesCargosParaPortaria();
 
   const voltarParaPasso2 = useCallback(() => {
     const url = id
@@ -101,7 +107,14 @@ export default function DesignacoesPasso3() {
       setCarregandoPreview(true);
       setErroPreview(null);
 
-      const dados = montarDadosTextoSeiDesignacao(formDesignacaoData);
+      const descricoes = await buscarDescricoesCargos(codigosCargosTextoSeiDesignacao(formDesignacaoData));
+      if (!descricoes) {
+        setErroPreview(MENSAGEM_ERRO_DESCRICOES_CARGOS);
+        setCarregandoPreview(false);
+        return;
+      }
+
+      const dados = montarDadosTextoSeiDesignacao(formDesignacaoData, descricoes);
       const result = await gerarPreviewTextoSeiAction({
         tipo_portaria: "DESIGNACAO",
         tipo_cargo: mapTipoVagaParaTipoCargo(formDesignacaoData.tipo_cargo),
@@ -123,7 +136,7 @@ export default function DesignacoesPasso3() {
     };
 
     buscarPreview();
-  }, [formDesignacaoData, notification, voltarParaPasso2]);
+  }, [formDesignacaoData, notification, voltarParaPasso2, buscarDescricoesCargos]);
 
   const htmlTexto = useMemo(() => {
     if (!textoSei) return "";
@@ -200,11 +213,21 @@ export default function DesignacoesPasso3() {
         className="mt-4 m-0"
       >
         <div className="card-designacao mb-2">
-          {carregandoPreview ? (
+          {carregandoPreview && (
             <div className="flex justify-center items-center h-[200px]">
               <Loader2 className="h-8 w-8 animate-spin text-[#B22B2A]" />
             </div>
-          ) : (
+          )}
+          {!carregandoPreview && erroPreview && (
+            <Alert
+              type="error"
+              showIcon
+              data-testid="erro-preview-texto-sei"
+              title={erroPreview}
+              description="Volte ao passo anterior e avance de novo para tentar outra vez."
+            />
+          )}
+          {!carregandoPreview && !erroPreview && (
             <EditorSEI
               html={htmlTexto}
               titulo="PORTARIA"
