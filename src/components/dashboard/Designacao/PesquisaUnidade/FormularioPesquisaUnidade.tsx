@@ -44,6 +44,9 @@ import { SelectField } from "@/components/ui/FieldsForm";
 import { Alert } from "antd";
 
 
+export const MENSAGEM_UNIDADE_SEM_CODIGO_EH =
+  "Esta unidade ainda não tem código da Estrutura Hierárquica (EH). Ela pode estar inativa ou ter sido criada recentemente. Procure a Gestão.";
+
 export interface FormularioPesquisaUnidadeRef {
   getValues: () => FormDesignacaoData;
 }
@@ -65,7 +68,7 @@ const FormularioPesquisaUnidade = forwardRef<
 ) {
 
 
-  const { data: dreOptions = [] } = useFetchDREs();
+  const { data: dreOptions = [] } = useFetchDREs("designacao");
 
 
   const [openModal, setOpenModal] = useState(false);
@@ -89,6 +92,7 @@ const FormularioPesquisaUnidade = forwardRef<
   const values = form.watch();
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(
     values.dre,
+    "designacao",
   );
 
   useImperativeHandle(
@@ -110,8 +114,13 @@ const FormularioPesquisaUnidade = forwardRef<
   const [designacaoUnidade, setDesignacaoUnidade] =
     useState<DesignacaoUnidadeResponse | null>();
   const [openModalResumoServidor, setOpenModalResumoServidor] = useState(false);
+  // Unidade sem código EH no EOL (inativa ou recém-criada): fica selecionável,
+  // mas a designação não pode seguir.
+  const [unidadeSemCodigoEH, setUnidadeSemCodigoEH] = useState(false);
 
-  const onSubmit = async (values: FormDesignacaoData) => {
+  // Retorna `false` quando a unidade não tem código EH; `true` caso contrário.
+  const onSubmit = async (values: FormDesignacaoData): Promise<boolean> => {
+    let temCodigoEH = true;
 
 
     setIsLoadingDesiganaçãoUnidade(true);
@@ -131,6 +140,10 @@ const FormularioPesquisaUnidade = forwardRef<
         form.setValue("quantidade_turmas", response.data.turmas?.total?.toString() ?? "-");
         form.setValue("codigo_hierarquico", response.data.codigo_hierarquico ?? "");
 
+        temCodigoEH = !!response.data.codigo_hierarquico?.trim();
+        setUnidadeSemCodigoEH(!temCodigoEH);
+        if (!temCodigoEH) setDisableProximo(true);
+
       } else {
         setErrorMessage(response.error);
       }
@@ -139,6 +152,7 @@ const FormularioPesquisaUnidade = forwardRef<
       console.log('error', error);
     }
     setIsLoadingDesiganaçãoUnidade(false);
+    return temCodigoEH;
   };
   const limpa_dados_funcionarios = () => {
     form.setValue("funcionarios_da_unidade", '');
@@ -148,6 +162,7 @@ const FormularioPesquisaUnidade = forwardRef<
     form.setValue("quantidade_turmas", '');
     setFuncionariosOptions([])
     setErrorMessage(null);
+    setUnidadeSemCodigoEH(false);
     setDisableProximo(true);
   }
   const codigoEstrutura = form.watch("codigo_hierarquico");
@@ -158,8 +173,8 @@ const FormularioPesquisaUnidade = forwardRef<
   useEffect(() => {
     if (defaultValues?.ue) {
       void (async () => {
-        await onSubmit({ ...form.getValues(), ...defaultValues });
-        setDisableProximo(false);
+        const temCodigoEH = await onSubmit({ ...form.getValues(), ...defaultValues });
+        setDisableProximo(!temCodigoEH);
       })();
     }
   }, []);
@@ -234,6 +249,7 @@ const FormularioPesquisaUnidade = forwardRef<
                     form.setValue("dre_nome", dreSelecionada?.nomeDRE ?? "");
 
                     setFuncionariosOptions([]);
+                    setUnidadeSemCodigoEH(false);
                   }}
                 />
 
@@ -339,7 +355,7 @@ const FormularioPesquisaUnidade = forwardRef<
 
                                 form.setValue("cargo_sobreposto", cargoSobreposto);
                                 form.setValue("modulos", modulo?.toString() ?? "");
-                                setDisableProximo(false);
+                                setDisableProximo(unidadeSemCodigoEH);
                               }}
                             >
                               <SelectTrigger data-testid="select-funcionarios">
@@ -414,6 +430,15 @@ const FormularioPesquisaUnidade = forwardRef<
                   <InfoItem label="Módulos" value={form.watch("modulos")} />
                 </div>
               </div>
+            )}
+
+            {unidadeSemCodigoEH && (
+              <Alert
+                type="error"
+                showIcon
+                data-testid="alerta-unidade-sem-codigo-eh"
+                title={MENSAGEM_UNIDADE_SEM_CODIGO_EH}
+              />
             )}
 
             {cargoSelecionado?.excedente && (
