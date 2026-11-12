@@ -4,10 +4,11 @@ import React from 'react';
 
 interface Props {
   hasFilters: boolean;
+  allowSearchWithoutFilters?: boolean;
   onClear?: () => void;
 }
 
-const FiltroAcoes: React.FC<Props> = ({ hasFilters, onClear }) => (
+const FiltroAcoes: React.FC<Props> = ({ hasFilters, onClear, allowSearchWithoutFilters = false }) => (
   <div className="flex justify-end gap-2 mt-4">
     <Button
       type="button"
@@ -24,7 +25,7 @@ const FiltroAcoes: React.FC<Props> = ({ hasFilters, onClear }) => (
       type="submit"
       variant="destructive"
       className="gap-2"
-      disabled={!hasFilters}
+      disabled={!hasFilters && !allowSearchWithoutFilters}
       data-testid="btn-pesquisar"
     >
       <span className="font-bold">Pesquisar</span>

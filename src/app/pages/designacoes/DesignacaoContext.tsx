@@ -25,6 +25,8 @@ export type FormDesignacaoEServidorIndicado =
     detalhe_para_quadro_de_historico_por_ano?: boolean;
     texto_sei?: string;
     modelo_portaria?: number | null;
+    // DRE/UE vieram de uma unidade já cadastrada e não podem ser editadas.
+    unidade_bloqueada?: boolean;
   };
 
 type DesignacaoContextValue = {

@@ -11,12 +11,9 @@ export interface ApostilaAlteracoes {
 export interface ApostilaBody {
     id?: number;
     ato_pai?: number;
-    sei_numero: string;
-    doc?: string;
     observacao?: string;
     alteracoes?: ApostilaAlteracoes[];
     texto_sei?: string;
-    numero_portaria?: string;
 }
 
  

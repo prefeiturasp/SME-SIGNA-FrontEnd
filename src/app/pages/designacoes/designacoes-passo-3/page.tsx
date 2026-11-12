@@ -29,6 +29,7 @@ import {
   ErrosBackendSubstituicaoDiretor,
   MENSAGEM_ASSISTENTE_DIRETOR,
 } from "@/utils/designacao/substituicaoDiretor";
+import ModalPeriodoSobreposto from "@/components/dashboard/Designacao/ModalPeriodoSobreposto/ModalPeriodoSobreposto";
 
 class ErroSubstituicaoDiretor extends Error {
   constructor(
@@ -38,6 +39,8 @@ class ErroSubstituicaoDiretor extends Error {
     super(message);
   }
 }
+
+class ErroPeriodoSobreposto extends Error {}
 
 export default function DesignacoesPasso3() {
   const router = useRouter();
@@ -50,6 +53,7 @@ export default function DesignacoesPasso3() {
   const [salvando, setSalvando] = useState(false);
   const [errosSubstituicaoDiretor, setErrosSubstituicaoDiretor] =
     useState<ErrosBackendSubstituicaoDiretor | null>(null);
+  const [erroPeriodoSobreposto, setErroPeriodoSobreposto] = useState<string | null>(null);
 
   // Mesmas regras do passo 2: protege contra dados antigos do localStorage.
   const { data: cargosData = [] } = useFetchCargos();
@@ -140,7 +144,10 @@ export default function DesignacoesPasso3() {
       if (result.errosSubstituicaoDiretor) {
         throw new ErroSubstituicaoDiretor(result.error, result.errosSubstituicaoDiretor);
       }
-      throw new Error(result.erroPeriodoSobreposto ?? result.error);
+      if (result.erroPeriodoSobreposto) {
+        throw new ErroPeriodoSobreposto(result.erroPeriodoSobreposto);
+      }
+      throw new Error(result.error);
     }
 
     return result.data;
@@ -157,6 +164,10 @@ export default function DesignacoesPasso3() {
     } catch (error) {
       if (error instanceof ErroSubstituicaoDiretor) {
         setErrosSubstituicaoDiretor(error.erros);
+        return;
+      }
+      if (error instanceof ErroPeriodoSobreposto) {
+        setErroPeriodoSobreposto(error.message);
         return;
       }
       console.error("Erro ao salvar portaria:", error);
@@ -288,6 +299,13 @@ export default function DesignacoesPasso3() {
           onProximo={() => handleSalvar(id)}
         />
       </div>
+
+      <ModalPeriodoSobreposto
+        open={!!erroPeriodoSobreposto}
+        mensagem={erroPeriodoSobreposto ?? ""}
+        onFechar={() => setErroPeriodoSobreposto(null)}
+        onAlterarPeriodo={voltarParaPasso2}
+      />
     </>
   );
 }

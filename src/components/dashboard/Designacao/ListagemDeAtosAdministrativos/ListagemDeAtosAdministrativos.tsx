@@ -14,12 +14,13 @@ import DocumentoErro from '@/assets/icons/DocumentoErro';
 import Delete from '@/assets/icons/Delete';
 import { ItemType } from 'antd/es/menu/interface';
 import { useRouter } from 'next/navigation';
+import { pathDetalhesDoAto } from '@/utils/designacao/rotasAtosAdministrativos';
 import { useExcluirDesignacao } from '@/hooks/useExcluirDesignacao';
 import { useAppNotification } from '@/components/providers/NotificationProvider';
 
 
 
-const SimpleTag = ({ titulo, valor }: { titulo: string, valor: string }) => {
+export const SimpleTag = ({ titulo, valor }: { titulo: string, valor: string }) => {
   return (
     <div className="flex flex-row gap-1 border border-[#B22B2A] rounded-md  px-2 w-fit">
       <span className="text-[14px] font-bold text-[#B22B2A] py-1 ">{titulo}:</span>
@@ -261,7 +262,7 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
     return items;
   };
   const apostilaNaoPublicadaItems = (record: ListagemAtosAdministrativosResponse): ItemType[] => {
-    const origem = record?.tipo_de_ato.includes("Cessação") ? 'cessacao' : 'designacao';
+    const origem = record.tipo_de_ato.includes("Cessação") ? 'cessacao' : 'designacao';
     
     const items: ItemType[] = [
       {
@@ -468,17 +469,10 @@ const ListagemDeAtosAdministrativos: React.FC<ListagemDeAtosAdministrativosProps
   });
 
   const handleRowClick = (record: ListagemAtosAdministrativosResponse) => {
-    const rotasPorTipo: Record<string, string> = {
-      DESIGNACAO: 'listagem-designacoes/visualizar-designacao',
-      CESSACAO: '/visualizar-cessacao',
-      APOSTILA: '/visualizar-apostila',
-      INSUBSISTENCIA: '/visualizar-insubsistencia',
-    };
-
-    const path = rotasPorTipo[record.tipo];
+    const path = pathDetalhesDoAto(record);
 
     if (path) {
-      router.push(`/pages/${path}/${record.id}`);
+      router.push(path);
     }
   };
 

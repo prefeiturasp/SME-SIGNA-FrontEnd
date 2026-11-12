@@ -1145,6 +1145,39 @@ describe("FormularioPesquisaUnidade", () => {
 
 
 
+  it("com unidadeBloqueada, pesquisa a UE recebida e desabilita DRE, UE e Pesquisar", async () => {
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade
+        isLoading={false}
+        setDisableProximo={vi.fn()}
+        unidadeBloqueada
+        defaultValues={{
+          dre: "dre-1",
+          dre_nome: "DRE Sul",
+          ue: "ue-1",
+          ue_nome: "EMEI - UE 1 da DRE Selecionada",
+        }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(getDesignacaoUnidadeSpy).toHaveBeenCalledWith("ue-1");
+    });
+
+    expect(screen.getByTestId("select-dre")).toBeDisabled();
+    expect(screen.getByTestId("select-ue")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Pesquisar/i })).toBeDisabled();
+  });
+
+  it("sem unidadeBloqueada, mantém DRE e Pesquisar habilitados", async () => {
+    renderWithQueryClient(
+      <FormularioPesquisaUnidade isLoading={false} setDisableProximo={vi.fn()} />
+    );
+
+    expect(screen.getByTestId("select-dre")).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: /Pesquisar/i })).not.toBeDisabled();
+  });
+
   it("cobre fallback de DRE/UE não encontrados e código hierárquico preenchido", async () => {
     vi.resetModules();
     vi.clearAllMocks();

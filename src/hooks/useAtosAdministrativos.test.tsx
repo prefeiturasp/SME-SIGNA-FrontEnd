@@ -119,6 +119,8 @@ describe("useAtosAdministrativos", () => {
         periodo_after: "",
         periodo_before: "",
         rf: "123456",
+        codigo_dre: "108200",
+        codigo_ue: "000191",
         periodo: {
           from: new Date("2026-01-10T12:00:00.000Z"),
           to: new Date("2026-02-20T12:00:00.000Z"),
@@ -136,6 +138,8 @@ describe("useAtosAdministrativos", () => {
         periodo_after: "2026-01-10",
         periodo_before: "2026-02-20",
         rf: "123456",
+        codigo_dre: "108200",
+        codigo_ue: "000191",
         page: 1,
       });
     });
@@ -193,6 +197,8 @@ describe("useAtosAdministrativos", () => {
       },
       periodo_before: "",
       rf: "",
+      codigo_dre: "",
+      codigo_ue: "",
     });
 
     await waitFor(() => {
@@ -205,6 +211,8 @@ describe("useAtosAdministrativos", () => {
         periodo_after: undefined,
         periodo_before: undefined,
         rf: "",
+        codigo_dre: "",
+        codigo_ue: "",
         page: 1,
       });
     });

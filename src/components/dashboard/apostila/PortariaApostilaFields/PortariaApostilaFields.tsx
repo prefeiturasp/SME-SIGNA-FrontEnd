@@ -1,23 +1,40 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { InputField } from "@/components/ui/FieldsForm";
- 
+
 interface Props {
   isLoading?: boolean;
+  origem?: string | null;
 }
 
-const PortariaApostilaFields = ({ isLoading }: Props) => {
-  const { control } = useFormContext();
+const CAMPOS_ATO_PAI = {
+  designacao: { numero_portaria: "portaria_designacao", numero_sei: "numero_sei" },
+  cessacao: { numero_portaria: "cessacao.numero_portaria", numero_sei: "cessacao.numero_sei" },
+};
+
+const PortariaApostilaFields = ({ isLoading, origem }: Props) => {
+  const { control, setValue } = useFormContext();
+  const camposAtoPai = origem === "cessacao" ? CAMPOS_ATO_PAI.cessacao : CAMPOS_ATO_PAI.designacao;
+
+  const numeroPortariaAtoPai = useWatch({ control, name: camposAtoPai.numero_portaria });
+  const numeroSeiAtoPai = useWatch({ control, name: camposAtoPai.numero_sei });
+
+  useEffect(() => {
+    setValue("apostila.numero_portaria", numeroPortariaAtoPai ?? "");
+    setValue("apostila.numero_sei", numeroSeiAtoPai ?? "");
+  }, [numeroPortariaAtoPai, numeroSeiAtoPai, setValue]);
 
   const inputFields = [
-    
+
     {
       name: "apostila.numero_portaria",
       label: "Nº Portaria",
       placeholder: "Número Portaria",
       type: "number",
+      disabled: true,
     },
     {
       name: "apostila.numero_sei",
@@ -25,6 +42,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
       placeholder: "Número SEI",
       type: "string",
       mask: "9999.9999/9999999-9",
+      disabled: true,
     },
     {
       name: "apostila.doc",
@@ -56,7 +74,7 @@ const PortariaApostilaFields = ({ isLoading }: Props) => {
                   mask={field.mask}
                 />
             )}
-          </div>                 
+          </div>
       )}
     </>
   );

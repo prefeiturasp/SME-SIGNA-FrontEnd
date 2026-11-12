@@ -155,6 +155,7 @@ describe("VisualizarInsubsistenciaPage", () => {
     observacoes: "Observação",
     texto_apostila: "Texto apostila",
     designacao: {
+      ue: "014591",
       indicado_nome_servidor: "Servidor Teste",
       numero_portaria: "001",
       ano_vigente: "2025",
@@ -231,7 +232,7 @@ describe("VisualizarInsubsistenciaPage", () => {
     fireEvent.click(screen.getByText("Consultar histórico"));
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/historico-ato-administrativo?id=12&tipo=INSUBSISTENCIA&tipo_display=de insubsistência&numero_portaria=100&servidor_indicado=Servidor Teste",
+      "/pages/historico-ato-administrativo?ue=014591",
     );
   });
 
@@ -350,5 +351,39 @@ describe("VisualizarInsubsistenciaPage", () => {
     const html = screen.getByTestId("editor-sei").textContent ?? "";
     expect(html).toContain("<strong>Servidor Teste</strong>");
     expect(html).toContain("50");
+  });
+
+  it("consulta o histórico sem unidade quando a designação não informa a UE", () => {
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: {
+        ...dataMock,
+        designacao: { ...dataMock.designacao, ue: undefined },
+      },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+    fireEvent.click(screen.getByText("Consultar histórico"));
+
+    expect(pushMock).toHaveBeenCalledWith("/pages/historico-ato-administrativo?ue=");
+  });
+
+  it("substitui valores nulos do texto da portaria por vazio", () => {
+    gerarDadosInsubsistenciaSpy.mockReturnValue({
+      nome_indicado: null,
+      portaria_apostilada: "valor-base",
+    });
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: { ...dataMock, texto_sei: "" },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+
+    const html = screen.getByTestId("editor-sei").textContent ?? "";
+    expect(html).toContain("<strong></strong>");
+    expect(html).not.toContain(">null<");
   });
 });

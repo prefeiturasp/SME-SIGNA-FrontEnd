@@ -399,7 +399,7 @@ describe("DesignacoesPasso3 - Testes", () => {
     expect(screen.queryByText("Necessária eleição para o cargo de Diretor")).not.toBeInTheDocument();
   });
 
-  it("mostra no toast de erro a mensagem de período sobreposto retornada pelo backend", async () => {
+  it("abre o modal com a mensagem de período sobreposto retornada pelo backend", async () => {
     vi.mocked(designacaoAction).mockResolvedValueOnce({
       success: false,
       error: "Data inicio: texto do backend",
@@ -410,12 +410,45 @@ describe("DesignacoesPasso3 - Testes", () => {
     await screen.findByTestId("editor-sei");
     fireEvent.click(screen.getByText("Salvar"));
 
+    expect(await screen.findByText("Período em conflito com outra designação")).toBeInTheDocument();
+    expect(screen.getByTestId("mensagem-periodo-sobreposto")).toHaveTextContent(
+      "Mensagem de sobreposição do backend"
+    );
+    expect(notificationErrorMock).not.toHaveBeenCalled();
+    expect(h.pushMock).not.toHaveBeenCalled();
+  });
+
+  it("fecha o modal de período sobreposto sem sair do passo 3", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Data inicio: texto do backend",
+      erroPeriodoSobreposto: "Mensagem de sobreposição do backend",
+    });
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+    fireEvent.click(screen.getByText("Salvar"));
+    fireEvent.click(await screen.findByTestId("botao-fechar-periodo-sobreposto"));
+
     await waitFor(() => {
-      expect(notificationErrorMock).toHaveBeenCalledWith({
-        title: "Erro ao salvar portaria: Mensagem de sobreposição do backend",
-      });
+      expect(screen.queryByTestId("mensagem-periodo-sobreposto")).not.toBeInTheDocument();
     });
     expect(h.pushMock).not.toHaveBeenCalled();
+  });
+
+  it("volta ao passo 2 ao clicar em Alterar período no modal de período sobreposto", async () => {
+    vi.mocked(designacaoAction).mockResolvedValueOnce({
+      success: false,
+      error: "Data inicio: texto do backend",
+      erroPeriodoSobreposto: "Mensagem de sobreposição do backend",
+    });
+
+    render(<DesignacoesPasso3 />);
+    await screen.findByTestId("editor-sei");
+    fireEvent.click(screen.getByText("Salvar"));
+    fireEvent.click(await screen.findByTestId("botao-alterar-periodo-sobreposto"));
+
+    expect(h.pushMock).toHaveBeenCalledWith(expect.stringContaining("/pages/designacoes/designacoes-passo-2"));
   });
 
   it("desabilita o Salvar e mostra o bloqueio quando o indicado é Assistente de Diretor", async () => {

@@ -56,7 +56,7 @@ export default function VisualizarCessacaoPage() {
             size="lg"
             onClick={() =>
               router.push(
-                `/pages/historico-ato-administrativo?id=${id}&tipo_display=da cessação&numero_portaria=${cessacao?.numero_portaria}&servidor_indicado=${cessacao?.designacao?.indicado_nome_servidor}`)
+                `/pages/historico-ato-administrativo?${new URLSearchParams({ ue: cessacao?.designacao?.ue ?? "" })}`)
             }
           >
             <span className="font-bold">Consultar histórico</span>
@@ -98,13 +98,7 @@ export default function VisualizarCessacaoPage() {
 
 
               <CustomAccordionItem title="Portarias de Cessação" value="portarias-cessacao" color="green">
-                {cessacao ? (
-                  <ResumoPortariaCessacao defaultValues={cessacao} showExtraFields={true} />
-                ) : (
-                  <div className="text-center text-[#777] p-4">
-                    Não há portaria de cessão
-                  </div>
-                )}
+                <ResumoPortariaCessacao defaultValues={cessacao} showExtraFields={true} />
               </CustomAccordionItem>
 
             </Accordion>

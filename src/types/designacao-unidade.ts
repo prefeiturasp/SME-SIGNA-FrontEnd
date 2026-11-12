@@ -88,3 +88,14 @@ export type DesignacaoUnidadeResult =
   | { success: false; error: string; field?: string };
 
 
+
+export type UnidadeCadastrada = {
+  dre: string;
+  dre_nome: string;
+  ue: string;
+  ue_nome: string;
+};
+
+export type UnidadesCadastradasResult =
+  | { success: true; data: UnidadeCadastrada[] }
+  | { success: false; error: string };
