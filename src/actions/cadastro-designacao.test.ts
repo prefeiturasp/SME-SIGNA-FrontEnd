@@ -282,6 +282,29 @@ describe("designacaoAction", () => {
         });
     });
 
+    it("exibe o texto do backend quando a unidade não tem código EH", async () => {
+        mockCookies("token");
+        const mensagem =
+            "Esta unidade ainda não tem código da Estrutura Hierárquica (EH). Ela pode estar inativa ou ter sido criada recentemente. Procure a Gestão.";
+
+        mockedAxios.post.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    codigo_hierarquico: [mensagem],
+                    codes: { codigo_hierarquico: ["blank"] },
+                    detail: `codigo_hierarquico: ${mensagem}`,
+                },
+            },
+            message: "Request failed with status code 400",
+        });
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({ success: false, error: mensagem, field: undefined });
+    });
+
     it("usa error.message como fallback quando não há response.data.detail", async () => {
         mockCookies("token");
 

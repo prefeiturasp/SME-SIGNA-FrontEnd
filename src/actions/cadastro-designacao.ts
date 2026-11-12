@@ -50,6 +50,14 @@ function humanizarDetail(detail: string): string {
         .join("; ");
 }
 
+// Erro de unidade sem código EH: exibe o texto do backend como veio, sem o
+// prefixo de campo que o `detail` traz.
+function mensagemCodigoHierarquico(data: DesignacaoErrorResponse | undefined): string | null {
+    const valor = data?.codigo_hierarquico;
+    const mensagem = Array.isArray(valor) ? valor[0] : valor;
+    return typeof mensagem === "string" && mensagem.trim() ? mensagem : null;
+}
+
 export async function designacaoAction(
     formData: FormDesignacaoEServidorIndicado | null,
     id: string | null
@@ -113,8 +121,15 @@ function montarResultadoErro(err: unknown): DesignacaoResult {
 
     let message = "Erro ao salvar designação";
 
+    const erroCodigoHierarquico =
+        error.response?.status === 400
+            ? mensagemCodigoHierarquico(error.response.data)
+            : null;
+
     if (error.response?.status === 500) {
         message = "Erro interno no servidor";
+    } else if (erroCodigoHierarquico) {
+        message = erroCodigoHierarquico;
     } else if (error.response?.data?.detail) {
         message = humanizarDetail(error.response.data.detail);
     } else if (error.message) {
