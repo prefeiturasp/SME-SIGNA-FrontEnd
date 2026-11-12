@@ -148,8 +148,8 @@ const FormularioPesquisaUnidade = forwardRef<
         setErrorMessage(response.error);
       }
 
-    } catch (error) {
-      console.log('error', error);
+    } catch {
+      setErrorMessage("Não foi possível carregar os dados da unidade.");
     }
     setIsLoadingDesiganaçãoUnidade(false);
     return temCodigoEH;

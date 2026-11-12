@@ -879,9 +879,6 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("quando API lança exceção, trata erro (catch)", async () => {
     const user = userEvent.setup();
-    const consoleLogSpy = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => { });
 
     getDesignacaoUnidadeSpy.mockRejectedValue(new Error("boom"));
 
@@ -901,8 +898,9 @@ describe("FormularioPesquisaUnidade", () => {
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
 
-    expect(consoleLogSpy).toHaveBeenCalledWith("error", expect.any(Error));
-    consoleLogSpy.mockRestore();
+    expect(
+      await screen.findByText("Não foi possível carregar os dados da unidade.")
+    ).toBeInTheDocument();
   });
 
   it("ao trocar a DRE após carregar funcionários, limpa a seção adicional", async () => {
