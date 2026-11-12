@@ -89,14 +89,14 @@ const FormCriarTextosPortaria: React.FC<{ variaveisOpcoes: Variavel[] }> = ( { v
         control={control}
         name="variaveis"
         label={<>
-          <span className='required'>Variavel*</span>
+          <span className='required'>Variável*</span>
           <Tooltip title="Utilize as variáveis para incluir informações que serão preenchidas automaticamente pelo sistema na geração da Portaria." placement="right">
             <InfoCircleOutlined className='ml-2' style={{ color: "#B22B2A" }} />
           </Tooltip>
         </>}
         
         placeholder="Selecione"
-        data-testid="input-status"
+        data-testid="input-variaveis"
         options={variaveisOpcoes.map((item) => ({
           value: item.value,
           label: item.display_name,

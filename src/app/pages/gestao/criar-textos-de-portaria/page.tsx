@@ -23,6 +23,15 @@ import { useCriarTextosPortaria } from "@/hooks/useCriarTextosPortaria";
 
 const criarVariavelToken = (variable: string) => `[[${variable}]]`;
 
+/** Converte o `id` da query string em um número válido ou `null`. */
+const parseIdDoModelo = (id: string | null): number | null => {
+  if (!id) return null;
+
+  const numero = Number(id);
+
+  return Number.isInteger(numero) && numero > 0 ? numero : null;
+};
+
 const adicionarVariavelToken = (conteudo: string, variable: string) => {
   const token = criarVariavelToken(variable);
 
@@ -31,14 +40,16 @@ const adicionarVariavelToken = (conteudo: string, variable: string) => {
   }
 
   const conteudoSemEspacos = conteudo.trimEnd();
+  // Preserva a grafia original da tag de fechamento (`</p>` ou `</P>`).
+  const tagDeFechamento = /<\/p>$/i.exec(conteudoSemEspacos)?.[0];
 
-  if (conteudoSemEspacos.toLowerCase().endsWith("</p>")) {
+  if (tagDeFechamento) {
     const conteudoSemParagrafoFechado = conteudoSemEspacos
-      .slice(0, -4)
+      .slice(0, -tagDeFechamento.length)
       .trimEnd();
     const separador = conteudoSemParagrafoFechado.endsWith(">") ? "" : " ";
 
-    return `${conteudoSemParagrafoFechado}${separador}${token}</p>`;
+    return `${conteudoSemParagrafoFechado}${separador}${token}${tagDeFechamento}`;
   }
 
   const separador = conteudo.trim() ? " " : "";
@@ -73,8 +84,7 @@ const sincronizarVariaveisTokens = (
 export default function CriarTextosDePortaria() {
 
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
+  const id = parseIdDoModelo(searchParams.get("id"));
 
   const {
     isLoadingBuscarTextoPortaria,
@@ -85,7 +95,7 @@ export default function CriarTextosDePortaria() {
     variaveisOpcoes,
     onSubmitFilterForm,
     handleCancel
-  } = useCriarTextosPortaria(id ? Number(id) : null);
+  } = useCriarTextosPortaria(id);
 
 
   const router = useRouter();

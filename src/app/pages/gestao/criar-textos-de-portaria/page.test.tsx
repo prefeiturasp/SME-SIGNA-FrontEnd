@@ -341,6 +341,17 @@ describe("Página Cadastrar texto de portaria", () => {
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
   });
 
+  it.each(["abc", "-3", "0", "1.5", ""])(
+    "ignora o id inválido %s e não carrega modelo",
+    (id) => {
+      getSearchParamMock.mockReturnValue(id);
+
+      render(<CriarTextosDePortaria />);
+
+      expect(useCriarTextosPortariaMock).toHaveBeenCalledWith(null);
+    },
+  );
+
   it("desabilita o cadastro enquanto busca o texto ou as variáveis", () => {
     isLoadingVariavel = true;
     const { unmount } = render(<CriarTextosDePortaria />);
@@ -426,7 +437,12 @@ describe("Página Cadastrar texto de portaria", () => {
     {
       scenario: "parágrafo que termina em tag",
       content: "<P><strong></P>",
-      expected: "<P><strong>[[NOME_SERVIDOR]]</p>",
+      expected: "<P><strong>[[NOME_SERVIDOR]]</P>",
+    },
+    {
+      scenario: "parágrafo com espaços no final",
+      content: "<p>Servidor   </p>   ",
+      expected: "<p>Servidor [[NOME_SERVIDOR]]</p>",
     },
   ])("insere token no $scenario", ({ content, expected }) => {
     const { rerender } = render(<CriarTextosDePortaria />);

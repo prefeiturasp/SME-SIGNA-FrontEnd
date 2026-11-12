@@ -11,6 +11,7 @@ import {
   fetchVariavelAction,
 } from "@/actions/textos-portaria";
 import {
+  dividirTipoPortaria,
   useBuscarVariavel,
   useCadastrarTextosPortaria,
   useCriarTextosPortaria,
@@ -182,6 +183,17 @@ describe("useFetchTextoPortariaById", () => {
     );
   });
 
+  it("desabilita a query para ids negativos", () => {
+    renderHook(() => useFetchTextoPortariaById(-3));
+
+    expect(useQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ["get-texto-portaria-by-id", -3],
+        enabled: false,
+      }),
+    );
+  });
+
   it("retorna os dados quando a busca por id é bem-sucedida", async () => {
     vi.mocked(fetchTextoPortariaByIdAction).mockResolvedValueOnce({
       success: true,
@@ -315,6 +327,43 @@ describe("useCadastrarTextosPortaria", () => {
     await expect(result.current.mutateAsync({ values: validValues })).rejects.toThrow(
       "erro ao cadastrar",
     );
+  });
+});
+
+describe("dividirTipoPortaria", () => {
+  it.each([
+    {
+      cenario: "tipo simples sem ato pai",
+      tipo: "DESIGNACAO",
+      esperado: { tipo_portaria: "DESIGNACAO", tipo_ato_pai: undefined },
+    },
+    {
+      cenario: "tipo composto",
+      tipo: "INSUBSISTENCIA_DESIGNACAO",
+      esperado: { tipo_portaria: "INSUBSISTENCIA", tipo_ato_pai: "DESIGNACAO" },
+    },
+    {
+      cenario: "tipo composto com mais de um separador",
+      tipo: "INSUBSISTENCIA_DESIGNACAO_ESPECIAL",
+      esperado: {
+        tipo_portaria: "INSUBSISTENCIA",
+        tipo_ato_pai: "DESIGNACAO_ESPECIAL",
+      },
+    },
+    {
+      cenario: "tipo indefinido",
+      tipo: undefined,
+      esperado: { tipo_portaria: undefined, tipo_ato_pai: undefined },
+    },
+  ])("separa $cenario", ({ tipo, esperado }) => {
+    expect(dividirTipoPortaria(tipo, undefined)).toEqual(esperado);
+  });
+
+  it("mantém o ato pai informado quando não há separador", () => {
+    expect(dividirTipoPortaria("DESIGNACAO", "INSUBSISTENCIA")).toEqual({
+      tipo_portaria: "DESIGNACAO",
+      tipo_ato_pai: "INSUBSISTENCIA",
+    });
   });
 });
 
@@ -569,6 +618,53 @@ describe("useCriarTextosPortaria", () => {
     expect(successNotificationMock).toHaveBeenCalledTimes(1);
   });
 
+  it("trata ids inválidos como ausência de modelo a carregar", () => {
+    renderHook(() => useCriarTextosPortaria(Number.NaN));
+
+    expect(useQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ["get-texto-portaria-by-id", 0],
+        enabled: false,
+      }),
+    );
+  });
+
+  it("usa listas vazias e observações vazias quando a API retorna nulos", async () => {
+    textoPortariaQueryData = {
+      ...textoPortaria,
+      variaveis: null as unknown as string[],
+      observacoes: null as unknown as string,
+    };
+
+    renderHook(() => useCriarTextosPortaria(12));
+
+    await waitFor(() => {
+      expect(formResetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variaveis: [],
+          observacoes: "",
+        }),
+      );
+    });
+  });
+
+  it("envia o restante do tipo composto no ato pai ao invés de descartá-lo", async () => {
+    const { result } = renderHook(() => useCriarTextosPortaria());
+
+    await act(async () => {
+      await result.current.onSubmitFilterForm({
+        ...validValues,
+        tipo_portaria: "INSUBSISTENCIA_DESIGNACAO_ESPECIAL",
+      });
+    });
+
+    expect(cadastrarTextosPortariaAction).toHaveBeenCalledWith({
+      ...validValues,
+      tipo_portaria: "INSUBSISTENCIA",
+      tipo_ato_pai: "DESIGNACAO_ESPECIAL",
+    });
+  });
+
   it("considera válido o envio sem variáveis selecionadas", async () => {
     const { result } = renderHook(() => useCriarTextosPortaria());
 
@@ -582,6 +678,21 @@ describe("useCriarTextosPortaria", () => {
 
     expect(successNotificationMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/textos-de-portaria");
+  });
+
+  it("não quebra quando o formulário chega sem a lista de variáveis", async () => {
+    const { result } = renderHook(() => useCriarTextosPortaria());
+
+    await act(async () => {
+      await result.current.onSubmitFilterForm({
+        ...validValues,
+        variaveis: undefined as unknown as string[],
+        texto_portaria: "Texto sem tokens",
+      });
+    });
+
+    expect(cadastrarTextosPortariaAction).toHaveBeenCalledTimes(1);
+    expect(successNotificationMock).toHaveBeenCalledTimes(1);
   });
 
   it("abre o modal quando alguma variável não está no formato esperado", async () => {
@@ -629,7 +740,7 @@ describe("useCriarTextosPortaria", () => {
     expect(errorNotificationMock).toHaveBeenCalledWith({
       title: "Erro!",
       description:
-        "Não conseguimos cadastrar o texto da portarias. Por favor, tente novamente.",
+        "Não conseguimos cadastrar o texto da portaria. Por favor, tente novamente.",
     });
     expect(pushMock).not.toHaveBeenCalled();
     expect(successNotificationMock).not.toHaveBeenCalled();

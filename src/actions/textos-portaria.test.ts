@@ -148,11 +148,49 @@ describe("actions/textos-portaria", () => {
     expect(fetchWithClient).toHaveBeenCalledWith(
       "/gestao/modelos-portaria/9/",
       {},
-      "Erro ao buscar o cargo base",
+      "Erro ao buscar o texto de portaria",
     );
     expect(response).toEqual({
       success: true,
       data: textoPorId,
     });
+  });
+
+  it("repassa o erro devolvido pela API ao buscar texto por id", async () => {
+    vi.mocked(fetchWithClient<TextosDePortariasResponse>).mockResolvedValueOnce({
+      success: false,
+      error: "não encontrado",
+    });
+
+    const response = await fetchTextoPortariaByIdAction(404);
+
+    expect(response).toEqual({ success: false, error: "não encontrado" });
+  });
+
+  it("repassa o erro devolvido pela API ao buscar variáveis", async () => {
+    vi.mocked(fetchWithClient<Variavel[]>).mockResolvedValueOnce({
+      success: false,
+      error: "falha ao buscar",
+    });
+
+    const response = await fetchVariavelAction("CARGO_DISPONIVEL");
+
+    expect(fetchWithClient).toHaveBeenCalledWith(
+      "/gestao/modelos-portaria/variaveis/",
+      { tipo_cargo: "CARGO_DISPONIVEL" },
+      "Erro ao buscar as variáveis",
+    );
+    expect(response).toEqual({ success: false, error: "falha ao buscar" });
+  });
+
+  it("repassa falha do cadastro sem alterar a mensagem", async () => {
+    vi.mocked(postWithAuth).mockResolvedValueOnce({
+      success: false,
+      error: "nome_modelo já existe",
+    } as never);
+
+    const response = await cadastrarTextosPortariaAction(payloadCadastro);
+
+    expect(response).toEqual({ success: false, error: "nome_modelo já existe" });
   });
 });
