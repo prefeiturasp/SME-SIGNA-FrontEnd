@@ -128,7 +128,7 @@ describe("actions/textos-portaria", () => {
 
     expect(fetchWithClient).toHaveBeenCalledWith(
       "/gestao/modelos-portaria/variaveis/",
-      {},
+      {"tipo_cargo": "CARGO_VAGO"},
       "Erro ao buscar as variáveis",
     );
     expect(response).toEqual({

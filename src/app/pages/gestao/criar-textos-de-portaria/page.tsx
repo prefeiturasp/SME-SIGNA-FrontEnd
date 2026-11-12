@@ -93,19 +93,22 @@ export default function CriarTextosDePortaria() {
   const selectedVariablesKey = Array.isArray(watchedVariables)
     ? watchedVariables.join("|")
     : "";
+  const variaveisDisponiveisKey = variaveisOpcoes
+    .map((variavel) => variavel.value)
+    .join("|");
   const previousVariablesRef = useRef<string[]>(
     Array.isArray(watchedVariables) ? watchedVariables : []
   );
+  const previousVariaveisDisponiveisRef = useRef("");
 
   useEffect(() => {
-    
     const currentVariables = selectedVariablesKey ? selectedVariablesKey.split("|") : [];
     const previousVariables = previousVariablesRef.current;
     const variaveisAdicionadas = currentVariables.filter(
       (variable) => !previousVariables.includes(variable)
     );
     const variaveisRemovidas = previousVariables.filter(
-      (variable) => !currentVariables.includes(variable)|| !variaveisOpcoes.find((v) => v.display_name === variable)?.display_name
+      (variable) => !currentVariables.includes(variable)
     );
 
     if (!variaveisAdicionadas.length && !variaveisRemovidas.length) {
@@ -124,10 +127,61 @@ export default function CriarTextosDePortaria() {
         shouldDirty: true,
         shouldValidate: true,
       });
-    }  
+    }
 
     previousVariablesRef.current = currentVariables;
   }, [filterForm, selectedVariablesKey]);
+
+  useEffect(() => {
+    // Enquanto a lista não estiver carregada (ex.: refetch ao trocar o tipo de
+    // cargo) não há como saber quais variáveis continuam válidas.
+    if (!variaveisDisponiveisKey) {
+      return;
+    }
+
+    const listaAnterior = previousVariaveisDisponiveisRef.current;
+    previousVariaveisDisponiveisRef.current = variaveisDisponiveisKey;
+
+    // A primeira carga da lista não deve descartar as variáveis já
+    // selecionadas no formulário (ex.: edição de um modelo).
+    if (!listaAnterior || listaAnterior === variaveisDisponiveisKey) {
+      return;
+    }
+
+    const variaveisValidas = new Set(variaveisDisponiveisKey.split("|"));
+    const selecionadas = filterForm.getValues("variaveis") ?? [];
+    const variaveisRemovidas = selecionadas.filter(
+      (variable) => !variaveisValidas.has(variable)
+    );
+
+    if (!variaveisRemovidas.length) {
+      return;
+    }
+
+    const variaveisMantidas = selecionadas.filter((variable) =>
+      variaveisValidas.has(variable)
+    );
+
+    filterForm.setValue("variaveis", variaveisMantidas, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    previousVariablesRef.current = variaveisMantidas;
+
+    const currentContent = filterForm.getValues("texto_portaria") ?? "";
+    const nextContent = sincronizarVariaveisTokens(
+      currentContent,
+      [],
+      variaveisRemovidas
+    );
+
+    if (nextContent !== currentContent) {
+      filterForm.setValue("texto_portaria", nextContent, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [filterForm, variaveisDisponiveisKey]);
 
   return (
     <FormProvider {...filterForm}>

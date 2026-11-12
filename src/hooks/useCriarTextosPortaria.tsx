@@ -29,7 +29,7 @@ export function useFetchTextoPortariaById(id: number) {
 
 export function useBuscarVariavel(tipoCargo: TipoCargo) {
   return useQuery({
-      queryKey: ["get-variaveis"],
+      queryKey: ["get-variaveis", tipoCargo],
       queryFn: async () => {
           const response = await fetchVariavelAction(tipoCargo);
           if (!response.success) {
@@ -69,7 +69,7 @@ const defaultValues: FormSchemaCriarTextosPortariaData = {
   status: "",
   texto_portaria: "",
   variaveis: [],
-  tipo_cargo: "",
+  tipo_cargo: "CARGO_VAGO",
 };
 
 export function useCriarTextosPortaria(id: number | null = null) {
