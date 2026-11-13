@@ -2,6 +2,7 @@ import React from "react";
 import type { ReactNode } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
+import dayjs from "dayjs";
 import DesignacoesPasso3 from "./page";
 import { designacaoAction } from "@/actions/cadastro-designacao";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
@@ -580,6 +581,109 @@ describe("DesignacoesPasso3 - Testes", () => {
     await screen.findByTestId("editor-sei");
 
     expect(screen.getByText("Salvar")).not.toBeDisabled();
+  });
+
+  describe("bloqueio de designação futura sem data final", () => {
+    const emDias = (dias: number) => dayjs().startOf("day").add(dias, "day").toISOString();
+
+    const formFuturoSemAte = () =>
+      ({
+        ...defaultFormData,
+        a_partir_de: emDias(1),
+        designacao_data_final: null,
+      }) as unknown as FormDesignacaoEServidorIndicado;
+
+    it("bloqueia o salvar e abre o modal quando o início é futuro e não há Até", async () => {
+      h.formData = formFuturoSemAte();
+
+      render(<DesignacoesPasso3 />);
+      await screen.findByTestId("editor-sei");
+      fireEvent.click(screen.getByText("Salvar"));
+
+      expect(await screen.findByText("Data final obrigatória")).toBeInTheDocument();
+      expect(screen.getByTestId("mensagem-data-futura-sem-periodo")).toHaveTextContent(
+        'Não é possível criar uma designação com data futura sem informar a data "Até".'
+      );
+      expect(designacaoAction).not.toHaveBeenCalled();
+      expect(notificationErrorMock).not.toHaveBeenCalled();
+      expect(h.pushMock).not.toHaveBeenCalled();
+    });
+
+    it("permite salvar quando o início é futuro e o Até está preenchido", async () => {
+      vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
+      h.formData = {
+        ...defaultFormData,
+        a_partir_de: emDias(1),
+        designacao_data_final: emDias(10),
+      } as unknown as FormDesignacaoEServidorIndicado;
+
+      render(<DesignacoesPasso3 />);
+      await screen.findByTestId("editor-sei");
+      fireEvent.click(screen.getByText("Salvar"));
+
+      await waitFor(() => expect(designacaoAction).toHaveBeenCalled());
+      expect(screen.queryByText(/data futura/)).not.toBeInTheDocument();
+    });
+
+    it.each([0, -5])("permite salvar sem Até quando o início está a %i dias de hoje", async (dias) => {
+      vi.mocked(designacaoAction).mockResolvedValueOnce({ success: true, data: {} });
+      h.formData = {
+        ...defaultFormData,
+        a_partir_de: emDias(dias),
+        designacao_data_final: null,
+      } as unknown as FormDesignacaoEServidorIndicado;
+
+      render(<DesignacoesPasso3 />);
+      await screen.findByTestId("editor-sei");
+      fireEvent.click(screen.getByText("Salvar"));
+
+      await waitFor(() => expect(designacaoAction).toHaveBeenCalled());
+      expect(screen.queryByText(/data futura/)).not.toBeInTheDocument();
+    });
+
+    it("abre o modal com a mensagem quando o backend recusa por data futura sem Até", async () => {
+      vi.mocked(designacaoAction).mockResolvedValueOnce({
+        success: false,
+        error: "Data fim: texto do backend",
+        erroDataFuturaSemPeriodo: "Mensagem de data futura do backend",
+      });
+
+      render(<DesignacoesPasso3 />);
+      await screen.findByTestId("editor-sei");
+      fireEvent.click(screen.getByText("Salvar"));
+
+      expect(await screen.findByText("Data final obrigatória")).toBeInTheDocument();
+      expect(screen.getByTestId("mensagem-data-futura-sem-periodo")).toHaveTextContent(
+        "Mensagem de data futura do backend"
+      );
+      expect(notificationErrorMock).not.toHaveBeenCalled();
+      expect(h.pushMock).not.toHaveBeenCalled();
+    });
+
+    it("fecha o modal de data futura sem sair do passo 3", async () => {
+      h.formData = formFuturoSemAte();
+
+      render(<DesignacoesPasso3 />);
+      await screen.findByTestId("editor-sei");
+      fireEvent.click(screen.getByText("Salvar"));
+      fireEvent.click(await screen.findByTestId("botao-fechar-data-futura-sem-periodo"));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("mensagem-data-futura-sem-periodo")).not.toBeInTheDocument();
+      });
+      expect(h.pushMock).not.toHaveBeenCalled();
+    });
+
+    it("volta ao passo 2 ao clicar em Alterar período no modal de data futura", async () => {
+      h.formData = formFuturoSemAte();
+
+      render(<DesignacoesPasso3 />);
+      await screen.findByTestId("editor-sei");
+      fireEvent.click(screen.getByText("Salvar"));
+      fireEvent.click(await screen.findByTestId("botao-alterar-periodo-data-futura-sem-periodo"));
+
+      expect(h.pushMock).toHaveBeenCalledWith(expect.stringContaining("/pages/designacoes/designacoes-passo-2"));
+    });
   });
 
   it("navega ao clicar em Anterior", () => {
