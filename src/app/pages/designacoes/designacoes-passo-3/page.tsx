@@ -34,7 +34,12 @@ import {
   ErrosBackendSubstituicaoDiretor,
   MENSAGEM_ASSISTENTE_DIRETOR,
 } from "@/utils/designacao/substituicaoDiretor";
+import {
+  ehDataFuturaSemPeriodo,
+  MENSAGEM_DATA_FUTURA_SEM_PERIODO,
+} from "@/utils/designacao/dataFuturaSemPeriodo";
 import ModalPeriodoSobreposto from "@/components/dashboard/Designacao/ModalPeriodoSobreposto/ModalPeriodoSobreposto";
+import ModalDataFuturaSemPeriodo from "@/components/dashboard/Designacao/ModalDataFuturaSemPeriodo/ModalDataFuturaSemPeriodo";
 
 class ErroSubstituicaoDiretor extends Error {
   constructor(
@@ -46,6 +51,8 @@ class ErroSubstituicaoDiretor extends Error {
 }
 
 class ErroPeriodoSobreposto extends Error {}
+
+class ErroDataFuturaSemPeriodo extends Error {}
 
 export default function DesignacoesPasso3() {
   const router = useRouter();
@@ -59,6 +66,7 @@ export default function DesignacoesPasso3() {
   const [errosSubstituicaoDiretor, setErrosSubstituicaoDiretor] =
     useState<ErrosBackendSubstituicaoDiretor | null>(null);
   const [erroPeriodoSobreposto, setErroPeriodoSobreposto] = useState<string | null>(null);
+  const [erroDataFuturaSemPeriodo, setErroDataFuturaSemPeriodo] = useState<string | null>(null);
 
   // Mesmas regras do passo 2: protege contra dados antigos do localStorage.
   const { data: cargosData = [] } = useFetchCargos();
@@ -146,6 +154,10 @@ export default function DesignacoesPasso3() {
   const salvarPortaria = async (id: string | null) => {
     if (!formDesignacaoData) throw new Error("Dados do formulário não encontrados.");
 
+    if (ehDataFuturaSemPeriodo(formDesignacaoData.a_partir_de, formDesignacaoData.designacao_data_final)) {
+      throw new ErroDataFuturaSemPeriodo(MENSAGEM_DATA_FUTURA_SEM_PERIODO);
+    }
+
     const payloadData = {
       ...formDesignacaoData,
       texto_sei: textoSei,
@@ -160,6 +172,9 @@ export default function DesignacoesPasso3() {
       if (result.erroPeriodoSobreposto) {
         throw new ErroPeriodoSobreposto(result.erroPeriodoSobreposto);
       }
+      if (result.erroDataFuturaSemPeriodo) {
+        throw new ErroDataFuturaSemPeriodo(result.erroDataFuturaSemPeriodo);
+      }
       throw new Error(result.error);
     }
 
@@ -170,6 +185,7 @@ export default function DesignacoesPasso3() {
     try {
       setSalvando(true);
       setErrosSubstituicaoDiretor(null);
+      setErroDataFuturaSemPeriodo(null);
       await salvarPortaria(id);
       notification.success({ title: "Portaria salva com sucesso!" });
       clearFormDesignacaoData();
@@ -181,6 +197,10 @@ export default function DesignacoesPasso3() {
       }
       if (error instanceof ErroPeriodoSobreposto) {
         setErroPeriodoSobreposto(error.message);
+        return;
+      }
+      if (error instanceof ErroDataFuturaSemPeriodo) {
+        setErroDataFuturaSemPeriodo(error.message);
         return;
       }
       console.error("Erro ao salvar portaria:", error);
@@ -327,6 +347,13 @@ export default function DesignacoesPasso3() {
         open={!!erroPeriodoSobreposto}
         mensagem={erroPeriodoSobreposto ?? ""}
         onFechar={() => setErroPeriodoSobreposto(null)}
+        onAlterarPeriodo={voltarParaPasso2}
+      />
+
+      <ModalDataFuturaSemPeriodo
+        open={!!erroDataFuturaSemPeriodo}
+        mensagem={erroDataFuturaSemPeriodo ?? ""}
+        onFechar={() => setErroDataFuturaSemPeriodo(null)}
         onAlterarPeriodo={voltarParaPasso2}
       />
     </>
