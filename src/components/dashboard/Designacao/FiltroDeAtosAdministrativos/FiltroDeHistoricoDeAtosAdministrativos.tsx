@@ -12,6 +12,22 @@ interface Props {
   onClear?: () => void;
 }
 
+const CAMPOS_OBSERVADOS = [
+  "tipo",
+  "periodo",
+  "observacao",
+  "status_publicacao",
+  "cargo",
+] as const;
+
+type PeriodoDoFiltro = { from?: Date; to?: Date } | null | undefined;
+
+const temValorPreenchido = (valor: unknown): boolean =>
+  valor !== undefined && valor !== "" && valor !== null && valor !== "TODOS";
+
+const periodoPreenchido = (periodo: PeriodoDoFiltro): boolean =>
+  Boolean(periodo?.from || periodo?.to);
+
 const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ codigoUe, onClear }) => {
   const { register, control, watch } = useFormContext();
   const [cargoOpcoes, setCargoOpcoes] = useState<{ value: string; label: string }[]>([]);
@@ -51,17 +67,16 @@ const FiltroDeHistoricoDeAtosAdministrativos: React.FC<Props> = ({ codigoUe, onC
     void carregarCargos();
     return () => { ativo = false; };
   }, [codigoUe]);
-  const watchedValues = watch([
-    "tipo",
-    "periodo",
-    "observacao",
-    "status_publicacao",
-    "cargo",
-  ]);
-  const hasFilters = watchedValues.some((value, index) => {
-    if (index === 1) return !!(value?.from || value?.to);
-    return value !== undefined && value !== "" && value !== null && value !== "TODOS";
-  });
+  const watchedValues = watch([...CAMPOS_OBSERVADOS]) as unknown[];
+  const valoresObservados = Object.fromEntries(
+    CAMPOS_OBSERVADOS.map((campo, indice) => [campo, watchedValues?.[indice]])
+  ) as Record<(typeof CAMPOS_OBSERVADOS)[number], unknown>;
+
+  const hasFilters =
+    periodoPreenchido(valoresObservados.periodo as PeriodoDoFiltro) ||
+    CAMPOS_OBSERVADOS.filter((campo) => campo !== "periodo").some((campo) =>
+      temValorPreenchido(valoresObservados[campo])
+    );
   return (
     <>
       <p className="text-[20px] font-bold pt-1 pb-1">Filtros</p>

@@ -3,14 +3,19 @@ import type { formSchemaCessacaoData } from "@/app/pages/cessacao/schema";
 import {
     formatarDataPtBr,
     formatarRF,
-    nameToCamelCase,
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
+import {
+    type DescricoesCargosBase,
+    montarCargoDaDesignacao,
+    montarCargoIndicadoDaDesignacao,
+} from "@/utils/portarias/cargoIndicado";
 
 /**
  * Monta o dicionário de variáveis para a prévia do texto SEI de uma
  * cessação, usando as mesmas chaves de `ModeloPortaria.Variavel` no
  * backend — quem consome é o endpoint `textos-sei/preview/`.
+ * `descricoes` precisa trazer os códigos de `codigosCargosDaDesignacao`.
  *
  * DIPLOMA e PERIODO não têm campo equivalente hoje no formulário de
  * cessação e ficam vazios; TIPO_DE_CARGO idem (cessação não tem
@@ -18,7 +23,8 @@ import {
  */
 export function montarDadosTextoSeiCessacao(
     designacao: DesignacaoResponse | undefined,
-    cessacao: formSchemaCessacaoData["cessacao"]
+    cessacao: formSchemaCessacaoData["cessacao"],
+    descricoes: DescricoesCargosBase
 ): Record<string, string> {
     return {
         PORTARIA:
@@ -32,10 +38,9 @@ export function montarDadosTextoSeiCessacao(
             designacao?.indicado_vinculo == null
                 ? ""
                 : String(designacao.indicado_vinculo),
-        CARGO: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? ""),
-        CARGO_DESIGNACAO: nameToCamelCase(
-            designacao?.indicado_cargo_sobreposto ?? ""
-        ),
+        CARGO: montarCargoDaDesignacao(designacao, descricoes),
+        CARGO_DESIGNACAO: montarCargoDaDesignacao(designacao, descricoes),
+        CARGO_INDICADO: montarCargoIndicadoDaDesignacao(designacao, descricoes),
         CATEGORIA: designacao?.indicado_categoria ?? "",
         UNIDADE: nameToCamelCaseUe(designacao?.indicado_lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(

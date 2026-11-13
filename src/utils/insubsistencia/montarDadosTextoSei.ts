@@ -3,15 +3,20 @@ import type { formSchemaInsubsistenciaData } from "@/app/pages/insubsistencia/sc
 import {
     formatarDataPtBr,
     formatarRF,
-    nameToCamelCase,
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
+import {
+    type DescricoesCargosBase,
+    montarCargoDaDesignacao,
+    montarCargoIndicadoDaDesignacao,
+} from "@/utils/portarias/cargoIndicado";
 
 /**
  * Monta o dicionário de variáveis para a prévia do texto SEI de uma
  * insubsistência (tornar insubsistente uma designação ou cessação),
  * usando as mesmas chaves de `ModeloPortaria.Variavel` no backend —
- * quem consome é o endpoint `textos-sei/preview/`.
+ * quem consome é o endpoint `textos-sei/preview/`. `descricoes` precisa
+ * trazer os códigos de `codigosCargosDaDesignacao`.
  *
  * Os dados do servidor indicado vêm sempre da designação de origem,
  * mesmo quando a insubsistência é sobre a cessação — é a mesma pessoa.
@@ -19,7 +24,8 @@ import {
  */
 export function montarDadosTextoSeiInsubsistencia(
     designacao: DesignacaoResponse | undefined,
-    insubsistencia: formSchemaInsubsistenciaData["insubsistencia"]
+    insubsistencia: formSchemaInsubsistenciaData["insubsistencia"],
+    descricoes: DescricoesCargosBase
 ): Record<string, string> {
     return {
         PORTARIA:
@@ -33,10 +39,9 @@ export function montarDadosTextoSeiInsubsistencia(
             designacao?.indicado_vinculo == null
                 ? ""
                 : String(designacao.indicado_vinculo),
-        CARGO: nameToCamelCase(designacao?.indicado_cargo_sobreposto ?? ""),
-        CARGO_DESIGNACAO: nameToCamelCase(
-            designacao?.indicado_cargo_sobreposto ?? ""
-        ),
+        CARGO: montarCargoDaDesignacao(designacao, descricoes),
+        CARGO_DESIGNACAO: montarCargoDaDesignacao(designacao, descricoes),
+        CARGO_INDICADO: montarCargoIndicadoDaDesignacao(designacao, descricoes),
         CATEGORIA: designacao?.indicado_categoria ?? "",
         UNIDADE: nameToCamelCaseUe(designacao?.indicado_lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(

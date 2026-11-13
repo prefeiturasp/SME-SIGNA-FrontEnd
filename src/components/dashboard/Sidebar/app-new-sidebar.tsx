@@ -4,72 +4,40 @@ import LogoSigna from "@/assets/images/logo-signa-completo-branco.png";
 import * as React from "react";
 import User from "@/assets/icons/User";
 import Designacao from "@/assets/icons/Designacao";
- 
+
 import Sider from "../Sider";
+import type { MenuItemSMEProps } from "../Sider";
 import { Nomeacao } from "@/assets/icons/Nomeacao";
 import { Protocolo } from "@/assets/icons/Protocolo";
 import { Apoio } from "@/assets/icons/Apoio";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import HomeMenuIcon from "@/assets/icons/HomeMenu";
 import { Settings } from "@/assets/icons/Settings";
 
- 
-
-export type MenuItemSMEProps = {
-  url?: string;
-  title: React.ReactNode;
-  key: React.Key;
-  icon?: React.ReactNode;
-  children?: MenuItemSMEProps[];
-};
+export type { MenuItemSMEProps } from "../Sider";
 
 export enum MenuEnum {
-  Inicio,
   AtosAdministrativos,
   Designacao,
   Designacoes,
-  AlterarDataDoD,  
+  AlterarDataDoD,
   MeusDados,
-  ListarMeusDados,
   BaixarLauda,
   Nomeacao,
-  Nomeacoes,
   Protocolo,
-  Protocolos,
-  ApoioAdministrativo,   
-  ApoiosAdministrativos,
+  ApoioAdministrativo,
   Gestao,
+  GestaoDeAcessos,
+  GestaoDeRemetentes,
   CargosBase,
-  TextosDePortaria
+  TextosDePortaria,
 }
- 
-
-export const MENU_INICIO: MenuItemConectaProps = {
-  key: MenuEnum.Inicio,
-  title: 'Início',
-  icon: <HomeMenuIcon />, 
-  children: [
-    {
-      key: MenuEnum.AtosAdministrativos,
-      title: 'Atos administrativos',
-      url: "/pages/atos-administrativos",
-    },
-  ],
-};
-
 
 export const MENU_MEUS_DADOS: MenuItemConectaProps = {
   key: MenuEnum.MeusDados,
   title: 'Meus dados',
-  icon: <User />, 
-  children: [
-    {
-      key: MenuEnum.ListarMeusDados,
-      title: 'Meus dados',
-      url: "/pages/meus-dados",
-    },
-  ],
+  icon: <User />,
+  url: "/pages/meus-dados",
 };
 
 export const MENU_DESIGNACAO: MenuItemConectaProps = {
@@ -78,66 +46,20 @@ export const MENU_DESIGNACAO: MenuItemConectaProps = {
   icon: <Designacao width={20} height={20} />,
   children: [
     {
+      key: MenuEnum.AtosAdministrativos,
+      title: 'Atos administrativos',
+      url: "/pages/atos-administrativos",
+    },
+    {
       key: MenuEnum.AlterarDataDoD,
-      title: 'Alterar data do D.O',
+      title: 'Publicação no Diário Oficial',
       url: "/pages/alterar-data-do",
- 
     },
     {
       key: MenuEnum.BaixarLauda,
-      title: 'Baixar lauda',
+      title: 'Laudas',
       url: "/pages/baixar-lauda",
- 
     },
-  ],
-};
-
-
-export const MENU_NOMEACAO: MenuItemConectaProps = {
-  key: MenuEnum.Nomeacao,
-  title: 'Nomeação',
-  icon: <Nomeacao />, 
-  children: [
-    {
-      key: MenuEnum.Nomeacoes,
-      title: 'Nomeações',
-      url: "/pages/nomeacao",
-    },
-  ],
-};
-
- 
-export const MENU_PROTOCOLO: MenuItemConectaProps = {
-  key: MenuEnum.Protocolo,
-  title: 'Protocolo',
-  icon: <Protocolo />, 
-  children: [
-    {
-      key: MenuEnum.Protocolos,
-      title: 'Protocolos',
-      url: "/pages/protocolo",
-    },
-  ],
-};
-
-export const MENU_APOIO_ADMINISTRATIVO: MenuItemConectaProps = {
-  key: MenuEnum.ApoioAdministrativo,
-  title: 'Apoio admin.',
-  icon: <Apoio />, 
-  children: [
-    {
-      key: MenuEnum.ApoiosAdministrativos,
-      title: 'Apoio administrativo',
-      url: "/pages/apoio-administrativo",
-    },
-  ],
-};
-
-export const MENU_GESTAO: MenuItemConectaProps = {
-  key: MenuEnum.Gestao,
-  title: 'Gestão',
-  icon: <Settings />, 
-  children: [
     {
       key: MenuEnum.CargosBase,
       title: 'Cargos base',
@@ -150,22 +72,61 @@ export const MENU_GESTAO: MenuItemConectaProps = {
     },
   ],
 };
- 
+
+export const MENU_NOMEACAO: MenuItemConectaProps = {
+  key: MenuEnum.Nomeacao,
+  title: 'Nomeação',
+  icon: <Nomeacao />,
+  url: "/pages/nomeacao",
+};
+
+export const MENU_PROTOCOLO: MenuItemConectaProps = {
+  key: MenuEnum.Protocolo,
+  title: 'Protocolo',
+  icon: <Protocolo />,
+  url: "/pages/protocolo",
+};
+
+export const MENU_APOIO_ADMINISTRATIVO: MenuItemConectaProps = {
+  key: MenuEnum.ApoioAdministrativo,
+  title: 'Apoio administrativo',
+  collapsedTitle: 'Apoio admin.',
+  icon: <Apoio />,
+  url: "/pages/apoio-administrativo",
+};
+
+export const MENU_GESTAO: MenuItemConectaProps = {
+  key: MenuEnum.Gestao,
+  title: 'Gestão',
+  icon: <Settings />,
+  children: [
+    {
+      key: MenuEnum.GestaoDeAcessos,
+      title: 'Gestão de acessos',
+      url: "/pages/gestao/gestao-de-acessos",
+    },
+    {
+      key: MenuEnum.GestaoDeRemetentes,
+      title: 'Gestão de remetentes',
+      url: "/pages/gestao/gestao-de-remetentes",
+    },
+  ],
+};
+
 export interface MenuItemConectaProps extends MenuItemSMEProps {
   key: MenuEnum;
   children?: MenuItemConectaProps[];
 }
 
 export const menus: MenuItemConectaProps[] = [
-  MENU_INICIO,
-  MENU_MEUS_DADOS,
   MENU_DESIGNACAO,
   MENU_NOMEACAO,
   MENU_PROTOCOLO,
   MENU_APOIO_ADMINISTRATIVO,
   MENU_GESTAO,
+  MENU_MEUS_DADOS,
 ];
- 
+
 function collectMenuUrls(items: MenuItemSMEProps[]): string[] {
   return items.flatMap((item) => [
     ...(item.url ? [item.url] : []),
@@ -177,7 +138,9 @@ export function AppNewSidebar() {
   const navigate = useRouter();
 
   React.useEffect(() => {
-    collectMenuUrls(menus).forEach((url) => navigate.prefetch(url));
+    // Um mesmo destino pode aparecer em mais de um menu; prefetch uma única vez.
+    const urls = new Set(collectMenuUrls(menus));
+    urls.forEach((url) => navigate.prefetch(url));
   }, [navigate]);
 
   const itemMenuEscolhido = (item: MenuItemSMEProps) => {
@@ -193,6 +156,6 @@ export function AppNewSidebar() {
       logoMenu={
         <Image src={LogoSigna} alt="Logo Signa" width={97} height={56} />
       }
-     />
+    />
   );
 }

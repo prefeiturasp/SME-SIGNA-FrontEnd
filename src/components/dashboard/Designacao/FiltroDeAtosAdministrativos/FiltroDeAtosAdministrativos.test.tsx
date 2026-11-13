@@ -18,6 +18,8 @@ const { useFetchDREsMock, useFetchUEsMock } = vi.hoisted(() => ({
   useFetchUEsMock: vi.fn(),
 }));
 
+const formFieldState = vi.hoisted(() => ({ value: "" as string | null }));
+
 vi.mock("@/hooks/useUnidades", () => ({
   useFetchDREs: useFetchDREsMock,
   useFetchUEs: useFetchUEsMock,
@@ -74,8 +76,10 @@ vi.mock("react-hook-form", () => ({
     setValue: setValueMock,
     watch: (fields?: string | string[]) => {
       if (!fields) return {};
-      if (Array.isArray(fields)) return fields.map((field) => watchValues[field] ?? "");
-      return watchValues[fields] ?? "";
+      const valorDoCampo = (field: string) =>
+        field in watchValues ? watchValues[field] : "";
+      if (Array.isArray(fields)) return fields.map(valorDoCampo);
+      return valorDoCampo(fields);
     },
   }),
 }));
@@ -124,7 +128,9 @@ vi.mock("@/components/ui/form", () => ({
   }) => {
     const onChange = vi.fn();
     onChangeByField[name] = onChange;
-    return <div>{render({ field: { value: "", onChange } })}</div>;
+    return (
+      <div>{render({ field: { value: formFieldState.value as string, onChange } })}</div>
+    );
   },
   FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   FormMessage: () => <span data-testid="form-message" />,
@@ -178,6 +184,7 @@ describe("FiltroDeAtosAdministrativos", () => {
     Object.keys(watchValues).forEach((key) => delete watchValues[key]);
     Object.keys(onChangeByField).forEach((key) => delete onChangeByField[key]);
     selectFieldProps.length = 0;
+    formFieldState.value = "";
     useFetchDREsMock.mockReturnValue({
       data: [{ codigoDRE: "108200", nomeDRE: "DRE IPIRANGA", siglaDRE: "IP" }],
       isLoading: false,
@@ -216,6 +223,23 @@ describe("FiltroDeAtosAdministrativos", () => {
 
     expect(onChangeByField.codigo_dre).toHaveBeenCalledWith("108200");
     expect(setValueMock).toHaveBeenCalledWith("codigo_ue", "");
+  });
+
+  it("busca as unidades com código vazio quando a DRE observada é nula", () => {
+    watchValues.codigo_dre = null;
+
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(useFetchUEsMock).toHaveBeenCalledWith("");
+  });
+
+  it("renderiza os comboboxes de DRE e unidade mesmo sem valor selecionado", () => {
+    formFieldState.value = null;
+
+    render(<FiltroDeAtosAdministrativos />);
+
+    expect(screen.getByTestId("select-codigo-dre")).toBeInTheDocument();
+    expect(screen.getByTestId("select-codigo-ue")).toBeInTheDocument();
   });
 
   it("exibe loader enquanto carrega as unidades da DRE", () => {

@@ -53,6 +53,28 @@ describe("unidades actions", () => {
         expect(result).toEqual(fakeUEs);
     });
 
+    it("getDREs envia contexto=designacao quando informado", async () => {
+        axiosGetMock.mockResolvedValueOnce({ data: [] });
+
+        await getDREs("designacao");
+
+        expect(axiosGetMock).toHaveBeenCalledWith(
+            "https://api.exemplo.com/unidades",
+            { params: { tipo: "DRE", contexto: "designacao" } }
+        );
+    });
+
+    it("getUEs envia contexto=designacao quando informado", async () => {
+        axiosGetMock.mockResolvedValueOnce({ data: [] });
+
+        await getUEs("dre-uuid", "designacao");
+
+        expect(axiosGetMock).toHaveBeenCalledWith(
+            "https://api.exemplo.com/unidades",
+            { params: { tipo: "UE", dre: "dre-uuid", contexto: "designacao" } }
+        );
+    });
+
     it("getDREs lança erro se a API falhar", async () => {
         axiosGetMock.mockRejectedValueOnce(new Error("API error"));
         await expect(getDREs()).rejects.toThrow(

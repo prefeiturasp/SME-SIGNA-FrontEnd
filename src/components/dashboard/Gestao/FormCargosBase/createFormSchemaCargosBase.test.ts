@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
-import createFormSchemaCargosBase, { createFormSchemaCargosBaseData } from "./createFormSchemaCargosBase";
+import createFormSchemaCargosBase, {
+  createFormSchemaCargosBaseData,
+  editFormSchemaCargosBase,
+} from "./createFormSchemaCargosBase";
 
 const validPayload: createFormSchemaCargosBaseData = {
   codigo_cargo: "1",
   grupamento: "DOCENTES",
   descricao_resumida: "Resumo",
   descricao_completa: "Descricao completa",
+  descricao_eol: "Descricao EOL",
   situacao_funcional: "ATIVO",
   status: "ATIVO",
   utilizado_para_funcoes: true,
@@ -26,6 +30,60 @@ describe("createFormSchemaCargosBase", () => {
     const result = createFormSchemaCargosBase.safeParse(validPayload);
 
     expect(result.success).toBe(true);
+  });
+
+  it("exige descricao_eol no cadastro", () => {
+    const { descricao_eol: _descricaoEol, ...payloadSemDescricaoEol } = validPayload;
+
+    const result = createFormSchemaCargosBase.safeParse(payloadSemDescricaoEol);
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual([
+      expect.objectContaining({ path: ["descricao_eol"] }),
+    ]);
+  });
+
+  it("limita descricao_eol a 255 caracteres no cadastro", () => {
+    expect(
+      createFormSchemaCargosBase.safeParse({ ...validPayload, descricao_eol: "a".repeat(255) }).success,
+    ).toBe(true);
+
+    const result = createFormSchemaCargosBase.safeParse({
+      ...validPayload,
+      descricao_eol: "a".repeat(256),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual([
+      expect.objectContaining({ path: ["descricao_eol"] }),
+    ]);
+  });
+
+  it.each(["descricao_completa", "descricao_eol", "descricao_resumida"])(
+    "rejeita %s vazia ou só com espaços no cadastro",
+    (campo) => {
+      ["", "   "].forEach((valor) => {
+        const result = createFormSchemaCargosBase.safeParse({ ...validPayload, [campo]: valor });
+
+        expect(result.success).toBe(false);
+        expect(result.error?.issues).toEqual([
+          expect.objectContaining({ message: "Campo obrigatório.", path: [campo] }),
+        ]);
+      });
+    },
+  );
+
+  it("aceita cadastro sem provimento, com provimento vazio ou preenchido", () => {
+    expect(createFormSchemaCargosBase.safeParse(validPayload).success).toBe(true);
+    expect(createFormSchemaCargosBase.safeParse({ ...validPayload, provimento: "" }).success).toBe(true);
+
+    const result = createFormSchemaCargosBase.safeParse({
+      ...validPayload,
+      provimento: "portando diploma de Pedagogia",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.provimento).toBe("portando diploma de Pedagogia");
   });
 
   it("permite quantidade vazia quando pesquisa de licenças está desabilitada", () => {
@@ -112,6 +170,7 @@ describe("createFormSchemaCargosBase", () => {
       grupamento: "DOCENTES",
       descricao_resumida: "Resumo",
       descricao_completa: "Descricao completa",
+      descricao_eol: "Descricao EOL",
       situacao_funcional: "ATIVO",
       status: "ATIVO",
     });
@@ -131,6 +190,52 @@ describe("createFormSchemaCargosBase", () => {
         expect.objectContaining({
           path: ["possui_periodo_fechado"],
         }),
+      ]),
+    );
+  });
+});
+
+describe("editFormSchemaCargosBase", () => {
+  it("não exige descricao_eol na edição", () => {
+    const { descricao_eol: _descricaoEol, ...payloadSemDescricaoEol } = validPayload;
+
+    expect(editFormSchemaCargosBase.safeParse(payloadSemDescricaoEol).success).toBe(true);
+    expect(editFormSchemaCargosBase.safeParse({ ...validPayload, descricao_eol: "" }).success).toBe(true);
+  });
+
+  it("mantém descricao_completa obrigatória e limitada a 255 caracteres na edição", () => {
+    ["   ", "a".repeat(256)].forEach((descricao_completa) => {
+      const result = editFormSchemaCargosBase.safeParse({ ...validPayload, descricao_completa });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues).toEqual([
+        expect.objectContaining({ path: ["descricao_completa"] }),
+      ]);
+    });
+  });
+
+  it("mantém descricao_resumida obrigatória na edição", () => {
+    const result = editFormSchemaCargosBase.safeParse({ ...validPayload, descricao_resumida: "   " });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual([
+      expect.objectContaining({ path: ["descricao_resumida"] }),
+    ]);
+  });
+
+  it("aplica as regras de licença e de período fechado na edição", () => {
+    const result = editFormSchemaCargosBase.safeParse({
+      ...validPayload,
+      quantidade_maxima_de_dias_de_licenca: "0",
+      possui_periodo_fechado: true,
+      data_fim_periodo: null,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: ["quantidade_maxima_de_dias_de_licenca"] }),
+        expect.objectContaining({ path: ["data_fim_periodo"] }),
       ]),
     );
   });

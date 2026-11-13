@@ -59,7 +59,7 @@ Cypress.Commands.add('signa_api_request', (method, path, options = {}) => {
 
   Cypress.log({ name: method, message: `${path}${semToken ? ' (sem token)' : ''}` })
 
-  return cy.request({
+  return cy.api({
     method,
     url,
     headers: {

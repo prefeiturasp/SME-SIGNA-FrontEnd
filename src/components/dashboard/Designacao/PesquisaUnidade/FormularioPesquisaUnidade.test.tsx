@@ -245,11 +245,106 @@ describe("FormularioPesquisaUnidade", () => {
 
 
     await waitFor(() => {
-      expect(getUEsSpy).toHaveBeenCalledWith("dre-1");
+      expect(getUEsSpy).toHaveBeenCalledWith("dre-1", "designacao");
     });
+    expect(getDREsSpy).toHaveBeenCalledWith("designacao");
 
     const ueCombobox = screen.getByTestId("select-ue");
     expect(ueCombobox).not.toBeDisabled();
+  });
+
+  describe("unidade sem código EH", () => {
+    const MENSAGEM_SEM_EH =
+      "Esta unidade ainda não tem código da Estrutura Hierárquica (EH). Ela pode estar inativa ou ter sido criada recentemente. Procure a Gestão.";
+
+    const respostaUnidade = (codigo_hierarquico: string | null) => ({
+      success: true,
+      data: {
+        codigo_hierarquico,
+        cargos: [{ codigoCargo: "cargo-1", nomeCargo: "Coordenador" }],
+        funcionarios_unidade: {
+          "cargo-1": {
+            codigo_cargo: 1,
+            nome_cargo: "Coordenador",
+            modulo: 1,
+            servidores: [{ rf: "123", nome: "Fulano" }],
+          },
+        },
+      },
+    });
+
+    it.each([null, "", "   "])(
+      "exibe o aviso e não libera o próximo passo quando codigo_hierarquico é %j",
+      async (codigo) => {
+        const user = userEvent.setup();
+        const setDisableProximo = vi.fn();
+        getDesignacaoUnidadeSpy.mockResolvedValue(respostaUnidade(codigo) as never);
+
+        renderWithQueryClient(
+          <FormularioPesquisaUnidade isLoading={false} setDisableProximo={setDisableProximo} />
+        );
+
+        await selectDreAndUe(user);
+        await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+
+        const alerta = await screen.findByTestId("alerta-unidade-sem-codigo-eh");
+        expect(alerta).toHaveTextContent(MENSAGEM_SEM_EH);
+
+        // Mesmo escolhendo um funcionário, o próximo passo continua bloqueado.
+        setDisableProximo.mockClear();
+        await user.click(await screen.findByTestId("select-funcionarios"));
+        await clickSelectOption(user, "Coordenador");
+
+        expect(setDisableProximo).toHaveBeenCalled();
+        expect(setDisableProximo).not.toHaveBeenCalledWith(false);
+      }
+    );
+
+    it("remove o aviso e libera o fluxo ao trocar para unidade com código", async () => {
+      const user = userEvent.setup();
+      const setDisableProximo = vi.fn();
+      getDesignacaoUnidadeSpy
+        .mockResolvedValueOnce(respostaUnidade(null) as never)
+        .mockResolvedValueOnce(respostaUnidade("109300013692") as never);
+
+      renderWithQueryClient(
+        <FormularioPesquisaUnidade isLoading={false} setDisableProximo={setDisableProximo} />
+      );
+
+      await selectDreAndUe(user);
+      await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+      expect(await screen.findByTestId("alerta-unidade-sem-codigo-eh")).toBeInTheDocument();
+
+      await user.click(screen.getByTestId("select-ue"));
+      await user.click(await screen.findByText("EMEF - UE 2 da DRE Selecionada"));
+
+      expect(screen.queryByTestId("alerta-unidade-sem-codigo-eh")).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /Pesquisar/i }));
+      expect(await screen.findByText("109300013692")).toBeInTheDocument();
+      expect(screen.queryByTestId("alerta-unidade-sem-codigo-eh")).not.toBeInTheDocument();
+
+      await user.click(screen.getByTestId("select-funcionarios"));
+      await clickSelectOption(user, "Coordenador");
+      expect(setDisableProximo).toHaveBeenLastCalledWith(false);
+    });
+
+    it("mantém o próximo passo bloqueado ao reabrir com unidade sem código", async () => {
+      const setDisableProximo = vi.fn();
+      getDesignacaoUnidadeSpy.mockResolvedValue(respostaUnidade(null) as never);
+
+      renderWithQueryClient(
+        <FormularioPesquisaUnidade
+          isLoading={false}
+          setDisableProximo={setDisableProximo}
+          defaultValues={{ dre: "dre-1", ue: "ue-1" }}
+        />
+      );
+
+      expect(await screen.findByTestId("alerta-unidade-sem-codigo-eh")).toBeInTheDocument();
+      await waitFor(() => expect(setDisableProximo).toHaveBeenLastCalledWith(true));
+      expect(setDisableProximo).not.toHaveBeenCalledWith(false);
+    });
   });
 
   it("exibe loading enquanto carrega UEs", async () => {
@@ -784,9 +879,6 @@ describe("FormularioPesquisaUnidade", () => {
 
   it("quando API lança exceção, trata erro (catch)", async () => {
     const user = userEvent.setup();
-    const consoleLogSpy = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => { });
 
     getDesignacaoUnidadeSpy.mockRejectedValue(new Error("boom"));
 
@@ -806,8 +898,9 @@ describe("FormularioPesquisaUnidade", () => {
       screen.queryByText("Funcionários da unidade")
     ).not.toBeInTheDocument();
 
-    expect(consoleLogSpy).toHaveBeenCalledWith("error", expect.any(Error));
-    consoleLogSpy.mockRestore();
+    expect(
+      await screen.findByText("Não foi possível carregar os dados da unidade.")
+    ).toBeInTheDocument();
   });
 
   it("ao trocar a DRE após carregar funcionários, limpa a seção adicional", async () => {

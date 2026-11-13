@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { mapearPayloadDesignacao } from "./mapearPayload";
+import { encontrarCargoDoTitular, mapearPayloadDesignacao } from "./mapearPayload";
 import type { FormDesignacaoEServidorIndicado } from "@/app/pages/designacoes/DesignacaoContext";
 import { EnumCheckbox } from "@/components/ui/FieldsForm";
+import type { Servidor } from "@/types/designacao-unidade";
 
 // ── Helpers ──────────────────────────────────────
 
@@ -124,6 +125,7 @@ describe("mapearPayloadDesignacao", () => {
                 cd_cargo_sobreposto_funcao_atividade: "3379" as unknown as number,
                 possui_cargo_sobreposto: true,
                 cd_ue_lotacao: 90450,
+                cd_ue_cargo_base: " 012345 ",
             },
         });
 
@@ -133,6 +135,7 @@ describe("mapearPayloadDesignacao", () => {
             indicado_codigo_cargo_sobreposto: 3379,
             indicado_possui_cargo_sobreposto: true,
             indicado_codigo_ue_lotacao: "90450",
+            indicado_codigo_ue_cargo_base: "012345",
         });
     });
 
@@ -142,6 +145,7 @@ describe("mapearPayloadDesignacao", () => {
         expect(payload).toMatchObject({
             indicado_possui_cargo_sobreposto: false,
             indicado_codigo_ue_lotacao: "",
+            indicado_codigo_ue_cargo_base: "",
         });
     });
 
@@ -388,42 +392,78 @@ describe("mapearPayloadDesignacao", () => {
         expect(result?.cargo_vaga).toBeUndefined();
     });
 
-    it("resolve cargo_vaga pelo nome do cargo do titular na lista fixa de cargos, quando tipo_cargo é 'disponivel'", () => {
-        // cd_cargo_sobreposto_funcao_atividade do titular vem da busca por RF
-        // (código do EOL, ex: 77) e não corresponde aos códigos aceitos por
-        // cargo_vaga — a resolução correta é por nome contra a lista fixa de
-        // cargos de gestão (/designacao/unidade/cargos/).
-        const result = mapearPayloadDesignacao(
-            { ...formBase, tipo_cargo: "disponivel", dadosTitular },
-            [{ codigoCargo: 5, nomeCargo: "Vice-Diretor" }]
-        );
-
-        expect(result?.cargo_vaga).toBe(5);
-    });
-
-    it("usa cargo_base do titular como fallback quando cargo_sobreposto_funcao_atividade é nulo", () => {
-        // A integração SME pode retornar cargo_sobreposto_funcao_atividade nulo;
-        // cargo_base é sempre preenchido, então serve de fallback para resolver
-        // o cargo de vaga.
+    it("usa o código do sobreposto quando o titular possui cargo sobreposto", () => {
         const result = mapearPayloadDesignacao(
             {
                 ...formBase,
                 tipo_cargo: "disponivel",
-                dadosTitular: {
-                    ...dadosTitular,
-                    cargo_sobreposto_funcao_atividade: null,
-                } as unknown as typeof dadosTitular,
+                dadosTitular: { ...dadosTitular, possui_cargo_sobreposto: true },
             },
-            [{ codigoCargo: 5, nomeCargo: "Coordenador" }]
+            [
+                { codigoCargo: 11, nomeCargo: "Coordenador" },
+                { codigoCargo: 77, nomeCargo: "Vice-Diretor" },
+            ]
         );
 
-        expect(result?.cargo_vaga).toBe(5);
+        expect(result?.cargo_vaga).toBe(77);
+    });
+
+    it("usa cd_cargo_base quando o titular não possui cargo sobreposto", () => {
+        const result = mapearPayloadDesignacao(
+            {
+                ...formBase,
+                tipo_cargo: "disponivel",
+                dadosTitular: { ...dadosTitular, possui_cargo_sobreposto: false },
+            },
+            [{ codigoCargo: 11, nomeCargo: "Coordenador" }]
+        );
+
+        expect(result?.cargo_vaga).toBe(11);
+    });
+
+    it("ignora cd_cargo_sobreposto_funcao_atividade quando o titular não possui cargo sobreposto", () => {
+        const result = mapearPayloadDesignacao(
+            {
+                ...formBase,
+                tipo_cargo: "disponivel",
+                dadosTitular: { ...dadosTitular, possui_cargo_sobreposto: false },
+            },
+            [{ codigoCargo: 77, nomeCargo: "Vice-Diretor" }]
+        );
+
+        expect(result?.cargo_vaga).toBeUndefined();
+    });
+
+    it("encontra o cargo pelo código mesmo quando a descrição do cargo foi editada", () => {
+        const result = mapearPayloadDesignacao(
+            {
+                ...formBase,
+                tipo_cargo: "disponivel",
+                dadosTitular: { ...dadosTitular, possui_cargo_sobreposto: true },
+            },
+            [{ codigoCargo: 77, nomeCargo: "Vice-Diretor de Escola (editado)" }]
+        );
+
+        expect(result?.cargo_vaga).toBe(77);
     });
 
     it("retorna undefined quando tipo_cargo é 'disponivel' mas o cargo do titular não está na lista fixa de cargos", () => {
         const result = mapearPayloadDesignacao(
             { ...formBase, tipo_cargo: "disponivel", dadosTitular },
             [{ codigoCargo: 1, nomeCargo: "Diretor de Escola" }]
+        );
+
+        expect(result?.cargo_vaga).toBeUndefined();
+    });
+
+    it("não encontra cargo por nome igual com código diferente", () => {
+        const result = mapearPayloadDesignacao(
+            {
+                ...formBase,
+                tipo_cargo: "disponivel",
+                dadosTitular: { ...dadosTitular, possui_cargo_sobreposto: true },
+            },
+            [{ codigoCargo: 5, nomeCargo: "Vice-Diretor" }]
         );
 
         expect(result?.cargo_vaga).toBeUndefined();
@@ -446,5 +486,42 @@ describe("mapearPayloadDesignacao", () => {
         );
 
         expect(result?.cargo_vaga).toBeUndefined();
+    });
+});
+
+describe("encontrarCargoDoTitular", () => {
+    const cargos = [
+        { codigoCargo: 0, nomeCargo: "Sem código" },
+        { codigoCargo: 3360, nomeCargo: "Diretor de Escola" },
+    ];
+
+    it.each([null, undefined, "", "   "])("retorna undefined quando o código é %j", (codigo) => {
+        const titular = {
+            cd_cargo_base: codigo,
+            cd_cargo_sobreposto_funcao_atividade: 3360,
+        } as unknown as Servidor;
+
+        expect(encontrarCargoDoTitular(titular, cargos)).toBeUndefined();
+    });
+
+    it("retorna undefined quando o sobreposto não tem código e não recorre ao cargo base", () => {
+        const titular = {
+            possui_cargo_sobreposto: true,
+            cd_cargo_base: 3360,
+            cd_cargo_sobreposto_funcao_atividade: null,
+        } as unknown as Servidor;
+
+        expect(encontrarCargoDoTitular(titular, cargos)).toBeUndefined();
+    });
+
+    it("aceita código que chega como texto", () => {
+        const titular = { cd_cargo_base: "3360" } as unknown as Servidor;
+
+        expect(encontrarCargoDoTitular(titular, cargos)?.codigoCargo).toBe(3360);
+    });
+
+    it("retorna undefined sem titular", () => {
+        expect(encontrarCargoDoTitular(null, cargos)).toBeUndefined();
+        expect(encontrarCargoDoTitular(undefined, cargos)).toBeUndefined();
     });
 });

@@ -128,6 +128,13 @@ describe("ListagemDeDesignacaoDaUnidade", () => {
     expect(screen.getByText("Carregando designações…")).toBeInTheDocument();
   });
 
+  it("renderiza os cards mesmo durante o carregamento quando já existem dados", () => {
+    render(<ListagemDeDesignacaoDaUnidade data={dados} isLoading />);
+
+    expect(screen.queryByText("Carregando designações…")).not.toBeInTheDocument();
+    expect(document.querySelectorAll(".ant-card.designacao-card")).toHaveLength(2);
+  });
+
   it("encaminha os atos relacionados de cada ato principal, sem carregamento por padrão", () => {
     render(<ListagemDeDesignacaoDaUnidade data={dados} />);
 

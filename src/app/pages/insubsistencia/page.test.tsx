@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import InsubsistenciaPage, { gerarDadosInsubsistencia } from "./page";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
+import { codigosCargosDaDesignacao } from "@/utils/portarias/cargoIndicado";
 import { useFetchInsubsistenciasById } from "@/hooks/useVisualizarInsubsistencia";
 import { useSalvarInsubsistencia } from "@/hooks/useSalvarInsubsistencia";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
@@ -87,6 +88,24 @@ vi.mock("@/hooks/useSalvarInsubsistencia", () => ({
 vi.mock("@/actions/textos-sei", () => ({
   gerarPreviewTextoSeiAction: vi.fn(),
 }));
+
+// ── Descrições de Gestão de cargos base ─────────
+const { buscarDescricoesMock } = vi.hoisted(() => ({ buscarDescricoesMock: vi.fn() }));
+const MENSAGEM_ERRO_DESCRICOES_CARGOS = "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.";
+
+vi.mock("@/hooks/useBuscarDescricoesCargosBase", () => ({
+  MENSAGEM_ERRO_DESCRICOES_CARGOS: "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.",
+  useBuscarDescricoesCargosBase: () => buscarDescricoesMock,
+}));
+
+// Devolve "CARGO <código>" para todo código válido pedido.
+async function descricoesFalsas(codigos: unknown[]) {
+  return Object.fromEntries(
+    codigos
+      .filter((codigo) => codigo != null && String(codigo).trim() !== "" && Number(codigo) !== 0)
+      .map((codigo) => [String(Number(codigo)), `CARGO ${Number(codigo)}`])
+  );
+}
 
 vi.mock("antd", () => ({
   Card: ({ children }: { children: React.ReactNode }) => (
@@ -320,6 +339,7 @@ describe("InsubsistenciaPage", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    buscarDescricoesMock.mockImplementation(descricoesFalsas);
     testControls.forceTriggerResult = null;
     testControls.forceUndefinedGetValues = false;
     mockSearchParams({ id: "5" });
@@ -557,6 +577,31 @@ describe("InsubsistenciaPage", () => {
         expect.objectContaining({ tipo_ato_pai: "DESIGNACAO" })
       );
     });
+  });
+
+  it("busca as descrições dos cargos da designação antes de gerar a prévia", async () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({ data: designacaoMock, isLoading: false } as never);
+
+    render(<InsubsistenciaPage />);
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() => expect(gerarPreviewTextoSeiAction).toHaveBeenCalled());
+    expect(buscarDescricoesMock).toHaveBeenCalledWith(codigosCargosDaDesignacao(designacaoMock as never));
+  });
+
+  it("mostra erro e não gera a portaria quando a consulta dos cargos falha", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    buscarDescricoesMock.mockRejectedValueOnce(new Error("falha de rede"));
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({ data: designacaoMock, isLoading: false } as never);
+
+    render(<InsubsistenciaPage />);
+    fireEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() =>
+      expect(notificationMocks.error).toHaveBeenCalledWith({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS })
+    );
+    expect(gerarPreviewTextoSeiAction).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("botao-proximo")).not.toBeInTheDocument();
   });
 
   it("exibe notificação de erro e não mostra o botão Salvar quando a prévia falha", async () => {

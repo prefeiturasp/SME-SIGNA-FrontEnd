@@ -11,6 +11,7 @@ import {
     interpretarErrosSubstituicaoDiretor,
 } from "@/utils/designacao/substituicaoDiretor";
 import { interpretarErroPeriodoSobreposto } from "@/utils/designacao/periodoSobreposto";
+import { interpretarErroDataFuturaSemPeriodo } from "@/utils/designacao/dataFuturaSemPeriodo";
 
 type DesignacaoErrorResponse = {
     detail?: string;
@@ -27,6 +28,7 @@ type DesignacaoResult =
           field?: string;
           errosSubstituicaoDiretor?: ErrosBackendSubstituicaoDiretor;
           erroPeriodoSobreposto?: string;
+          erroDataFuturaSemPeriodo?: string;
       };
 
 // O backend retorna `detail` já formatado como "campo_snake_case: mensagem"
@@ -48,6 +50,14 @@ function humanizarDetail(detail: string): string {
             return `${label.charAt(0).toUpperCase()}${label.slice(1)}: ${resto}`;
         })
         .join("; ");
+}
+
+// Erro de unidade sem código EH: exibe o texto do backend como veio, sem o
+// prefixo de campo que o `detail` traz.
+function mensagemCodigoHierarquico(data: DesignacaoErrorResponse | undefined): string | null {
+    const valor = data?.codigo_hierarquico;
+    const mensagem = Array.isArray(valor) ? valor[0] : valor;
+    return typeof mensagem === "string" && mensagem.trim() ? mensagem : null;
 }
 
 export async function designacaoAction(
@@ -113,8 +123,15 @@ function montarResultadoErro(err: unknown): DesignacaoResult {
 
     let message = "Erro ao salvar designação";
 
+    const erroCodigoHierarquico =
+        error.response?.status === 400
+            ? mensagemCodigoHierarquico(error.response.data)
+            : null;
+
     if (error.response?.status === 500) {
         message = "Erro interno no servidor";
+    } else if (erroCodigoHierarquico) {
+        message = erroCodigoHierarquico;
     } else if (error.response?.data?.detail) {
         message = humanizarDetail(error.response.data.detail);
     } else if (error.message) {
@@ -130,6 +147,9 @@ function montarResultadoErro(err: unknown): DesignacaoResult {
     const erroPeriodoSobreposto = dadosErro400
         ? interpretarErroPeriodoSobreposto(dadosErro400)
         : null;
+    const erroDataFuturaSemPeriodo = dadosErro400
+        ? interpretarErroDataFuturaSemPeriodo(dadosErro400)
+        : null;
 
     return {
         success: false,
@@ -137,5 +157,6 @@ function montarResultadoErro(err: unknown): DesignacaoResult {
         field,
         ...(errosSubstituicaoDiretor && { errosSubstituicaoDiretor }),
         ...(erroPeriodoSobreposto && { erroPeriodoSobreposto }),
+        ...(erroDataFuturaSemPeriodo && { erroDataFuturaSemPeriodo }),
     };
 }

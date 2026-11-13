@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-VERSAO_SCRIPT = "1.2.0"
+VERSAO_SCRIPT = "1.3.0"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 JSONS_DIR = BASE_DIR / "cypress" / "reports" / "mochawesome" / ".jsons"
@@ -115,8 +115,15 @@ class Feature:
         return sum(1 for c in self.cenarios if c.estado == "pending")
 
     @property
+    def total_com_pendentes(self) -> int:
+        return self.total + len(self.pendentes)
+
+    @property
     def pct_sucesso(self) -> float:
-        return (self.passou / self.total * 100) if self.total else 0.0
+        # Dilui com os pendentes @skip: uma feature com metade dos cenarios
+        # em @skip nao deve aparecer como 100% de sucesso.
+        total = self.total_com_pendentes
+        return (self.passou / total * 100) if total else 0.0
 
     @property
     def duracao_ms(self) -> int:
@@ -478,9 +485,9 @@ def _feature_card(feature: Feature, indice: int, anterior_features: dict) -> str
         estados_presentes.add("pending")
     estados = ",".join(sorted(estados_presentes))
     busca_nome = html.escape(_normalizar_busca(feature.nome))
-    resumo_cenarios = f"{feature.passou}/{feature.total} cenarios"
+    resumo_cenarios = f"{feature.passou}/{feature.total_com_pendentes} cenarios"
     if feature.pendentes:
-        resumo_cenarios += f" (+{len(feature.pendentes)} pendentes)"
+        resumo_cenarios += f" ({len(feature.pendentes)} pendentes)"
     return f'''
     <article class="card" id="feature-{indice}" data-estados="{estados}" data-feature="{html.escape(feature.spec_relativo)}" data-busca-nome="{busca_nome}">
       <header class="card-header" onclick="toggle({indice})">
@@ -896,20 +903,26 @@ def montar_html(features: list[Feature]) -> str:
     total_falhou = sum(f.falhou for f in features)
     total_pendente = sum(f.pendente for f in features)
     total_duracao_ms = sum(f.duracao_ms for f in features)
-    pct_geral = (total_passou / total_cenarios * 100) if total_cenarios else 0
 
     ui = [f for f in features if f.sistema == "UI"]
     api = [f for f in features if f.sistema == "API"]
 
-    # Cenarios @skip ficam fora de total_cenarios/pct_geral: misturar os dois
-    # inflaria o denominador do "% de sucesso" com cenarios que nem rodaram.
+    # Cenarios @skip contam no denominador do "% de sucesso" (geral, por
+    # sistema e por feature) e aparecem como fatia propria no donut — senao
+    # uma feature com metade dos cenarios em @skip apareceria como 100% de
+    # sucesso, escondendo a divida de testes que ainda nao rodam.
     pendentes_skip = carregar_pendentes()
     total_pendentes_skip = len(pendentes_skip)
+    ui_pendentes_skip = sum(1 for p in pendentes_skip if _sistema(p.spec_relativo) == "UI")
+    api_pendentes_skip = sum(1 for p in pendentes_skip if _sistema(p.spec_relativo) == "API")
     pendentes_por_spec: dict[str, list[CenarioPendente]] = {}
     for p in pendentes_skip:
         pendentes_por_spec.setdefault(p.spec_relativo, []).append(p)
     for f in features:
         f.pendentes = pendentes_por_spec.get(f.spec_relativo, [])
+
+    total_com_pendentes = total_cenarios + total_pendentes_skip
+    pct_geral = (total_passou / total_com_pendentes * 100) if total_com_pendentes else 0
 
     anterior = _ler_snapshot_anterior()
     hash_atual = _hash_fonte_dados()
@@ -969,9 +982,9 @@ def montar_html(features: list[Feature]) -> str:
 
 <section class="resumo">
   <div class="donuts">
-    <div class="donut-wrap">{_donut_svg(total_passou, total_falhou, total_pendente)}<span>Geral</span></div>
-    <div class="donut-wrap">{_donut_svg(sum(f.passou for f in ui), sum(f.falhou for f in ui), sum(f.pendente for f in ui))}<span>UI</span></div>
-    <div class="donut-wrap">{_donut_svg(sum(f.passou for f in api), sum(f.falhou for f in api), sum(f.pendente for f in api))}<span>API</span></div>
+    <div class="donut-wrap">{_donut_svg(total_passou, total_falhou, total_pendente + total_pendentes_skip)}<span>Geral</span></div>
+    <div class="donut-wrap">{_donut_svg(sum(f.passou for f in ui), sum(f.falhou for f in ui), sum(f.pendente for f in ui) + ui_pendentes_skip)}<span>UI</span></div>
+    <div class="donut-wrap">{_donut_svg(sum(f.passou for f in api), sum(f.falhou for f in api), sum(f.pendente for f in api) + api_pendentes_skip)}<span>API</span></div>
   </div>
   <div class="resumo-cards">
     <div class="stat"><div class="valor">{pct_geral:.0f}%</div><div class="rotulo">Sucesso geral</div></div>

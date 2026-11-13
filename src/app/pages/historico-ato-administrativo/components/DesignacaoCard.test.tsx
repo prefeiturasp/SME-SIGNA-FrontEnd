@@ -137,6 +137,18 @@ describe("DesignacaoCard", () => {
     expect(screen.getAllByText("-")).toHaveLength(3);
   });
 
+  it("usa o nome social quando informado, com prioridade sobre o nome do servidor indicado", () => {
+    render(
+      <DesignacaoCard
+        ato={{ ...atoBase, nome_social_servidor_indicado: "  Tatiane Marques  " }}
+        isLoading={false}
+      />
+    );
+
+    expect(screen.getByText("Tatiane Marques")).toBeInTheDocument();
+    expect(screen.queryByText("TATIANE CRISTINA MARQUES")).not.toBeInTheDocument();
+  });
+
   it("propaga o estado de carregamento para os atos relacionados", () => {
     const { rerender } = render(<DesignacaoCard ato={atoBase} isLoading />);
 
@@ -149,5 +161,17 @@ describe("DesignacaoCard", () => {
     expect(atosRelacionadosMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ isLoading: false }),
     );
+  });
+
+  it("exibe a flag Apostilada quando a designação foi apostilada", () => {
+    render(<DesignacaoCard ato={{ ...atoBase, apostilado: true }} isLoading={false} />);
+
+    expect(screen.getByText("Apostilada")).toBeInTheDocument();
+  });
+
+  it("não exibe a flag Apostilada quando a designação não foi apostilada", () => {
+    render(<DesignacaoCard ato={atoBase} isLoading={false} />);
+
+    expect(screen.queryByText("Apostilada")).not.toBeInTheDocument();
   });
 });

@@ -125,6 +125,20 @@ describe("AtosRelacionados", () => {
     expect(screen.queryByRole("link", { name: /Ver detalhes/ })).not.toBeInTheDocument();
   });
 
+  it("omite a data de criação em branco mantendo o rótulo", () => {
+    render(<AtosRelacionados atos={[{ ...atoVazio, data: "   ", titulo: "Apostila" }]} isLoading={false} />);
+
+    expect(screen.getByText("Data da criação do ato")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Apostila" })).toBeInTheDocument();
+    expect(screen.getByRole("article").querySelectorAll("dd")).toHaveLength(0);
+  });
+
+  it("indica que a seção não está carregando quando a lista está vazia", () => {
+    render(<AtosRelacionados atos={[]} isLoading={false} />);
+
+    expect(screen.getByText("Nenhum ato relacionado encontrado.").closest("section")).toHaveAttribute("aria-busy", "false");
+  });
+
   it("marca como principal apenas o item sinalizado pela API", () => {
     render(<AtosRelacionados atos={[ato, { ...ato, id: 43, principal: false }]} isLoading={false} />);
 
@@ -139,5 +153,14 @@ describe("AtosRelacionados", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
     expect(screen.getByText("1 registro")).toBeInTheDocument();
     expect(screen.getByRole("list").closest("section")).toHaveAttribute("aria-busy", "false");
+  });
+
+  it("exibe a flag Apostilada só no ato relacionado apostilado", () => {
+    const cessacao = { ...atoVazio, id: 7, tipo: "CESSACAO", titulo: "Cessação", apostilado: true };
+    render(<AtosRelacionados atos={[cessacao, ato]} isLoading={false} />);
+
+    const [itemCessacao, itemApostila] = screen.getAllByRole("listitem");
+    expect(within(itemCessacao).getByText("Apostilada")).toBeInTheDocument();
+    expect(within(itemApostila).queryByText("Apostilada")).not.toBeInTheDocument();
   });
 });

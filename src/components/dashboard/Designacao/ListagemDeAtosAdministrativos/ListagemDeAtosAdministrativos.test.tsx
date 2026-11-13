@@ -815,21 +815,22 @@ describe("ListagemDeAtosAdministrativos", () => {
 
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
-    const tipoRender = columns[0]?.render as
+    // Nº SEI não tem render próprio: exercita só o wrapper genérico das colunas.
+    const seiRender = columns[1]?.render as
       | ((value: unknown, record: ListagemAtosAdministrativosResponse, index: number) => ReactNode)
       | undefined;
 
     const { unmount } = render(
-      <>{tipoRender?.({ children: "Conteúdo da célula" }, rows[0], 0)}</>
+      <>{seiRender?.({ children: "Conteúdo da célula" }, rows[0], 0)}</>
     );
     expect(screen.getByText("Conteúdo da célula")).toBeInTheDocument();
     unmount();
 
-    const semChildren = render(<>{tipoRender?.({ children: undefined }, rows[0], 0)}</>);
+    const semChildren = render(<>{seiRender?.({ children: undefined }, rows[0], 0)}</>);
     expect(screen.getByText("-")).toBeInTheDocument();
     semChildren.unmount();
 
-    render(<>{tipoRender?.(null, rows[0], 0)}</>);
+    render(<>{seiRender?.(null, rows[0], 0)}</>);
     expect(screen.getByText("-")).toBeInTheDocument();
   });
 
@@ -1012,5 +1013,22 @@ describe("ListagemDeAtosAdministrativos", () => {
     );
 
     expect(screen.queryByTestId(/menu-item-/)).not.toBeInTheDocument();
+  });
+
+  it("exibe a flag Apostilada na coluna Tipo só para atos apostilados", () => {
+    render(<ListagemDeAtosAdministrativos data={rows} total={1} page={1} />);
+
+    const tableProps = tableMock.mock.calls[0][0];
+    const columns = tableProps.columns as NonNullable<TableProps<ListagemAtosAdministrativosResponse>["columns"]>;
+    const tipoRender = columns[0]?.render as
+      | ((tipo: string, record: ListagemAtosAdministrativosResponse, index: number) => ReactNode)
+      | undefined;
+
+    const { rerender } = render(<>{tipoRender?.("Cessação", { ...rows[0], apostilado: true }, 0)}</>);
+    expect(screen.getByText("Cessação")).toBeInTheDocument();
+    expect(screen.getByText("Apostilada")).toBeInTheDocument();
+
+    rerender(<>{tipoRender?.("Designação", { ...rows[0], apostilado: false }, 0)}</>);
+    expect(screen.queryByText("Apostilada")).not.toBeInTheDocument();
   });
 });

@@ -36,7 +36,7 @@ import { FormEditarServidorData } from "@/components/dashboard/Designacao/ModalE
 import { Servidor } from "@/types/designacao-unidade";
 import { useFetchDesignacoesById } from "@/hooks/useVisualizarDesignacoes";
 import { useFetchCargos } from "@/hooks/useCargos";
-import { encontrarCargoPorNome, getCargoVaga, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
+import { encontrarCargoDoTitular, getCargoVaga, obterNomeCargoTitular } from "@/utils/designacao/mapearPayload";
 import {
   avaliarSubstituicaoDiretor,
   CODIGO_ELEICAO_NECESSARIA,
@@ -148,6 +148,8 @@ export default function DesignacoesPasso2() {
       cd_cargo_base: d.titular_codigo_cargo_base,
       cd_cargo_sobreposto_funcao_atividade: d.titular_codigo_cargo_sobreposto,
       cargo_sobreposto_funcao_atividade: d.titular_cargo_sobreposto,
+      // A API não guarda esse dado do titular; o cargo sobreposto é o que foi salvo como cargo da vaga.
+      possui_cargo_sobreposto: Number(d.titular_codigo_cargo_sobreposto) === d.cargo_vaga,
       cursos_titulos: '-', codigo_hierarquia: '-', lotacao_cargo_base: '-', laudo_medico: '-',
       local_de_servico: d.titular_local_servico,
       local_de_exercicio: d.titular_local_exercicio,
@@ -170,6 +172,7 @@ export default function DesignacoesPasso2() {
           cd_cargo_sobreposto_funcao_atividade: d.indicado_codigo_cargo_sobreposto,
           possui_cargo_sobreposto: d.indicado_possui_cargo_sobreposto ?? false,
           cd_ue_lotacao: d.indicado_codigo_ue_lotacao ?? "",
+          cd_ue_cargo_base: d.indicado_codigo_ue_cargo_base ?? "",
           cursos_titulos: "-",
           local_de_exercicio: d.indicado_local_exercicio,
           laudo_medico: "Indisponível",
@@ -244,8 +247,8 @@ export default function DesignacoesPasso2() {
       tipoCargo !== "vago" &&
       !!dadosTitular &&
       !isLoadingCargos &&
-      !encontrarCargoPorNome(nomeCargoTitular, cargosData),
-    [tipoCargo, dadosTitular, isLoadingCargos, nomeCargoTitular, cargosData]
+      !encontrarCargoDoTitular(dadosTitular, cargosData),
+    [tipoCargo, dadosTitular, isLoadingCargos, cargosData]
   );
   const errorCargoTitular = useMemo(
     () => obterErrorCargoTitular(cargoTitularInvalido, nomeCargoTitular),

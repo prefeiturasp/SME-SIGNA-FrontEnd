@@ -38,7 +38,7 @@ Cypress.Commands.add('api_request', (method, path, options = {}) => {
 
   Cypress.log({ name: method, message: `${path}` })
 
-  return cy.request({
+  return cy.api({
     method,
     url,
     headers: {

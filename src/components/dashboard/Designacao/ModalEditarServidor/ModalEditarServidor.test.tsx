@@ -219,4 +219,28 @@ describe("ModalEditarServidor", () => {
       await screen.findByText(/digite o nome do servidor/i)
     ).toBeInTheDocument();
   });
+
+  it("permite submit quando campos somente leitura vêm nulos do EOL", async () => {
+    const user = userEvent.setup();
+    renderModal({
+      defaultValues: {
+        ...defaultServidor,
+        cargo_sobreposto_funcao_atividade: null,
+        lotacao: null,
+        local_de_exercicio: null,
+        laudo_medico: null,
+        cursos_titulos: null,
+      } as unknown as Servidor,
+    });
+
+    await user.type(screen.getByRole("textbox", { name: /categoria/i }), "2");
+    await user.click(screen.getByTestId("botao-salvar"));
+
+    await waitFor(() => {
+      expect(handleSubmitEditarServidor).toHaveBeenCalledWith(
+        expect.objectContaining({ categoria: "2" })
+      );
+    });
+    expect(screen.queryByText(/expected string, received null/i)).not.toBeInTheDocument();
+  });
 });

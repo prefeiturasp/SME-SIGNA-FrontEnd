@@ -81,9 +81,11 @@ vi.mock("@/assets/icons/Delete", () => ({
 const row: CargosBaseResponse = {
   id: 10,
   codigo_cargo: "3360",
-  grupamento: "Docentes",
+  grupamento: "DOCENTES",
+  grupamento_display: "Docentes",
   descricao_resumida: "Professor",
   descricao_completa: "Professor de educacao basica",
+  descricao_eol: "Professor de educacao basica",
   situacao_funcional: "Efetivo",
   utilizado_para_funcoes: true,
   utilizado_para_designacoes: false,
@@ -120,7 +122,9 @@ describe("ListagemDeCargos", () => {
     expect(tableProps.dataSource).toEqual([row]);
     expect((tableProps.rowKey as (record: CargosBaseResponse) => string)(row)).toBe("10");
     expect(tableProps.pagination).toBe(false);
-    expect(tableProps.columns).toHaveLength(11);
+    expect(tableProps.columns).toHaveLength(12);
+    expect(tableProps.columns?.[0]).toMatchObject({ title: "Grupamento", dataIndex: "grupamento_display" });
+    expect(tableProps.columns?.[3]).toMatchObject({ title: "Descrição EOL", dataIndex: "descricao_eol" });
 
     const paginationProps = paginationMock.mock.calls[0][0] as PaginationProps;
     expect(paginationProps.current).toBe(1);
@@ -146,13 +150,13 @@ describe("ListagemDeCargos", () => {
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
 
-    const renderFuncoes = columns[4]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
-    const renderDesignacoes = columns[5]?.render as
+    const renderFuncoes = columns[5]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
+    const renderDesignacoes = columns[6]?.render as
       | ((_: unknown, record: CargosBaseResponse) => ReactNode)
       | undefined;
-    const renderSte = columns[6]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
-    const renderPermutas = columns[7]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
-    const renderFicticio = columns[8]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
+    const renderSte = columns[7]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
+    const renderPermutas = columns[8]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
+    const renderFicticio = columns[9]?.render as ((_: unknown, record: CargosBaseResponse) => ReactNode) | undefined;
 
     const { rerender } = render(
       <>
@@ -185,7 +189,7 @@ describe("ListagemDeCargos", () => {
     render(<ListagemDeCargos data={[row]} total={1} page={1} />);
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
-    const renderStatus = columns[9]?.render as
+    const renderStatus = columns[10]?.render as
       | ((status: StatusCargosBase, record: CargosBaseResponse) => ReactNode)
       | undefined;
 
@@ -224,7 +228,7 @@ describe("ListagemDeCargos", () => {
 
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
-    const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
+    const actionRender = columns[11]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
 
     render(<>{actionRender?.(row)}</>);
     expect(screen.getByTestId("edit-icon-button")).toBeInTheDocument();
@@ -237,7 +241,7 @@ describe("ListagemDeCargos", () => {
 
     const tableProps = tableMock.mock.calls[0][0];
     const columns = tableProps.columns as NonNullable<TableProps<CargosBaseResponse>["columns"]>;
-    const actionRender = columns[10]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
+    const actionRender = columns[11]?.render as ((record: CargosBaseResponse) => ReactNode) | undefined;
 
     render(<>{actionRender?.({ ...row, id: 20, status: StatusCargosBase.INATIVO })}</>);
     fireEvent.click(screen.getByTestId("edit-icon-button"));
