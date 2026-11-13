@@ -234,6 +234,33 @@ describe("designacaoAction", () => {
         });
     });
 
+    it("retorna o bloqueio de data futura quando o backend envia data_futura_sem_periodo", async () => {
+        mockCookies("token");
+
+        const mensagem = 'Não é possível criar uma designação com data futura sem informar a data "Até".';
+        mockedAxios.post.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {
+                status: 400,
+                data: {
+                    data_fim: [mensagem],
+                    codes: { data_fim: ["data_futura_sem_periodo"] },
+                    detail: `data_fim: ${mensagem}`,
+                },
+            },
+            message: "Request failed",
+        });
+
+        const result = await designacaoAction(formDataMock, null);
+
+        expect(result).toEqual({
+            success: false,
+            error: `Data fim: ${mensagem}`,
+            field: undefined,
+            erroDataFuturaSemPeriodo: mensagem,
+        });
+    });
+
     it("retorna campo field quando presente na resposta de erro", async () => {
         mockCookies("token");
 
