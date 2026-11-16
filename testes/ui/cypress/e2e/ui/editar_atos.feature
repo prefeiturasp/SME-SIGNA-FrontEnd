@@ -68,7 +68,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
       E o campo "Detalhe para quadro de histórico por ano" da edição exibe a opção guardada
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -179,7 +178,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
       E valida a existencia dos botões de edição "Voltar" e "Avançar"
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -229,7 +227,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
       E a opção guardada está marcada no campo "Aposentadoria?"
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -348,7 +345,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
         | Trechos para o SEI |
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -392,7 +388,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
       E o campo "Observações" da edição exibe o valor guardado
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -497,7 +492,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
         | Trechos para o SEI |
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -541,7 +535,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
       E o campo "Observações" da edição exibe o valor guardado
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -646,7 +639,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
         | Trechos para o SEI |
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -711,7 +703,6 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
       E o campo "Detalhe para quadro de histórico por ano" da edição exibe a opção guardada
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"
 
@@ -847,6 +838,5 @@ Funcionalidade: Editar Designação, Cessação, Insubsistência e Apostila a pa
         | Gerar texto SEI |
 
       Quando o sistema navega até o menu lateral esquerdo
-      E seleciona a opção "Início" no menu lateral
       E seleciona a opção "Atos administrativos" no menu lateral
       Então o sistema direciona para a tela "Atos administrativos"

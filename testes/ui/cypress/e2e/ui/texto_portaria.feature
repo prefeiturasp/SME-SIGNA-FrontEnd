@@ -23,7 +23,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Designação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 01"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 01" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -44,7 +44,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Cessação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 02"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 02" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -64,7 +64,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Insubsistência de Designação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 03"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 03" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -84,7 +84,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Insubsistência de Cessação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 04"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 04" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -104,7 +104,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Apostila de Designação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 05"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 05" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -124,7 +124,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Apostila de Cessação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 06"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 06" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -144,7 +144,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Anulação de Apostila"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 07"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 07" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -164,7 +164,7 @@ Funcionalidade: Cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Tornar sem efeito"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
     E preenche o campo "Observações" do cadastro de texto de portaria com "QA obs 08"
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E adiciona o texto "QA texto 08" ao final do texto da portaria
 
     Quando clica no botão "Cadastrar texto"
@@ -191,7 +191,7 @@ Funcionalidade: Cadastro de texto de portaria
     E valida a existencia do Texto "Status*"
     E valida a existencia do Texto "Nome do Modelo"
     E valida a existencia do Texto "Tipo de cargo"
-    E valida a existencia do Texto "Variavel*"
+    E valida a existencia do Texto "Variável*"
     E valida a existencia do Texto "Observações"
     E valida a existencia do Texto "Texto da portaria*"
     E valida a existencia do Texto "Atenção ao editar o texto!"
@@ -221,7 +221,7 @@ Funcionalidade: Cadastro de texto de portaria
     E seleciona uma opção aleatória no campo "Status" do cadastro de texto de portaria
     E preenche o campo "Nome do Modelo" do cadastro de texto de portaria com um nome único de automação para "Designação"
     E seleciona uma opção aleatória no campo "Tipo de cargo" do cadastro de texto de portaria
-    E seleciona as variáveis "Portaria, Nº SEI, Cargo" no texto da portaria
+    E seleciona as variáveis "Portaria, Nº SEI, Cargo a ser ocupado" no texto da portaria
     E apaga o conteúdo do texto da portaria mantendo as variáveis selecionadas
 
     Quando clica no botão "Cadastrar texto"

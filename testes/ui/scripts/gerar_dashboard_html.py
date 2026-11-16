@@ -39,6 +39,11 @@ CONFIG_PATH = BASE_DIR / "dashboard.config.json"
 
 CONFIG_PADRAO = {
     "titulo": "Dashboard de Automação",
+    # False: o dashboard reflete so o que a ultima execucao rodou — cenarios
+    # @skip ficam de fora dos totais (nao viram "Pendentes").
+    # True: soma os @skip dos .feature como pendentes, para expor a divida de
+    # testes que ainda nao rodam.
+    "contar_skip_como_pendente": False,
 }
 
 
@@ -183,13 +188,26 @@ def _sistema(spec_relativo: str) -> str:
 def carregar_features() -> list[Feature]:
     mais_recentes: dict[str, Feature] = {}
 
+    # O .jsons acumula relatorios de todas as execucoes. Sem estes filtros o
+    # dashboard ressuscitava resultados antigos:
+    # - spec movido para nao_executar/ ou removido (ex.: ui/signa_carga.feature,
+    #   ultimo relatorio de agosto) continuava aparecendo como feature;
+    # - cenario que passou a ser @skip vinha do ultimo relatorio em que rodou
+    #   (ex.: falha de 10/11) E da lista de pendentes — contado duas vezes.
+    #   Feature com todos os cenarios @skip nem roda (filterSpecs), entao o
+    #   relatorio antigo nunca era substituido.
+    specs_ativos = {_spec_relativo_do_path(p) for p in _specs_ativos()}
+    titulos_skip: dict[str, set[str]] = {}
+    for p in carregar_pendentes():
+        titulos_skip.setdefault(p.spec_relativo, set()).add(p.titulo)
+
     for path in sorted(JSONS_DIR.glob("*.json")):
         dados = json.loads(path.read_text(encoding="utf-8"))
         inicio = datetime.fromisoformat(dados["stats"]["start"].replace("Z", "+00:00"))
 
         for resultado in dados.get("results", []):
             spec_relativo = _spec_relativo(resultado.get("file", ""))
-            if not spec_relativo:
+            if not spec_relativo or spec_relativo not in specs_ativos:
                 continue
 
             existente = mais_recentes.get(spec_relativo)
@@ -209,7 +227,14 @@ def carregar_features() -> list[Feature]:
                 cenarios=cenarios,
             )
 
-    return sorted(mais_recentes.values(), key=lambda f: (f.sistema, f.nome))
+    for feature in mais_recentes.values():
+        skip = titulos_skip.get(feature.spec_relativo, set())
+        feature.cenarios = [c for c in feature.cenarios if c.titulo not in skip]
+
+    # Feature que ficou sem cenario executado (todos viraram @skip) nao rodou
+    # na ultima execucao — nao entra como card.
+    features = [f for f in mais_recentes.values() if f.cenarios]
+    return sorted(features, key=lambda f: (f.sistema, f.nome))
 
 
 # ---------------------------------------------------------------------------
@@ -911,7 +936,7 @@ def montar_html(features: list[Feature]) -> str:
     # sistema e por feature) e aparecem como fatia propria no donut — senao
     # uma feature com metade dos cenarios em @skip apareceria como 100% de
     # sucesso, escondendo a divida de testes que ainda nao rodam.
-    pendentes_skip = carregar_pendentes()
+    pendentes_skip = carregar_pendentes() if config.get("contar_skip_como_pendente") else []
     total_pendentes_skip = len(pendentes_skip)
     ui_pendentes_skip = sum(1 for p in pendentes_skip if _sistema(p.spec_relativo) == "UI")
     api_pendentes_skip = sum(1 for p in pendentes_skip if _sistema(p.spec_relativo) == "API")

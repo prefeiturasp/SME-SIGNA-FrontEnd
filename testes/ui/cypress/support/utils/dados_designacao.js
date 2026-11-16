@@ -24,8 +24,12 @@ const PORTARIA_CESSACAO_EXISTENTE = { portaria: '3', ano: '2026' }
 const PORTARIA_INSUBSISTENCIA_EXISTENTE = { portaria: '8857671', ano: '2026' }
 
 // Cargo de referência pra montar payload com tipo_vaga=VAGO, evitando
-// depender de um segundo servidor "titular".
-const CARGO_VAGA_REFERENCIA = { codigo: 3085, nome: 'ASSISTENTE DE DIRETOR DE ESCOLA' }
+// depender de um segundo servidor "titular". Precisa ser um CargoBase ativo e
+// habilitado para designações no backend — 3085 (ASSISTENTE DE DIRETOR DE
+// ESCOLA) deixou de ser aceito em QA (nov/2026: "Cargo base não encontrado,
+// inativo ou não utilizado para designações"). Nem todo item de
+// /cargos-base-pareados/ é aceito; em 10/11/2026 só 3360 e 3379 passavam.
+const CARGO_VAGA_REFERENCIA = { codigo: 3360, nome: 'DIRETOR DE ESCOLA' }
 
 function numeroAleatorio(digitos = 7) {
   const min = Math.pow(10, digitos - 1)

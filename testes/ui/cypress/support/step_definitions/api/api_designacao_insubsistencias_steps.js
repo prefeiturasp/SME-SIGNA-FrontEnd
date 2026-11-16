@@ -42,7 +42,9 @@ When('eu busco uma insubsistência existente por portaria e ano conhecidos', () 
 
 Then('a resposta deve conter os dados da insubsistência pesquisada', () => {
   cy.get('@response').then((res) => {
-    expect(res.body).to.have.property('numero_portaria', PORTARIA_INSUBSISTENCIA_EXISTENTE.portaria)
+    // A API passou a devolver numero_portaria como número; compara como texto.
+    expect(res.body).to.have.property('numero_portaria')
+    expect(String(res.body.numero_portaria)).to.eq(PORTARIA_INSUBSISTENCIA_EXISTENTE.portaria)
   })
 })
 

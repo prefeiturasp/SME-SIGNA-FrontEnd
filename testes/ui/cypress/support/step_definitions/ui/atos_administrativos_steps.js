@@ -7,6 +7,7 @@ import {
   atosAdministrativosPack,
   atosAdministrativosUrls,
 } from '../../ui/locators/atos_administrativos_locators'
+import { navegarPeloMenuLateral } from '../../ui/menu_lateral'
 
 // Contexto — Login único, reaproveitado entre cenários
 let loginJaRealizado = false
@@ -60,6 +61,8 @@ const FILTROS_TEXTO_LIVRE = [
   'Servidor',
   'Registro Funcional (RF)',
 ]
+
+const FILTROS_TITULAR_OU_INDICADO = ['Servidor', 'Registro Funcional (RF)']
 
 // Contexto — Confirmação de tela
 Given('está na página {string}', () => {
@@ -179,8 +182,19 @@ Then('a tabela apresenta resultado para {string}', (valor) => {
     })
   }
 
+  // Servidor/RF filtram por titular OU indicado (nome_titular_e_indicado),
+  // mas a tabela só exibe o indicado — linhas em que o valor buscado é o
+  // titular aparecem sem ele. Aqui basta ao menos uma linha com o valor.
+  const filtraTitularOuIndicado =
+    ultimoFiltroAplicado && FILTROS_TITULAR_OU_INDICADO.includes(ultimoFiltroAplicado.filtro)
+
   atosAdministrativosPack.tabela.linhas().should(($linhas) => {
     expect($linhas.length).to.be.greaterThan(0)
+    if (filtraTitularOuIndicado) {
+      const textos = [...$linhas].map((linha) => linha.textContent)
+      expect(textos.some((t) => t.includes(valor)), `alguma linha contém "${valor}"`).to.be.true
+      return
+    }
     $linhas.each((_, linha) => {
       expect(linha.textContent).to.contain(valor)
     })
@@ -229,6 +243,20 @@ When('seleciona a opção {string} no menu de novo ato', (opcao) => {
   atosAdministrativosPack.novoAto.opcao(opcao).should('be.visible').click()
 })
 
+When('escolhe a opção {string} no modal de nova designação', (titulo) => {
+  atosAdministrativosPack.modalNovaDesignacao.opcao(titulo).should('be.visible').click()
+  atosAdministrativosPack.modalNovaDesignacao.opcao(titulo)
+    .find('input[type="radio"]')
+    .should('be.checked')
+})
+
+When('clica em Continuar no modal de nova designação', () => {
+  atosAdministrativosPack.modalNovaDesignacao.continuar()
+    .should('be.visible')
+    .and('not.be.disabled')
+    .click()
+})
+
 Then('o sistema direciona para a tela {string}', (tela) => {
   switch (tela) {
     case 'Designação':
@@ -237,9 +265,21 @@ Then('o sistema direciona para a tela {string}', (tela) => {
     case 'Listagem de designações':
       cy.url({ timeout: 20000 }).should('include', 'listagem-designacoes')
       break
-    case 'Atos administrativos':
-      cy.url({ timeout: 20000 }).should('include', 'atos-administrativos')
+    case 'Atos administrativos': {
+      // Se o "Salvar" falhar, o front fica no passo 3 e mostra só um toast de
+      // erro (some em ~4s, fora do viewport). Guarda o texto do toast assim que
+      // ele aparece, para a falha dizer o motivo em vez de só "URL errada".
+      let erroAoSalvar = ''
+      cy.location('pathname', { timeout: 20000 }).should((pathname) => {
+        const toast = Cypress.$('.ant-notification-notice')
+          .filter((_, el) => /erro/i.test(el.textContent))
+          .first().text().trim()
+        if (toast) erroAoSalvar = toast
+        expect(erroAoSalvar, 'notificação de erro exibida após salvar').to.equal('')
+        expect(pathname).to.include('atos-administrativos')
+      })
       break
+    }
     default:
       throw new Error(
         `Tela "${tela}" não mapeada em "o sistema direciona para a tela". Adicione o mapeamento de URL correspondente.`
@@ -259,11 +299,9 @@ When('o sistema navega até o menu lateral esquerdo', () => {
   cy.get('aside, nav', { timeout: 10000 }).should('be.visible')
 })
 
+// O grupo do item (ex.: "Designações") é aberto automaticamente pelo helper.
 When('seleciona a opção {string} no menu lateral', (opcao) => {
-  cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${opcao}$`, 'i'), { timeout: 15000 })
-    .closest('li, [role="menuitem"], a')
-    .click({ force: true })
-  cy.wait(800)
+  navegarPeloMenuLateral(opcao)
 })
 
 // Modal de ação (Nova cessação / Tornar insubsistente / etc.)

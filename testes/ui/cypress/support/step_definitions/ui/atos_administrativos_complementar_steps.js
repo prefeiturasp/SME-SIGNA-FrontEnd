@@ -30,8 +30,19 @@ const aplicarFiltroTipoStatus = ({ tipo, status }) => {
 
 // Escopado ao dropdown aberto — sem isso "ul li span" também casa com o menu
 // lateral (<aside>), inflando a contagem.
+// O antd só marca o dropdown com .ant-dropdown-hidden quando a animação de
+// saída termina. Se o próximo menu abrir antes disso, os dois ficam
+// "visíveis" ao mesmo tempo e os textos se misturam. Exigir exatamente 1
+// dropdown aberto evita ler o menu da linha anterior.
+const DROPDOWN_ABERTO = '.ant-dropdown:not(.ant-dropdown-hidden)'
+
 const spansDoMenuAberto = () =>
-  cy.get('.ant-dropdown:not(.ant-dropdown-hidden) li span', { timeout: 10000 })
+  cy.get(DROPDOWN_ABERTO, { timeout: 10000 }).should('have.length', 1).find('li span')
+
+const fecharMenuAberto = () => {
+  cy.get('body').click(0, 0)
+  return cy.get(DROPDOWN_ABERTO, { timeout: 10000 }).should('not.exist')
+}
 
 const guardarDadosDaLinha = (index) => {
   cy.wrap(index).as('designacaoIndex')
@@ -84,10 +95,6 @@ When('seleciona uma cessação de forma aleatoria na listagem', () => {
   selecionarLinhaAleatoriaFiltrada('cessação', { tipo: 'Cessação' })
 })
 
-When('seleciona uma apostila de forma aleatoria na listagem', () => {
-  selecionarLinhaAleatoriaFiltrada('apostila', { tipo: 'Apostila de Designação' })
-})
-
 // Depende de já existir ao menos 1 registro "Apostila de Cessação" em QA —
 // base sem dado no momento, cenário fica pendente até haver massa de dado.
 When('seleciona uma apostila de cessação de forma aleatoria na listagem', () => {
@@ -98,25 +105,27 @@ When('seleciona uma insubsistência de forma aleatoria na listagem', () => {
   selecionarLinhaAleatoriaFiltrada('insubsistência', { tipo: 'Insubsistência de Designação' })
 })
 
-// Seleção de linha por ausência de opção no menu (regras de negócio)
-// Não dá pra saber pela tabela se um ato já tem cessação/insubsistência
-// vinculada — só abrindo o próprio menu de ações (a opção já executada some).
-const linhaTemOpcaoNoMenu = (index, opcao) =>
+// Seleção de linha pelas opções do menu (regras de negócio)
+// Não dá pra saber pela tabela se um ato já tem cessação/insubsistência/
+// apostila vinculada — só abrindo o próprio menu de ações (a opção já
+// executada some do menu, ver filtrarItemsDuplicadas no front).
+const textosDoMenuDaLinha = (index) =>
   acoesListagemLocators.dropdownTrigger(index).click({ force: true }).then(() => {
     return spansDoMenuAberto().then(($spans) => {
       const textos = $spans.map((i, el) => Cypress.$(el).text().trim().toLowerCase()).get()
-      const encontrada = textos.some((t) => t === opcao.trim().toLowerCase())
       // Encadeia o fechamento do dropdown ANTES de devolver o resultado —
       // retornar um valor síncrono depois de disparar comandos cy sem
       // encadear (bug original) gera "mixing up async and sync code".
-      return cy.get('body').click(0, 0).wait(300).then(() => encontrada)
+      return fecharMenuAberto().then(() => textos)
     })
   })
 
-// Pagina até achar (ou esgotar) uma linha qualificada — a candidata válida
-// nem sempre está na primeira página de resultados filtrados.
-const selecionarLinhaSemOpcaoNoMenu = (descricao, opcaoAusente) => {
-  aplicarFiltroTipoStatus({ tipo: 'Designação', status: 'Publicado' })
+const menuContem = (textos, opcao) => textos.includes(opcao.trim().toLowerCase())
+
+// Percorre as linhas da listagem filtrada (paginando) até achar uma cujo menu
+// satisfaça o critério — a candidata válida nem sempre está na 1ª página.
+const selecionarLinhaPorMenu = (descricao, filtro, criterio, explicacaoCriterio) => {
+  aplicarFiltroTipoStatus(filtro)
 
   const tentarNaPaginaAtual = () => {
     atosAdministrativosPack.tabela.linhas().should(($linhas) => {
@@ -130,8 +139,8 @@ const selecionarLinhaSemOpcaoNoMenu = (descricao, opcaoAusente) => {
           return
         }
         const [index, ...resto] = indices
-        linhaTemOpcaoNoMenu(index, opcaoAusente).then((temOpcao) => {
-          if (!temOpcao) {
+        textosDoMenuDaLinha(index).then((textos) => {
+          if (criterio(textos)) {
             cy.log(`✓ Linha ${index} selecionada — ${descricao}`)
             guardarDadosDaLinha(index)
             return
@@ -139,14 +148,16 @@ const selecionarLinhaSemOpcaoNoMenu = (descricao, opcaoAusente) => {
           tentarLinha(resto)
         })
       }
-      tentarLinha(Array.from({ length: totalLinhas }, (_, i) => i))
+      // Ordem embaralhada: mantém a escolha aleatória entre as qualificadas.
+      const indices = Cypress._.shuffle(Array.from({ length: totalLinhas }, (_, i) => i))
+      tentarLinha(indices)
     })
   }
 
   const irParaProximaPaginaOuDesistir = () => {
     cy.get('.ant-pagination-next', { timeout: 10000 }).then(($next) => {
       if ($next.hasClass('ant-pagination-disabled')) {
-        throw new Error(`Nenhuma linha "${descricao}" (sem "${opcaoAusente}" no menu) encontrada em nenhuma página da listagem filtrada — cenário depende de massa de dado que hoje não existe no ambiente, não é falha de código.`)
+        throw new Error(`Nenhuma linha "${descricao}" (${explicacaoCriterio}) encontrada em nenhuma página da listagem filtrada — cenário depende de massa de dado que hoje não existe no ambiente, não é falha de código.`)
       }
       cy.wrap($next).click({ force: true })
       cy.wait(1000)
@@ -157,12 +168,45 @@ const selecionarLinhaSemOpcaoNoMenu = (descricao, opcaoAusente) => {
   tentarNaPaginaAtual()
 }
 
+const selecionarLinhaSemOpcaoNoMenu = (descricao, opcaoAusente) =>
+  selecionarLinhaPorMenu(
+    descricao,
+    { tipo: 'Designação', status: 'Publicado' },
+    (textos) => !menuContem(textos, opcaoAusente),
+    `sem "${opcaoAusente}" no menu`
+  )
+
 When('seleciona uma designação com cessação vinculada de forma aleatoria na listagem', () => {
   selecionarLinhaSemOpcaoNoMenu('designação com cessação vinculada', 'Cessar')
 })
 
 When('seleciona um ato com insubsistência vinculada de forma aleatoria na listagem', () => {
   selecionarLinhaSemOpcaoNoMenu('ato com insubsistência vinculada', 'Tornar insubsistente')
+})
+
+// Apostila já anulada perde "Anular Apostila" do menu (sobra só "Editar
+// Apostila") — sorteio puro caía nelas e o retry de "clica e seleciona a
+// opção" (cessacao_steps.js) recarrega a página SEM o filtro de tipo.
+When('seleciona uma apostila ainda não anulada de forma aleatoria na listagem', () => {
+  selecionarLinhaPorMenu(
+    'apostila ainda não anulada',
+    { tipo: 'Apostila de Designação' },
+    (textos) => menuContem(textos, 'Anular Apostila'),
+    'com "Anular Apostila" no menu'
+  )
+})
+
+// O backend recusa excluir designação com ato vinculado (ex.: id 278 em QA,
+// não publicada mas com insubsistência — continuou existindo após o
+// "Excluir"). Sem vínculo, o menu traz Apostilar, Cessar e Tornar
+// insubsistente; cada ato vinculado remove a opção correspondente.
+When('seleciona uma designação não publicada sem atos vinculados de forma aleatoria na listagem', () => {
+  selecionarLinhaPorMenu(
+    'designação não publicada sem atos vinculados',
+    { tipo: 'Designação', status: 'Aguardando publicação' },
+    (textos) => ['Excluir', 'Apostilar', 'Cessar', 'Tornar insubsistente'].every((o) => menuContem(textos, o)),
+    'com Excluir, Apostilar, Cessar e Tornar insubsistente no menu'
+  )
 })
 
 // Validação dos dados carregados na tela de destino
@@ -186,7 +230,8 @@ const validarDadosCarregados = () => {
       cy.get('main', { timeout: 15000 }).should(($main) => {
         const texto = $main.text()
         const valoresInputs = [...$main[0].querySelectorAll('input, textarea')].map((el) => el.value)
-        const nomeEncontrado = !!nomeUtil && texto.includes(nomeUtil)
+        // Na Apostila o nome do servidor indicado virou <input> editável — busca no valor também.
+        const nomeEncontrado = !!nomeUtil && (texto.includes(nomeUtil) || valoresInputs.includes(nomeUtil))
         const seiEncontrado = !!seiUtil && (texto.includes(seiUtil) || valoresInputs.includes(seiUtil))
         expect(
           nomeEncontrado || seiEncontrado,
@@ -249,8 +294,14 @@ When('cancela a exclusão clicando em {string}', (botao) => {
   acoesListagemLocators.modalConfirm.botao(botao).click({ force: true })
 })
 
+// Espera QUALQUER notificação e só então compara o texto — se o backend
+// recusar a ação, a falha mostra a mensagem de erro real em vez de um
+// "não encontrou o texto" genérico.
 Then('o sistema exibe a notificação {string}', (texto) => {
-  acoesListagemLocators.notificacao(texto).should('be.visible')
+  cy.get('.ant-notification-notice', { timeout: 20000 }).first().then(($notice) => {
+    const recebido = $notice.text().trim()
+    expect(recebido, `notificação exibida (esperado: "${texto}")`).to.include(texto)
+  })
 })
 
 Then('o modal de confirmação é fechado', () => {

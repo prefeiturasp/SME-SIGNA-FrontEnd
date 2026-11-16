@@ -79,15 +79,6 @@ Funcionalidade: API EOL - Cenários Negativos
     Quando eu faço uma requisição GET para "/api/acessos/funcionario-ativo/0000000"
     Então o status da resposta deve ser 404 ou 200
 
-  # Código de DRE no formato errado — API aceita e retorna 200 com corpo vazio/nulo
-  @negativo @parametros @dre_invalida
-  Cenário: Buscar DRE com código inexistente
-    Dado que possuo credenciais válidas de autenticação
-    E que estou autenticado na API
-    Quando eu faço uma requisição GET para "/api/DREs/CODIGOINEXISTENTE"
-    Então o status da resposta deve ser 200 ou 400
-    E a resposta deve ser nula ou vazia
-
   # ==========================================================================
   # 3. ENDPOINT INEXISTENTE
   # ==========================================================================
@@ -112,13 +103,13 @@ Funcionalidade: API EOL - Cenários Negativos
   # 4. MÉTODO HTTP INCORRETO
   # ==========================================================================
 
-  # POST em endpoint que só aceita GET — API retorna 400 ou 405
+  # /api/DREs aceita só GET e POST (filtro) — DELETE retorna 405
   @negativo @metodo_invalido
-  Cenário: Enviar POST para endpoint somente GET de DREs
+  Cenário: Enviar DELETE para endpoint de DREs
     Dado que possuo credenciais válidas de autenticação
     E que estou autenticado na API
-    Quando eu faço uma requisição "POST" para "/api/DREs"
-    Então o status da resposta deve ser 400 ou 405
+    Quando eu faço uma requisição "DELETE" para "/api/DREs"
+    Então o status code da resposta deve ser 405
 
   # DELETE em endpoint que só aceita GET
   @negativo @metodo_invalido

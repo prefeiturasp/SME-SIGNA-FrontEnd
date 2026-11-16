@@ -1012,7 +1012,8 @@ Then('o sistema direciona para a pagina de resumo da designacao', () => {
 Then('deve visualizar os dados do resumo da portaria', () => {
   cy.contains('PORTARIA', { timeout: 15000 }).should('be.visible');
   cy.contains('PORTARIA Nº', { timeout: 10000 }).should('exist');
-  cy.contains('SEI Nº', { timeout: 10000 }).should('exist');
+  // O texto da portaria passou a vir como "SEI nº" (minúsculo) — aceita as duas grafias.
+  cy.contains(/SEI\s*n[º°o]/i, { timeout: 10000 }).should('exist');
   // Rola até o final para garantir que seções abaixo do fold sejam renderizadas
   cy.scrollTo('bottom', { ensureScrollable: false, duration: 500 });
 });
