@@ -2,6 +2,7 @@ import React from "react";
 import type { ReactNode } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { codigosCargosDaDesignacao } from "@/utils/portarias/cargoIndicado";
 import { vi } from "vitest";
 import CessacaoPage, { gerarFormValuesCessacao } from "./page";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
@@ -63,6 +64,24 @@ vi.mock("@/hooks/useVisualizarDesignacoes", () => ({
 vi.mock("@/actions/textos-sei", () => ({
   gerarPreviewTextoSeiAction: vi.fn(),
 }));
+
+// ── Descrições de Gestão de cargos base ─────────
+const { buscarDescricoesMock } = vi.hoisted(() => ({ buscarDescricoesMock: vi.fn() }));
+const MENSAGEM_ERRO_DESCRICOES_CARGOS = "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.";
+
+vi.mock("@/hooks/useBuscarDescricoesCargosBase", () => ({
+  MENSAGEM_ERRO_DESCRICOES_CARGOS: "Não foi possível consultar os cargos em Gestão de cargos base. A portaria não foi gerada.",
+  useBuscarDescricoesCargosBase: () => buscarDescricoesMock,
+}));
+
+// Devolve "CARGO <código>" para todo código válido pedido.
+async function descricoesFalsas(codigos: unknown[]) {
+  return Object.fromEntries(
+    codigos
+      .filter((codigo) => codigo != null && String(codigo).trim() !== "" && Number(codigo) !== 0)
+      .map((codigo) => [String(Number(codigo)), `CARGO ${Number(codigo)}`])
+  );
+}
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
@@ -179,6 +198,7 @@ const defaultGetValues = () => ({
 describe("CessacaoPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    buscarDescricoesMock.mockImplementation(descricoesFalsas);
     mockUseFetch.mockReturnValue({
       data: mockDesignacao,
       isLoading: false,
@@ -285,6 +305,31 @@ describe("CessacaoPage", () => {
       expect(screen.queryByText("PORTARIA")).not.toBeInTheDocument();
     });
     expect(gerarPreviewTextoSeiAction).not.toHaveBeenCalled();
+  });
+
+  it("busca as descrições dos cargos da designação antes de gerar a prévia", async () => {
+    mockTrigger.mockResolvedValue(true);
+
+    render(<CessacaoPage />);
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+    await screen.findByTestId("editor-sei");
+
+    expect(buscarDescricoesMock).toHaveBeenCalledWith(codigosCargosDaDesignacao(mockDesignacao as never));
+  });
+
+  it("mostra erro e não gera a portaria quando a consulta dos cargos falha", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    mockTrigger.mockResolvedValue(true);
+    buscarDescricoesMock.mockRejectedValueOnce(new Error("falha de rede"));
+
+    render(<CessacaoPage />);
+    await userEvent.click(screen.getByText("Trechos para o SEI"));
+
+    await waitFor(() =>
+      expect(mockNotificationError).toHaveBeenCalledWith({ title: MENSAGEM_ERRO_DESCRICOES_CARGOS })
+    );
+    expect(gerarPreviewTextoSeiAction).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-sei")).not.toBeInTheDocument();
   });
 
   it("exibe notificação de erro quando a prévia falha e não mostra o editor", async () => {

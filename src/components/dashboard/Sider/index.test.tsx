@@ -37,6 +37,7 @@ const renderMockMenuItems = (
       <button
         key={item.key}
         data-testid={`menu-item-${String(item.key)}`}
+        data-classname={item.className}
         onClick={() => onClick?.({ key: String(item.key) })}
       >
         {item.label}
@@ -49,12 +50,13 @@ vi.mock("antd", () => ({
     icon,
     onClick,
     className,
+    ...rest
   }: {
     icon?: React.ReactNode;
     onClick?: () => void;
     className?: string;
-  }) => (
-    <button data-testid="menu-toggle-button" className={className} onClick={onClick}>
+  } & Record<string, unknown>) => (
+    <button data-testid="menu-toggle-button" className={className} onClick={onClick} {...rest}>
       {icon}
     </button>
   ),
@@ -235,8 +237,182 @@ describe("Sider", () => {
     expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
   });
 
+  it("usa o título reduzido quando o menu está retraído", () => {
+    const itemsComTituloReduzido: MenuItemSMEProps[] = [
+      {
+        key: "apoio",
+        title: "Apoio administrativo",
+        collapsedTitle: "Apoio admin.",
+        icon: <span>Icon Apoio</span>,
+        children: [{ key: "apoio-filho", title: "Ir para apoio", url: "/apoio" }],
+      },
+    ];
+
+    const { rerender } = render(<Sider onClick={vi.fn()} items={itemsComTituloReduzido} />);
+
+    expect(screen.getByText("Apoio admin.")).toBeInTheDocument();
+    expect(screen.queryByText("Apoio administrativo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+    rerender(<Sider onClick={vi.fn()} items={itemsComTituloReduzido} />);
+
+    expect(screen.queryByText("Apoio admin.")).not.toBeInTheDocument();
+    expect(screen.getByText("Apoio administrativo")).toBeInTheDocument();
+  });
+
+  it("aplica o título reduzido também em itens sem filhos", () => {
+    const itemSemFilhos: MenuItemSMEProps[] = [
+      {
+        key: "apoio",
+        title: "Apoio administrativo",
+        collapsedTitle: "Apoio admin.",
+        icon: <span>Icon Apoio</span>,
+        url: "/apoio",
+      },
+    ];
+
+    const { rerender } = render(<Sider onClick={vi.fn()} items={itemSemFilhos} />);
+
+    expect(screen.getByText("Apoio admin.")).toBeInTheDocument();
+    expect(screen.getByText("Icon Apoio")).toBeInTheDocument();
+    expect(screen.queryByText("Apoio administrativo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+    rerender(<Sider onClick={vi.fn()} items={itemSemFilhos} />);
+
+    expect(screen.queryByText("Apoio admin.")).not.toBeInTheDocument();
+    expect(screen.getByText("Apoio administrativo")).toBeInTheDocument();
+  });
+
+  it("aplica a classe de item raiz nos itens sem filhos e de submenu nos filhos", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const itemRaso = screen.getByTestId("menu-item-root-2");
+    expect(itemRaso).toHaveAttribute("data-classname", expect.stringContaining("is-root-leaf"));
+
+    const itemInterno = screen.getByTestId("menu-item-leaf");
+    expect(itemInterno).toHaveAttribute("data-classname", expect.stringContaining("is-submenu"));
+  });
+
+  it("exibe o ícone sanduíche nos itens raiz sem filhos quando retraído", () => {
+    const itensFolha: MenuItemSMEProps[] = [
+      { key: "protocolo", title: "Protocolo", icon: <span>Icon Protocolo</span>, url: "/pages/protocolo" },
+    ];
+
+    render(<Sider onClick={vi.fn()} items={itensFolha} />);
+
+    const item = screen.getByTestId("menu-item-protocolo");
+    expect(item.querySelector('[data-testid="bars-icon"]')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+
+    expect(item.querySelector('[data-testid="bars-icon"]')).not.toBeInTheDocument();
+  });
+
+  it("mantém o título padrão em itens sem filhos e sem título reduzido", () => {
+    render(<Sider onClick={vi.fn()} items={[{ key: "sem-filhos", title: "Item simples" }]} />);
+
+    expect(screen.getByText("Item simples")).toBeInTheDocument();
+  });
+
+  it("expõe nome acessível no botão de alternância e o atualiza ao retrair", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const botao = screen.getByTestId("menu-toggle-button");
+    expect(botao).toHaveAccessibleName("Expandir menu");
+    expect(botao).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(botao);
+
+    expect(botao).toHaveAccessibleName("Recolher menu");
+    expect(botao).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("expande o sider ao abrir um submenu retraído", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const layoutSider = screen.getByTestId("layout-sider");
+    expect(layoutSider).toHaveAttribute("data-width", "105");
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+
+    expect(layoutSider).toHaveAttribute("data-width", "232");
+    expect(layoutSider).toHaveAttribute("data-classname", expect.stringContaining("is-expanded"));
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "root-2");
+  });
+
+  it("seleciona a folha clicada, limpa submenus abertos e recolhe o sider", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "root-2");
+
+    fireEvent.click(screen.getByTestId("menu-item-leaf"));
+
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-selectedkeys", "leaf");
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
+  });
+
+  it("mantém aceso apenas o último item clicado: abrir um submenu limpa a seleção anterior", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("menu-item-leaf"));
+
+    const menu = screen.getByTestId("menu-root");
+    expect(menu).toHaveAttribute("data-selectedkeys", "leaf");
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+
+    expect(menu).toHaveAttribute("data-openkeys", "root-2");
+    expect(menu).toHaveAttribute("data-selectedkeys", "");
+  });
+
+  it("usa as chaves selecionadas internas quando menuProps.selectedKeys está vazio", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} menuProps={{ selectedKeys: [] }} />);
+
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-selectedkeys", "");
+
+    fireEvent.click(screen.getByTestId("menu-item-leaf"));
+
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-selectedkeys", "leaf");
+  });
+
+  it("distingue submenu raiz de submenu interno pelas classes aplicadas", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    const [submenuRaiz, submenuInterno] = screen.getAllByTestId("submenu");
+
+    expect(submenuRaiz).toHaveAttribute("data-classname", expect.stringContaining("is-root-submenu"));
+    expect(submenuRaiz).toHaveAttribute("data-classname", expect.stringContaining("is-collapsed"));
+    expect(submenuInterno).toHaveAttribute("data-classname", expect.stringContaining("is-submenu"));
+  });
+
+  it("fecha o submenu aberto ao retrair o sider pelo botão de alternância", () => {
+    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "root-2");
+
+    fireEvent.click(screen.getByTestId("menu-toggle-button"));
+
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+  });
+
+  it("recolhe o sider e limpa submenus ao sair com o mouse", () => {    render(<Sider onClick={vi.fn()} items={menuItems} />);
+
+    fireEvent.click(screen.getByTestId("trigger-open-change"));
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "232");
+
+    fireEvent.click(screen.getByTestId("trigger-on-mouse-leave"));
+
+    expect(screen.getByTestId("layout-sider")).toHaveAttribute("data-width", "105");
+    expect(screen.getByTestId("menu-root")).toHaveAttribute("data-openkeys", "");
+  });
+
   it("executa fluxos sem callbacks opcionais", () => {
-    render(<Sider onClick={undefined as unknown as (item: MenuItemSMEProps) => void} items={menuItems} />);
+    render(<Sider items={menuItems} />);
 
     fireEvent.click(screen.getByTestId("menu-toggle-button"));
     fireEvent.click(screen.getByTestId("menu-item-leaf"));

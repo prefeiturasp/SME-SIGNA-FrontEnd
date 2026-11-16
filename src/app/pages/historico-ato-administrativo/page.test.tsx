@@ -193,6 +193,32 @@ describe("Página de histórico de ato administrativo", () => {
     expect(hookSpy).toHaveBeenCalledWith("014591");
   });
 
+  it("remove espaços ao redor do código da unidade da query string", () => {
+    searchParamsGetMock.mockImplementation((key: string) => (key === "ue" ? "  123456  " : null));
+
+    render(<AtosAdministrativos />);
+
+    expect(hookSpy.mock.calls[0][0]).toBe("123456");
+    expect(filtroSpy).toHaveBeenCalledWith({ codigoUe: "123456", onClear: handleClearMock });
+  });
+
+  it("omite a unidade quando o nome vem apenas com espaços", () => {
+    hookSpy.mockReturnValue({
+      isPending: false,
+      tabelaKey: 1,
+      resultado: [{ ...designacaoHistorico, unidade_proponente: "   " }],
+      filterForm: {
+        handleSubmit: handleSubmitMock,
+      },
+      onSubmitFilterForm: onSubmitFilterFormMock,
+      handleClear: handleClearMock,
+    });
+
+    render(<AtosAdministrativos />);
+
+    expect(screen.getByTestId("list-ue")).toBeEmptyDOMElement();
+  });
+
   it("aciona handleClear quando o filtro dispara onClear", () => {
     render(<AtosAdministrativos />);
 

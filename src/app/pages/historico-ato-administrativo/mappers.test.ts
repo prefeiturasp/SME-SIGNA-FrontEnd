@@ -139,6 +139,7 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
         descricao: "",
         principal: false,
         esta_vigente: false,
+        apostilado: false,
       },
       {
         id: 35,
@@ -149,6 +150,7 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
         descricao: "13",
         principal: true,
         esta_vigente: true,
+        apostilado: false,
       },
     ]);
   });
@@ -232,8 +234,7 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
     });
   });
 
-  it("usa o número da portaria quando o texto da portaria está ausente", () => {
-    const [ato] = mapearHistoricoParaAtosPrincipais([{
+  it("usa o número da portaria quando o texto da portaria está ausente", () => {    const [ato] = mapearHistoricoParaAtosPrincipais([{
       ...designacaoBase,
       portaria: null as unknown as string,
       numero_portaria: 44,
@@ -253,5 +254,46 @@ describe("mapearHistoricoParaAtosPrincipais", () => {
       titulo: "",
       descricao: "",
     });
+  });
+
+  it("considera cessada a designação com status desconhecido e data de início ausente", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      status: "outro",
+      vigente: false,
+      data_inicio: null,
+    }]);
+
+    expect(ato.status).toBe("CESSADA");
+    expect(ato.realizada_em).toBe("");
+  });
+
+  it("usa a data fim quando a cessação não informa a data de cessação", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([{
+      ...designacaoBase,
+      cessada_em: null,
+      data_fim: "2020-03-04",
+    }]);
+
+    expect(ato.data_cessacao).toBe("04/03/2020");
+  });
+
+  it("repassa a flag apostilado da designação e dos atos relacionados", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([
+      {
+        ...designacaoBase,
+        apostilado: true,
+        atos_relacionados: [{ ...designacaoBase.atos_relacionados[0], apostilado: true }],
+      },
+    ]);
+
+    expect(ato.apostilado).toBe(true);
+    expect(ato.atos_relacionados[0].apostilado).toBe(true);
+  });
+
+  it("considera não apostilado quando o backend não envia a flag", () => {
+    const [ato] = mapearHistoricoParaAtosPrincipais([designacaoBase]);
+
+    expect(ato.apostilado).toBe(false);
   });
 });

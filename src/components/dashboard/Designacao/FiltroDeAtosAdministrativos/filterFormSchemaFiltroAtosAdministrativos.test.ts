@@ -26,6 +26,35 @@ describe("filterFormSchemaFiltroAtosAdministrativos", () => {
     expect(result.success).toBe(true);
   });
 
+  it("aceita portaria vazia e apenas com dígitos", () => {
+    expect(filterFormSchemaFiltroAtosAdministrativos.safeParse({ portaria: "" }).success).toBe(true);
+    expect(filterFormSchemaFiltroAtosAdministrativos.safeParse({ portaria: "123456" }).success).toBe(true);
+  });
+
+  it("rejeita portaria com caracteres não numéricos e informa a mensagem", () => {
+    const result = filterFormSchemaFiltroAtosAdministrativos.safeParse({ portaria: "12/2026" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]).toMatchObject({
+        path: ["portaria"],
+        message: "A Portaria deve conter apenas números",
+      });
+    }
+  });
+
+  it("aceita periodo nulo e os códigos de DRE e UE", () => {
+    const result = filterFormSchemaFiltroAtosAdministrativos.safeParse({
+      periodo: null,
+      codigo_dre: "108100",
+      codigo_ue: "014591",
+      cargo: "3085",
+      observacao: "Observação",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("retorna erro quando periodo contem valores invalidos", () => {
     const result = filterFormSchemaFiltroAtosAdministrativos.safeParse({
       periodo: {

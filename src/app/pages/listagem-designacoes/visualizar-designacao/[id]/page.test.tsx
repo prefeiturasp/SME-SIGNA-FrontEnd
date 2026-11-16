@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VisualizarDesignacao from "./page";
@@ -34,12 +34,13 @@ vi.mock("antd", () => ({
       <div>{children}</div>
     </section>
   ),
+  Tag: ({ children }: { children: ReactNode }) => <span>{children}</span>,
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
   default: (props: {
-    title: string;
+    title: ReactNode;
     breadcrumbs: Array<{ title: string; href?: string }>;
     showBackButton: boolean;
     createButton?: ReactNode;
@@ -441,4 +442,29 @@ describe("VisualizarDesignacao page", () => {
     expect(titular?.defaultValues?.cd_cargo_sobreposto_funcao_atividade).toBe(0);
   });
 
+  it("exibe a flag Apostilada no cabeçalho quando a designação foi apostilada", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, apostilado: true },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    const cabecalho = screen.getByTestId("page-header");
+    expect(cabecalho).toHaveTextContent("Detalhes da designação");
+    expect(within(cabecalho).getByText("Apostilada")).toBeInTheDocument();
+  });
+
+  it("não exibe a flag Apostilada quando a designação não foi apostilada", () => {
+    vi.mocked(useFetchDesignacoesById).mockReturnValue({
+      data: { ...designacaoMock, apostilado: false },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarDesignacao />);
+
+    expect(screen.queryByText("Apostilada")).not.toBeInTheDocument();
+  });
 });

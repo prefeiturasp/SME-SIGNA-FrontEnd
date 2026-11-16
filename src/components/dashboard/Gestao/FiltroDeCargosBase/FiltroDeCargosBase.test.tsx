@@ -77,10 +77,20 @@ describe("FiltroDeCargosBase", () => {
       { codigo: "EXTINTO", nome: "Extinto" },
     ]);
     expect(CargosBaseGrupamento).toEqual([
+      { codigo: "ADMINISTRATIVOS_OUTROS", nome: "Administrativos - outros" },
+      { codigo: "ANALISTAS_OUTROS", nome: "Analistas - outros" },
       { codigo: "APOIO_EDUCACAO", nome: "Apoio - educação" },
+      { codigo: "APOIO_OUTROS", nome: "Apoio - outros" },
       { codigo: "DOCENTES", nome: "Docentes" },
+      { codigo: "ESPECIALISTAS_OUTROS", nome: "Especialistas - outros" },
       { codigo: "GESTORES_EDUCACAO", nome: "Gestores - educação" },
+      { codigo: "SAUDE", nome: "Saúde" },
     ]);
+  });
+
+  it("mantém os grupamentos em ordem alfabética pelo nome", () => {
+    const nomes = CargosBaseGrupamento.map((item) => item.nome);
+    expect(nomes).toEqual([...nomes].sort((a, b) => a.localeCompare(b, "pt-BR")));
   });
 
   it("renderiza os campos e envia hasFilters=false para FiltroAcoes sem filtros", () => {
@@ -111,6 +121,7 @@ describe("FiltroDeCargosBase", () => {
     );
 
     expect(screen.getByTestId("select-item-grupamento-APOIO_EDUCACAO")).toHaveTextContent("Apoio - educação");
+    expect(screen.getByTestId("select-item-grupamento-SAUDE")).toHaveTextContent("Saúde");
     expect(screen.getByTestId("select-item-situacao_funcional-EFETIVO")).toHaveTextContent("Efetivo");
     expect(screen.getByTestId("select-item-status-EXTINTO")).toHaveTextContent("Extinto");
 

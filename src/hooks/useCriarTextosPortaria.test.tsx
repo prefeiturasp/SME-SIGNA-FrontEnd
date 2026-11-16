@@ -11,6 +11,7 @@ import {
   fetchVariavelAction,
 } from "@/actions/textos-portaria";
 import {
+  dividirTipoPortaria,
   useBuscarVariavel,
   useCadastrarTextosPortaria,
   useCriarTextosPortaria,
@@ -39,6 +40,7 @@ const {
   useQueryMock,
   useMutationMock,
   formResetMock,
+  formWatchMock,
 } = vi.hoisted(() => ({
   useFormMock: vi.fn(),
   zodResolverMock: vi.fn(() => "resolver-mock"),
@@ -48,6 +50,7 @@ const {
   useQueryMock: vi.fn(),
   useMutationMock: vi.fn(),
   formResetMock: vi.fn(),
+  formWatchMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -88,7 +91,7 @@ const defaultValues: FormSchemaCriarTextosPortariaData = {
   status: "",
   texto_portaria: "",
   variaveis: [],
-  tipo_cargo: "",
+  tipo_cargo: "CARGO_VAGO",
 };
 
 const validValues: FormSchemaCriarTextosPortariaData = {
@@ -122,23 +125,32 @@ const textoPortaria: TextosDePortariasResponse = {
 };
 
 let textoPortariaQueryData: TextosDePortariasResponse | undefined;
+let variaveisQueryData: Variavel[] | undefined;
 let isLoadingVariavel = false;
 let isLoadingBuscarTextoPortaria = false;
 let isPendingCadastrar = false;
+let tipoCargoObservado = "";
+
+const criarMockDeMutation = (options: MutationOptions) => ({
+  mutateAsync: (args: { values: FormSchemaCriarTextosPortariaData }) => options.mutationFn(args),
+  isPending: isPendingCadastrar,
+});
 
 const mockQueryAndMutation = () => {
   useQueryMock.mockImplementation((options: QueryOptions) => {
     if (options.queryKey[0] === "get-variaveis") {
-      return { data: variaveisOpcoes, isLoading: isLoadingVariavel };
+      return { data: variaveisQueryData, isLoading: isLoadingVariavel };
     }
 
     return { data: textoPortariaQueryData, isLoading: isLoadingBuscarTextoPortaria };
   });
-  useMutationMock.mockImplementation((options: MutationOptions) => ({
-    mutateAsync: (args: { values: FormSchemaCriarTextosPortariaData }) => options.mutationFn(args),
-    isPending: isPendingCadastrar,
-  }));
+  useMutationMock.mockImplementation(criarMockDeMutation);
 };
+
+const opcoesDeVariaveis = () =>
+  useQueryMock.mock.calls
+    .map(([options]) => options as QueryOptions)
+    .filter((options) => options.queryKey[0] === "get-variaveis");
 
 describe("useFetchTextoPortariaById", () => {
   beforeEach(() => {
@@ -166,6 +178,17 @@ describe("useFetchTextoPortariaById", () => {
     expect(useQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: ["get-texto-portaria-by-id", 0],
+        enabled: false,
+      }),
+    );
+  });
+
+  it("desabilita a query para ids negativos", () => {
+    renderHook(() => useFetchTextoPortariaById(-3));
+
+    expect(useQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ["get-texto-portaria-by-id", -3],
         enabled: false,
       }),
     );
@@ -205,14 +228,44 @@ describe("useBuscarVariavel", () => {
   });
 
   it("configura query com chave e opções esperadas", () => {
-    renderHook(() => useBuscarVariavel());
+    renderHook(() => useBuscarVariavel("CARGO_VAGO"));
 
     expect(useQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ["get-variaveis"],
+        queryKey: ["get-variaveis", "CARGO_VAGO"],
         refetchOnWindowFocus: false,
         staleTime: 0,
         gcTime: 0,
+        enabled: true,
+      }),
+    );
+  });
+
+  it("muda a chave da query quando o tipo de cargo muda, forçando nova busca", () => {
+    const { rerender } = renderHook(({ tipo }) => useBuscarVariavel(tipo), {
+      initialProps: { tipo: "CARGO_VAGO" as const },
+    });
+
+    expect(useQueryMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ queryKey: ["get-variaveis", "CARGO_VAGO"] }),
+    );
+
+    rerender({ tipo: "PROFESSOR" as never });
+
+    expect(useQueryMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        queryKey: ["get-variaveis", "PROFESSOR"],
+        enabled: true,
+      }),
+    );
+  });
+
+  it("desabilita a query quando não há tipo de cargo", () => {
+    renderHook(() => useBuscarVariavel("" as unknown as "CARGO_VAGO"));
+
+    expect(useQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enabled: false,
       }),
     );
   });
@@ -223,10 +276,11 @@ describe("useBuscarVariavel", () => {
       data: variaveisOpcoes,
     });
 
-    renderHook(() => useBuscarVariavel());
+    renderHook(() => useBuscarVariavel("CARGO_VAGO"));
     const queryOptions = useQueryMock.mock.calls[0][0] as QueryOptions;
     const data = await queryOptions.queryFn();
 
+    expect(fetchVariavelAction).toHaveBeenCalledWith("CARGO_VAGO");
     expect(data).toEqual(variaveisOpcoes);
   });
 
@@ -236,7 +290,7 @@ describe("useBuscarVariavel", () => {
       error: "falha ao buscar variáveis",
     });
 
-    renderHook(() => useBuscarVariavel());
+    renderHook(() => useBuscarVariavel("CARGO_VAGO"));
     const queryOptions = useQueryMock.mock.calls[0][0] as QueryOptions;
 
     await expect(queryOptions.queryFn()).rejects.toThrow("falha ao buscar variáveis");
@@ -246,10 +300,7 @@ describe("useBuscarVariavel", () => {
 describe("useCadastrarTextosPortaria", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useMutationMock.mockImplementation((options: MutationOptions) => ({
-      mutateAsync: (args: { values: FormSchemaCriarTextosPortariaData }) => options.mutationFn(args),
-      isPending: false,
-    }));
+    useMutationMock.mockImplementation(criarMockDeMutation);
   });
 
   it("retorna os dados quando o cadastro é bem-sucedido", async () => {
@@ -273,7 +324,46 @@ describe("useCadastrarTextosPortaria", () => {
 
     const { result } = renderHook(() => useCadastrarTextosPortaria());
 
-    await expect(result.current.mutateAsync({ values: validValues })).rejects.toThrow("erro ao cadastrar");
+    await expect(result.current.mutateAsync({ values: validValues })).rejects.toThrow(
+      "erro ao cadastrar",
+    );
+  });
+});
+
+describe("dividirTipoPortaria", () => {
+  it.each([
+    {
+      cenario: "tipo simples sem ato pai",
+      tipo: "DESIGNACAO",
+      esperado: { tipo_portaria: "DESIGNACAO", tipo_ato_pai: undefined },
+    },
+    {
+      cenario: "tipo composto",
+      tipo: "INSUBSISTENCIA_DESIGNACAO",
+      esperado: { tipo_portaria: "INSUBSISTENCIA", tipo_ato_pai: "DESIGNACAO" },
+    },
+    {
+      cenario: "tipo composto com mais de um separador",
+      tipo: "INSUBSISTENCIA_DESIGNACAO_ESPECIAL",
+      esperado: {
+        tipo_portaria: "INSUBSISTENCIA",
+        tipo_ato_pai: "DESIGNACAO_ESPECIAL",
+      },
+    },
+    {
+      cenario: "tipo indefinido",
+      tipo: undefined,
+      esperado: { tipo_portaria: undefined, tipo_ato_pai: undefined },
+    },
+  ])("separa $cenario", ({ tipo, esperado }) => {
+    expect(dividirTipoPortaria(tipo, undefined)).toEqual(esperado);
+  });
+
+  it("mantém o ato pai informado quando não há separador", () => {
+    expect(dividirTipoPortaria("DESIGNACAO", "INSUBSISTENCIA")).toEqual({
+      tipo_portaria: "DESIGNACAO",
+      tipo_ato_pai: "INSUBSISTENCIA",
+    });
   });
 });
 
@@ -281,13 +371,17 @@ describe("useCriarTextosPortaria", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     textoPortariaQueryData = undefined;
+    variaveisQueryData = variaveisOpcoes;
     isLoadingVariavel = false;
     isLoadingBuscarTextoPortaria = false;
     isPendingCadastrar = false;
+    tipoCargoObservado = "CARGO_VAGO";
     mockQueryAndMutation();
+    formWatchMock.mockImplementation(() => tipoCargoObservado);
     useFormMock.mockReturnValue({
       mockedForm: true,
       reset: formResetMock,
+      watch: formWatchMock,
     } as Partial<UseFormReturn<FormSchemaCriarTextosPortariaData>>);
     vi.mocked(cadastrarTextosPortariaAction).mockResolvedValue({
       success: true,
@@ -315,6 +409,52 @@ describe("useCriarTextosPortaria", () => {
         queryKey: ["get-texto-portaria-by-id", 0],
         enabled: false,
       }),
+    );
+  });
+
+  it("observa o tipo de cargo do formulário para buscar as variáveis", () => {
+    tipoCargoObservado = "PROFESSOR";
+
+    renderHook(() => useCriarTextosPortaria());
+
+    expect(formWatchMock).toHaveBeenCalledWith("tipo_cargo");
+    expect(opcoesDeVariaveis()).toHaveLength(1);
+    expect(opcoesDeVariaveis()[0].enabled).toBe(true);
+  });
+
+  it("não busca variáveis enquanto o tipo de cargo não é informado", () => {
+    tipoCargoObservado = "";
+
+    renderHook(() => useCriarTextosPortaria());
+
+    expect(opcoesDeVariaveis()[0].enabled).toBe(false);
+  });
+
+  it("busca as variáveis novamente quando o tipo de cargo do formulário muda", () => {
+    const { rerender } = renderHook(() => useCriarTextosPortaria());
+
+    expect(opcoesDeVariaveis().at(-1)).toEqual(
+      expect.objectContaining({
+        queryKey: ["get-variaveis", "CARGO_VAGO"],
+        enabled: true,
+      }),
+    );
+
+    tipoCargoObservado = "PROFESSOR";
+    rerender();
+
+    expect(opcoesDeVariaveis().at(-1)).toEqual(
+      expect.objectContaining({
+        queryKey: ["get-variaveis", "PROFESSOR"],
+        enabled: true,
+      }),
+    );
+
+    tipoCargoObservado = "CARGO_VAGO";
+    rerender();
+
+    expect(opcoesDeVariaveis().at(-1)).toEqual(
+      expect.objectContaining({ queryKey: ["get-variaveis", "CARGO_VAGO"] }),
     );
   });
 
@@ -391,6 +531,20 @@ describe("useCriarTextosPortaria", () => {
     });
   });
 
+  it("não preenche o formulário quando não há texto de portaria carregado", () => {
+    renderHook(() => useCriarTextosPortaria());
+
+    expect(formResetMock).not.toHaveBeenCalled();
+  });
+
+  it("usa lista vazia de variáveis quando a query não retorna dados", () => {
+    variaveisQueryData = undefined;
+
+    const { result } = renderHook(() => useCriarTextosPortaria());
+
+    expect(result.current.variaveisOpcoes).toEqual([]);
+  });
+
   it("notifica sucesso e navega quando todas as variáveis estão no texto", async () => {
     const { result } = renderHook(() => useCriarTextosPortaria());
 
@@ -426,6 +580,7 @@ describe("useCriarTextosPortaria", () => {
       tipo_portaria: "INSUBSISTENCIA",
       tipo_ato_pai: "DESIGNACAO",
     });
+    expect(successNotificationMock).toHaveBeenCalledTimes(1);
   });
 
   it("define tipo_ato_pai como DESIGNACAO quando o tipo é cessação", async () => {
@@ -445,6 +600,71 @@ describe("useCriarTextosPortaria", () => {
     });
   });
 
+  it("envia sem tipo quando o campo de tipo de portaria vem vazio", async () => {
+    const { result } = renderHook(() => useCriarTextosPortaria());
+
+    await act(async () => {
+      await result.current.onSubmitFilterForm({
+        ...validValues,
+        tipo_portaria: undefined as unknown as string,
+      });
+    });
+
+    expect(cadastrarTextosPortariaAction).toHaveBeenCalledWith({
+      ...validValues,
+      tipo_portaria: undefined,
+      tipo_ato_pai: undefined,
+    });
+    expect(successNotificationMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("trata ids inválidos como ausência de modelo a carregar", () => {
+    renderHook(() => useCriarTextosPortaria(Number.NaN));
+
+    expect(useQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ["get-texto-portaria-by-id", 0],
+        enabled: false,
+      }),
+    );
+  });
+
+  it("usa listas vazias e observações vazias quando a API retorna nulos", async () => {
+    textoPortariaQueryData = {
+      ...textoPortaria,
+      variaveis: null as unknown as string[],
+      observacoes: null as unknown as string,
+    };
+
+    renderHook(() => useCriarTextosPortaria(12));
+
+    await waitFor(() => {
+      expect(formResetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variaveis: [],
+          observacoes: "",
+        }),
+      );
+    });
+  });
+
+  it("envia o restante do tipo composto no ato pai ao invés de descartá-lo", async () => {
+    const { result } = renderHook(() => useCriarTextosPortaria());
+
+    await act(async () => {
+      await result.current.onSubmitFilterForm({
+        ...validValues,
+        tipo_portaria: "INSUBSISTENCIA_DESIGNACAO_ESPECIAL",
+      });
+    });
+
+    expect(cadastrarTextosPortariaAction).toHaveBeenCalledWith({
+      ...validValues,
+      tipo_portaria: "INSUBSISTENCIA",
+      tipo_ato_pai: "DESIGNACAO_ESPECIAL",
+    });
+  });
+
   it("considera válido o envio sem variáveis selecionadas", async () => {
     const { result } = renderHook(() => useCriarTextosPortaria());
 
@@ -458,6 +678,21 @@ describe("useCriarTextosPortaria", () => {
 
     expect(successNotificationMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/textos-de-portaria");
+  });
+
+  it("não quebra quando o formulário chega sem a lista de variáveis", async () => {
+    const { result } = renderHook(() => useCriarTextosPortaria());
+
+    await act(async () => {
+      await result.current.onSubmitFilterForm({
+        ...validValues,
+        variaveis: undefined as unknown as string[],
+        texto_portaria: "Texto sem tokens",
+      });
+    });
+
+    expect(cadastrarTextosPortariaAction).toHaveBeenCalledTimes(1);
+    expect(successNotificationMock).toHaveBeenCalledTimes(1);
   });
 
   it("abre o modal quando alguma variável não está no formato esperado", async () => {
@@ -504,7 +739,8 @@ describe("useCriarTextosPortaria", () => {
 
     expect(errorNotificationMock).toHaveBeenCalledWith({
       title: "Erro!",
-      description: "Não conseguimos cadastrar o texto da portarias. Por favor, tente novamente.",
+      description:
+        "Não conseguimos cadastrar o texto da portaria. Por favor, tente novamente.",
     });
     expect(pushMock).not.toHaveBeenCalled();
     expect(successNotificationMock).not.toHaveBeenCalled();
@@ -528,17 +764,30 @@ describe("useCriarTextosPortaria", () => {
     expect(result.current.isModalOpen).toBe(false);
   });
 
-  it("usa lista vazia de variáveis quando a query não retorna dados", () => {
-    useQueryMock.mockImplementation((options: QueryOptions) => {
-      if (options.queryKey[0] === "get-variaveis") {
-        return { data: undefined, isLoading: false };
-      }
-
-      return { data: undefined, isLoading: false };
-    });
-
+  it("permite enviar novamente depois de corrigir o texto", async () => {
     const { result } = renderHook(() => useCriarTextosPortaria());
 
-    expect(result.current.variaveisOpcoes).toEqual([]);
+    await act(async () => {
+      await result.current.onSubmitFilterForm({
+        ...validValues,
+        texto_portaria: "Texto inválido",
+      });
+    });
+
+    act(() => {
+      result.current.handleCancel();
+    });
+
+    await act(async () => {
+      await result.current.onSubmitFilterForm(validValues);
+    });
+
+    expect(result.current.isModalOpen).toBe(false);
+    expect(cadastrarTextosPortariaAction).toHaveBeenCalledWith({
+      ...validValues,
+      tipo_ato_pai: undefined,
+      tipo_portaria: "DESIGNACAO",
+    });
+    expect(successNotificationMock).toHaveBeenCalledTimes(1);
   });
 });

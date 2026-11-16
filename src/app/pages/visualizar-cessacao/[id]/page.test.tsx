@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VisualizarCessacaoPage from "./page";
@@ -32,12 +32,13 @@ vi.mock("antd", () => ({
       <div>{children}</div>
     </section>
   ),
+  Tag: ({ children }: { children: ReactNode }) => <span>{children}</span>,
 }));
 
 vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   __esModule: true,
   default: (props: {
-    title: string;
+    title: ReactNode;
     breadcrumbs: Array<{ title: string; href?: string }>;
     showBackButton: boolean;
     createButton?: ReactNode;
@@ -243,15 +244,22 @@ describe("VisualizarCessacao page", () => {
     expect(screen.getByTestId("editor-sei")).toBeInTheDocument();
     expect(customAccordionItemSpy).toHaveBeenCalledTimes(3);
     expect(accordionSpy).toHaveBeenCalled();
-    expect(pageHeaderSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: "Detalhes da cessação",
-      }),
-    );
+    expect(screen.getByTestId("page-header")).toHaveTextContent("Detalhes da cessação");
   });
 
-  it("navega ao clicar em consultar histórico", () => {
+  it("renderiza o card com o título Cessação", () => {
     vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: cessacaoBaseMock,
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(within(screen.getByTestId("card")).getByText("Cessação")).toBeInTheDocument();
+  });
+
+  it("navega ao clicar em consultar histórico", () => {    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
       data: cessacaoBaseMock,
       isLoading: false,
       error: null,
@@ -373,4 +381,27 @@ describe("VisualizarCessacao page", () => {
     );
   });
 
+  it("exibe a flag Apostilada no cabeçalho quando a cessação foi apostilada", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: { ...cessacaoBaseMock, apostilado: true },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(within(screen.getByTestId("page-header")).getByText("Apostilada")).toBeInTheDocument();
+  });
+
+  it("não exibe a flag Apostilada quando a cessação não foi apostilada", () => {
+    vi.mocked(useFetchCessacaoById).mockReturnValue(mockUseFetchCessacaoByIdReturn({
+      data: { ...cessacaoBaseMock, apostilado: false },
+      isLoading: false,
+      error: null,
+    }));
+
+    render(<VisualizarCessacaoPage />);
+
+    expect(screen.queryByText("Apostilada")).not.toBeInTheDocument();
+  });
 });

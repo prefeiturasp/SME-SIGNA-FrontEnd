@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion } from "@/components/ui/accordion";
 
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
+import TagApostilada from "@/components/dashboard/Designacao/TagApostilada/TagApostilada";
 import { CustomAccordionItem } from "@/components/dashboard/Designacao/CustomAccordionItem";
 import ResumoPortariaEServidorIndicado from "@/components/dashboard/Designacao/ResumoPortariaEServidorIndicado";
 
@@ -44,7 +45,12 @@ export default function VisualizarCessacaoPage() {
   return (
     <>
       <PageHeader
-        title="Detalhes da cessação"
+        title={
+          <span className="flex items-center gap-2">
+            Detalhes da cessação
+            <TagApostilada apostilado={cessacao?.apostilado} />
+          </span>
+        }
         breadcrumbs={[{ title: "Início", href: "/" },
         { title: "Detalhes da cessação" }]}
         showBackButton={true}

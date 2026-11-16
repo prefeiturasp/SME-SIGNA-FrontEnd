@@ -353,6 +353,26 @@ describe("VisualizarInsubsistenciaPage", () => {
     expect(html).toContain("50");
   });
 
+  it("usa o título e a cor padrão quando o tipo de insubsistência não é reconhecido", () => {
+    vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
+      data: { ...dataMock, tipo_insubsistencia: undefined, texto_sei: "" },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(<VisualizarInsubsistenciaPage />);
+
+    expect(pageHeaderSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "Detalhes de insubsistência" }),
+    );
+    expect(customAccordionSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Portaria de insubsistência",
+        color: "purple",
+      }),
+    );
+  });
+
   it("consulta o histórico sem unidade quando a designação não informa a UE", () => {
     vi.mocked(useFetchInsubsistenciasById).mockReturnValue({
       data: {

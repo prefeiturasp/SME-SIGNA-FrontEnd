@@ -23,6 +23,15 @@ import { useCriarTextosPortaria } from "@/hooks/useCriarTextosPortaria";
 
 const criarVariavelToken = (variable: string) => `[[${variable}]]`;
 
+/** Converte o `id` da query string em um número válido ou `null`. */
+const parseIdDoModelo = (id: string | null): number | null => {
+  if (!id) return null;
+
+  const numero = Number(id);
+
+  return Number.isInteger(numero) && numero > 0 ? numero : null;
+};
+
 const adicionarVariavelToken = (conteudo: string, variable: string) => {
   const token = criarVariavelToken(variable);
 
@@ -31,14 +40,16 @@ const adicionarVariavelToken = (conteudo: string, variable: string) => {
   }
 
   const conteudoSemEspacos = conteudo.trimEnd();
+  // Preserva a grafia original da tag de fechamento (`</p>` ou `</P>`).
+  const tagDeFechamento = /<\/p>$/i.exec(conteudoSemEspacos)?.[0];
 
-  if (conteudoSemEspacos.toLowerCase().endsWith("</p>")) {
+  if (tagDeFechamento) {
     const conteudoSemParagrafoFechado = conteudoSemEspacos
-      .slice(0, -4)
+      .slice(0, -tagDeFechamento.length)
       .trimEnd();
     const separador = conteudoSemParagrafoFechado.endsWith(">") ? "" : " ";
 
-    return `${conteudoSemParagrafoFechado}${separador}${token}</p>`;
+    return `${conteudoSemParagrafoFechado}${separador}${token}${tagDeFechamento}`;
   }
 
   const separador = conteudo.trim() ? " " : "";
@@ -73,8 +84,7 @@ const sincronizarVariaveisTokens = (
 export default function CriarTextosDePortaria() {
 
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
+  const id = parseIdDoModelo(searchParams.get("id"));
 
   const {
     isLoadingBuscarTextoPortaria,
@@ -85,7 +95,7 @@ export default function CriarTextosDePortaria() {
     variaveisOpcoes,
     onSubmitFilterForm,
     handleCancel
-  } = useCriarTextosPortaria(id ? Number(id) : null);
+  } = useCriarTextosPortaria(id);
 
 
   const router = useRouter();
@@ -93,9 +103,13 @@ export default function CriarTextosDePortaria() {
   const selectedVariablesKey = Array.isArray(watchedVariables)
     ? watchedVariables.join("|")
     : "";
+  const variaveisDisponiveisKey = variaveisOpcoes
+    .map((variavel) => variavel.value)
+    .join("|");
   const previousVariablesRef = useRef<string[]>(
     Array.isArray(watchedVariables) ? watchedVariables : []
   );
+  const previousVariaveisDisponiveisRef = useRef("");
 
   useEffect(() => {
     const currentVariables = selectedVariablesKey ? selectedVariablesKey.split("|") : [];
@@ -127,6 +141,57 @@ export default function CriarTextosDePortaria() {
 
     previousVariablesRef.current = currentVariables;
   }, [filterForm, selectedVariablesKey]);
+
+  useEffect(() => {
+    // Enquanto a lista não estiver carregada (ex.: refetch ao trocar o tipo de
+    // cargo) não há como saber quais variáveis continuam válidas.
+    if (!variaveisDisponiveisKey) {
+      return;
+    }
+
+    const listaAnterior = previousVariaveisDisponiveisRef.current;
+    previousVariaveisDisponiveisRef.current = variaveisDisponiveisKey;
+
+    // A primeira carga da lista não deve descartar as variáveis já
+    // selecionadas no formulário (ex.: edição de um modelo).
+    if (!listaAnterior || listaAnterior === variaveisDisponiveisKey) {
+      return;
+    }
+
+    const variaveisValidas = new Set(variaveisDisponiveisKey.split("|"));
+    const selecionadas = filterForm.getValues("variaveis") ?? [];
+    const variaveisRemovidas = selecionadas.filter(
+      (variable) => !variaveisValidas.has(variable)
+    );
+
+    if (!variaveisRemovidas.length) {
+      return;
+    }
+
+    const variaveisMantidas = selecionadas.filter((variable) =>
+      variaveisValidas.has(variable)
+    );
+
+    filterForm.setValue("variaveis", variaveisMantidas, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    previousVariablesRef.current = variaveisMantidas;
+
+    const currentContent = filterForm.getValues("texto_portaria") ?? "";
+    const nextContent = sincronizarVariaveisTokens(
+      currentContent,
+      [],
+      variaveisRemovidas
+    );
+
+    if (nextContent !== currentContent) {
+      filterForm.setValue("texto_portaria", nextContent, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [filterForm, variaveisDisponiveisKey]);
 
   return (
     <FormProvider {...filterForm}>

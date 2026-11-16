@@ -106,7 +106,7 @@ const onSubmitFilterFormMock = vi.fn();
 const getSearchParamMock = vi.fn<(key: string) => string | null>();
 const useCriarTextosPortariaMock = vi.fn<(id?: number | null) => HookMockReturn>();
 const watchMock = vi.fn<() => string[] | undefined>();
-const getValuesMock = vi.fn<(name?: string) => string | undefined>();
+const getValuesMock = vi.fn<(name?: string) => string | string[] | undefined>();
 const setValueMock = vi.fn();
 
 const submittedValues: FormSchemaCriarTextosPortariaData = {
@@ -122,6 +122,10 @@ const variaveisOpcoes = [
   { value: "PORTARIA", display_name: "Portaria" },
   { value: "NOME_SERVIDOR", display_name: "Nome do servidor" },
 ];
+const variaveisOpcoesDoCargoVago = [...variaveisOpcoes];
+const variaveisOpcoesDoCargoDisponivel = [
+  { value: "PORTARIA", display_name: "Portaria" },
+];
 
 const handleSubmitMock = vi.fn(
   (callback: SubmitHandler<FormSchemaCriarTextosPortariaData>) => async (event?: BaseSyntheticEvent) => {
@@ -132,6 +136,7 @@ const handleSubmitMock = vi.fn(
 
 let watchedVariavel: string[] | undefined = [];
 let textoPortaria = "";
+let variaveisDisponiveis: Array<{ value: string; display_name: string }> = variaveisOpcoesDoCargoVago;
 let isModalOpen = false;
 let fieldError: { message: string } | undefined;
 let isLoadingVariavel = false;
@@ -273,6 +278,7 @@ describe("Página Cadastrar texto de portaria", () => {
     vi.clearAllMocks();
     watchedVariavel = [];
     textoPortaria = "";
+    variaveisDisponiveis = variaveisOpcoesDoCargoVago;
     isModalOpen = false;
     fieldError = undefined;
     isLoadingVariavel = false;
@@ -280,13 +286,15 @@ describe("Página Cadastrar texto de portaria", () => {
     isLoadingCadastrarTextoPortaria = false;
     getSearchParamMock.mockReturnValue(null);
     watchMock.mockImplementation(() => watchedVariavel);
-    getValuesMock.mockImplementation(() => textoPortaria);
+    getValuesMock.mockImplementation((name?: string) =>
+      name === "variaveis" ? watchedVariavel : textoPortaria,
+    );
     useCriarTextosPortariaMock.mockImplementation(() => ({
       filterForm: createFilterForm(),
       isModalOpen,
       onSubmitFilterForm: onSubmitFilterFormMock,
       handleCancel: handleCancelMock,
-      variaveisOpcoes,
+      variaveisOpcoes: variaveisDisponiveis,
       isLoadingVariavel,
       isLoadingBuscarTextoPortaria,
       isLoadingCadastrarTextoPortaria,
@@ -332,6 +340,17 @@ describe("Página Cadastrar texto de portaria", () => {
     expect(useCriarTextosPortariaMock).toHaveBeenCalledWith(12);
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
   });
+
+  it.each(["abc", "-3", "0", "1.5", ""])(
+    "ignora o id inválido %s e não carrega modelo",
+    (id) => {
+      getSearchParamMock.mockReturnValue(id);
+
+      render(<CriarTextosDePortaria />);
+
+      expect(useCriarTextosPortariaMock).toHaveBeenCalledWith(null);
+    },
+  );
 
   it("desabilita o cadastro enquanto busca o texto ou as variáveis", () => {
     isLoadingVariavel = true;
@@ -418,7 +437,12 @@ describe("Página Cadastrar texto de portaria", () => {
     {
       scenario: "parágrafo que termina em tag",
       content: "<P><strong></P>",
-      expected: "<P><strong>[[NOME_SERVIDOR]]</p>",
+      expected: "<P><strong>[[NOME_SERVIDOR]]</P>",
+    },
+    {
+      scenario: "parágrafo com espaços no final",
+      content: "<p>Servidor   </p>   ",
+      expected: "<p>Servidor [[NOME_SERVIDOR]]</p>",
     },
   ])("insere token no $scenario", ({ content, expected }) => {
     const { rerender } = render(<CriarTextosDePortaria />);
@@ -451,6 +475,85 @@ describe("Página Cadastrar texto de portaria", () => {
     rerender(<CriarTextosDePortaria />);
 
     expect(setValueMock).toHaveBeenCalledWith("texto_portaria", "[[PORTARIA]]", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  });
+
+  it("remove variáveis que saíram da lista ao trocar o tipo de cargo", () => {
+    watchedVariavel = ["PORTARIA", "NOME_SERVIDOR"];
+    textoPortaria = "<p>Inicio [[PORTARIA]] meio [[NOME_SERVIDOR]] fim</p>";
+    const { rerender } = render(<CriarTextosDePortaria />);
+
+    expect(setValueMock).not.toHaveBeenCalled();
+
+    // Simula o refetch disparado pela troca do tipo de cargo.
+    variaveisDisponiveis = [];
+    rerender(<CriarTextosDePortaria />);
+    expect(setValueMock).not.toHaveBeenCalled();
+
+    variaveisDisponiveis = variaveisOpcoesDoCargoDisponivel;
+    rerender(<CriarTextosDePortaria />);
+
+    expect(setValueMock).toHaveBeenCalledWith("variaveis", ["PORTARIA"], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    expect(setValueMock).toHaveBeenCalledWith(
+      "texto_portaria",
+      "<p>Inicio [[PORTARIA]] meio fim</p>",
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
+  });
+
+  it("não altera nada ao trocar o tipo de cargo quando todas as variáveis continuam válidas", () => {
+    watchedVariavel = ["PORTARIA"];
+    textoPortaria = "[[PORTARIA]]";
+    const { rerender } = render(<CriarTextosDePortaria />);
+
+    variaveisDisponiveis = variaveisOpcoesDoCargoDisponivel;
+    rerender(<CriarTextosDePortaria />);
+
+    expect(setValueMock).not.toHaveBeenCalled();
+  });
+
+  it("não descarta as variáveis já selecionadas na primeira carga da lista", () => {
+    watchedVariavel = ["PORTARIA", "NOME_SERVIDOR"];
+    variaveisDisponiveis = [];
+
+    const { rerender } = render(<CriarTextosDePortaria />);
+
+    variaveisDisponiveis = variaveisOpcoesDoCargoVago;
+    rerender(<CriarTextosDePortaria />);
+
+    expect(setValueMock).not.toHaveBeenCalled();
+  });
+
+  it("trata ausência de variáveis selecionadas ao trocar o tipo de cargo", () => {
+    watchedVariavel = undefined;
+    const { rerender } = render(<CriarTextosDePortaria />);
+
+    variaveisDisponiveis = variaveisOpcoesDoCargoDisponivel;
+    rerender(<CriarTextosDePortaria />);
+
+    expect(setValueMock).not.toHaveBeenCalled();
+  });
+
+  it("remove variáveis ao trocar o tipo de cargo mesmo quando o texto está vazio", () => {
+    watchedVariavel = ["PORTARIA", "NOME_SERVIDOR"];
+    getValuesMock.mockImplementation((name?: string) =>
+      name === "variaveis" ? watchedVariavel : undefined,
+    );
+    const { rerender } = render(<CriarTextosDePortaria />);
+
+    variaveisDisponiveis = variaveisOpcoesDoCargoDisponivel;
+    rerender(<CriarTextosDePortaria />);
+
+    expect(setValueMock).toHaveBeenCalledTimes(1);
+    expect(setValueMock).toHaveBeenCalledWith("variaveis", ["PORTARIA"], {
       shouldDirty: true,
       shouldValidate: true,
     });

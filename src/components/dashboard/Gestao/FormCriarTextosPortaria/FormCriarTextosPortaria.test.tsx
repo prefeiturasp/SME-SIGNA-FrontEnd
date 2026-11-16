@@ -125,7 +125,9 @@ vi.mock("@/components/ui/form", () => ({
       },
     }),
   FormControl: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
+  FormLabel: ({ children, className }: { children: ReactNode; className?: string }) => (
+    <label className={className}>{children}</label>
+  ),
   FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   FormMessage: () => <span data-testid="form-message" />,
 }));
@@ -219,6 +221,19 @@ describe("FormCriarTextosPortaria", () => {
     expect(screen.getByTestId("select-item-status-ATIVO")).toHaveTextContent("Ativo");
     expect(screen.getByTestId("select-item-tipo_cargo-CARGO_VAGO")).toHaveTextContent("Cargo vago");
     expect(screen.getByTestId("multi-item-variaveis-NUMERO_SEI")).toHaveTextContent("Nº SEI");
+    // Cada campo tem seu próprio `data-testid`, sem colisão com o campo de status.
+    expect(multiSelectFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ "data-testid": "input-variaveis" }),
+    );
+    expect(selectFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "status", "data-testid": "input-status" }),
+    );
+    expect(selectFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "tipo_cargo", "data-testid": "input-tipo_cargo" }),
+    );
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "nome_modelo", "data-testid": "input-nome_modelo" }),
+    );
     expect(screen.getAllByTestId("tooltip")).toHaveLength(2);
     expect(screen.getAllByTestId("tooltip")[0]).toHaveAttribute(
       "data-title",
@@ -230,6 +245,14 @@ describe("FormCriarTextosPortaria", () => {
     );
     expect(screen.getByTestId("input-observacoes")).toHaveValue("observacao atual");
     expect(screen.getByTestId("form-message")).toBeInTheDocument();
+  });
+
+  it("marca os labels obrigatórios de status, variável e observações", () => {
+    render(<FormCriarTextosPortaria variaveisOpcoes={variaveisOpcoes} />);
+
+    expect(screen.getByText("Status*")).toHaveClass("required");
+    expect(screen.getByText("Variável*")).toHaveClass("required");
+    expect(screen.getByText("Observações")).toHaveClass("required");
   });
 
   it("não renderiza opções de variáveis quando a lista está vazia", () => {

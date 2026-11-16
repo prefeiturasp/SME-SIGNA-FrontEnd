@@ -16,6 +16,10 @@ function formatarData(valor: unknown): string | null {
     return null;
 }
 
+function paraCodigoUe(valor: string | number | null | undefined): string {
+    return valor == null ? "" : String(valor).trim();
+}
+
 // Os códigos do EOL podem chegar como texto; o backend espera número.
 function paraCodigoNumerico<T>(valor: T): T | number {
     if (typeof valor === "string" && valor.trim() !== "" && !Number.isNaN(Number(valor))) {
@@ -24,20 +28,37 @@ function paraCodigoNumerico<T>(valor: T): T | number {
     return valor;
 }
 
-// Resolve pelo nome pois o código do EOL não bate com o de CargoBase.
-export function encontrarCargoPorNome(
-    nomeCargo: string | null | undefined,
-    cargosDisponiveis: ICargoType[]
-): ICargoType | undefined {
-    if (!nomeCargo) return undefined;
-    return cargosDisponiveis.find((cargo) => cargo.nomeCargo === nomeCargo);
+type CargoTitular = Pick<Servidor, "possui_cargo_sobreposto" | "cd_cargo_base" | "cd_cargo_sobreposto_funcao_atividade">;
+
+// Sem cargo sobreposto, `cd_cargo_sobreposto_funcao_atividade` não é código de cargo.
+export function codigoCargoDoTitular(titular: CargoTitular | null | undefined) {
+    return titular?.possui_cargo_sobreposto
+        ? titular.cd_cargo_sobreposto_funcao_atividade
+        : titular?.cd_cargo_base;
 }
 
-// Fallback para `cargo_base` quando `cargo_sobreposto_funcao_atividade` vem nulo.
+export function encontrarCargoDoTitular(
+    titular: CargoTitular | null | undefined,
+    cargosDisponiveis: ICargoType[]
+): ICargoType | undefined {
+    const codigo = codigoCargoDoTitular(titular);
+    if (codigo === null || codigo === undefined || String(codigo).trim() === "") return undefined;
+    return cargosDisponiveis.find((cargo) => cargo.codigoCargo === Number(codigo));
+}
+
+// Só para exibição. Fallback para `cargo_base` quando `cargo_sobreposto_funcao_atividade` vem nulo.
 export function obterNomeCargoTitular(
     titular: Pick<Servidor, "cargo_sobreposto_funcao_atividade" | "cargo_base"> | null | undefined
 ): string | null | undefined {
     return titular?.cargo_sobreposto_funcao_atividade ?? titular?.cargo_base;
+}
+
+export function codigoCargoVagoSelecionado(
+    cargo: FormDesignacaoEServidorIndicado["cargo_vago_selecionado"] | string
+): number | undefined {
+    if (!cargo) return undefined;
+    if (typeof cargo === "string") return Number(cargo);
+    return cargo.id;
 }
 
 export function getCargoVaga(
@@ -47,22 +68,11 @@ export function getCargoVaga(
     const tipo = form.tipo_cargo?.toLowerCase();
 
     if (tipo === "disponivel") {
-        const cargoCorrespondente = encontrarCargoPorNome(
-            obterNomeCargoTitular(form.dadosTitular),
-            cargosDisponiveis
-        );
-        return cargoCorrespondente?.codigoCargo;
+        return encontrarCargoDoTitular(form.dadosTitular, cargosDisponiveis)?.codigoCargo;
     }
 
     if (tipo === "vago") {
-        const cargo = form.cargo_vago_selecionado;
-
-        if (cargo) {
-            if (typeof cargo === "string") {
-                return Number(cargo);
-            }
-            return cargo.id;
-        }
+        return codigoCargoVagoSelecionado(form.cargo_vago_selecionado);
     }
 
     return undefined;
@@ -100,8 +110,8 @@ export function mapearPayloadDesignacao(
         indicado_cargo_sobreposto: servidorIndicado.cargo_sobreposto_funcao_atividade ?? "",
         indicado_codigo_cargo_sobreposto: paraCodigoNumerico(servidorIndicado.cd_cargo_sobreposto_funcao_atividade),
         indicado_possui_cargo_sobreposto: servidorIndicado.possui_cargo_sobreposto ?? false,
-        indicado_codigo_ue_lotacao:
-            servidorIndicado.cd_ue_lotacao == null ? "" : String(servidorIndicado.cd_ue_lotacao).trim(),
+        indicado_codigo_ue_lotacao: paraCodigoUe(servidorIndicado.cd_ue_lotacao),
+        indicado_codigo_ue_cargo_base: paraCodigoUe(servidorIndicado.cd_ue_cargo_base),
         indicado_local_exercicio: servidorIndicado.local_de_exercicio,
         indicado_local_servico: servidorIndicado.local_de_servico ?? "",
         indicado_categoria: servidorIndicado.categoria ?? "",

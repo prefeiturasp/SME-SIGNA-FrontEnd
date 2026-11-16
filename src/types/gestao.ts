@@ -1,5 +1,6 @@
 
 export interface CargosBaseFiltros {
+  codigo_cargo?: string;
   grupamento?: string;
   descricao_resumida?: string;
   descricao_completa?: string;
@@ -36,6 +37,8 @@ export interface CargosBaseCamposComuns {
   grupamento: string;
   descricao_resumida: string;
   descricao_completa: string;
+  descricao_eol: string;
+  provimento?: string;
   situacao_funcional: string;
   utilizado_para_funcoes: boolean;
   utilizado_para_designacoes: boolean;
@@ -54,6 +57,7 @@ export interface CargosBaseCamposComuns {
 export interface CargosBaseResponse extends CargosBaseCamposComuns {
   id: number;
   codigo_cargo: string;
+  grupamento_display?: string;
 }
 
 export interface CargosBaseCriarEditar extends CargosBaseCamposComuns {

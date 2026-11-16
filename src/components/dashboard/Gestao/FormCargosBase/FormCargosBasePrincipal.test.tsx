@@ -7,6 +7,7 @@ const simpleTableHeaderSpy = vi.fn();
 const inputFieldSpy = vi.fn();
 const selectFieldSpy = vi.fn();
 const comboboxSpy = vi.fn();
+const textareaSpy = vi.fn();
 const fieldOnChangeMock = vi.fn();
 const setValueMock = vi.fn();
 const fieldValueMock = vi.fn(() => "");
@@ -32,9 +33,9 @@ vi.mock("../../SimpleTableHeader/SimpleTableHeader", () => ({
 }));
 
 vi.mock("@/components/ui/FieldsForm", () => ({
-  InputField: (props: { label: string; "data-testid"?: string }) => {
+  InputField: (props: { label: string; dataTestId?: string; "data-testid"?: string }) => {
     inputFieldSpy(props);
-    return <div data-testid={props["data-testid"]}>{props.label}</div>;
+    return <div data-testid={props.dataTestId ?? props["data-testid"]}>{props.label}</div>;
   },
   SelectField: (props: {
     name: string;
@@ -58,11 +59,13 @@ vi.mock("@/components/ui/FieldsForm", () => ({
 
 vi.mock("@/components/ui/form", () => ({
   FormField: ({
+    name,
     render: renderProp,
   }: {
+    name: string;
     render: (args: { field: { value: string; onChange: (value: string) => void } }) => ReactNode;
   }) => (
-    <div data-testid="form-field-codigo-cargo-eol">
+    <div data-testid={`form-field-${name}`}>
       {renderProp({
         field: {
           value: fieldValueMock(),
@@ -75,6 +78,13 @@ vi.mock("@/components/ui/form", () => ({
   FormLabel: ({ children }: { children: ReactNode }) => <label>{children}</label>,
   FormItem: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   FormMessage: () => <span data-testid="form-message" />,
+}));
+
+vi.mock("@/components/ui/textarea", () => ({
+  Textarea: (props: { value?: string; "data-testid"?: string }) => {
+    textareaSpy(props);
+    return <textarea data-testid={props["data-testid"]} value={props.value} readOnly />;
+  },
 }));
 
 vi.mock("@/components/ui/Combobox", () => ({
@@ -128,7 +138,8 @@ describe("FormCargosBasePrincipal", () => {
     expect(screen.getByTestId("select-codigo-cargo-eol")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("select-codigo-cargo-eol"));
     expect(fieldOnChangeMock).toHaveBeenCalledWith("2");
-    expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "Cargo B");
+    expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "Cargo B", { shouldValidate: true });
+    expect(setValueMock).toHaveBeenCalledWith("descricao_eol", "Cargo B", { shouldValidate: true });
 
     expect(screen.getByTestId("input-grupamento")).toBeInTheDocument();
     expect(screen.getByTestId("input-descricao_resumida")).toBeInTheDocument();
@@ -147,11 +158,12 @@ describe("FormCargosBasePrincipal", () => {
     });
 
     expect(screen.getByTestId("option-grupamento-APOIO_EDUCACAO")).toHaveTextContent("Apoio - educação");
+    expect(screen.getByTestId("option-grupamento-ADMINISTRATIVOS_OUTROS")).toHaveTextContent("Administrativos - outros");
     expect(screen.getByTestId("option-situacao_funcional-EFETIVO")).toHaveTextContent("Efetivo");
     expect(screen.getByTestId("option-status-EXTINTO")).toHaveTextContent("Extinto");
   });
 
-  it("preenche descrição completa com vazio quando cargo não existe na lista", () => {
+  it("preenche descrições com vazio quando cargo não existe na lista", () => {
     render(
       <FormCargosBasePrincipal
         CargosBaseOpcoes={[{ codigoCargo: 1, nomeCargo: "Cargo A" }]}
@@ -162,7 +174,40 @@ describe("FormCargosBasePrincipal", () => {
 
     fireEvent.click(screen.getByTestId("select-codigo-cargo-eol"));
 
-    expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "");
+    expect(setValueMock).toHaveBeenCalledWith("descricao_completa", "", { shouldValidate: true });
+    expect(setValueMock).toHaveBeenCalledWith("descricao_eol", "", { shouldValidate: true });
+  });
+
+  it.each([false, true])("renderiza o campo provimento de várias linhas (isEditing=%s)", (isEditing) => {
+    render(<FormCargosBasePrincipal CargosBaseOpcoes={[]} isEditing={isEditing} isLoading={false} />);
+
+    expect(screen.getByTestId("form-field-provimento")).toHaveTextContent("Provimento");
+    expect(screen.getByTestId("input-provimento").tagName).toBe("TEXTAREA");
+    expect(textareaSpy).toHaveBeenCalledWith(expect.objectContaining({ rows: 4, value: "" }));
+  });
+
+  it.each([false, true])("libera descrição completa e mantém descrição EOL bloqueada (isEditing=%s)", (isEditing) => {
+    render(<FormCargosBasePrincipal CargosBaseOpcoes={[]} isEditing={isEditing} isLoading={false} />);
+
+    expect(screen.getByTestId("input-descricao_completa")).toHaveTextContent("Descrição Completa");
+    expect(screen.getByTestId("input-descricao_eol")).toHaveTextContent("Descrição EOL");
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "descricao_completa", placeholder: "Digite ..." }),
+    );
+    expect(inputFieldSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ name: "descricao_completa", disabled: true }),
+    );
+    expect(inputFieldSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "descricao_eol", disabled: true }),
+    );
+  });
+
+  it("mostra o provimento salvo no campo", () => {
+    fieldValueMock.mockReturnValue("portando diploma de Pedagogia");
+
+    render(<FormCargosBasePrincipal CargosBaseOpcoes={[]} isEditing={true} isLoading={false} />);
+
+    expect(screen.getByTestId("input-provimento")).toHaveValue("portando diploma de Pedagogia");
   });
 
   it("desabilita combobox quando está editando ou carregando", () => {
@@ -201,7 +246,7 @@ describe("FormCargosBasePrincipal", () => {
       placeholder: "Selecione",
       value: "1",
     });
-    expect(inputFieldSpy).toHaveBeenCalledTimes(1);
+    expect(inputFieldSpy).toHaveBeenCalledTimes(3);
     expect(selectFieldSpy).toHaveBeenCalledTimes(3);
   });
 });

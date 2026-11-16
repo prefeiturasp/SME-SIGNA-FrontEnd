@@ -5,21 +5,38 @@ import {
     nameToCamelCase,
     nameToCamelCaseUe,
 } from "@/utils/portarias/formatadores";
+import {
+    codigoCargoIndicado,
+    type CodigoCargo,
+    type DadosCargoIndicado,
+    type DescricoesCargosBase,
+    montarCargo,
+    montarCargoIndicado,
+} from "@/utils/portarias/cargoIndicado";
+import { codigoCargoDoTitular, codigoCargoVagoSelecionado } from "@/utils/designacao/mapearPayload";
 
-function getCargoIndicado(
-    data: FormDesignacaoEServidorIndicado
-): string | undefined {
-    const cargo = data?.cargo_vago_selecionado;
-
-    if (data?.tipo_cargo !== "vago") {
-        return data?.dadosTitular?.cargo_base;
+// Mesma regra do passo 2: no cargo disponível, a vaga é o cargo do titular.
+function codigoCargoASerOcupado(data: FormDesignacaoEServidorIndicado | null | undefined): CodigoCargo {
+    if (data?.tipo_cargo === "vago") {
+        return codigoCargoVagoSelecionado(data.cargo_vago_selecionado);
     }
+    return codigoCargoDoTitular(data?.dadosTitular);
+}
 
-    if (typeof cargo === "string") {
-        return cargo;
-    }
+function dadosCargoIndicado(data: FormDesignacaoEServidorIndicado | null | undefined): DadosCargoIndicado {
+    return {
+        codigoCargoBase: data?.servidorIndicado?.cd_cargo_base,
+        codigoCargoSobreposto: data?.servidorIndicado?.cd_cargo_sobreposto_funcao_atividade,
+        possuiCargoSobreposto: data?.servidorIndicado?.possui_cargo_sobreposto,
+        categoria: data?.servidorIndicado?.categoria,
+    };
+}
 
-    return cargo?.label;
+/** Códigos de cargo que `montarDadosTextoSeiDesignacao` consulta em Gestão de cargos base. */
+export function codigosCargosTextoSeiDesignacao(
+    data: FormDesignacaoEServidorIndicado | null | undefined
+): CodigoCargo[] {
+    return [codigoCargoASerOcupado(data), codigoCargoIndicado(dadosCargoIndicado(data))];
 }
 
 /**
@@ -30,15 +47,18 @@ function getCargoIndicado(
  * DIPLOMA não tem campo equivalente hoje no formulário de designação e
  * fica vazio; TIPO_DE_CARGO, CARGO_DESIGNACAO e PERIODO são melhor
  * esforço, sem confirmação contra o texto real cadastrado no modelo.
+ *
+ * `descricoes` precisa trazer os códigos de `codigosCargosTextoSeiDesignacao`.
  */
 export function montarDadosTextoSeiDesignacao(
-    data: FormDesignacaoEServidorIndicado
+    data: FormDesignacaoEServidorIndicado,
+    descricoes: DescricoesCargosBase
 ): Record<string, string> {
     const nomeIndicado = data?.servidorIndicado?.nome_civil?.trim()
         ? data.servidorIndicado.nome_civil
         : data?.servidorIndicado?.nome_servidor;
 
-    const cargoIndicado = nameToCamelCase(getCargoIndicado(data) ?? "");
+    const cargoASerOcupado = montarCargo(codigoCargoASerOcupado(data), descricoes);
 
     return {
         PORTARIA:
@@ -52,8 +72,9 @@ export function montarDadosTextoSeiDesignacao(
             data?.servidorIndicado?.vinculo == null
                 ? ""
                 : String(data.servidorIndicado.vinculo),
-        CARGO: cargoIndicado,
-        CARGO_DESIGNACAO: cargoIndicado,
+        CARGO: cargoASerOcupado,
+        CARGO_DESIGNACAO: cargoASerOcupado,
+        CARGO_INDICADO: montarCargoIndicado(dadosCargoIndicado(data), descricoes),
         CATEGORIA: data?.servidorIndicado?.categoria ?? "",
         UNIDADE: nameToCamelCaseUe(data?.servidorIndicado?.lotacao ?? ""),
         UNIDADE_PROPONENTE: nameToCamelCaseUe(data?.ue_nome ?? ""),

@@ -97,7 +97,10 @@ export function useHistoricoDeDesignacoes(
       return;
     }
 
-    carregarHistorico(values, ue);
+    // O submit pode não repetir todos os campos registrados no formulário.
+    // Completa com os valores atuais e preserva o tipo já escolhido.
+    const tipo = values.tipo ?? getValues().tipo;
+    carregarHistorico({ ...getValues(), ...values, tipo }, ue);
   };
 
   const handleClear = () => {

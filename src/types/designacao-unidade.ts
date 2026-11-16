@@ -16,6 +16,8 @@ export type Servidor = {
   possui_cargo_sobreposto?: boolean;
   // Código da UE de lotação (do cargo sobreposto, se houver; senão do cargo base).
   cd_ue_lotacao?: string | number | null;
+  // Código da UE do cargo base, sempre: é a unidade impressa em "lotado(a) no ..." da lauda.
+  cd_ue_cargo_base?: string | number | null;
   cursos_titulos: string;
   codigo_hierarquia?: string;
   lotacao_cargo_base?: string;

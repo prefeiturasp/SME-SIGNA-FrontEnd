@@ -10,7 +10,12 @@ import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import BotoesDeNavegacao from "@/components/dashboard/Designacao/BotoesDeNavegacao";
 import Designacao from "@/assets/icons/Designacao";
 import { useDesignacaoContext } from "../DesignacaoContext";
-import { montarDadosTextoSeiDesignacao } from "@/utils/designacao/montarDadosTextoSei";
+import {
+  codigosCargosTextoSeiDesignacao,
+  montarDadosTextoSeiDesignacao,
+} from "@/utils/designacao/montarDadosTextoSei";
+import { MENSAGEM_ERRO_DESCRICOES_CARGOS } from "@/hooks/useBuscarDescricoesCargosBase";
+import { useBuscarDescricoesCargosParaPortaria } from "@/hooks/useBuscarDescricoesCargosParaPortaria";
 import { mapTipoVagaParaTipoCargo } from "@/utils/portarias/tipoCargo";
 import { gerarPreviewTextoSeiAction } from "@/actions/textos-sei";
 import { designacaoAction } from "@/actions/cadastro-designacao";
@@ -29,7 +34,12 @@ import {
   ErrosBackendSubstituicaoDiretor,
   MENSAGEM_ASSISTENTE_DIRETOR,
 } from "@/utils/designacao/substituicaoDiretor";
+import {
+  ehDataFuturaSemPeriodo,
+  MENSAGEM_DATA_FUTURA_SEM_PERIODO,
+} from "@/utils/designacao/dataFuturaSemPeriodo";
 import ModalPeriodoSobreposto from "@/components/dashboard/Designacao/ModalPeriodoSobreposto/ModalPeriodoSobreposto";
+import ModalDataFuturaSemPeriodo from "@/components/dashboard/Designacao/ModalDataFuturaSemPeriodo/ModalDataFuturaSemPeriodo";
 
 class ErroSubstituicaoDiretor extends Error {
   constructor(
@@ -41,6 +51,8 @@ class ErroSubstituicaoDiretor extends Error {
 }
 
 class ErroPeriodoSobreposto extends Error {}
+
+class ErroDataFuturaSemPeriodo extends Error {}
 
 export default function DesignacoesPasso3() {
   const router = useRouter();
@@ -54,6 +66,7 @@ export default function DesignacoesPasso3() {
   const [errosSubstituicaoDiretor, setErrosSubstituicaoDiretor] =
     useState<ErrosBackendSubstituicaoDiretor | null>(null);
   const [erroPeriodoSobreposto, setErroPeriodoSobreposto] = useState<string | null>(null);
+  const [erroDataFuturaSemPeriodo, setErroDataFuturaSemPeriodo] = useState<string | null>(null);
 
   // Mesmas regras do passo 2: protege contra dados antigos do localStorage.
   const { data: cargosData = [] } = useFetchCargos();
@@ -85,6 +98,7 @@ export default function DesignacoesPasso3() {
   const [modeloPortariaId, setModeloPortariaId] = useState<number | null>(null);
   const [carregandoPreview, setCarregandoPreview] = useState(true);
   const [erroPreview, setErroPreview] = useState<string | null>(null);
+  const buscarDescricoesCargos = useBuscarDescricoesCargosParaPortaria();
 
   const voltarParaPasso2 = useCallback(() => {
     const url = id
@@ -101,7 +115,14 @@ export default function DesignacoesPasso3() {
       setCarregandoPreview(true);
       setErroPreview(null);
 
-      const dados = montarDadosTextoSeiDesignacao(formDesignacaoData);
+      const descricoes = await buscarDescricoesCargos(codigosCargosTextoSeiDesignacao(formDesignacaoData));
+      if (!descricoes) {
+        setErroPreview(MENSAGEM_ERRO_DESCRICOES_CARGOS);
+        setCarregandoPreview(false);
+        return;
+      }
+
+      const dados = montarDadosTextoSeiDesignacao(formDesignacaoData, descricoes);
       const result = await gerarPreviewTextoSeiAction({
         tipo_portaria: "DESIGNACAO",
         tipo_cargo: mapTipoVagaParaTipoCargo(formDesignacaoData.tipo_cargo),
@@ -123,7 +144,7 @@ export default function DesignacoesPasso3() {
     };
 
     buscarPreview();
-  }, [formDesignacaoData, notification, voltarParaPasso2]);
+  }, [formDesignacaoData, notification, voltarParaPasso2, buscarDescricoesCargos]);
 
   const htmlTexto = useMemo(() => {
     if (!textoSei) return "";
@@ -132,6 +153,10 @@ export default function DesignacoesPasso3() {
 
   const salvarPortaria = async (id: string | null) => {
     if (!formDesignacaoData) throw new Error("Dados do formulário não encontrados.");
+
+    if (ehDataFuturaSemPeriodo(formDesignacaoData.a_partir_de, formDesignacaoData.designacao_data_final)) {
+      throw new ErroDataFuturaSemPeriodo(MENSAGEM_DATA_FUTURA_SEM_PERIODO);
+    }
 
     const payloadData = {
       ...formDesignacaoData,
@@ -147,6 +172,9 @@ export default function DesignacoesPasso3() {
       if (result.erroPeriodoSobreposto) {
         throw new ErroPeriodoSobreposto(result.erroPeriodoSobreposto);
       }
+      if (result.erroDataFuturaSemPeriodo) {
+        throw new ErroDataFuturaSemPeriodo(result.erroDataFuturaSemPeriodo);
+      }
       throw new Error(result.error);
     }
 
@@ -157,6 +185,7 @@ export default function DesignacoesPasso3() {
     try {
       setSalvando(true);
       setErrosSubstituicaoDiretor(null);
+      setErroDataFuturaSemPeriodo(null);
       await salvarPortaria(id);
       notification.success({ title: "Portaria salva com sucesso!" });
       clearFormDesignacaoData();
@@ -168,6 +197,10 @@ export default function DesignacoesPasso3() {
       }
       if (error instanceof ErroPeriodoSobreposto) {
         setErroPeriodoSobreposto(error.message);
+        return;
+      }
+      if (error instanceof ErroDataFuturaSemPeriodo) {
+        setErroDataFuturaSemPeriodo(error.message);
         return;
       }
       console.error("Erro ao salvar portaria:", error);
@@ -200,11 +233,21 @@ export default function DesignacoesPasso3() {
         className="mt-4 m-0"
       >
         <div className="card-designacao mb-2">
-          {carregandoPreview ? (
+          {carregandoPreview && (
             <div className="flex justify-center items-center h-[200px]">
               <Loader2 className="h-8 w-8 animate-spin text-[#B22B2A]" />
             </div>
-          ) : (
+          )}
+          {!carregandoPreview && erroPreview && (
+            <Alert
+              type="error"
+              showIcon
+              data-testid="erro-preview-texto-sei"
+              title={erroPreview}
+              description="Volte ao passo anterior e avance de novo para tentar outra vez."
+            />
+          )}
+          {!carregandoPreview && !erroPreview && (
             <EditorSEI
               html={htmlTexto}
               titulo="PORTARIA"
@@ -304,6 +347,13 @@ export default function DesignacoesPasso3() {
         open={!!erroPeriodoSobreposto}
         mensagem={erroPeriodoSobreposto ?? ""}
         onFechar={() => setErroPeriodoSobreposto(null)}
+        onAlterarPeriodo={voltarParaPasso2}
+      />
+
+      <ModalDataFuturaSemPeriodo
+        open={!!erroDataFuturaSemPeriodo}
+        mensagem={erroDataFuturaSemPeriodo ?? ""}
+        onFechar={() => setErroDataFuturaSemPeriodo(null)}
         onAlterarPeriodo={voltarParaPasso2}
       />
     </>

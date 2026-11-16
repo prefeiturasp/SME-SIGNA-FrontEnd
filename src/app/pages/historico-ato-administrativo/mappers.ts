@@ -34,6 +34,7 @@ const mapearAtoRelacionado = (
   descricao: ato.observacoes ?? "",
   principal: Boolean(ato.ultimo_ato_vigente),
   esta_vigente: Boolean(ato.ativo),
+  apostilado: Boolean(ato.apostilado),
 });
 
 export const mapearHistoricoParaAtosPrincipais = (
@@ -47,6 +48,7 @@ export const mapearHistoricoParaAtosPrincipais = (
       designacao.cessada_em ?? designacao.data_fim
     ),
     status: mapearStatus(designacao),
+    apostilado: Boolean(designacao.apostilado),
     numero_portaria:
       designacao.portaria ?? String(designacao.numero_portaria ?? ""),
     cargo_display: designacao.cargo_vaga_display ?? "",

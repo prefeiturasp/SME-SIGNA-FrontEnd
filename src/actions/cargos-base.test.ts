@@ -28,6 +28,7 @@ describe("actions/cargos-base", () => {
       codigo_cargo: "111",
       descricao_resumida: "Resumo",
       descricao_completa: "Completa",
+      descricao_eol: "Completa",
       situacao_funcional: "EFETIVO",
       status: "ATIVO",
       utilizado_para_funcoes: true,

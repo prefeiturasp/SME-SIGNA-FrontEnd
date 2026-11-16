@@ -234,8 +234,7 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     );
   });
 
-  it.each([undefined, null, "", "TODOS"])("ignora filtros com valor %s", (valor) => {
-    ["tipo", "periodo", "observacao", "status_publicacao"].forEach((campo) => {
+  it.each([undefined, null, "", "TODOS"])("ignora filtros com valor %s", (valor) => {    ["tipo", "periodo", "observacao", "status_publicacao"].forEach((campo) => {
       watchValues[campo] = valor;
     });
     render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
@@ -305,6 +304,42 @@ describe("FiltroDeHistoricoDeAtosAdministrativos", () => {
     });
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("não considera filtro um período sem data inicial nem final", () => {
+    watchValues.periodo = { from: undefined, to: undefined };
+
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+
+    expect(filtroAcoesMock).toHaveBeenCalledWith(
+      expect.objectContaining({ hasFilters: false }),
+    );
+  });
+
+  it("considera filtro quando o período informa apenas a data final", () => {
+    watchValues.periodo = { from: undefined, to: new Date(2026, 3, 30) };
+
+    render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+
+    expect(filtroAcoesMock).toHaveBeenCalledWith(
+      expect.objectContaining({ hasFilters: true }),
+    );
+  });
+
+  it("ignora o cargo padrão TODOS mas considera um cargo escolhido", () => {
+    watchValues.cargo = "TODOS";
+    const { rerender } = render(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+
+    expect(filtroAcoesMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ hasFilters: false }),
+    );
+
+    watchValues.cargo = "3085";
+    rerender(<FiltroDeHistoricoDeAtosAdministrativos codigoUe="014591" />);
+
+    expect(filtroAcoesMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ hasFilters: true }),
+    );
   });
 
   it("atualiza hasFilters após limpar os valores observados", () => {

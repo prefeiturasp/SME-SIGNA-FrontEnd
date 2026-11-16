@@ -287,7 +287,7 @@ describe("DesignacoesPasso2", () => {
     h.isLoadingCargos = false;
     h.mutateAsync.mockResolvedValue({
       success: true,
-      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: "Diretor de Escola" },
+      data: { rf: "1234567", cd_cargo_base: 1, cargo_sobreposto_funcao_atividade: "Diretor de Escola" },
     });
   });
 
@@ -504,7 +504,7 @@ describe("DesignacoesPasso2", () => {
     h.designacao = { ...designacaoCompleta, tipo_vaga: "DISPONIVEL" } as unknown as DesignacaoResponse;
     h.mutateAsync.mockResolvedValueOnce({
       success: true,
-      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: "Professor" },
+      data: { rf: "1234567", cd_cargo_base: 99, cargo_sobreposto_funcao_atividade: "Professor" },
     });
     h.formDesignacaoData = {
       servidorIndicado: {
@@ -564,11 +564,11 @@ describe("DesignacoesPasso2", () => {
     expect(screen.getByTestId("proximo")).toBeDisabled();
   });
 
-  it("usa cargo_base do titular como fallback e permite avançar quando cargo_sobreposto_funcao_atividade vem nulo", async () => {
+  it("usa cd_cargo_base do titular e permite avançar quando cargo_sobreposto_funcao_atividade vem nulo", async () => {
     h.designacao = { ...designacaoCompleta, tipo_vaga: "DISPONIVEL" } as unknown as DesignacaoResponse;
     h.mutateAsync.mockResolvedValueOnce({
       success: true,
-      data: { rf: "1234567", cargo_sobreposto_funcao_atividade: null, cargo_base: "Diretor de Escola" },
+      data: { rf: "1234567", cd_cargo_base: 1, cargo_sobreposto_funcao_atividade: null, cargo_base: "Diretor de Escola" },
     });
     h.formDesignacaoData = {
       servidorIndicado: {
@@ -592,6 +592,90 @@ describe("DesignacoesPasso2", () => {
 
     await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
     expect(screen.queryByTestId("error-cargo-titular")).not.toBeInTheDocument();
+  });
+
+  describe("identificação do cargo do titular pelo código", () => {
+    const servidorIndicado = {
+      nome_servidor: "Servidor Inicial",
+      nome_civil: "Civil Inicial",
+      rf: "1111111",
+      vinculo: 1,
+      cargo_base: "Cargo",
+      lotacao: "Lotacao",
+      cargo_sobreposto_funcao_atividade: "Sobreposto",
+      local_de_exercicio: "LE",
+      laudo_medico: "Sem",
+      local_de_servico: "LS",
+    };
+
+    async function buscarTitular(titular: Record<string, unknown>) {
+      h.designacao = { ...designacaoCompleta, tipo_vaga: "DISPONIVEL" } as unknown as DesignacaoResponse;
+      h.mutateAsync.mockResolvedValueOnce({ success: true, data: { rf: "1234567", ...titular } });
+      h.formDesignacaoData = { servidorIndicado };
+
+      render(<DesignacoesPasso2 />);
+
+      fireEvent.click(screen.getByTestId("buscar-titular"));
+      await waitFor(() => expect(h.mutateAsync).toHaveBeenCalledWith({ rf: "1234567" }));
+    }
+
+    it("permite avançar com nome diferente e código igual", async () => {
+      await buscarTitular({ cd_cargo_base: 1, cargo_base: "DIRETOR DE ESCOLA (nome no EOL)" });
+
+      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+      expect(screen.queryByTestId("error-cargo-titular")).not.toBeInTheDocument();
+    });
+
+    it("usa o código do sobreposto quando o titular possui cargo sobreposto", async () => {
+      await buscarTitular({
+        cd_cargo_base: 99,
+        possui_cargo_sobreposto: true,
+        cd_cargo_sobreposto_funcao_atividade: 1,
+      });
+
+      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+    });
+
+    it("ignora a função/atividade quando o titular não possui cargo sobreposto", async () => {
+      await buscarTitular({
+        cd_cargo_base: 99,
+        possui_cargo_sobreposto: false,
+        cd_cargo_sobreposto_funcao_atividade: 1,
+        cargo_sobreposto_funcao_atividade: "Diretor de Escola",
+      });
+
+      await waitFor(() => expect(screen.getByTestId("error-cargo-titular")).toBeInTheDocument());
+      expect(screen.getByTestId("proximo")).toBeDisabled();
+    });
+
+    it("bloqueia com nome igual quando o código não está na lista", async () => {
+      await buscarTitular({ cd_cargo_base: 99, cargo_base: "Diretor de Escola" });
+
+      await waitFor(() =>
+        expect(screen.getByTestId("error-cargo-titular")).toHaveTextContent(
+          'O cargo do titular ("Diretor de Escola") não corresponde a nenhum cargo de gestão disponível para designação.'
+        )
+      );
+      expect(screen.getByTestId("proximo")).toBeDisabled();
+    });
+
+    it.each([
+      ["com sobreposto", { titular_codigo_cargo_base: 99, titular_codigo_cargo_sobreposto: 1, cargo_vaga: 1 }],
+      ["sem sobreposto", { titular_codigo_cargo_base: 1, titular_codigo_cargo_sobreposto: 90450, cargo_vaga: 1 }],
+    ])("reabre designação de titular %s sem bloquear", async (_caso, codigos) => {
+      h.searchId = "55";
+      h.designacao = {
+        ...designacaoCompleta,
+        tipo_vaga: "DISPONIVEL",
+        ...codigos,
+      } as unknown as DesignacaoResponse;
+      h.formDesignacaoData = { servidorIndicado };
+
+      render(<DesignacoesPasso2 />);
+
+      await waitFor(() => expect(screen.getByTestId("proximo")).not.toBeDisabled());
+      expect(screen.queryByTestId("error-cargo-titular")).not.toBeInTheDocument();
+    });
   });
 
   it("usa fallback de rf_default quando rf_titular fica indefinido", async () => {
@@ -845,6 +929,7 @@ describe("DesignacoesPasso2", () => {
         ...designacaoCompleta,
         ue: "090450",
         indicado_codigo_ue_lotacao: "090450",
+        indicado_codigo_ue_cargo_base: "012345",
         indicado_possui_cargo_sobreposto: true,
       } as unknown as DesignacaoResponse;
       rerender(<DesignacoesPasso2 />);
@@ -855,8 +940,25 @@ describe("DesignacoesPasso2", () => {
             ue: "090450",
             servidorIndicado: expect.objectContaining({
               cd_ue_lotacao: "090450",
+              cd_ue_cargo_base: "012345",
               possui_cargo_sobreposto: true,
             }),
+          })
+        )
+      );
+    });
+
+    it("edição: designação antiga sem código da UE do cargo base reenvia vazio", async () => {
+      h.searchId = "55";
+      h.formDesignacaoData = null;
+      const { rerender } = render(<DesignacoesPasso2 />);
+      h.designacao = { ...designacaoCompleta } as unknown as DesignacaoResponse;
+      rerender(<DesignacoesPasso2 />);
+
+      await waitFor(() =>
+        expect(h.setFormDesignacaoData).toHaveBeenCalledWith(
+          expect.objectContaining({
+            servidorIndicado: expect.objectContaining({ cd_ue_cargo_base: "" }),
           })
         )
       );
