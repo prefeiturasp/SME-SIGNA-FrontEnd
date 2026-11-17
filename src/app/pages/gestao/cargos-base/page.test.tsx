@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import CargosBase from "./page";
 
@@ -72,6 +72,22 @@ vi.mock("@/components/dashboard/Gestao/ListagemDeCargos/ListagemDeCargos", () =>
 vi.mock("@/assets/icons/Plus", () => ({
   default: () => <span data-testid="icon-plus" />,
 }));
+
+const modalSelecaoDeCargoSpy = vi.fn();
+
+vi.mock("@/components/dashboard/Gestao/ModalSelecaoDeCargo/ModalSelecaoDeCargo", () => ({
+  default: (props: Record<string, unknown>) => {
+    modalSelecaoDeCargoSpy(props);
+    return props.isOpen ? <div data-testid="modal-selecao-de-cargo" /> : null;
+  },
+}));
+
+const getModalProps = () =>
+  modalSelecaoDeCargoSpy.mock.lastCall?.[0] as {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: (values: { codigo_cargo: string }) => void;
+  };
 
 describe("Página Gestão de cargos base", () => {
   beforeEach(() => {
@@ -158,10 +174,50 @@ describe("Página Gestão de cargos base", () => {
     );
   });
 
-  it("navega para cadastro de cargo base ao clicar no botão do header", () => {
+  it("abre o modal de seleção de cargo ao clicar no botão do header", () => {
+    render(<CargosBase />);
+
+    expect(screen.queryByTestId("modal-selecao-de-cargo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(screen.getByTestId("modal-selecao-de-cargo")).toBeInTheDocument();
+    expect(getModalProps().isOpen).toBe(true);
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("fecha o modal ao cancelar", () => {
     render(<CargosBase />);
 
     fireEvent.click(screen.getByTestId("botao-proximo"));
-    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base");
+    expect(screen.getByTestId("modal-selecao-de-cargo")).toBeInTheDocument();
+
+    act(() => {
+      getModalProps().onClose();
+    });
+
+    expect(screen.queryByTestId("modal-selecao-de-cargo")).not.toBeInTheDocument();
+  });
+
+  it("navega para o cadastro com o cargo escolhido no modal", () => {
+    render(<CargosBase />);
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+    getModalProps().onConfirm({ codigo_cargo: "3360" });
+
+    expect(pushMock).toHaveBeenCalledWith(
+      "/pages/gestao/criar-editar-cargo-base?codigo_cargo=3360",
+    );
+  });
+
+  it("codifica o código do cargo na URL", () => {
+    render(<CargosBase />);
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+    getModalProps().onConfirm({ codigo_cargo: "33 60&x" });
+
+    expect(pushMock).toHaveBeenCalledWith(
+      "/pages/gestao/criar-editar-cargo-base?codigo_cargo=33%2060%26x",
+    );
   });
 });
