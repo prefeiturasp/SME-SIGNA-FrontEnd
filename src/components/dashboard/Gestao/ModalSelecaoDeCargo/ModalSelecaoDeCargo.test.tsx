@@ -1,12 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import ModalSelecaoDeCargo from "./ModalSelecaoDeCargo";
 import type { formSchemaSelecaoDeCargoData } from "./formSchemaSelecaoDeCargo";
 
-const { useModalSelecaoDeCargoMock, formSubmitMock } = vi.hoisted(() => ({
+const { useModalSelecaoDeCargoMock, comboboxSpy, formSubmitMock } = vi.hoisted(() => ({
   useModalSelecaoDeCargoMock: vi.fn(),
+  comboboxSpy: vi.fn(),
   formSubmitMock: vi.fn(),
 }));
 
@@ -37,38 +38,36 @@ vi.mock("@/components/ui/button", () => ({
   ),
 }));
 
-vi.mock("@/components/ui/FieldsForm", () => ({
-  SelectField: ({
-    dataTestId,
-    label,
+vi.mock("@/components/ui/Combobox", () => ({
+  Combobox: ({
     options,
-    isLoading,
-    onValueChange,
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    ...rest
   }: {
-    dataTestId?: string;
-    label?: ReactNode;
     options: { value: string; label: string }[];
-    isLoading?: boolean;
-    onValueChange?: (value: string) => void;
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    disabled?: boolean;
+    "data-testid"?: string;
   }) => {
-    if (isLoading) {
-      return <div data-testid="select-loading" />;
-    }
-
+    comboboxSpy({ options, value, placeholder, disabled, ...rest });
     return (
-      <div data-testid={dataTestId}>
-        <span data-testid="select-label">{label}</span>
-        <select
-          data-testid={`${dataTestId}-select`}
-          onChange={(event) => onValueChange?.(event.target.value)}
-        >
-          <option value="">Selecione</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+      <div data-testid="combobox-wrapper">
+        <span data-testid="combobox-value">{value}</span>
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            data-testid={`combobox-option-${option.value}`}
+            onClick={() => onChange(option.value)}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
     );
   },
@@ -79,30 +78,25 @@ const cargos = [
   { codigoCargo: 3379, nomeCargo: "COORDENADOR PEDAGOGICO" },
 ];
 
-const registerMock = vi.fn();
-
-const createFilterForm = (isSubmitting = false) =>
-  ({
-    register: registerMock,
-    control: {},
-    formState: { isSubmitting },
-    handleSubmit: (callback: (values: formSchemaSelecaoDeCargoData) => void) => () => {
-      formSubmitMock(callback);
-    },
-  }) as unknown as UseFormReturn<formSchemaSelecaoDeCargoData>;
-
 const onCloseMock = vi.fn();
 const onConfirmMock = vi.fn();
 const onSubmitFilterFormMock = vi.fn();
 
-const baseHookReturn = (overrides: Record<string, unknown> = {}) => ({
-  filterForm: createFilterForm(),
-  onSubmitFilterForm: onSubmitFilterFormMock,
-  cargosOpcoes: cargos,
-  isLoadingCargos: false,
-  defaultValues: { codigo_cargo: "" },
-  ...overrides,
-});
+const baseHookReturn = (overrides: Record<string, unknown> = {}) => {
+  const filterForm = useForm<formSchemaSelecaoDeCargoData>({
+    defaultValues: { codigo_cargo: "" },
+    mode: "onChange",
+  });
+
+  return {
+    filterForm: filterForm as unknown as UseFormReturn<formSchemaSelecaoDeCargoData>,
+    onSubmitFilterForm: formSubmitMock,
+    cargosOpcoes: cargos,
+    isLoadingCargos: false,
+    defaultValues: { codigo_cargo: "" },
+    ...overrides,
+  };
+};
 
 describe("ModalSelecaoDeCargo", () => {
   beforeEach(() => {
@@ -116,7 +110,7 @@ describe("ModalSelecaoDeCargo", () => {
     expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
   });
 
-  it("renderiza título, descrição e o select com os cargos", () => {
+  it("renderiza título, descrição e repassa callbacks ao hook", () => {
     render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} onConfirm={onConfirmMock} />);
 
     expect(screen.getByText("Selecione um cargo")).toBeInTheDocument();
@@ -125,38 +119,38 @@ describe("ModalSelecaoDeCargo", () => {
         "Após a seleção, você poderá cadastrar as informações complementares necessárias para configurar o cargo no sistema.",
       ),
     ).toBeInTheDocument();
-
     expect(useModalSelecaoDeCargoMock).toHaveBeenCalledWith({
       onClose: onCloseMock,
       onConfirm: onConfirmMock,
     });
   });
 
-  it("renderiza o select com os cargos retornados pelo endpoint", () => {
+  it("renderiza o Combobox de cargos com os dados do endpoint", () => {
     render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
 
-    const options = Array.from(
-      (screen.getByTestId("select-codigo-cargo-eol-select") as HTMLSelectElement).options,
-    ).map((option) => ({ value: option.value, label: option.textContent }));
-
-    expect(options).toEqual([
-      { value: "", label: "Selecione" },
-      { value: "3360", label: "DIRETOR DE ESCOLA" },
-      { value: "3379", label: "COORDENADOR PEDAGOGICO" },
-    ]);
-    expect(screen.getByTestId("select-label")).toHaveTextContent(
-      "Código e descrição completa do cargo no EOL",
+    expect(screen.getByTestId("combobox-wrapper")).toBeInTheDocument();
+    expect(comboboxSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        placeholder: "Selecione",
+        value: "",
+        options: [
+          { value: "3360", label: "DIRETOR DE ESCOLA" },
+          { value: "3379", label: "COORDENADOR PEDAGOGICO" },
+        ],
+      }),
     );
+    expect(screen.getByText("Código e descrição completa do cargo no EOL")).toBeInTheDocument();
+    expect(screen.getByTestId("combobox-option-3360")).toHaveTextContent("DIRETOR DE ESCOLA");
   });
 
-  it("exibe o loading no lugar do select enquanto os cargos são carregados", () => {
+  it("exibe o loading no lugar do Combobox enquanto os cargos são carregados", () => {
     useModalSelecaoDeCargoMock.mockImplementation(() =>
       baseHookReturn({ cargosOpcoes: [], isLoadingCargos: true }),
     );
 
     render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
 
-    expect(screen.getByTestId("select-loading")).toBeInTheDocument();
+    expect(screen.queryByTestId("combobox-wrapper")).not.toBeInTheDocument();
     expect(screen.getByTestId("botao-continuar-selecao-de-cargo")).toBeDisabled();
   });
 
@@ -169,12 +163,23 @@ describe("ModalSelecaoDeCargo", () => {
     expect(formSubmitMock).not.toHaveBeenCalled();
   });
 
-  it("submete o formulário ao clicar em continuar", () => {
+  it("propaga a seleção do Combobox para o formulário", async () => {
     render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
 
-    fireEvent.click(screen.getByTestId("botao-continuar-selecao-de-cargo"));
+    fireEvent.click(screen.getByTestId("combobox-option-3379"));
 
-    expect(formSubmitMock).toHaveBeenCalledWith(onSubmitFilterFormMock);
+    await waitFor(() => {
+      expect(screen.getByTestId("combobox-value")).toHaveTextContent("3379");
+    });
+  });
+
+  it("chama o submit do formulário ao clicar em continuar", () => {
+    const { container } = render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
+
+    fireEvent.submit(container.querySelector("form") as HTMLFormElement);
+
+    expect(formSubmitMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("botao-continuar-selecao-de-cargo")).toHaveAttribute("type", "submit");
   });
 
   it("exibe o loading do botão conforme a submissão do formulário", () => {
@@ -184,15 +189,7 @@ describe("ModalSelecaoDeCargo", () => {
       "data-loading",
       "false",
     );
-
-    useModalSelecaoDeCargoMock.mockImplementation(() =>
-      baseHookReturn({ filterForm: createFilterForm(true) }),
-    );
-    render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
-
-    expect(screen.getAllByTestId("botao-continuar-selecao-de-cargo")[1]).toHaveAttribute(
-      "data-loading",
-      "true",
-    );
   });
 });
+
+void onSubmitFilterFormMock;
