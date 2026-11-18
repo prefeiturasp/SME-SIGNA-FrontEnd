@@ -12,6 +12,7 @@ let formValues = {
   portaria_final: "",
   ano: "2026",
   tipo: "",
+  codigo_dre: "",
 };
 
 vi.mock("@/actions/designacao", () => ({
@@ -48,6 +49,7 @@ describe("usePortariasDO", () => {
       portaria_final: "",
       ano: currentYear,
       tipo: "",
+      codigo_dre: "",
     };
   });
 
@@ -66,6 +68,7 @@ describe("usePortariasDO", () => {
         portaria_final: "",
         ano: currentYear,
         tipo: "",
+        codigo_dre: "",
       });
     });
 
@@ -106,6 +109,7 @@ describe("usePortariasDO", () => {
         portaria_final: "20",
         ano: "2025",
         tipo: "DESIGNACAO_CESSACAO",
+        codigo_dre: "108600",
       });
     });
 
@@ -116,6 +120,7 @@ describe("usePortariasDO", () => {
         portaria_final: "20",
         ano: "2025",
         tipo: "DESIGNACAO_CESSACAO",
+        codigo_dre: "108600",
       });
     });
   });
@@ -138,6 +143,7 @@ describe("usePortariasDO", () => {
       portaria_final: "",
       ano: currentYear,
       tipo: "",
+      codigo_dre: "",
     });
 
     await waitFor(() => {
@@ -147,6 +153,7 @@ describe("usePortariasDO", () => {
         portaria_final: "",
         ano: currentYear,
         tipo: "",
+        codigo_dre: "",
       });
     });
   });

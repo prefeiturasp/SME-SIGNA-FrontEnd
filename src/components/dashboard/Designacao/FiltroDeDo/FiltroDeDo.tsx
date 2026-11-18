@@ -6,12 +6,14 @@ import { SelectAnoField } from '@/components/ui/SelectAnoField';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
+import FiltroDreField from '../FiltroDre/FiltroDreField';
 
 interface Props {
   onClear?: () => void;
+  exibirFiltroDre?: boolean;
 }
 
-const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
+const FiltroDeDo: React.FC<Props> = ({ onClear, exibirFiltroDre = false }) => {
   const { register, control, watch } = useFormContext();
 
 
@@ -21,7 +23,8 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
     "portaria_inicial",
     "portaria_final",
     "ano",
-    "tipo"
+    "tipo",
+    "codigo_dre"
   ]);
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
@@ -33,6 +36,7 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
 
   const anoAtual = new Date().getFullYear();
   const opcoesAno = [anoAtual, anoAtual - 1].map((ano) => ({ codigo: ano.toString(), nome: ano.toString() }));
+  const larguraColunaSelect = exibirFiltroDre ? 'w-[33%]' : 'w-[50%]';
 
   return (
     <>
@@ -80,10 +84,10 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
 
 
       <div className="w-full flex gap-4">
-        <div className="w-[50%]">
+        <div className={larguraColunaSelect}>
           <SelectAnoField name="ano" label="Ano" opcoes={opcoesAno} />
         </div>
-        <div className="w-[50%]">
+        <div className={exibirFiltroDre ? 'w-[34%]' : 'w-[50%]'}>
           <FormField
             control={control}
             name="tipo"
@@ -109,7 +113,11 @@ const FiltroDeDo: React.FC<Props> = ({ onClear }) => {
             )}
           />
         </div>
-
+        {exibirFiltroDre && (
+          <div className={larguraColunaSelect}>
+            <FiltroDreField label="DRE" />
+          </div>
+        )}
       </div>
 
 

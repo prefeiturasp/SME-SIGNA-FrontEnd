@@ -22,6 +22,7 @@ export function usePortariasDO() {
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
       tipo: "",
+      codigo_dre: "",
     },
     mode: "onChange",
   });
@@ -44,6 +45,7 @@ export function usePortariasDO() {
       portaria_final: values.portaria_final,
       ano: values.ano,
       tipo: values.tipo,
+      codigo_dre: values.codigo_dre,
     };
   };
 
@@ -75,6 +77,7 @@ export function usePortariasDO() {
       portaria_final: "",
       ano: new Date().getFullYear().toString(),
       tipo: "",
+      codigo_dre: "",
     });
 
     buscar(
@@ -84,6 +87,7 @@ export function usePortariasDO() {
         portaria_final: "",
         ano: new Date().getFullYear().toString(),
         tipo: "",
+        codigo_dre: "",
       },
 
     );

@@ -118,6 +118,29 @@ describe("POST /download/lauda", () => {
     );
   });
 
+  it("repassa o CSV do backend byte a byte, com BOM e headers", async () => {
+    mockToken("token-123");
+    const bytes = new Uint8Array([0xef, 0xbb, 0xbf, 0x4e, 0xc2, 0xba]);
+    axiosPostMock.mockResolvedValueOnce({
+      data: bytes.buffer,
+      headers: {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition": 'attachment; filename="lauda-2026-11-17_09-30-00.csv"',
+      },
+    });
+
+    const payload = { ids: [1], formato: "CSV", ordenacao: "DRE" };
+    const response = await POST(buildRequest(payload));
+
+    expect(axiosPostMock).toHaveBeenCalledWith(expect.any(String), payload, expect.any(Object));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("text/csv; charset=utf-8");
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'attachment; filename="lauda-2026-11-17_09-30-00.csv"'
+    );
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(bytes);
+  });
+
   it("não envia Content-Type/Content-Disposition quando o backend não informa", async () => {
     mockToken("token-123");
     axiosPostMock.mockResolvedValueOnce({
@@ -143,6 +166,29 @@ describe("POST /download/lauda", () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ detail: "Atos já publicados: 1, 2" });
+  });
+
+  it("repassa a mensagem do erro de validação de ordenacao", async () => {
+    mockToken("token-123");
+    const body = new TextEncoder().encode(
+      JSON.stringify({ ordenacao: ['"XPTO" não é um escolha válido.'] })
+    ).buffer;
+    axiosPostMock.mockRejectedValueOnce(buildAxiosError(400, body));
+
+    const response = await POST(buildRequest({ ids: [1], formato: "PDF", ordenacao: "XPTO" }));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ detail: '"XPTO" não é um escolha válido.' });
+  });
+
+  it("repassa a mensagem de ordenacao quando vem como string", async () => {
+    mockToken("token-123");
+    const body = new TextEncoder().encode(JSON.stringify({ ordenacao: "Este campo é obrigatório." })).buffer;
+    axiosPostMock.mockRejectedValueOnce(buildAxiosError(400, body));
+
+    const response = await POST(buildRequest({ ids: [1], formato: "PDF" }));
+
+    expect(await response.json()).toEqual({ detail: "Este campo é obrigatório." });
   });
 
   it("usa mensagem padrão quando o JSON do erro não traz detail", async () => {

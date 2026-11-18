@@ -5,6 +5,7 @@ export const filterFormSchemaFiltroDO = z
     numero_sei: z.string().optional(),
     ano: z.string().optional(),
     tipo: z.string().optional(),
+    codigo_dre: z.string().optional(),
     portaria_inicial: z
       .string()
       .regex(/^\d*$/, "A Portaria inicial deve conter apenas números")
