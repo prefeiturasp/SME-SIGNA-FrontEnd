@@ -48,6 +48,7 @@ export default function ModalSelecaoDeCargo({ isOpen, onClose, onConfirm }: Read
             <FormField
               control={filterForm.control}
               name="codigo_cargo"
+              
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-[#313131] font-bold">
@@ -76,7 +77,7 @@ export default function ModalSelecaoDeCargo({ isOpen, onClose, onConfirm }: Read
               )}
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-8">
               <Button
                 size="lg"
                 key="cancelar"

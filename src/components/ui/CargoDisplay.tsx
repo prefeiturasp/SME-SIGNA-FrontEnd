@@ -29,8 +29,8 @@ export function CargoDisplay({
       )}
     >
       <div className="flex items-center gap-2 min-w-0">
-        <span className="text-[14px] font-bold text-[#313131]">Cargo:</span>
-        <span className="text-[14px] truncate" data-testid={dataTestId}>
+        <span className="text-[14px] font-normal text-[#313131]">Cargo:</span>
+        <span className="text-[14px] truncate font-bold" data-testid={dataTestId}>
           {isLoading
             ? loadingText
             : `${codigo}${descricaoCompleta ? ` - ${descricaoCompleta}` : ""}`}

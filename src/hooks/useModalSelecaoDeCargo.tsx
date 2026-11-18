@@ -11,25 +11,9 @@ import formSchemaSelecaoDeCargo, {
 } from "@/components/dashboard/Gestao/ModalSelecaoDeCargo/formSchemaSelecaoDeCargo";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
 import type { ICargoType } from "@/types/cargos";
+import { useBuscarCargosBase } from "./useBuscarCargosBase";
 
-/** Cargos do EOL exibidos no select do modal. */
-export function useCargosEol(enabled = true) {
-  return useQuery({
-    queryKey: ["get-cargos-eol"],
-    queryFn: async () => {
-      const response = await fetchCargosBaseAction();
-      if (!response.success) {
-        throw new Error(response.error);
-      }
-
-      return response.data;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    gcTime: 0,
-    enabled,
-  });
-}
+ 
 
 export const defaultValuesSelecaoDeCargo: formSchemaSelecaoDeCargoData = {
   codigo_cargo: "",
@@ -49,8 +33,9 @@ export function useModalSelecaoDeCargo({ onConfirm, onClose }: UseModalSelecaoDe
     mode: "onChange",
   });
 
-  const { data: cargosOpcoes = [], isLoading: isLoadingCargos, isError } =
-    useCargosEol();
+ 
+  const { data: cargosOpcoes = [], isLoading: isLoadingCargos, isError } = useBuscarCargosBase();
+
 
   useEffect(() => {
     if (!isError) {

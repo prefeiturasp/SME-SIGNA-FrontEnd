@@ -2,17 +2,14 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Steps, Tooltip } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { Steps } from "antd";
 import PageHeader from "@/components/dashboard/PageHeader/PageHeader";
 import { Button } from "@/components/ui/button";
 import FundoBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { FormProvider } from "react-hook-form";
 import FormCargosBasePrincipal from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal";
-import FormCargosBaseSecundario from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario";
 import { useCriarEditarCargosBase } from "@/hooks/useCriarEditarCargosBase";
 import FormCargosBasePasso2 from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePasso2";
-import SimpleTableHeader from "@/components/dashboard/SimpleTableHeader/SimpleTableHeader";
 
 const ROTA_LISTAGEM_CARGOS_BASE = "/pages/gestao/cargos-base";
 
