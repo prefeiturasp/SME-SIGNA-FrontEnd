@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useForm } from "react-hook-form";
 import type { createFormSchemaCargosBaseData } from "@/components/dashboard/Gestao/FormCargosBase/createFormSchemaCargosBase";
+import { CargoDisplay } from "@/components/ui/CargoDisplay";
 import CadastrarCargoBase from "./page";
 
 const pushMock = vi.fn();
@@ -58,13 +59,21 @@ vi.mock("@/components/ui/button", () => ({
 vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal", () => ({
   default: (props: Record<string, unknown>) => {
     formPrincipalSpy(props);
-    return <div data-testid="form-principal" />;
+    return (
+      <div data-testid="form-principal">
+        <CargoDisplay
+          codigoCargo={props.codigoCargo as string}
+          descricaoCompleta={props.descricaoCompleta as string}
+          isLoading={props.isLoading as boolean}
+        />
+      </div>
+    );
   },
 }));
 
-vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario", () => ({
-  default: () => {
-    formSecundarioSpy();
+vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePasso2", () => ({
+  default: (props: Record<string, unknown>) => {
+    formSecundarioSpy(props);
     return <div data-testid="form-secundario" />;
   },
 }));
@@ -176,7 +185,9 @@ describe("Página de cadastro de cargo base (etapas)", () => {
 
     expect(stepsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ current: 1 }));
     expect(screen.getByTestId("form-secundario")).toBeInTheDocument();
-    expect(formSecundarioSpy).toHaveBeenCalledTimes(1);
+    expect(formSecundarioSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ codigoCargo: "", descricaoCompleta: "" }),
+    );
     expect(screen.queryByTestId("form-principal")).not.toBeInTheDocument();
   });
 
@@ -204,8 +215,14 @@ describe("Página de cadastro de cargo base (etapas)", () => {
     render(<Harness />);
 
     expect(useCriarEditarCargosBaseMock).toHaveBeenCalledWith(null, { codigo_cargo: "1234567" });
-    expect(screen.getByTestId("cargo-selecionado")).toHaveTextContent(
-      "Cargo: 1234567 - Professor do Ensino Fundamental I",
+    expect(formPrincipalSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        codigoCargo: "1234567",
+        descricaoCompleta: "Professor do Ensino Fundamental I",
+      }),
+    );
+    expect(screen.getByTestId("cargo-painel")).toHaveTextContent(
+      "1234567 - Professor do Ensino Fundamental I",
     );
   });
 
@@ -214,7 +231,7 @@ describe("Página de cadastro de cargo base (etapas)", () => {
 
     render(<Harness />);
 
-    expect(screen.getByTestId("cargo-selecionado")).toHaveTextContent("Cargo: 999");
+    expect(screen.getByTestId("cargo-painel")).toHaveTextContent(/^999$/);
   });
 
   it("informa que o cargo está carregando", () => {
@@ -233,7 +250,8 @@ describe("Página de cadastro de cargo base (etapas)", () => {
 
     render(<HarnessCarregando />);
 
-    expect(screen.getByTestId("cargo-selecionado")).toHaveTextContent("Carregando cargo...");
+    expect(formPrincipalSpy).toHaveBeenCalledWith(expect.objectContaining({ isLoading: true }));
+    expect(screen.getByTestId("cargo-painel")).toHaveTextContent("Carregando cargo...");
   });
 
   it("volta para a listagem ao cancelar", () => {
@@ -244,15 +262,18 @@ describe("Página de cadastro de cargo base (etapas)", () => {
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cargos-base");
   });
 
-  it("mantém a seleção de cargo no painel lateral ao trocar de etapa", () => {
+  it("envia o cargo selecionado para o passo 2", () => {
     searchParams = { codigo_cargo: "3360" };
 
     render(<Harness />);
 
     fireEvent.click(screen.getByTestId("botao-proximo"));
 
-    expect(screen.getByTestId("cargo-selecionado")).toHaveTextContent(
-      "Cargo: 3360 - DIRETOR DE ESCOLA",
+    expect(formSecundarioSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        codigoCargo: "3360",
+        descricaoCompleta: "DIRETOR DE ESCOLA",
+      }),
     );
   });
 

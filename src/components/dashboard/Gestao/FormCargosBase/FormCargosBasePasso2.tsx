@@ -5,10 +5,17 @@ import React from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { Tooltip } from 'antd';
-import FundoBranco from "../../FundoBranco/QuadroBranco";
+import { CargoDisplay } from '@/components/ui/CargoDisplay';
 
+interface Props {
+  readonly codigoCargo?: string;
+  readonly descricaoCompleta?: string;
+}
 
-const FormCargosBasePasso2: React.FC = () => {
+const FormCargosBasePasso2: React.FC<Props> = ({
+  codigoCargo = "",
+  descricaoCompleta = "",
+}) => {
   const { register, control, setValue } = useFormContext();
   const pesquisarLicencasNoSigpec = useWatch({
     control,
@@ -20,20 +27,17 @@ const FormCargosBasePasso2: React.FC = () => {
   });
   return (
     <>
-      <SimpleTableHeader
-        title="Utilização do cargo"
-        subtitle="Selecione os processos em que este cargo poderá ser utilizado."
-      />
-      <div className="rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4">
-        <span className="text-[14px]" data-testid="cargo-selecionado">
-          teste
-          {/* { `Cargo: ${codigoCargo || "-"}${descricaoCompleta ? ` - ${descricaoCompleta}` : ""} */}
-        </span>
-        <Tooltip title="Aparece em listagens e resumos." placement="left">
-          <InfoCircleOutlined style={{ color: "#B22B2A" }} />
-        </Tooltip>
+      <div className="flex flex-row justify-between items-center gap-4">
+        <SimpleTableHeader
+          title="Utilização do cargo"
+          subtitle="Selecione os processos em que este cargo poderá ser utilizado."
+        />
+        <CargoDisplay
+          codigoCargo={codigoCargo}
+          descricaoCompleta={descricaoCompleta}
+          isLoading={false}
+        />
       </div>
-
 
       <div className="w-full flex flex-col lg:flex-row gap-4 mb-4 mt-8" >
 

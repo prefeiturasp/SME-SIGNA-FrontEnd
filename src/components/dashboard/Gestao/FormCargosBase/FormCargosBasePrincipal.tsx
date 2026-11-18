@@ -1,16 +1,14 @@
 
 import { InputField, SelectField } from '@/components/ui/FieldsForm';
 import React from 'react';
-import { InfoCircleOutlined } from "@ant-design/icons";
-
 import { useFormContext } from 'react-hook-form';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { FormControl, FormField, FormLabel, FormItem, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/Combobox';
 import { Textarea } from '@/components/ui/textarea';
+import { CargoDisplay } from '@/components/ui/CargoDisplay';
 import { StatusOpcoes, CargosBaseGrupamento, SituacaoFuncionalOpcoes } from '../FiltroDeCargosBase/FiltroDeCargosBase';
 import { ICargoType } from '@/types/cargos';
-import { Tooltip } from '@/components/ui/tiptap-ui-primitive/tooltip';
 
 
 
@@ -29,19 +27,18 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
 
   return (
     <>
-      <SimpleTableHeader
-        title="Informações do cargo"
-        subtitle="Dados de identificação e classificação funcional."
-      />
-      <div className="rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4">
-        <span className="text-[14px]" data-testid="cargo-selecionado">          
-            {`Cargo: ${codigoCargo || "-"}${descricaoCompleta ? ` - ${descricaoCompleta}` : ""} `}
-        </span>
-        <Tooltip placement="left">
-          <InfoCircleOutlined style={{ color: "#B22B2A" }} />
-        </Tooltip>
-      </div>
+      <div className="flex flex-row justify-between items-center gap-4">
+        <SimpleTableHeader
+          title="Informações do cargo"
+          subtitle="Dados de identificação e classificação funcional."
+        />
 
+        <CargoDisplay
+          codigoCargo={codigoCargo}
+          descricaoCompleta={descricaoCompleta}
+          isLoading={isLoading}
+        />
+      </div>
       <div className="flex flex-col gap-4">
 
 

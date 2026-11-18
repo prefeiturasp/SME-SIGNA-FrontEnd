@@ -99,19 +99,23 @@ export default function CadastrarCargoBase() {
           </>
         }
       />
-
-      <FundoBranco className="mb-4 mt-8">
-        <form onSubmit={form.handleSubmit(onSubmitForm)}>
+      <form onSubmit={form.handleSubmit(onSubmitForm)}>
+        <FundoBranco className="my-4 p-6">
           <Steps
+            titlePlacement="vertical"
+            ellipsis
             current={etapaAtual}
             items={ETAPAS.map((etapa) => ({ title: etapa.title }))}
-            className="pb-8"
+            className="pt-4"
           />
+        </FundoBranco >
+
+        <FundoBranco className="mb-4 mt-8">
 
           <div className="flex flex-col lg:flex-row gap-4">
-      
+
             <div className="w-full ">
-              
+
               {etapaAtual === 0 && (
                 <FormCargosBasePrincipal
                   CargosBaseOpcoes={CargosBaseOpcoes}
@@ -121,7 +125,12 @@ export default function CadastrarCargoBase() {
                   descricaoCompleta={descricaoCompleta}
                 />
               )}
-              {etapaAtual === 1 && <FormCargosBasePasso2 />}
+              {etapaAtual === 1 && (
+                <FormCargosBasePasso2
+                  codigoCargo={codigoCargo}
+                  descricaoCompleta={descricaoCompleta}
+                />
+              )}
               {etapaAtual === 2 && (
                 <div data-testid="etapa-modulo-do-cargo">
                   <p className="text-[20px] font-bold pt-1 pb-1">{ETAPAS[2].title}</p>
@@ -133,8 +142,9 @@ export default function CadastrarCargoBase() {
             {/* <div className="w-full lg:w-[40%] pl-0 lg:pl-8">
               */}
           </div>
-        </form>
-      </FundoBranco>
+
+        </FundoBranco>
+      </form>
     </FormProvider>
   );
 }
