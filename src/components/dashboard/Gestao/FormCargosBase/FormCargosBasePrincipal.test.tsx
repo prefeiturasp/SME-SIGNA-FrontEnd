@@ -236,6 +236,8 @@ describe("FormCargosBasePrincipal", () => {
         CargosBaseOpcoes={undefined as never}
         isEditing={false}
         isLoading={false}
+        codigoCargo=""
+        descricaoCompleta=""
       />,
     );
 

@@ -24,9 +24,19 @@ const FormCargosBasePasso2: React.FC = () => {
         title="Utilização do cargo"
         subtitle="Selecione os processos em que este cargo poderá ser utilizado."
       />
+      <div className="rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4">
+        <span className="text-[14px]" data-testid="cargo-selecionado">
+          teste
+          {/* { `Cargo: ${codigoCargo || "-"}${descricaoCompleta ? ` - ${descricaoCompleta}` : ""} */}
+        </span>
+        <Tooltip title="Aparece em listagens e resumos." placement="left">
+          <InfoCircleOutlined style={{ color: "#B22B2A" }} />
+        </Tooltip>
+      </div>
+
 
       <div className="w-full flex flex-col lg:flex-row gap-4 mb-4 mt-8" >
-      
+
         <div className="w-full lg:w-[50%] border-r border-gray-200 pr-8">
           <div className="flex flex-col gap-4">
             <div className="border-b border-gray-200 pb-4">
@@ -96,7 +106,7 @@ const FormCargosBasePasso2: React.FC = () => {
                 showBlankSpace={false}
               />
             </div>
-       
+
 
 
 
@@ -106,7 +116,7 @@ const FormCargosBasePasso2: React.FC = () => {
         <div className="w-full lg:w-[50%] pl-4">
 
           <div className="flex flex-col gap-4">
-          <div className="border-b border-gray-200">
+            <div className="border-b border-gray-200">
               <div className="pb-4">
                 <SwitchField
                   register={register}
@@ -128,26 +138,26 @@ const FormCargosBasePasso2: React.FC = () => {
               </div>
 
             </div>
-          {pesquisarLicencasNoSigpec && (
-                <div className="pb-4 pl-8">
-                  <InputField
-                    register={register}
-                    control={control}
-                    name="quantidade_maxima_de_dias_de_licenca"
-                    label={<>
-                      <span className='required'>Quantidade máxima de dias de licença*</span>
-                      <Tooltip title="Licenças maiores que esse período serão ignoradas." placement="right">
-                        <InfoCircleOutlined className='ml-2' style={{ color: "#B22B2A" }} />
-                      </Tooltip>
-                    </>}
-                    dataTestId="input-quantidade-maxima-de-dias-de-licenca"
-                    showBlankSpace={false}
-                    type="number"
-                    maxLength={4}
-                  />
-                  <p className='pt-1'>Informe o número máximo de dias que o servidor pode permanecer de licença.</p>
-                </div>
-              )}
+            {pesquisarLicencasNoSigpec && (
+              <div className="pb-4 pl-8">
+                <InputField
+                  register={register}
+                  control={control}
+                  name="quantidade_maxima_de_dias_de_licenca"
+                  label={<>
+                    <span className='required'>Quantidade máxima de dias de licença*</span>
+                    <Tooltip title="Licenças maiores que esse período serão ignoradas." placement="right">
+                      <InfoCircleOutlined className='ml-2' style={{ color: "#B22B2A" }} />
+                    </Tooltip>
+                  </>}
+                  dataTestId="input-quantidade-maxima-de-dias-de-licenca"
+                  showBlankSpace={false}
+                  type="number"
+                  maxLength={4}
+                />
+                <p className='pt-1'>Informe o número máximo de dias que o servidor pode permanecer de licença.</p>
+              </div>
+            )}
 
 
             <div className="border-b border-gray-200 pb-4">

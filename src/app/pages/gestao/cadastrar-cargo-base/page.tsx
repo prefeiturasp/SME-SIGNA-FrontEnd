@@ -12,6 +12,7 @@ import FormCargosBasePrincipal from "@/components/dashboard/Gestao/FormCargosBas
 import FormCargosBaseSecundario from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario";
 import { useCriarEditarCargosBase } from "@/hooks/useCriarEditarCargosBase";
 import FormCargosBasePasso2 from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePasso2";
+import SimpleTableHeader from "@/components/dashboard/SimpleTableHeader/SimpleTableHeader";
 
 const ROTA_LISTAGEM_CARGOS_BASE = "/pages/gestao/cargos-base";
 
@@ -108,12 +109,16 @@ export default function CadastrarCargoBase() {
           />
 
           <div className="flex flex-col lg:flex-row gap-4">
+      
             <div className="w-full ">
+              
               {etapaAtual === 0 && (
                 <FormCargosBasePrincipal
                   CargosBaseOpcoes={CargosBaseOpcoes}
                   isEditing={id !== null}
                   isLoading={isLoading}
+                  codigoCargo={codigoCargo}
+                  descricaoCompleta={descricaoCompleta}
                 />
               )}
               {etapaAtual === 1 && <FormCargosBasePasso2 />}
@@ -126,17 +131,7 @@ export default function CadastrarCargoBase() {
             </div>
 
             {/* <div className="w-full lg:w-[40%] pl-0 lg:pl-8">
-              <div className="rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4">
-                <span className="text-[14px]" data-testid="cargo-selecionado">
-                  {isLoading
-                    ? "Carregando cargo..."
-                    : `Cargo: ${codigoCargo || "-"}${descricaoCompleta ? ` - ${descricaoCompleta}` : ""}`}
-                </span>
-                <Tooltip title="Aparece em listagens e resumos." placement="left">
-                  <InfoCircleOutlined style={{ color: "#B22B2A" }} />
-                </Tooltip>
-              </div>
-            </div> */}
+              */}
           </div>
         </form>
       </FundoBranco>

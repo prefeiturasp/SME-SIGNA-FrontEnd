@@ -1,6 +1,8 @@
 
 import { InputField, SelectField } from '@/components/ui/FieldsForm';
 import React from 'react';
+import { InfoCircleOutlined } from "@ant-design/icons";
+
 import { useFormContext } from 'react-hook-form';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { FormControl, FormField, FormLabel, FormItem, FormMessage } from '@/components/ui/form';
@@ -8,18 +10,21 @@ import { Combobox } from '@/components/ui/Combobox';
 import { Textarea } from '@/components/ui/textarea';
 import { StatusOpcoes, CargosBaseGrupamento, SituacaoFuncionalOpcoes } from '../FiltroDeCargosBase/FiltroDeCargosBase';
 import { ICargoType } from '@/types/cargos';
+import { Tooltip } from '@/components/ui/tiptap-ui-primitive/tooltip';
 
-  
 
 
- 
+
+
 interface Props {
   readonly CargosBaseOpcoes: ICargoType[];
   readonly isEditing: boolean;
   readonly isLoading: boolean;
+  readonly codigoCargo?: string;
+  readonly descricaoCompleta?: string;
 }
 
-const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditing=false, isLoading=false }) => {
+const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEditing = false, isLoading = false, codigoCargo = "", descricaoCompleta = "" }) => {
   const { register, control, setValue } = useFormContext();
 
   return (
@@ -28,6 +33,15 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditi
         title="Informações do cargo"
         subtitle="Dados de identificação e classificação funcional."
       />
+      <div className="rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4">
+        <span className="text-[14px]" data-testid="cargo-selecionado">          
+            {`Cargo: ${codigoCargo || "-"}${descricaoCompleta ? ` - ${descricaoCompleta}` : ""} `}
+        </span>
+        <Tooltip placement="left">
+          <InfoCircleOutlined style={{ color: "#B22B2A" }} />
+        </Tooltip>
+      </div>
+
       <div className="flex flex-col gap-4">
 
 
@@ -38,27 +52,27 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes=[], isEditi
           render={({ field }) => (
             <FormItem>
               <FormLabel className="required text-[#313131] font-bold">
-              Código do cargo no EOL
+                Código do cargo no EOL
               </FormLabel>
               <FormControl>
-                   <Combobox
-                   disabled={isEditing || isLoading}                   
-                    options={CargosBaseOpcoes.map(
-                      (cargo: ICargoType) => ({
-                        label: cargo.nomeCargo,
-                        value: cargo.codigoCargo.toString(),
-                      })
-                    )}
-                    value={field.value}
-                    onChange={(value) => {
-                      field.onChange(value);
-                      const nomeCargo = CargosBaseOpcoes.find(cargo => cargo.codigoCargo.toString() === value)?.nomeCargo || "";
-                      setValue("descricao_completa", nomeCargo, { shouldValidate: true });
-                      setValue("descricao_eol", nomeCargo, { shouldValidate: true });
-                    }}
-                    placeholder="Selecione"
-                    data-testid="select-codigo-cargo-eol"
-                  />
+                <Combobox
+                  disabled={isEditing || isLoading}
+                  options={CargosBaseOpcoes.map(
+                    (cargo: ICargoType) => ({
+                      label: cargo.nomeCargo,
+                      value: cargo.codigoCargo.toString(),
+                    })
+                  )}
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    const nomeCargo = CargosBaseOpcoes.find(cargo => cargo.codigoCargo.toString() === value)?.nomeCargo || "";
+                    setValue("descricao_completa", nomeCargo, { shouldValidate: true });
+                    setValue("descricao_eol", nomeCargo, { shouldValidate: true });
+                  }}
+                  placeholder="Selecione"
+                  data-testid="select-codigo-cargo-eol"
+                />
               </FormControl>
               <FormMessage showBlankSpace={false} />
             </FormItem>
