@@ -9,6 +9,9 @@ const pushMock = vi.fn();
 const stepsSpy = vi.fn();
 const pageHeaderSpy = vi.fn();
 const useCriarEditarCargosBaseMock = vi.fn();
+const formPrincipalSpy = vi.fn();
+const formSecundarioSpy = vi.fn();
+const onSubmitFormMock = vi.fn();
 
 let searchParams: Record<string, string | null> = {};
 let cargosOpcoes: { codigoCargo: number; nomeCargo: string }[] = [];
@@ -52,33 +55,18 @@ vi.mock("@/components/ui/button", () => ({
   ),
 }));
 
-vi.mock("@/components/ui/Combobox", () => ({
-  Combobox: ({
-    options,
-    value,
-    onChange,
-    placeholder,
-    ...rest
-  }: {
-    options: { value: string; label: string }[];
-    value: string;
-    onChange: (value: string) => void;
-    placeholder?: string;
-    "data-testid"?: string;
-  }) => (
-    <select
-      data-testid={rest["data-testid"]}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  ),
+vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal", () => ({
+  default: (props: Record<string, unknown>) => {
+    formPrincipalSpy(props);
+    return <div data-testid="form-principal" />;
+  },
+}));
+
+vi.mock("@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario", () => ({
+  default: () => {
+    formSecundarioSpy();
+    return <div data-testid="form-secundario" />;
+  },
 }));
 
 vi.mock("@/hooks/useCriarEditarCargosBase", () => ({
@@ -129,7 +117,9 @@ function Harness() {
   useCriarEditarCargosBaseMock.mockReturnValue({
     form,
     isLoadingCargosBase: false,
+    isLoadingEditarCargosBase: false,
     CargosBaseOpcoes: cargosOpcoes,
+    onSubmitForm: onSubmitFormMock,
   });
 
   React.useEffect(() => {
@@ -149,7 +139,7 @@ describe("Página de cadastro de cargo base (etapas)", () => {
     ];
   });
 
-  it("renderiza título, etapas e campos da primeira etapa", () => {
+  it("renderiza título e etapas", () => {
     render(<Harness />);
 
     expect(screen.getByTestId("page-title")).toHaveTextContent("Cadastrar cargo base");
@@ -163,10 +153,31 @@ describe("Página de cadastro de cargo base (etapas)", () => {
         ],
       }),
     );
-    expect(screen.getByTestId("select-grupamento")).toBeInTheDocument();
-    expect(screen.getByTestId("select-situacao-funcional")).toBeInTheDocument();
-    expect(screen.getByTestId("select-status")).toBeInTheDocument();
-    expect(screen.getByTestId("input-provimento")).toBeInTheDocument();
+  });
+
+  it("exibe o formulário principal na primeira etapa", () => {
+    render(<Harness />);
+
+    expect(screen.getByTestId("form-principal")).toBeInTheDocument();
+    expect(screen.queryByTestId("form-secundario")).not.toBeInTheDocument();
+    expect(formPrincipalSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        CargosBaseOpcoes: cargosOpcoes,
+        isEditing: false,
+        isLoading: false,
+      }),
+    );
+  });
+
+  it("exibe os switches de utilização do cargo na segunda etapa", () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(stepsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ current: 1 }));
+    expect(screen.getByTestId("form-secundario")).toBeInTheDocument();
+    expect(formSecundarioSpy).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("form-principal")).not.toBeInTheDocument();
   });
 
   it("navega entre as etapas com Próximo e Anterior", () => {
@@ -179,10 +190,12 @@ describe("Página de cadastro de cargo base (etapas)", () => {
 
     fireEvent.click(screen.getByTestId("botao-proximo"));
     expect(stepsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ current: 2 }));
+    expect(screen.getByTestId("etapa-modulo-do-cargo")).toBeInTheDocument();
     expect(screen.getByTestId("botao-proximo")).toBeDisabled();
 
     fireEvent.click(screen.getByTestId("btn-anterior"));
     expect(stepsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ current: 1 }));
+    expect(screen.getByTestId("form-secundario")).toBeInTheDocument();
   });
 
   it("preenche o formulário com o cargo vindo da tela anterior", () => {
@@ -210,7 +223,9 @@ describe("Página de cadastro de cargo base (etapas)", () => {
       useCriarEditarCargosBaseMock.mockReturnValue({
         form,
         isLoadingCargosBase: true,
+        isLoadingEditarCargosBase: false,
         CargosBaseOpcoes: [],
+        onSubmitForm: onSubmitFormMock,
       });
 
       return <CadastrarCargoBase />;
@@ -221,16 +236,6 @@ describe("Página de cadastro de cargo base (etapas)", () => {
     expect(screen.getByTestId("cargo-selecionado")).toHaveTextContent("Carregando cargo...");
   });
 
-  it("atualiza o grupamento pelo combobox", () => {
-    render(<Harness />);
-
-    fireEvent.change(screen.getByTestId("select-grupamento"), {
-      target: { value: "DOCENTES" },
-    });
-
-    expect(screen.getByTestId("select-grupamento")).toHaveValue("DOCENTES");
-  });
-
   it("volta para a listagem ao cancelar", () => {
     render(<Harness />);
 
@@ -239,12 +244,25 @@ describe("Página de cadastro de cargo base (etapas)", () => {
     expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cargos-base");
   });
 
+  it("mantém a seleção de cargo no painel lateral ao trocar de etapa", () => {
+    searchParams = { codigo_cargo: "3360" };
+
+    render(<Harness />);
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+
+    expect(screen.getByTestId("cargo-selecionado")).toHaveTextContent(
+      "Cargo: 3360 - DIRETOR DE ESCOLA",
+    );
+  });
+
   it("usa o id da query para o modo edição", () => {
     searchParams = { id: "77" };
 
     render(<Harness />);
 
     expect(useCriarEditarCargosBaseMock).toHaveBeenCalledWith(77, undefined);
+    expect(formPrincipalSpy).toHaveBeenCalledWith(expect.objectContaining({ isEditing: true }));
     expect(pageHeaderSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         breadcrumbs: [
