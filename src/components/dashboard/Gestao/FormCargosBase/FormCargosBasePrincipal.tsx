@@ -39,7 +39,74 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
           isLoading={isLoading}
         />
       </div>
-      <div className="flex flex-col gap-4">
+
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+
+
+        <SelectField
+          register={register}
+          control={control}
+          name="grupamento"
+          label="Grupamento"
+          placeholder="Selecione"
+          data-testid="input-grupamento"
+          options={CargosBaseGrupamento.map((item) => ({
+            value: item.codigo,
+            label: item.nome,
+          }))}
+          showBlankSpace={false}
+        />
+
+        <InputField
+          register={register}
+          control={control}
+          name="descricao_resumida"
+          label="Descrição Resumida"
+          placeholder="Digite ..."
+          data-testid="input-descricao_resumida"
+          type="text"
+          showBlankSpace={false}
+        />
+
+
+
+
+
+        <SelectField
+          register={register}
+          control={control}
+          name="situacao_funcional"
+          label="Situação Funcional"
+          placeholder="Selecione"
+          data-testid="input-situacao_funcional"
+          options={SituacaoFuncionalOpcoes.map((item) => ({
+            value: item.codigo,
+            label: item.nome,
+          }))}
+          showBlankSpace={false}
+        />
+
+
+<SelectField
+          register={register}
+          control={control}
+          name="status"
+          label="Status"
+          placeholder="Selecione"
+          data-testid="input-status"
+          options={StatusOpcoes.map((item) => ({
+            value: item.codigo,
+            label: item.nome,
+          }))}
+          showBlankSpace={false}
+        />
+
+
+
+
+
 
 
         <FormField
@@ -98,64 +165,20 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
           showBlankSpace={false}
         />
 
-        <SelectField
-          register={register}
-          control={control}
-          name="grupamento"
-          label="Grupamento"
-          placeholder="Selecione"
-          data-testid="input-grupamento"
-          options={CargosBaseGrupamento.map((item) => ({
-            value: item.codigo,
-            label: item.nome,
-          }))}
-          showBlankSpace={false}
-        />
-
-        <InputField
-          register={register}
-          control={control}
-          name="descricao_resumida"
-          label="Descrição Resumida"
-          placeholder="Digite ..."
-          data-testid="input-descricao_resumida"
-          type="text"
-          showBlankSpace={false}
-        />
 
 
 
 
 
-        <SelectField
-          register={register}
-          control={control}
-          name="situacao_funcional"
-          label="Situação Funcional"
-          placeholder="Selecione"
-          data-testid="input-situacao_funcional"
-          options={SituacaoFuncionalOpcoes.map((item) => ({
-            value: item.codigo,
-            label: item.nome,
-          }))}
-          showBlankSpace={false}
-        />
 
-        <SelectField
-          register={register}
-          control={control}
-          name="status"
-          label="Status"
-          placeholder="Selecione"
-          data-testid="input-status"
-          options={StatusOpcoes.map((item) => ({
-            value: item.codigo,
-            label: item.nome,
-          }))}
-          showBlankSpace={false}
-        />
 
-        <FormField
+
+
+
+     
+      </div>
+
+      <FormField
           control={control}
           name="provimento"
           render={({ field }) => (
@@ -176,7 +199,6 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
             </FormItem>
           )}
         />
-      </div>
     </>
   );
 };
