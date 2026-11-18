@@ -1,6 +1,8 @@
 
 import { InputField, SelectField } from '@/components/ui/FieldsForm';
 import React from 'react';
+import { Tooltip } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useFormContext } from 'react-hook-form';
 import SimpleTableHeader from '../../SimpleTableHeader/SimpleTableHeader';
 import { FormControl, FormField, FormLabel, FormItem, FormMessage } from '@/components/ui/form';
@@ -9,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CargoDisplay } from '@/components/ui/CargoDisplay';
 import { StatusOpcoes, CargosBaseGrupamento, SituacaoFuncionalOpcoes } from '../FiltroDeCargosBase/FiltroDeCargosBase';
 import { ICargoType } from '@/types/cargos';
+import { Label } from '@radix-ui/react-label';
 
 
 
@@ -40,7 +43,7 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
         />
       </div>
 
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
 
@@ -118,7 +121,24 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
           register={register}
           control={control}
           name="descricao_resumida"
-          label="Descrição Resumida"
+          label={
+            <div className="flex flex-row items-center ">
+              <div>
+                Descrição Resumida
+              </div>
+              <div>
+                <Tooltip placement="topLeft"
+                  title={<span>Descrição Resumida</span>}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="descricao_resumida" className="font-bold cursor-pointer">
+                    <InfoCircleOutlined className='ml-2' style={{ color: "#B22B2A" }} />
+                    </Label>
+                  </div>
+                </Tooltip>
+              </div>
+            </div>
+          }
           placeholder="Digite ..."
           data-testid="input-descricao_resumida"
           type="text"
@@ -160,26 +180,26 @@ const FormCargosBasePrincipal: React.FC<Props> = ({ CargosBaseOpcoes = [], isEdi
 
       </div>
       <FormField
-          control={control}
-          name="provimento"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-[#313131] font-bold">
-                Provimento
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  rows={4}
-                  value={field.value ?? ""}
-                  placeholder="Ex.: portando diploma de Pedagogia e experiência de 3 anos no Magistério"
-                  data-testid="input-provimento"
-                />
-              </FormControl>
-              <FormMessage showBlankSpace={false} />
-            </FormItem>
-          )}
-        />
+        control={control}
+        name="provimento"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-[#313131] font-bold">
+              Provimento
+            </FormLabel>
+            <FormControl>
+              <Textarea
+                {...field}
+                rows={4}
+                value={field.value ?? ""}
+                placeholder="Ex.: portando diploma de Pedagogia e experiência de 3 anos no Magistério"
+                data-testid="input-provimento"
+              />
+            </FormControl>
+            <FormMessage showBlankSpace={false} />
+          </FormItem>
+        )}
+      />
     </>
   );
 };
