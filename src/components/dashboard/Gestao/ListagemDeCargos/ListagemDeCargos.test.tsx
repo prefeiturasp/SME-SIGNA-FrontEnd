@@ -233,7 +233,7 @@ describe("ListagemDeCargos", () => {
     render(<>{actionRender?.(row)}</>);
     expect(screen.getByTestId("edit-icon-button")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("edit-icon-button"));
-    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=10");
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cadastrar-cargo-base?id=10");
   });
 
   it("permite editar cargo inativo", () => {
@@ -245,6 +245,6 @@ describe("ListagemDeCargos", () => {
 
     render(<>{actionRender?.({ ...row, id: 20, status: StatusCargosBase.INATIVO })}</>);
     fireEvent.click(screen.getByTestId("edit-icon-button"));
-    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/criar-editar-cargo-base?id=20");
+    expect(pushMock).toHaveBeenCalledWith("/pages/gestao/cadastrar-cargo-base?id=20");
   });
 });

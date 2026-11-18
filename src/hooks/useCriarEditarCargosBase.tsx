@@ -103,7 +103,7 @@ export function useCriarEditarCargosBase(
   const criarCargosBase = useCriarCargosBase();
   const editarCargosBase = useEditarCargosBase();
 
-  const isPending = false;
+  const isPending = criarCargosBase.isPending || editarCargosBase.isPending;
 
   const form = useForm<createFormSchemaCargosBaseData>({
     // O cast unifica os tipos: na edição descricao_eol é opcional, mas sai do payload em onSubmitForm.
@@ -147,6 +147,7 @@ export function useCriarEditarCargosBase(
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {
     try {
+      console.log("values: ", values);
       const data_fim_periodo_formatada = values.data_fim_periodo ? dayjs(values.data_fim_periodo).format("YYYY-MM-DD"): null;
       let successMessage = "O cargo base foi criado.";
       if (id) {             

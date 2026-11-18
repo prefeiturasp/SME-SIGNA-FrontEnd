@@ -97,7 +97,7 @@ When('ativa a opção {string} de utilização do cargo', (opcao) => {
 Then('o sistema retorna para a listagem de cargos base', () => {
   cy.url({ timeout: 20000 })
     .should('include', 'gestao/cargos-base')
-    .and('not.include', 'criar-editar-cargo-base')
+    .and('not.include', 'gestao/cadastrar-cargo-base')
 })
 
 Then('cada campo obrigatorio do cargo base exibe a mensagem de campo obrigatorio', () => {

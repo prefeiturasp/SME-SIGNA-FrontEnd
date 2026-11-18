@@ -50,5 +50,5 @@ export const gestaoCargoCadastroPack = {
 }
 
 export const gestaoCargoCadastroUrls = {
-  pagina: 'gestao/criar-editar-cargo-base',
+  pagina: 'gestao/cadastrar-cargo-base',
 }

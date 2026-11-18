@@ -14,10 +14,25 @@ import FormCargosBasePasso2 from "@/components/dashboard/Gestao/FormCargosBase/F
 const ROTA_LISTAGEM_CARGOS_BASE = "/pages/gestao/cargos-base";
 
 const ETAPAS = [
-  { title: "Informações do cargo" },
-  { title: "Utilização do cargo" },
-  { title: "Módulo do cargo" },
-];
+  {
+    title: "Informações do cargo",
+    camposObrigatorios: [
+      "codigo_cargo",
+      "descricao_completa",
+      "descricao_eol",
+      "grupamento",
+      "descricao_resumida",
+      "situacao_funcional",
+      "status",
+    ],
+  },
+  {
+    title: "Utilização do cargo",
+    // Condicionais: só são exigidos quando os switches correspondentes estão ligados.
+    camposObrigatorios: ["quantidade_maxima_de_dias_de_licenca", "data_fim_periodo"],
+  },
+  { title: "Módulo do cargo", camposObrigatorios: [] },
+] as const;
 
 export default function CadastrarCargoBase() {
   const searchParams = useSearchParams();
@@ -27,7 +42,7 @@ export default function CadastrarCargoBase() {
   const router = useRouter();
   const [etapaAtual, setEtapaAtual] = useState(0);
 
-  const { form, isLoadingCargosBase, isLoadingEditarCargosBase, CargosBaseOpcoes, onSubmitForm } =
+  const { form, isLoadingCargosBase, isLoadingEditarCargosBase, isPending, CargosBaseOpcoes, onSubmitForm } =
     useCriarEditarCargosBase(
       id ? Number(id) : null,
       codigoCargoSelecionado ? { codigo_cargo: codigoCargoSelecionado } : undefined
@@ -36,13 +51,23 @@ export default function CadastrarCargoBase() {
   const codigoCargo = form.watch("codigo_cargo");
   const descricaoCompleta = form.watch("descricao_completa");
   const ultimaEtapa = etapaAtual === ETAPAS.length - 1;
-  const isLoading = isLoadingCargosBase || isLoadingEditarCargosBase;
+  const isLoading = isLoadingCargosBase || isLoadingEditarCargosBase || isPending;
   const isEditing = id !== null;
+  const tituloPagina = isEditing ? "Editar cargo base" : "Cadastrar cargo base";
 
-  const avancarEtapa = () => {
-    if (!ultimaEtapa) {
-      setEtapaAtual((etapa) => etapa + 1);
+  const avancarEtapa = async () => {
+    if (ultimaEtapa) {
+      return;
     }
+
+    const camposDaEtapa = [...ETAPAS[etapaAtual].camposObrigatorios];
+    const camposValidos = await form.trigger(camposDaEtapa);
+
+    if (!camposValidos) {
+      return;
+    }
+
+    setEtapaAtual((etapa) => etapa + 1);
   };
   const voltarEtapa = () => {
     if (etapaAtual > 0) {
@@ -56,12 +81,12 @@ export default function CadastrarCargoBase() {
     <FormProvider {...form}>
       <PageHeader
         showBackButton={false}
-        title="Cadastrar cargo base"
+        title={tituloPagina}
         breadcrumbs={[
           { title: "Início", href: "/" },
           { title: "Gestão", href: ROTA_LISTAGEM_CARGOS_BASE },
           { title: "Cargos base", href: ROTA_LISTAGEM_CARGOS_BASE },
-          { title: "Cadastrar cargo base", href: "" },
+          { title: tituloPagina, href: "" },
         ]}
         createButton={
           <>
@@ -90,7 +115,7 @@ export default function CadastrarCargoBase() {
               type="button"
               variant="destructive"
               data-testid="botao-proximo"
-              onClick={avancarEtapa}              
+              onClick={() => void avancarEtapa()}              
             >
               <span className="font-bold">Próximo</span>
             </Button>
@@ -110,7 +135,8 @@ export default function CadastrarCargoBase() {
         }
       />
       <form onSubmit={form.handleSubmit(onSubmitForm)}>
-        <FundoBranco className="my-4 p-6">
+        <FundoBranco className="my-4 p-6 flex flex-row items-center gap-0">
+        <div className="w-[50%]">
           <Steps
             titlePlacement="vertical"
             ellipsis
@@ -118,6 +144,11 @@ export default function CadastrarCargoBase() {
             items={ETAPAS.map((etapa) => ({ title: etapa.title }))}
             className="pt-4"
           />
+          </div>
+          
+          <div className="flex-1 h-[1px] bg-[#d9d9d9] mx-2 mb-5 ml-[-110px]" />
+          {/* <div className="w-[50%] h-[5px] border-t border-gray-200"></div> */}
+
         </FundoBranco >
 
         <FundoBranco className="mb-4 mt-8">

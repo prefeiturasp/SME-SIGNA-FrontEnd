@@ -35,6 +35,7 @@ const {
       options.onSuccess?.();
       return result;
     }),
+    isPending: false,
   })),
   formResetMock: vi.fn(),
   formWatchMock: vi.fn(),
