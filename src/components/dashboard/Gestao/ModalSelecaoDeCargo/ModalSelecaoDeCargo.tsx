@@ -30,16 +30,21 @@ export default function ModalSelecaoDeCargo({ isOpen, onClose, onConfirm }: Read
 
   return (
     <FormProvider {...filterForm}>
-      <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-        <Dialog open={isOpen}>
-          <DialogContent className="max-w-[560px] p-8 overflow-y-auto max-h-[90vh]" closeButton={false}>
-            <DialogHeader className="mb-4">
-              <DialogTitle className="text-[20px] font-bold">Selecione um cargo</DialogTitle>
-              <DialogDescription className="text-sm text-black">
-                Após a seleção, você poderá cadastrar as informações complementares necessárias para configurar o cargo no sistema.
-              </DialogDescription>
-            </DialogHeader>
+      <Dialog open={isOpen}>
+        <DialogContent className="max-w-[560px] p-8 overflow-y-auto max-h-[90vh]" closeButton={false}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-[20px] font-bold">Selecione um cargo</DialogTitle>
+            <DialogDescription className="text-sm text-black">
+              Após a seleção, você poderá cadastrar as informações complementares necessárias para configurar o cargo no sistema.
+            </DialogDescription>
+          </DialogHeader>
 
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void filterForm.handleSubmit(onSubmitFilterForm)(event);
+            }}
+          >
             <FormField
               control={filterForm.control}
               name="codigo_cargo"
@@ -94,9 +99,9 @@ export default function ModalSelecaoDeCargo({ isOpen, onClose, onConfirm }: Read
                 <span className="font-bold">Continuar</span>
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-      </form>
+          </form>
+        </DialogContent>
+      </Dialog>
     </FormProvider>
   );
 }

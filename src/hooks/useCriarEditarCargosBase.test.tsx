@@ -250,6 +250,11 @@ describe("hooks/useCriarEditarCargosBase", () => {
   });
 
   it("permite sobrescrever valores padrão no useForm", () => {
+    useBuscarCargosBaseMock.mockReturnValue({
+      data: [{ codigoCargo: 9, nomeCargo: "Cargo 9" }],
+      isLoading: false,
+    });
+
     const customDefaults: createFormSchemaCargosBaseData = {
       grupamento: "2",
       codigo_cargo: "9",
@@ -275,7 +280,11 @@ describe("hooks/useCriarEditarCargosBase", () => {
 
     expect(useFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        defaultValues: customDefaults,
+        defaultValues: expect.objectContaining({
+          ...customDefaults,
+          descricao_completa: "Cargo 9",
+          descricao_eol: "Cargo 9",
+        }),
       }),
     );
   });

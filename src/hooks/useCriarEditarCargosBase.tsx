@@ -84,12 +84,20 @@ const defaultValuesCreateEdit: createFormSchemaCargosBaseData = {
 
 
 
-export function useCriarEditarCargosBase(id: number | null = null, defaultValues: createFormSchemaCargosBaseData = defaultValuesCreateEdit) {
+export function useCriarEditarCargosBase(
+  id: number | null = null,
+  valoresIniciais: Partial<createFormSchemaCargosBaseData> = {}
+) {
 
   const router = useRouter();
   const notification = useAppNotification();
   const { data: CargosBaseOpcoes = [], isLoading: isLoadingCargosBase } = useBuscarCargosBase();
   const { data: cargoBase, isLoading: isLoadingEditarCargosBase } = useBuscarCargosBaseById(id ?? 0);
+
+  const descricaoDoCargoSelecionado =
+    CargosBaseOpcoes.find(
+      (cargo) => String(cargo.codigoCargo) === valoresIniciais.codigo_cargo
+    )?.nomeCargo ?? valoresIniciais.descricao_completa ?? "";
 
 
   const criarCargosBase = useCriarCargosBase();
@@ -100,9 +108,28 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
   const form = useForm<createFormSchemaCargosBaseData>({
     // O cast unifica os tipos: na edição descricao_eol é opcional, mas sai do payload em onSubmitForm.
     resolver: zodResolver((id ? editFormSchemaCargosBase : createFormSchemaCargosBase) as typeof createFormSchemaCargosBase),
-    defaultValues: { ...defaultValues },
+    defaultValues: {
+      ...defaultValuesCreateEdit,
+      ...valoresIniciais,
+      descricao_completa: descricaoDoCargoSelecionado,
+      descricao_eol: descricaoDoCargoSelecionado || defaultValuesCreateEdit.descricao_eol,
+    },
     mode: "onChange",
   });
+
+  // Mantém as descrições sincronizadas com o cargo vindo da tela anterior,
+  // inclusive quando a lista de cargos termina de carregar.
+  useEffect(() => {
+    if (id || !valoresIniciais.codigo_cargo || !form?.setValue) {
+      return;
+    }
+
+    const nomeCargo = descricaoDoCargoSelecionado;
+
+    form.setValue("codigo_cargo", valoresIniciais.codigo_cargo, { shouldValidate: true });
+    form.setValue("descricao_completa", nomeCargo, { shouldValidate: true });
+    form.setValue("descricao_eol", nomeCargo, { shouldValidate: true });
+  }, [id, valoresIniciais.codigo_cargo, valoresIniciais.descricao_completa, descricaoDoCargoSelecionado, form]);
 
   useEffect(() => {
     if (cargoBase) {
@@ -115,7 +142,7 @@ export function useCriarEditarCargosBase(id: number | null = null, defaultValues
             cargoBase.quantidade_maxima_de_dias_de_licenca?.toString() ?? "0"
         });
     }
-  }, [cargoBase]);
+  }, [cargoBase, form]);
 
 
   const onSubmitForm = async (values: createFormSchemaCargosBaseData) => {

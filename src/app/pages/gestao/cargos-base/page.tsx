@@ -36,7 +36,7 @@ export default function CargosBase() {
 
   const handleConfirmarSelecaoDeCargo = ({ codigo_cargo }: { codigo_cargo: string }) => {
     router.push(
-      `/pages/gestao/criar-editar-cargo-base?codigo_cargo=${encodeURIComponent(codigo_cargo)}`
+      `/pages/gestao/cadastrar-cargo-base?codigo_cargo=${encodeURIComponent(codigo_cargo)}`
     );
   }
 

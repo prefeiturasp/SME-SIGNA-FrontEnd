@@ -80,9 +80,8 @@ const cargos = [
 
 const onCloseMock = vi.fn();
 const onConfirmMock = vi.fn();
-const onSubmitFilterFormMock = vi.fn();
 
-const baseHookReturn = (overrides: Record<string, unknown> = {}) => {
+const useCriarHookComForm = () => {
   const filterForm = useForm<formSchemaSelecaoDeCargoData>({
     defaultValues: { codigo_cargo: "" },
     mode: "onChange",
@@ -94,9 +93,13 @@ const baseHookReturn = (overrides: Record<string, unknown> = {}) => {
     cargosOpcoes: cargos,
     isLoadingCargos: false,
     defaultValues: { codigo_cargo: "" },
-    ...overrides,
   };
 };
+
+const baseHookReturn = (overrides: Record<string, unknown> = {}) => ({
+  ...useCriarHookComForm(),
+  ...overrides,
+});
 
 describe("ModalSelecaoDeCargo", () => {
   beforeEach(() => {
@@ -160,11 +163,9 @@ describe("ModalSelecaoDeCargo", () => {
     fireEvent.click(screen.getByTestId("botao-cancelar-selecao-de-cargo"));
 
     expect(onCloseMock).toHaveBeenCalledTimes(1);
-    expect(formSubmitMock).not.toHaveBeenCalled();
   });
 
-  it("propaga a seleção do Combobox para o formulário", async () => {
-    render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
+  it("propaga a seleção do Combobox para o formulário", async () => {    render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
 
     fireEvent.click(screen.getByTestId("combobox-option-3379"));
 
@@ -173,23 +174,47 @@ describe("ModalSelecaoDeCargo", () => {
     });
   });
 
-  it("chama o submit do formulário ao clicar em continuar", () => {
-    const { container } = render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
+  it("submete o formulário e chama o handler do hook", async () => {
+    const onSubmitFilterFormMock = vi.fn();
+    useModalSelecaoDeCargoMock.mockImplementation(() => ({
+      ...useCriarHookComForm(),
+      onSubmitFilterForm: onSubmitFilterFormMock,
+    }));
 
-    fireEvent.submit(container.querySelector("form") as HTMLFormElement);
-
-    expect(formSubmitMock).not.toHaveBeenCalled();
-    expect(screen.getByTestId("botao-continuar-selecao-de-cargo")).toHaveAttribute("type", "submit");
-  });
-
-  it("exibe o loading do botão conforme a submissão do formulário", () => {
     render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
 
-    expect(screen.getByTestId("botao-continuar-selecao-de-cargo")).toHaveAttribute(
-      "data-loading",
-      "false",
-    );
+    fireEvent.click(screen.getByTestId("combobox-option-3379"));
+    fireEvent.click(screen.getByTestId("botao-continuar-selecao-de-cargo"));
+
+    await waitFor(() => {
+      expect(onSubmitFilterFormMock).toHaveBeenCalledWith(
+        { codigo_cargo: "3379" },
+        expect.anything(),
+      );
+    });
+  });
+
+  it("chama o submit do formulário apenas uma vez ao clicar em continuar", async () => {
+    const onSubmitFilterFormMock = vi.fn();
+    useModalSelecaoDeCargoMock.mockImplementation(() => ({
+      ...useCriarHookComForm(),
+      onSubmitFilterForm: onSubmitFilterFormMock,
+    }));
+
+    render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
+
+    fireEvent.click(screen.getByTestId("combobox-option-3379"));
+    fireEvent.click(screen.getByTestId("botao-continuar-selecao-de-cargo"));
+
+    await waitFor(() => {
+      expect(onSubmitFilterFormMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("usa type=submit no continuar e type=button no cancelar", () => {
+    render(<ModalSelecaoDeCargo isOpen onClose={onCloseMock} />);
+
+    expect(screen.getByTestId("botao-continuar-selecao-de-cargo")).toHaveAttribute("type", "submit");
+    expect(screen.getByTestId("botao-cancelar-selecao-de-cargo")).toHaveAttribute("type", "button");
   });
 });
-
-void onSubmitFilterFormMock;

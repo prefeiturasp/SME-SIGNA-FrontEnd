@@ -151,28 +151,26 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
           control={control}
           name="codigo_dre"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col gap-2">
               <FormLabel className="text-[#313131] font-bold">
                 Diretoria Regional de Educação (DRE)
               </FormLabel>
-              <FormControl>
-                {isLoadingDREs ? (
-                  <div className="flex h-10 items-center justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  </div>
-                ) : (
-                  <Combobox
-                    placeholder="Selecione"
-                    data-testid="select-codigo-dre"
-                    value={field.value ?? ""}
-                    options={dreSelectOptions}
-                    onChange={(value) => {
-                      field.onChange(value);
-                      setValue("codigo_ue", "");
-                    }}
-                  />
-                )}
-              </FormControl>
+              {isLoadingDREs ? (
+                <div className="flex h-10 items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                </div>
+              ) : (
+                <Combobox
+                  placeholder="Selecione"
+                  data-testid="select-codigo-dre"
+                  value={field.value ?? ""}
+                  options={dreSelectOptions}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    setValue("codigo_ue", "");
+                  }}
+                />
+              )}
               <FormMessage showBlankSpace={false} />
             </FormItem>
           )}

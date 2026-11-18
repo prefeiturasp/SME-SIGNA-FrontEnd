@@ -206,7 +206,7 @@ describe("Página Gestão de cargos base", () => {
     getModalProps().onConfirm({ codigo_cargo: "3360" });
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/gestao/criar-editar-cargo-base?codigo_cargo=3360",
+      "/pages/gestao/cadastrar-cargo-base?codigo_cargo=3360",
     );
   });
 
@@ -217,7 +217,7 @@ describe("Página Gestão de cargos base", () => {
     getModalProps().onConfirm({ codigo_cargo: "33 60&x" });
 
     expect(pushMock).toHaveBeenCalledWith(
-      "/pages/gestao/criar-editar-cargo-base?codigo_cargo=33%2060%26x",
+      "/pages/gestao/cadastrar-cargo-base?codigo_cargo=33%2060%26x",
     );
   });
 });

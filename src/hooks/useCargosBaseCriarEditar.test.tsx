@@ -150,7 +150,13 @@ describe("useCriarEditarCargosBase", () => {
     expect(result.current.isPending).toBe(false);
   });
 
-  it("permite sobrescrever valores padrão no useForm", () => {
+  it("permite sobrescrever valores padrão no useForm", async () => {
+    const { useBuscarCargosBase } = await import("./useBuscarCargosBase");
+    vi.mocked(useBuscarCargosBase).mockReturnValue({
+      data: [{ codigoCargo: 9, nomeCargo: "Cargo 9" }],
+      isLoading: false,
+    } as never);
+
     const customDefaults: createFormSchemaCargosBaseData = {
       grupamento: "2",
       codigo_cargo: "9",
@@ -176,7 +182,11 @@ describe("useCriarEditarCargosBase", () => {
 
     expect(useFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        defaultValues: customDefaults,
+        defaultValues: expect.objectContaining({
+          ...customDefaults,
+          descricao_completa: "Cargo 9",
+          descricao_eol: "Cargo 9",
+        }),
       }),
     );
   });

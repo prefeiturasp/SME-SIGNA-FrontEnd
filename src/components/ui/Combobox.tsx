@@ -40,6 +40,7 @@ export function Combobox({
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false);
     const selected = options.find((opt) => opt.value === value);
+    const listaId = React.useId();
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -49,6 +50,7 @@ export function Combobox({
                     variant="customOutline"
                     role="combobox"
                     aria-expanded={open}
+                    aria-controls={open ? listaId : undefined}
                     className={cn(
                         "w-full justify-between text-[14px] text-[#313131] font-normal",
                         className
@@ -72,7 +74,7 @@ export function Combobox({
             >
                 <Command>
                     <CommandInput placeholder="Buscar..." />
-                    <CommandList>
+                    <CommandList id={listaId}>
                         <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
                         {options.map((opt) => (
                             <CommandItem
