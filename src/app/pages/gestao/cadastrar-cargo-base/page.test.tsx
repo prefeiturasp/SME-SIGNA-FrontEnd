@@ -277,6 +277,19 @@ describe("Página de cadastro de cargo base (etapas)", () => {
     );
   });
 
+  it("exibe o botão de cadastrar apenas na última etapa", () => {
+    render(<Harness />);
+
+    expect(screen.queryByTestId("botao-cadastrar-cargo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+    expect(screen.queryByTestId("botao-cadastrar-cargo")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("botao-proximo"));
+    expect(screen.getByTestId("botao-cadastrar-cargo")).toHaveTextContent("Cadastrar cargo");
+    expect(screen.getByTestId("botao-cadastrar-cargo")).toHaveAttribute("type", "submit");
+  });
+
   it("usa o id da query para o modo edição", () => {
     searchParams = { id: "77" };
 

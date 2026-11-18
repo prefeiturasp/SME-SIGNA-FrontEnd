@@ -37,6 +37,7 @@ export default function CadastrarCargoBase() {
   const descricaoCompleta = form.watch("descricao_completa");
   const ultimaEtapa = etapaAtual === ETAPAS.length - 1;
   const isLoading = isLoadingCargosBase || isLoadingEditarCargosBase;
+  const isEditing = id !== null;
 
   const avancarEtapa = () => {
     if (!ultimaEtapa) {
@@ -83,16 +84,28 @@ export default function CadastrarCargoBase() {
             >
               <span className="font-bold">Anterior</span>
             </Button>
+            {!ultimaEtapa && (  
             <Button
               size="lg"
               type="button"
               variant="destructive"
               data-testid="botao-proximo"
-              onClick={avancarEtapa}
-              disabled={ultimaEtapa}
+              onClick={avancarEtapa}              
             >
               <span className="font-bold">Próximo</span>
             </Button>
+            )}
+            {ultimaEtapa && (
+              <Button
+                size="lg"
+                type="submit"
+                variant="destructive"
+                data-testid="botao-cadastrar-cargo"
+                disabled={isLoading}
+              >
+                <span className="font-bold">{isEditing ? "Salvar" : "Cadastrar cargo"}</span>
+              </Button>
+            )}
           </>
         }
       />
@@ -116,7 +129,7 @@ export default function CadastrarCargoBase() {
               {etapaAtual === 0 && (
                 <FormCargosBasePrincipal
                   CargosBaseOpcoes={CargosBaseOpcoes}
-                  isEditing={id !== null}
+                  isEditing={isEditing}
                   isLoading={isLoading}
                   codigoCargo={codigoCargo}
                   descricaoCompleta={descricaoCompleta}
