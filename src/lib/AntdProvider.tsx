@@ -43,7 +43,7 @@ const AntdProvider = ({ children }: AntdProviderProps) => {
                         },
                         Badge: {
                             statusSize: 10,
-                        },
+                        },         
                     },
                     token: {
                         colorBorder: "#dadada",
@@ -53,6 +53,7 @@ const AntdProvider = ({ children }: AntdProviderProps) => {
                         controlHeightLG: 40,
                         colorPrimary: "#B22B2A",
                         colorText: "#313131",
+                        
                     },
                 }}
             >

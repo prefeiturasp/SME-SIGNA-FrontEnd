@@ -11,6 +11,7 @@ import { FormProvider } from "react-hook-form";
 import FormCargosBasePrincipal from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePrincipal";
 import FormCargosBaseSecundario from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBaseSecundario";
 import { useCriarEditarCargosBase } from "@/hooks/useCriarEditarCargosBase";
+import FormCargosBasePasso2 from "@/components/dashboard/Gestao/FormCargosBase/FormCargosBasePasso2";
 
 const ROTA_LISTAGEM_CARGOS_BASE = "/pages/gestao/cargos-base";
 
@@ -107,7 +108,7 @@ export default function CadastrarCargoBase() {
           />
 
           <div className="flex flex-col lg:flex-row gap-4">
-            <div className="w-full lg:w-[60%]">
+            <div className="w-full ">
               {etapaAtual === 0 && (
                 <FormCargosBasePrincipal
                   CargosBaseOpcoes={CargosBaseOpcoes}
@@ -115,7 +116,7 @@ export default function CadastrarCargoBase() {
                   isLoading={isLoading}
                 />
               )}
-              {etapaAtual === 1 && <FormCargosBaseSecundario />}
+              {etapaAtual === 1 && <FormCargosBasePasso2 />}
               {etapaAtual === 2 && (
                 <div data-testid="etapa-modulo-do-cargo">
                   <p className="text-[20px] font-bold pt-1 pb-1">{ETAPAS[2].title}</p>
@@ -124,7 +125,7 @@ export default function CadastrarCargoBase() {
               )}
             </div>
 
-            <div className="w-full lg:w-[40%] pl-0 lg:pl-8">
+            {/* <div className="w-full lg:w-[40%] pl-0 lg:pl-8">
               <div className="rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4">
                 <span className="text-[14px]" data-testid="cargo-selecionado">
                   {isLoading
@@ -135,7 +136,7 @@ export default function CadastrarCargoBase() {
                   <InfoCircleOutlined style={{ color: "#B22B2A" }} />
                 </Tooltip>
               </div>
-            </div>
+            </div> */}
           </div>
         </form>
       </FundoBranco>
