@@ -146,7 +146,7 @@ export default function CadastrarCargoBase() {
           />
           </div>
           
-          <div className="flex-1 h-[1px] bg-[#d9d9d9] mx-2 mb-5 ml-[-110px]" />
+
           {/* <div className="w-[50%] h-[5px] border-t border-gray-200"></div> */}
 
         </FundoBranco >
