@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 
 import { usePortariasDO } from "../../../hooks/usePortariasDO";
 import FiltroDeDo from "@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo";
@@ -8,15 +9,15 @@ import FBranco from "@/components/dashboard/FundoBranco/QuadroBranco";
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
 import { FormProvider } from "react-hook-form";
 import ListagemDeDo from "@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo";
-import { colunasListagemDeDo } from "@/components/dashboard/Designacao/ListagemDeDo/colunasListagemDeDo";
 import {
   ListagemPortariasResponse,
 } from "@/types/designacao";
-import { downloadCSV } from "@/utils/export/exportCSV";
-import { baixarLauda, FormatoLauda } from "@/utils/export/baixarLauda";
-import { formatDate } from "@/utils/formatDate";
-import { format } from "date-fns";
+import { baixarLauda, FormatoLauda, FORMATOS_LAUDA, OrdenacaoLauda } from "@/utils/export/baixarLauda";
+import ModalOrdenacaoLauda from "@/components/dashboard/Designacao/ModalOrdenacaoLauda/ModalOrdenacaoLauda";
 import { useAppNotification } from "@/components/providers/NotificationProvider";
+
+const ehFormatoLauda = (tipoArquivo: string): tipoArquivo is FormatoLauda =>
+  (FORMATOS_LAUDA as readonly string[]).includes(tipoArquivo);
 
 export default function BaixarLauda() {
   const {
@@ -30,24 +31,21 @@ export default function BaixarLauda() {
     setSalvando,
   } = usePortariasDO();
   const notification = useAppNotification();
+  // Download (PDF, Word ou CSV) aguardando o usuário escolher a ordenação no modal
+  const [downloadPendente, setDownloadPendente] = useState<{
+    rows: ListagemPortariasResponse[];
+    formato: FormatoLauda;
+  } | null>(null);
 
 
-  const baixarCsv = (selectedRows: ListagemPortariasResponse[]) => {
-    // Datas no mesmo formato exibido na tabela (dd/MM/yyyy)
-    const linhas = selectedRows.map((row) => ({
-      ...row,
-      doc: formatDate(row.doc),
-      data_designacao: formatDate(row.data_designacao),
-      data_cessacao: formatDate(row.data_cessacao),
-    }));
-
-    downloadCSV(linhas, colunasListagemDeDo, `lauda-${format(new Date(), "yyyy-MM-dd_HH-mm-ss")}.csv`);
-  };
-
-  // PDF e Word são gerados pelo backend (texto da lauda vem do modelo de portaria)
-  const baixarViaBackend = async (selectedRows: ListagemPortariasResponse[], formato: FormatoLauda) => {
+  // Todos os formatos são gerados pelo backend (texto da lauda vem do modelo de portaria)
+  const baixarViaBackend = async (
+    selectedRows: ListagemPortariasResponse[],
+    formato: FormatoLauda,
+    ordenacao: OrdenacaoLauda
+  ) => {
     setSalvando(true);
-    const result = await baixarLauda(selectedRows.map((row) => row.id), formato);
+    const result = await baixarLauda(selectedRows.map((row) => row.id), formato, ordenacao);
     setSalvando(false);
 
     if (!result.success) {
@@ -56,8 +54,14 @@ export default function BaixarLauda() {
   };
 
   const handleBaixarLauda = async (selectedRows: ListagemPortariasResponse[], tipoArquivo: string) => {
-    if (tipoArquivo === "CSV") baixarCsv(selectedRows);
-    if (tipoArquivo === "PDF" || tipoArquivo === "WORD") await baixarViaBackend(selectedRows, tipoArquivo);
+    if (ehFormatoLauda(tipoArquivo)) setDownloadPendente({ rows: selectedRows, formato: tipoArquivo });
+  };
+
+  const handleConfirmarOrdenacao = async (ordenacao: OrdenacaoLauda) => {
+    if (!downloadPendente) return;
+    const { rows, formato } = downloadPendente;
+    setDownloadPendente(null);
+    await baixarViaBackend(rows, formato, ordenacao);
   };
 
 
@@ -79,7 +83,7 @@ export default function BaixarLauda() {
       <FBranco className="mb-4">
         <FormProvider {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onSubmitFilterForm)}>
-            <FiltroDeDo onClear={handleClear} />
+            <FiltroDeDo onClear={handleClear} exibirFiltroDre />
           </form>
         </FormProvider>
       </FBranco>
@@ -88,6 +92,7 @@ export default function BaixarLauda() {
 
         <ListagemDeDo
           isListagemDo={false}
+          exibirColunaDre
           onClickBaixarLauda={handleBaixarLauda}
           isLoading={isPending}
           data={resultado ?? []}              
@@ -99,6 +104,12 @@ export default function BaixarLauda() {
         />
         
       </FBranco>
+
+      <ModalOrdenacaoLauda
+        open={downloadPendente !== null}
+        onCancelar={() => setDownloadPendente(null)}
+        onConfirmar={handleConfirmarOrdenacao}
+      />
     </>
   );
 }

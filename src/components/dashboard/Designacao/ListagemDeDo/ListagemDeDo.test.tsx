@@ -148,7 +148,7 @@ describe("ListagemDeDo", () => {
     tableMock.mockClear();
   });
 
-  it("renderiza lista e mantém botão desabilitado sem seleção ", () => {
+  it("renderiza lista e mantém botão desabilitado sem seleção", () => {
     render(
       <ListagemDeDo
         value={PORTARIAS_SEM_DATA_DE_PUBLICACAO}
@@ -424,5 +424,46 @@ describe("ListagemDeDo", () => {
 
     expect(rowKey?.(rows[0])).toBe("1");
     expect(rowKey?.(rows[1])).toBe("2");
+  });
+
+  it("não exibe a coluna DRE por padrão", () => {
+    render(<ListagemDeDo value={PORTARIAS_SEM_DATA_DE_PUBLICACAO} data={rows} />);
+
+    const keys = tableMock.mock.calls[0][0].columns?.map((c) => c.key);
+    expect(keys).not.toContain("dre");
+  });
+
+  it("exibe a coluna DRE entre D.O e Data da designação quando exibirColunaDre=true", () => {
+    render(
+      <ListagemDeDo value={PORTARIAS_SEM_DATA_DE_PUBLICACAO} data={rows} isListagemDo={false} exibirColunaDre />
+    );
+
+    const columns = tableMock.mock.calls[0][0].columns ?? [];
+    expect(columns.map((c) => c.key)).toEqual([
+      "numero_portaria",
+      "tipo_de_ato",
+      "nome",
+      "cargo",
+      "doc",
+      "dre",
+      "data_designacao",
+      "data_cessacao",
+      "sei_numero",
+    ]);
+    expect(columns.find((c) => c.key === "dre")?.title).toBe("DRE");
+  });
+
+  it("render da coluna DRE remove o prefixo e usa '-' sem designação", () => {
+    render(<ListagemDeDo value={PORTARIAS_SEM_DATA_DE_PUBLICACAO} data={rows} exibirColunaDre />);
+
+    const col = tableMock.mock.calls[0][0].columns?.find((c) => c.key === "dre") as
+      | { render?: (value: unknown, record: ListagemPortariasResponse) => string }
+      | undefined;
+
+    expect(col?.render?.(undefined, { ...rows[0], designacao: { dre_nome: "DRE FREGUESIA/BRASILANDIA" } })).toBe(
+      "FREGUESIA/BRASILANDIA"
+    );
+    expect(col?.render?.(undefined, { ...rows[0], designacao: { dre_nome: null } })).toBe("-");
+    expect(col?.render?.(undefined, { ...rows[0], designacao: null })).toBe("-");
   });
 });

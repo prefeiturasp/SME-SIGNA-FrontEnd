@@ -4,14 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import BaixarLaudaPage from "./page";
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO } from "@/components/dashboard/Designacao/MainDOForm/MainDOForm";
 import type { ListagemPortariasResponse } from "@/types/designacao";
-import { colunasListagemDeDo } from "@/components/dashboard/Designacao/ListagemDeDo/colunasListagemDeDo";
 
 const {
   usePortariasDOMock,
   handleClearMock,
   onSubmitFilterFormMock,
   handleSubmitMock,
-  downloadCSVMock,
   baixarLaudaMock,
   setSalvandoMock,
   notificationErrorMock,
@@ -20,7 +18,6 @@ const {
   handleClearMock: vi.fn(),
   onSubmitFilterFormMock: vi.fn(),
   handleSubmitMock: vi.fn(),
-  downloadCSVMock: vi.fn(),
   baixarLaudaMock: vi.fn(),
   setSalvandoMock: vi.fn(),
   notificationErrorMock: vi.fn(),
@@ -44,11 +41,8 @@ vi.mock("../../../hooks/usePortariasDO", () => ({
   usePortariasDO: () => usePortariasDOMock(),
 }));
 
-vi.mock("@/utils/export/exportCSV", () => ({
-  downloadCSV: (...args: unknown[]) => downloadCSVMock(...args),
-}));
-
-vi.mock("@/utils/export/baixarLauda", () => ({
+vi.mock("@/utils/export/baixarLauda", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/utils/export/baixarLauda")>()),
   baixarLauda: (...args: unknown[]) => baixarLaudaMock(...args),
 }));
 
@@ -74,8 +68,9 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
 
 vi.mock("@/components/dashboard/Designacao/FiltroDeDo/FiltroDeDo", () => ({
   __esModule: true,
-  default: ({ onClear }: { onClear?: () => void }) => (
+  default: ({ onClear, exibirFiltroDre }: { onClear?: () => void; exibirFiltroDre?: boolean }) => (
     <div>
+      <span data-testid="filtro-exibir-dre">{String(exibirFiltroDre)}</span>
       <button type="button" data-testid="clear-filters" onClick={onClear}>
         Limpar
       </button>
@@ -97,6 +92,7 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
     data_considerada_portaria,
     data_publicacao,
     isDisabled,
+    exibirColunaDre,
   }: {
     onClickBaixarLauda?: (rows: typeof selectedRowsMock, tipoArquivo: string) => void;
     data: ListagemPortariasResponse[];
@@ -106,8 +102,10 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
     data_considerada_portaria: Date;
     data_publicacao: Date;
     isDisabled?: boolean;
+    exibirColunaDre?: boolean;
   }) => (
     <div>
+      <span data-testid="listagem-exibir-coluna-dre">{String(exibirColunaDre)}</span>
       <span data-testid="listagem-data-size">{data.length}</span>
       <span data-testid="listagem-value">{String(value)}</span>
       <span data-testid="listagem-loading">{String(isLoading)}</span>
@@ -122,6 +120,12 @@ vi.mock("@/components/dashboard/Designacao/ListagemDeDo/ListagemDeDo", () => ({
         onClick={() => onClickBaixarLauda?.(selectedRowsMock, "CSV")}
       >
         Baixar CSV
+      </button>
+      <button
+        data-testid="baixar-xlsx"
+        onClick={() => onClickBaixarLauda?.(selectedRowsMock, "XLSX")}
+      >
+        Baixar XLSX
       </button>
       <button
         data-testid="baixar-pdf"
@@ -174,6 +178,8 @@ describe("BaixarLauda page", () => {
     expect(screen.getByTestId("listagem-loading")).toHaveTextContent("false");
     expect(screen.getByTestId("listagem-is-listagem-do")).toHaveTextContent("false");
     expect(screen.getByTestId("is-disabled-listagem")).toHaveTextContent("true");
+    expect(screen.getByTestId("filtro-exibir-dre")).toHaveTextContent("true");
+    expect(screen.getByTestId("listagem-exibir-coluna-dre")).toHaveTextContent("true");
   });
 
   it("executa handleClear ao clicar em limpar filtros", () => {
@@ -189,56 +195,89 @@ describe("BaixarLauda page", () => {
     expect(onSubmitFilterFormMock).toHaveBeenCalledWith({ ano: "2026", numero_sei: "" });
   });
 
-  it("baixa CSV com as colunas da tabela e datas formatadas", () => {
-    vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(new Date("2026-09-16T10:00:00"));
+  it("abre o modal de ordenação ao escolher PDF, sem baixar ainda", () => {
+    render(<BaixarLaudaPage />);
+    expect(screen.queryByText("Como deseja ordenar a lauda?")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("baixar-pdf"));
+
+    expect(screen.getByText("Como deseja ordenar a lauda?")).toBeInTheDocument();
+    expect(screen.getByTestId("botao-confirmar-ordenacao-lauda")).toBeDisabled();
+    expect(baixarLaudaMock).not.toHaveBeenCalled();
+    expect(setSalvandoMock).not.toHaveBeenCalled();
+  });
+
+  it("baixa CSV pelo backend depois de escolher a ordenação", async () => {
+    baixarLaudaMock.mockResolvedValueOnce({ success: true });
 
     render(<BaixarLaudaPage />);
     fireEvent.click(screen.getByTestId("baixar-csv"));
 
-    expect(downloadCSVMock).toHaveBeenCalledTimes(1);
-    expect(downloadCSVMock).toHaveBeenCalledWith(
-      [
-        {
-          ...selectedRowsMock[0],
-          doc: "10/01/2026",
-          data_designacao: "05/02/2026",
-          data_cessacao: "-",
-        },
-      ],
-      colunasListagemDeDo,
-      "lauda-2026-09-16_10-00-00.csv"
-    );
+    expect(screen.getByText("Como deseja ordenar a lauda?")).toBeInTheDocument();
+    expect(baixarLaudaMock).not.toHaveBeenCalled();
 
-    vi.useRealTimers();
+    fireEvent.click(screen.getByTestId("ordenacao-lauda-TITULO"));
+    fireEvent.click(screen.getByTestId("botao-confirmar-ordenacao-lauda"));
+
+    await waitFor(() => expect(setSalvandoMock).toHaveBeenLastCalledWith(false));
+
+    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "CSV", "TITULO");
+    expect(setSalvandoMock).toHaveBeenNthCalledWith(1, true);
+    expect(notificationErrorMock).not.toHaveBeenCalled();
   });
 
-  it("baixa PDF com os ids selecionados e controla o estado de carregamento", async () => {
+  it("ignora tipo de arquivo desconhecido", () => {
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("baixar-xlsx"));
+
+    expect(screen.queryByText("Como deseja ordenar a lauda?")).not.toBeInTheDocument();
+    expect(baixarLaudaMock).not.toHaveBeenCalled();
+  });
+
+  it("baixa PDF com os ids e a ordenação escolhida e controla o estado de carregamento", async () => {
     baixarLaudaMock.mockResolvedValueOnce({ success: true });
 
     render(<BaixarLaudaPage />);
     fireEvent.click(screen.getByTestId("baixar-pdf"));
+    fireEvent.click(screen.getByTestId("ordenacao-lauda-NUMERO_PORTARIA"));
+    fireEvent.click(screen.getByTestId("botao-confirmar-ordenacao-lauda"));
 
     await waitFor(() => expect(setSalvandoMock).toHaveBeenLastCalledWith(false));
 
-    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "PDF");
+    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "PDF", "NUMERO_PORTARIA");
     expect(setSalvandoMock).toHaveBeenNthCalledWith(1, true);
     expect(setSalvandoMock).toHaveBeenNthCalledWith(2, false);
-    expect(downloadCSVMock).not.toHaveBeenCalled();
     expect(notificationErrorMock).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.queryByText("Como deseja ordenar a lauda?")).not.toBeInTheDocument()
+    );
   });
 
-  it("baixa Word com os ids selecionados", async () => {
+  it("baixa Word com os ids e a ordenação escolhida", async () => {
     baixarLaudaMock.mockResolvedValueOnce({ success: true });
 
     render(<BaixarLaudaPage />);
     fireEvent.click(screen.getByTestId("baixar-word"));
+    fireEvent.click(screen.getByTestId("ordenacao-lauda-DRE"));
+    fireEvent.click(screen.getByTestId("botao-confirmar-ordenacao-lauda"));
 
     await waitFor(() => expect(setSalvandoMock).toHaveBeenLastCalledWith(false));
 
-    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "WORD");
-    expect(downloadCSVMock).not.toHaveBeenCalled();
+    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "WORD", "DRE");
     expect(notificationErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("fecha o modal sem baixar ao cancelar", async () => {
+    render(<BaixarLaudaPage />);
+    fireEvent.click(screen.getByTestId("baixar-pdf"));
+    fireEvent.click(screen.getByTestId("ordenacao-lauda-TITULO"));
+    fireEvent.click(screen.getByTestId("botao-cancelar-ordenacao-lauda"));
+
+    await waitFor(() =>
+      expect(screen.queryByText("Como deseja ordenar a lauda?")).not.toBeInTheDocument()
+    );
+    expect(baixarLaudaMock).not.toHaveBeenCalled();
+    expect(setSalvandoMock).not.toHaveBeenCalled();
   });
 
   it("exibe notificação de erro quando o download do PDF falha", async () => {
@@ -246,6 +285,8 @@ describe("BaixarLauda page", () => {
 
     render(<BaixarLaudaPage />);
     fireEvent.click(screen.getByTestId("baixar-pdf"));
+    fireEvent.click(screen.getByTestId("ordenacao-lauda-TITULO"));
+    fireEvent.click(screen.getByTestId("botao-confirmar-ordenacao-lauda"));
 
     await waitFor(() =>
       expect(notificationErrorMock).toHaveBeenCalledWith({
@@ -253,6 +294,7 @@ describe("BaixarLauda page", () => {
         description: "Atos já publicados: 1",
       })
     );
+    expect(baixarLaudaMock).toHaveBeenCalledWith([1], "PDF", "TITULO");
     expect(setSalvandoMock).toHaveBeenLastCalledWith(false);
   });
 

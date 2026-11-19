@@ -148,6 +148,7 @@ export interface ListagemPortariasResponse {
   data_designacao: string | null;
   data_cessacao: string | null;
   sei_numero: string;
+  designacao?: { dre_nome: string | null } | null;
 }
 
 export interface PortariasDOFiltros {
@@ -156,6 +157,7 @@ export interface PortariasDOFiltros {
   portaria_final?: string;
   ano?: string;
   tipo?: string;
+  codigo_dre?: string;
 }
 
 export interface AtosAdministrativosFiltros {

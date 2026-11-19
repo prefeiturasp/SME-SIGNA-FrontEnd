@@ -28,6 +28,7 @@ describe("filterFormSchemaFiltroDO", () => {
       numero_sei: "123",
       ano: "2026",
       tipo: "DESIGNACAO",
+      codigo_dre: "108600",
       portaria_inicial: "10",
       portaria_final: "20",
     });

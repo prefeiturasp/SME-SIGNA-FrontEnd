@@ -41,14 +41,18 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 // Com responseType "arraybuffer" o corpo do erro também chega binário;
-// decodifica para recuperar o `detail` que o exception handler do backend envia.
+// decodifica para recuperar o `detail` que o exception handler do backend envia
+// (ou o erro de validação do campo `ordenacao`, que vem como lista de mensagens).
 const extractDetail = (data: ArrayBuffer | undefined): string => {
   const fallback = "Erro ao gerar a lauda";
   if (!data) return fallback;
 
   try {
     const parsed = JSON.parse(Buffer.from(data).toString("utf-8"));
-    return typeof parsed?.detail === "string" ? parsed.detail : fallback;
+    if (typeof parsed?.detail === "string") return parsed.detail;
+
+    const erroOrdenacao = Array.isArray(parsed?.ordenacao) ? parsed.ordenacao[0] : parsed?.ordenacao;
+    return typeof erroOrdenacao === "string" ? erroOrdenacao : fallback;
   } catch {
     return fallback;
   }

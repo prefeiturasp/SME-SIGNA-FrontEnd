@@ -7,7 +7,7 @@ import { ListagemPortariasResponse } from '@/types/designacao';
 import SimpleCheck from '@/assets/icons/SimpleCheck';
 import { format } from 'date-fns';
 import { PORTARIAS_SEM_DATA_DE_PUBLICACAO, PORTARIAS_SEM_DATA_DE_PUBLICACAO_COM_DATA_ESPECIFICA } from '../MainDOForm/MainDOForm';
-import { colunasListagemDeDo } from './colunasListagemDeDo';
+import { montarColunasListagemDeDo } from './colunasListagemDeDo';
 import DownloadFiles from '@/assets/icons/DownloadFiles';
 
 
@@ -24,6 +24,7 @@ interface ListagemDeDoProps {
   onClickBaixarLauda?: (rows: ListagemPortariasResponse[], tipoArquivo: string) => void;
   isDisabled?: boolean;
   isListagemDo?: boolean;
+  exibirColunaDre?: boolean;
 }
 
 const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
@@ -35,7 +36,8 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
   isLoading = false,
   onClickAlterarDataDo = () => { },
   onClickBaixarLauda = () => { },
-  isListagemDo = true
+  isListagemDo = true,
+  exibirColunaDre = false,
 }) => {
   const [selectedRows, setSelectedRows] = useState<ListagemPortariasResponse[]>([]);
   const isEmptyDate = (date?: string | null) => !date;
@@ -82,7 +84,7 @@ const ListagemDeDo: React.FC<ListagemDeDoProps> = ({
           className="tabela-principal w-full"
           scroll={{ x: '100%' }}
           loading={isLoading}
-          columns={colunasListagemDeDo}
+          columns={montarColunasListagemDeDo(exibirColunaDre)}
           dataSource={data}
           rowSelection={rowSelection}
           rowKey={(record) => record.id.toString()}

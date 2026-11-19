@@ -130,6 +130,10 @@ vi.mock("@/components/ui/button", () => ({
   ),
 }));
 
+vi.mock("../FiltroDre/FiltroDreField", () => ({
+  default: ({ label }: { label?: string }) => <div data-testid="filtro-dre">{label}</div>,
+}));
+
 vi.mock("lucide-react", () => ({
   Search: () => <svg data-testid="search-icon" />,
   X: () => <svg data-testid="x-icon" />,
@@ -187,5 +191,25 @@ describe("FiltroDeDo", () => {
 
     expect(onChangeByField.ano).toHaveBeenCalledWith("mock-value");
     expect(onChangeByField.tipo).toHaveBeenCalledWith("mock-value");
+  });
+
+  it("não exibe o filtro de DRE por padrão", () => {
+    render(<FiltroDeDo />);
+
+    expect(screen.queryByTestId("filtro-dre")).not.toBeInTheDocument();
+  });
+
+  it("exibe o filtro de DRE quando exibirFiltroDre=true", () => {
+    render(<FiltroDeDo exibirFiltroDre />);
+
+    expect(screen.getByTestId("filtro-dre")).toHaveTextContent("DRE");
+  });
+
+  it("considera a DRE selecionada como filtro preenchido", () => {
+    watchValues.codigo_dre = "108600";
+
+    render(<FiltroDeDo exibirFiltroDre />);
+
+    expect(screen.getByTestId("btn-limpar-filtros")).toBeEnabled();
   });
 });

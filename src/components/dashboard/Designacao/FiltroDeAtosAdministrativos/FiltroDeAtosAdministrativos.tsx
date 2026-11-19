@@ -3,11 +3,12 @@ import { DateRangePickerField, InputField, SelectField } from '@/components/ui/F
 
 import { Combobox } from '@/components/ui/Combobox';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useFetchDREs, useFetchUEs } from '@/hooks/useUnidades';
+import { useFetchUEs } from '@/hooks/useUnidades';
 import { Loader2 } from 'lucide-react';
 import React, { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import FiltroAcoes from '../FiltroAcoes/FiltroAcoes';
+import FiltroDreField from '../FiltroDre/FiltroDreField';
 import { StatusAtosAdministrativos } from '@/types/designacao';
 interface Props {
   onClear?: () => void;
@@ -50,7 +51,6 @@ export const TipoAtoSelectField: React.FC<{ label?: string, name?: string, AtosO
   );
 };
 
-type DREOption = { codigoDRE: string; nomeDRE: string; siglaDRE: string };
 type UEOption = { codigoEscola: string; nomeEscola: string; siglaTipoEscola: string };
 
 const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
@@ -70,17 +70,8 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
   const hasFilters = watchedValues.some((v) => v !== undefined && v !== "" && v !== null);
 
   const codigoDre = watch("codigo_dre");
-  const { data: dreOptions = [], isLoading: isLoadingDREs } = useFetchDREs();
   const { data: ueOptions = [], isLoading: isLoadingUEs } = useFetchUEs(codigoDre ?? "");
 
-  const dreSelectOptions = useMemo(
-    () =>
-      dreOptions.map((dre: DREOption) => ({
-        label: `${dre.siglaDRE} - ${dre.nomeDRE}`,
-        value: dre.codigoDRE,
-      })),
-    [dreOptions]
-  );
   const ueSelectOptions = useMemo(
     () =>
       ueOptions.map((ue: UEOption) => ({
@@ -147,36 +138,7 @@ const FiltroDeAtosAdministrativos: React.FC<Props> = ({ onClear }) => {
           type="number"
         />
 
-        <FormField
-          control={control}
-          name="codigo_dre"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-[#313131] font-bold">
-                Diretoria Regional de Educação (DRE)
-              </FormLabel>
-              <FormControl>
-                {isLoadingDREs ? (
-                  <div className="flex h-10 items-center justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  </div>
-                ) : (
-                  <Combobox
-                    placeholder="Selecione"
-                    data-testid="select-codigo-dre"
-                    value={field.value ?? ""}
-                    options={dreSelectOptions}
-                    onChange={(value) => {
-                      field.onChange(value);
-                      setValue("codigo_ue", "");
-                    }}
-                  />
-                )}
-              </FormControl>
-              <FormMessage showBlankSpace={false} />
-            </FormItem>
-          )}
-        />
+        <FiltroDreField onChange={() => setValue("codigo_ue", "")} />
 
         <FormField
           control={control}
