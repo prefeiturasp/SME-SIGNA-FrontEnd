@@ -1,9 +1,9 @@
 // =====================================================
 // LOCATORS — ATOS ADMINISTRATIVOS (Pesquisa / Filtros)
 // =====================================================
-// Campos de filtro sem label/for estável são localizados por ordem de
-// aparição no formulário: Tipo, Nº SEI, Período, Portaria de designação,
-// Servidor, RF, Status.
+// Campos de texto sem label/for estável são localizados por ordem de
+// aparição no formulário: Nº SEI, Portaria de designação, Servidor, RF.
+// Os selects (Tipo/Status) têm localização própria — ver "filtros" abaixo.
 
 const formulario = () =>
   cy.get('main form', { timeout: 10000 }).first()
@@ -25,11 +25,14 @@ export const atosAdministrativosPack = {
     cy.contains('Selecione os campos para buscar as portarias disponíveis.', { timeout: 10000 }),
 
   filtros: {
-    // Triggers shadcn/ui não exibem "Tipo"/"Status" como texto — localização
-    // posicional: 1º e 2º <button> do formulário (os dois últimos são as
-    // ações "Limpar filtros"/"Pesquisar").
+    // Triggers shadcn/ui não exibem "Tipo"/"Status" como texto. Antes eram o
+    // 1º e 2º <button> do formulário, mas os Combobox de DRE e Unidade
+    // proponente (também <button>) entraram entre eles e deslocaram o índice.
+    // Tipo: data-testid do SelectField. Status: o front passa "data-testid"
+    // em vez da prop "dataTestId", então o atributo não chega ao trigger —
+    // localiza pelo <label> "Status", irmão do trigger dentro do FormItem.
     tipo: () =>
-      formulario().find('button').eq(0),
+      formulario().find('[data-testid="select-listar-para"]'),
 
     numeroSei: () =>
       camposTexto().eq(0),
@@ -50,7 +53,7 @@ export const atosAdministrativosPack = {
       camposTexto().eq(3),
 
     status: () =>
-      formulario().find('button').eq(1),
+      formulario().contains('label', /^\s*Status\s*$/).parent().find('button').first(),
   },
 
   botoes: {
@@ -92,6 +95,17 @@ export const atosAdministrativosPack = {
 
     selectAno: () =>
       cy.get('[role="dialog"] [data-testid="select-busca-ano"]', { timeout: 15000 }),
+  },
+
+  // Modal "Nova designação" (ModalNovaDesignacao.tsx): o radio fica sr-only,
+  // então o clique vai no <label> que o envolve. "Continuar" só habilita
+  // depois de escolher uma opção.
+  modalNovaDesignacao: {
+    opcao: (titulo) =>
+      cy.get('[role="dialog"]', { timeout: 15000 }).contains('label', titulo),
+
+    continuar: () =>
+      cy.get('[data-testid="botao-continuar-nova-designacao"]', { timeout: 10000 }),
   },
 
   tabela: {

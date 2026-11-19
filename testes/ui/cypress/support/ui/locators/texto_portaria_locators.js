@@ -45,7 +45,8 @@ export const textoPortariaPack = {
       cy.get('[data-testid="select-listar-para"]', { timeout: 15000 }),
 
     variavel: {
-      botao: () => botaoVariavelPorLabel('Variavel'),
+      // Front corrigiu o label para "Variável*" (com acento) em 12/11/2026.
+      botao: () => botaoVariavelPorLabel('Variável'),
 
       opcao: (nome) =>
         cy.get('[role="listbox"]', { timeout: 10000 })

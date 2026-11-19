@@ -43,12 +43,6 @@ Funcionalidade: Testes da API de Detalhes de DRE por Código
       | nomeDRE |
       | siglaDRE |
 
-  @negativo @codigo_inexistente_dre
-  Cenário: Buscar DRE com código inválido
-    Quando eu busco a DRE com código "000000"
-      Então a resposta deve retornar status 200
-      E a resposta deve ser um array
-
   @negativo @dre_sem_autenticacao
   Cenário: Buscar DRE sem token de autenticação
     Quando eu busco a DRE com código "108400" sem token

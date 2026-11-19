@@ -43,7 +43,8 @@ Funcionalidade: API SIGNA - Apostilas
 
   # Ciclo de vida — cria designação de apoio, cria apostila vinculada,
   # consulta, exclui os dois ao final
-  @critico @ciclo_de_vida @usa_designacao_de_apoio
+  # @skip: nenhum RF do pool retorna servidor válido em QA (execução de 10/11/2026).
+  @critico @ciclo_de_vida @usa_designacao_de_apoio @skip
   Cenário: Criar, consultar e excluir uma apostila
     Dado que existe uma designação de apoio válida para este teste
     Quando eu crio uma apostila vinculada à designação de apoio

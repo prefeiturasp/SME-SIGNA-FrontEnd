@@ -1,6 +1,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor'
 import { gestaoCargosBasePack, gestaoCargosBaseUrls } from '../../ui/locators/gestao_cargos_base_locators'
 import { textoPortariaPack, textoPortariaUrls } from '../../ui/locators/texto_portaria_locators'
+import { navegarPeloMenuLateral } from '../../ui/menu_lateral'
 
 // Login único por suíte (sessão reaproveitada entre os cenários desta
 // feature)
@@ -33,7 +34,8 @@ Given('que o usuário está logado no sistema', () => {
   })
 })
 
-// Mapa "tela" → item do submenu lateral "Gestão" + validação de chegada.
+// Mapa "tela" → item do menu lateral (grupo resolvido em menu_lateral.js)
+// + validação de chegada.
 const TELAS_SUPORTADAS = {
   'gestão de cargos base': {
     itemMenu: 'Cargos base',
@@ -84,43 +86,7 @@ const navegarPelaBarraLateral = (config) => {
   // NÃO usa cy.visit() direto pras rotas profundas de "Gestão": a aplicação
   // responde com 307 e redireciona de volta pra "/" (reload completo). A
   // navegação real só funciona clicando pelo menu lateral.
-  cy.get('aside').then(($aside) => {
-    if ($aside.hasClass('is-collapsed')) {
-      cy.get('aside').find('button').first().click({ force: true })
-      cy.get('aside', { timeout: 8000 }).should('not.have.class', 'is-collapsed')
-      cy.wait(600)
-    }
-  })
-
-  cy.get('aside, nav', { timeout: 10000 }).should('be.visible')
-
-  // O clique nem sempre expande o submenu na primeira tentativa — tenta de
-  // novo em vez de confiar numa única tentativa com wait fixo.
-  const MAX_TENTATIVAS_MENU = 3
-  const abrirSubmenuGestao = (tentativa) => {
-    cy.contains('span:visible, a:visible, div:visible', /^Gestão$/i, { timeout: 15000 })
-      .closest('li, [role="menuitem"]')
-      .click({ force: true })
-    cy.wait(800)
-
-    cy.get('body').then(($body) => {
-      const abriu = $body
-        .find('span:visible, a:visible, div:visible')
-        .toArray()
-        .some((el) => new RegExp(`^${config.itemMenu}$`, 'i').test(el.textContent.trim()))
-
-      if (!abriu && tentativa < MAX_TENTATIVAS_MENU) {
-        cy.log(`Submenu "Gestão" não abriu na tentativa ${tentativa}/${MAX_TENTATIVAS_MENU} — tentando de novo`)
-        abrirSubmenuGestao(tentativa + 1)
-      }
-    })
-  }
-  abrirSubmenuGestao(1)
-
-  cy.contains('span:visible, a:visible, div:visible', new RegExp(`^${config.itemMenu}$`, 'i'), { timeout: 15000 })
-    .closest('li, [role="menuitem"], a')
-    .click({ force: true })
-
+  navegarPeloMenuLateral(config.itemMenu)
   config.validarChegada()
 }
 

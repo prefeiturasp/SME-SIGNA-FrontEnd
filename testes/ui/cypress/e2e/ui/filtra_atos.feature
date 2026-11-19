@@ -94,13 +94,9 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Status"
     E a tabela apresenta resultado para "Aguardando publicação"
 
-  # Bloqueados por bug no backend
-  # Bug conhecido: o backend não filtra corretamente por Servidor/RF — a
-  # tabela retorna linhas que não correspondem ao valor pesquisado.
-
-  # CENÁRIO 7 — Filtrar por Servidor (bloqueado por bug)       [@skip]
-  @critico @regressao @skip
-  Cenário: Filtrar por Servidor - bloqueado por bug no backend
+  # CENÁRIO 7 — Filtrar por outro Servidor
+  @critico @regressao
+  Cenário: Filtrar por Servidor com outro nome
 
     Quando preencho o filtro "Servidor" com "ROSANGELA DA SILVA PRADO"
     E clico no botão "Pesquisar"
@@ -108,9 +104,9 @@ Funcionalidade: Pesquisa de Atos Administrativos
     Então o sistema exibe registros compatíveis com o filtro "Servidor"
     E a tabela apresenta resultado para "ROSANGELA DA SILVA PRADO"
 
-  # CENÁRIO 8 — Filtrar por RF (bloqueado por bug)             [@skip]
-  @critico @regressao @skip
-  Cenário: Filtrar por Registro Funcional (RF) - bloqueado por bug no backend
+  # CENÁRIO 8 — Filtrar por RF
+  @critico @regressao
+  Cenário: Filtrar por Registro Funcional (RF)
 
     Quando preencho o filtro "Registro Funcional (RF)" com "7443668"
     E clico no botão "Pesquisar"

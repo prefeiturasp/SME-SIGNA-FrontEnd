@@ -27,6 +27,9 @@ Funcionalidade: Criação de atos administrativos
       | Anular apostila       |
 
     Quando seleciona a opção "Nova designação" no menu de novo ato
+    Então o sistema exibe o modal "Nova designação"
+    Quando escolhe a opção "Começar um novo cadastro" no modal de nova designação
+    E clica em Continuar no modal de nova designação
     Então o sistema direciona para a tela "Designação"
     E o sistema valida que está na página de nova designação
     E deve visualizar o texto "Designação"
@@ -89,7 +92,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -181,7 +183,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -254,7 +255,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -331,7 +331,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -430,6 +429,9 @@ Funcionalidade: Criação de atos administrativos
       | Anular apostila       |
 
     Quando seleciona a opção "Nova designação" no menu de novo ato
+    Então o sistema exibe o modal "Nova designação"
+    Quando escolhe a opção "Começar um novo cadastro" no modal de nova designação
+    E clica em Continuar no modal de nova designação
     Então o sistema direciona para a tela "Designação"
     E o sistema valida que está na página de nova designação
     E deve visualizar o texto "Designação"
@@ -488,7 +490,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -508,6 +509,9 @@ Funcionalidade: Criação de atos administrativos
       | Anular apostila       |
 
     Quando seleciona a opção "Nova designação" no menu de novo ato
+    Então o sistema exibe o modal "Nova designação"
+    Quando escolhe a opção "Começar um novo cadastro" no modal de nova designação
+    E clica em Continuar no modal de nova designação
     Então o sistema direciona para a tela "Designação"
     E o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
@@ -517,7 +521,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -537,6 +540,9 @@ Funcionalidade: Criação de atos administrativos
       | Anular apostila       |
 
     Quando seleciona a opção "Nova designação" no menu de novo ato
+    Então o sistema exibe o modal "Nova designação"
+    Quando escolhe a opção "Começar um novo cadastro" no modal de nova designação
+    E clica em Continuar no modal de nova designação
     Então o sistema direciona para a tela "Designação"
     E o sistema valida que está na página de nova designação
     E deve visualizar o formulário da designação
@@ -559,7 +565,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -632,7 +637,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -688,7 +692,6 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"
 
@@ -723,6 +726,5 @@ Funcionalidade: Criação de atos administrativos
 
     # Retorno a Atos Administrativos (sem logar de novo — mesma sessão)
     Quando o sistema navega até o menu lateral esquerdo
-    E seleciona a opção "Início" no menu lateral
     E seleciona a opção "Atos administrativos" no menu lateral
     Então o sistema direciona para a tela "Atos administrativos"

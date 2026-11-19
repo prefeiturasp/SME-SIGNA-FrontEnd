@@ -118,8 +118,11 @@ When('eu obtenho um código de DRE válido da listagem', function () {
   cy.api_get('/api/DREs').then((res) => {
     expect(res.status).to.equal(200)
     const dres = Array.isArray(res.body) ? res.body : []
-    expect(dres.length).to.be.greaterThan(0)
-    const dre = dres[0]
+    // A listagem também traz coordenadorias e NAEs (sem supervisores, escolas
+    // etc.) antes das DREs reais — só as de sigla "DRE - XX" servem aqui.
+    const dresReais = dres.filter((d) => /^DRE\b/.test(d.siglaDRE || ''))
+    expect(dresReais.length, 'listagem deve conter DREs com sigla "DRE - XX"').to.be.greaterThan(0)
+    const dre = dresReais[0]
     cy.wrap(dre.codigoDRE).as('codigoDRE')
     Cypress.log({ name: 'DRE Válida', message: `${dre.codigoDRE} — ${dre.nomeDRE}` })
   })

@@ -8,7 +8,11 @@ import { designacaoLocators, designacaoUrls } from '../../ui/locators/designacao
 // Acesso direto pela URL: o proxy do front só exige o cookie auth_token, e
 // entrar por "Nova designação" na listagem dispara o bug do polling que
 // devolve para a lista (ver designacao_steps.js).
+// Espera o redirect pós-login para /pages antes do cy.visit: cy.realizarLogin
+// só garante sair de "/login" (que já redireciona para "/"), e visitar antes do
+// cookie auth_token existir faz o proxy devolver para "/" (tela de login).
 When('acessa a etapa {string} de uma nova designação', (etapa) => {
+  cy.url({ timeout: 45000 }).should('include', '/pages');
   cy.visit(designacaoUrls.novaDesignacaoPasso1);
   cy.url({ timeout: 40000 }).should('include', 'designacoes-passo-1');
   cy.contains('.ant-card-head', etapa, { timeout: 40000 }).should('be.visible');

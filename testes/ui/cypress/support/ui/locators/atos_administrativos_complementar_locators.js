@@ -41,8 +41,5 @@ export const acoesListagemLocators = {
     botao: (texto) => cy.get('.ant-modal-confirm-btns, .ant-modal-confirm-btns-reverse').contains('button', texto),
   },
 
-  notificacao: (texto) =>
-    cy.get('.ant-notification-notice', { timeout: 15000 }).contains(texto),
-
   modalBuscaPortaria: () => cy.get('[role="dialog"]'),
 }

@@ -45,21 +45,6 @@ Then('a resposta deve indicar funcionário inativo ou não encontrado', () => {
   })
 })
 
-Then('a resposta deve ser nula ou vazia', () => {
-  cy.get('@response').then((res) => {
-    const body = res.body
-    const isNull = body === null || body === undefined
-    const isEmptyArray = Array.isArray(body) && body.length === 0
-    const isEmptyObject = typeof body === 'object' && body !== null && !Array.isArray(body) && Object.keys(body).length === 0
-    const isFalse = body === false
-    expect(
-      isNull || isEmptyArray || isEmptyObject || isFalse,
-      `Resposta deve ser nula/vazia para recurso inexistente. Recebido: ${JSON.stringify(body)}`
-    ).to.be.true
-    Cypress.log({ name: 'Validação', message: `Resposta nula/vazia confirmada: ${JSON.stringify(body)}` })
-  })
-})
-
 Then('a resposta não deve expor informações de erro interno', () => {
   cy.get('@response').then((res) => {
     const body =

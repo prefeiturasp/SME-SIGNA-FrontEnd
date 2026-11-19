@@ -1,5 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { meusDadosPack } from '../../ui/locators/meusDados_locators';
+import { navegarPeloMenuLateral } from '../../ui/menu_lateral';
 
 Given('que o usuário realizou o login com sucesso', () => {
   cy.visit('/');
@@ -156,18 +157,11 @@ When('clica no botão {string}', (btnText) => {
       cy.contains('button', btnText, { matchCase: false, timeout: 10000 }).click({ force: true });
     });
   } else if (textoNormalizado.includes('voltar')) {
-    // A tela "Meus Dados" não tem botão "Voltar" — volta pelo item "Início"
-    // do menu lateral.
-    cy.get('aside').then(($aside) => {
-      if ($aside.hasClass('is-collapsed')) {
-        cy.get('aside').find('button').first().click({ force: true });
-        cy.get('aside', { timeout: 8000 }).should('not.have.class', 'is-collapsed');
-        cy.wait(600);
-      }
-    });
-    cy.contains('span:visible, a:visible, div:visible', /^início$/i, { timeout: 15000 })
-      .closest('li, [role="menuitem"], a')
-      .click({ force: true });
+    // A tela "Meus Dados" não tem botão "Voltar" e o menu lateral novo (nov/2026)
+    // não tem mais o item "Início" — a página inicial pós-login é "Atos
+    // administrativos", agora dentro do grupo "Designações".
+    navegarPeloMenuLateral('Atos administrativos');
+    cy.url({ timeout: 20000 }).should('include', 'atos-administrativos');
   } else {
     cy.contains('button, a', btnText, { matchCase: false, timeout: 10000 }).click({ force: true });
   }

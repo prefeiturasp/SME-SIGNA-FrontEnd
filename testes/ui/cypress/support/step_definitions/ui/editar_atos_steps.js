@@ -133,11 +133,11 @@ When(/^clica no menu de ações e seleciona "([^"]+)" para a (designação|cessa
     .first()
     .click({ force: true })
 
-  cy.wait(500)
-
-  cy.get('ul li span', { timeout: 10000 })
+  // Escopado ao dropdown aberto — "ul li span" sozinho também casa com o menu
+  // lateral, e o antd mantém no DOM instâncias fechadas de dropdowns anteriores.
+  cy.get('.ant-dropdown:not(.ant-dropdown-hidden) li span', { timeout: 10000 })
     .should('have.length.greaterThan', 0)
-    .contains(new RegExp(`^${opcao.trim()}$`, 'i'))
+    .contains(new RegExp(`^\\s*${escaparRegex(opcao.trim())}\\s*$`, 'i'))
     .should('be.visible')
     .click({ force: true })
 
@@ -410,7 +410,8 @@ When(
 // Substituição de Diretor (cargo 3360) só avança com período de 16 a 30 dias,
 // contando o primeiro e o último dia (utils/designacao/substituicaoDiretor.ts);
 // fora disso o "Avançar" fica desabilitado. Por isso a data final é sorteada a
-// partir da data inicial já editada, e não a partir de hoje.
+// partir da data inicial já editada, e não a partir de hoje. A apostila não tem
+// essa regra, mas reaproveita o step: o mesmo intervalo mantém o período válido.
 When(
   'edita o campo de data {string} para um período de {int} a {int} dias contados de {string} e guarda o valor para conferência',
   (campo, diasMin, diasMax, campoInicio) => {

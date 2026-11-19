@@ -27,7 +27,7 @@ Funcionalidade: Gestão de cargos base
   Cenário: Pesquisar cargos base combinando Grupamento, Descrição Resumida e Status
     # 1ª consulta: Grupamento + Descrição Resumida (texto livre) + Status
     Quando seleciona a opção "Docentes" no filtro "Grupamento"
-    E preenche o filtro "Descrição Resumida" com "apoio"
+    E preenche o filtro "Descrição Resumida" com "criado por"
     E seleciona a opção "Ativo" no filtro "Status"
     Então os botões "Limpar filtros" e "Pesquisar" devem estar habilitados
     Quando clica no botão "Pesquisar"
@@ -64,9 +64,9 @@ Funcionalidade: Gestão de cargos base
   # CENÁRIO 5 — Filtrar somente por Descrição Resumida [ATIVO]
   @filtro_individual @regressao
   Cenário: Filtrar cargos base somente por Descrição Resumida
-    Quando preenche o filtro "Descrição Resumida" com "apoio"
+    Quando preenche o filtro "Descrição Resumida" com "criado por"
     E clica no botão "Pesquisar"
-    Então a tabela exibe apenas cargos base com "apoio"
+    Então a tabela exibe apenas cargos base com "criado por"
 
   # CENÁRIO 6 — Filtrar somente por Descrição Completa [ATIVO]
   @filtro_individual @regressao

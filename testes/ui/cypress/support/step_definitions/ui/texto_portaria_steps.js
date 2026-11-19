@@ -123,9 +123,12 @@ When('apaga o conteúdo do texto da portaria mantendo as variáveis selecionadas
 
 // Validações pós-submit
 
+// Campos que ficam vazios no formulário em branco: Tipo de portaria, Status,
+// Nome do Modelo, Variável e Texto da portaria. "Tipo de cargo" já abre
+// preenchido com "Cargo vago" (defaultValues do front), então não acusa erro.
 Then('cada campo obrigatorio do cadastro de texto de portaria exibe a mensagem de campo obrigatorio', () => {
   textoPortariaPack.cadastro.mensagensDeErro()
-    .should('have.length.at.least', 6)
+    .should('have.length.at.least', 5)
     .each(($mensagem) => {
       cy.wrap($mensagem).should('contain.text', 'Campo obrigatório.')
     })

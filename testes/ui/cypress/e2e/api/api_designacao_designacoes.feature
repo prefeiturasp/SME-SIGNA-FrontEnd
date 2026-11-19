@@ -72,7 +72,8 @@ Funcionalidade: API SIGNA - Designações
   # Ciclo de vida completo — cenário central
   # POST cria, GET confirma, PATCH atualiza, GET confirma a atualização,
   # DELETE remove e um último GET confirma que não existe mais.
-  @critico @ciclo_de_vida
+  # @skip: nenhum RF do pool retorna servidor válido em QA (execução de 10/11/2026).
+  @critico @ciclo_de_vida @skip
   Cenário: Criar, consultar, atualizar e excluir uma designação
     Dado eu busco um servidor válido do pool de RFs conhecidos
     E monto o payload de criação da designação com os dados coletados
@@ -95,7 +96,8 @@ Funcionalidade: API SIGNA - Designações
   # salvamento conclui com sucesso (confirmado manualmente contra QA em
   # 2026-08-21: omitir indicado_cargo_sobreposto/indicado_codigo_cargo_sobreposto
   # não gera erro).
-  @critico @dados_opcionais_ausentes
+  # @skip: nenhum RF do pool retorna servidor válido em QA (execução de 10/11/2026).
+  @critico @dados_opcionais_ausentes @skip
   Cenário: Salvar designação sem cargo sobreposto do indicado
     Dado eu busco um servidor válido do pool de RFs conhecidos
     E monto o payload de criação da designação com os dados coletados
@@ -109,7 +111,8 @@ Funcionalidade: API SIGNA - Designações
     Então o status da resposta do SIGNA deve ser 200 ou 204
 
   # BUG CONHECIDO — local de exercício ausente sempre quebra o salvamento
-  @critico @bug_conhecido @dados_opcionais_ausentes
+  # @skip: nenhum RF do pool retorna servidor válido em QA (execução de 10/11/2026).
+  @critico @bug_conhecido @dados_opcionais_ausentes @skip
   Cenário: BUG - Salvar designação sem local de exercício do indicado
     Dado eu busco um servidor válido do pool de RFs conhecidos
     E monto o payload de criação da designação com os dados coletados
